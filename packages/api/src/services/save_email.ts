@@ -91,7 +91,6 @@ export const saveEmail = async (
       user: { id: input.userId },
       slug,
       readableContent: content,
-      originalContent: input.originalContent,
       description: metadata?.description || parseResult.parsedContent?.excerpt,
       title: input.title,
       author: input.author,

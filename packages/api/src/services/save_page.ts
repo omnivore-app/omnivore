@@ -124,7 +124,6 @@ export const savePage = async (
     croppedPathname,
     parsedContent: parseResult.parsedContent,
     itemType: parseResult.pageType,
-    originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
     savedAt: input.savedAt ? new Date(input.savedAt) : new Date(),
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
@@ -197,7 +196,6 @@ export const savePage = async (
 export const parsedContentToLibraryItem = ({
   url,
   userId,
-  originalHtml,
   itemId,
   parsedContent,
   slug,
@@ -224,7 +222,6 @@ export const parsedContentToLibraryItem = ({
   croppedPathname: string
   itemType: string
   parsedContent: Readability.ParseResult | null
-  originalHtml?: string | null
   itemId?: string | null
   title?: string | null
   preparedDocument?: PreparedDocumentInput | null
@@ -246,7 +243,6 @@ export const parsedContentToLibraryItem = ({
     id: itemId || undefined,
     slug,
     user: { id: userId },
-    originalContent: originalHtml,
     readableContent: parsedContent?.content || '',
     description: parsedContent?.excerpt,
     title:

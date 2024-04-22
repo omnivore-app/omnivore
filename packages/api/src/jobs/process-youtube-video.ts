@@ -321,11 +321,7 @@ export const processYouTubeVideo = async (
       undefined,
       jobData.userId
     )
-    if (
-      !libraryItem ||
-      libraryItem.state !== LibraryItemState.Succeeded ||
-      !libraryItem.originalContent
-    ) {
+    if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
       logger.info(
         `Not ready to get YouTube metadata job state: ${
           libraryItem?.state ?? 'null'
@@ -382,7 +378,7 @@ export const processYouTubeVideo = async (
         // enqueue a job to process the full transcript
         const updatedContent = await addTranscriptPlaceholdReadableContent(
           libraryItem.originalUrl,
-          libraryItem.originalContent
+          libraryItem.readableContent
         )
 
         if (updatedContent) {
@@ -438,11 +434,7 @@ export const processYouTubeTranscript = async (
       undefined,
       jobData.userId
     )
-    if (
-      !libraryItem ||
-      libraryItem.state !== LibraryItemState.Succeeded ||
-      !libraryItem.originalContent
-    ) {
+    if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
       logger.info(
         `Not ready to get YouTube metadata job state: ${
           libraryItem?.state ?? 'null'
@@ -481,7 +473,7 @@ export const processYouTubeTranscript = async (
       )
       const updatedContent = await addTranscriptToReadableContent(
         libraryItem.originalUrl,
-        libraryItem.originalContent,
+        libraryItem.readableContent,
         transcriptHTML
       )
 

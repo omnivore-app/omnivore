@@ -381,7 +381,7 @@ const createItemWithFeedContent = async (
         rssFeedUrl: feedUrl,
         savedAt: item.isoDate,
         publishedAt: item.isoDate,
-        originalContent: feedContent || '',
+        originalContent: '',
         source: 'rss-feeder',
         state: ArticleSavingRequestStatus.ContentNotFetched,
         clientRequestId: '',

@@ -47,7 +47,6 @@ export const addRecommendation = async (
         author: item.author,
         description: item.description,
         originalUrl: item.originalUrl,
-        originalContent: item.originalContent,
         contentReader: item.contentReader,
         directionality: item.directionality,
         itemLanguage: item.itemLanguage,

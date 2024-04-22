@@ -154,23 +154,53 @@ export const isFileExists = async (filePath: string): Promise<boolean> => {
   return exists
 }
 
-export const downloadStringFromBucket = async (
+export const downloadFromUrl = async (
+  contentObjUrl: string,
+  timeout?: number
+) => {
+  // download the content as stream and max 10MB
+  const response = await axios.get<Buffer>(contentObjUrl, {
+    responseType: 'stream',
+    maxContentLength,
+    timeout,
+  })
+
+  return response.data
+}
+
+export const uploadToSignedUrl = async (
+  uploadSignedUrl: string,
+  data: Buffer,
+  contentType: string,
+  timeout?: number
+) => {
+  // upload the stream to the signed url
+  await axios.put(uploadSignedUrl, data, {
+    headers: {
+      'Content-Type': contentType,
+    },
+    maxBodyLength: maxContentLength,
+    timeout,
+  })
+}
+
+export const isFileExists = async (filePath: string): Promise<boolean> => {
+  const [exists] = await storage.bucket(bucketName).file(filePath).exists()
+  return exists
+}
+
+export const downloadFileFromBucket = async (
   filePath: string
-): Promise<string | null> => {
-  try {
-    const file = storage.bucket(bucketName).file(filePath)
+): Promise<Buffer> => {
+  const file = storage.bucket(bucketName).file(filePath)
 
-    const [exists] = await file.exists()
-    if (!exists) {
-      logger.error(`File not found: ${filePath}`)
-      return null
-    }
-
-    // Download the file contents as a string
-    const [data] = await file.download()
-    return data.toString()
-  } catch (error) {
-    logger.info('Error downloading file:', error)
-    return null
+  const [exists] = await file.exists()
+  if (!exists) {
+    logger.error(`File not found: ${filePath}`)
+    throw new Error('File not found')
   }
+
+  // Download the file contents as a string
+  const [data] = await file.download()
+  return data
 }

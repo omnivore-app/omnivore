@@ -21,9 +21,14 @@ import { redisDataSource } from '../redis_data_source'
 import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
+import {
+  deepDelete,
+  setRecentlySavedItemInRedis,
+  stringToHash,
+} from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
+import { downloadFileFromBucket, uploadToBucket } from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -1016,6 +1021,14 @@ export const createOrUpdateLibraryItem = async (
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
+  // if (libraryItem.originalContent && !urlHash) {
+  //   // upload original content to GCS
+  //   await uploadContent(libraryItem.originalUrl, libraryItem.originalContent)
+
+  //   // remove original content
+  //   delete libraryItem.originalContent
+  // }
+
   const newLibraryItem = await authTrx(
     async (tx) => {
       const repo = tx.withRepository(libraryItemRepository)
@@ -1662,4 +1675,24 @@ export const filterItemEvents = (
   }
 
   throw new Error('Unexpected state.')
+}
+
+const originalContentFilename = (originalUrl: string) =>
+  `originalContent/${stringToHash(originalUrl)}`
+
+export const uploadOriginalContent = async (
+  originalUrl: string,
+  originalContent: string
+) => {
+  await uploadToBucket(
+    originalContentFilename(originalUrl),
+    Buffer.from(originalContent),
+    {
+      public: false,
+    }
+  )
+}
+
+export const downloadOriginalContent = async (originalUrl: string) => {
+  return downloadFileFromBucket(originalContentFilename(originalUrl))
 }
