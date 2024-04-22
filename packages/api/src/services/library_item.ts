@@ -1216,7 +1216,11 @@ export const batchUpdateLibraryItems = async (
 
   await authTrx(
     async (tx) =>
-      getQueryBuilder(userId, tx).update(LibraryItem).set(values).execute(),
+      getQueryBuilder(userId, tx)
+        .take(searchArgs.size)
+        .update(LibraryItem)
+        .set(values)
+        .execute(),
     undefined,
     userId
   )
