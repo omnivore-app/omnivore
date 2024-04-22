@@ -1117,6 +1117,13 @@ export const batchUpdateLibraryItems = async (
   labelIds?: string[] | null,
   args?: unknown
 ) => {
+  if (!searchArgs.query) {
+    throw new Error('Search query is required')
+  }
+
+  const searchQuery = parseSearchQuery(searchArgs.query)
+  const parameters: ObjectLiteral[] = []
+  const queryString = buildQueryString(searchQuery, parameters)
   interface FolderArguments {
     folder: string
   }
@@ -1140,18 +1147,16 @@ export const batchUpdateLibraryItems = async (
   const getLibraryItemIds = async (
     userId: string,
     em: EntityManager
-  ): Promise<{ id: string }[]> => {
+  ): Promise<string[]> => {
     const queryBuilder = getQueryBuilder(userId, em)
-    return queryBuilder.select('library_item.id', 'id').getRawMany()
-  }
+    const libraryItems = await queryBuilder
+      .select('library_item.id', 'id')
+      .take(searchArgs.size)
+      .skip(searchArgs.from)
+      .getRawMany<{ id: string }>()
 
-  if (!searchArgs.query) {
-    throw new Error('Search query is required')
+    return libraryItems.map((item) => item.id)
   }
-
-  const searchQuery = parseSearchQuery(searchArgs.query)
-  const parameters: ObjectLiteral[] = []
-  const queryString = buildQueryString(searchQuery, parameters)
 
   const now = new Date().toISOString()
   // build the script
@@ -1174,27 +1179,27 @@ export const batchUpdateLibraryItems = async (
         throw new Error('Labels are required for this action')
       }
 
-      const libraryItems = await authTrx(
+      const libraryItemIds = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
         undefined,
         userId
       )
       // add labels to library items
-      for (const libraryItem of libraryItems) {
-        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+      for (const libraryItemId of libraryItemIds) {
+        await addLabelsToLibraryItem(labelIds, libraryItemId, userId)
       }
 
       return
     }
     case BulkActionType.MarkAsRead: {
-      const libraryItems = await authTrx(
+      const libraryItemIds = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
         undefined,
         userId
       )
       // update reading progress for library items
-      for (const libraryItem of libraryItems) {
-        await markItemAsRead(libraryItem.id, userId)
+      for (const libraryItemId of libraryItemIds) {
+        await markItemAsRead(libraryItemId, userId)
       }
 
       return
@@ -1215,12 +1220,10 @@ export const batchUpdateLibraryItems = async (
   }
 
   await authTrx(
-    async (tx) =>
-      getQueryBuilder(userId, tx)
-        .take(searchArgs.size)
-        .update(LibraryItem)
-        .set(values)
-        .execute(),
+    async (tx) => {
+      const libraryItemIds = await getLibraryItemIds(userId, tx)
+      await tx.getRepository(LibraryItem).update(libraryItemIds, values)
+    },
     undefined,
     userId
   )

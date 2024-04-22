@@ -316,6 +316,12 @@ export const wait = (ms: number): Promise<void> => {
   })
 }
 
+export const timeout = (ms: number): Promise<void> => {
+  return new Promise((_resolve, reject) => {
+    setTimeout(() => reject(new Error('timeout')), ms)
+  })
+}
+
 export const wordsCount = (text: string, isHtml = true): number => {
   try {
     return wordsCounter(text, { isHtml }).wordsCount
