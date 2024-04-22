@@ -70,27 +70,13 @@ struct LibraryTabView: View {
   @State var operationStatus: OperationStatus = .none
   @State var operationMessage: String?
 
-  @State var digestEnabled = false
-
-  var showDigest: Bool {
-    if digestEnabled, #available(iOS 17.0, *) {
-      return true
-    }
-    return false
-  }
-
   var displayTabs: [String] {
     var res = [String]()
     if !hideFollowingTab {
       res.append("following")
     }
-    if showDigest {
-      res.append("digest")
-    }
     res.append("inbox")
-    if !showDigest {
-      res.append("profile")
-    }
+    res.append("profile")
     return res
   }
 
@@ -134,24 +120,13 @@ struct LibraryTabView: View {
           }.tag("following")
         }
 
-        if showDigest, #available(iOS 17.0, *) {
-          NavigationView {
-            DigestView(dataService: dataService)
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationViewStyle(.stack)
-          }.tag("digest")
-          NavigationView {
-            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationViewStyle(.stack)
-          }.tag("inbox")
-        } else {
-          NavigationView {
-            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationViewStyle(.stack)
-          }.tag("inbox")
-          NavigationView {
+        NavigationView {
+          HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationViewStyle(.stack)
+        }.tag("inbox")
+
+        NavigationView {
             ProfileView()
               .navigationViewStyle(.stack)
           }.tag("profile")
