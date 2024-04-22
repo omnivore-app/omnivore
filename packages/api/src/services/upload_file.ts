@@ -1,4 +1,3 @@
-import normalizeUrl from 'normalize-url'
 import path from 'path'
 import { In } from 'typeorm'
 import { v4 as uuid } from 'uuid'
@@ -11,7 +10,7 @@ import {
   UploadFileStatus,
 } from '../generated/graphql'
 import { authTrx, getRepository } from '../repository'
-import { generateSlug } from '../utils/helpers'
+import { cleanUrl, generateSlug } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import {
   contentReaderForLibraryItem,
@@ -69,13 +68,11 @@ export const uploadFile = async (
   input: UploadFileRequestInput,
   uid: string
 ) => {
+  let url = input.url
   let title: string
   let fileName: string
   try {
-    const url = normalizeUrl(new URL(input.url).href, {
-      stripHash: true,
-      stripWWW: false,
-    })
+    url = cleanUrl(new URL(url).href)
     title = decodeURI(path.basename(new URL(url).pathname, '.pdf'))
     fileName = decodeURI(path.basename(new URL(url).pathname)).replace(
       /[^a-zA-Z0-9-_.]/g,
@@ -101,8 +98,6 @@ export const uploadFile = async (
       errorCodes: [UploadFileRequestErrorCode.BadInput],
     }
   }
-
-  let url = input.url
 
   const uploadFileId = uuid()
   const uploadFilePathName = generateUploadFilePathName(uploadFileId, fileName)
