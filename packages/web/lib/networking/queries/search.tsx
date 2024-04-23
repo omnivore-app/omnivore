@@ -5,15 +5,27 @@ import { LibraryItemsData } from './useGetLibraryItemsQuery'
 export type LibraryItemsQueryInput = {
   limit?: number
   searchQuery?: string
+  includeContent?: boolean
 }
 
 export async function searchQuery({
   limit = 10,
   searchQuery,
+  includeContent = false,
 }: LibraryItemsQueryInput): Promise<LibraryItemsData | undefined> {
   const query = gql`
-    query Search($after: String, $first: Int, $query: String) {
-      search(first: $first, after: $after, query: $query) {
+    query Search(
+      $after: String
+      $first: Int
+      $query: String
+      $includeContent: Boolean
+    ) {
+      search(
+        first: $first
+        after: $after
+        query: $query
+        includeContent: $includeContent
+      ) {
         ... on SearchSuccess {
           edges {
             cursor
@@ -69,6 +81,7 @@ export async function searchQuery({
   const variables = {
     first: limit,
     query: searchQuery,
+    includeContent,
   }
 
   try {

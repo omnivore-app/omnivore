@@ -681,7 +681,7 @@ export const searchResolver = authorized<
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
       includePending: true,
-      includeContent: !!params.includeContent,
+      includeContent: params.includeContent ?? true, // by default include content for offline use for now
       includeDeleted: params.query?.includes('in:trash'),
       query: params.query,
       useFolders: params.query?.includes('use:folders'),
@@ -786,6 +786,7 @@ export const updatesSinceResolver = authorized<
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
       query,
+      includeContent: true, // by default include content for offline use for now
     },
     uid
   )

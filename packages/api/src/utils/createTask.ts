@@ -22,9 +22,12 @@ import {
   CreateDigestJobResponse,
   CreateDigestJobSchedule,
   CREATE_DIGEST_JOB,
+  CRON_PATTERNS,
+  getCronPattern,
 } from '../jobs/ai/create_digest'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
+import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
 import {
@@ -42,7 +45,6 @@ import {
   REFRESH_ALL_FEEDS_JOB_NAME,
   REFRESH_FEED_JOB_NAME,
 } from '../jobs/rss/refreshAllFeeds'
-import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/sync_read_positions'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import {
@@ -53,13 +55,13 @@ import {
 } from '../jobs/update_db'
 import { getBackendQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
+import { writeDigest } from '../services/digest'
 import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-import { writeDigest } from '../services/digest'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -870,22 +872,22 @@ export const enqueueCreateDigest = async (
     throw new Error('No queue found')
   }
 
+  // enqueue create digest job immediately
+  const jobId = `${CREATE_DIGEST_JOB}_${data.userId}`
   const job = await queue.add(CREATE_DIGEST_JOB, data, {
-    jobId: data.id, // dedupe by job id
+    jobId, // dedupe by job id
     removeOnComplete: true,
     removeOnFail: true,
-    attempts: 3,
+    attempts: 1,
     priority: getJobPriority(CREATE_DIGEST_JOB),
-    repeat: schedule
-      ? {
-          immediately: true, // run immediately
-          pattern: schedule === 'daily' ? '0 13 * * *' : '0 13 * * 7', // every day or every Sunday at 1PM
-          utc: true,
-        }
-      : undefined,
   })
 
-  logger.info('create digest job enqueued', { jobId: job.id })
+  if (!job || !job.id) {
+    logger.error('Error while enqueuing create digest job', data)
+    throw new Error('Error while enqueuing create digest job')
+  }
+
+  logger.info('create digest job enqueued', { jobId })
 
   const digest = {
     id: data.id,
@@ -894,6 +896,44 @@ export const enqueueCreateDigest = async (
 
   // update digest job state in redis
   await writeDigest(data.userId, digest)
+
+  if (schedule) {
+    await Promise.all(
+      Object.keys(CRON_PATTERNS).map(async (key) => {
+        // remove existing repeated job if any
+        const isDeleted = await queue.removeRepeatable(
+          CREATE_DIGEST_JOB,
+          {
+            pattern: CRON_PATTERNS[key as keyof typeof CRON_PATTERNS],
+            tz: 'UTC',
+          },
+          jobId
+        )
+
+        if (isDeleted) {
+          logger.info('existing repeated job removed', { jobId, schedule: key })
+        }
+      })
+    )
+
+    // schedule repeated job
+    const job = await queue.add(CREATE_DIGEST_JOB, data, {
+      attempts: 1,
+      priority: getJobPriority(CREATE_DIGEST_JOB),
+      repeat: {
+        pattern: getCronPattern(schedule),
+        jobId,
+        tz: 'UTC',
+      },
+    })
+
+    if (!job || !job.id) {
+      logger.error('Error while scheduling create digest job', data)
+      throw new Error('Error while scheduling create digest job')
+    }
+
+    logger.info('create digest job scheduled', { jobId, schedule })
+  }
 
   return {
     jobId: digest.id,
