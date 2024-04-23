@@ -27,7 +27,7 @@ export function explainRouter() {
       return res.status(400).send('Bad Request')
     }
 
-    if (!(await findGrantedFeatureByName(FeatureName.Explain, user.id))) {
+    if (!(await findGrantedFeatureByName(FeatureName.AIExplain, user.id))) {
       return res.status(403).send('Not granted')
     }
 

@@ -33,6 +33,8 @@ public final class DataService: ObservableObject {
     persistentContainer.viewContext
   }
 
+  public var featureFlags = FeatureFlags()
+
   public var lastItemSyncTime: Date {
     get {
       guard
@@ -297,5 +299,12 @@ public final class DataService: ObservableObject {
       }
     }
     return objectID
+  }
+  
+  public func tryUpdateFeatureFlags() async {
+    if let features = (try? await fetchViewer())?.enabledFeatures {
+      featureFlags.digestEnabled = features.contains("ai-digest")
+      featureFlags.explainEnabled = features.contains("ai-explain")
+    }
   }
 }

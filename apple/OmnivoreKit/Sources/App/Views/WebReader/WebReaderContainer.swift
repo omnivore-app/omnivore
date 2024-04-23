@@ -400,7 +400,7 @@ struct WebReaderContainerView: View {
             #endif
           },
           tapHandler: tapHandler,
-          explainHandler: explainHandler,
+          explainHandler: dataService.featureFlags.explainEnabled ? explainHandler : nil,
           scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityUpdater: { visible in

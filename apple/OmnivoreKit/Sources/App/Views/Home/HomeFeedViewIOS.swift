@@ -181,7 +181,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
 // swiftlint:disable file_length
 #if os(iOS)
-  private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
+  private let enableGrid = UIDevice.isIPad
 
   @MainActor
   struct HomeFeedContainerView: View {
@@ -203,8 +203,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
-
-    @AppStorage("LibraryList::digestEnabled") var digestEnabled = false
 
     init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
@@ -354,25 +352,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           viewModel.stopUsingFollowingPrimer = true
         }
       }
-      .task {
-        do {
-          // If the user doesn't have digest enabled, try updating their features
-          // to see if they have it.
-          if !digestEnabled {
-            if let viewer = try await dataService.fetchViewer() {
-              digestEnabled = viewer.hasFeatureGranted("ai-digest")
-            }
-          }
-          if digestEnabled {
-            Task {
-              await viewModel.checkForDigestUpdate(dataService: dataService)
-            }
-          }
-        } catch {
-          print("ERROR FETCHING VIEWER: ", error)
-          print("")
-        }
-      }
       .environment(\.editMode, self.$isEditMode)
       .navigationBarTitleDisplayMode(.inline)
     }
@@ -417,7 +396,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               if isEditMode == .active {
                 Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
               } else {
-                if #available(iOS 17.0, *), digestEnabled {
+                if #available(iOS 17.0, *), dataService.featureFlags.digestEnabled {
                   Button(
                     action: { showLibraryDigest = true },
                     label: { viewModel.digestIsUnread ? Image.tabDigestSelected : Image.tabDigest }

@@ -27,6 +27,8 @@ public final class OmnivoreWebView: WKWebView {
 
   private var currentMenu: ContextMenu = .defaultMenu
 
+  private var explainEnabled = false
+
   override init(frame: CGRect, configuration: WKWebViewConfiguration) {
     super.init(frame: frame, configuration: configuration)
 
@@ -399,8 +401,12 @@ public final class OmnivoreWebView: WKWebView {
             return
           }
           let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
-          let explain = UICommand(title: "Explain", action: #selector(explainSelection))
-          items = [highlight,  explain, annotate]
+          if explainHandler != nil {
+            let explain = UICommand(title: "Explain", action: #selector(explainSelection))
+            items = [highlight, explain, annotate]
+          } else {
+            items = [highlight, annotate]
+          }
         } else {
           let remove = UICommand(title: "Remove", action: #selector(removeSelection))
           let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
