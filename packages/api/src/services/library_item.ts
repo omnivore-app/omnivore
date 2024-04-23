@@ -627,7 +627,9 @@ export const buildQuery = (
   // select all columns except content
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
-      (select) => select !== 'readableContent' && select !== 'originalContent'
+      (select) =>
+        select !== 'originalContent' && // exclude original content
+        (args.includeContent || select !== 'readableContent') // exclude content if not requested
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -647,12 +649,14 @@ export const buildQuery = (
       args.useFolders
     )
   }
-  // add select
-  queryBuilder.select(selects.map((select) => select.column))
 
-  if (args.includeContent) {
-    queryBuilder.addSelect('library_item.readableContent')
-  }
+  // add select
+  selects.forEach((select, index) => {
+    // select must be defined before adding additional selects
+    index === 0
+      ? queryBuilder.select(select.column, select.alias)
+      : queryBuilder.addSelect(select.column, select.alias)
+  })
 
   queryBuilder.where('library_item.user_id = :userId', { userId })
 
