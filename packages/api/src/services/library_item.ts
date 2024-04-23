@@ -647,16 +647,14 @@ export const buildQuery = (
       args.useFolders
     )
   }
-  queryBuilder.where('library_item.user_id = :userId', { userId })
-
   // add select
-  selects.forEach((select) => {
-    queryBuilder.addSelect(select.column, select.alias)
-  })
+  queryBuilder.select(selects.map((select) => select.column))
 
   if (args.includeContent) {
     queryBuilder.addSelect('library_item.readableContent')
   }
+
+  queryBuilder.where('library_item.user_id = :userId', { userId })
 
   if (!args.includePending) {
     queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
