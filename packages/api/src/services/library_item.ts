@@ -1146,9 +1146,15 @@ export const batchUpdateLibraryItems = async (
 
   const getLibraryItemIds = async (
     userId: string,
-    em: EntityManager
+    em: EntityManager,
+    forUpdate = false
   ): Promise<string[]> => {
     const queryBuilder = getQueryBuilder(userId, em)
+
+    if (forUpdate) {
+      queryBuilder.setLock('pessimistic_write')
+    }
+
     const libraryItems = await queryBuilder
       .select('library_item.id', 'id')
       .take(searchArgs.size)
@@ -1221,7 +1227,7 @@ export const batchUpdateLibraryItems = async (
 
   await authTrx(
     async (tx) => {
-      const libraryItemIds = await getLibraryItemIds(userId, tx)
+      const libraryItemIds = await getLibraryItemIds(userId, tx, true)
       await tx.getRepository(LibraryItem).update(libraryItemIds, values)
     },
     undefined,
