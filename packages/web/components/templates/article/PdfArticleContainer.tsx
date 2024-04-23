@@ -16,11 +16,11 @@ import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
+import { ResizableSidebar } from './ResizableSidebar'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -35,9 +35,8 @@ export default function PdfArticleContainer(
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
@@ -595,35 +594,28 @@ export default function PdfArticleContainer(
           }}
         />
       )}
-      <SlidingPane
-        className="sliding-pane-class"
-        isOpen={props.showHighlightsModal}
-        width={windowDimensions.width < 600 ? '100%' : '420px'}
-        hideHeader={true}
-        from="right"
-        overlayClassName="slide-panel-overlay"
-        onRequestClose={() => {
+      <ResizableSidebar
+        isShow={props.showHighlightsModal}
+        onClose={() => {
           props.setShowHighlightsModal(false)
         }}
       >
-        <>
-          <NotebookHeader
-            viewer={props.viewer}
-            item={props.article}
-            setShowNotebook={props.setShowHighlightsModal}
-          />
-          <NotebookContent
-            viewer={props.viewer}
-            item={props.article}
-            viewInReader={(highlightId) => {
-              const event = new CustomEvent('scrollToHighlightId', {
-                detail: highlightId,
-              })
-              document.dispatchEvent(event)
-            }}
-          />
-        </>
-      </SlidingPane>
+        <NotebookHeader
+          viewer={props.viewer}
+          item={props.article}
+          setShowNotebook={props.setShowHighlightsModal}
+        />
+        <NotebookContent
+          viewer={props.viewer}
+          item={props.article}
+          viewInReader={(highlightId) => {
+            const event = new CustomEvent('scrollToHighlightId', {
+              detail: highlightId,
+            })
+            document.dispatchEvent(event)
+          }}
+        />
+      </ResizableSidebar>
     </Box>
   )
 }
