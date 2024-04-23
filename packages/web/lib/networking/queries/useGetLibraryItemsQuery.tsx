@@ -1,20 +1,18 @@
 import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
-import { gqlFetcher } from '../networkHelpers'
-import { PageType, State } from '../fragments/articleFragment'
-import { ContentReader } from '../fragments/articleFragment'
-import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
-import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
-import { unsubscribeMutation } from '../mutations/unsubscribeMutation'
-import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { Label } from './../fragments/labelFragment'
 import {
   showErrorToast,
   showSuccessToast,
   showSuccessToastWithUndo,
 } from '../../toastHelpers'
+import { ContentReader, PageType, State } from '../fragments/articleFragment'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
+import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
+import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
+import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { updatePageMutation } from '../mutations/updatePageMutation'
+import { gqlFetcher } from '../networkHelpers'
+import { Label } from './../fragments/labelFragment'
 
 export interface ReadableItem {
   id: string
@@ -27,6 +25,7 @@ export type LibraryItemsQueryInput = {
   sortDescending: boolean
   searchQuery?: string
   cursor?: string
+  includeContent?: boolean
 }
 
 type LibraryItemsQueryResponse = {
@@ -148,10 +147,21 @@ export function useGetLibraryItemsQuery({
   sortDescending,
   searchQuery,
   cursor,
+  includeContent = false,
 }: LibraryItemsQueryInput): LibraryItemsQueryResponse {
   const query = gql`
-    query Search($after: String, $first: Int, $query: String) {
-      search(first: $first, after: $after, query: $query) {
+    query Search(
+      $after: String
+      $first: Int
+      $query: String
+      $includeContent: Boolean
+    ) {
+      search(
+        first: $first
+        after: $after
+        query: $query
+        includeContent: $includeContent
+      ) {
         ... on SearchSuccess {
           edges {
             cursor
@@ -227,6 +237,7 @@ export function useGetLibraryItemsQuery({
     after: cursor,
     first: limit,
     query: searchQuery,
+    includeContent,
   }
 
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
