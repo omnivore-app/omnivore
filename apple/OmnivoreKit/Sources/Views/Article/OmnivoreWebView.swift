@@ -340,7 +340,6 @@ public final class OmnivoreWebView: WKWebView {
       Task {
         let selection = try? await self.evaluateJavaScript("window.getSelection().toString()")
         if let selection = selection as? String, let explainHandler = explainHandler {
-          print("Explaining \(selection)")
           explainHandler(selection)
         } else {
           showInReaderSnackbar("Error getting text to explain")

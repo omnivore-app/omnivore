@@ -21,12 +21,10 @@ public class FullScreenDigestViewModel: ObservableObject {
       if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
         self.digest = digest
         lastVisitedDigestId = digest.id
-
         if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
           // Don't think we need to do anything here
         } else {
           audioController.play(itemAudioProperties: DigestAudioItem(digest: digest))
-          audioController.pause()
         }
       }
     } catch {
@@ -72,7 +70,7 @@ struct FullScreenDigestView: View {
   }
 
   var createdString: String {
-    if let createdAt = viewModel.digest?.createdAt,
+    if let createdAt = viewModel.digest?.createdAt, 
         let date = DateFormatter.formatterISO8601.date(from: createdAt) {
       let dateFormatter = DateFormatter()
       dateFormatter.dateStyle = .medium

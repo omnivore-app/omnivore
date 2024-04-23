@@ -127,12 +127,11 @@ struct LibraryTabView: View {
         }.tag("inbox")
 
         NavigationView {
-            ProfileView()
-              .navigationViewStyle(.stack)
-          }.tag("profile")
-        }
-
+          ProfileView()
+            .navigationViewStyle(.stack)
+        }.tag("profile")
       }
+
       if audioController.itemAudioProperties != nil {
         MiniPlayerViewer()
           .onTapGesture {
