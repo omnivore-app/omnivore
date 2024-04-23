@@ -650,11 +650,7 @@ export const buildQuery = (
   queryBuilder.where('library_item.user_id = :userId', { userId })
 
   // add select
-  selects.forEach((select, index) => {
-    if (index === 0) {
-      queryBuilder.select(select.column, select.alias)
-    }
-
+  selects.forEach((select) => {
     queryBuilder.addSelect(select.column, select.alias)
   })
 

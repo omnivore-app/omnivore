@@ -343,8 +343,14 @@ const main = async () => {
       })
     })
     await worker.close()
+    console.log('[queue-processor]: Worker closed')
+
     await redisDataSource.shutdown()
+    console.log('[queue-processor]: Redis connection closed')
+
     await appDataSource.destroy()
+    console.log('[queue-processor]: DB connection closed')
+
     process.exit(0)
   }
 

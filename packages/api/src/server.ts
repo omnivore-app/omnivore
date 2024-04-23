@@ -178,9 +178,8 @@ const main = async (): Promise<void> => {
     await apollo.stop()
     console.log('[api]: Express server stopped')
 
-    console.log('[posthog]: flushing events')
     await analytics.shutdownAsync()
-    console.log('[posthog]: events flushed')
+    console.log('[api]: Posthog events flushed')
 
     // Shutdown redis before DB because the quit sequence can
     // cause appDataSource to get reloaded in the callback
