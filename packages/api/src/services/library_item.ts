@@ -627,7 +627,9 @@ export const buildQuery = (
   // select all columns except content
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
-      (select) => select !== 'readableContent' && select !== 'originalContent'
+      (select) =>
+        select !== 'originalContent' && // exclude original content
+        (args.includeContent || select !== 'readableContent') // exclude content if not requested
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -647,20 +649,16 @@ export const buildQuery = (
       args.useFolders
     )
   }
-  queryBuilder.where('library_item.user_id = :userId', { userId })
 
   // add select
   selects.forEach((select, index) => {
-    if (index === 0) {
-      queryBuilder.select(select.column, select.alias)
-    }
-
-    queryBuilder.addSelect(select.column, select.alias)
+    // select must be defined before adding additional selects
+    index === 0
+      ? queryBuilder.select(select.column, select.alias)
+      : queryBuilder.addSelect(select.column, select.alias)
   })
 
-  if (args.includeContent) {
-    queryBuilder.addSelect('library_item.readableContent')
-  }
+  queryBuilder.where('library_item.user_id = :userId', { userId })
 
   if (!args.includePending) {
     queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
@@ -1117,6 +1115,13 @@ export const batchUpdateLibraryItems = async (
   labelIds?: string[] | null,
   args?: unknown
 ) => {
+  if (!searchArgs.query) {
+    throw new Error('Search query is required')
+  }
+
+  const searchQuery = parseSearchQuery(searchArgs.query)
+  const parameters: ObjectLiteral[] = []
+  const queryString = buildQueryString(searchQuery, parameters)
   interface FolderArguments {
     folder: string
   }
@@ -1139,19 +1144,23 @@ export const batchUpdateLibraryItems = async (
 
   const getLibraryItemIds = async (
     userId: string,
-    em: EntityManager
-  ): Promise<{ id: string }[]> => {
+    em: EntityManager,
+    forUpdate = false
+  ): Promise<string[]> => {
     const queryBuilder = getQueryBuilder(userId, em)
-    return queryBuilder.select('library_item.id', 'id').getRawMany()
-  }
 
-  if (!searchArgs.query) {
-    throw new Error('Search query is required')
-  }
+    if (forUpdate) {
+      queryBuilder.setLock('pessimistic_write')
+    }
 
-  const searchQuery = parseSearchQuery(searchArgs.query)
-  const parameters: ObjectLiteral[] = []
-  const queryString = buildQueryString(searchQuery, parameters)
+    const libraryItems = await queryBuilder
+      .select('library_item.id', 'id')
+      .take(searchArgs.size)
+      .skip(searchArgs.from)
+      .getRawMany<{ id: string }>()
+
+    return libraryItems.map((item) => item.id)
+  }
 
   const now = new Date().toISOString()
   // build the script
@@ -1174,27 +1183,27 @@ export const batchUpdateLibraryItems = async (
         throw new Error('Labels are required for this action')
       }
 
-      const libraryItems = await authTrx(
+      const libraryItemIds = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
         undefined,
         userId
       )
       // add labels to library items
-      for (const libraryItem of libraryItems) {
-        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+      for (const libraryItemId of libraryItemIds) {
+        await addLabelsToLibraryItem(labelIds, libraryItemId, userId)
       }
 
       return
     }
     case BulkActionType.MarkAsRead: {
-      const libraryItems = await authTrx(
+      const libraryItemIds = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
         undefined,
         userId
       )
       // update reading progress for library items
-      for (const libraryItem of libraryItems) {
-        await markItemAsRead(libraryItem.id, userId)
+      for (const libraryItemId of libraryItemIds) {
+        await markItemAsRead(libraryItemId, userId)
       }
 
       return
@@ -1215,8 +1224,10 @@ export const batchUpdateLibraryItems = async (
   }
 
   await authTrx(
-    async (tx) =>
-      getQueryBuilder(userId, tx).update(LibraryItem).set(values).execute(),
+    async (tx) => {
+      const libraryItemIds = await getLibraryItemIds(userId, tx, true)
+      await tx.getRepository(LibraryItem).update(libraryItemIds, values)
+    },
     undefined,
     userId
   )

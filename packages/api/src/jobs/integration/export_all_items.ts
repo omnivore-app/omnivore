@@ -50,9 +50,9 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
 
   const maxItems = 100
   const limit = 10
-  let offset = 0
+  let exported = 0
   // get max 100 most recent items from the database
-  while (offset < maxItems) {
+  for (let offset = 0; offset < maxItems; offset += limit) {
     const libraryItems = await findRecentLibraryItems(userId, limit, offset)
     if (libraryItems.length === 0) {
       logger.info('no library items found', {
@@ -92,17 +92,17 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
       updated,
     })
 
-    offset += libraryItems.length
+    exported += libraryItems.length
 
     logger.info('exported items', {
       ...jobData,
-      offset,
+      exported,
     })
   }
 
   logger.info('exported all items', {
     ...jobData,
-    offset,
+    exported,
   })
 
   // clear task name in integration
