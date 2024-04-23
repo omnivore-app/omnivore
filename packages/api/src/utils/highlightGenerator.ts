@@ -49,7 +49,7 @@ type FillNodeResponse = {
 }
 
 function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
-  const maxTime = 1000 * 60 * 10 // 10 minutes
+  const maxTime = 1000 * 60 // 60 seconds
   const start = Date.now()
   let textNodeStartingPoint = 0
   let articleText = ''

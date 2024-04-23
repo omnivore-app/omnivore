@@ -23,6 +23,7 @@ import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
+import { Recaptcha } from '../components/elements/Recaptcha'
 
 TopBarProgress.config({
   barColors: {
@@ -83,6 +84,7 @@ export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
     <GoogleReCaptchaProvider
       type="v2-checkbox"
       isEnterprise={true}
+      host="recaptcha.net"
       siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY ?? ''}
     >
       <KBarProvider actions={generateActions(router)}>

@@ -15,5 +15,6 @@ export const corsConfig = {
     'lsp://logseq.io',
     'app://obsidian.md',
     'capacitor://localhost',
+    'http://localhost',
   ],
 }
