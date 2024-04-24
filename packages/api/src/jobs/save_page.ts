@@ -52,28 +52,42 @@ const uploadToSignedUrl = async (
   contentType: string,
   contentObjUrl: string
 ) => {
-  logger.info('uploading to signed url', {
-    uploadSignedUrl,
-    contentType,
-    contentObjUrl,
-  })
+  const maxContentLength = 10 * 1024 * 1024 // 10MB
 
   try {
-    const stream = await axios.get(contentObjUrl, {
+    logger.info('downloading content', {
+      contentObjUrl,
+    })
+
+    // download the content as stream and max 10MB
+    const response = await axios.get(contentObjUrl, {
       responseType: 'stream',
+      maxContentLength,
       timeout: REQUEST_TIMEOUT,
     })
-    return await axios.put(uploadSignedUrl, stream.data, {
+
+    logger.info('uploading to signed url', {
+      uploadSignedUrl,
+      contentType,
+    })
+
+    // upload the stream to the signed url
+    await axios.post(uploadSignedUrl, response.data, {
       headers: {
         'Content-Type': contentType,
       },
-      maxBodyLength: 1000000000,
-      maxContentLength: 100000000,
+      maxBodyLength: maxContentLength,
       timeout: REQUEST_TIMEOUT,
     })
+
+    return true
   } catch (error) {
-    logger.error('error uploading to signed url', error)
-    return null
+    if (axios.isAxiosError(error)) {
+      logger.error(`error uploading to signed url: ${error.message}`)
+    } else {
+      logger.error('error uploading to signed url', error)
+    }
+    return false
   }
 }
 
@@ -103,6 +117,12 @@ const uploadPdf = async (
   if (!uploaded) {
     throw new Error('error while uploading pdf')
   }
+
+  logger.info('pdf uploaded successfully', {
+    url,
+    uploadFileId: result.id,
+    itemId: result.createdPageId,
+  })
 
   return {
     uploadFileId: result.id,
