@@ -7,7 +7,7 @@ const ContentSecurityPolicy = `
   frame-ancestors 'none';
   frame-src 'self' https://accounts.google.com https://platform.twitter.com https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://www.recaptcha.net;
   manifest-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com https://widget.intercom.io https://js.intercomcdn.com https://platform.twitter.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.recaptcha.net;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com https://widget.intercom.io https://js.intercomcdn.com https://platform.twitter.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://www.gstatic.cn/;
   style-src 'self' 'unsafe-inline' https://accounts.google.com https://cdnjs.cloudflare.com;
   img-src 'self' blob: data: https:;
   worker-src 'self' blob:;
