@@ -56,7 +56,7 @@ suspend fun Networker.search(
           slug = it.node.slug,
           isArchived = it.node.isArchived,
           contentReader = it.node.contentReader.rawValue,
-          content = null,
+          content = it.node.content,
           wordsCount = it.node.wordsCount,
         ),
         labels = (it.node.labels ?: listOf()).map { label ->

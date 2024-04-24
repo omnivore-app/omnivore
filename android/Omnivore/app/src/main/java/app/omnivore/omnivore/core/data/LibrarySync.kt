@@ -62,7 +62,6 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
       slug = it.slug,
       isArchived = it.isArchived,
       contentReader = it.contentReader.rawValue,
-      content = null,
       wordsCount = it.wordsCount
     )
     val labels = it.labels?.map { label ->
