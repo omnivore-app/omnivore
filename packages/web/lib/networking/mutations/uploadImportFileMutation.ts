@@ -2,6 +2,7 @@ import { gqlFetcher } from '../networkHelpers'
 
 export enum UploadImportFileType {
   URL_LIST = 'URL_LIST',
+  OPML = 'OPML',
   POCKET = 'POCKET',
   MATTER = 'MATTER',
 }

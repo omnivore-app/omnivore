@@ -2702,6 +2702,7 @@ enum UploadImportFileType {
   MATTER
   POCKET
   URL_LIST
+  OPML
 }
 
 type User {

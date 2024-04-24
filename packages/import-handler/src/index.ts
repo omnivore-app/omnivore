@@ -13,6 +13,7 @@ import { importMatterArchive } from './matterHistory'
 import { ImportStatus, updateMetrics } from './metrics'
 import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
+import { importOpml } from './opml'
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -32,7 +33,7 @@ const signToken = promisify(jwt.sign)
 
 const storage = new Storage()
 
-const CONTENT_TYPES = ['text/csv', 'application/zip']
+const CONTENT_TYPES = ['text/csv', 'application/zip', 'text/opml']
 
 export type UrlHandler = (
   ctx: ImportContext,
@@ -176,6 +177,8 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
     return importMatterArchive
   } else if (fileName.startsWith('URL_LIST') || fileName.startsWith('POCKET')) {
     return importCsv
+  } else if (fileName.startsWith('OPML')) {
+    return importOpml
   }
 
   return undefined
@@ -191,6 +194,9 @@ const importSource = (name: string): string => {
   }
   if (fileName.startsWith('POCKET')) {
     return 'pocket'
+  }
+  if (fileName.startsWith('OPML')) {
+    return 'opml'
   }
 
   return 'unknown'

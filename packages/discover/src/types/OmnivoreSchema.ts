@@ -2599,6 +2599,7 @@ export enum UploadImportFileType {
   UrlList = 'URL_LIST',
   Pocket = 'POCKET',
   Matter = 'MATTER',
+  Opml = 'OPML',
 }
 
 export enum UploadImportFileErrorCode {

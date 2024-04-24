@@ -38617,6 +38617,8 @@ extension Enums {
         case pocket = "POCKET"
 
         case urlList = "URL_LIST"
+
+        case opml = "OPML"
     }
 }
 

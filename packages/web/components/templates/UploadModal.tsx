@@ -129,6 +129,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
     ) {
       contentType = 'text/csv'
     }
+    if (file.name.endsWith('.xml') || file.name.endsWith('.opml')) {
+      contentType = 'text/opml'
+    }
     switch (contentType) {
       case 'text/csv': {
         let urlCount = 0
@@ -178,6 +181,16 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
       case 'application/zip': {
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.MATTER,
+          contentType
+        )
+        return {
+          uploadSignedUrl: result?.uploadSignedUrl,
+        }
+      }
+      case 'text/opml':
+      case 'text/xml': {
+        const result = await uploadImportFileRequestMutation(
+          UploadImportFileType.OPML,
           contentType
         )
         return {
@@ -315,6 +328,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
             noClick={true}
             accept={{
               'text/csv': ['.csv'],
+              'text/opml': ['.opml', '.xml'],
               'application/zip': ['.zip'],
               'application/pdf': ['.pdf'],
               'application/epub+zip': ['.epub'],
