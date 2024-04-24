@@ -279,7 +279,7 @@ export function getEnv(): BackendEnv {
     gcsUploadPrivateBucket: parse('GCS_UPLOAD_PRIVATE_BUCKET'),
     dailyUploadLimit: parse('GCS_UPLOAD_DAILY_LIMIT')
       ? parseInt(parse('GCS_UPLOAD_DAILY_LIMIT'), 10)
-      : 30, // default to 30
+      : 5, // default to 5
   }
   const sender = {
     message: parse('SENDER_MESSAGE'),
