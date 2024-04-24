@@ -37,7 +37,7 @@ export const createUser = async (input: {
   const existingUser = await userRepository.findByEmail(trimmedEmail)
   if (existingUser) {
     if (existingUser.profile) {
-      return Promise.reject({ errorCode: SignupErrorCode.UserExists })
+      return Promise.reject({ errorCode: SignupErrorCode.Unknown })
     }
 
     // create profile if user exists but profile does not exist

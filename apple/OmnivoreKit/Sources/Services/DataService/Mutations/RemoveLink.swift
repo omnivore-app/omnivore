@@ -35,7 +35,7 @@ public extension DataService {
 
     if let linkedItemID = linkedItemID {
       Task {
-        AudioController.removeAudioFiles(itemID: linkedItemID)
+        await AudioController.removeAudioFiles(itemID: linkedItemID)
       }
     }
   }

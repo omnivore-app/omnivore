@@ -2,6 +2,7 @@ import SwiftUI
 
 public extension Image {
   static var smallOmnivoreLogo: Image { Image("_smallOmnivoreLogo", bundle: .module) }
+  static var coloredSmallOmnivoreLogo: Image { Image("app-icon", bundle: .module) }
   static var omnivoreTitleLogo: Image { Image("_omnivoreTitleLogo", bundle: .module) }
   static var googleIcon: Image { Image("_googleIcon", bundle: .module) }
 

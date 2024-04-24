@@ -761,6 +761,7 @@ export function HomeFeedContainer(): JSX.Element {
           )
           if (res) {
             let successMessage: string | undefined = undefined
+            console.log(action)
             switch (action) {
               case BulkAction.ARCHIVE:
                 successMessage = 'Link Archived'
@@ -770,6 +771,9 @@ export function HomeFeedContainer(): JSX.Element {
                 break
               case BulkAction.DELETE:
                 successMessage = 'Items deleted'
+                break
+              case BulkAction.MARK_AS_READ:
+                successMessage = 'Items marked as read'
                 break
             }
             if (successMessage) {

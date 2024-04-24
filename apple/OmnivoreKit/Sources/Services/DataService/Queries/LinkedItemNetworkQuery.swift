@@ -168,6 +168,7 @@ extension DataService {
       try $0.search(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
+        includeContent: OptionalArgument(true),
         query: OptionalArgument(searchQuery),
         selection: selection
       )

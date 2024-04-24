@@ -90,12 +90,12 @@ describe('auth router', () => {
         await deleteUser(user.id)
       })
 
-      it('redirects to sign up page with error code USER_EXISTS', async () => {
+      it('redirects to sign up page with error code UNKNOWN', async () => {
         const res = await signupRequest(email, password, name, username).expect(
           302
         )
         expect(res.header.location).to.endWith(
-          '/email-signup?errorCodes=USER_EXISTS'
+          '/email-signup?errorCodes=UNKNOWN'
         )
       })
     })
