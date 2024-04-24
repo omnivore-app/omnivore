@@ -90,10 +90,6 @@ internal fun LibraryView(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val showBottomSheet: LibraryBottomSheetState by viewModel.bottomSheetState.observeAsState(
-        LibraryBottomSheetState.HIDDEN
-    )
-
     viewModel.snackbarMessage?.let {
         coroutineScope.launch {
             snackbarHostState.showSnackbar(it)
@@ -102,9 +98,15 @@ internal fun LibraryView(
     }
 
     val labels by viewModel.labelsState.collectAsStateWithLifecycle()
+    val currentTopLevelDestination =
+        TopLevelDestination.entries.find { it.route == navController.currentDestination?.route }
+    val selectedItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState()
+    val savedItemFilter by viewModel.appliedFilterState.collectAsStateWithLifecycle()
     val activeLabels by viewModel.activeLabels.collectAsStateWithLifecycle()
+    val sortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.collectAsStateWithLifecycle()
+    val bottomSheetState: LibraryBottomSheetState by viewModel.bottomSheetState.collectAsStateWithLifecycle()
 
-    when (showBottomSheet) {
+    when (bottomSheetState) {
         LibraryBottomSheetState.ADD_LINK -> {
             AddLinkBottomSheet(saveViewModel) {
                 viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
@@ -112,8 +114,7 @@ internal fun LibraryView(
         }
 
         LibraryBottomSheetState.LABEL -> {
-            LabelBottomSheet(
-                deleteCurrentItem = { viewModel.currentItem.value = null },
+            LabelBottomSheet(deleteCurrentItem = { viewModel.currentItem.value = null },
                 labels = labels,
                 currentSavedItemData = viewModel.currentSavedItemUnderEdit(),
                 labelsViewModel,
@@ -125,13 +126,11 @@ internal fun LibraryView(
                     viewModel.updateSavedItemLabels(savedItemId, labels)
                 },
                 activeLabels,
-                { viewModel.updateAppliedLabels(it) }
-            )
+                { viewModel.updateAppliedLabels(it) })
         }
 
         LibraryBottomSheetState.EDIT -> {
-            EditBottomSheet(
-                editInfoViewModel,
+            EditBottomSheet(editInfoViewModel,
                 deleteCurrentItem = { viewModel.currentItem.value = null },
                 { viewModel.refresh() },
                 viewModel.currentSavedItemUnderEdit()
@@ -144,24 +143,26 @@ internal fun LibraryView(
         }
     }
 
-    val currentTopLevelDestination = TopLevelDestination.entries.find { it.route == navController.currentDestination?.route }
-    val selectedItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState()
-
     Scaffold(
         topBar = {
-            LibraryNavigationBar(
-                currentDestination = currentTopLevelDestination,
+            LibraryNavigationBar(currentDestination = currentTopLevelDestination,
                 savedItemViewModel = viewModel,
                 onSearchClicked = { navController.navigate(Routes.Search.route) },
                 onAddLinkClicked = {
                     viewModel.bottomSheetState.value = LibraryBottomSheetState.ADD_LINK
-                }
-            )
+                })
         },
     ) { paddingValues ->
         when (uiState) {
             is LibraryUiState.Success -> {
                 LibraryViewContent(
+                    itemsFilter = savedItemFilter,
+                    activeLabels = activeLabels,
+                    sortFilter = sortFilter,
+                    updateSavedItemFilter = { viewModel.updateSavedItemFilter(it) },
+                    updateSavedItemSortFilter = { viewModel.updateSavedItemSortFilter(it) },
+                    setBottomSheetState = { viewModel.setBottomSheetState(it) },
+                    updateAppliedLabels = { viewModel.updateAppliedLabels(it) },
                     isFollowingScreen = currentTopLevelDestination == TopLevelDestination.FOLLOWING,
                     { viewModel.actionsMenuItemLiveData.postValue(null) },
                     savedItemViewModel = viewModel,
@@ -176,9 +177,9 @@ internal fun LibraryView(
                         viewModel.handleSavedItemAction(id, action)
                     },
                     { viewModel.loadUsingSearchAPI() },
-                    { viewModel.initialLoad() }
-                )
+                    { viewModel.initialLoad() })
             }
+
             is LibraryUiState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -186,9 +187,10 @@ internal fun LibraryView(
                         .background(MaterialTheme.colorScheme.background),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(strokeCap  = StrokeCap.Round)
+                    CircularProgressIndicator(strokeCap = StrokeCap.Round)
                 }
             }
+
             else -> {
                 // TODO
             }
@@ -218,8 +220,7 @@ fun LabelBottomSheet(
     ) {
 
         if (currentSavedItemData != null) {
-            LabelsSelectionSheetContent(
-                labels = labels,
+            LabelsSelectionSheetContent(labels = labels,
                 labelsViewModel = labelsViewModel,
                 initialSelectedLabels = currentSavedItemData.labels,
                 onCancel = {
@@ -236,11 +237,9 @@ fun LabelBottomSheet(
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
                     createNewSavedItemLabel(newLabelName, labelHexValue)
-                }
-            )
+                })
         } else { // Is used in library mode
-            LabelsSelectionSheetContent(
-                labels = labels,
+            LabelsSelectionSheetContent(labels = labels,
                 labelsViewModel = labelsViewModel,
                 initialSelectedLabels = activeLabels,
                 onCancel = { onDismiss() },
@@ -252,8 +251,7 @@ fun LabelBottomSheet(
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
                     createNewSavedItemLabel(newLabelName, labelHexValue)
-                }
-            )
+                })
         }
     }
 }
@@ -261,8 +259,7 @@ fun LabelBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddLinkBottomSheet(
-    saveViewModel: SaveViewModel,
-    onDismiss: () -> Unit = {}
+    saveViewModel: SaveViewModel, onDismiss: () -> Unit = {}
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
@@ -272,17 +269,13 @@ fun AddLinkBottomSheet(
         ),
     ) {
 
-        AddLinkSheetContent(
-            viewModel = saveViewModel,
-            onCancel = {
-                saveViewModel.state.value = SaveState.DEFAULT
-                onDismiss()
-            },
-            onLinkAdded = {
-                saveViewModel.state.value = SaveState.DEFAULT
-                onDismiss()
-            }
-        )
+        AddLinkSheetContent(viewModel = saveViewModel, onCancel = {
+            saveViewModel.state.value = SaveState.DEFAULT
+            onDismiss()
+        }, onLinkAdded = {
+            saveViewModel.state.value = SaveState.DEFAULT
+            onDismiss()
+        })
     }
 }
 
@@ -302,8 +295,7 @@ fun EditBottomSheet(
             skipPartiallyExpanded = true
         ),
     ) {
-        EditInfoSheetContent(
-            savedItemId = currentSavedItemUnderEdit?.savedItem?.savedItemId,
+        EditInfoSheetContent(savedItemId = currentSavedItemUnderEdit?.savedItem?.savedItemId,
             title = currentSavedItemUnderEdit?.savedItem?.title,
             author = currentSavedItemUnderEdit?.savedItem?.author,
             description = currentSavedItemUnderEdit?.savedItem?.descriptionText,
@@ -316,8 +308,7 @@ fun EditBottomSheet(
                 deleteCurrentItem()
                 refresh()
                 onDismiss()
-            }
-        )
+            })
     }
 }
 
@@ -325,6 +316,13 @@ fun EditBottomSheet(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryViewContent(
+    itemsFilter: SavedItemFilter,
+    activeLabels: List<SavedItemLabel>,
+    sortFilter: SavedItemSortFilter,
+    updateSavedItemFilter:(SavedItemFilter) -> Unit,
+    updateSavedItemSortFilter: (SavedItemSortFilter) -> Unit,
+    setBottomSheetState: (LibraryBottomSheetState) -> Unit,
+    updateAppliedLabels: (List<SavedItemLabel>) -> Unit,
     isFollowingScreen: Boolean,
     selectItem: () -> Unit,
     savedItemViewModel: SavedItemViewModel,
@@ -359,54 +357,63 @@ fun LibraryViewContent(
             .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
         Column {
-            LibraryFilterBar(isFollowingScreen)
+            LibraryFilterBar(
+                isFollowingScreen,
+                itemsFilter,
+                sortFilter,
+                activeLabels,
+                setBottomSheetState,
+                updateSavedItemFilter,
+                updateSavedItemSortFilter,
+                updateAppliedLabels
+            )
             HorizontalDivider()
             LazyColumn(
                 state = listState,
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(
-                    items = items,
-                    key = { item -> item.savedItem.savedItemId }
-                ) { cardDataWithLabels ->
+                items(items = items,
+                    key = { item -> item.savedItem.savedItemId }) { cardDataWithLabels ->
                     val swipeThreshold = 0.45f
                     val currentThresholdFraction = remember { mutableStateOf(0f) }
                     val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
-                    val swipeState = rememberDismissState(
-                        confirmStateChange = {
-                            when(it) {
-                                DismissValue.Default -> {
+                    val swipeState = rememberDismissState(confirmStateChange = {
+                        when (it) {
+                            DismissValue.Default -> {
+                                return@rememberDismissState false
+                            }
+
+                            DismissValue.DismissedToEnd -> {
+                                if (currentThresholdFraction.value < swipeThreshold) {
                                     return@rememberDismissState false
                                 }
-                                DismissValue.DismissedToEnd -> {
-                                    if (currentThresholdFraction.value < swipeThreshold) {
-                                        return@rememberDismissState false
-                                    }
-                                }
-                                DismissValue.DismissedToStart -> {
-                                    if (currentThresholdFraction.value < swipeThreshold) {
-                                        return@rememberDismissState false
-                                    }
-                                }
                             }
 
-                            if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
-                                if (currentItem.isArchived) {
-                                    onUnarchive(currentItem.savedItemId)
-                                } else {
-                                    onArchive(currentItem.savedItemId)
+                            DismissValue.DismissedToStart -> {
+                                if (currentThresholdFraction.value < swipeThreshold) {
+                                    return@rememberDismissState false
                                 }
-                            } else if (it == DismissValue.DismissedToStart) { // Deleting.
-                                onDelete(currentItem.savedItemId)
                             }
-
-                            true
                         }
-                    )
+
+                        if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
+                            if (currentItem.isArchived) {
+                                onUnarchive(currentItem.savedItemId)
+                            } else {
+                                onArchive(currentItem.savedItemId)
+                            }
+                        } else if (it == DismissValue.DismissedToStart) { // Deleting.
+                            onDelete(currentItem.savedItemId)
+                        }
+
+                        true
+                    })
                     SwipeToDismiss(
                         state = swipeState,
-                        directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
+                        directions = setOf(
+                            DismissDirection.StartToEnd, DismissDirection.EndToStart
+                        ),
                         dismissThresholds = { FractionalThreshold(swipeThreshold) },
                         background = {
                             val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
@@ -434,8 +441,7 @@ fun LibraryViewContent(
                                 Modifier
                                     .fillMaxSize()
                                     .background(color)
-                                    .padding(horizontal = 20.dp),
-                                contentAlignment = alignment
+                                    .padding(horizontal = 20.dp), contentAlignment = alignment
                             ) {
                                 currentThresholdFraction.value = swipeState.progress.fraction
                                 Icon(
@@ -453,8 +459,7 @@ fun LibraryViewContent(
                                 labels = cardDataWithLabels.labels,
                                 highlights = cardDataWithLabels.highlights
                             )
-                            SavedItemCard(
-                                selected = selected,
+                            SavedItemCard(selected = selected,
                                 savedItemViewModel = savedItemViewModel,
                                 savedItem = savedItem,
                                 onClickHandler = {
@@ -467,11 +472,9 @@ fun LibraryViewContent(
                                 },
                                 actionHandler = {
                                     onSavedItemAction(
-                                        currentItem.savedItemId,
-                                        it
+                                        currentItem.savedItemId, it
                                     )
-                                }
-                            )
+                                })
                         },
                     )
                     when {
@@ -513,9 +516,7 @@ private fun Reset(state: DismissState) {
 
 @Composable
 fun InfiniteListHandler(
-    listState: LazyListState,
-    buffer: Int = 2,
-    onLoadMore: () -> Unit
+    listState: LazyListState, buffer: Int = 2, onLoadMore: () -> Unit
 ) {
     val loadMore = remember {
         derivedStateOf {
@@ -528,9 +529,7 @@ fun InfiniteListHandler(
     }
 
     LaunchedEffect(loadMore) {
-        snapshotFlow { loadMore.value }
-            .distinctUntilChanged()
-            .collect {
+        snapshotFlow { loadMore.value }.distinctUntilChanged().collect {
                 onLoadMore()
             }
     }

@@ -26,7 +26,7 @@ interface SavedItemDao {
     suspend fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
 
     @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
-    fun deleteById(itemID: String)
+    suspend fun deleteById(itemID: String)
 
     @Query("DELETE FROM savedItem WHERE savedItemId in (:itemIDs)")
     fun deleteByIds(itemIDs: List<String>)
@@ -80,7 +80,12 @@ interface SavedItemDao {
                 "AND SavedItem.isArchived IN (:allowedArchiveStates) " +
                 "AND SavedItem.contentReader IN (:allowedContentReaders) " +
                 "AND CASE WHEN :hasRequiredLabels THEN SavedItemLabel.name in (:requiredLabels) ELSE 1 END " +
-                "AND CASE WHEN :hasExcludedLabels THEN  SavedItemLabel.name is NULL OR SavedItemLabel.name not in (:excludedLabels)  ELSE 1 END " +
+                "AND CASE WHEN :hasExcludedLabels THEN NOT EXISTS ( " +
+                "    SELECT 1 FROM SavedItemAndSavedItemLabelCrossRef " +
+                "    INNER JOIN SavedItemLabel ON SavedItemAndSavedItemLabelCrossRef.savedItemLabelId = SavedItemLabel.savedItemLabelId " +
+                "    WHERE SavedItemAndSavedItemLabelCrossRef.savedItemId = SavedItem.savedItemId " +
+                "    AND SavedItemLabel.name IN (:excludedLabels) " +
+                ") ELSE 1 END " +
 
                 "GROUP BY SavedItem.savedItemId " +
 

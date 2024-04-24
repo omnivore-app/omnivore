@@ -27,6 +27,7 @@ import app.omnivore.omnivore.feature.library.LabelBottomSheet
 import app.omnivore.omnivore.feature.library.LibraryBottomSheetState
 import app.omnivore.omnivore.feature.library.LibraryNavigationBar
 import app.omnivore.omnivore.feature.library.LibraryViewContent
+import app.omnivore.omnivore.feature.library.SavedItemSortFilter
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.navigation.Routes
 import app.omnivore.omnivore.navigation.TopLevelDestination
@@ -46,10 +47,6 @@ internal fun FollowingScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val showBottomSheet: LibraryBottomSheetState by viewModel.bottomSheetState.observeAsState(
-        LibraryBottomSheetState.HIDDEN
-    )
-
     viewModel.snackbarMessage?.let {
         coroutineScope.launch {
             snackbarHostState.showSnackbar(it)
@@ -58,9 +55,15 @@ internal fun FollowingScreen(
     }
 
     val labels by viewModel.labelsState.collectAsStateWithLifecycle()
+    val currentTopLevelDestination =
+        TopLevelDestination.entries.find { it.route == navController.currentDestination?.route }
+    val selectedItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState()
+    val savedItemFilter by viewModel.appliedFilterState.collectAsStateWithLifecycle()
     val activeLabels by viewModel.activeLabels.collectAsStateWithLifecycle()
+    val sortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.collectAsStateWithLifecycle()
+    val bottomSheetState: LibraryBottomSheetState by viewModel.bottomSheetState.collectAsStateWithLifecycle()
 
-    when (showBottomSheet) {
+    when (bottomSheetState) {
         LibraryBottomSheetState.ADD_LINK -> {
             AddLinkBottomSheet(saveViewModel) {
                 viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
@@ -100,9 +103,6 @@ internal fun FollowingScreen(
         }
     }
 
-    val currentTopLevelDestination = TopLevelDestination.entries.find { it.route == navController.currentDestination?.route }
-    val selectedItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState()
-
     Scaffold(
         topBar = {
             LibraryNavigationBar(
@@ -118,6 +118,13 @@ internal fun FollowingScreen(
         when (uiState) {
             is FollowingUiState.Success -> {
                 LibraryViewContent(
+                    itemsFilter = savedItemFilter,
+                    activeLabels = activeLabels,
+                    sortFilter = sortFilter,
+                    updateSavedItemFilter = { viewModel.updateSavedItemFilter(it) },
+                    updateSavedItemSortFilter = { viewModel.updateSavedItemSortFilter(it) },
+                    setBottomSheetState = { viewModel.setBottomSheetState(it) },
+                    updateAppliedLabels = { viewModel.updateAppliedLabels(it) },
                     isFollowingScreen = currentTopLevelDestination == TopLevelDestination.FOLLOWING,
                     { viewModel.actionsMenuItemLiveData.postValue(null) },
                     savedItemViewModel = viewModel,

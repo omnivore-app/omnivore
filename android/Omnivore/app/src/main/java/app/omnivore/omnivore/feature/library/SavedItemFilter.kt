@@ -9,13 +9,11 @@ import androidx.compose.ui.text.font.FontWeight
 enum class SavedItemFilter(val displayText: String, val rawValue: String, val queryString: String) {
     FOLLOWING("Following", "following", "in:following use:folders"),
     INBOX("Inbox", rawValue = "inbox", "in:inbox use:folders"),
-    READ_LATER("Non-Feed Items", "nonFeed", "no:subscription"),
+    NON_FEED("Non-Feed Items", "nonFeed", "no:subscription"),
     FEEDS("Feeds", "feeds", "in:inbox label:RSS"),
     NEWSLETTERS("Newsletters", "newsletters", "in:inbox label:Newsletter"),
     ALL("All", "all", "in:all"),
     ARCHIVED("Archived", "archived", "in:archive"),
-
-    // HAS_HIGHLIGHTS("Highlighted", "hasHighlights", "has:highlights"),
     FILES("Files", "files", "type:file"),
 }
 
@@ -35,7 +33,7 @@ fun SavedItemFilterContextMenu(
     } else {
         listOf(
             SavedItemFilter.INBOX,
-            SavedItemFilter.READ_LATER,
+            SavedItemFilter.NON_FEED,
             SavedItemFilter.ALL,
             SavedItemFilter.ARCHIVED,
             SavedItemFilter.FILES

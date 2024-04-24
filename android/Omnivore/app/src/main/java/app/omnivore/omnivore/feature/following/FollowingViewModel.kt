@@ -55,7 +55,7 @@ class FollowingViewModel @Inject constructor(
         LibraryQuery(
             allowedArchiveStates = listOf(0),
             sortKey = "newest",
-            requiredLabels = listOf(),
+            requiredLabels = listOf("Newsletter", "RSS"),
             excludedLabels = listOf(),
             allowedContentReaders = listOf("WEB", "PDF", "EPUB")
         )
@@ -68,12 +68,11 @@ class FollowingViewModel @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = FollowingUiState.Loading
     )
+    
+    val appliedFilterState = MutableStateFlow(SavedItemFilter.FOLLOWING)
+    val appliedSortFilterLiveData = MutableStateFlow(SavedItemSortFilter.NEWEST)
+    val bottomSheetState = MutableStateFlow(LibraryBottomSheetState.HIDDEN)
 
-    val appliedFilterLiveData = MutableLiveData(
-        SavedItemFilter.FOLLOWING
-    )
-    val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
-    val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
     val currentItem = mutableStateOf<String?>(null)
 
     val labelsState = libraryRepository.getSavedItemsLabels().stateIn(
@@ -95,7 +94,7 @@ class FollowingViewModel @Inject constructor(
             }
         }
 
-        updateSavedItemFilter(appliedFilterLiveData.value ?: SavedItemFilter.INBOX)
+        updateSavedItemFilter(appliedFilterState.value)
     }
 
     private fun syncLabels() {
@@ -112,6 +111,10 @@ class FollowingViewModel @Inject constructor(
     fun refresh() {
         librarySearchCursor = null
         load()
+    }
+
+    fun setBottomSheetState(state: LibraryBottomSheetState) {
+        bottomSheetState.value = state
     }
 
     private fun getLastSyncTime(): Instant? = runBlocking {
@@ -159,10 +162,10 @@ class FollowingViewModel @Inject constructor(
         }
     }
 
-    private fun updateSavedItemFilter(filter: SavedItemFilter) {
+    fun updateSavedItemFilter(filter: SavedItemFilter) {
         viewModelScope.launch {
             datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
-            appliedFilterLiveData.value = filter
+            appliedFilterState.value = filter
             handleFilterChanges()
         }
     }
@@ -185,50 +188,47 @@ class FollowingViewModel @Inject constructor(
     private fun handleFilterChanges() {
         librarySearchCursor = null
 
-        if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
-            val sortKey = when (appliedSortFilterLiveData.value) {
-                SavedItemSortFilter.NEWEST -> "newest"
-                SavedItemSortFilter.OLDEST -> "oldest"
-                SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
-                SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
-                else -> "newest"
-            }
-
-            val allowedArchiveStates = when (appliedFilterLiveData.value) {
-                SavedItemFilter.ALL -> listOf(0, 1)
-                SavedItemFilter.ARCHIVED -> listOf(1)
-                else -> listOf(0)
-            }
-
-            val allowedContentReaders = when (appliedFilterLiveData.value) {
-                SavedItemFilter.FILES -> listOf("PDF", "EPUB")
-                else -> listOf("WEB", "PDF", "EPUB")
-            }
-
-            var requiredLabels = when (appliedFilterLiveData.value) {
-                SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
-                SavedItemFilter.FEEDS -> listOf("RSS")
-                else -> activeLabels.value.map { it.name }
-            }
-
-            activeLabels.value.let { it ->
-                requiredLabels = requiredLabels + it.map { it.name }
-            }
-
-
-            val excludeLabels = when (appliedFilterLiveData.value) {
-                SavedItemFilter.READ_LATER -> listOf("Newsletter", "RSS")
-                else -> listOf()
-            }
-
-            _libraryQuery.value = LibraryQuery(
-                allowedArchiveStates = allowedArchiveStates,
-                sortKey = sortKey,
-                requiredLabels = requiredLabels,
-                excludedLabels = excludeLabels,
-                allowedContentReaders = allowedContentReaders
-            )
+        val sortKey = when (appliedSortFilterLiveData.value) {
+            SavedItemSortFilter.NEWEST -> "newest"
+            SavedItemSortFilter.OLDEST -> "oldest"
+            SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
+            SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
         }
+
+        val allowedArchiveStates = when (appliedFilterState.value) {
+            SavedItemFilter.ALL -> listOf(0, 1)
+            SavedItemFilter.ARCHIVED -> listOf(1)
+            else -> listOf(0)
+        }
+
+        val allowedContentReaders = when (appliedFilterState.value) {
+            SavedItemFilter.FILES -> listOf("PDF", "EPUB")
+            else -> listOf("WEB", "PDF", "EPUB")
+        }
+
+        var requiredLabels = when (appliedFilterState.value) {
+            SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
+            SavedItemFilter.FEEDS -> listOf("RSS")
+            else -> activeLabels.value.map { it.name }
+        }
+
+        activeLabels.value.let { it ->
+            requiredLabels = requiredLabels + it.map { it.name }
+        }
+
+
+        val excludeLabels = when (appliedFilterState.value) {
+            SavedItemFilter.NON_FEED -> listOf("Newsletter", "RSS")
+            else -> listOf()
+        }
+
+        _libraryQuery.value = LibraryQuery(
+            allowedArchiveStates = allowedArchiveStates,
+            sortKey = sortKey,
+            requiredLabels = requiredLabels + listOf("Newsletter", "RSS"),
+            excludedLabels = excludeLabels,
+            allowedContentReaders = allowedContentReaders
+        )
     }
 
     private suspend fun syncItems() {
@@ -365,7 +365,7 @@ class FollowingViewModel @Inject constructor(
 
     private fun searchQueryString(): String {
         var query =
-            "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+            "${appliedFilterState.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
 
         activeLabels.value.let {
             if (it.isNotEmpty()) {
