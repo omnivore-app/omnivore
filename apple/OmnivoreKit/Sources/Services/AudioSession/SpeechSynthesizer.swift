@@ -20,7 +20,7 @@ struct UtteranceRequest: Codable {
   let isOpenAIVoice: Bool
 }
 
-public struct Utterance: Decodable {
+public struct Utterance: Codable {
   public let idx: String
   public let text: String
   public let voice: String?
@@ -39,10 +39,10 @@ public struct Utterance: Decodable {
   }
 }
 
-public struct SpeechDocument: Decodable {
-  static let averageWPM: Double = 195
+public struct SpeechDocument: Codable {
+  public static let averageWPM: Double = 195
 
-  public let pageId: String
+  public let pageId: String?
   public let wordCount: Double
   public let language: String
   public let defaultVoice: String
@@ -54,7 +54,7 @@ public struct SpeechDocument: Decodable {
   }
 
   var audioDirectory: URL {
-    Self.audioDirectory(pageId: pageId)
+    Self.audioDirectory(pageId: pageId ?? "pageid")
   }
 
   static func audioDirectory(pageId: String) -> URL {

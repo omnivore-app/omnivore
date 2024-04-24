@@ -137,7 +137,6 @@
         <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
-        <attribute name="digestEnabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="profileImageURL" optional="YES" attributeType="String"/>
         <attribute name="userID" attributeType="String"/>
