@@ -1,7 +1,7 @@
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText, StyledTextSpan } from '../../elements/StyledText'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
@@ -9,13 +9,53 @@ import { useRouter } from 'next/router'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import { formatMessage } from '../../../locales/en/messages'
 import Link from 'next/link'
+import { Recaptcha } from '../../elements/Recaptcha'
+
+const LoginForm = (): JSX.Element => {
+  const [email, setEmail] = useState<string | undefined>()
+  const [password, setPassword] = useState<string | undefined>()
+
+  return (
+    <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+      <SpanBox css={{ width: '100%' }}>
+        <FormLabel>Email</FormLabel>
+        <BorderedFormInput
+          autoFocus={true}
+          key="email"
+          type="email"
+          name="email"
+          value={email}
+          placeholder="Email"
+          css={{ backgroundColor: 'white', color: 'black' }}
+          onChange={(e) => {
+            e.preventDefault()
+            setEmail(e.target.value)
+          }}
+        />
+      </SpanBox>
+
+      <SpanBox css={{ width: '100%' }}>
+        <FormLabel>Password</FormLabel>
+        <BorderedFormInput
+          key="password"
+          type="password"
+          name="password"
+          value={password}
+          placeholder="Password"
+          css={{ bg: 'white', color: 'black' }}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </SpanBox>
+    </VStack>
+  )
+}
 
 export function EmailLogin(): JSX.Element {
   const router = useRouter()
-  const [email, setEmail] = useState<string | undefined>(undefined)
-  const [password, setPassword] = useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
+  const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -44,39 +84,27 @@ export function EmailLogin(): JSX.Element {
         <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
           Login
         </StyledText>
-        <VStack
-          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
-        >
-          <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Email</FormLabel>
-            <BorderedFormInput
-              autoFocus={true}
-              key="email"
-              type="email"
-              name="email"
-              value={email}
-              placeholder="Email"
-              css={{ backgroundColor: 'white', color: 'black' }}
-              onChange={(e) => {
-                e.preventDefault()
-                setEmail(e.target.value)
+
+        <LoginForm />
+
+        {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY && (
+          <>
+            <Recaptcha
+              setRecaptchaToken={(token) => {
+                if (recaptchaTokenRef.current) {
+                  recaptchaTokenRef.current.value = token
+                } else {
+                  console.log('error updating recaptcha token')
+                }
               }}
             />
-          </SpanBox>
-
-          <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Password</FormLabel>
-            <BorderedFormInput
-              key="password"
-              type="password"
-              name="password"
-              value={password}
-              placeholder="Password"
-              css={{ bg: 'white', color: 'black' }}
-              onChange={(e) => setPassword(e.target.value)}
+            <input
+              ref={recaptchaTokenRef}
+              type="hidden"
+              name="recaptchaToken"
             />
-          </SpanBox>
-        </VStack>
+          </>
+        )}
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
 
@@ -148,5 +176,5 @@ export function EmailLogin(): JSX.Element {
         </StyledText>
       </VStack>
     </form>
-  );
+  )
 }

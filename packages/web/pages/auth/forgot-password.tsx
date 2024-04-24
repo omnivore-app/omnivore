@@ -1,11 +1,11 @@
 import { PageMetaData } from '../../components/patterns/PageMetaData'
-import { ProfileLayout } from '../../components/templates/ProfileLayout'
+import { AuthLayout } from '../../components/templates/AuthLayout'
 import { EmailForgotPassword } from '../../components/templates/auth/EmailForgotPassword'
 import { Toaster } from 'react-hot-toast'
 
 export default function ForgotPassword(): JSX.Element {
   return (
-    <>
+    <AuthLayout>
       <PageMetaData
         title="Reset your password - Omnivore"
         path="/auth-forgot-password"
@@ -15,10 +15,8 @@ export default function ForgotPassword(): JSX.Element {
           top: '5rem',
         }}
       />
-      <ProfileLayout>
-        <EmailForgotPassword />
-      </ProfileLayout>
+      <EmailForgotPassword />
       <div data-testid="auth-forgot-password-page-tag" />
-    </>
+    </AuthLayout>
   )
 }

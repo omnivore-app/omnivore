@@ -14,5 +14,7 @@ export const corsConfig = {
     env.client.url,
     'lsp://logseq.io',
     'app://obsidian.md',
+    'capacitor://localhost',
+    'http://localhost',
   ],
 }

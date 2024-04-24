@@ -1,15 +1,13 @@
 import { PageMetaData } from '../../components/patterns/PageMetaData'
-import { ProfileLayout } from '../../components/templates/ProfileLayout'
+import { AuthLayout } from '../../components/templates/AuthLayout'
 import { EmailLogin } from '../../components/templates/auth/EmailLogin'
 
 export default function EmailLoginPage(): JSX.Element {
   return (
-    <>
+    <AuthLayout>
       <PageMetaData title="Login - Omnivore" path="/email-login" />
-      <ProfileLayout>
-        <EmailLogin />
-      </ProfileLayout>
+      <EmailLogin />
       <div data-testid="email-login-page-tag" />
-    </>
+    </AuthLayout>
   )
 }

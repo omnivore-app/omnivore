@@ -1,4 +1,8 @@
-import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import {
+  DirectionalityType,
+  LibraryItem,
+  LibraryItemState,
+} from '../entity/library_item'
 import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
@@ -108,6 +112,11 @@ export const saveEmail = async (
       subscription: input.author,
       folder: input.folder,
       labelNames: labels.map((label) => label.name),
+      itemLanguage: parseResult.parsedContent?.language,
+      directionality:
+        parseResult.parsedContent?.dir?.toLowerCase() === 'rtl'
+          ? DirectionalityType.RTL
+          : DirectionalityType.LTR, // default to LTR
     },
     input.userId
   )

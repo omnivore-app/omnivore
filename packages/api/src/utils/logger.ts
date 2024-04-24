@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { LoggingWinston } from '@google-cloud/logging-winston'
+import axios from 'axios'
 import jsonStringify from 'fast-safe-stringify'
 import { cloneDeep, isArray, isObject, isString, truncate } from 'lodash'
 import { DateTime } from 'luxon'
@@ -166,6 +167,19 @@ export interface LogRecord {
     source: string
   }
   [key: string]: any
+}
+
+export const logError = (error: any): void => {
+  if (axios.isAxiosError(error)) {
+    logger.error(error.message, {
+      response: error.response?.data,
+      stack: error.stack,
+    })
+  } else if (error instanceof Error) {
+    logger.error(error.message, { stack: error.stack })
+  } else {
+    logger.error(error)
+  }
 }
 
 export const logger = buildLogger('app')

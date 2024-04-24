@@ -4,13 +4,12 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import * as lw from '@google-cloud/logging-winston'
 import * as Sentry from '@sentry/node'
-import { ApolloServer } from 'apollo-server-express'
 import { json, urlencoded } from 'body-parser'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import promBundle from 'express-prom-bundle'
-import { createServer, Server } from 'http'
+import { createServer } from 'http'
 import * as prom from 'prom-client'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
@@ -150,7 +149,8 @@ const main = async (): Promise<void> => {
   }
 
   const app = createApp()
-  const apollo = makeApolloServer(app)
+  const httpServer = createServer(app)
+  const apollo = makeApolloServer(app, httpServer)
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
@@ -159,7 +159,7 @@ const main = async (): Promise<void> => {
   const mw = await lw.express.makeMiddleware(mwLogger, transport)
   app.use(mw)
 
-  const listener = app.listen({ port: PORT }, async () => {
+  const listener = httpServer.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
   })
@@ -176,21 +176,10 @@ const main = async (): Promise<void> => {
   const gracefulShutdown = async (signal: string) => {
     console.log(`[api]: Received ${signal}, closing server...`)
     await apollo.stop()
-    console.log('[api]: Apollo server stopped')
+    console.log('[api]: Express server stopped')
 
-    console.log('[posthog]: flushing events')
     await analytics.shutdownAsync()
-    console.log('[posthog]: events flushed')
-
-    await new Promise<void>((resolve) => {
-      listener.close((err) => {
-        console.log('[api]: Express listener closed')
-        if (err) {
-          console.log('[api]: error stopping listener', { err })
-        }
-        resolve()
-      })
-    })
+    console.log('[api]: Posthog events flushed')
 
     // Shutdown redis before DB because the quit sequence can
     // cause appDataSource to get reloaded in the callback
