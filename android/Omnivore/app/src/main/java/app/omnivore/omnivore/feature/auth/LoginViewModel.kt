@@ -24,7 +24,7 @@ import app.omnivore.omnivore.core.network.RetrofitHelper
 import app.omnivore.omnivore.core.network.SignInParams
 import app.omnivore.omnivore.core.network.UserProfile
 import app.omnivore.omnivore.core.network.viewer
-import app.omnivore.omnivore.feature.ResourceProvider
+import app.omnivore.omnivore.utils.ResourceProvider
 import app.omnivore.omnivore.utils.Constants
 import app.omnivore.omnivore.utils.DatastoreKeys
 import com.apollographql.apollo3.ApolloClient

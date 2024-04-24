@@ -1,12 +1,12 @@
 mutation SetLinkArchived($input: ArchiveLinkInput!) {
-  setLinkArchived(input: $input) {
-    ... on ArchiveLinkSuccess {
-      linkId
-      message
+    setLinkArchived(input: $input) {
+        ... on ArchiveLinkSuccess {
+            linkId
+            message
+        }
+        ... on ArchiveLinkError {
+            message
+            errorCodes
+        }
     }
-    ... on ArchiveLinkError {
-      message
-      errorCodes
-    }
-  }
 }

@@ -14,7 +14,7 @@ import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
-import app.omnivore.omnivore.feature.ResourceProvider
+import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel

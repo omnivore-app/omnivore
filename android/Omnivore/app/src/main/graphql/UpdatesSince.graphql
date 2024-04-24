@@ -1,63 +1,63 @@
 query UpdatesSince(
-  $folder: String
-  $after: String
-  $first: Int
-  $since: Date!
+    $folder: String
+    $after: String
+    $first: Int
+    $since: Date!
 ) {
-  updatesSince(after: $after, first: $first, folder: $folder, since: $since) {
-    ... on UpdatesSinceSuccess {
-      edges {
-        cursor
-        itemID
-        updateReason
-        node {
-          id
-          title
-          slug
-          url
-          pageType
-          contentReader
-          createdAt
-          isArchived
-          readingProgressPercent
-          readingProgressAnchorIndex
-          author
-          image
-          description
-          publishedAt
-          ownedByViewer
-          originalArticleUrl
-          uploadFileId
-          labels {
-            ...LabelFields
-          }
-          highlights {
-            ...HighlightFields
-          }
-          pageId
-          shortId
-          quote
-          annotation
-          state
-          siteName
-          subscription
-          readAt
-          savedAt
-          updatedAt
-          language
-          wordsCount
+    updatesSince(after: $after, first: $first, folder: $folder, since: $since) {
+        ... on UpdatesSinceSuccess {
+            edges {
+                cursor
+                itemID
+                updateReason
+                node {
+                    id
+                    title
+                    slug
+                    url
+                    pageType
+                    contentReader
+                    createdAt
+                    isArchived
+                    readingProgressPercent
+                    readingProgressAnchorIndex
+                    author
+                    image
+                    description
+                    publishedAt
+                    ownedByViewer
+                    originalArticleUrl
+                    uploadFileId
+                    labels {
+                        ...LabelFields
+                    }
+                    highlights {
+                        ...HighlightFields
+                    }
+                    pageId
+                    shortId
+                    quote
+                    annotation
+                    state
+                    siteName
+                    subscription
+                    readAt
+                    savedAt
+                    updatedAt
+                    language
+                    wordsCount
+                }
+            }
+            pageInfo {
+                hasNextPage
+                hasPreviousPage
+                startCursor
+                endCursor
+                totalCount
+            }
         }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-        totalCount
-      }
+        ... on UpdatesSinceError {
+            errorCodes
+        }
     }
-    ... on UpdatesSinceError {
-      errorCodes
-    }
-  }
 }

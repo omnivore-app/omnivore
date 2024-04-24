@@ -1,13 +1,13 @@
 mutation CreateHighlight($input: CreateHighlightInput!) {
-  createHighlight(input: $input) {
-    ... on CreateHighlightSuccess {
-      highlight {
-        ...HighlightFields
-      }
-    }
+    createHighlight(input: $input) {
+        ... on CreateHighlightSuccess {
+            highlight {
+                ...HighlightFields
+            }
+        }
 
-    ... on CreateHighlightError {
-      errorCodes
+        ... on CreateHighlightError {
+            errorCodes
+        }
     }
-  }
 }

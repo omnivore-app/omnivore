@@ -51,7 +51,7 @@ class LibraryViewModel @Inject constructor(
             allowedArchiveStates = listOf(0),
             sortKey = "newest",
             requiredLabels = listOf(),
-            excludedLabels = listOf(),
+            excludedLabels = listOf("Newsletter", "RSS"),
             allowedContentReaders = listOf("WEB", "PDF", "EPUB")
         )
     )
@@ -65,6 +65,7 @@ class LibraryViewModel @Inject constructor(
     )
 
     val appliedFilterLiveData = MutableLiveData<SavedItemFilter>()
+
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
     val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
     val currentItem = mutableStateOf<String?>(null)
@@ -198,7 +199,6 @@ class LibraryViewModel @Inject constructor(
             }
 
             var requiredLabels = when (appliedFilterLiveData.value) {
-                SavedItemFilter.FOLLOWING -> listOf("Newsletter", "RSS")
                 SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
                 SavedItemFilter.FEEDS -> listOf("RSS")
                 else -> activeLabels.value.map { it.name }
@@ -211,7 +211,7 @@ class LibraryViewModel @Inject constructor(
 
             val excludeLabels = when (appliedFilterLiveData.value) {
                 SavedItemFilter.READ_LATER -> listOf("Newsletter", "RSS")
-                else -> listOf()
+                else -> listOf("Newsletter", "RSS")
             }
 
             _libraryQuery.value = LibraryQuery(

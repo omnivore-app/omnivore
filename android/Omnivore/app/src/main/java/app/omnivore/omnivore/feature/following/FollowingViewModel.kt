@@ -69,7 +69,7 @@ class FollowingViewModel @Inject constructor(
         initialValue = FollowingUiState.Loading
     )
 
-    val appliedFilterLiveData = MutableLiveData<SavedItemFilter>(
+    val appliedFilterLiveData = MutableLiveData(
         SavedItemFilter.FOLLOWING
     )
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
@@ -159,7 +159,7 @@ class FollowingViewModel @Inject constructor(
         }
     }
 
-    fun updateSavedItemFilter(filter: SavedItemFilter) {
+    private fun updateSavedItemFilter(filter: SavedItemFilter) {
         viewModelScope.launch {
             datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
             appliedFilterLiveData.value = filter
@@ -206,10 +206,9 @@ class FollowingViewModel @Inject constructor(
             }
 
             var requiredLabels = when (appliedFilterLiveData.value) {
-                SavedItemFilter.FOLLOWING -> listOf("Newsletter", "RSS")
                 SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
                 SavedItemFilter.FEEDS -> listOf("RSS")
-                else -> listOf("Newsletter", "RSS")//activeLabels.value.map { it.name }
+                else -> activeLabels.value.map { it.name }
             }
 
             activeLabels.value.let { it ->

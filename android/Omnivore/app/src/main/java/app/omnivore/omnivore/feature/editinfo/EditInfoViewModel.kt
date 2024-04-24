@@ -13,7 +13,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.graphql.generated.UpdatePageMutation
 import app.omnivore.omnivore.graphql.generated.type.UpdatePageInput
-import app.omnivore.omnivore.feature.ResourceProvider
+import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
