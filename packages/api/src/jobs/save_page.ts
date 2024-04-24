@@ -11,14 +11,14 @@ import { userRepository } from '../repository/user'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
 import { uploadFile } from '../services/upload_file'
-import { logger } from '../utils/logger'
+import { logError, logger } from '../utils/logger'
 
 const signToken = promisify(jwt.sign)
 
 const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
 
-const MAX_ATTEMPTS = 2
+const MAX_ATTEMPTS = 1
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
 interface Data {
@@ -54,41 +54,30 @@ const uploadToSignedUrl = async (
 ) => {
   const maxContentLength = 10 * 1024 * 1024 // 10MB
 
-  try {
-    logger.info('downloading content', {
-      contentObjUrl,
-    })
+  logger.info('downloading content', {
+    contentObjUrl,
+  })
 
-    // download the content as stream and max 10MB
-    const response = await axios.get(contentObjUrl, {
-      responseType: 'stream',
-      maxContentLength,
-      timeout: REQUEST_TIMEOUT,
-    })
+  // download the content as stream and max 10MB
+  const response = await axios.get(contentObjUrl, {
+    responseType: 'stream',
+    maxContentLength,
+    timeout: REQUEST_TIMEOUT,
+  })
 
-    logger.info('uploading to signed url', {
-      uploadSignedUrl,
-      contentType,
-    })
+  logger.info('uploading to signed url', {
+    uploadSignedUrl,
+    contentType,
+  })
 
-    // upload the stream to the signed url
-    await axios.post(uploadSignedUrl, response.data, {
-      headers: {
-        'Content-Type': contentType,
-      },
-      maxBodyLength: maxContentLength,
-      timeout: REQUEST_TIMEOUT,
-    })
-
-    return true
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      logger.error(`error uploading to signed url: ${error.message}`)
-    } else {
-      logger.error('error uploading to signed url', error)
-    }
-    return false
-  }
+  // upload the stream to the signed url
+  await axios.put(uploadSignedUrl, response.data, {
+    headers: {
+      'Content-Type': contentType,
+    },
+    maxBodyLength: maxContentLength,
+    timeout: REQUEST_TIMEOUT,
+  })
 }
 
 const uploadPdf = async (
@@ -109,14 +98,7 @@ const uploadPdf = async (
     throw new Error('error while getting upload id and signed url')
   }
 
-  const uploaded = await uploadToSignedUrl(
-    result.uploadSignedUrl,
-    'application/pdf',
-    url
-  )
-  if (!uploaded) {
-    throw new Error('error while uploading pdf')
-  }
+  await uploadToSignedUrl(result.uploadSignedUrl, 'application/pdf', url)
 
   logger.info('pdf uploaded successfully', {
     url,
@@ -154,7 +136,7 @@ const sendImportStatusUpdate = async (
       }
     )
   } catch (e) {
-    logger.error('error while sending import status update', e)
+    logError(e)
   }
 }
 
@@ -288,20 +270,14 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     isImported = true
     isSaved = true
   } catch (e) {
-    if (e instanceof Error) {
-      logger.error(`error while saving page: ${e.message}`)
-    } else {
-      logger.error('error while saving page: unknown error')
-    }
+    logError(e)
 
     throw e
   } finally {
-    const lastAttempt = attemptsMade === MAX_ATTEMPTS - 1
-    if (lastAttempt) {
-      logger.info(`last attempt reached ${data.url}`)
-    }
+    const lastAttempt = attemptsMade + 1 === MAX_ATTEMPTS
 
     if (taskId && (isSaved || lastAttempt)) {
+      logger.info('sending import status update')
       // send import status to update the metrics for importer
       await sendImportStatusUpdate(userId, taskId, isImported)
     }
