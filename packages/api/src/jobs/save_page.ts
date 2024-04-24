@@ -18,7 +18,7 @@ const signToken = promisify(jwt.sign)
 const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
 
-const MAX_ATTEMPTS = 1
+const MAX_IMPORT_ATTEMPTS = 1
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
 interface Data {
@@ -274,7 +274,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     throw e
   } finally {
-    const lastAttempt = attemptsMade + 1 === MAX_ATTEMPTS
+    const lastAttempt = attemptsMade + 1 === MAX_IMPORT_ATTEMPTS
 
     if (taskId && (isSaved || lastAttempt)) {
       logger.info('sending import status update')
