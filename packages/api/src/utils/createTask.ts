@@ -60,7 +60,7 @@ import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
-import { logger } from './logger'
+import { logError, logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
 
 // Instantiates a client.
@@ -103,14 +103,6 @@ export const getJobPriority = (jobName: string): number => {
     default:
       logger.error(`unknown job name: ${jobName}`)
       return 1
-  }
-}
-
-const logError = (error: any): void => {
-  if (axios.isAxiosError(error)) {
-    logger.error(error.response)
-  } else {
-    logger.error(error)
   }
 }
 

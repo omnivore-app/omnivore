@@ -59,7 +59,7 @@ const getAttempts = (job: SavePageJob): number => {
 
 const getOpts = (job: SavePageJob): BulkJobOptions => {
   return {
-    jobId: `save-page_${job.userId}_${job.data.finalUrl}`, // make sure we don't have duplicate jobs
+    jobId: `${JOB_NAME}_${job.userId}_${job.data.finalUrl}`, // make sure we don't have duplicate jobs
     removeOnComplete: true,
     removeOnFail: true,
     attempts: getAttempts(job),
