@@ -13,21 +13,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.component.SwitchPreferenceWidget
-import app.omnivore.omnivore.feature.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FiltersScreen(
     navController: NavHostController,
-    settingsViewModel: ProfileViewModel = hiltViewModel()
+    filtersViewModel: FiltersViewModel = hiltViewModel()
 ) {
 
     Scaffold(
@@ -52,12 +49,12 @@ internal fun FiltersScreen(
             contentPadding = contentPadding,
         ) {
             item {
-                var checked by remember { mutableStateOf(true) }
+                val followingTabActive by filtersViewModel.followingTabActiveState.collectAsStateWithLifecycle()
 
                 SwitchPreferenceWidget(
                     title = stringResource(R.string.hide_following_tab),
-                    checked = checked,
-                    onCheckedChanged = { checked = it },
+                    checked = followingTabActive,
+                    onCheckedChanged = { filtersViewModel.setFollowingTabActiveState(it) },
                 )
             }
         }

@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.libraryLastSyncTimestamp
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.viewer
-import app.omnivore.omnivore.utils.DatastoreKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomSpace
@@ -33,7 +33,7 @@ class ProfileViewModel @Inject constructor(
         isResettingData = true
 
         viewModelScope.launch {
-            datastoreRepo.clearValue(DatastoreKeys.libraryLastSyncTimestamp)
+            datastoreRepo.clearValue(libraryLastSyncTimestamp)
             dataService.clearDatabase()
             delay(1000)
             isResettingData = false

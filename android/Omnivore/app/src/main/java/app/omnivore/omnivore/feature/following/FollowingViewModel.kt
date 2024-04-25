@@ -13,12 +13,14 @@ import app.omnivore.omnivore.core.data.repository.LibraryRepository
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.lastUsedSavedItemFilter
+import app.omnivore.omnivore.core.datastore.lastUsedSavedItemSortFilter
+import app.omnivore.omnivore.core.datastore.libraryLastSyncTimestamp
 import app.omnivore.omnivore.feature.library.LibraryBottomSheetState
 import app.omnivore.omnivore.feature.library.SavedItemAction
 import app.omnivore.omnivore.feature.library.SavedItemFilter
 import app.omnivore.omnivore.feature.library.SavedItemSortFilter
 import app.omnivore.omnivore.feature.library.SavedItemViewModel
-import app.omnivore.omnivore.utils.DatastoreKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -118,7 +120,7 @@ class FollowingViewModel @Inject constructor(
     }
 
     private fun getLastSyncTime(): Instant? = runBlocking {
-        datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
+        datastoreRepo.getString(libraryLastSyncTimestamp)?.let {
             try {
                 return@let Instant.parse(it)
             } catch (e: Exception) {
@@ -164,7 +166,7 @@ class FollowingViewModel @Inject constructor(
 
     fun updateSavedItemFilter(filter: SavedItemFilter) {
         viewModelScope.launch {
-            datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
+            datastoreRepo.putString(lastUsedSavedItemFilter, filter.rawValue)
             appliedFilterState.value = filter
             handleFilterChanges()
         }
@@ -172,7 +174,7 @@ class FollowingViewModel @Inject constructor(
 
     fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
         viewModelScope.launch {
-            datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
+            datastoreRepo.putString(lastUsedSavedItemSortFilter, filter.rawValue)
             appliedSortFilterLiveData.value = filter
             handleFilterChanges()
         }
@@ -225,7 +227,7 @@ class FollowingViewModel @Inject constructor(
         _libraryQuery.value = LibraryQuery(
             allowedArchiveStates = allowedArchiveStates,
             sortKey = sortKey,
-            requiredLabels = requiredLabels + listOf("Newsletter", "RSS"),
+            requiredLabels = requiredLabels,
             excludedLabels = excludeLabels,
             allowedContentReaders = allowedContentReaders
         )
@@ -274,7 +276,7 @@ class FollowingViewModel @Inject constructor(
                 isInitialBatch = false
             )
         } else {
-            datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
+            datastoreRepo.putString(libraryLastSyncTimestamp, startTime)
         }
     }
     

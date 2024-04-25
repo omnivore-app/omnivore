@@ -5,11 +5,21 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.*
-import app.omnivore.omnivore.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.BuildConfig
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.analytics.EventTracker
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.omnivoreAuthCookieString
+import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
+import app.omnivore.omnivore.core.datastore.omnivorePendingUserToken
+import app.omnivore.omnivore.core.datastore.omnivoreSelfHostedApiServer
+import app.omnivore.omnivore.core.datastore.omnivoreSelfHostedWebServer
 import app.omnivore.omnivore.core.network.AuthProviderLoginSubmit
 import app.omnivore.omnivore.core.network.CreateAccountParams
 import app.omnivore.omnivore.core.network.CreateAccountSubmit
@@ -17,24 +27,26 @@ import app.omnivore.omnivore.core.network.CreateEmailAccountSubmit
 import app.omnivore.omnivore.core.network.EmailLoginCredentials
 import app.omnivore.omnivore.core.network.EmailLoginSubmit
 import app.omnivore.omnivore.core.network.EmailSignUpParams
-import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.PendingUserSubmit
 import app.omnivore.omnivore.core.network.RetrofitHelper
 import app.omnivore.omnivore.core.network.SignInParams
 import app.omnivore.omnivore.core.network.UserProfile
 import app.omnivore.omnivore.core.network.viewer
-import app.omnivore.omnivore.utils.ResourceProvider
+import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
 import app.omnivore.omnivore.utils.Constants
-import app.omnivore.omnivore.utils.DatastoreKeys
+import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -84,13 +96,13 @@ class LoginViewModel @Inject constructor(
   val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
 
   fun getAuthCookieString(): String? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
+    datastoreRepo.getString(omnivoreAuthCookieString)
   }
 
   fun setSelfHostingDetails(context: Context, apiServer: String, webServer: String) {
     viewModelScope.launch {
-      datastoreRepo.putString(DatastoreKeys.omnivoreSelfHostedAPIServer, apiServer)
-      datastoreRepo.putString(DatastoreKeys.omnivoreSelfHostedWebServer, webServer)
+      datastoreRepo.putString(omnivoreSelfHostedApiServer, apiServer)
+      datastoreRepo.putString(omnivoreSelfHostedWebServer, webServer)
       Toast.makeText(
         context,
         context.getString(R.string.login_view_model_self_hosting_settings_updated),
@@ -101,8 +113,8 @@ class LoginViewModel @Inject constructor(
 
   fun resetSelfHostingDetails(context: Context) {
     viewModelScope.launch {
-      datastoreRepo.clearValue(DatastoreKeys.omnivoreSelfHostedAPIServer)
-      datastoreRepo.clearValue(DatastoreKeys.omnivoreSelfHostedWebServer)
+      datastoreRepo.clearValue(omnivoreSelfHostedApiServer)
+      datastoreRepo.clearValue(omnivoreSelfHostedWebServer)
       Toast.makeText(
         context,
         context.getString(R.string.login_view_model_self_hosting_settings_reset),
@@ -136,7 +148,7 @@ class LoginViewModel @Inject constructor(
   fun cancelNewUserSignUp() {
     resetState()
     viewModelScope.launch {
-      datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)
+      datastoreRepo.clearValue(omnivorePendingUserToken)
     }
     showSocialLogin()
   }
@@ -235,7 +247,7 @@ class LoginViewModel @Inject constructor(
       }
 
       if (result.body()?.authToken != null) {
-        datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
+        datastoreRepo.putString(omnivoreAuthToken, result.body()?.authToken!!)
       } else {
         errorMessage = resourceProvider.getString(
           R.string.login_view_model_something_went_wrong_error_msg)
@@ -243,7 +255,7 @@ class LoginViewModel @Inject constructor(
 
       if (result.body()?.authCookieString != null) {
         datastoreRepo.putString(
-          DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
+          omnivoreAuthCookieString, result.body()?.authCookieString!!
         )
       }
     }
@@ -282,7 +294,7 @@ class LoginViewModel @Inject constructor(
   }
 
   private fun getPendingAuthToken(): String? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.omnivorePendingUserToken)
+    datastoreRepo.getString(omnivorePendingUserToken)
   }
 
   fun submitProfile(username: String, name: String) {
@@ -305,7 +317,7 @@ class LoginViewModel @Inject constructor(
       isLoading = false
 
       if (result.body()?.authToken != null) {
-        datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
+        datastoreRepo.putString(omnivoreAuthToken, result.body()?.authToken!!)
       } else {
         errorMessage = resourceProvider.getString(
           R.string.login_view_model_something_went_wrong_error_msg)
@@ -313,7 +325,7 @@ class LoginViewModel @Inject constructor(
 
       if (result.body()?.authCookieString != null) {
         datastoreRepo.putString(
-          DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
+          omnivoreAuthCookieString, result.body()?.authCookieString!!
         )
       }
     }
@@ -371,11 +383,11 @@ class LoginViewModel @Inject constructor(
       isLoading = false
 
       if (result.body()?.authToken != null) {
-        datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
+        datastoreRepo.putString(omnivoreAuthToken, result.body()?.authToken!!)
 
         if (result.body()?.authCookieString != null) {
           datastoreRepo.putString(
-            DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
+            omnivoreAuthCookieString, result.body()?.authCookieString!!
           )
         }
       } else {
@@ -409,7 +421,7 @@ class LoginViewModel @Inject constructor(
 
     if (result.body()?.pendingUserToken != null) {
       datastoreRepo.putString(
-        DatastoreKeys.omnivorePendingUserToken, result.body()?.pendingUserToken!!
+        omnivorePendingUserToken, result.body()?.pendingUserToken!!
       )
       registrationStateLiveData.value = RegistrationState.PendingUser
     } else {

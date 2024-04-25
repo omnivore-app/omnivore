@@ -13,7 +13,9 @@ import app.omnivore.omnivore.core.data.repository.LibraryRepository
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
-import app.omnivore.omnivore.utils.DatastoreKeys
+import app.omnivore.omnivore.core.datastore.lastUsedSavedItemFilter
+import app.omnivore.omnivore.core.datastore.lastUsedSavedItemSortFilter
+import app.omnivore.omnivore.core.datastore.libraryLastSyncTimestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -112,7 +114,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     private fun getLastSyncTime(): Instant? = runBlocking {
-        datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
+        datastoreRepo.getString(libraryLastSyncTimestamp)?.let {
             try {
                 return@let Instant.parse(it)
             } catch (e: Exception) {
@@ -158,7 +160,7 @@ class LibraryViewModel @Inject constructor(
 
     fun updateSavedItemFilter(filter: SavedItemFilter) {
         viewModelScope.launch {
-            datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
+            datastoreRepo.putString(lastUsedSavedItemFilter, filter.rawValue)
             appliedFilterState.value = filter
             handleFilterChanges()
         }
@@ -166,7 +168,7 @@ class LibraryViewModel @Inject constructor(
 
     fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
         viewModelScope.launch {
-            datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
+            datastoreRepo.putString(lastUsedSavedItemSortFilter, filter.rawValue)
             appliedSortFilterLiveData.value = filter
             handleFilterChanges()
         }
@@ -182,49 +184,46 @@ class LibraryViewModel @Inject constructor(
     private fun handleFilterChanges() {
         librarySearchCursor = null
 
-        if (appliedSortFilterLiveData.value != null && appliedFilterState.value != null) {
-            val sortKey = when (appliedSortFilterLiveData.value) {
-                SavedItemSortFilter.NEWEST -> "newest"
-                SavedItemSortFilter.OLDEST -> "oldest"
-                SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
-                SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
-                else -> "newest"
-            }
-
-            val allowedArchiveStates = when (appliedFilterState.value) {
-                SavedItemFilter.ALL -> listOf(0, 1)
-                SavedItemFilter.ARCHIVED -> listOf(1)
-                else -> listOf(0)
-            }
-
-            val allowedContentReaders = when (appliedFilterState.value) {
-                SavedItemFilter.FILES -> listOf("PDF", "EPUB")
-                else -> listOf("WEB", "PDF", "EPUB")
-            }
-
-            var requiredLabels = when (appliedFilterState.value) {
-                SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
-                SavedItemFilter.FEEDS -> listOf("RSS")
-                else -> activeLabels.value.map { it.name }
-            }
-
-            activeLabels.value.let { it ->
-                requiredLabels = requiredLabels + it.map { it.name }
-            }
-
-            val excludeLabels = when (appliedFilterState.value) {
-                SavedItemFilter.NON_FEED -> listOf("Newsletter", "RSS")
-                else -> listOf("Newsletter", "RSS")
-            }
-
-            _libraryQuery.value = LibraryQuery(
-                allowedArchiveStates = allowedArchiveStates,
-                sortKey = sortKey,
-                requiredLabels = requiredLabels,
-                excludedLabels = excludeLabels,
-                allowedContentReaders = allowedContentReaders
-            )
+        val sortKey = when (appliedSortFilterLiveData.value) {
+            SavedItemSortFilter.NEWEST -> "newest"
+            SavedItemSortFilter.OLDEST -> "oldest"
+            SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
+            SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
         }
+
+        val allowedArchiveStates = when (appliedFilterState.value) {
+            SavedItemFilter.ALL -> listOf(0, 1)
+            SavedItemFilter.ARCHIVED -> listOf(1)
+            else -> listOf(0)
+        }
+
+        val allowedContentReaders = when (appliedFilterState.value) {
+            SavedItemFilter.FILES -> listOf("PDF", "EPUB")
+            else -> listOf("WEB", "PDF", "EPUB")
+        }
+
+        var requiredLabels = when (appliedFilterState.value) {
+            SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
+            SavedItemFilter.FEEDS -> listOf("RSS")
+            else -> activeLabels.value.map { it.name }
+        }
+
+        activeLabels.value.let { it ->
+            requiredLabels = requiredLabels + it.map { it.name }
+        }
+
+        val excludeLabels = when (appliedFilterState.value) {
+            SavedItemFilter.NON_FEED -> listOf("Newsletter", "RSS")
+            else -> listOf("Newsletter", "RSS")
+        }
+
+        _libraryQuery.value = LibraryQuery(
+            allowedArchiveStates = allowedArchiveStates,
+            sortKey = sortKey,
+            requiredLabels = requiredLabels,
+            excludedLabels = excludeLabels,
+            allowedContentReaders = allowedContentReaders
+        )
     }
 
     private suspend fun syncItems() {
@@ -270,7 +269,7 @@ class LibraryViewModel @Inject constructor(
                 isInitialBatch = false
             )
         } else {
-            datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
+            datastoreRepo.putString(libraryLastSyncTimestamp, startTime)
         }
     }
 
@@ -360,7 +359,7 @@ class LibraryViewModel @Inject constructor(
 
     private fun searchQueryString(): String {
         var query =
-            "${appliedFilterState.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+            "${appliedFilterState.value.queryString} ${appliedSortFilterLiveData.value.queryString}"
 
         activeLabels.value.let {
             if (it.isNotEmpty()) {
