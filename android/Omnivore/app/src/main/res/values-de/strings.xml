@@ -205,7 +205,7 @@
     <string name="about_feedback">Feedback</string>
     <string name="about_privacy_policy">Datenschutzerklärung</string>
     <string name="about_terms_and_conditions">Nutzungsbedingungen</string>
-    <string name="about_manage_account">Konto verwalten</string>
+    <string name="profile_manage_account">Konto verwalten</string>
     <string name="about_logout">Abmelden</string>
 
     <!-- AddLinkSheet -->

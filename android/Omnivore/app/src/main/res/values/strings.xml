@@ -201,6 +201,9 @@
     <string name="logout_dialog_action_confirm">Confirm</string>
     <string name="logout_dialog_action_cancel">Cancel</string>
 
+    <!-- Filters -->
+    <string name="hide_following_tab">Hide following tab</string>
+
     <!-- ManageAccount -->
     <string name="manage_account_title">Manage Account</string>
     <string name="manage_account_action_reset_data_cache">Reset Data Cache</string>
@@ -214,7 +217,9 @@
     <string name="about_feedback">Feedback</string>
     <string name="about_privacy_policy">Privacy Policy</string>
     <string name="about_terms_and_conditions">Terms and Conditions</string>
-    <string name="about_manage_account">Manage Account</string>
+
+    <string name="profile_filters">Filters</string>
+    <string name="profile_manage_account">Manage Account</string>
     <string name="about_logout">Logout</string>
 
     <!-- About -->

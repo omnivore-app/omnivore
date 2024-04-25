@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.profile.account
+package app.omnivore.omnivore.feature.profile.filters
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -8,52 +8,32 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.core.designsystem.component.TextPreferenceWidget
+import app.omnivore.omnivore.core.designsystem.component.SwitchPreferenceWidget
 import app.omnivore.omnivore.feature.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AccountScreen(
+internal fun FiltersScreen(
     navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
     settingsViewModel: ProfileViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(settingsViewModel.isResettingData) {
-        if (settingsViewModel.isResettingData) {
-            val result = snackbarHostState.showSnackbar(
-                message = settingsViewModel.snackbarMessage,
-                duration = SnackbarDuration.Indefinite,
-            )
-            when (result) {
-                SnackbarResult.Dismissed -> {
-                    settingsViewModel.isResettingData = false
-                }
-                SnackbarResult.ActionPerformed -> { }
-            }
-        } else if (settingsViewModel.isDataResetCompleted) {
-            snackbarHostState.showSnackbar(
-                message = "Data reset completed.",
-                duration = SnackbarDuration.Short
-            )
-        }
-    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.manage_account_title)) },
+                title = { Text(stringResource(R.string.profile_filters)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -72,9 +52,12 @@ internal fun AccountScreen(
             contentPadding = contentPadding,
         ) {
             item {
-                TextPreferenceWidget(
-                    title = stringResource(R.string.manage_account_action_reset_data_cache),
-                    onPreferenceClick = { settingsViewModel.resetDataCache() },
+                var checked by remember { mutableStateOf(true) }
+
+                SwitchPreferenceWidget(
+                    title = stringResource(R.string.hide_following_tab),
+                    checked = checked,
+                    onCheckedChanged = { checked = it },
                 )
             }
         }

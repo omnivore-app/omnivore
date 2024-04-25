@@ -204,6 +204,6 @@
     <string name="about_feedback">回饋</string>
     <string name="about_privacy_policy">隱私政策</string>
     <string name="about_terms_and_conditions">條款和條件</string>
-    <string name="about_manage_account">管理帳戶</string>
+    <string name="profile_manage_account">管理帳戶</string>
     <string name="about_logout">登出</string>
 </resources>
