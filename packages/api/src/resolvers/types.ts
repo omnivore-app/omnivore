@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Span } from '@opentelemetry/api'
 import { Context as ApolloContext } from 'apollo-server-core'
+import DataLoader from 'dataloader'
 import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
 import winston from 'winston'
-import { PubsubClient } from '../pubsub'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
+import { Highlight } from '../entity/highlight'
+import { Label } from '../entity/label'
+import { PubsubClient } from '../pubsub'
 
 export interface Claims {
   uid: string
@@ -40,6 +43,10 @@ export interface RequestContext {
   tracingSpan: Span
   dataSources: {
     readingProgress: ReadingProgressDataSource
+  }
+  dataLoaders: {
+    labels: DataLoader<string, Label[]>
+    highlights: DataLoader<string, Highlight[]>
   }
 }
 

@@ -24,7 +24,7 @@ export type LabelEvent = Merge<
   EntityEvent
 >
 
-const batchGetLabelsFromLibraryItemIds = async (
+export const batchGetLabelsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Label[][]> => {
   const libraryItems = await authTrx((tx) =>
@@ -40,8 +40,6 @@ const batchGetLabelsFromLibraryItemIds = async (
         ?.labels || []
   )
 }
-
-export const labelsLoader = new DataLoader(batchGetLabelsFromLibraryItemIds)
 
 export const findOrCreateLabels = async (
   labels: CreateLabelInput[],

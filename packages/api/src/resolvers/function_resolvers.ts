@@ -24,11 +24,6 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
-import {
-  findHighlightsByLibraryItemId,
-  highlightsLoader,
-} from '../services/highlights'
-import { labelsLoader } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
@@ -443,7 +438,7 @@ export const functionResolvers = {
       if (article.labels) return article.labels
 
       if (article.labelNames?.length) {
-        return labelsLoader.load(article.id)
+        return ctx.dataLoaders.labels.load(article.id)
       }
 
       return []
@@ -519,7 +514,7 @@ export const functionResolvers = {
       if (item.labels) return item.labels
 
       if (item.labelNames?.length) {
-        return labelsLoader.load(item.id)
+        return ctx.dataLoaders.labels.load(item.id)
       }
 
       return []
@@ -566,7 +561,7 @@ export const functionResolvers = {
       if (item.highlights) return item.highlights
 
       if (item.highlightAnnotations?.length) {
-        const highlights = await highlightsLoader.load(item.id)
+        const highlights = await ctx.dataLoaders.highlights.load(item.id)
         return highlights.map(highlightDataToHighlight)
       }
 

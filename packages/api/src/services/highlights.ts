@@ -22,7 +22,7 @@ export type HighlightEvent = Merge<
   EntityEvent
 >
 
-const batchGetHighlightsFromLibraryItemIds = async (
+export const batchGetHighlightsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Highlight[][]> => {
   const libraryItems = await authTrx(async (tx) =>
@@ -42,10 +42,6 @@ const batchGetHighlightsFromLibraryItemIds = async (
         ?.highlights || []
   )
 }
-
-export const highlightsLoader = new DataLoader(
-  batchGetHighlightsFromLibraryItemIds
-)
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
