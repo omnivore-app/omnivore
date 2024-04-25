@@ -25,7 +25,7 @@ import {
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
-import { findLabelsByLibraryItemId } from '../services/labels'
+import { labelsLoader } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
@@ -439,7 +439,7 @@ export const functionResolvers = {
     ) {
       if (article.labels) return article.labels
 
-      return findLabelsByLibraryItemId(article.id, ctx.uid)
+      return labelsLoader.load(article.id)
     },
     ...readingProgressHandlers,
   },
@@ -505,13 +505,13 @@ export const functionResolvers = {
       return item.siteIcon
     },
     async labels(
-      item: { id: string; labels?: Label[] },
+      item: { id: string; labels?: Label[]; labelNames?: string[] },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.labels) return item.labels
 
-      return findLabelsByLibraryItemId(item.id, ctx.uid)
+      return labelsLoader.load(item.id)
     },
     async recommendations(
       item: {

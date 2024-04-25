@@ -1,7 +1,9 @@
+import DataLoader from 'dataloader'
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel, LabelSource } from '../entity/entity_label'
 import { Label } from '../entity/label'
+import { LibraryItem } from '../entity/library_item'
 import {
   createPubSubClient,
   EntityEvent,
@@ -22,20 +24,24 @@ export type LabelEvent = Merge<
   EntityEvent
 >
 
-// const batchGetLabelsFromLinkIds = async (
-//   linkIds: readonly string[]
-// ): Promise<Label[][]> => {
-//   const links = await getRepository(Link).find({
-//     where: { id: In(linkIds as string[]) },
-//     relations: ['labels'],
-//   })
+const batchGetLabelsFromLibraryItemIds = async (
+  libraryItemIds: readonly string[]
+): Promise<Label[][]> => {
+  const libraryItems = await authTrx((tx) =>
+    tx.getRepository(LibraryItem).find({
+      where: { id: In(libraryItemIds as string[]) },
+      relations: ['labels'],
+    })
+  )
 
-//   return linkIds.map(
-//     (linkId) => links.find((link) => link.id === linkId)?.labels || []
-//   )
-// }
+  return libraryItemIds.map(
+    (libraryItemId) =>
+      libraryItems.find((libraryItem) => libraryItem.id === libraryItemId)
+        ?.labels || []
+  )
+}
 
-// export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
+export const labelsLoader = new DataLoader(batchGetLabelsFromLibraryItemIds)
 
 export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
