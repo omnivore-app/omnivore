@@ -64,7 +64,6 @@ import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { clearCachedReadingPosition } from '../../services/cached_reading_position'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   createAndSaveLabelsInLibraryItem,
@@ -104,7 +103,6 @@ import {
   userDataToUser,
 } from '../../utils/helpers'
 import {
-  contentConverter,
   getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
@@ -667,7 +665,7 @@ export const searchResolver = authorized<
   SearchSuccess,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { log, uid }) => {
+>(async (_obj, params, { uid }) => {
   const startCursor = params.after || ''
   const first = Math.min(params.first || 10, 100) // limit to 100 items
 
@@ -699,38 +697,41 @@ export const searchResolver = authorized<
     libraryItems.pop()
   }
 
-  const edges = await Promise.all(
-    libraryItems.map(async (libraryItem) => {
-      libraryItem.highlights = await findHighlightsByLibraryItemId(
-        libraryItem.id,
-        uid
-      )
+  // const edges = await Promise.all(
+  //   libraryItems.map(async (libraryItem) => {
+  //     libraryItem.highlights = await findHighlightsByLibraryItemId(
+  //       libraryItem.id,
+  //       uid
+  //     )
 
-      if (params.includeContent && libraryItem.readableContent) {
-        // convert html to the requested format
-        const format = params.format || ArticleFormat.Html
-        try {
-          const converter = contentConverter(format)
-          if (converter) {
-            libraryItem.readableContent = converter(
-              libraryItem.readableContent,
-              libraryItem.highlights
-            )
-          }
-        } catch (error) {
-          log.error('Error converting content', error)
-        }
-      }
+  //     if (params.includeContent && libraryItem.readableContent) {
+  //       // convert html to the requested format
+  //       const format = params.format || ArticleFormat.Html
+  //       try {
+  //         const converter = contentConverter(format)
+  //         if (converter) {
+  //           libraryItem.readableContent = converter(
+  //             libraryItem.readableContent,
+  //             libraryItem.highlights
+  //           )
+  //         }
+  //       } catch (error) {
+  //         log.error('Error converting content', error)
+  //       }
+  //     }
 
-      return {
-        node: libraryItemToSearchItem(libraryItem),
-        cursor: endCursor,
-      }
-    })
-  )
+  //     return {
+  //       node: libraryItemToSearchItem(libraryItem),
+  //       cursor: endCursor,
+  //     }
+  //   })
+  // )
 
   return {
-    edges,
+    edges: libraryItems.map((item) => ({
+      node: libraryItemToSearchItem(item),
+      cursor: endCursor,
+    })),
     pageInfo: {
       hasPreviousPage: false,
       startCursor,

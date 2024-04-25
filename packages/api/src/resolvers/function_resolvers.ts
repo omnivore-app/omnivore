@@ -24,7 +24,10 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
-import { findHighlightsByLibraryItemId } from '../services/highlights'
+import {
+  findHighlightsByLibraryItemId,
+  highlightsLoader,
+} from '../services/highlights'
 import { labelsLoader } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
@@ -433,13 +436,17 @@ export const functionResolvers = {
       return article.content ? wordsCount(article.content) : undefined
     },
     async labels(
-      article: { id: string; labels?: Label[] },
+      article: { id: string; labels?: Label[]; labelNames?: string[] },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (article.labels) return article.labels
 
-      return labelsLoader.load(article.id)
+      if (article.labelNames?.length) {
+        return labelsLoader.load(article.id)
+      }
+
+      return []
     },
     ...readingProgressHandlers,
   },
@@ -511,7 +518,11 @@ export const functionResolvers = {
     ) {
       if (item.labels) return item.labels
 
-      return labelsLoader.load(item.id)
+      if (item.labelNames?.length) {
+        return labelsLoader.load(item.id)
+      }
+
+      return []
     },
     async recommendations(
       item: {
@@ -547,14 +558,19 @@ export const functionResolvers = {
       item: {
         id: string
         highlights?: Highlight[]
+        highlightAnnotations?: string[]
       },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.highlights) return item.highlights
 
-      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
-      return highlights.map(highlightDataToHighlight)
+      if (item.highlightAnnotations?.length) {
+        const highlights = await highlightsLoader.load(item.id)
+        return highlights.map(highlightDataToHighlight)
+      }
+
+      return []
     },
     ...readingProgressHandlers,
   },
