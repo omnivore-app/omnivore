@@ -1,5 +1,13 @@
 package app.omnivore.omnivore.feature.root
 
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -35,6 +43,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import app.omnivore.omnivore.core.designsystem.util.ForIncoming
+import app.omnivore.omnivore.core.designsystem.util.ForOutgoing
+import app.omnivore.omnivore.core.designsystem.util.MotionConstants.DEFAULT_MOTION_DURATION
+import app.omnivore.omnivore.core.designsystem.util.rememberSlideDistance
 import app.omnivore.omnivore.feature.auth.LoginViewModel
 import app.omnivore.omnivore.feature.auth.WelcomeScreen
 import app.omnivore.omnivore.feature.components.LabelsViewModel
@@ -46,6 +58,7 @@ import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.profile.SettingsScreen
 import app.omnivore.omnivore.feature.profile.about.AboutScreen
 import app.omnivore.omnivore.feature.profile.account.AccountScreen
+import app.omnivore.omnivore.feature.profile.filters.FiltersScreen
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.web.WebViewScreen
 import app.omnivore.omnivore.navigation.Routes
@@ -122,8 +135,48 @@ fun PrimaryNavigator(
     snackbarHostState: SnackbarHostState
 ) {
 
+    val slideDistance = rememberSlideDistance()
+    val duration = DEFAULT_MOTION_DURATION
+
+    val enterTransition = slideInHorizontally(
+        animationSpec = tween(
+            durationMillis = duration,
+            easing = FastOutSlowInEasing
+        ),
+        initialOffsetX = {
+            slideDistance
+        }
+    ) + fadeIn(
+        animationSpec = tween(
+            durationMillis = duration.ForIncoming,
+            delayMillis = duration.ForOutgoing,
+            easing = LinearOutSlowInEasing
+        )
+    )
+
+    val exitTransition = slideOutHorizontally(
+        animationSpec = tween(
+            durationMillis = duration,
+            easing = FastOutSlowInEasing
+        ),
+        targetOffsetX = {
+            -slideDistance
+        }
+    ) + fadeOut(
+        animationSpec = tween(
+            durationMillis = duration.ForOutgoing,
+            delayMillis = 0,
+            easing = FastOutLinearInEasing
+        )
+    )
+
     NavHost(
-        navController = navController, startDestination = Routes.Inbox.route
+        navController = navController, startDestination = Routes.Inbox.route,
+        enterTransition = { enterTransition },
+        popEnterTransition = { enterTransition },
+        exitTransition = { exitTransition },
+        popExitTransition = { exitTransition }
+
     ) {
         composable(Routes.Inbox.route) {
             LibraryView(
@@ -157,6 +210,12 @@ fun PrimaryNavigator(
 
         composable(Routes.About.route) {
             AboutScreen(
+                navController = navController
+            )
+        }
+
+        composable(Routes.Filters.route) {
+            FiltersScreen(
                 navController = navController
             )
         }
