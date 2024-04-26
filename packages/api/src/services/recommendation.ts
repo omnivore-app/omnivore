@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { DeepPartial } from 'typeorm'
+import { DeepPartial, In } from 'typeorm'
 import { LibraryItem } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
 import { authTrx } from '../repository'
@@ -11,6 +11,23 @@ import {
   findLibraryItemByUrl,
   updateLibraryItem,
 } from './library_item'
+
+export const batchGetRecommendationsFromLibraryItemIds = async (
+  libraryItemIds: readonly string[]
+): Promise<Recommendation[][]> => {
+  const libraryItems = await authTrx(async (tx) =>
+    tx.getRepository(LibraryItem).find({
+      where: { id: In(libraryItemIds as string[]) },
+      relations: ['recommendations'],
+    })
+  )
+
+  return libraryItemIds.map(
+    (libraryItemId) =>
+      libraryItems.find((libraryItem) => libraryItem.id === libraryItemId)
+        ?.recommendations || []
+  )
+}
 
 export const addRecommendation = async (
   item: LibraryItem,

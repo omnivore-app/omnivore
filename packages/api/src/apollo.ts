@@ -33,6 +33,7 @@ import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
 import { batchGetLabelsFromLibraryItemIds } from './services/labels'
+import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
   countDailyServiceUsage,
   createServiceUsage,
@@ -106,6 +107,9 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     dataLoaders: {
       labels: new DataLoader(batchGetLabelsFromLibraryItemIds),
       highlights: new DataLoader(batchGetHighlightsFromLibraryItemIds),
+      recommendations: new DataLoader(
+        batchGetRecommendationsFromLibraryItemIds
+      ),
     },
   }
 

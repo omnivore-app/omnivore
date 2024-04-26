@@ -25,7 +25,6 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
-import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
   highlightDataToHighlight,
@@ -536,10 +535,9 @@ export const functionResolvers = {
     ) {
       if (item.recommendations) return item.recommendations
 
-      if (item.recommenderNames && item.recommenderNames.length > 0) {
-        const recommendations = await findRecommendationsByLibraryItemId(
-          item.id,
-          ctx.uid
+      if (item.recommenderNames) {
+        const recommendations = await ctx.dataLoaders.recommendations.load(
+          item.id
         )
         return recommendations.map(recommandationDataToRecommendation)
       }

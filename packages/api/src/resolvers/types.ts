@@ -8,6 +8,7 @@ import winston from 'winston'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
+import { Recommendation } from '../entity/recommendation'
 import { PubsubClient } from '../pubsub'
 
 export interface Claims {
@@ -47,6 +48,7 @@ export interface RequestContext {
   dataLoaders: {
     labels: DataLoader<string, Label[]>
     highlights: DataLoader<string, Highlight[]>
+    recommendations: DataLoader<string, Recommendation[]>
   }
 }
 
