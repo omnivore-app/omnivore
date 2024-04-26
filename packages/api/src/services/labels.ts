@@ -1,9 +1,7 @@
-import DataLoader from 'dataloader'
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel, LabelSource } from '../entity/entity_label'
 import { Label } from '../entity/label'
-import { LibraryItem } from '../entity/library_item'
 import {
   createPubSubClient,
   EntityEvent,
@@ -27,17 +25,17 @@ export type LabelEvent = Merge<
 export const batchGetLabelsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Label[][]> => {
-  const libraryItems = await authTrx((tx) =>
-    tx.getRepository(LibraryItem).find({
-      where: { id: In(libraryItemIds as string[]) },
-      relations: ['labels'],
+  const labels = await authTrx(async (tx) =>
+    tx.getRepository(EntityLabel).find({
+      where: { libraryItemId: In(libraryItemIds as string[]) },
+      relations: ['label'],
     })
   )
 
-  return libraryItemIds.map(
-    (libraryItemId) =>
-      libraryItems.find((libraryItem) => libraryItem.id === libraryItemId)
-        ?.labels || []
+  return libraryItemIds.map((libraryItemId) =>
+    labels
+      .filter((label) => label.libraryItemId === libraryItemId)
+      .map((label) => label.label)
   )
 }
 

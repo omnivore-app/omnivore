@@ -15,17 +15,17 @@ import {
 export const batchGetRecommendationsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Recommendation[][]> => {
-  const libraryItems = await authTrx(async (tx) =>
-    tx.getRepository(LibraryItem).find({
-      where: { id: In(libraryItemIds as string[]) },
-      relations: ['recommendations'],
+  const recommendations = await authTrx(async (tx) =>
+    tx.getRepository(Recommendation).find({
+      where: { libraryItem: { id: In(libraryItemIds as string[]) } },
+      relations: ['group', 'recommender'],
     })
   )
 
-  return libraryItemIds.map(
-    (libraryItemId) =>
-      libraryItems.find((libraryItem) => libraryItem.id === libraryItemId)
-        ?.recommendations || []
+  return libraryItemIds.map((libraryItemId) =>
+    recommendations.filter(
+      (recommendation) => recommendation.libraryItem.id === libraryItemId
+    )
   )
 }
 

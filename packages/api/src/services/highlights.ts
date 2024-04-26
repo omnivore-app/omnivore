@@ -1,11 +1,9 @@
-import DataLoader from 'dataloader'
 import { diff_match_patch } from 'diff-match-patch'
 import { DeepPartial, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
-import { LibraryItem } from '../entity/library_item'
 import { homePageURL } from '../env'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
@@ -25,21 +23,15 @@ export type HighlightEvent = Merge<
 export const batchGetHighlightsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Highlight[][]> => {
-  const libraryItems = await authTrx(async (tx) =>
-    tx.getRepository(LibraryItem).find({
-      where: { id: In(libraryItemIds as string[]) },
-      relations: {
-        highlights: {
-          user: true,
-        },
-      },
+  const highlights = await authTrx(async (tx) =>
+    tx.getRepository(Highlight).find({
+      where: { libraryItem: { id: In(libraryItemIds as string[]) } },
+      relations: ['user'],
     })
   )
 
-  return libraryItemIds.map(
-    (libraryItemId) =>
-      libraryItems.find((libraryItem) => libraryItem.id === libraryItemId)
-        ?.highlights || []
+  return libraryItemIds.map((libraryItemId) =>
+    highlights.filter((highlight) => highlight.libraryItemId === libraryItemId)
   )
 }
 
