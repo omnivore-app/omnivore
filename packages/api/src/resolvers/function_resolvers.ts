@@ -436,17 +436,13 @@ export const functionResolvers = {
       return article.content ? wordsCount(article.content) : undefined
     },
     async labels(
-      article: { id: string; labels?: Label[]; labelNames?: string[] },
+      article: { id: string; labels?: Label[] },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (article.labels) return article.labels
 
-      if (article.labelNames?.length) {
-        return ctx.dataLoaders.labels.load(article.id)
-      }
-
-      return []
+      return ctx.dataLoaders.labels.load(article.id)
     },
     ...readingProgressHandlers,
   },
@@ -512,37 +508,28 @@ export const functionResolvers = {
       return item.siteIcon
     },
     async labels(
-      item: { id: string; labels?: Label[]; labelNames?: string[] },
+      item: { id: string; labels?: Label[] },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.labels) return item.labels
 
-      if (item.labelNames?.length) {
-        return ctx.dataLoaders.labels.load(item.id)
-      }
-
-      return []
+      return ctx.dataLoaders.labels.load(item.id)
     },
     async recommendations(
       item: {
         id: string
         recommendations?: Recommendation[]
-        recommenderNames?: string[] | null
       },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.recommendations) return item.recommendations
 
-      if (item.recommenderNames) {
-        const recommendations = await ctx.dataLoaders.recommendations.load(
-          item.id
-        )
-        return recommendations.map(recommandationDataToRecommendation)
-      }
-
-      return []
+      const recommendations = await ctx.dataLoaders.recommendations.load(
+        item.id
+      )
+      return recommendations.map(recommandationDataToRecommendation)
     },
     async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       return (
@@ -557,19 +544,14 @@ export const functionResolvers = {
       item: {
         id: string
         highlights?: Highlight[]
-        highlightAnnotations?: string[]
       },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.highlights) return item.highlights
 
-      if (item.highlightAnnotations?.length) {
-        const highlights = await ctx.dataLoaders.highlights.load(item.id)
-        return highlights.map(highlightDataToHighlight)
-      }
-
-      return []
+      const highlights = await ctx.dataLoaders.highlights.load(item.id)
+      return highlights.map(highlightDataToHighlight)
     },
     ...readingProgressHandlers,
     async content(

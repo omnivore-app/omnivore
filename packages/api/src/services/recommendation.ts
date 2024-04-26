@@ -24,7 +24,7 @@ export const batchGetRecommendationsFromLibraryItemIds = async (
 
   return libraryItemIds.map((libraryItemId) =>
     recommendations.filter(
-      (recommendation) => recommendation.libraryItem.id === libraryItemId
+      (recommendation) => recommendation.libraryItemId === libraryItemId
     )
   )
 }
