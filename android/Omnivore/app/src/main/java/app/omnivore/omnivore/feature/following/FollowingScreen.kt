@@ -35,10 +35,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun FollowingScreen(
-    labelsViewModel: LabelsViewModel,
-    saveViewModel: SaveViewModel,
-    editInfoViewModel: EditInfoViewModel,
     navController: NavHostController,
+    labelsViewModel: LabelsViewModel = hiltViewModel(),
+    saveViewModel: SaveViewModel = hiltViewModel(),
+    editInfoViewModel: EditInfoViewModel = hiltViewModel(),
     viewModel: FollowingViewModel = hiltViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }

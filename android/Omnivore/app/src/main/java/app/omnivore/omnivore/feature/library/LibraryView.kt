@@ -79,10 +79,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun LibraryView(
-    labelsViewModel: LabelsViewModel,
-    saveViewModel: SaveViewModel,
-    editInfoViewModel: EditInfoViewModel,
     navController: NavHostController,
+    labelsViewModel: LabelsViewModel = hiltViewModel(),
+    saveViewModel: SaveViewModel = hiltViewModel(),
+    editInfoViewModel: EditInfoViewModel = hiltViewModel(),
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }

@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.navigation
 
 sealed class Routes(val route: String) {
+    data object Home : Routes("Home")
     data object Following : Routes("Following")
     data object Inbox : Routes("Inbox")
     data object Settings : Routes("Settings")
