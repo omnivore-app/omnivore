@@ -583,11 +583,11 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext
     ) {
       // convert html to the requested format if requested
-      if (item.format && item.content) {
+      if (item.format && item.format !== ArticleFormat.Html && item.content) {
         let highlights: HighlightEntity[] = []
         // load highlights if needed
         if (
-          item.format === 'highlightedMarkdown' &&
+          item.format === ArticleFormat.HighlightedMarkdown &&
           item.highlightAnnotations?.length
         ) {
           highlights = await ctx.dataLoaders.highlights.load(item.id)
