@@ -647,7 +647,6 @@ export const contentConverter = (
       return htmlToMarkdown
     case ArticleFormat.HighlightedMarkdown:
       return htmlToHighlightedMarkdown
-    case ArticleFormat.Html:
     default:
       return undefined
   }

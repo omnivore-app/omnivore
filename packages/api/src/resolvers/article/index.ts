@@ -88,6 +88,7 @@ import {
   setFileUploadComplete,
 } from '../../services/upload_file'
 import { traceAs } from '../../tracing'
+import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import { enqueueBulkAction } from '../../utils/createTask'
@@ -697,39 +698,9 @@ export const searchResolver = authorized<
     libraryItems.pop()
   }
 
-  // const edges = await Promise.all(
-  //   libraryItems.map(async (libraryItem) => {
-  //     libraryItem.highlights = await findHighlightsByLibraryItemId(
-  //       libraryItem.id,
-  //       uid
-  //     )
-
-  //     if (params.includeContent && libraryItem.readableContent) {
-  //       // convert html to the requested format
-  //       const format = params.format || ArticleFormat.Html
-  //       try {
-  //         const converter = contentConverter(format)
-  //         if (converter) {
-  //           libraryItem.readableContent = converter(
-  //             libraryItem.readableContent,
-  //             libraryItem.highlights
-  //           )
-  //         }
-  //       } catch (error) {
-  //         log.error('Error converting content', error)
-  //       }
-  //     }
-
-  //     return {
-  //       node: libraryItemToSearchItem(libraryItem),
-  //       cursor: endCursor,
-  //     }
-  //   })
-  // )
-
   return {
     edges: libraryItems.map((item) => ({
-      node: libraryItemToSearchItem(item),
+      node: libraryItemToSearchItem(item, params.format as ArticleFormat),
       cursor: endCursor,
     })),
     pageInfo: {

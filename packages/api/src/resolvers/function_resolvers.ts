@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
+import { Highlight as HighlightEntity } from '../entity/highlight'
 import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
@@ -34,11 +35,16 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
+import { contentConverter } from '../utils/parser'
 import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { emptyTrashResolver, fetchContentResolver } from './article'
+import {
+  ArticleFormat,
+  emptyTrashResolver,
+  fetchContentResolver,
+} from './article'
 import {
   addDiscoverFeedResolver,
   deleteDiscoverArticleResolver,
@@ -568,6 +574,42 @@ export const functionResolvers = {
       return []
     },
     ...readingProgressHandlers,
+    async content(
+      item: {
+        id: string
+        content?: string
+        highlightAnnotations?: string[]
+        format?: ArticleFormat
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      // convert html to the requested format if requested
+      if (item.format && item.content) {
+        let highlights: HighlightEntity[] = []
+        // load highlights if needed
+        if (
+          item.format === 'highlightedMarkdown' &&
+          item.highlightAnnotations?.length
+        ) {
+          highlights = await ctx.dataLoaders.highlights.load(item.id)
+        }
+
+        try {
+          ctx.log.info(`Converting content to: ${item.format}`)
+
+          // convert html to the requested format
+          const converter = contentConverter(item.format)
+          if (converter) {
+            return converter(item.content, highlights)
+          }
+        } catch (error) {
+          ctx.log.error('Error converting content', error)
+        }
+      }
+
+      return item.content
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
