@@ -31,7 +31,7 @@ export class CustomTypeOrmLogger
 
   constructor(options?: TypeOrmLoggerOptions) {
     super(options)
-    this.logger = buildLogger('typeorm')
+    this.logger = logger
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
