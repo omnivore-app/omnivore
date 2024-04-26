@@ -1,5 +1,7 @@
 import normalizeUrl from 'normalize-url'
 import path from 'path'
+import { In } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 import { LibraryItemState } from '../entity/library_item'
 import { UploadFile } from '../entity/upload_file'
 import {
@@ -18,7 +20,16 @@ import {
 } from '../utils/uploads'
 import { validateUrl } from './create_page_save_request'
 import { createOrUpdateLibraryItem } from './library_item'
-import { v4 as uuid } from 'uuid'
+
+export const batchGetUploadFilesByIds = async (
+  ids: readonly string[]
+): Promise<(UploadFile | undefined)[]> => {
+  const uploadFiles = await getRepository(UploadFile).findBy({
+    id: In(ids as string[]),
+  })
+
+  return ids.map((id) => uploadFiles.find((uploadFile) => uploadFile.id === id))
+}
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)

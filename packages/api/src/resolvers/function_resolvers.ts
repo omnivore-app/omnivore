@@ -25,7 +25,6 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
-import { findUploadFileById } from '../services/upload_file'
 import {
   highlightDataToHighlight,
   isBase64Image,
@@ -407,7 +406,9 @@ export const functionResolvers = {
         ctx.claims &&
         article.uploadFileId
       ) {
-        const upload = await findUploadFileById(article.uploadFileId)
+        const upload = await ctx.dataLoaders.uploadFiles.load(
+          article.uploadFileId
+        )
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -481,7 +482,7 @@ export const functionResolvers = {
         ctx.claims &&
         item.uploadFileId
       ) {
-        const upload = await findUploadFileById(item.uploadFileId)
+        const upload = await ctx.dataLoaders.uploadFiles.load(item.uploadFileId)
         if (!upload || !upload.fileName) {
           return undefined
         }

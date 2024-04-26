@@ -9,6 +9,7 @@ import { ReadingProgressDataSource } from '../datasources/reading_progress_data_
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { Recommendation } from '../entity/recommendation'
+import { UploadFile } from '../entity/upload_file'
 import { PubsubClient } from '../pubsub'
 
 export interface Claims {
@@ -49,6 +50,7 @@ export interface RequestContext {
     labels: DataLoader<string, Label[]>
     highlights: DataLoader<string, Highlight[]>
     recommendations: DataLoader<string, Recommendation[]>
+    uploadFiles: DataLoader<string, UploadFile | undefined>
   }
 }
 

@@ -38,6 +38,7 @@ import {
   countDailyServiceUsage,
   createServiceUsage,
 } from './services/service_usage'
+import { batchGetUploadFilesByIds } from './services/upload_file'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
@@ -110,6 +111,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
       recommendations: new DataLoader(
         batchGetRecommendationsFromLibraryItemIds
       ),
+      uploadFiles: new DataLoader(batchGetUploadFilesByIds),
     },
   }
 
