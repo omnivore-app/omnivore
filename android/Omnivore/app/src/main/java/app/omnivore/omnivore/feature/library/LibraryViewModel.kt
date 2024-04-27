@@ -13,6 +13,7 @@ import app.omnivore.omnivore.core.data.repository.LibraryRepository
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.followingTabActive
 import app.omnivore.omnivore.core.datastore.lastUsedSavedItemFilter
 import app.omnivore.omnivore.core.datastore.lastUsedSavedItemSortFilter
 import app.omnivore.omnivore.core.datastore.libraryLastSyncTimestamp
@@ -37,7 +38,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val datastoreRepo: DatastoreRepository,
+    private val datastoreRepository: DatastoreRepository,
     private val libraryRepository: LibraryRepository,
     @ApplicationContext private val applicationContext: Context
 ) : ViewModel(), SavedItemViewModel {
@@ -48,15 +49,41 @@ class LibraryViewModel @Inject constructor(
     var snackbarMessage by mutableStateOf<String?>(null)
         private set
 
+    private val folders = MutableStateFlow(listOf<String>())
+
     private val _libraryQuery = MutableStateFlow(
         LibraryQuery(
+            folders = folders.value,
             allowedArchiveStates = listOf(0),
             sortKey = "newest",
             requiredLabels = listOf(),
-            excludedLabels = listOf("Newsletter", "RSS"),
+            excludedLabels = listOf(),
             allowedContentReaders = listOf("WEB", "PDF", "EPUB")
         )
     )
+
+    private val followingTabActiveState: StateFlow<Boolean> = datastoreRepository.getBoolean(followingTabActive).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = false
+    )
+
+    private fun updateLibraryQuery() {
+        _libraryQuery.value = _libraryQuery.value.copy(folders = folders.value)
+    }
+
+    init {
+        viewModelScope.launch {
+            followingTabActiveState.collect { tabActive ->
+                if (tabActive) {
+                    folders.value = listOf("inbox")
+                } else {
+                    folders.value = listOf("inbox","following")
+                }
+                updateLibraryQuery()
+            }
+        }
+    }
 
     val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
         libraryRepository.getSavedItems(query)
@@ -114,7 +141,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     private fun getLastSyncTime(): Instant? = runBlocking {
-        datastoreRepo.getString(libraryLastSyncTimestamp)?.let {
+        datastoreRepository.getString(libraryLastSyncTimestamp)?.let {
             try {
                 return@let Instant.parse(it)
             } catch (e: Exception) {
@@ -142,7 +169,8 @@ class LibraryViewModel @Inject constructor(
     fun loadUsingSearchAPI() {
         viewModelScope.launch {
             val result = libraryRepository.librarySearch(
-                cursor = librarySearchCursor, query = searchQueryString()
+                cursor = librarySearchCursor,
+                query = searchQueryString()
             )
             result.cursor?.let {
                 librarySearchCursor = it
@@ -160,7 +188,7 @@ class LibraryViewModel @Inject constructor(
 
     fun updateSavedItemFilter(filter: SavedItemFilter) {
         viewModelScope.launch {
-            datastoreRepo.putString(lastUsedSavedItemFilter, filter.rawValue)
+            datastoreRepository.putString(lastUsedSavedItemFilter, filter.rawValue)
             appliedFilterState.value = filter
             handleFilterChanges()
         }
@@ -168,7 +196,7 @@ class LibraryViewModel @Inject constructor(
 
     fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
         viewModelScope.launch {
-            datastoreRepo.putString(lastUsedSavedItemSortFilter, filter.rawValue)
+            datastoreRepository.putString(lastUsedSavedItemSortFilter, filter.rawValue)
             appliedSortFilterLiveData.value = filter
             handleFilterChanges()
         }
@@ -214,10 +242,11 @@ class LibraryViewModel @Inject constructor(
 
         val excludeLabels = when (appliedFilterState.value) {
             SavedItemFilter.NON_FEED -> listOf("Newsletter", "RSS")
-            else -> listOf("Newsletter", "RSS")
+            else -> listOf()
         }
 
         _libraryQuery.value = LibraryQuery(
+            folders = folders.value,
             allowedArchiveStates = allowedArchiveStates,
             sortKey = sortKey,
             requiredLabels = requiredLabels,
@@ -269,7 +298,7 @@ class LibraryViewModel @Inject constructor(
                 isInitialBatch = false
             )
         } else {
-            datastoreRepo.putString(libraryLastSyncTimestamp, startTime)
+            datastoreRepository.putString(libraryLastSyncTimestamp, startTime)
         }
     }
 

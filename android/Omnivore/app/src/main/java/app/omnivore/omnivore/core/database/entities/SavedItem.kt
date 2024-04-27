@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 data class SavedItem(
     @PrimaryKey val savedItemId: String,
     val title: String,
+    val folder: String,
     val createdAt: String,
     val savedAt: String,
     val readAt: String?,
@@ -71,12 +72,10 @@ data class TypeaheadCardData(
 )
 
 object SavedItemQueryConstants {
-    const val columns =
-        "savedItemId, slug, publisherURLString, title, author, descriptionText, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress, wordsCount"
     const val libraryColumns = "SavedItem.savedItemId, " +
             "SavedItem.slug, " +
             "SavedItem.createdAt, " +
-
+            "SavedItem.folder, " +
             "SavedItem.publisherURLString, " +
             "SavedItem.title, " +
             "SavedItem.author, " +

@@ -53,8 +53,8 @@ internal fun FiltersScreen(
 
                 SwitchPreferenceWidget(
                     title = stringResource(R.string.hide_following_tab),
-                    checked = followingTabActive,
-                    onCheckedChanged = { filtersViewModel.setFollowingTabActiveState(it) },
+                    checked = !followingTabActive,
+                    onCheckedChanged = { filtersViewModel.setFollowingTabActiveState(!it) },
                 )
             }
         }

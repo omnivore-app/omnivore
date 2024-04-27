@@ -49,6 +49,7 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
         val savedItem = SavedItem(
             savedItemId = it.id,
             title = it.title,
+            folder = it.folder,
             createdAt = it.createdAt as String,
             savedAt = it.savedAt as String,
             readAt = it.readAt as String?,

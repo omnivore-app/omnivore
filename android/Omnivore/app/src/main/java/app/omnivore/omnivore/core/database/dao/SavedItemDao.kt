@@ -77,6 +77,7 @@ interface SavedItemDao {
                 "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
 
                 "WHERE SavedItem.serverSyncStatus != 2 " +
+                "AND SavedItem.folder IN (:folders) " +
                 "AND SavedItem.isArchived IN (:allowedArchiveStates) " +
                 "AND SavedItem.contentReader IN (:allowedContentReaders) " +
                 "AND CASE WHEN :hasRequiredLabels THEN SavedItemLabel.name in (:requiredLabels) ELSE 1 END " +
@@ -97,6 +98,7 @@ interface SavedItemDao {
                 "CASE WHEN :sortKey = 'recentlyPublished' THEN SavedItem.publishDate END DESC"
     )
     fun filteredLibraryData(
+        folders: List<String>,
         allowedArchiveStates: List<Int>,
         sortKey: String,
         hasRequiredLabels: Int,

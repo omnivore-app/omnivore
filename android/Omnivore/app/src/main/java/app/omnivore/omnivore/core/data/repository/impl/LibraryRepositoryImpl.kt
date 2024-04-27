@@ -61,6 +61,7 @@ class LibraryRepositoryImpl @Inject constructor(
 
     override fun getSavedItems(query: LibraryQuery): Flow<List<SavedItemWithLabelsAndHighlights>> =
         savedItemDao.filteredLibraryData(
+            folders = query.folders,
             query.allowedArchiveStates,
             query.sortKey,
             hasRequiredLabels = query.requiredLabels.size,
@@ -418,6 +419,7 @@ class LibraryRepositoryImpl @Inject constructor(
             val savedItem = SavedItem(
                 savedItemId = it.id,
                 title = it.title,
+                folder = it.folder,
                 createdAt = it.createdAt as String,
                 savedAt = it.savedAt as String,
                 readAt = it.readAt as String?,

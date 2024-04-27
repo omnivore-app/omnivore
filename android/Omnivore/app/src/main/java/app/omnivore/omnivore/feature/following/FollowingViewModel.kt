@@ -55,9 +55,10 @@ class FollowingViewModel @Inject constructor(
 
     private val _libraryQuery = MutableStateFlow(
         LibraryQuery(
+            folders = listOf("following"),
             allowedArchiveStates = listOf(0),
             sortKey = "newest",
-            requiredLabels = listOf("Newsletter", "RSS"),
+            requiredLabels = listOf(),
             excludedLabels = listOf(),
             allowedContentReaders = listOf("WEB", "PDF", "EPUB")
         )
@@ -148,7 +149,8 @@ class FollowingViewModel @Inject constructor(
     fun loadUsingSearchAPI() {
         viewModelScope.launch {
             val result = libraryRepository.librarySearch(
-                cursor = librarySearchCursor, query = searchQueryString()
+                cursor = librarySearchCursor,
+                query = searchQueryString()
             )
             result.cursor?.let {
                 librarySearchCursor = it
@@ -225,6 +227,7 @@ class FollowingViewModel @Inject constructor(
         }
 
         _libraryQuery.value = LibraryQuery(
+            folders = listOf("following"),
             allowedArchiveStates = allowedArchiveStates,
             sortKey = sortKey,
             requiredLabels = requiredLabels,
@@ -367,7 +370,7 @@ class FollowingViewModel @Inject constructor(
 
     private fun searchQueryString(): String {
         var query =
-            "${appliedFilterState.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+            "${appliedFilterState.value.queryString} ${appliedSortFilterLiveData.value.queryString}"
 
         activeLabels.value.let {
             if (it.isNotEmpty()) {

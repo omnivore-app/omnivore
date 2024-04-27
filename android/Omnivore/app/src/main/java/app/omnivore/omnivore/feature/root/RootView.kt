@@ -64,7 +64,7 @@ fun RootView(
     val navController = rememberNavController()
     val followingTabActive by loginViewModel.followingTabActiveState.collectAsStateWithLifecycle()
 
-    val destinations = if (!followingTabActive) {
+    val destinations = if (followingTabActive) {
         TopLevelDestination.entries
     } else {
         TopLevelDestination.entries.filter { it.route != Routes.Following.route }
