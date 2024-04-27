@@ -1,6 +1,5 @@
 [versions]
-accompanistSystemUiController = "0.34.0"
-accompanistFlowLayout = "0.32.0"
+accompanistFlowLayout = "0.34.0"
 androidGradlePlugin = "8.3.2"
 androidxActivity = "1.9.0"
 androidxAppCompat = "1.6.1"
@@ -30,7 +29,7 @@ playServices = "18.4.0"
 playServicesAuth = "21.1.0"
 posthog = "2.0.3"
 pspdfkit = "8.9.1"
-retrofit = "2.9.0"
+retrofit = "2.11.0"
 room = "2.6.1"
 
 [libraries]
