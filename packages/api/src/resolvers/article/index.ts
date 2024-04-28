@@ -88,7 +88,6 @@ import {
   setFileUploadComplete,
 } from '../../services/upload_file'
 import { traceAs } from '../../tracing'
-import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import { enqueueBulkAction } from '../../utils/createTask'
@@ -393,10 +392,12 @@ export const getArticleResolver = authorized<
       tx.withRepository(libraryItemRepository).findOne({
         select: selectColumns,
         where: {
+          user: { id: uid },
           ...where,
           deletedAt: IsNull(),
         },
         relations: {
+          labels: true,
           highlights: {
             user: true,
             labels: true,
