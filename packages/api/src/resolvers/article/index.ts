@@ -387,16 +387,6 @@ export const getArticleResolver = authorized<
       const qb = tx
         .createQueryBuilder(LibraryItem, 'libraryItem')
         .select(selectColumns.map((column) => `libraryItem.${column}`))
-        .where('libraryItem.user_id = :uid', { uid })
-
-      // We allow the backend to use the ID instead of a slug to fetch the article
-      // query against id if slug is a uuid
-      slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
-        ? qb.andWhere('libraryItem.id = :id', { id: slug })
-        : qb.andWhere('libraryItem.slug = :slug', { slug })
-
-      return qb
-        .andWhere('libraryItem.deleted_at IS NULL')
         .leftJoinAndSelect('libraryItem.labels', 'labels')
         .leftJoinAndSelect('libraryItem.highlights', 'highlights')
         .leftJoinAndSelect('highlights.labels', 'highlights_labels')
@@ -409,7 +399,15 @@ export const getArticleResolver = authorized<
           'recommendations.recommender',
           'recommendations_recommender'
         )
-        .getOne()
+        .where('libraryItem.user_id = :uid', { uid })
+
+      // We allow the backend to use the ID instead of a slug to fetch the article
+      // query against id if slug is a uuid
+      slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
+        ? qb.andWhere('libraryItem.id = :id', { id: slug })
+        : qb.andWhere('libraryItem.slug = :slug', { slug })
+
+      return qb.andWhere('libraryItem.deleted_at IS NULL').getOne()
     })
 
     if (!libraryItem) {
