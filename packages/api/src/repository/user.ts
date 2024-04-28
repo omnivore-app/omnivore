@@ -16,7 +16,13 @@ export const MAX_RECORDS_LIMIT = 1000
 
 export const userRepository = appDataSource.getRepository(User).extend({
   findById(id: string) {
-    return this.findOneBy({ id, status: StatusType.Active })
+    return this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile')
+      .where('user.id = :id AND user.status = :status', {
+        id,
+        status: StatusType.Active,
+      })
+      .getOne()
   },
 
   findByEmail(email: string) {

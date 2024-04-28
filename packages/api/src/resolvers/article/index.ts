@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { IsNull } from 'typeorm'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
@@ -383,33 +382,35 @@ export const getArticleResolver = authorized<
     if (!includeOriginalHtml) {
       selectColumns.splice(selectColumns.indexOf('originalContent'), 1)
     }
-    // We allow the backend to use the ID instead of a slug to fetch the article
-    // query against id if slug is a uuid
-    const where = slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
-      ? { id: slug }
-      : { slug }
-    const libraryItem = await authTrx((tx) =>
-      tx.withRepository(libraryItemRepository).findOne({
-        select: selectColumns,
-        where: {
-          user: { id: uid },
-          ...where,
-          deletedAt: IsNull(),
-        },
-        relations: {
-          labels: true,
-          highlights: {
-            user: true,
-            labels: true,
-          },
-          uploadFile: true,
-          recommendations: {
-            recommender: true,
-            group: true,
-          },
-        },
-      })
-    )
+
+    const libraryItem = await authTrx((tx) => {
+      const qb = tx
+        .createQueryBuilder(LibraryItem, 'libraryItem')
+        .select(selectColumns.map((column) => `libraryItem.${column}`))
+        .where('libraryItem.user_id = :uid', { uid })
+
+      // We allow the backend to use the ID instead of a slug to fetch the article
+      // query against id if slug is a uuid
+      slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
+        ? qb.andWhere('libraryItem.id = :id', { id: slug })
+        : qb.andWhere('libraryItem.slug = :slug', { slug })
+
+      return qb
+        .andWhere('libraryItem.deleted_at IS NULL')
+        .leftJoinAndSelect('libraryItem.labels', 'labels')
+        .leftJoinAndSelect('libraryItem.highlights', 'highlights')
+        .leftJoinAndSelect('highlights.labels', 'highlights_labels')
+        .leftJoinAndSelect('highlights.user', 'highlights_user')
+        .leftJoinAndSelect('highlights_user.profile', 'highlights_user_profile')
+        .leftJoinAndSelect('libraryItem.uploadFile', 'uploadFile')
+        .leftJoinAndSelect('libraryItem.recommendations', 'recommendations')
+        .leftJoinAndSelect('recommendations.group', 'recommendations_group')
+        .leftJoinAndSelect(
+          'recommendations.recommender',
+          'recommendations_recommender'
+        )
+        .getOne()
+    })
 
     if (!libraryItem) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
