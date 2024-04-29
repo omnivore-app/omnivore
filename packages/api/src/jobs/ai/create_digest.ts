@@ -18,6 +18,7 @@ import {
   searchLibraryItems,
 } from '../../services/library_item'
 import { findDeviceTokensByUserId } from '../../services/user_device_tokens'
+import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
 import { sendMulticastPushNotifications } from '../../utils/sendNotification'
@@ -171,9 +172,10 @@ const getCandidatesList = async (
         await searchLibraryItems(
           {
             includeContent: true,
-            query: existingCandidateIds
-              ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
-              : selector.query,
+            // query: existingCandidateIds
+            //   ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
+            //   : selector.query,
+            query: selector.query,
             size: selector.count,
           },
           userId
@@ -192,6 +194,8 @@ const getCandidatesList = async (
       readableContent: htmlToMarkdown(item.readableContent),
     })) // convert the html content to markdown
 
+  logger.info('dedupedCandidates: ', dedupedCandidates)
+
   console.timeEnd('getCandidatesList')
 
   if (dedupedCandidates.length === 0) {
@@ -208,6 +212,8 @@ const getCandidatesList = async (
   }
 
   const selectedCandidates = randomSelectCandidates(dedupedCandidates)
+
+  logger.info('selectedCandidates: ', selectedCandidates)
 
   // store the ids in cache
   const candidateIds = selectedCandidates.map((item) => item.id).join(',')
@@ -420,7 +426,8 @@ const generateSpeechFiles = (
 const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
   return summaries.filter(
     (item) =>
-      item.summary.length > 200 ||
+      wordsCount(item.summary) > 100 &&
+      wordsCount(item.summary) < 1000 &&
       item.summary.length < item.libraryItem.readableContent.length
   )
 }
@@ -480,6 +487,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       summary: '',
     }))
     const summaries = await summarizeItems(selections)
+    logger.info('summaries: ', summaries)
 
     const filteredSummaries = filterSummaries(summaries)
 
