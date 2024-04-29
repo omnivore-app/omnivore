@@ -78,7 +78,7 @@ const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
 export const RSS_PARSER_CONFIG = {
-  timeout: 5000, // 5 seconds
+  timeout: 20000, // 20 seconds
   headers: {
     // some rss feeds require user agent
     'User-Agent':
