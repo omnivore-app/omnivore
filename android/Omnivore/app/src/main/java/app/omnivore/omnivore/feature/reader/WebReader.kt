@@ -170,11 +170,17 @@ fun WebReader(
                     if (event.action == KeyEvent.ACTION_DOWN) {
                         when (keyCode) {
                             KeyEvent.KEYCODE_VOLUME_UP -> {
+                                if (!webReaderViewModel.shouldUseVolumeRockerForScroll) {
+                                    return@setOnKeyListener false
+                                }
                                 scrollVertically(OmnivoreWebView.Direction.UP)
                                 return@setOnKeyListener true
                             }
 
                             KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                                if (!webReaderViewModel.shouldUseVolumeRockerForScroll) {
+                                    return@setOnKeyListener false
+                                }
                                 scrollVertically(OmnivoreWebView.Direction.DOWN)
                                 return@setOnKeyListener true
                             }

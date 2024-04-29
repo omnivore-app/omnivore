@@ -43,6 +43,8 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
 
   val themeState = remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
 
+  val volumeForScrollState = remember { mutableStateOf(currentWebPreferences.shouldUseVolumeRockerForScroll) }
+
   OmnivoreTheme {
   Column(
     modifier = Modifier
@@ -239,6 +241,24 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         }
       )
     }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Text(
+        stringResource(R.string.reader_preferences_view_volume_scroll),
+        style = TextStyle(
+          fontSize = 15.sp,
+          fontWeight = FontWeight.Normal,
+          color = Color(red = 137, green = 137, blue = 137))
+      )
+      Spacer(modifier = Modifier.weight(1.0F))
+      Switch (
+          checked = volumeForScrollState.value,
+          onCheckedChange = {
+            volumeForScrollState.value = it
+            webReaderViewModel.updateVolumeRockerForScroll(it)
+          }
+      )
+    }
   }
 }
 }
@@ -285,5 +305,6 @@ data class WebPreferences(
   val storedThemePreference: String,
   val fontFamily: WebFont,
   val prefersHighContrastText: Boolean,
-  val prefersJustifyText: Boolean
+  val prefersJustifyText: Boolean,
+  var shouldUseVolumeRockerForScroll: Boolean
 )

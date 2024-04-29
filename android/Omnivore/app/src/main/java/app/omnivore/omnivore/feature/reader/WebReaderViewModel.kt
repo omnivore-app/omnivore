@@ -106,6 +106,8 @@ class WebReaderViewModel @Inject constructor(
     private val showHighlightColorPalette = MutableLiveData(false)
     val highlightColor = MutableLiveData(HighlightColor())
 
+    var shouldUseVolumeRockerForScroll = true
+
     fun loadItem(slug: String?, requestID: String?) {
         this.slug = slug
         if (isLoading || webReaderParamsLiveData.value != null) {
@@ -470,6 +472,7 @@ class WebReaderViewModel @Inject constructor(
         val prefersHighContrastFont =
             datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
         val prefersJustifyText = datastoreRepo.getString(DatastoreKeys.prefersJustifyText) == "true"
+        val shouldUseVolumeRockerForScroll = datastoreRepo.getString(DatastoreKeys.volumeForScroll) != "false"
 
         WebPreferences(
             textFontSize = storedFontSize ?: 12,
@@ -479,7 +482,8 @@ class WebReaderViewModel @Inject constructor(
             storedThemePreference = storedThemePreference,
             fontFamily = storedWebFont,
             prefersHighContrastText = prefersHighContrastFont,
-            prefersJustifyText = prefersJustifyText
+            prefersJustifyText = prefersJustifyText,
+            shouldUseVolumeRockerForScroll = shouldUseVolumeRockerForScroll
         )
     }
 
@@ -553,6 +557,13 @@ class WebReaderViewModel @Inject constructor(
         val script =
             "var event = new Event('updateJustifyText');event.justifyText = $justifyText;document.dispatchEvent(event);"
         enqueueScript(script)
+    }
+
+    fun updateVolumeRockerForScroll(shouldUseVolumeRockerForScroll: Boolean) {
+        runBlocking {
+            datastoreRepo.putString(DatastoreKeys.volumeForScroll, shouldUseVolumeRockerForScroll.toString())
+        }
+        this.shouldUseVolumeRockerForScroll = shouldUseVolumeRockerForScroll
     }
 
     fun applyWebFont(font: WebFont) {

@@ -23,6 +23,7 @@ object DatastoreKeys {
   const val lastUsedSavedItemFilter = "lastUsedSavedItemFilter"
   const val lastUsedSavedItemSortFilter = "lastUsedSavedItemSortFilter"
   const val preferredTheme = "preferredTheme"
+  const val volumeForScroll = "volumeForScroll"
 }
 
 object AppleConstants {
