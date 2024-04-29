@@ -419,7 +419,9 @@ const generateSpeechFiles = (
 // basic checks to make sure the summaries are good.
 const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
   return summaries.filter(
-    (item) => item.summary.length < item.libraryItem.readableContent.length
+    (item) =>
+      item.summary.length > 200 ||
+      item.summary.length < item.libraryItem.readableContent.length
   )
 }
 
