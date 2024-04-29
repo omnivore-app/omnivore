@@ -403,7 +403,7 @@ const summarizeItems = async (
           content: item.libraryItem.readableContent, // markdown content
         })
 
-        logger.info('summarizeItems prompt: ', prompt)
+        logger.info(`summarizeItems prompt: ${prompt}`)
 
         const summary = await llm.invoke(prompt)
         logger.info('summarizeItems summary: ', summary)
