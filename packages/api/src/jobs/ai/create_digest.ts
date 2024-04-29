@@ -136,11 +136,17 @@ const getPreferencesList = async (userId: string): Promise<LibraryItem[]> => {
   return dedupedPreferences
 }
 
+const randomSelectCandidates = (candidates: LibraryItem[]): LibraryItem[] => {
+  // randomly choose at most 25 candidates
+  return candidates.sort(() => 0.5 - Math.random()).slice(0, 25)
+}
+
 // Makes multiple DB queries and combines the results
 const getCandidatesList = async (
   userId: string,
   selectedLibraryItemIds?: string[]
 ): Promise<LibraryItem[]> => {
+  console.time('getCandidatesList')
   // use the queries from the digest definitions to lookup preferences
   // There should be a list of multiple queries we use. For now we can
   // hardcode these queries:
@@ -199,11 +205,15 @@ const getCandidatesList = async (
     return []
   }
 
+  const selectedCandidates = randomSelectCandidates(dedupedCandidates)
+
   // store the ids in cache
-  const candidateIds = dedupedCandidates.map((item) => item.id).join(',')
+  const candidateIds = selectedCandidates.map((item) => item.id).join(',')
   await redisDataSource.redisClient?.set(key, candidateIds)
 
-  return dedupedCandidates
+  console.timeEnd('getCandidatesList')
+
+  return selectedCandidates
 }
 
 // Takes a list of library items, and uses a prompt to generate
@@ -345,6 +355,7 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
 const summarizeItems = async (
   rankedCandidates: RankedItem[]
 ): Promise<RankedItem[]> => {
+  console.time('summarizeItems')
   const llm = new OpenAI({
     modelName: 'gpt-4-0125-preview',
     configuration: {
@@ -370,6 +381,8 @@ const summarizeItems = async (
     (summary, index) => (rankedCandidates[index].summary = summary)
   )
 
+  console.timeEnd('summarizeItems')
+
   return rankedCandidates
 }
 
@@ -378,6 +391,7 @@ const generateSpeechFiles = (
   rankedItems: RankedItem[],
   options: SSMLOptions
 ): SpeechFile[] => {
+  console.time('generateSpeechFiles')
   // convert the summaries from markdown to HTML
   const converter = new showdown.Converter({
     backslashEscapesHTMLTags: true,
@@ -395,6 +409,8 @@ const generateSpeechFiles = (
       options,
     })
   })
+
+  console.timeEnd('generateSpeechFiles')
 
   return speechFiles
 }
@@ -434,6 +450,8 @@ const generateByline = (summaries: RankedItem[]): string =>
 
 export const createDigest = async (jobData: CreateDigestData) => {
   try {
+    console.time('createDigestJob')
+
     digestDefinition = await fetchDigestDefinition()
 
     const candidates = await getCandidatesList(
@@ -511,5 +529,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
 
       await sendMulticastPushNotifications(jobData.userId, message, 'reminder')
     }
+
+    console.timeEnd('createDigestJob')
   }
 }
