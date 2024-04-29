@@ -379,17 +379,6 @@ const summarizeItems = async (
     digestDefinition.summaryPrompt
   )
 
-  const prompts = await Promise.all(
-    rankedCandidates.map(
-      async (item) =>
-        await contextualTemplate.format({
-          title: item.libraryItem.title,
-          author: item.libraryItem.author ?? '',
-          content: item.libraryItem.readableContent, // markdown content
-        })
-    )
-  )
-
   // // send all the ranked candidates to openAI at once in a batch
   // const summaries = await chain.batch(
   //   rankedCandidates.map((item) => ({
@@ -399,7 +388,22 @@ const summarizeItems = async (
   //   }))
   // )
 
-  const summaries = await llm.batch(prompts)
+  const summaries = await Promise.all(
+    rankedCandidates.map(async (item) => {
+      try {
+        const prompt = await contextualTemplate.format({
+          title: item.libraryItem.title,
+          author: item.libraryItem.author ?? '',
+          content: item.libraryItem.readableContent, // markdown content
+        })
+
+        return llm.invoke(prompt)
+      } catch (error) {
+        logger.error('summarizeItems error', error)
+        return { content: '' }
+      }
+    })
+  )
 
   summaries.forEach(
     (summary, index) =>
