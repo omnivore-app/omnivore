@@ -22,20 +22,22 @@ export type LabelEvent = Merge<
   EntityEvent
 >
 
-// const batchGetLabelsFromLinkIds = async (
-//   linkIds: readonly string[]
-// ): Promise<Label[][]> => {
-//   const links = await getRepository(Link).find({
-//     where: { id: In(linkIds as string[]) },
-//     relations: ['labels'],
-//   })
+export const batchGetLabelsFromLibraryItemIds = async (
+  libraryItemIds: readonly string[]
+): Promise<Label[][]> => {
+  const labels = await authTrx(async (tx) =>
+    tx.getRepository(EntityLabel).find({
+      where: { libraryItemId: In(libraryItemIds as string[]) },
+      relations: ['label'],
+    })
+  )
 
-//   return linkIds.map(
-//     (linkId) => links.find((link) => link.id === linkId)?.labels || []
-//   )
-// }
-
-// export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
+  return libraryItemIds.map((libraryItemId) =>
+    labels
+      .filter((label) => label.libraryItemId === libraryItemId)
+      .map((label) => label.label)
+  )
+}
 
 export const findOrCreateLabels = async (
   labels: CreateLabelInput[],

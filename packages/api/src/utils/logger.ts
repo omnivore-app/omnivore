@@ -31,7 +31,7 @@ export class CustomTypeOrmLogger
 
   constructor(options?: TypeOrmLoggerOptions) {
     super(options)
-    this.logger = buildLogger('typeorm')
+    this.logger = logger
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
@@ -132,8 +132,8 @@ const truncateObjectDeep = (object: any, length: number): any => {
 
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
-    // reduce the size of the log entry by truncating any string values to 500 characters
-    info = truncateObjectDeep(info, 500) as never
+    // reduce the size of the log entry by truncating any string values to 10000 characters
+    info = truncateObjectDeep(info, 10000) as never
     super.log(info, callback)
   }
 }

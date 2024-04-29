@@ -20,3 +20,15 @@ webview_gen:
 	yarn workspace @omnivore/appreader build
 	cp packages/appreader/build/bundle.js apple/OmnivoreKit/Sources/Views/Resources/bundle.js
 	cp packages/appreader/build/bundle.js android/Omnivore/app/src/main/assets/bundle.js
+
+api:
+	yarn workspace @omnivore/api dev
+
+web:
+	yarn workspace @omnivore/web dev
+
+qp:
+	yarn workspace @omnivore/api dev_qp
+
+content:
+	yarn workspace @omnivore/content_fetch start

@@ -2748,6 +2748,7 @@ export type SearchItem = {
   directionality?: Maybe<DirectionalityType>;
   feedContent?: Maybe<Scalars['String']>;
   folder: Scalars['String'];
+  format?: Maybe<Scalars['String']>;
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
@@ -6617,6 +6618,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   directionality?: Resolver<Maybe<ResolversTypes['DirectionalityType']>, ParentType, ContextType>;
   feedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  format?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

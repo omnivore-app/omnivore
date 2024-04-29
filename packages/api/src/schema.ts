@@ -1657,6 +1657,7 @@ const schema = gql`
     folder: String!
     aiSummary: String
     directionality: DirectionalityType
+    format: String
   }
 
   type SearchItemEdge {

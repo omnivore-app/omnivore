@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-
 import { User } from './user'
 
 @Entity({ name: 'user_profile' })

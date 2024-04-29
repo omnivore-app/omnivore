@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { IsNull } from 'typeorm'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
@@ -64,7 +63,6 @@ import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { clearCachedReadingPosition } from '../../services/cached_reading_position'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   createAndSaveLabelsInLibraryItem,
@@ -104,7 +102,6 @@ import {
   userDataToUser,
 } from '../../utils/helpers'
 import {
-  contentConverter,
   getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
@@ -385,31 +382,33 @@ export const getArticleResolver = authorized<
     if (!includeOriginalHtml) {
       selectColumns.splice(selectColumns.indexOf('originalContent'), 1)
     }
-    // We allow the backend to use the ID instead of a slug to fetch the article
-    // query against id if slug is a uuid
-    const where = slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
-      ? { id: slug }
-      : { slug }
-    const libraryItem = await authTrx((tx) =>
-      tx.withRepository(libraryItemRepository).findOne({
-        select: selectColumns,
-        where: {
-          ...where,
-          deletedAt: IsNull(),
-        },
-        relations: {
-          highlights: {
-            user: true,
-            labels: true,
-          },
-          uploadFile: true,
-          recommendations: {
-            recommender: true,
-            group: true,
-          },
-        },
-      })
-    )
+
+    const libraryItem = await authTrx((tx) => {
+      const qb = tx
+        .createQueryBuilder(LibraryItem, 'libraryItem')
+        .select(selectColumns.map((column) => `libraryItem.${column}`))
+        .leftJoinAndSelect('libraryItem.labels', 'labels')
+        .leftJoinAndSelect('libraryItem.highlights', 'highlights')
+        .leftJoinAndSelect('highlights.labels', 'highlights_labels')
+        .leftJoinAndSelect('highlights.user', 'highlights_user')
+        .leftJoinAndSelect('highlights_user.profile', 'highlights_user_profile')
+        .leftJoinAndSelect('libraryItem.uploadFile', 'uploadFile')
+        .leftJoinAndSelect('libraryItem.recommendations', 'recommendations')
+        .leftJoinAndSelect('recommendations.group', 'recommendations_group')
+        .leftJoinAndSelect(
+          'recommendations.recommender',
+          'recommendations_recommender'
+        )
+        .where('libraryItem.user_id = :uid', { uid })
+
+      // We allow the backend to use the ID instead of a slug to fetch the article
+      // query against id if slug is a uuid
+      slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
+        ? qb.andWhere('libraryItem.id = :id', { id: slug })
+        : qb.andWhere('libraryItem.slug = :slug', { slug })
+
+      return qb.andWhere('libraryItem.deleted_at IS NULL').getOne()
+    })
 
     if (!libraryItem) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
@@ -667,7 +666,7 @@ export const searchResolver = authorized<
   SearchSuccess,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { log, uid }) => {
+>(async (_obj, params, { uid }) => {
   const startCursor = params.after || ''
   const first = Math.min(params.first || 10, 100) // limit to 100 items
 
@@ -699,38 +698,11 @@ export const searchResolver = authorized<
     libraryItems.pop()
   }
 
-  const edges = await Promise.all(
-    libraryItems.map(async (libraryItem) => {
-      libraryItem.highlights = await findHighlightsByLibraryItemId(
-        libraryItem.id,
-        uid
-      )
-
-      if (params.includeContent && libraryItem.readableContent) {
-        // convert html to the requested format
-        const format = params.format || ArticleFormat.Html
-        try {
-          const converter = contentConverter(format)
-          if (converter) {
-            libraryItem.readableContent = converter(
-              libraryItem.readableContent,
-              libraryItem.highlights
-            )
-          }
-        } catch (error) {
-          log.error('Error converting content', error)
-        }
-      }
-
-      return {
-        node: libraryItemToSearchItem(libraryItem),
-        cursor: endCursor,
-      }
-    })
-  )
-
   return {
-    edges,
+    edges: libraryItems.map((item) => ({
+      node: libraryItemToSearchItem(item, params.format as ArticleFormat),
+      cursor: endCursor,
+    })),
     pageInfo: {
       hasPreviousPage: false,
       startCursor,

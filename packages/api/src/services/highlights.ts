@@ -1,5 +1,5 @@
 import { diff_match_patch } from 'diff-match-patch'
-import { DeepPartial } from 'typeorm'
+import { DeepPartial, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -19,6 +19,21 @@ export type HighlightEvent = Merge<
   Omit<DeepPartial<Highlight>, ColumnsToDeleteType>,
   EntityEvent
 >
+
+export const batchGetHighlightsFromLibraryItemIds = async (
+  libraryItemIds: readonly string[]
+): Promise<Highlight[][]> => {
+  const highlights = await authTrx(async (tx) =>
+    tx.getRepository(Highlight).find({
+      where: { libraryItem: { id: In(libraryItemIds as string[]) } },
+      relations: ['user'],
+    })
+  )
+
+  return libraryItemIds.map((libraryItemId) =>
+    highlights.filter((highlight) => highlight.libraryItemId === libraryItemId)
+  )
+}
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
