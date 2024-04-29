@@ -160,11 +160,11 @@ const getCandidatesList = async (
     return findLibraryItemsByIds(selectedLibraryItemIds, userId)
   }
 
-  // get the existing candidate ids from cache
-  const key = `digest:${userId}:existingCandidateIds`
-  const existingCandidateIds = await redisDataSource.redisClient?.get(key)
+  // // get the existing candidate ids from cache
+  // const key = `digest:${userId}:existingCandidateIds`
+  // const existingCandidateIds = await redisDataSource.redisClient?.get(key)
 
-  logger.info('existingCandidateIds: ', { existingCandidateIds })
+  // logger.info('existingCandidateIds: ', { existingCandidateIds })
 
   const candidates = await Promise.all(
     digestDefinition.candidateSelectors.map(
@@ -195,18 +195,21 @@ const getCandidatesList = async (
       readableContent: htmlToMarkdown(item.readableContent),
     })) // convert the html content to markdown
 
-  logger.info('dedupedCandidates: ', dedupedCandidates)
+  logger.info(
+    'dedupedCandidates: ',
+    dedupedCandidates.map((item) => item.title)
+  )
 
   console.timeEnd('getCandidatesList')
 
   if (dedupedCandidates.length === 0) {
     logger.info('No new candidates found')
 
-    if (existingCandidateIds) {
-      // reuse the existing candidates
-      const existingIds = existingCandidateIds.split(',')
-      return findLibraryItemsByIds(existingIds, userId)
-    }
+    // if (existingCandidateIds) {
+    //   // reuse the existing candidates
+    //   const existingIds = existingCandidateIds.split(',')
+    //   return findLibraryItemsByIds(existingIds, userId)
+    // }
 
     // return empty array if no existing candidates
     return []
@@ -214,11 +217,14 @@ const getCandidatesList = async (
 
   const selectedCandidates = randomSelectCandidates(dedupedCandidates)
 
-  logger.info('selectedCandidates: ', selectedCandidates)
+  logger.info(
+    'selectedCandidates: ',
+    selectedCandidates.map((item) => item.title)
+  )
 
-  // store the ids in cache
-  const candidateIds = selectedCandidates.map((item) => item.id).join(',')
-  await redisDataSource.redisClient?.set(key, candidateIds)
+  // // store the ids in cache
+  // const candidateIds = selectedCandidates.map((item) => item.id).join(',')
+  // await redisDataSource.redisClient?.set(key, candidateIds)
 
   return selectedCandidates
 }
@@ -397,7 +403,12 @@ const summarizeItems = async (
           content: item.libraryItem.readableContent, // markdown content
         })
 
-        return llm.invoke(prompt)
+        logger.info('summarizeItems prompt: ', prompt)
+
+        const summary = await llm.invoke(prompt)
+        logger.info('summarizeItems summary: ', summary)
+
+        return summary
       } catch (error) {
         logger.error('summarizeItems error', error)
         return { content: '' }
@@ -510,7 +521,10 @@ export const createDigest = async (jobData: CreateDigestData) => {
       summary: '',
     }))
     const summaries = await summarizeItems(selections)
-    logger.info('summaries: ', summaries)
+    logger.info(
+      'summaries: ',
+      summaries.map((item) => item.summary)
+    )
 
     const filteredSummaries = filterSummaries(summaries)
 
