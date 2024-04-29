@@ -394,27 +394,24 @@ const summarizeItems = async (
   //   }))
   // )
 
-  const summaries = await Promise.all(
+  const prompts = await Promise.all(
     rankedCandidates.map(async (item) => {
       try {
-        const prompt = await contextualTemplate.format({
+        return await contextualTemplate.format({
           title: item.libraryItem.title,
           author: item.libraryItem.author ?? '',
           content: item.libraryItem.readableContent, // markdown content
         })
-
-        logger.info(`summarizeItems prompt: ${prompt}`)
-
-        const summary = await llm.invoke(prompt)
-        logger.info('summarizeItems summary: ', summary)
-
-        return summary
       } catch (error) {
         logger.error('summarizeItems error', error)
-        return { content: '' }
+        return ''
       }
     })
   )
+  logger.info('prompts: ', prompts)
+
+  const summaries = await llm.batch(prompts)
+  logger.info('summaries: ', summaries)
 
   summaries.forEach(
     (summary, index) =>
@@ -521,10 +518,6 @@ export const createDigest = async (jobData: CreateDigestData) => {
       summary: '',
     }))
     const summaries = await summarizeItems(selections)
-    logger.info(
-      'summaries: ',
-      summaries.map((item) => item.summary)
-    )
 
     const filteredSummaries = filterSummaries(summaries)
 
