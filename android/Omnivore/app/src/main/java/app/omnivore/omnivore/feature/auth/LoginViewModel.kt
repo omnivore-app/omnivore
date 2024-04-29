@@ -97,7 +97,7 @@ class LoginViewModel @Inject constructor(
     ).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = false
+        initialValue = true
     )
 
     fun setSelfHostingDetails(context: Context, apiServer: String, webServer: String) {
