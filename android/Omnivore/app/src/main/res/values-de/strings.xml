@@ -148,6 +148,7 @@
     <string name="reader_preferences_view_justify_text">Text ausrichten</string>
 
     <!-- WebReaderLoadingContainer -->
+    <string name="reader_preferences_view_volume_scroll">Verwenden Sie die Lautstärketasten zum Scrollen</string>
     <string name="web_reader_loading_container_error_msg">Wir konnten deinen Inhalt nicht abrufen.</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">Lese-Einstellungen</string>
     <string name="web_reader_loading_container_bottom_sheet_notebook">Notizbuch</string>

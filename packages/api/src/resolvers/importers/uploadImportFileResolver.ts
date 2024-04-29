@@ -16,7 +16,6 @@ import {
   generateUploadSignedUrl,
 } from '../../utils/uploads'
 
-const MAX_DAILY_UPLOADS = 1
 const VALID_CONTENT_TYPES = ['text/csv', 'application/zip']
 
 const extensionForContentType = (contentType: string) => {
@@ -61,6 +60,7 @@ export const uploadImportFileResolver = authorized<
   const dirPath = `imports/${uid}/${dateStr}/`
   const fileCount = await countOfFilesWithPrefix(dirPath)
 
+  const MAX_DAILY_UPLOADS = env.fileUpload.dailyUploadLimit
   if (fileCount >= MAX_DAILY_UPLOADS) {
     return {
       errorCodes: [UploadImportFileErrorCode.UploadDailyLimitExceeded],

@@ -148,6 +148,7 @@
     <string name="reader_preferences_view_justify_text">對齊文字</string>
 
     <!-- WebReaderLoadingContainer -->
+    <string name="reader_preferences_view_volume_scroll">使用音量按鈕捲動</string>
     <string name="web_reader_loading_container_error_msg">我們無法取得您的內容。</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">閱讀器偏好設定</string>
     <string name="web_reader_loading_container_bottom_sheet_notebook">筆記本</string>

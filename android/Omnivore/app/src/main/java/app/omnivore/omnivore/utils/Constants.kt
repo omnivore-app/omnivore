@@ -3,8 +3,27 @@ package app.omnivore.omnivore.utils
 import app.omnivore.omnivore.BuildConfig
 
 object Constants {
-    const val apiURL = BuildConfig.OMNIVORE_API_URL
-    const val dataStoreName = "omnivore-datastore"
+  const val apiURL = BuildConfig.OMNIVORE_API_URL
+  const val dataStoreName = "omnivore-datastore"
+}
+
+object DatastoreKeys {
+  const val omnivoreSelfHostedAPIServer =  "omnivoreSelfHostedAPIServer"
+  const val omnivoreSelfHostedWebServer = "omnivoreSelfHostedWebServer"
+  const val omnivoreAuthToken =  "omnivoreAuthToken"
+  const val omnivoreAuthCookieString =  "omnivoreAuthCookieString"
+  const val omnivorePendingUserToken =  "omnivorePendingUserToken"
+  const val libraryLastSyncTimestamp = "libraryLastSyncTimestamp"
+  const val preferredWebFontSize = "preferredWebFontSize"
+  const val preferredWebLineHeight = "preferredWebLineHeight"
+  const val preferredWebMaxWidthPercentage = "preferredWebMaxWidthPercentage"
+  const val preferredWebFontFamily = "preferredWebFontFamily"
+  const val prefersWebHighContrastText = "prefersWebHighContrastText"
+  const val prefersJustifyText = "prefersJustifyText"
+  const val lastUsedSavedItemFilter = "lastUsedSavedItemFilter"
+  const val lastUsedSavedItemSortFilter = "lastUsedSavedItemSortFilter"
+  const val preferredTheme = "preferredTheme"
+  const val volumeForScroll = "volumeForScroll"
 }
 
 object AppleConstants {
