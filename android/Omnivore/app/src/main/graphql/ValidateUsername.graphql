@@ -1,3 +1,3 @@
 query ValidateUsername($username: String!) {
-  validateUsername(username: $username)
+    validateUsername(username: $username)
 }

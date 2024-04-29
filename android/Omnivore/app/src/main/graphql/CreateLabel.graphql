@@ -1,16 +1,16 @@
 mutation CreateLabel($input: CreateLabelInput!) {
-  createLabel(input: $input) {
-    ... on CreateLabelSuccess {
-      label {
-        id
-        name
-        color
-        description
-        createdAt
-      }
+    createLabel(input: $input) {
+        ... on CreateLabelSuccess {
+            label {
+                id
+                name
+                color
+                description
+                createdAt
+            }
+        }
+        ... on CreateLabelError {
+            errorCodes
+        }
     }
-    ... on CreateLabelError {
-      errorCodes
-    }
-  }
 }

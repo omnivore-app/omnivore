@@ -6,14 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.utils.Constants
-import app.omnivore.omnivore.utils.DatastoreKeys
-import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.data.DataService
+import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
 import app.omnivore.omnivore.graphql.generated.UpdatePageMutation
 import app.omnivore.omnivore.graphql.generated.type.UpdatePageInput
-import app.omnivore.omnivore.feature.ResourceProvider
+import app.omnivore.omnivore.utils.Constants
+import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +45,7 @@ class EditInfoViewModel @Inject constructor(
     private set
 
   private fun getAuthToken(): String? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
+    datastoreRepo.getString(omnivoreAuthToken)
   }
 
   fun editInfo(itemId: String, title: String, author: String?, description: String?) {

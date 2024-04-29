@@ -1,10 +1,10 @@
 mutation SaveUrl($input: SaveUrlInput!) {
-  saveUrl(input: $input) {
-    ... on SaveSuccess {
-      url
+    saveUrl(input: $input) {
+        ... on SaveSuccess {
+            url
+        }
+        ... on SaveError {
+            errorCodes
+        }
     }
-    ... on SaveError {
-      errorCodes
-    }
-  }
 }

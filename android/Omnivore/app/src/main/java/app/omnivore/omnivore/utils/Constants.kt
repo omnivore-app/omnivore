@@ -27,8 +27,8 @@ object DatastoreKeys {
 }
 
 object AppleConstants {
-  const val clientId = "app.omnivore"
-  const val redirectURI = BuildConfig.OMNIVORE_API_URL + "/api/mobile-auth/android-apple-redirect"
-  const val scope = "name%20email"
-  const val authUrl = "https://appleid.apple.com/auth/authorize"
+    const val clientId = "app.omnivore"
+    const val redirectURI = BuildConfig.OMNIVORE_API_URL + "/api/mobile-auth/android-apple-redirect"
+    const val scope = "name%20email"
+    const val authUrl = "https://appleid.apple.com/auth/authorize"
 }

@@ -1,15 +1,15 @@
 query TypeaheadSearch($query: String!) {
-  typeaheadSearch(query: $query) {
-    ... on TypeaheadSearchSuccess {
-      items {
-        id
-        title
-        slug
-        siteName
-      }
+    typeaheadSearch(query: $query) {
+        ... on TypeaheadSearchSuccess {
+            items {
+                id
+                title
+                slug
+                siteName
+            }
+        }
+        ... on TypeaheadSearchError {
+            errorCodes
+        }
     }
-    ... on TypeaheadSearchError {
-      errorCodes
-    }
-  }
 }

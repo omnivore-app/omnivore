@@ -1,49 +1,41 @@
 package app.omnivore.omnivore.core.network
 
-import app.omnivore.omnivore.graphql.generated.SaveArticleReadingProgressMutation
-import app.omnivore.omnivore.graphql.generated.type.SaveArticleReadingProgressInput
-
 
 import android.util.Log
+import app.omnivore.omnivore.graphql.generated.SaveArticleReadingProgressMutation
+import app.omnivore.omnivore.graphql.generated.type.SaveArticleReadingProgressInput
 import com.apollographql.apollo3.api.Optional
-import com.google.gson.Gson
 
 data class ReadingProgressParams(
-  val id: String?,
-  val readingProgressPercent: Double?,
-  val readingProgressAnchorIndex: Int?,
-  val force: Boolean?
+    val id: String?,
+    val readingProgressPercent: Double?,
+    val readingProgressAnchorIndex: Int?,
+    val force: Boolean?
 ) {
-  fun asSaveReadingProgressInput() = SaveArticleReadingProgressInput(
-    id = id ?: "",
-    force = Optional.presentIfNotNull(force),
-    readingProgressPercent = readingProgressPercent ?: 0.0,
-    readingProgressAnchorIndex = Optional.presentIfNotNull(readingProgressAnchorIndex ?: 0)
-  )
-}
-
-suspend fun Networker.updateWebReadingProgress(jsonString: String): Boolean {
-  val params = Gson().fromJson(jsonString, ReadingProgressParams::class.java)
-  return updateReadingProgress(params)
+    fun asSaveReadingProgressInput() = SaveArticleReadingProgressInput(
+        id = id ?: "",
+        force = Optional.presentIfNotNull(force),
+        readingProgressPercent = readingProgressPercent ?: 0.0,
+        readingProgressAnchorIndex = Optional.presentIfNotNull(readingProgressAnchorIndex ?: 0)
+    )
 }
 
 suspend fun Networker.updateReadingProgress(params: ReadingProgressParams): Boolean {
-  try {
-    val input = params.asSaveReadingProgressInput()
+    try {
+        val input = params.asSaveReadingProgressInput()
 
-    Log.d("Loggo", "created reading progress input: $input")
+        Log.d("Loggo", "created reading progress input: $input")
 
-    val result = authenticatedApolloClient()
-      .mutation(SaveArticleReadingProgressMutation(input))
-      .execute()
+        val result = authenticatedApolloClient().mutation(SaveArticleReadingProgressMutation(input))
+            .execute()
 
-    val articleID =
-      result.data?.saveArticleReadingProgress?.onSaveArticleReadingProgressSuccess?.updatedArticle?.id
+        val articleID =
+            result.data?.saveArticleReadingProgress?.onSaveArticleReadingProgressSuccess?.updatedArticle?.id
 
-    Log.d("Loggo", "updated article with id: $articleID")
+        Log.d("Loggo", "updated article with id: $articleID")
 
-    return articleID != null
-  } catch (e: java.lang.Exception) {
-    return false
-  }
+        return articleID != null
+    } catch (e: java.lang.Exception) {
+        return false
+    }
 }

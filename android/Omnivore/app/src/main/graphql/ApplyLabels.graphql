@@ -1,12 +1,12 @@
 mutation SetLabels($input: SetLabelsInput!) {
-  setLabels(input: $input) {
-    ... on SetLabelsSuccess {
-      labels {
-        ...LabelFields
-      }
+    setLabels(input: $input) {
+        ... on SetLabelsSuccess {
+            labels {
+                ...LabelFields
+            }
+        }
+        ... on SetLabelsError {
+            errorCodes
+        }
     }
-    ... on SetLabelsError {
-      errorCodes
-    }
-  }
 }

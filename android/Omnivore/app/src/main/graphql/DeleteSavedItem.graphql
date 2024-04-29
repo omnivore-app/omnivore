@@ -1,12 +1,12 @@
 mutation SetBookmarkArticle($input: SetBookmarkArticleInput!) {
-  setBookmarkArticle(input: $input) {
-    ... on SetBookmarkArticleSuccess {
-      bookmarkedArticle {
-        id
-      }
+    setBookmarkArticle(input: $input) {
+        ... on SetBookmarkArticleSuccess {
+            bookmarkedArticle {
+                id
+            }
+        }
+        ... on SetBookmarkArticleError {
+            errorCodes
+        }
     }
-    ... on SetBookmarkArticleError {
-      errorCodes
-    }
-  }
 }

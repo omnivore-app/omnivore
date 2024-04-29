@@ -1,15 +1,15 @@
 mutation UpdatePage($input: UpdatePageInput!) {
-  updatePage(input: $input) {
-    ... on UpdatePageSuccess {
-      updatedPage {
-        title
-        author
-        description
-      }
-    }
+    updatePage(input: $input) {
+        ... on UpdatePageSuccess {
+            updatedPage {
+                title
+                author
+                description
+            }
+        }
 
-    ... on UpdatePageError {
-      errorCodes
+        ... on UpdatePageError {
+            errorCodes
+        }
     }
-  }
 }
