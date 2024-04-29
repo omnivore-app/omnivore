@@ -192,6 +192,8 @@ const getCandidatesList = async (
       readableContent: htmlToMarkdown(item.readableContent),
     })) // convert the html content to markdown
 
+  console.timeEnd('getCandidatesList')
+
   if (dedupedCandidates.length === 0) {
     logger.info('No new candidates found')
 
@@ -210,8 +212,6 @@ const getCandidatesList = async (
   // store the ids in cache
   const candidateIds = selectedCandidates.map((item) => item.id).join(',')
   await redisDataSource.redisClient?.set(key, candidateIds)
-
-  console.timeEnd('getCandidatesList')
 
   return selectedCandidates
 }
