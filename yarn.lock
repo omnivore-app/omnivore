@@ -50,6 +50,20 @@
     lodash "^4.17.21"
     resize-observer-polyfill "^1.5.1"
 
+"@anthropic-ai/sdk@^0.20.1":
+  version "0.20.7"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.20.7.tgz#b19b0e66ba070f928bbf583c06d76e6efdd93d5e"
+  integrity sha512-uyc+3WGLpe8ur6mSIKSab7P9JdBerTdmqb7popc/yROYLLCW/Ykyw4ZfjmN/cLmxjnAKnv5YUngzbPM0BJuGjg==
+  dependencies:
+    "@types/node" "^18.11.18"
+    "@types/node-fetch" "^2.6.4"
+    abort-controller "^3.0.0"
+    agentkeepalive "^4.2.1"
+    form-data-encoder "1.7.2"
+    formdata-node "^4.3.2"
+    node-fetch "^2.6.7"
+    web-streams-polyfill "^3.2.1"
+
 "@anthropic-ai/sdk@^0.9.1":
   version "0.9.1"
   resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.9.1.tgz#b2d2b7bf05c90dce502c9a2e869066870f69ba88"
@@ -3774,6 +3788,17 @@
   dependencies:
     lodash "^4.17.21"
 
+"@langchain/anthropic@^0.1.16":
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/@langchain/anthropic/-/anthropic-0.1.16.tgz#c2a9d3dd4e02df7118dd97cf2503c9bd1a4de5ad"
+  integrity sha512-vCbwkZ3pkMSKf67fBgNlslvuW9f3EZGBbO8Ic2etgX3xFl6L0WuMtfS26P1FCDpRwaKuC1BrCj2aLAeMzMq/Fg==
+  dependencies:
+    "@anthropic-ai/sdk" "^0.20.1"
+    "@langchain/core" "~0.1.56"
+    fast-xml-parser "^4.3.5"
+    zod "^3.22.4"
+    zod-to-json-schema "^3.22.4"
+
 "@langchain/community@~0.0.33":
   version "0.0.33"
   resolved "https://registry.yarnpkg.com/@langchain/community/-/community-0.0.33.tgz#5568fe36b1e2f8947d49414d47e14a27da5b65c9"
@@ -3797,6 +3822,24 @@
     js-tiktoken "^1.0.8"
     langsmith "~0.1.7"
     ml-distance "^4.0.0"
+    p-queue "^6.6.2"
+    p-retry "4"
+    uuid "^9.0.0"
+    zod "^3.22.4"
+    zod-to-json-schema "^3.22.3"
+
+"@langchain/core@~0.1.56":
+  version "0.1.61"
+  resolved "https://registry.yarnpkg.com/@langchain/core/-/core-0.1.61.tgz#9313363e04f1c6981a938b2909c44ce6fceb2736"
+  integrity sha512-C8OkAly+ugvXsL8TACCmFv9WTTcT4gvQaG6NbrXCOzibBCywfxxcTqEMOyg3zIKpxHEmR0DHqh0OiJRHocnsCg==
+  dependencies:
+    ansi-styles "^5.0.0"
+    camelcase "6"
+    decamelize "1.2.0"
+    js-tiktoken "^1.0.8"
+    langsmith "~0.1.7"
+    ml-distance "^4.0.0"
+    mustache "^4.2.0"
     p-queue "^6.6.2"
     p-retry "4"
     uuid "^9.0.0"
@@ -15694,7 +15737,7 @@ fast-xml-parser@^4.2.2, fast-xml-parser@^4.3.0:
   dependencies:
     strnum "^1.0.5"
 
-fast-xml-parser@^4.3.2:
+fast-xml-parser@^4.3.2, fast-xml-parser@^4.3.5:
   version "4.3.6"
   resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.3.6.tgz#190f9d99097f0c8f2d3a0e681a10404afca052ff"
   integrity sha512-M2SovcRxD4+vC493Uc2GZVcZaj66CCJhWurC4viynVSTvrpErCShNcDz1lAho6n9REQKvL/ll4A4/fw6Y9z8nw==
@@ -22821,6 +22864,11 @@ multimatch@5.0.0:
     array-union "^2.1.0"
     arrify "^2.0.1"
     minimatch "^3.0.4"
+
+mustache@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-4.2.0.tgz#e5892324d60a12ec9c2a73359edca52972bf6f64"
+  integrity sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==
 
 mute-stream@0.0.8, mute-stream@~0.0.4:
   version "0.0.8"
@@ -32216,6 +32264,11 @@ zod-to-json-schema@^3.22.3:
   version "3.22.4"
   resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.22.4.tgz#f8cc691f6043e9084375e85fb1f76ebafe253d70"
   integrity sha512-2Ed5dJ+n/O3cU383xSY28cuVi0BCQhF8nYqWU5paEpl7fVdqdAmiLdqLyfblbNdfOFwFfi/mqU4O1pwc60iBhQ==
+
+zod-to-json-schema@^3.22.4:
+  version "3.23.0"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.0.tgz#4fc60e88d3c709eedbfaae3f92f8a7bf786469f2"
+  integrity sha512-az0uJ243PxsRIa2x1WmNE/pnuA05gUq/JB8Lwe1EDCCL/Fz9MgjYQ0fPlyc2Tcv6aF2ZA7WM5TWaRZVEFaAIag==
 
 zod@^3.22.3, zod@^3.22.4:
   version "3.22.4"

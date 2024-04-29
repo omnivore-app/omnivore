@@ -1,5 +1,6 @@
+import { ChatAnthropic } from '@langchain/anthropic'
 import { JsonOutputParser } from '@langchain/core/output_parsers'
-import { PromptTemplate } from '@langchain/core/prompts'
+import { ChatPromptTemplate, PromptTemplate } from '@langchain/core/prompts'
 import { OpenAI } from '@langchain/openai'
 import {
   htmlToSpeechFile,
@@ -234,7 +235,7 @@ const createUserProfile = async (
     },
   })
 
-  const contextualTemplate = PromptTemplate.fromTemplate(
+  const contextualTemplate = ChatPromptTemplate.fromTemplate(
     digestDefinition.zeroShot.userPreferencesProfilePrompt
   )
 
@@ -362,29 +363,47 @@ const summarizeItems = async (
   rankedCandidates: RankedItem[]
 ): Promise<RankedItem[]> => {
   console.time('summarizeItems')
-  const llm = new OpenAI({
-    modelName: 'gpt-4-0125-preview',
-    configuration: {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
+  // const llm = new OpenAI({
+  //   modelName: 'gpt-4-0125-preview',
+  //   configuration: {
+  //     apiKey: process.env.OPENAI_API_KEY,
+  //   },
+  // })
+
+  const llm = new ChatAnthropic({
+    apiKey: process.env.CLAUDE_API_KEY,
+    model: 'claude-3-sonnet-20240229',
   })
 
-  const contextualTemplate = PromptTemplate.fromTemplate(
+  const contextualTemplate = ChatPromptTemplate.fromTemplate(
     digestDefinition.summaryPrompt
   )
-  const chain = contextualTemplate.pipe(llm)
 
-  // send all the ranked candidates to openAI at once in a batch
-  const summaries = await chain.batch(
-    rankedCandidates.map((item) => ({
-      title: item.libraryItem.title,
-      author: item.libraryItem.author ?? '',
-      content: item.libraryItem.readableContent, // markdown content
-    }))
+  const prompts = await Promise.all(
+    rankedCandidates.map(
+      async (item) =>
+        await contextualTemplate.format({
+          title: item.libraryItem.title,
+          author: item.libraryItem.author ?? '',
+          content: item.libraryItem.readableContent, // markdown content
+        })
+    )
   )
 
+  // // send all the ranked candidates to openAI at once in a batch
+  // const summaries = await chain.batch(
+  //   rankedCandidates.map((item) => ({
+  //     title: item.libraryItem.title,
+  //     author: item.libraryItem.author ?? '',
+  //     content: item.libraryItem.readableContent, // markdown content
+  //   }))
+  // )
+
+  const summaries = await llm.batch(prompts)
+
   summaries.forEach(
-    (summary, index) => (rankedCandidates[index].summary = summary)
+    (summary, index) =>
+      (rankedCandidates[index].summary = summary.content.toString())
   )
 
   console.timeEnd('summarizeItems')
