@@ -113,18 +113,17 @@ const getPreferencesList = async (userId: string): Promise<LibraryItem[]> => {
   //   reason: "some older items that were interacted with"
 
   const preferences = await Promise.all(
-    digestDefinition.preferenceSelectors.map(async (selector) => {
-      // use the selector to fetch items
-      const results = await searchLibraryItems(
-        {
-          query: selector.query,
-          size: selector.count,
-        },
-        userId
-      )
-
-      return results.libraryItems
-    })
+    digestDefinition.preferenceSelectors.map(
+      async (selector) =>
+        // use the selector to fetch items
+        await searchLibraryItems(
+          {
+            query: selector.query,
+            size: selector.count,
+          },
+          userId
+        )
+    )
   )
 
   // deduplicate and flatten the items
@@ -160,21 +159,20 @@ const getCandidatesList = async (
   logger.info('existingCandidateIds: ', { existingCandidateIds })
 
   const candidates = await Promise.all(
-    digestDefinition.candidateSelectors.map(async (selector) => {
-      // use the selector to fetch items
-      const results = await searchLibraryItems(
-        {
-          includeContent: true,
-          query: existingCandidateIds
-            ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
-            : selector.query,
-          size: selector.count,
-        },
-        userId
-      )
-
-      return results.libraryItems
-    })
+    digestDefinition.candidateSelectors.map(
+      async (selector) =>
+        // use the selector to fetch items
+        await searchLibraryItems(
+          {
+            includeContent: true,
+            query: existingCandidateIds
+              ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
+              : selector.query,
+            size: selector.count,
+          },
+          userId
+        )
+    )
   )
 
   // deduplicate and flatten the items
