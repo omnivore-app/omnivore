@@ -66,12 +66,6 @@ export function digestRouter() {
     }
 
     try {
-      const user = await findActiveUser(userId)
-      if (!user) {
-        logger.info(`User not found: ${userId}`)
-        return res.sendStatus(401)
-      }
-
       const feature = await findGrantedFeatureByName(
         FeatureName.AIDigest,
         userId
@@ -131,12 +125,6 @@ export function digestRouter() {
     }
 
     try {
-      const user = await findActiveUser(userId)
-      if (!user) {
-        logger.info(`User not found: ${userId}`)
-        return res.sendStatus(401)
-      }
-
       const feature = await findGrantedFeatureByName(
         FeatureName.AIDigest,
         userId
