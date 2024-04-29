@@ -18,7 +18,7 @@ import {
 } from '../generated/graphql'
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import {
-  CreateDigestJobData,
+  CreateDigestData,
   CreateDigestJobResponse,
   CreateDigestJobSchedule,
   CREATE_DIGEST_JOB,
@@ -856,7 +856,7 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
 }
 
 export const enqueueCreateDigest = async (
-  data: CreateDigestJobData,
+  data: CreateDigestData,
   schedule?: CreateDigestJobSchedule
 ): Promise<CreateDigestJobResponse> => {
   const queue = await getBackendQueue()

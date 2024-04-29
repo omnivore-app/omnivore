@@ -24,7 +24,7 @@ import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
-export interface CreateDigestJobData {
+export interface CreateDigestData {
   id: string
   userId: string
   voices?: string[]
@@ -434,7 +434,7 @@ const generateByline = (summaries: RankedItem[]): string =>
     .map((item) => item.libraryItem.author)
     .join(', ')
 
-export const createDigestJob = async (jobData: CreateDigestJobData) => {
+export const createDigest = async (jobData: CreateDigestData) => {
   try {
     digestDefinition = await fetchDigestDefinition()
 
@@ -451,12 +451,17 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
       })
     }
 
-    const userProfile = await findOrCreateUserProfile(jobData.userId)
-    const rankedCandidates = await rankCandidates(candidates, userProfile)
-    const { finalSelections, rankedTopics } =
-      chooseRankedSelections(rankedCandidates)
+    // const userProfile = await findOrCreateUserProfile(jobData.userId)
+    // const rankedCandidates = await rankCandidates(candidates, userProfile)
+    // const { finalSelections, rankedTopics } =
+    //   chooseRankedSelections(rankedCandidates)
 
-    const summaries = await summarizeItems(finalSelections)
+    const selections = candidates.map((item) => ({
+      topic: '',
+      libraryItem: item,
+      summary: '',
+    }))
+    const summaries = await summarizeItems(selections)
 
     const filteredSummaries = filterSummaries(summaries)
 
@@ -480,7 +485,8 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
         wordCount: speechFiles[index].wordCount,
       })),
       createdAt: new Date(),
-      description: generateDescription(summaries, rankedTopics),
+      description: '',
+      // description: generateDescription(summaries, rankedTopics),
       byline: generateByline(summaries),
       urlsToAudio: [],
     }
