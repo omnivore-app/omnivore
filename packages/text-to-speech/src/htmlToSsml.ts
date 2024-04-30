@@ -74,6 +74,16 @@ const TOP_LEVEL_TAGS = [
   'LI',
 ]
 
+const SKIP_TAGS = [
+  'SCRIPT',
+  'STYLE',
+  'IMG',
+  'FIGURE',
+  'FIGCAPTION',
+  'IFRAME',
+  'CODE',
+]
+
 function parseDomTree(pageNode: Element) {
   if (!pageNode || pageNode.childNodes.length == 0) {
     console.log('no child nodes found')
@@ -146,16 +156,6 @@ function emitElement(
   element: Element,
   isTopLevel: boolean
 ) {
-  const SKIP_TAGS = [
-    'SCRIPT',
-    'STYLE',
-    'IMG',
-    'FIGURE',
-    'FIGCAPTION',
-    'IFRAME',
-    'CODE',
-  ]
-
   const topLevelTags = ssmlTagsForTopLevelElement()
   const idx = element.getAttribute('data-omnivore-anchor-idx')
   let maxVisitedIdx = Number(idx)
@@ -369,6 +369,20 @@ const replaceSmartQuotes = (text: string): string => {
   return text.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
 }
 
+// get the max idx of the element and its children
+const getMaxVisitedIdx = (element: Element): number => {
+  let maxVisitedIdx = Number(element.getAttribute('data-omnivore-anchor-idx'))
+  for (const child of Array.from(element.childNodes)) {
+    if (child.nodeType === 1) {
+      maxVisitedIdx = Math.max(
+        maxVisitedIdx,
+        getMaxVisitedIdx(child as Element)
+      )
+    }
+  }
+  return maxVisitedIdx
+}
+
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
   console.log('creating speech file with options:', options)
@@ -420,6 +434,12 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   for (let i = 3; i < parsedNodes.length + 3; i++) {
     const textItems: string[] = []
     const node = parsedNodes[i - 3]
+
+    // skip unwanted tags and update the index
+    if (SKIP_TAGS.includes(node.nodeName)) {
+      i = getMaxVisitedIdx(node)
+      continue
+    }
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       // use paragraph as anchor
