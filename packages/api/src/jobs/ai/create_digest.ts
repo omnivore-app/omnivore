@@ -9,6 +9,7 @@ import {
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
 import showdown from 'showdown'
+import { v4 as uuid } from 'uuid'
 import yaml from 'yaml'
 import { LibraryItem } from '../../entity/library_item'
 import { TaskState } from '../../generated/graphql'
@@ -27,7 +28,7 @@ import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
 export interface CreateDigestData {
-  id: string
+  id?: string
   userId: string
   voices?: string[]
   language?: string
@@ -489,9 +490,11 @@ const generateByline = (summaries: RankedItem[]): string =>
     .join(', ')
 
 export const createDigest = async (jobData: CreateDigestData) => {
-  try {
-    console.time('createDigestJob')
+  console.time('createDigestJob')
 
+  // generate a unique id for the digest if not provided for scheduled jobs
+  const digestId = jobData.id ?? uuid()
+  try {
     digestDefinition = await fetchDigestDefinition()
 
     const candidates = await getCandidatesList(
@@ -501,7 +504,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     if (candidates.length === 0) {
       logger.info('No candidates found')
       return writeDigest(jobData.userId, {
-        id: jobData.id,
+        id: digestId,
         jobState: TaskState.Succeeded,
         title: 'No articles found',
       })
@@ -528,7 +531,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     })
     const title = generateTitle(summaries)
     const digest: Digest = {
-      id: jobData.id,
+      id: digestId,
       title,
       content: generateContent(summaries),
       jobState: TaskState.Succeeded,
@@ -552,7 +555,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     logger.error('createDigestJob error', error)
 
     await writeDigest(jobData.userId, {
-      id: jobData.id,
+      id: digestId,
       jobState: TaskState.Failed,
     })
   } finally {

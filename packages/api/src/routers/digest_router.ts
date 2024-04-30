@@ -1,6 +1,5 @@
 import cors from 'cors'
 import express from 'express'
-import { v4 as uuid } from 'uuid'
 import { env } from '../env'
 import { TaskState } from '../generated/graphql'
 import { CreateDigestJobSchedule } from '../jobs/ai/create_digest'
@@ -89,9 +88,11 @@ export function digestRouter() {
       // enqueue job and return job id
       const result = await enqueueCreateDigest(
         {
-          id: uuid(), // generate job id
           userId,
-          ...data,
+          voices: data.voices,
+          language: data.language,
+          rate: data.rate,
+          libraryItemIds: data.libraryItemIds,
         },
         data.schedule
       )

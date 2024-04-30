@@ -864,6 +864,8 @@ export const enqueueCreateDigest = async (
     throw new Error('No queue found')
   }
 
+  // generate unique id for the digest
+  data.id = uuid()
   // enqueue create digest job immediately
   const jobId = `${CREATE_DIGEST_JOB}_${data.userId}`
   const job = await queue.add(CREATE_DIGEST_JOB, data, {
@@ -890,9 +892,9 @@ export const enqueueCreateDigest = async (
   await writeDigest(data.userId, digest)
 
   if (schedule) {
+    // remove existing repeated job if any
     await Promise.all(
       Object.keys(CRON_PATTERNS).map(async (key) => {
-        // remove existing repeated job if any
         const isDeleted = await queue.removeRepeatable(
           CREATE_DIGEST_JOB,
           {
@@ -909,6 +911,9 @@ export const enqueueCreateDigest = async (
     )
 
     // schedule repeated job
+    // delete the digest id to avoid duplication
+    delete data.id
+
     const job = await queue.add(CREATE_DIGEST_JOB, data, {
       attempts: 1,
       priority: getJobPriority(CREATE_DIGEST_JOB),
