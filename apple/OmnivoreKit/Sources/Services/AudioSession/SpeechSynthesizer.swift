@@ -222,9 +222,13 @@ struct SpeechSynthesizer {
 
     do {
       let jsonData = try decoder.decode(SynthesizeResult.self, from: data) as SynthesizeResult
-      let audioData = Data(fromHexEncodedString: jsonData.audioData)!
+      var audioData = Data(fromHexEncodedString: jsonData.audioData)!
       if audioData.count < 1 {
-        throw BasicError.message(messageText: "Audio data is empty")
+        if let silence = generateSilentAudioBuffer() {
+          audioData = silence
+        } else {
+          throw BasicError.message(messageText: "Audio data is empty")
+        }
       }
 
       try audioData.write(to: tempPath)
@@ -243,6 +247,34 @@ struct SpeechSynthesizer {
       let errorMessage = "audioFetch failed. could not write MP3 data to disk"
       throw BasicError.message(messageText: errorMessage)
     }
+  }
+
+  static func generateSilentAudioBuffer() -> Data? {
+    let audioFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
+    let frameCount = UInt32(audioFormat.sampleRate * 0.001)  // 1 millisecond of frames
+    guard let buffer = AVAudioPCMBuffer(pcmFormat: audioFormat, frameCapacity: frameCount) else {
+        return nil
+    }
+    buffer.frameLength = buffer.frameCapacity
+    return bufferToData(buffer: buffer)
+  }
+
+  static func bufferToData(buffer: AVAudioPCMBuffer) -> Data {
+    let channelCount = Int(buffer.format.channelCount)
+    let frames = Int(buffer.frameLength)
+    let channels = UnsafeBufferPointer(start: buffer.floatChannelData, count: channelCount)
+
+    var data = Data()
+
+    for frame in 0..<frames {
+        for channel in 0..<channelCount {
+            let value = channels[channel][frame]
+            var temp = value
+            data.append(UnsafeBufferPointer(start: &temp, count: 1))
+        }
+    }
+
+    return data
   }
 }
 
