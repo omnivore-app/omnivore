@@ -45,6 +45,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -78,7 +79,7 @@ class LoginViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    var hasValidUsername by mutableStateOf<Boolean>(false)
+    var hasValidUsername by mutableStateOf(false)
         private set
 
     var usernameValidationErrorMessage by mutableStateOf<String?>(null)
@@ -87,8 +88,12 @@ class LoginViewModel @Inject constructor(
     var pendingEmailUserCreds by mutableStateOf<PendingEmailUserCreds?>(null)
         private set
 
-    val hasAuthTokenLiveData: LiveData<Boolean> =
-        datastoreRepository.hasAuthTokenFlow.distinctUntilChanged().asLiveData()
+    val hasAuthTokenState: StateFlow<Boolean> =
+        datastoreRepository.hasAuthTokenFlow.distinctUntilChanged().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = true
+        )
 
     val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
 

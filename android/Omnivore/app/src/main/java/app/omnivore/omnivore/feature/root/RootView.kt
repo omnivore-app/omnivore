@@ -22,7 +22,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,10 +58,12 @@ import app.omnivore.omnivore.navigation.TopLevelDestination
 fun RootView(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
-    val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
+
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
+
     val followingTabActive by loginViewModel.followingTabActiveState.collectAsStateWithLifecycle()
+    val hasAuthToken by loginViewModel.hasAuthTokenState.collectAsStateWithLifecycle()
 
     val destinations = if (followingTabActive) {
         TopLevelDestination.entries
@@ -90,15 +91,13 @@ fun RootView(
                     ),
                 )
         ) {
-            if (hasAuthToken) {
-                PrimaryNavigator(
-                    navController = navController,
-                    snackbarHostState = snackbarHostState
-                )
-            } else {
-                WelcomeScreen(viewModel = loginViewModel)
-            }
-
+            val startDestination = if (hasAuthToken) Routes.Home.route else Routes.Welcome.route
+            PrimaryNavigator(
+                navController = navController,
+                snackbarHostState = snackbarHostState,
+                startDestination = startDestination,
+                loginViewModel = loginViewModel
+            )
             DisposableEffect(hasAuthToken) {
                 if (hasAuthToken) {
                     loginViewModel.registerUser()
@@ -114,15 +113,21 @@ private const val INITIAL_OFFSET_FACTOR = 0.10f
 @Composable
 fun PrimaryNavigator(
     navController: NavHostController,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    startDestination: String,
+    loginViewModel: LoginViewModel
 ) {
 
     NavHost(navController = navController,
-        startDestination = Routes.Home.route,
+        startDestination = startDestination,
         enterTransition = { materialSharedAxisXIn(initialOffsetX = { (it * INITIAL_OFFSET_FACTOR).toInt() }) },
         exitTransition = { materialSharedAxisXOut(targetOffsetX = { -(it * INITIAL_OFFSET_FACTOR).toInt() }) },
         popEnterTransition = { materialSharedAxisXIn(initialOffsetX = { -(it * INITIAL_OFFSET_FACTOR).toInt() }) },
         popExitTransition = { materialSharedAxisXOut(targetOffsetX = { (it * INITIAL_OFFSET_FACTOR).toInt() }) }) {
+
+        composable(Routes.Welcome.route) {
+            WelcomeScreen(viewModel = loginViewModel)
+        }
 
         navigation(startDestination = Routes.Inbox.route,
             route = Routes.Home.route,
