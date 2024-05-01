@@ -5,10 +5,8 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
@@ -78,7 +76,7 @@ class LoginViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    var hasValidUsername by mutableStateOf<Boolean>(false)
+    var hasValidUsername by mutableStateOf(false)
         private set
 
     var usernameValidationErrorMessage by mutableStateOf<String?>(null)
@@ -87,8 +85,12 @@ class LoginViewModel @Inject constructor(
     var pendingEmailUserCreds by mutableStateOf<PendingEmailUserCreds?>(null)
         private set
 
-    val hasAuthTokenLiveData: LiveData<Boolean> =
-        datastoreRepository.hasAuthTokenFlow.distinctUntilChanged().asLiveData()
+    val hasAuthTokenState: StateFlow<Boolean> =
+        datastoreRepository.hasAuthTokenFlow.distinctUntilChanged().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = true
+        )
 
     val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
 
@@ -96,7 +98,7 @@ class LoginViewModel @Inject constructor(
         followingTabActive
     ).stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
+        started = SharingStarted.Lazily,
         initialValue = true
     )
 
