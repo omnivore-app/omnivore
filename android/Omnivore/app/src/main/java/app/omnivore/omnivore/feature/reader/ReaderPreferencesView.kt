@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -116,7 +115,7 @@ fun ReaderPreferencesView(
                                 expanded = isFontListExpanded.value,
                                 onDismissRequest = { isFontListExpanded.value = false },
                             ) {
-                                WebFont.values().forEach {
+                                WebFont.entries.forEach {
                                     DropdownMenuItem(
                                         text = {
                                             Text(
@@ -224,7 +223,7 @@ fun ReaderPreferencesView(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
                 ) {
-                    for (theme in Themes.values()) {
+                    for (theme in Themes.entries) {
                         if (theme.themeKey != "System") {
                             val isSelected = theme.themeKey == themeState.value
                             Button(
@@ -251,39 +250,25 @@ fun ReaderPreferencesView(
                     }
                     Spacer(modifier = Modifier.weight(2.0F))
                 }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.reader_preferences_view_high_constrast_text),
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color(red = 137, green = 137, blue = 137)
-                        )
-                    )
-                    Spacer(modifier = Modifier.weight(1.0F))
-                    Switch(checked = highContrastTextSwitchState.value, onCheckedChange = {
-                        highContrastTextSwitchState.value = it
-                        webReaderViewModel.updateHighContrastTextPreference(it)
-                    })
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.reader_preferences_view_justify_text),
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color(red = 137, green = 137, blue = 137)
-                        )
-                    )
-                    Spacer(modifier = Modifier.weight(1.0F))
-                    Switch(checked = justifyTextSwitchState.value, onCheckedChange = {
-                        justifyTextSwitchState.value = it
-                        webReaderViewModel.updateJustifyText(it)
-                    })
-                }
             }
+            // TODO : Use state flow
+            SwitchPreferenceWidget(
+                title = stringResource(R.string.reader_preferences_view_high_constrast_text),
+                checked = highContrastTextSwitchState.value,
+                onCheckedChanged = {
+                    highContrastTextSwitchState.value = it
+                    webReaderViewModel.updateHighContrastTextPreference(it)
+                },
+            )
+            // TODO : Use state flow
+            SwitchPreferenceWidget(
+                title = stringResource(R.string.reader_preferences_view_justify_text),
+                checked = justifyTextSwitchState.value,
+                onCheckedChanged = {
+                    justifyTextSwitchState.value = it
+                    webReaderViewModel.updateJustifyText(it)
+                },
+            )
             SwitchPreferenceWidget(
                 title = stringResource(R.string.reader_preferences_view_volume_scroll),
                 checked = volumeForScrollState,
