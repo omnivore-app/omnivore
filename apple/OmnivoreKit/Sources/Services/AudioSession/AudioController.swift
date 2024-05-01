@@ -39,23 +39,22 @@ public struct DigestAudioItem: AudioItemProperties {
   public var language: String?
   public var startIndex: Int = 0
   public var startOffset: Double = 0.0
-  
+
   public init(digest: DigestResult) {
     self.digest = digest
     self.itemID = digest.id
     self.title = digest.title
     self.startIndex = 0
     self.startOffset = 0
-    
     self.imageURL = nil
-    
+
     if let first = digest.speechFiles.first {
       self.language = first.language
       self.byline  = digest.byline
     }
   }
 }
-  
+
   // swiftlint:disable all
   @MainActor
   public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
@@ -319,7 +318,6 @@ public struct DigestAudioItem: AudioItemProperties {
     public func seek(toIdx: Int) {
       let before = durationBefore(playerIndex: toIdx)
       let remainder = 0.0
-      
       // if the foundIdx happens to be the current item, we just set the position
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
         if playerItem.speechItem.audioIdx == toIdx {
@@ -329,17 +327,16 @@ public struct DigestAudioItem: AudioItemProperties {
           return
         }
       }
-      
+
       // Move the playback to the found index, we also seek by the remainder amount
       // before moving we pause the player so playback doesnt jump to a previous spot
       player?.pause()
       player?.removeAllItems()
       synthesizeFrom(start: toIdx, playWhenReady: state == .playing, atOffset: remainder)
-      
       scrubState = .reset
       fireTimer()
     }
-    
+
     @AppStorage(UserDefaultKey.textToSpeechDefaultLanguage.rawValue) public var defaultLanguage = "en" {
       didSet {
         currentLanguage = defaultLanguage
@@ -510,7 +507,7 @@ public struct DigestAudioItem: AudioItemProperties {
       if let itemID = itemAudioProperties?.itemID {
         Task {
           let document = try? await self.getSpeechFile(itemID: itemID, priority: .high)
-          
+
           DispatchQueue.main.async {
             if let document = document {
               let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document, speechAuthHeader: self.speechAuthHeader)
@@ -979,12 +976,12 @@ public struct DigestAudioItem: AudioItemProperties {
       
       return nil
     }
-    
+
     func combineSpeechFiles(from digest: DigestResult) -> ([Utterance], Double) {
       let allUtterances = digest.speechFiles.flatMap { $0.utterances }
       var updatedUtterances: [Utterance] = []
       var currentWordOffset = 0.0
-      
+
       for (index, utterance) in allUtterances.enumerated() {
         let newUtterance = Utterance(
           idx: String(index + 1),
@@ -999,12 +996,14 @@ public struct DigestAudioItem: AudioItemProperties {
       
       return (updatedUtterances, currentWordOffset)
     }
-    
+
     func downloadDigestItemSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
       if let digestItem = itemAudioProperties as? DigestAudioItem, let firstFile = digestItem.digest.speechFiles.first {
+        // Create a new document by enumerating all the speech files
+//        let utterances = digestItem.digest.speechFiles.flatMap { $0.utterances }
         let (utterances, wordCount) = combineSpeechFiles(from: digestItem.digest)
         
-        let document = SpeechDocument(
+       let document = SpeechDocument(
           pageId: digestItem.itemID,
           wordCount: wordCount,
           language: firstFile.language,
@@ -1022,7 +1021,7 @@ public struct DigestAudioItem: AudioItemProperties {
       document = try await downloadSpeechFile(itemID: itemID, priority: priority)
       return document
     }
-    
+
     func setupNotifications() {
       NotificationCenter.default.removeObserver(self, name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance())
       NotificationCenter.default.addObserver(self,

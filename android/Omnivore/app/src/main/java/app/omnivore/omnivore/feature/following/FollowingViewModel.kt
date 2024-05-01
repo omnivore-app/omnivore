@@ -255,19 +255,9 @@ class FollowingViewModel @Inject constructor(
         since: String,
         count: Int,
         startTime: String,
-        isInitialBatch: Boolean = true
     ) {
         libraryRepository.syncOfflineItemsWithServerIfNeeded()
         val result = libraryRepository.sync(since = since, cursor = cursor, limit = 20)
-
-        // Fetch content for the initial batch only
-        if (isInitialBatch) {
-            for (slug in result.savedItemSlugs) {
-                delay(250)
-                contentRequestChannel.send(slug)
-            }
-        }
-
         val totalCount = count + result.count
 
         if (!result.hasError && result.hasMoreItems && result.cursor != null) {
@@ -276,7 +266,6 @@ class FollowingViewModel @Inject constructor(
                 since = since,
                 count = totalCount,
                 startTime = startTime,
-                isInitialBatch = false
             )
         } else {
             datastoreRepo.putString(libraryLastSyncTimestamp, startTime)

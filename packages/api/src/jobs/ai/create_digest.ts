@@ -221,12 +221,18 @@ const createUserProfile = async (
   })
 
   const contextualTemplate = PromptTemplate.fromTemplate(
-    digestDefinition.zeroShot.userPreferencesProfilePrompt
+    `Explain the following text within the context of the provided article text
+    
+    Text: {text}
+
+    Article: {content}
+    `
   )
 
   const chain = contextualTemplate.pipe(llm)
   const result = await chain.invoke({
-    titles: preferences.map((item) => `* ${item.title}`).join('\n'),
+    text: '',
+    content: '',
   })
 
   return result
