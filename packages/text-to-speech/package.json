@@ -23,7 +23,9 @@
     "deploy": "yarn build && yarn gcloud-deploy"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.14",
     "@types/html-to-text": "^8.1.1",
+    "@types/mocha": "^10.0.6",
     "@types/natural": "^5.1.1",
     "@types/node": "^14.11.2",
     "@types/underscore": "^1.11.4",
