@@ -6,7 +6,7 @@ import { userRepository } from '../../src/repository/user'
 import { isValidSignupRequest } from '../../src/routers/auth/auth_router'
 import { AuthProvider } from '../../src/routers/auth/auth_types'
 import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
-import { searchLibraryItems } from '../../src/services/library_item'
+import { searchAndCountLibraryItems } from '../../src/services/library_item'
 import { deleteUser, updateUser } from '../../src/services/user'
 import {
   comparePassword,
@@ -528,7 +528,7 @@ describe('auth router', () => {
           'web'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems(
+        const { count } = await searchAndCountLibraryItems(
           { query: 'in:inbox sort:read-desc is:reading' },
           user.id
         )
@@ -552,7 +552,10 @@ describe('auth router', () => {
           'ios'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems({ query: 'in:all' }, user.id)
+        const { count } = await searchAndCountLibraryItems(
+          { query: 'in:all' },
+          user.id
+        )
 
         expect(count).to.eql(4)
       })

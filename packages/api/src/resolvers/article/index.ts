@@ -74,7 +74,7 @@ import {
   countLibraryItems,
   createOrUpdateLibraryItem,
   findLibraryItemsByPrefix,
-  searchLibraryItems,
+  searchAndCountLibraryItems,
   softDeleteLibraryItem,
   sortParamsToSort,
   updateLibraryItem,
@@ -675,7 +675,7 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const { libraryItems, count } = await searchLibraryItems(
+  const { libraryItems, count } = await searchAndCountLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
@@ -752,7 +752,7 @@ export const updatesSinceResolver = authorized<
     folder ? ' in:' + folder : ''
   } sort:${sort.by}-${sort.order}`
 
-  const { libraryItems, count } = await searchLibraryItems(
+  const { libraryItems, count } = await searchAndCountLibraryItems(
     {
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor

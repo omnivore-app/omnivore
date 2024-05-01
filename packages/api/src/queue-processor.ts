@@ -16,7 +16,7 @@ import { appDataSource } from './data_source'
 import { env } from './env'
 import { TaskState } from './generated/graphql'
 import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
-import { createDigestJob, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
+import { createDigest, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
 import {
@@ -181,7 +181,7 @@ export const createWorker = (connection: ConnectionOptions) =>
         case FORWARD_EMAIL_JOB:
           return forwardEmailJob(job.data)
         case CREATE_DIGEST_JOB:
-          return createDigestJob(job.data)
+          return createDigest(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

@@ -350,6 +350,41 @@ describe('convert HTML to Speech file', () => {
       options: TEST_OPTIONS,
     })
     expect(speechFile.utterances).to.have.lengthOf(2)
-    expect(speechFile.utterances[1].text).to.eql('McMeekin makes an extended case that Stalin was preparing to attack Nazi Germany when Hitler attacked him, that the two dictators were basically in a race to see who could mobilize to betray the other first — and that the initial Soviet debacle in 1941 happened in part because Stalin was also pushing his military toward an offensive alignment, and they were caught in a "mid-mobilization limbo."')
+    expect(speechFile.utterances[1].text).to.eql(
+      'McMeekin makes an extended case that Stalin was preparing to attack Nazi Germany when Hitler attacked him, that the two dictators were basically in a race to see who could mobilize to betray the other first — and that the initial Soviet debacle in 1941 happened in part because Stalin was also pushing his military toward an offensive alignment, and they were caught in a "mid-mobilization limbo."'
+    )
+  })
+
+  it('skip unwanted elements', () => {
+    const html = `<div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+      <p data-omnivore-anchor-idx="2">This is a test.</p>
+      <script data-omnivore-anchor-idx="3">alert('hello');</script>
+      <style data-omnivore-anchor-idx="4">body { color: red; }</style>
+      <iframe data-omnivore-anchor-idx="6" src="https://example.com">test</iframe>
+      <figcaption data-omnivore-anchor-idx="7">test</figcaption>
+      </div>`
+
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(1)
+    expect(speechFile.utterances[0].text).to.eql('This is a test.')
+  })
+
+  it('filters out utterances with only punctuation or whitespace', () => {
+    const html = `<div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+      <p data-omnivore-anchor-idx="2">This is a test.</p>
+      <p data-omnivore-anchor-idx="3">.</p>
+      <p data-omnivore-anchor-idx="4"> </p>
+      </div>`
+
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+
+    expect(speechFile.utterances).to.have.lengthOf(1)
+    expect(speechFile.utterances[0].text).to.eql('This is a test.')
   })
 })

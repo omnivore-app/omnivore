@@ -6,5 +6,5 @@
     // Generate d.ts files
     "declaration": true
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }
