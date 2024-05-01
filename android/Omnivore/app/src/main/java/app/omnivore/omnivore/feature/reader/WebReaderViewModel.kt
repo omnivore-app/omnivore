@@ -28,6 +28,7 @@ import app.omnivore.omnivore.core.database.dao.SavedItemDao
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.followingTabActive
 import app.omnivore.omnivore.core.datastore.preferredTheme
 import app.omnivore.omnivore.core.datastore.preferredWebFontFamily
 import app.omnivore.omnivore.core.datastore.preferredWebFontSize
@@ -35,6 +36,7 @@ import app.omnivore.omnivore.core.datastore.preferredWebLineHeight
 import app.omnivore.omnivore.core.datastore.preferredWebMaxWidthPercentage
 import app.omnivore.omnivore.core.datastore.prefersJustifyText
 import app.omnivore.omnivore.core.datastore.prefersWebHighContrastText
+import app.omnivore.omnivore.core.datastore.volumeForScroll
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.createNewLabel
 import app.omnivore.omnivore.core.network.saveUrl
@@ -42,14 +44,16 @@ import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.feature.components.HighlightColor
 import app.omnivore.omnivore.feature.library.SavedItemAction
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.utils.DatastoreKeys
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -83,7 +87,7 @@ enum class Themes(
 
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
-    private val datastoreRepo: DatastoreRepository,
+    private val datastoreRepository: DatastoreRepository,
     private val dataService: DataService,
     private val networker: Networker,
     private val eventTracker: EventTracker,
@@ -457,28 +461,27 @@ class WebReaderViewModel @Inject constructor(
         javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
     }
 
-    val currentThemeKey: LiveData<String> = datastoreRepo
+    val currentThemeKey: LiveData<String> = datastoreRepository
         .themeKeyFlow
         .distinctUntilChanged()
         .asLiveData()
 
     fun storedWebPreferences(isDarkMode: Boolean): WebPreferences = runBlocking {
-        val storedFontSize = datastoreRepo.getInt(preferredWebFontSize)
-        val storedLineHeight = datastoreRepo.getInt(preferredWebLineHeight)
-        val storedMaxWidth = datastoreRepo.getInt(preferredWebMaxWidthPercentage)
+        val storedFontSize = datastoreRepository.getInt(preferredWebFontSize)
+        val storedLineHeight = datastoreRepository.getInt(preferredWebLineHeight)
+        val storedMaxWidth = datastoreRepository.getInt(preferredWebMaxWidthPercentage)
 
         val storedFontFamily =
-            datastoreRepo.getString(preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
+            datastoreRepository.getString(preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
         val storedThemePreference =
-            datastoreRepo.getString(preferredTheme) ?: "System"
+            datastoreRepository.getString(preferredTheme) ?: "System"
         val storedWebFont =
             WebFont.entries.firstOrNull { it.rawValue == storedFontFamily } ?: WebFont.entries
                 .first()
 
         val prefersHighContrastFont =
-            datastoreRepo.getString(prefersWebHighContrastText) == "true"
-        val prefersJustifyText = datastoreRepo.getString(DatastoreKeys.prefersJustifyText) == "true"
-        val shouldUseVolumeRockerForScroll = datastoreRepo.getString(DatastoreKeys.volumeForScroll) != "false"
+            datastoreRepository.getString(prefersWebHighContrastText) == "true"
+        val prefersJustifyText = datastoreRepository.getString(prefersJustifyText) == "true"
 
         WebPreferences(
             textFontSize = storedFontSize ?: 12,
@@ -488,8 +491,7 @@ class WebReaderViewModel @Inject constructor(
             storedThemePreference = storedThemePreference,
             fontFamily = storedWebFont,
             prefersHighContrastText = prefersHighContrastFont,
-            prefersJustifyText = prefersJustifyText,
-            shouldUseVolumeRockerForScroll = shouldUseVolumeRockerForScroll
+            prefersJustifyText = prefersJustifyText
         )
     }
 
@@ -505,7 +507,7 @@ class WebReaderViewModel @Inject constructor(
         Log.d("theme", "Setting theme key: $newThemeKey")
 
         runBlocking {
-            datastoreRepo.putString(preferredTheme, newThemeKey)
+            datastoreRepository.putString(preferredTheme, newThemeKey)
         }
 
         val script =
@@ -515,7 +517,7 @@ class WebReaderViewModel @Inject constructor(
 
     fun setFontSize(newFontSize: Int) {
         runBlocking {
-            datastoreRepo.putInt(preferredWebFontSize, newFontSize)
+            datastoreRepository.putInt(preferredWebFontSize, newFontSize)
         }
         val script =
             "var event = new Event('updateFontSize');event.fontSize = '$newFontSize';document.dispatchEvent(event);"
@@ -524,7 +526,7 @@ class WebReaderViewModel @Inject constructor(
 
     fun setMaxWidthPercentage(newMaxWidthPercentageValue: Int) {
         runBlocking {
-            datastoreRepo.putInt(
+            datastoreRepository.putInt(
                 preferredWebMaxWidthPercentage,
                 newMaxWidthPercentageValue
             )
@@ -536,7 +538,7 @@ class WebReaderViewModel @Inject constructor(
 
     fun setLineHeight(newLineHeight: Int) {
         runBlocking {
-            datastoreRepo.putInt(preferredWebLineHeight, newLineHeight)
+            datastoreRepository.putInt(preferredWebLineHeight, newLineHeight)
         }
         val script =
             "var event = new Event('updateLineHeight');event.lineHeight = '$newLineHeight';document.dispatchEvent(event);"
@@ -545,7 +547,7 @@ class WebReaderViewModel @Inject constructor(
 
     fun updateHighContrastTextPreference(prefersHighContrastText: Boolean) {
         runBlocking {
-            datastoreRepo.putString(
+            datastoreRepository.putString(
                 prefersWebHighContrastText,
                 prefersHighContrastText.toString()
             )
@@ -558,23 +560,30 @@ class WebReaderViewModel @Inject constructor(
 
     fun updateJustifyText(justifyText: Boolean) {
         runBlocking {
-            datastoreRepo.putString(prefersJustifyText, justifyText.toString())
+            datastoreRepository.putString(prefersJustifyText, justifyText.toString())
         }
         val script =
             "var event = new Event('updateJustifyText');event.justifyText = $justifyText;document.dispatchEvent(event);"
         enqueueScript(script)
     }
 
-    fun updateVolumeRockerForScroll(shouldUseVolumeRockerForScroll: Boolean) {
-        runBlocking {
-            datastoreRepo.putString(DatastoreKeys.volumeForScroll, shouldUseVolumeRockerForScroll.toString())
+    val volumeRockerForScrollState: StateFlow<Boolean> = datastoreRepository.getBoolean(
+        volumeForScroll
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = false
+    )
+
+    fun setVolumeRockerForScrollState(value: Boolean) {
+        viewModelScope.launch {
+            datastoreRepository.putBoolean(volumeForScroll, value)
         }
-        this.shouldUseVolumeRockerForScroll = shouldUseVolumeRockerForScroll
     }
 
     fun applyWebFont(font: WebFont) {
         runBlocking {
-            datastoreRepo.putString(preferredWebFontFamily, font.rawValue)
+            datastoreRepository.putString(preferredWebFontFamily, font.rawValue)
         }
 
         val script =
