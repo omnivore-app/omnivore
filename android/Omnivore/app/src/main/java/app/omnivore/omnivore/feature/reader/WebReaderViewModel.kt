@@ -161,7 +161,7 @@ class WebReaderViewModel @Inject constructor(
 
             browserIntent.setType("text/plain")
             browserIntent.putExtra(Intent.EXTRA_TEXT, it.item.pageURLString)
-            browserIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.pageURLString)
+            browserIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.title)
             context.startActivity(browserIntent)
         }
     }
