@@ -24,6 +24,7 @@ import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
 import { sendMulticastPushNotifications } from '../../utils/sendNotification'
+import { generateUploadFilePathName, uploadToBucket } from '../../utils/uploads'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -515,6 +516,35 @@ const selectModel = (model?: string): string => {
   }
 }
 
+const uploadSummary = async (
+  userId: string,
+  digest: Digest,
+  summaries: RankedItem[]
+) => {
+  console.time('uploadSummary')
+  logger.info('uploading summaries to gcs')
+
+  const filename = generateUploadFilePathName(
+    userId,
+    `${digest.id}/summaries.json`
+  )
+  await uploadToBucket(
+    filename,
+    Buffer.from(
+      JSON.stringify({
+        model: digest.model,
+        summaries: summaries.map((item) => ({
+          title: item.libraryItem.title,
+          summary: item.summary,
+        })),
+      })
+    )
+  )
+
+  logger.info('uploaded summaries to gcs')
+  console.timeEnd('uploadSummary')
+}
+
 export const createDigest = async (jobData: CreateDigestData) => {
   console.time('createDigestJob')
 
@@ -523,7 +553,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
   try {
     digestDefinition = await fetchDigestDefinition()
     const model = selectModel(digestDefinition.model)
-    logger.info('model: ', model)
+    logger.info(`model: ${model}`)
 
     const candidates = await getCandidatesList(
       jobData.userId,
@@ -581,7 +611,16 @@ export const createDigest = async (jobData: CreateDigestData) => {
       model,
     }
 
-    await writeDigest(jobData.userId, digest)
+    await Promise.all([
+      // write the digest to redis
+      writeDigest(jobData.userId, digest),
+      // upload the summaries to GCS
+      uploadSummary(jobData.userId, digest, summaries).catch((error) =>
+        logger.error('uploadSummary error', error)
+      ),
+    ])
+
+    logger.info(`digest created: ${digest.id}`)
   } catch (error) {
     logger.error('createDigestJob error', error)
 
