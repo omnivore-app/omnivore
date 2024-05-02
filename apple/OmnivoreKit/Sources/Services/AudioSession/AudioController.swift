@@ -1,5 +1,4 @@
 // swiftlint:disable file_length type_body_length
-
 #if os(iOS)
 
   import AVFoundation
@@ -39,23 +38,23 @@ public struct DigestAudioItem: AudioItemProperties {
   public var language: String?
   public var startIndex: Int = 0
   public var startOffset: Double = 0.0
-  
+
   public init(digest: DigestResult) {
     self.digest = digest
     self.itemID = digest.id
     self.title = digest.title
     self.startIndex = 0
     self.startOffset = 0
-    
+
     self.imageURL = nil
-    
+
     if let first = digest.speechFiles.first {
       self.language = first.language
       self.byline  = digest.byline
     }
   }
 }
-  
+
   // swiftlint:disable all
   @MainActor
   public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
@@ -108,7 +107,7 @@ public struct DigestAudioItem: AudioItemProperties {
       playbackError = false
       self.itemAudioProperties = itemAudioProperties
       startAudio(atIndex: itemAudioProperties.startIndex, andOffset: itemAudioProperties.startOffset)
-      
+
       EventTracker.track(
         .audioSessionStart(
           linkID: itemAudioProperties.itemID,
@@ -319,7 +318,7 @@ public struct DigestAudioItem: AudioItemProperties {
     public func seek(toIdx: Int) {
       let before = durationBefore(playerIndex: toIdx)
       let remainder = 0.0
-      
+
       // if the foundIdx happens to be the current item, we just set the position
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
         if playerItem.speechItem.audioIdx == toIdx {
@@ -666,8 +665,10 @@ public struct DigestAudioItem: AudioItemProperties {
       player = AVQueuePlayer(items: [])
       if let player = player {
         observer = player.observe(\.currentItem, options: [.new]) { _, _ in
-          self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
-          self.updateReadText()
+          DispatchQueue.main.async {
+            self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
+            self.updateReadText()
+          }
         }
       }
       
@@ -683,8 +684,8 @@ public struct DigestAudioItem: AudioItemProperties {
     func synthesizeFrom(start: Int, playWhenReady: Bool, atOffset: Double = 0.0) {
       if let synthesizer = self.synthesizer, let items = self.synthesizer?.createPlayerItems(from: start) {
         let prefetchQueue = OperationQueue()
-        prefetchQueue.maxConcurrentOperationCount = 5
-        
+        prefetchQueue.maxConcurrentOperationCount = 1
+
         for speechItem in items {
           let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
           let playerItem = SpeechPlayerItem(session: self, prefetchQueue: prefetchQueue, speechItem: speechItem) {

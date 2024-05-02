@@ -172,7 +172,7 @@ extension DataService {
       try? data.write(to: localPath)
     }
   }
-  
+
   public func explain(text: String, libraryItemId: String) async throws -> String {
     let encoder = JSONEncoder()
     let explainRequest = ExplainRequest(text: text, libraryItemId: libraryItemId)
