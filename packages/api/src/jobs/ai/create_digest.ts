@@ -524,10 +524,7 @@ const uploadSummary = async (
   console.time('uploadSummary')
   logger.info('uploading summaries to gcs')
 
-  const filename = generateUploadFilePathName(
-    userId,
-    `${digest.id}/summaries.json`
-  )
+  const filename = `digest/${userId}/${digest.id}/summaries.json`
   await uploadToBucket(
     filename,
     Buffer.from(
@@ -538,7 +535,11 @@ const uploadSummary = async (
           summary: item.summary,
         })),
       })
-    )
+    ),
+    {
+      contentType: 'application/json',
+      public: false,
+    }
   )
 
   logger.info('uploaded summaries to gcs')
