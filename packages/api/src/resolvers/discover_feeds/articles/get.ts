@@ -1,10 +1,10 @@
 import { appDataSource } from '../../../data_source'
 import {
   GetDiscoverFeedArticleError,
-  GetDiscoverFeedArticleErrorCode,
   GetDiscoverFeedArticleSuccess,
   QueryGetDiscoverFeedArticlesArgs,
 } from '../../../generated/graphql'
+import { searchLibraryItems } from '../../../services/library_item'
 import { authorized } from '../../../utils/gql-utils'
 
 const COMMUNITY_FEED_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
@@ -106,83 +106,113 @@ export const getDiscoverFeedArticlesResolver = authorized<
   GetDiscoverFeedArticleSuccess,
   GetDiscoverFeedArticleError,
   QueryGetDiscoverFeedArticlesArgs
->(async (_, { discoverTopicId, feedId, first, after }, { uid, log }) => {
-  try {
-    const startCursor: string = after || ''
-    const firstAmnt = Math.min(first || 10, 100) // limit to 100 items
+>(async (_, { first, after }, { uid }) => {
+  const startCursor: string = after || ''
+  first = Math.min(first || 10, 100) // limit to 100 items
 
-    const { rows: topics } = (await appDataSource.query(
-      `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
-      [discoverTopicId]
-    )) as { rows: unknown[] }
+  // const { rows: topics } = (await appDataSource.query(
+  //   `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
+  //   [discoverTopicId]
+  // )) as { rows: unknown[] }
 
-    if (topics.length == 0) {
-      return {
-        __typename: 'GetDiscoverFeedArticleError',
-        errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized], // TODO - no.
-      }
-    }
+  // if (topics.length == 0) {
+  //   return {
+  //     __typename: 'GetDiscoverFeedArticleError',
+  //     errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized], // TODO - no.
+  //   }
+  // }
 
-    let discoverArticles: DiscoverFeedArticleDBRows = { rows: [] }
-    if (discoverTopicId === 'Popular') {
-      discoverArticles = await getPopularTopics(
-        uid,
-        startCursor,
-        firstAmnt,
-        feedId ?? null
-      )
-    } else if (discoverTopicId === 'All') {
-      discoverArticles = await getAllTopics(
-        uid,
-        startCursor,
-        firstAmnt,
-        feedId ?? null
-      )
-    } else {
-      discoverArticles = await getTopicInformation(
-        discoverTopicId,
-        uid,
-        startCursor,
-        firstAmnt,
-        feedId ?? null
-      )
-    }
+  // let discoverArticles: DiscoverFeedArticleDBRows = { rows: [] }
+  // if (discoverTopicId === 'Popular') {
+  //   discoverArticles = await getPopularTopics(
+  //     uid,
+  //     startCursor,
+  //     firstAmnt,
+  //     feedId ?? null
+  //   )
+  // } else if (discoverTopicId === 'All') {
+  //   discoverArticles = await getAllTopics(
+  //     uid,
+  //     startCursor,
+  //     firstAmnt,
+  //     feedId ?? null
+  //   )
+  // } else {
+  //   discoverArticles = await getTopicInformation(
+  //     discoverTopicId,
+  //     uid,
+  //     startCursor,
+  //     firstAmnt,
+  //     feedId ?? null
+  //   )
+  // }
 
-    return {
-      __typename: 'GetDiscoverFeedArticleSuccess',
-      discoverArticles: discoverArticles.rows.slice(0, firstAmnt).map((it) => ({
-        author: it.author,
-        id: it.id,
-        feed: it.feed,
-        slug: it.slug,
-        publishedDate: it.published_at,
-        description: it.description,
-        url: it.url,
-        title: it.title,
-        image: it.image,
-        saves: it.saves,
-        savedLinkUrl: it.article_save_url,
-        savedId: it.article_save_id,
-        __typename: 'DiscoverFeedArticle',
-        siteName: it.url,
-      })),
-      pageInfo: {
-        endCursor: `${
-          Number(startCursor) +
-          Math.min(discoverArticles.rows.length, firstAmnt)
-        }`,
-        hasNextPage: discoverArticles.rows.length > firstAmnt,
-        hasPreviousPage: Number(startCursor) != 0,
-        startCursor: Number(startCursor).toString(),
-        totalCount: Math.min(discoverArticles.rows.length, firstAmnt),
-      },
-    }
-  } catch (error) {
-    log.error('Error Getting Discover Feed Articles', error)
+  // return {
+  //   __typename: 'GetDiscoverFeedArticleSuccess',
+  //   discoverArticles: libraryItems.map((it) => ({
+  //     author: it.author,
+  //     id: it.id,
+  //     feed: it.feed,
+  //     slug: it.slug,
+  //     publishedDate: it.publishedAt,
+  //     description: it.description,
+  //     url: it.originalUrl,
+  //     title: it.title,
+  //     image: it.thumbnail,
+  //     saves: it.saves,
+  //     savedLinkUrl: it.article_save_url,
+  //     savedId: it.article_save_id,
+  //     __typename: 'DiscoverFeedArticle',
+  //     siteName: it.siteName,
+  //   })),
+  //   pageInfo: {
+  //     endCursor: `${
+  //       Number(startCursor) + Math.min(discoverArticles.rows.length, firstAmnt)
+  //     }`,
+  //     hasNextPage: discoverArticles.rows.length > firstAmnt,
+  //     hasPreviousPage: Number(startCursor) != 0,
+  //     startCursor: Number(startCursor).toString(),
+  //     totalCount: Math.min(discoverArticles.rows.length, firstAmnt),
+  //   },
+  // }
 
-    return {
-      __typename: 'GetDiscoverFeedArticleError',
-      errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized],
-    }
+  const { libraryItems, count } = await searchLibraryItems(
+    {
+      from: Number(startCursor),
+      size: first + 1, // fetch one more item to get next cursor
+      query: 'in:discover',
+      useFolders: true,
+    },
+    uid
+  )
+
+  const start =
+    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+  const hasNextPage = libraryItems.length > first
+  const endCursor = String(start + libraryItems.length - (hasNextPage ? 1 : 0))
+
+  if (hasNextPage) {
+    // remove an extra if exists
+    libraryItems.pop()
+  }
+
+  return {
+    __typename: 'GetDiscoverFeedArticleSuccess',
+    discoverArticles: libraryItems.map((it) => ({
+      description: it.description || '',
+      feed: it.subscription || '',
+      id: it.id,
+      slug: it.slug,
+      title: it.title,
+      url: it.originalUrl,
+      __typename: 'DiscoverFeedArticle',
+    })),
+    pageInfo: {
+      hasPreviousPage: false,
+      startCursor,
+      hasNextPage,
+      endCursor,
+      totalCount: count,
+    },
   }
 })
