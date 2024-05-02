@@ -204,4 +204,7 @@ export class LibraryItem {
 
   @Column('text')
   highlightAnnotations?: string[]
+
+  @Column('timestamptz')
+  sharedAt?: Date
 }
