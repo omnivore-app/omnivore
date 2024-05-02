@@ -523,6 +523,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
   try {
     digestDefinition = await fetchDigestDefinition()
     const model = selectModel(digestDefinition.model)
+    logger.info('model: ', model)
 
     const candidates = await getCandidatesList(
       jobData.userId,
