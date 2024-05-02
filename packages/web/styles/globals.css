@@ -419,6 +419,28 @@ div#appleid-signin {
 }
 
 @font-face {
+  font-family: 'SuperNotesPro';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/SNPro/SNPro-VariableRegular.ttf');
+}
+
+@font-face {
+  font-family: 'SuperNotesPro';
+  font-weight: 700;
+  font-style: bold;
+  src: url('/static/fonts/SNPro/SNPro-Bold.ttf');
+}
+
+
+@font-face {
+  font-family: 'SuperNotesPro';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/SNPro/SNPro-Italic.ttf');
+}
+
+@font-face {
   font-family: 'FuturaBold';
   src: url('/static/fonts/FuturaBold/FuturaBold.otf');  
   font-weight: bold;  
