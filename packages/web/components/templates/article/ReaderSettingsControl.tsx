@@ -48,6 +48,7 @@ const FONT_FAMILIES = [
   'IBMPlexSans',
   'Fraunces',
   'Literata',
+  'SuperNotesPro',
 ]
 
 type SettingsProps = {
