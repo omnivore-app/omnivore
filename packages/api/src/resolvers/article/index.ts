@@ -399,13 +399,12 @@ export const getArticleResolver = authorized<
           'recommendations.recommender',
           'recommendations_recommender'
         )
-        .where('libraryItem.user_id = :uid', { uid })
 
       // We allow the backend to use the ID instead of a slug to fetch the article
       // query against id if slug is a uuid
       slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
-        ? qb.andWhere('libraryItem.id = :id', { id: slug })
-        : qb.andWhere('libraryItem.slug = :slug', { slug })
+        ? qb.where('libraryItem.id = :id', { id: slug })
+        : qb.where('libraryItem.slug = :slug', { slug })
 
       return qb.andWhere('libraryItem.deleted_at IS NULL').getOne()
     })
