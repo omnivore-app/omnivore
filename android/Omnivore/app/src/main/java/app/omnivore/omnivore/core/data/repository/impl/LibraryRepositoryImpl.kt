@@ -436,7 +436,7 @@ class LibraryRepositoryImpl @Inject constructor(
                 slug = it.slug,
                 isArchived = it.isArchived,
                 contentReader = it.contentReader.rawValue,
-                content = null,
+                content = it.content,
                 wordsCount = it.wordsCount
             )
             val labels = it.labels?.map { label ->
