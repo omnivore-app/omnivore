@@ -61,6 +61,7 @@ interface DigestDefinition {
   assemblePrompt: string
 
   zeroShot: ZeroShotDefinition
+  model?: string
 }
 
 interface RankedItem {
@@ -367,33 +368,46 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
 }
 
 const summarizeItems = async (
+  model: string,
   rankedCandidates: RankedItem[]
 ): Promise<RankedItem[]> => {
-  console.time('summarizeItems')
-  // const llm = new OpenAI({
-  //   modelName: 'gpt-4-0125-preview',
-  //   configuration: {
-  //     apiKey: process.env.OPENAI_API_KEY,
-  //   },
-  // })
+  const contextualTemplate = PromptTemplate.fromTemplate(
+    digestDefinition.summaryPrompt
+  )
 
+  if (model === 'openai') {
+    const llm = new OpenAI({
+      modelName: 'gpt-4-0125-preview',
+      configuration: {
+        apiKey: process.env.OPENAI_API_KEY,
+      },
+    })
+
+    const chain = contextualTemplate.pipe(llm)
+
+    // send all the ranked candidates to openAI at once in a batch
+    const summaries = await chain.batch(
+      rankedCandidates.map((item) => ({
+        title: item.libraryItem.title,
+        author: item.libraryItem.author ?? '',
+        content: item.libraryItem.readableContent, // markdown content
+      }))
+    )
+
+    logger.info('summaries: ', summaries)
+
+    summaries.forEach(
+      (summary, index) => (rankedCandidates[index].summary = summary)
+    )
+
+    return rankedCandidates
+  }
+
+  // use anthropic otherwise
   const llm = new ChatAnthropic({
     apiKey: process.env.CLAUDE_API_KEY,
     model: 'claude-3-sonnet-20240229',
   })
-
-  const contextualTemplate = ChatPromptTemplate.fromTemplate(
-    digestDefinition.summaryPrompt
-  )
-
-  // // send all the ranked candidates to openAI at once in a batch
-  // const summaries = await chain.batch(
-  //   rankedCandidates.map((item) => ({
-  //     title: item.libraryItem.title,
-  //     author: item.libraryItem.author ?? '',
-  //     content: item.libraryItem.readableContent, // markdown content
-  //   }))
-  // )
 
   const prompts = await Promise.all(
     rankedCandidates.map(async (item) => {
@@ -418,8 +432,6 @@ const summarizeItems = async (
     (summary, index) =>
       (rankedCandidates[index].summary = summary.content.toString())
   )
-
-  console.timeEnd('summarizeItems')
 
   return rankedCandidates
 }
@@ -489,6 +501,20 @@ const generateByline = (summaries: RankedItem[]): string =>
     .map((item) => item.libraryItem.author)
     .join(', ')
 
+const selectModel = (model?: string): string => {
+  switch (model) {
+    case 'random':
+      // randomly choose between openai and anthropic
+      return ['anthropic', 'openai'][Math.floor(Math.random() * 2)]
+    case 'anthropic':
+      return 'anthropic'
+    case 'openai':
+    default:
+      // default to openai
+      return 'openai'
+  }
+}
+
 export const createDigest = async (jobData: CreateDigestData) => {
   console.time('createDigestJob')
 
@@ -496,6 +522,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
   const digestId = jobData.id ?? uuid()
   try {
     digestDefinition = await fetchDigestDefinition()
+    const model = selectModel(digestDefinition.model)
 
     const candidates = await getCandidatesList(
       jobData.userId,
@@ -520,7 +547,9 @@ export const createDigest = async (jobData: CreateDigestData) => {
       libraryItem: item,
       summary: '',
     }))
-    const summaries = await summarizeItems(selections)
+    console.time('summarizeItems')
+    const summaries = await summarizeItems(model, selections)
+    console.timeEnd('summarizeItems')
 
     const filteredSummaries = filterSummaries(summaries)
 
@@ -548,6 +577,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       // description: generateDescription(summaries, rankedTopics),
       byline: generateByline(summaries),
       urlsToAudio: [],
+      model,
     }
 
     await writeDigest(jobData.userId, digest)
