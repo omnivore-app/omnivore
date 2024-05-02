@@ -157,12 +157,13 @@ class WebReaderViewModel @Inject constructor(
 
     fun showShareLinkSheet(context: Context) {
         webReaderParamsLiveData.value?.let {
-            val browserIntent = Intent(Intent.ACTION_SEND)
+            val sendIntent = Intent(Intent.ACTION_SEND)
 
-            browserIntent.setType("text/plain")
-            browserIntent.putExtra(Intent.EXTRA_TEXT, it.item.pageURLString)
-            browserIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.title)
-            context.startActivity(browserIntent)
+            sendIntent.setType("text/plain")
+            sendIntent.putExtra(Intent.EXTRA_TEXT, it.item.pageURLString)
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, it.item.title)
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            context.startActivity(shareIntent)
         }
     }
 
