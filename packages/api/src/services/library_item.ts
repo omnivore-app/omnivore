@@ -76,6 +76,7 @@ export interface SearchArgs {
   includeContent?: boolean
   useFolders?: boolean
   query?: string | null
+  includeShared?: boolean
 }
 
 export interface SearchResultItem {
@@ -655,7 +656,10 @@ export const createSearchQueryBuilder = (
       : queryBuilder.addSelect(select.column, select.alias)
   })
 
-  queryBuilder.where('library_item.user_id = :userId', { userId })
+  // if shared is not included, only show items that belong to the user
+  args.includeShared
+    ? queryBuilder.where('library_item.shared_at is not null')
+    : queryBuilder.where('library_item.user_id = :userId', { userId })
 
   if (!args.includePending) {
     queryBuilder.andWhere("library_item.state <> 'PROCESSING'")

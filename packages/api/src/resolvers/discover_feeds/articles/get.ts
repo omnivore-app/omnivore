@@ -4,7 +4,7 @@ import {
   GetDiscoverFeedArticleSuccess,
   QueryGetDiscoverFeedArticlesArgs,
 } from '../../../generated/graphql'
-import { searchLibraryItems } from '../../../services/library_item'
+import { searchAndCountLibraryItems } from '../../../services/library_item'
 import { authorized } from '../../../utils/gql-utils'
 
 const COMMUNITY_FEED_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
@@ -176,12 +176,11 @@ export const getDiscoverFeedArticlesResolver = authorized<
   //   },
   // }
 
-  const { libraryItems, count } = await searchLibraryItems(
+  const { libraryItems, count } = await searchAndCountLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      query: 'in:discover',
-      useFolders: true,
+      includeShared: true,
     },
     uid
   )
