@@ -598,8 +598,10 @@ const sendNotifications = async (
   channels: Channel[],
   digest: Digest
 ) => {
+  const deduplicateChannels = [...new Set(channels)]
+
   await Promise.all(
-    channels.map(async (channel) => {
+    deduplicateChannels.map(async (channel) => {
       switch (channel) {
         case 'push':
           return sendPushNotification(user.id, digest)
