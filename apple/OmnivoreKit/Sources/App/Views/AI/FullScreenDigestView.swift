@@ -4,7 +4,7 @@ import Services
 import Views
 import MarkdownUI
 import Utils
-
+import Transmission
 
 func getChapterData(digest: DigestResult) -> [(DigestChapter, DigestChapterData)] {
   let speed = 1.0
@@ -40,6 +40,9 @@ public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var digest: DigestResult?
   @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
+  @Published var presentedLibraryItem: String?
+  @Published var presentWebContainer = false
+
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func load(dataService: DataService, audioController: AudioController) async {
@@ -118,9 +121,35 @@ struct FullScreenDigestView: View {
     return ""
   }
 
+  var slideTransition: PresentationLinkTransition {
+    PresentationLinkTransition.slide(
+      options: PresentationLinkTransition.SlideTransitionOptions(
+        edge: .trailing,
+        options: PresentationLinkTransition.Options(
+          modalPresentationCapturesStatusBarAppearance: true
+        )
+      ))
+  }
+
   var body: some View {
     VStack {
       titleBlock
+
+      if let presentedLibraryItem = self.viewModel.presentedLibraryItem {
+        PresentationLink(
+          transition: slideTransition,
+          isPresented: $viewModel.presentWebContainer,
+          destination: {
+            WebReaderLoadingContainer(requestID: presentedLibraryItem)
+              .background(ThemeManager.currentBgColor)
+              .onDisappear {
+                self.viewModel.presentedLibraryItem = nil
+              }
+          }, label: {
+            EmptyView()
+          }
+        )
+      }
 
       Group {
         if viewModel.isLoading {
@@ -205,6 +234,10 @@ struct FullScreenDigestView: View {
                   audioController.unpause()
                 }
               }
+              .onLongPressGesture {
+                viewModel.presentedLibraryItem = chapter.id
+                viewModel.presentWebContainer = true
+              }
               .background(
                 currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
               )
@@ -241,27 +274,27 @@ struct FullScreenDigestView: View {
           RatingWidget()
           Spacer(minLength: 60)
         }
-        
-        VStack(alignment: .leading, spacing: 20) {
-          Text("If you didn't like today's digest or would like another one you can create another one. The process takes a few minutes")
-          Button(action: {
-            Task {
-              await viewModel.refreshDigest(dataService: dataService)
-            }
-          }, label: {
-            Text("Create new digest")
-              .font(Font.system(size: 13, weight: .medium))
-              .padding(.horizontal, 8)
-              .padding(.vertical, 5)
-              .tint(Color.blue)
-              .background(Color.themeLabelBackground)
-              .cornerRadius(5)
-          })
-        }
-        .padding(15)
-        .background(Color.themeLabelBackground.opacity(0.6))
-        .cornerRadius(5)
-
+//        
+//        VStack(alignment: .leading, spacing: 20) {
+//          Text("If you didn't like today's digest or would like another one you can create another one. The process takes a few minutes")
+//          Button(action: {
+//            Task {
+//              await viewModel.refreshDigest(dataService: dataService)
+//            }
+//          }, label: {
+//            Text("Create new digest")
+//              .font(Font.system(size: 13, weight: .medium))
+//              .padding(.horizontal, 8)
+//              .padding(.vertical, 5)
+//              .tint(Color.blue)
+//              .background(Color.themeLabelBackground)
+//              .cornerRadius(5)
+//          })
+//        }
+//        .padding(15)
+//        .background(Color.themeLabelBackground.opacity(0.6))
+//        .cornerRadius(5)
+//
       }.contentMargins(10, for: .scrollContent)
 
       Spacer()

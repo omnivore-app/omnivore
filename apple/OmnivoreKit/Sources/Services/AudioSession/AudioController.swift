@@ -814,15 +814,16 @@ public struct DigestAudioItem: AudioItemProperties {
         let percentProgress = timeElapsed / duration
         let speechIndex = (player?.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
         let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
-        
+
         if let itemID = itemAudioProperties?.itemID {
           dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex, force: true)
         }
-        
-        if let itemID = itemAudioProperties?.itemID, let player = player, let currentItem = player.currentItem {
+
+        if let itemID = itemAudioProperties?.itemID,
+            let player = player,
+            let currentItem = player.currentItem,
+            itemAudioProperties?.audioItemType == .libraryItem {
           let currentOffset = CMTimeGetSeconds(currentItem.currentTime())
-          print("updating listening info: ", speechIndex, currentOffset, timeElapsed)
-          
           dataService.updateLinkListeningProgress(itemID: itemID,
                                                   listenIndex: speechIndex,
                                                   listenOffset: currentOffset,
