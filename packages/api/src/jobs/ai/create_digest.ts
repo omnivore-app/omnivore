@@ -532,7 +532,7 @@ const uploadSummary = async (
   console.time('uploadSummary')
   logger.info('uploading summaries to gcs')
 
-  const filename = `digest/${userId}/${digest.id}/summaries.json`
+  const filename = `digest/${userId}/${digest.id}.json`
   await uploadToBucket(
     filename,
     Buffer.from(
@@ -589,7 +589,7 @@ const sendEmail = async (user: User, digest: Digest) => {
   await enqueueSendEmail({
     to: user.email,
     from: env.sender.message,
-    subject: title,
+    subject: 'Omnivore digest',
     html,
   })
 }
@@ -684,11 +684,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
       primaryVoice: jobData.voices?.[0],
       secondaryVoice: jobData.voices?.[1],
     })
-    const title = generateTitle(summaries)
+    const title = generateTitle(filteredSummaries)
     digest = {
       id: digestId,
       title,
-      content: generateContent(summaries),
+      content: generateContent(filteredSummaries),
       jobState: TaskState.Succeeded,
       speechFiles,
       chapters: filteredSummaries.map((item, index) => ({
@@ -700,8 +700,8 @@ export const createDigest = async (jobData: CreateDigestData) => {
       })),
       createdAt: new Date(),
       description: '',
-      // description: generateDescription(summaries, rankedTopics),
-      byline: generateByline(summaries),
+      // description: generateDescription(filteredSummaries, rankedTopics),
+      byline: generateByline(filteredSummaries),
       urlsToAudio: [],
       model,
     }
@@ -710,7 +710,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       // write the digest to redis
       writeDigest(jobData.userId, digest),
       // upload the summaries to GCS
-      uploadSummary(jobData.userId, digest, summaries).catch((error) =>
+      uploadSummary(jobData.userId, digest, filteredSummaries).catch((error) =>
         logger.error('uploadSummary error', error)
       ),
     ])
