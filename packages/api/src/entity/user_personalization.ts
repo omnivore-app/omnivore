@@ -55,7 +55,7 @@ export class UserPersonalization {
   updatedAt!: Date
 
   @Column('json')
-  fields?: any | null
+  fields?: any
 
   @Column('jsonb')
   digestConfig?: any
