@@ -323,7 +323,7 @@ struct WebReaderContainerView: View {
         .padding(.trailing, 5)
         .popover(isPresented: $showPreferencesPopover) {
           webPreferencesPopoverView
-            .frame(maxWidth: 400, maxHeight: 475)
+            .frame(width: 400, height: 475)
         }
         .formSheet(isPresented: $showPreferencesFormsheet, modalSize: CGSize(width: 400, height: 475)) {
           webPreferencesPopoverView
