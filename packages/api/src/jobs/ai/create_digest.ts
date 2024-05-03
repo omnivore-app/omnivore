@@ -8,6 +8,7 @@ import {
   SSMLOptions,
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
+import { truncate } from 'lodash'
 import showdown from 'showdown'
 import { v4 as uuid } from 'uuid'
 import yaml from 'yaml'
@@ -556,40 +557,50 @@ const uploadSummary = async (
 
 const sendPushNotification = async (userId: string, digest: Digest) => {
   const notification = {
-    title: digest.title ?? 'Omnivore digest',
-    body: 'Your digest is ready to listen',
+    title: 'Omnivore Digest',
+    body: truncate(digest.title, { length: 100 }),
   }
 
   await sendPushNotifications(userId, notification, 'reminder')
 }
 
-const sendEmail = async (user: User, digest: Digest) => {
-  const title = digest.title ?? 'Omnivore digest'
+const sendEmail = async (
+  user: User,
+  digest: Digest,
+  summaries: RankedItem[]
+) => {
+  const createdAt = digest.createdAt ?? new Date()
+
+  const title = 'Omnivore Digest'
+  const subject = `${title} ${createdAt.toLocaleDateString()}`
+  const subTitle = truncate(digest.title, { length: 200 }).slice(
+    title.length + 1
+  )
+
   const chapters = digest.chapters ?? []
+
   const html = `
-    <h1>${title}</p>
+    <div style="text-align: justify;">
+      <h1 style="text-align: center;">${subject}</h1>
+      <h2>${subTitle}</h2>
 
-    <h2>Chapters</h1>
-    <ul>
-      ${chapters
-        .map(
-          (chapter) => `
-        <li>
-          <a href="${chapter.url}">${chapter.title}</a>
-        </li>
-      `
-        )
-        .join('')}
-    </ul>
-
-    <h2>Transcript</h1>
-    <p>${digest.content ?? 'Transcript not available'}</p>
-  `
+        ${chapters
+          .map(
+            (chapter, index) => `
+              <div>
+                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                <div>
+                  ${summaries[index].summary}
+                </div>
+              </div>`
+          )
+          .join('')}
+    </div>`
 
   await enqueueSendEmail({
     to: user.email,
     from: env.sender.message,
-    subject: 'Omnivore digest',
+    subject,
     html,
   })
 }
@@ -597,6 +608,7 @@ const sendEmail = async (user: User, digest: Digest) => {
 const sendNotifications = async (
   user: User,
   digest: Digest,
+  summaries: RankedItem[],
   channels: Channel[] = ['push'] // default to push notification
 ) => {
   const deduplicateChannels = [...new Set(channels)]
@@ -607,7 +619,7 @@ const sendNotifications = async (
         case 'push':
           return sendPushNotification(user.id, digest)
         case 'email':
-          return sendEmail(user, digest)
+          return sendEmail(user, digest, summaries)
         default:
           logger.error('Unknown channel', { channel })
           return
@@ -648,6 +660,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     id: digestId,
     jobState: TaskState.Succeeded,
   }
+  let filteredSummaries: RankedItem[] = []
 
   try {
     digestDefinition = await fetchDigestDefinition()
@@ -677,7 +690,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     const summaries = await summarizeItems(model, selections)
     console.timeEnd('summarizeItems')
 
-    const filteredSummaries = filterSummaries(summaries)
+    filteredSummaries = filterSummaries(summaries)
 
     const speechFiles = generateSpeechFiles(filteredSummaries, {
       ...jobData,
@@ -722,10 +735,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
     await writeDigest(jobData.userId, {
       id: digestId,
       jobState: TaskState.Failed,
+      title: 'Failed to create digest',
     })
   } finally {
     // send notification
-    await sendNotifications(user, digest, config?.channels)
+    await sendNotifications(user, digest, filteredSummaries, config?.channels)
 
     console.timeEnd('createDigestJob')
   }
