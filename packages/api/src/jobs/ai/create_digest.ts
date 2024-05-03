@@ -564,10 +564,24 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
 
 const sendEmail = async (user: User, digest: Digest) => {
   const title = digest.title ?? 'Omnivore digest'
+  const chapters = digest.chapters ?? []
   const html = `
-    <h>${title}</p>
+    <h1>${title}</p>
 
-    <h1>Transcript</h1>
+    <h2>Chapters</h1>
+    <ul>
+      ${chapters
+        .map(
+          (chapter) => `
+        <li>
+          <a href="${chapter.url}">${chapter.title}</a>
+        </li>
+      `
+        )
+        .join('')}
+    </ul>
+
+    <h2>Transcript</h1>
     <p>${digest.content ?? 'Transcript not available'}</p>
   `
 
