@@ -73,8 +73,8 @@ describe('User Personalization API', () => {
       before(async () => {
         await saveUserPersonalization(user.id, {
           user: { id: user.id },
-          fields: {
-            testField: 'testValue',
+          digestConfig: {
+            channels: ['email'],
           },
         })
       })
@@ -86,7 +86,7 @@ describe('User Personalization API', () => {
 
       it('updates the user personalization', async () => {
         const newFields = {
-          testField: 'testValue1',
+          channels: ['push', 'email'],
         }
 
         const res = await graphqlRequest(query, authToken, {
