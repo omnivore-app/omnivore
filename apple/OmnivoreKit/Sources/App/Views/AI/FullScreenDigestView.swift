@@ -6,9 +6,9 @@ import MarkdownUI
 import Utils
 
 
-func getChapterData(digest: DigestResult) -> [DigestChapterData] {
+func getChapterData(digest: DigestResult) -> [(DigestChapter, DigestChapterData)] {
   let speed = 1.0
-  var chapterData: [DigestChapterData] = []
+  var chapterData: [(DigestChapter, DigestChapterData)] = []
   var currentAudioIndex = 0
   var currentWordCount = 0.0
 
@@ -16,11 +16,11 @@ func getChapterData(digest: DigestResult) -> [DigestChapterData] {
     let chapter = digest.chapters[index]
     let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
 
-    chapterData.append(DigestChapterData(
+    chapterData.append((chapter, DigestChapterData(
       time: formatTimeInterval(duration) ?? "00:00",
       start: Int(currentAudioIndex),
       end: currentAudioIndex + Int(speechFile.utterances.count)
-    ))
+    )))
     currentAudioIndex += Int(speechFile.utterances.count)
     currentWordCount += chapter.wordCount
   }
@@ -34,7 +34,6 @@ func formatTimeInterval(_ time: TimeInterval) -> String? {
   componentFormatter.zeroFormattingBehavior = .pad
   return componentFormatter.string(from: time)
 }
-
 
 @MainActor
 public class FullScreenDigestViewModel: ObservableObject {
@@ -51,13 +50,17 @@ public class FullScreenDigestViewModel: ObservableObject {
     }
     do {
       if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
-        self.digest = digest
-        lastVisitedDigestId = digest.id
-        if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
-          // Don't think we need to do anything here
-        } else {
-          let chapters = getChapterData(digest: digest)
-          audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapters))
+        DispatchQueue.main.async {
+          self.digest = digest
+          self.chapterInfo = getChapterData(digest: digest)
+          self.lastVisitedDigestId = digest.id
+
+          if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
+            // Don't think we need to do anything here
+          } else {
+            let chapterData = self.chapterInfo?.map { $0.1 }
+            audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapterData ?? []))
+          }
         }
       }
     } catch {
@@ -170,11 +173,6 @@ struct FullScreenDigestView: View {
               .font(Font.system(size: 12))
               .foregroundColor(Color(hex: "#898989"))
               .lineLimit(1)
-            Text(digest.description)
-              .font(Font.system(size: 14))
-              .lineSpacing(/*@START_MENU_TOKEN@*/10.0/*@END_MENU_TOKEN@*/)
-              .foregroundColor(Color.themeLibraryItemSubtle)
-              .lineLimit(6)
           } else {
             Text("We're building you a new digest")
               .font(Font.system(size: 17, weight: .semibold))

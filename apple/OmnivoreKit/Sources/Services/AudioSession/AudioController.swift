@@ -911,29 +911,59 @@ public struct DigestAudioItem: AudioItemProperties {
         }
         return .commandFailed
       }
-      
+
       if let digest = self.itemAudioProperties as? DigestAudioItem {
         commandCenter.nextTrackCommand.isEnabled = true
         commandCenter.nextTrackCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
-          let next = self.currentAudioIndex + 1
-          if next < (self.document?.utterances.count ?? 0) {
-            self.seek(toIdx: self.currentAudioIndex + 1)
+          if let next = self.nextChapterIndex(chapters: digest.chapters, idx: self.currentAudioIndex) {
+            self.seek(toIdx: next)
+            return .success
+          }
+          return .commandFailed
+        }
+
+        commandCenter.previousTrackCommand.isEnabled = true
+        commandCenter.previousTrackCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+          if let next = self.prevChapterIndex(chapters: digest.chapters, idx: self.currentAudioIndex) {
+            self.seek(toIdx: next)
             return .success
           }
           return .commandFailed
         }
       }
-      
+
       Task {
         await downloadAndSetArtwork()
       }
     }
 
-    func nextChapterIndex(digest: DigestResult, idx: Int) -> Int {
-//      for chapter in digest.chapters {
-//        if chapter.
-//      }
-      return 0
+    func nextChapterIndex(chapters: [DigestChapterData], idx: Int) -> Int? {
+      if let chapterIdx = currentChapterIndex(chapters: chapters, idx: idx) {
+        if chapterIdx + 1 < chapters.count {
+          return chapters[chapterIdx + 1].start
+        }
+      }
+      return nil
+    }
+
+    func prevChapterIndex(chapters: [DigestChapterData], idx: Int) -> Int? {
+      if let chapterIdx = currentChapterIndex(chapters: chapters, idx: idx) {
+        if chapterIdx - 1 > 0 {
+          return chapterIdx - 1
+        }
+      }
+      return nil
+    }
+
+    func currentChapterIndex(chapters: [DigestChapterData], idx: Int) -> Int? {
+      for (chapterIdx, chapter) in chapters.enumerated() {
+        if idx >= chapter.start && idx < chapter.end {
+          if chapterIdx + 1 < chapters.count {
+            return chapterIdx
+          }
+        }
+      }
+      return nil
     }
 
     func isoLangForCurrentVoice() -> String {
