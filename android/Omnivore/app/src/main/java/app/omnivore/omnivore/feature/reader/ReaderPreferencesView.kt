@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.component.SwitchPreferenceWidget
+import app.omnivore.omnivore.feature.components.SliderWithPlusMinus
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 
 @Composable
@@ -145,7 +146,8 @@ fun ReaderPreferencesView(
                         color = Color(red = 137, green = 137, blue = 137)
                     )
                 )
-                Slider(
+
+                SliderWithPlusMinus(
                     value = fontSizeSliderValue,
                     onValueChange = {
                         fontSizeSliderValue = it
@@ -162,7 +164,8 @@ fun ReaderPreferencesView(
                         color = Color(red = 137, green = 137, blue = 137)
                     )
                 )
-                Slider(
+
+                SliderWithPlusMinus(
                     value = marginSliderValue,
                     onValueChange = {
                         marginSliderValue = it
@@ -179,7 +182,7 @@ fun ReaderPreferencesView(
                         color = Color(red = 137, green = 137, blue = 137)
                     )
                 )
-                Slider(
+                SliderWithPlusMinus(
                     value = lineSpacingSliderValue,
                     onValueChange = {
                         lineSpacingSliderValue = it
