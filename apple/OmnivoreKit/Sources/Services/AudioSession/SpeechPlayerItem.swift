@@ -70,11 +70,9 @@ class SpeechPlayerItem: AVPlayerItem {
     DispatchQueue.main.async {
       if self.speechItem.audioIdx > self.session.currentAudioIndex + 5 {
         // prefetch has gotten too far ahead of the audio. Pause the prefetch queue
-        print("PAUSING PREFETCH QUEUE", self.speechItem.audioIdx, self.session.currentAudioIndex + 10, self.speechItem.text)
         prefetchQueue.isSuspended = true
       }
       if self.speechItem.audioIdx < self.session.currentAudioIndex + 5 {
-        print("RESUMING PREFETCH QUEUE", self.speechItem.audioIdx, self.session.currentAudioIndex + 5)
         prefetchQueue.isSuspended = false
       }
     }
