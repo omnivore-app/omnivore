@@ -19,6 +19,7 @@ import { redisDataSource } from '../../redis_data_source'
 import { Digest, writeDigest } from '../../services/digest'
 import {
   findLibraryItemsByIds,
+  getItemUrl,
   searchLibraryItems,
 } from '../../services/library_item'
 import {
@@ -693,7 +694,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       chapters: filteredSummaries.map((item, index) => ({
         title: item.libraryItem.title,
         id: item.libraryItem.id,
-        url: item.libraryItem.originalUrl,
+        url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
       })),
