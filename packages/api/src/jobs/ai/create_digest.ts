@@ -571,17 +571,17 @@ const sendEmail = async (
 ) => {
   const createdAt = digest.createdAt ?? new Date()
 
-  const title = 'Omnivore Digest'
-  const subject = `${title} ${createdAt.toLocaleDateString()}`
+  const prefix = 'Omnivore Digest'
+  const title = `${prefix} ${createdAt.toLocaleDateString()}`
   const subTitle = truncate(digest.title, { length: 200 }).slice(
-    title.length + 1
+    prefix.length + 1
   )
 
   const chapters = digest.chapters ?? []
 
   const html = `
     <div style="text-align: justify;">
-      <h1 style="text-align: center;">${subject}</h1>
+      <h2>${title}</h1>
       <h2>${subTitle}</h2>
 
         ${chapters
@@ -600,7 +600,7 @@ const sendEmail = async (
   await enqueueSendEmail({
     to: user.email,
     from: env.sender.message,
-    subject,
+    subject: subTitle,
     html,
   })
 }
