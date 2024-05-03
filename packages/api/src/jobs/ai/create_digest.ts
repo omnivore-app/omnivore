@@ -595,8 +595,8 @@ const sendEmail = async (user: User, digest: Digest) => {
 
 const sendNotifications = async (
   user: User,
-  channels: Channel[],
-  digest: Digest
+  digest: Digest,
+  channels: Channel[] = ['push'] // default to push notification
 ) => {
   const deduplicateChannels = [...new Set(channels)]
 
@@ -608,6 +608,8 @@ const sendNotifications = async (
         case 'email':
           return sendEmail(user, digest)
         default:
+          logger.error('Unknown channel', { channel })
+          return
       }
     })
   )
@@ -721,10 +723,8 @@ export const createDigest = async (jobData: CreateDigestData) => {
       jobState: TaskState.Failed,
     })
   } finally {
-    // default to push notification
-    const channels = config?.channels ?? ['push']
     // send notification
-    await sendNotifications(user, channels, digest)
+    await sendNotifications(user, digest, config?.channels)
 
     console.timeEnd('createDigestJob')
   }
