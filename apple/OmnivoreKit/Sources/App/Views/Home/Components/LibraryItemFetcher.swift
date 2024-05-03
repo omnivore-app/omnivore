@@ -114,6 +114,7 @@ import Views
     if let appliedFilter = filterState.appliedFilter {
       let shouldRemoteSearch = forceRemote || items.count < 1 || isRefresh && appliedFilter.shouldRemoteSearch
       if shouldRemoteSearch {
+        updateFetchController(dataService: dataService, filterState: filterState)
         await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
       } else {
         updateFetchController(dataService: dataService, filterState: filterState)
