@@ -701,7 +701,6 @@ public struct DigestAudioItem: AudioItemProperties {
           player?.insert(playerItem, after: nil)
           if player?.items().count == 1, atOffset > 0.0 {
             playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
-              print("success seeking to time: ", success)
               self.fireTimer()
             }
           }
@@ -1019,9 +1018,7 @@ public struct DigestAudioItem: AudioItemProperties {
         throw BasicError.message(messageText: "audioFetch failed. no data received.")
       }
       
-      let str = String(decoding: data, as: UTF8.self)
-      print("result speech file: ", str)
-      
+      let str = String(decoding: data, as: UTF8.self)      
       if let document = try? JSONDecoder().decode(SpeechDocument.self, from: data) {
         do {
           try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
