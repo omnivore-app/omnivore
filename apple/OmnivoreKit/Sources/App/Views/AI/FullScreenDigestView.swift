@@ -46,28 +46,32 @@ public class FullScreenDigestViewModel: ObservableObject {
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func load(dataService: DataService, audioController: AudioController) async {
-    if let digest = dataService.loadStoredDigest() {
-      self.digest = digest
-    } else {
-      isLoading = true
-    }
-    do {
-      if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
-        DispatchQueue.main.async {
-          self.digest = digest
-          self.chapterInfo = getChapterData(digest: digest)
-          self.lastVisitedDigestId = digest.id
-
-          if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
-            // Don't think we need to do anything here
-          } else {
-            let chapterData = self.chapterInfo?.map { $0.1 }
-            audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapterData ?? []))
-          }
-        }
+    if !digestNeedsRefresh() {
+      if let digest = dataService.loadStoredDigest() {
+        self.digest = digest
       }
-    } catch {
-      print("ERROR WITH DIGEST: ", error)
+    } else {
+      do {
+        if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
+          self.digest = digest
+        }
+      } catch {
+        print("ERROR WITH DIGEST: ", error)
+        self.digest = nil
+      }
+    }
+
+    if let digest = self.digest {
+      self.digest = digest
+      self.chapterInfo = getChapterData(digest: digest)
+      self.lastVisitedDigestId = digest.id
+
+      if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
+        // Don't think we need to do anything here
+      } else {
+        let chapterData = self.chapterInfo?.map { $0.1 }
+        audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapterData ?? []))
+      }
     }
 
     isLoading = false
@@ -79,6 +83,22 @@ public class FullScreenDigestViewModel: ObservableObject {
     } catch {
       print("ERROR WITH DIGEST: ", error)
     }
+  }
+
+  func digestNeedsRefresh() -> Bool {
+    let fileManager = FileManager.default
+    let localURL = URL.om_cachesDirectory.appendingPathComponent("digest.json")
+    do {
+      let attributes = try fileManager.attributesOfItem(atPath: localURL.path)
+      if let modificationDate = attributes[.modificationDate] as? Date {
+        // Two hours ago
+        let twoHoursAgo = Date().addingTimeInterval(-2 * 60 * 60)
+        return modificationDate < twoHoursAgo
+      }
+    } catch {
+        print("Error: \(error)")
+    }
+    return true
   }
 }
 
