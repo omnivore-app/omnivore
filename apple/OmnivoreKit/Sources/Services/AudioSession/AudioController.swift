@@ -33,16 +33,20 @@ public struct DigestAudioItem: AudioItemProperties {
   public let digest: DigestResult
   public let itemID: String
   public let title: String
+  public let chapters: [DigestChapterData]
+
   public var byline: String?
   public var imageURL: URL?
   public var language: String?
   public var startIndex: Int = 0
   public var startOffset: Double = 0.0
 
-  public init(digest: DigestResult) {
+  public init(digest: DigestResult, chapters: [DigestChapterData]) {
     self.digest = digest
     self.itemID = digest.id
     self.title = digest.title
+    self.chapters = chapters
+ 
     self.startIndex = 0
     self.startOffset = 0
 
@@ -908,11 +912,30 @@ public struct DigestAudioItem: AudioItemProperties {
         return .commandFailed
       }
       
+      if let digest = self.itemAudioProperties as? DigestAudioItem {
+        commandCenter.nextTrackCommand.isEnabled = true
+        commandCenter.nextTrackCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+          let next = self.currentAudioIndex + 1
+          if next < (self.document?.utterances.count ?? 0) {
+            self.seek(toIdx: self.currentAudioIndex + 1)
+            return .success
+          }
+          return .commandFailed
+        }
+      }
+      
       Task {
         await downloadAndSetArtwork()
       }
     }
-    
+
+    func nextChapterIndex(digest: DigestResult, idx: Int) -> Int {
+//      for chapter in digest.chapters {
+//        if chapter.
+//      }
+      return 0
+    }
+
     func isoLangForCurrentVoice() -> String {
       // currentVoicePair should not ever be nil but if it is we return an empty string
       if let isoLang = currentVoicePair?.language {

@@ -5,10 +5,42 @@ import Views
 import MarkdownUI
 import Utils
 
+
+func getChapterData(digest: DigestResult) -> [DigestChapterData] {
+  let speed = 1.0
+  var chapterData: [DigestChapterData] = []
+  var currentAudioIndex = 0
+  var currentWordCount = 0.0
+
+  for (index, speechFile) in digest.speechFiles.enumerated() {
+    let chapter = digest.chapters[index]
+    let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
+
+    chapterData.append(DigestChapterData(
+      time: formatTimeInterval(duration) ?? "00:00",
+      start: Int(currentAudioIndex),
+      end: currentAudioIndex + Int(speechFile.utterances.count)
+    ))
+    currentAudioIndex += Int(speechFile.utterances.count)
+    currentWordCount += chapter.wordCount
+  }
+  return chapterData
+}
+
+func formatTimeInterval(_ time: TimeInterval) -> String? {
+  let componentFormatter = DateComponentsFormatter()
+  componentFormatter.unitsStyle = .positional
+  componentFormatter.allowedUnits = time >= 3600 ? [.second, .minute, .hour] : [.second, .minute]
+  componentFormatter.zeroFormattingBehavior = .pad
+  return componentFormatter.string(from: time)
+}
+
+
 @MainActor
 public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var digest: DigestResult?
+  @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func load(dataService: DataService, audioController: AudioController) async {
@@ -24,7 +56,8 @@ public class FullScreenDigestViewModel: ObservableObject {
         if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
           // Don't think we need to do anything here
         } else {
-          audioController.play(itemAudioProperties: DigestAudioItem(digest: digest))
+          let chapters = getChapterData(digest: digest)
+          audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapters))
         }
       }
     } catch {
@@ -114,35 +147,6 @@ struct FullScreenDigestView: View {
     .buttonStyle(.plain)
   }
 
-  func getChapterData(digest: DigestResult) -> [String:(time: String, start: Int, end: Int)] {
-    let speed = 1.0
-    var chapterData: [String:(time: String, start: Int, end: Int)] = [:]
-    var currentAudioIndex = 0
-    var currentWordCount = 0.0
-
-    for (index, speechFile) in digest.speechFiles.enumerated() {
-      let chapter = digest.chapters[index]
-      let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
-
-      chapterData[chapter.id] = (
-        time: formatTimeInterval(duration) ?? "00:00",
-        start: Int(currentAudioIndex),
-        end: currentAudioIndex + Int(speechFile.utterances.count)
-      )
-      currentAudioIndex += Int(speechFile.utterances.count)
-      currentWordCount += chapter.wordCount
-    }
-    return chapterData
-  }
-
-  func formatTimeInterval(_ time: TimeInterval) -> String? {
-    let componentFormatter = DateComponentsFormatter()
-    componentFormatter.unitsStyle = .positional
-    componentFormatter.allowedUnits = time >= 3600 ? [.second, .minute, .hour] : [.second, .minute]
-    componentFormatter.zeroFormattingBehavior = .pad
-    return componentFormatter.string(from: time)
-  }
-
   @available(iOS 17.0, *)
   var itemBody: some View {
     VStack {
@@ -182,30 +186,31 @@ struct FullScreenDigestView: View {
         .background(Color.themeLabelBackground.opacity(0.6))
         .cornerRadius(5)
 
-        if let digest = viewModel.digest {
+        if let chapters = viewModel.chapterInfo {
           VStack(alignment: .leading, spacing: 10) {
             Text("Chapters")
               .font(Font.system(size: 17, weight: .semibold))
               .frame(maxWidth: .infinity, alignment: .leading)
               .padding(0)
-            let chapterData = getChapterData(digest: digest)
-            ForEach(digest.chapters, id: \.id) { chapter in
-              if let startTime = chapterData[chapter.id]?.time, let skipIndex = chapterData[chapter.id]?.start {
-                let currentChapter = audioController.currentAudioIndex >= (chapterData[chapter.id]?.start ?? 0) &&
-                                     audioController.currentAudioIndex  < (chapterData[chapter.id]?.end ?? 0)
-                ChapterView(
-                  startTime: startTime,
-                  skipIndex: skipIndex,
-                  chapter: chapter
-                )
-                .onTapGesture {
-                  audioController.seek(toIdx: skipIndex)
+            ForEach(chapters, id: \.0.id) { chaps in
+              let (chapter, chapterData) = chaps
+              let currentChapter = (audioController.currentAudioIndex >= chapterData.start && audioController.currentAudioIndex < chapterData.end)
+
+              ChapterView(
+                startTime: chapterData.time,
+                skipIndex: chapterData.start,
+                chapter: chapter
+              )
+              .onTapGesture {
+                audioController.seek(toIdx: chapterData.start)
+                if audioController.state != .loading && !audioController.isPlaying {
+                  audioController.unpause()
                 }
-                .background(
-                  currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
-                )
-                .cornerRadius(5)
               }
+              .background(
+                currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
+              )
+              .cornerRadius(5)
             }
           }
           .padding(.top, 20)
