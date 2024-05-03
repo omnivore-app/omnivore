@@ -45,7 +45,8 @@ fun SliderWithPlusMinus(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     var sliderValue by remember { mutableFloatStateOf(value) }
-    val sliderValueStepSize = (valueRange.endInclusive - valueRange.start) / steps
+    val sliderValueStepSize = if (steps == 0) 0f else
+        (valueRange.endInclusive - valueRange.start) / steps
 
     return Row(
         modifier = modifier
