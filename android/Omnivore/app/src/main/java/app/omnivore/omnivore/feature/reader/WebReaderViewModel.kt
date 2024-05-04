@@ -116,8 +116,6 @@ class WebReaderViewModel @Inject constructor(
     private val showHighlightColorPalette = MutableLiveData(false)
     val highlightColor = MutableLiveData(HighlightColor())
 
-    var shouldUseVolumeRockerForScroll = true
-
     fun loadItem(slug: String?, requestID: String?) {
         this.slug = slug
         if (isLoading || webReaderParamsLiveData.value != null) {
