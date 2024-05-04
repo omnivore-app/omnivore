@@ -8,23 +8,30 @@ import {
   SSMLOptions,
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
+import { truncate } from 'lodash'
 import showdown from 'showdown'
 import { v4 as uuid } from 'uuid'
 import yaml from 'yaml'
 import { LibraryItem } from '../../entity/library_item'
+import { User } from '../../entity/user'
+import { env } from '../../env'
 import { TaskState } from '../../generated/graphql'
 import { redisDataSource } from '../../redis_data_source'
 import { Digest, writeDigest } from '../../services/digest'
 import {
   findLibraryItemsByIds,
+  getItemUrl,
   searchLibraryItems,
 } from '../../services/library_item'
-import { findDeviceTokensByUserId } from '../../services/user_device_tokens'
+import {
+  findUserAndPersonalization,
+  sendPushNotifications,
+} from '../../services/user'
+import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
-import { sendMulticastPushNotifications } from '../../utils/sendNotification'
-import { generateUploadFilePathName, uploadToBucket } from '../../utils/uploads'
+import { uploadToBucket } from '../../utils/uploads'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -76,6 +83,8 @@ interface RankedTitle {
   id: string
   title: string
 }
+
+type Channel = 'push' | 'email'
 
 export const CREATE_DIGEST_JOB = 'create-digest'
 export const CRON_PATTERNS = {
@@ -524,7 +533,7 @@ const uploadSummary = async (
   console.time('uploadSummary')
   logger.info('uploading summaries to gcs')
 
-  const filename = `digest/${userId}/${digest.id}/summaries.json`
+  const filename = `digest/${userId}/${digest.id}.json`
   await uploadToBucket(
     filename,
     Buffer.from(
@@ -546,14 +555,116 @@ const uploadSummary = async (
   console.timeEnd('uploadSummary')
 }
 
+const sendPushNotification = async (userId: string, digest: Digest) => {
+  const notification = {
+    title: 'Omnivore Digest',
+    body: truncate(digest.title, { length: 100 }),
+  }
+
+  await sendPushNotifications(userId, notification, 'reminder')
+}
+
+const sendEmail = async (
+  user: User,
+  digest: Digest,
+  summaries: RankedItem[]
+) => {
+  const createdAt = digest.createdAt ?? new Date()
+
+  const prefix = 'Omnivore Digest'
+  const title = `${prefix} ${createdAt.toLocaleDateString()}`
+  const subTitle = truncate(digest.title, { length: 200 }).slice(
+    prefix.length + 1
+  )
+
+  const chapters = digest.chapters ?? []
+
+  const html = `
+    <div style="text-align: justify;">
+      <h2>${title}</h1>
+      <h2>${subTitle}</h2>
+
+        ${chapters
+          .map(
+            (chapter, index) => `
+              <div>
+                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                <div>
+                  ${summaries[index].summary}
+                </div>
+              </div>`
+          )
+          .join('')}
+    </div>`
+
+  await enqueueSendEmail({
+    to: user.email,
+    from: env.sender.message,
+    subject: subTitle,
+    html,
+  })
+}
+
+const sendNotifications = async (
+  user: User,
+  digest: Digest,
+  summaries: RankedItem[],
+  channels: Channel[] = ['push'] // default to push notification
+) => {
+  const deduplicateChannels = [...new Set(channels)]
+
+  await Promise.all(
+    deduplicateChannels.map(async (channel) => {
+      switch (channel) {
+        case 'push':
+          return sendPushNotification(user.id, digest)
+        case 'email':
+          return sendEmail(user, digest, summaries)
+        default:
+          logger.error('Unknown channel', { channel })
+          return
+      }
+    })
+  )
+}
+
 export const createDigest = async (jobData: CreateDigestData) => {
   console.time('createDigestJob')
 
   // generate a unique id for the digest if not provided for scheduled jobs
   const digestId = jobData.id ?? uuid()
+
+  const user = await findUserAndPersonalization(jobData.userId)
+  if (!user) {
+    logger.error('User not found', { userId: jobData.userId })
+    return writeDigest(jobData.userId, {
+      id: digestId,
+      jobState: TaskState.Failed,
+    })
+  }
+
+  const personalization = user.userPersonalization
+  if (!personalization) {
+    logger.info('User personalization not found')
+  }
+
+  const config = personalization
+    ? (personalization.digestConfig as {
+        model?: string
+        channels?: Channel[]
+      })
+    : undefined
+
+  // default digest
+  let digest: Digest = {
+    id: digestId,
+    jobState: TaskState.Succeeded,
+  }
+  let filteredSummaries: RankedItem[] = []
+
   try {
     digestDefinition = await fetchDigestDefinition()
-    const model = selectModel(digestDefinition.model)
+    const model = selectModel(config?.model || digestDefinition.model)
     logger.info(`model: ${model}`)
 
     const candidates = await getCandidatesList(
@@ -562,11 +673,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     )
     if (candidates.length === 0) {
       logger.info('No candidates found')
-      return writeDigest(jobData.userId, {
-        id: digestId,
-        jobState: TaskState.Succeeded,
-        title: 'No articles found',
-      })
+      return writeDigest(jobData.userId, digest)
     }
 
     // const userProfile = await findOrCreateUserProfile(jobData.userId)
@@ -583,31 +690,31 @@ export const createDigest = async (jobData: CreateDigestData) => {
     const summaries = await summarizeItems(model, selections)
     console.timeEnd('summarizeItems')
 
-    const filteredSummaries = filterSummaries(summaries)
+    filteredSummaries = filterSummaries(summaries)
 
     const speechFiles = generateSpeechFiles(filteredSummaries, {
       ...jobData,
       primaryVoice: jobData.voices?.[0],
       secondaryVoice: jobData.voices?.[1],
     })
-    const title = generateTitle(summaries)
-    const digest: Digest = {
+    const title = generateTitle(filteredSummaries)
+    digest = {
       id: digestId,
       title,
-      content: generateContent(summaries),
+      content: generateContent(filteredSummaries),
       jobState: TaskState.Succeeded,
       speechFiles,
       chapters: filteredSummaries.map((item, index) => ({
         title: item.libraryItem.title,
         id: item.libraryItem.id,
-        url: item.libraryItem.originalUrl,
+        url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
       })),
       createdAt: new Date(),
       description: '',
-      // description: generateDescription(summaries, rankedTopics),
-      byline: generateByline(summaries),
+      // description: generateDescription(filteredSummaries, rankedTopics),
+      byline: generateByline(filteredSummaries),
       urlsToAudio: [],
       model,
     }
@@ -616,7 +723,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       // write the digest to redis
       writeDigest(jobData.userId, digest),
       // upload the summaries to GCS
-      uploadSummary(jobData.userId, digest, summaries).catch((error) =>
+      uploadSummary(jobData.userId, digest, filteredSummaries).catch((error) =>
         logger.error('uploadSummary error', error)
       ),
     ])
@@ -628,21 +735,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
     await writeDigest(jobData.userId, {
       id: digestId,
       jobState: TaskState.Failed,
+      title: 'Failed to create digest',
     })
   } finally {
     // send notification
-    const tokens = await findDeviceTokensByUserId(jobData.userId)
-    if (tokens.length > 0) {
-      const message = {
-        notification: {
-          title: 'Digest ready',
-          body: 'Your digest is ready to listen',
-        },
-        tokens: tokens.map((token) => token.token),
-      }
-
-      await sendMulticastPushNotifications(jobData.userId, message, 'reminder')
-    }
+    await sendNotifications(user, digest, filteredSummaries, config?.channels)
 
     console.timeEnd('createDigestJob')
   }

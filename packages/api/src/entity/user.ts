@@ -73,5 +73,5 @@ export class User {
     () => UserPersonalization,
     (userPersonalization) => userPersonalization.user
   )
-  userPersonalization!: UserPersonalization
+  userPersonalization?: UserPersonalization
 }

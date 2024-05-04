@@ -1080,6 +1080,7 @@ const schema = gql`
     speechRate: String
     speechVolume: String
     fields: JSON
+    digestConfig: JSON
   }
 
   # Query: UserPersonalization
@@ -1122,6 +1123,7 @@ const schema = gql`
     speechRate: String
     speechVolume: String
     fields: JSON
+    digestConfig: JSON
   }
 
   # Type: ArticleSavingRequest

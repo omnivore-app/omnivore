@@ -22,7 +22,7 @@ describe('User Personalization API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
   })
 
   after(async () => {
@@ -61,40 +61,32 @@ describe('User Personalization API', () => {
           res.body.data.setUserPersonalization.updatedUserPersonalization.fields
         ).to.eql(fields)
 
-        const userPersonalization = await findUserPersonalization(
-          res.body.data.setUserPersonalization.updatedUserPersonalization.id,
-          user.id
-        )
+        const userPersonalization = await findUserPersonalization(user.id)
         expect(userPersonalization).to.not.be.null
 
         // clean up
-        await deleteUserPersonalization(
-          res.body.data.setUserPersonalization.updatedUserPersonalization.id,
-          user.id
-        )
+        await deleteUserPersonalization(user.id)
       })
     })
 
     context('when user personalization exists', () => {
-      let existingUserPersonalization: UserPersonalization
-
       before(async () => {
-        existingUserPersonalization = await saveUserPersonalization(user.id, {
+        await saveUserPersonalization(user.id, {
           user: { id: user.id },
-          fields: {
-            testField: 'testValue',
+          digestConfig: {
+            channels: ['email'],
           },
         })
       })
 
       after(async () => {
         // clean up
-        await deleteUserPersonalization(existingUserPersonalization.id, user.id)
+        await deleteUserPersonalization(user.id)
       })
 
       it('updates the user personalization', async () => {
         const newFields = {
-          testField: 'testValue1',
+          channels: ['push', 'email'],
         }
 
         const res = await graphqlRequest(query, authToken, {
@@ -106,7 +98,6 @@ describe('User Personalization API', () => {
         ).to.eql(newFields)
 
         const updatedUserPersonalization = await findUserPersonalization(
-          existingUserPersonalization.id,
           user.id
         )
         expect(updatedUserPersonalization?.fields).to.eql(newFields)
@@ -128,7 +119,7 @@ describe('User Personalization API', () => {
 
     after(async () => {
       // clean up
-      await deleteUserPersonalization(existingUserPersonalization.id, user.id)
+      await deleteUserPersonalization(user.id)
     })
 
     const query = `
@@ -150,10 +141,9 @@ describe('User Personalization API', () => {
     it('returns the user personalization', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      expect(res.body.data.getUserPersonalization.userPersonalization).to.eql({
-        id: existingUserPersonalization.id,
-        fields: existingUserPersonalization.fields,
-      })
+      expect(
+        res.body.data.getUserPersonalization.userPersonalization.fields
+      ).to.eql(existingUserPersonalization.fields)
     })
   })
 })
