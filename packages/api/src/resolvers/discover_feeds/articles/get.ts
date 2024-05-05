@@ -1,6 +1,7 @@
 import { appDataSource } from '../../../data_source'
 import {
   GetDiscoverFeedArticleError,
+  GetDiscoverFeedArticleErrorCode,
   GetDiscoverFeedArticleSuccess,
   QueryGetDiscoverFeedArticlesArgs,
 } from '../../../generated/graphql'
@@ -106,81 +107,36 @@ export const getDiscoverFeedArticlesResolver = authorized<
   GetDiscoverFeedArticleSuccess,
   GetDiscoverFeedArticleError,
   QueryGetDiscoverFeedArticlesArgs
->(async (_, { first, after }, { uid }) => {
+>(async (_, { first, after, discoverTopicId }, { authTrx, uid }) => {
   const startCursor: string = after || ''
   first = Math.min(first || 10, 100) // limit to 100 items
 
-  // const { rows: topics } = (await appDataSource.query(
-  //   `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
-  //   [discoverTopicId]
-  // )) as { rows: unknown[] }
+  let topic
+  if (discoverTopicId !== 'All') {
+    const topics = await authTrx(
+      async (tx) =>
+        (await tx.query(
+          `SELECT embedding FROM omnivore.discover_topic_embedding_link WHERE discover_topic_name = $1 LIMIT 1`,
+          [discoverTopicId]
+        )) as Array<{ embedding: string }>
+    )
 
-  // if (topics.length == 0) {
-  //   return {
-  //     __typename: 'GetDiscoverFeedArticleError',
-  //     errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized], // TODO - no.
-  //   }
-  // }
+    if (topics.length == 0) {
+      return {
+        __typename: 'GetDiscoverFeedArticleError',
+        errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized], // TODO - no.
+      }
+    }
 
-  // let discoverArticles: DiscoverFeedArticleDBRows = { rows: [] }
-  // if (discoverTopicId === 'Popular') {
-  //   discoverArticles = await getPopularTopics(
-  //     uid,
-  //     startCursor,
-  //     firstAmnt,
-  //     feedId ?? null
-  //   )
-  // } else if (discoverTopicId === 'All') {
-  //   discoverArticles = await getAllTopics(
-  //     uid,
-  //     startCursor,
-  //     firstAmnt,
-  //     feedId ?? null
-  //   )
-  // } else {
-  //   discoverArticles = await getTopicInformation(
-  //     discoverTopicId,
-  //     uid,
-  //     startCursor,
-  //     firstAmnt,
-  //     feedId ?? null
-  //   )
-  // }
-
-  // return {
-  //   __typename: 'GetDiscoverFeedArticleSuccess',
-  //   discoverArticles: libraryItems.map((it) => ({
-  //     author: it.author,
-  //     id: it.id,
-  //     feed: it.feed,
-  //     slug: it.slug,
-  //     publishedDate: it.publishedAt,
-  //     description: it.description,
-  //     url: it.originalUrl,
-  //     title: it.title,
-  //     image: it.thumbnail,
-  //     saves: it.saves,
-  //     savedLinkUrl: it.article_save_url,
-  //     savedId: it.article_save_id,
-  //     __typename: 'DiscoverFeedArticle',
-  //     siteName: it.siteName,
-  //   })),
-  //   pageInfo: {
-  //     endCursor: `${
-  //       Number(startCursor) + Math.min(discoverArticles.rows.length, firstAmnt)
-  //     }`,
-  //     hasNextPage: discoverArticles.rows.length > firstAmnt,
-  //     hasPreviousPage: Number(startCursor) != 0,
-  //     startCursor: Number(startCursor).toString(),
-  //     totalCount: Math.min(discoverArticles.rows.length, firstAmnt),
-  //   },
-  // }
+    topic = topics[0]
+  }
 
   const { libraryItems, count } = await searchAndCountLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
       includeShared: true,
+      query: topic ? `topic:${topic.embedding}` : '',
     },
     uid
   )

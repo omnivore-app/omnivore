@@ -18,12 +18,7 @@ import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import {
-  authTrx,
-  getColumns,
-  getColumnsDbName,
-  queryBuilderToRawSql,
-} from '../repository'
+import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
@@ -550,6 +545,22 @@ export const buildQueryString = (
               [param]: parseInt(newValue, 10),
             }
           )
+        }
+        case 'topic': {
+          const param = `topic_embedding_${parameters.length}`
+          const similarity = `1 - (embedding <=> :${param})`
+          const alias = 'similarity'
+
+          selects.push({
+            column: similarity,
+            alias,
+          })
+
+          orders.push({ by: alias, order: SortOrder.DESCENDING })
+
+          return escapeQueryWithParameters(`${similarity} > 0.5`, {
+            [param]: value,
+          })
         }
         default:
           // treat unknown fields as implicit fields
