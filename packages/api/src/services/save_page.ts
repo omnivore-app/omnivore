@@ -99,6 +99,7 @@ export const savePage = async (
     }
 
     return {
+      __typename: 'SaveSuccess',
       clientRequestId,
       url: `${homePageURL()}/${user.profile.username}/${slug}`,
     }
@@ -195,6 +196,7 @@ export const savePage = async (
   }
 
   return {
+    __typename: 'SaveSuccess',
     clientRequestId,
     url: `${homePageURL()}/${user.profile.username}/${slug}`,
   }

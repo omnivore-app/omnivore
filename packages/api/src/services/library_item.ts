@@ -18,7 +18,12 @@ import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  getColumnsDbName,
+  queryBuilderToRawSql,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
