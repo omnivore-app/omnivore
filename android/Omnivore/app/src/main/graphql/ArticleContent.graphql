@@ -1,70 +1,71 @@
 query GetArticle($slug: String!) {
-  article(username: "me", slug: $slug) {
-    ... on ArticleSuccess {
-      article {
-        ...ArticleFields
-        content
-        highlights(input: { includeFriends: false }) {
-          ...HighlightFields
+    article(username: "me", slug: $slug) {
+        ... on ArticleSuccess {
+            article {
+                ...ArticleFields
+                content
+                highlights(input: { includeFriends: false }) {
+                    ...HighlightFields
+                }
+                labels {
+                    ...LabelFields
+                }
+            }
         }
-        labels {
-          ...LabelFields
+        ... on ArticleError {
+            errorCodes
         }
-      }
     }
-    ... on ArticleError {
-      errorCodes
-    }
-  }
 }
 
 fragment ArticleFields on Article {
-  id
-  title
-  url
-  author
-  image
-  savedAt
-  createdAt
-  publishedAt
-  contentReader
-  originalArticleUrl
-  readingProgressPercent
-  readingProgressAnchorIndex
-  slug
-  isArchived
-  description
-  linkId
-  siteName
-  state
-  readAt
-  updatedAt
-  content
-  wordsCount
+    id
+    title
+    folder
+    url
+    author
+    image
+    savedAt
+    createdAt
+    publishedAt
+    contentReader
+    originalArticleUrl
+    readingProgressPercent
+    readingProgressAnchorIndex
+    slug
+    isArchived
+    description
+    linkId
+    siteName
+    state
+    readAt
+    updatedAt
+    content
+    wordsCount
 }
 
 fragment HighlightFields on Highlight {
-  id
-  type
-  shortId
-  quote
-  prefix
-  suffix
-  patch
-  annotation
-  createdByMe
-  createdAt
-  updatedAt
-  sharedAt
-  color
-  highlightPositionPercent
-  highlightPositionAnchorIndex
+    id
+    type
+    shortId
+    quote
+    prefix
+    suffix
+    patch
+    annotation
+    createdByMe
+    createdAt
+    updatedAt
+    sharedAt
+    color
+    highlightPositionPercent
+    highlightPositionAnchorIndex
 }
 
 fragment LabelFields on Label {
-  id
-  name
-  color
-  description
-  createdAt
+    id
+    name
+    color
+    description
+    createdAt
 }

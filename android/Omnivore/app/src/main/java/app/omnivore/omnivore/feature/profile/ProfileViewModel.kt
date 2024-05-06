@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings
+package app.omnivore.omnivore.feature.profile
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.libraryLastSyncTimestamp
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.viewer
-import app.omnivore.omnivore.utils.DatastoreKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomSpace
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+class ProfileViewModel @Inject constructor(
     private val networker: Networker,
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository
@@ -33,7 +33,7 @@ class SettingsViewModel @Inject constructor(
         isResettingData = true
 
         viewModelScope.launch {
-            datastoreRepo.clearValue(DatastoreKeys.libraryLastSyncTimestamp)
+            datastoreRepo.clearValue(libraryLastSyncTimestamp)
             dataService.clearDatabase()
             delay(1000)
             isResettingData = false

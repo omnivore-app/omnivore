@@ -150,3 +150,17 @@ export const sendPushNotifications = async (
 
   return sendMulticastPushNotifications(userId, message, notificationType)
 }
+
+export const findUserAndPersonalization = async (id: string) => {
+  return authTrx(
+    (t) =>
+      t.getRepository(User).findOne({
+        where: { id },
+        relations: {
+          userPersonalization: true,
+        },
+      }),
+    undefined,
+    id
+  )
+}

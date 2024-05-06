@@ -37,6 +37,8 @@ public struct RootView: View {
             Services.scheduleBackgroundFetch()
           #endif
         }
+      }.task {
+        await viewModel.services.dataService.tryUpdateFeatureFlags()
       }
   }
 }

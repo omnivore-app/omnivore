@@ -18,7 +18,7 @@ import {
 } from '../generated/graphql'
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import {
-  CreateDigestJobData,
+  CreateDigestData,
   CreateDigestJobResponse,
   CreateDigestJobSchedule,
   CREATE_DIGEST_JOB,
@@ -60,7 +60,7 @@ import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
-import { logger } from './logger'
+import { logError, logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
 
 // Instantiates a client.
@@ -103,14 +103,6 @@ export const getJobPriority = (jobName: string): number => {
     default:
       logger.error(`unknown job name: ${jobName}`)
       return 1
-  }
-}
-
-const logError = (error: any): void => {
-  if (axios.isAxiosError(error)) {
-    logger.error(error.response)
-  } else {
-    logger.error(error)
   }
 }
 
@@ -864,7 +856,7 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
 }
 
 export const enqueueCreateDigest = async (
-  data: CreateDigestJobData,
+  data: CreateDigestData,
   schedule?: CreateDigestJobSchedule
 ): Promise<CreateDigestJobResponse> => {
   const queue = await getBackendQueue()
@@ -872,6 +864,8 @@ export const enqueueCreateDigest = async (
     throw new Error('No queue found')
   }
 
+  // generate unique id for the digest
+  data.id = uuid()
   // enqueue create digest job immediately
   const jobId = `${CREATE_DIGEST_JOB}_${data.userId}`
   const job = await queue.add(CREATE_DIGEST_JOB, data, {
@@ -898,9 +892,9 @@ export const enqueueCreateDigest = async (
   await writeDigest(data.userId, digest)
 
   if (schedule) {
+    // remove existing repeated job if any
     await Promise.all(
       Object.keys(CRON_PATTERNS).map(async (key) => {
-        // remove existing repeated job if any
         const isDeleted = await queue.removeRepeatable(
           CREATE_DIGEST_JOB,
           {
@@ -917,6 +911,9 @@ export const enqueueCreateDigest = async (
     )
 
     // schedule repeated job
+    // delete the digest id to avoid duplication
+    delete data.id
+
     const job = await queue.add(CREATE_DIGEST_JOB, data, {
       attempts: 1,
       priority: getJobPriority(CREATE_DIGEST_JOB),

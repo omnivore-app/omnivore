@@ -27,12 +27,24 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
 
   const exportHighlights = useCallback(() => {
     if (articleData?.article.article.highlights) {
-      const markdown = highlightsAsMarkdown(
+      let preamble = ''
+
+      if (articleData?.article.article.title) {
+        preamble += `## ${articleData?.article.article.title}\n`
+      }
+      if (
+        articleData?.article.article.contentReader == 'WEB' &&
+        articleData?.article.article.originalArticleUrl
+      ) {
+        preamble += `URL: ${articleData?.article.article.originalArticleUrl}\n`
+      }
+
+      const highlights = highlightsAsMarkdown(
         articleData?.article.article.highlights
       )
-      if (markdown.length > 1) {
+      if (preamble.length + highlights.length > 1) {
         ;(async () => {
-          await navigator.clipboard.writeText(markdown)
+          await navigator.clipboard.writeText(preamble + '\n\n' + highlights)
           showSuccessToast('Highlights and notes copied')
         })()
       } else {

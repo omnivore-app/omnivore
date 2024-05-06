@@ -15,6 +15,7 @@ import {
 import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import { ApolloServerPlugin } from 'apollo-server-plugin-base'
+import DataLoader from 'dataloader'
 import { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import type http from 'http'
@@ -30,10 +31,14 @@ import { functionResolvers } from './resolvers/function_resolvers'
 import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
+import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
+import { batchGetLabelsFromLibraryItemIds } from './services/labels'
+import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
   countDailyServiceUsage,
   createServiceUsage,
 } from './services/service_usage'
+import { batchGetUploadFilesByIds } from './services/upload_file'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
@@ -99,6 +104,14 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     tracingSpan: tracer.startSpan('apollo.request'),
     dataSources: {
       readingProgress: new ReadingProgressDataSource(),
+    },
+    dataLoaders: {
+      labels: new DataLoader(batchGetLabelsFromLibraryItemIds),
+      highlights: new DataLoader(batchGetHighlightsFromLibraryItemIds),
+      recommendations: new DataLoader(
+        batchGetRecommendationsFromLibraryItemIds
+      ),
+      uploadFiles: new DataLoader(batchGetUploadFilesByIds),
     },
   }
 

@@ -13,6 +13,7 @@ query UpdatesSince(
         node {
           id
           title
+          folder
           slug
           url
           pageType
@@ -46,6 +47,7 @@ query UpdatesSince(
           updatedAt
           language
           wordsCount
+          content
         }
       }
       pageInfo {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { LoggingWinston } from '@google-cloud/logging-winston'
+import axios from 'axios'
 import jsonStringify from 'fast-safe-stringify'
 import { cloneDeep, isArray, isObject, isString, truncate } from 'lodash'
 import { DateTime } from 'luxon'
@@ -30,7 +31,7 @@ export class CustomTypeOrmLogger
 
   constructor(options?: TypeOrmLoggerOptions) {
     super(options)
-    this.logger = buildLogger('typeorm')
+    this.logger = logger
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
@@ -131,8 +132,8 @@ const truncateObjectDeep = (object: any, length: number): any => {
 
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
-    // reduce the size of the log entry by truncating any string values to 500 characters
-    info = truncateObjectDeep(info, 500) as never
+    // reduce the size of the log entry by truncating any string values to 10000 characters
+    info = truncateObjectDeep(info, 10000) as never
     super.log(info, callback)
   }
 }
@@ -166,6 +167,19 @@ export interface LogRecord {
     source: string
   }
   [key: string]: any
+}
+
+export const logError = (error: any): void => {
+  if (axios.isAxiosError(error)) {
+    logger.error(error.message, {
+      response: error.response?.data,
+      stack: error.stack,
+    })
+  } else if (error instanceof Error) {
+    logger.error(error.message, { stack: error.stack })
+  } else {
+    logger.error(error)
+  }
 }
 
 export const logger = buildLogger('app')

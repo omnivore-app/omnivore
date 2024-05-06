@@ -40,12 +40,11 @@ class SpeechPlayerItem: AVPlayerItem {
     resourceLoaderDelegate.owner = self
 
     self.observer = observe(\.status, options: [.new]) { item, _ in
-      if item.status == .readyToPlay {
-        let duration = CMTimeGetSeconds(item.duration)
-        item.session.updateDuration(forItem: item.speechItem, newDuration: duration)
-      }
-      if item.status == .failed {
-        item.session.stopWithError()
+      DispatchQueue.main.async {
+        if item.status == .readyToPlay {
+          let duration = CMTimeGetSeconds(item.duration)
+          item.session.updateDuration(forItem: item.speechItem, newDuration: duration)
+        }
       }
     }
 
@@ -55,11 +54,29 @@ class SpeechPlayerItem: AVPlayerItem {
     ) { [weak self] _ in
       guard let self = self else { return }
       self.completed()
+      self.checkPrefetchQueue(prefetchQueue: prefetchQueue)
     }
 
     self.prefetchOperation = PrefetchSpeechItemOperation(speechItem: speechItem)
     if let prefetchOperation = self.prefetchOperation {
       prefetchQueue.addOperation(prefetchOperation)
+      prefetchOperation.completionBlock = {
+        self.checkPrefetchQueue(prefetchQueue: prefetchQueue)
+      }
+    }
+  }
+
+  func checkPrefetchQueue(prefetchQueue: OperationQueue) {
+    DispatchQueue.main.async {
+      if self.speechItem.audioIdx > self.session.currentAudioIndex + 5 {
+        // prefetch has gotten too far ahead of the audio. Pause the prefetch queue
+        print("PAUSING PREFETCH QUEUE", self.speechItem.audioIdx, self.session.currentAudioIndex + 10, self.speechItem.text)
+        prefetchQueue.isSuspended = true
+      }
+      if self.speechItem.audioIdx < self.session.currentAudioIndex + 5 {
+        print("RESUMING PREFETCH QUEUE", self.speechItem.audioIdx, self.session.currentAudioIndex + 5)
+        prefetchQueue.isSuspended = false
+      }
     }
   }
 

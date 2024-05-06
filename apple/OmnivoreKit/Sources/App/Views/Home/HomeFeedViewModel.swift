@@ -38,6 +38,8 @@ enum LoadingBarStyle {
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var appliedSort = LinkedItemSort.newest.rawValue
+  
+  @Published var digestIsUnread = false
 
   @State var lastMoreFetched: Date?
   @State var lastFiltersFetched: Date?
@@ -47,6 +49,7 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
+  @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
@@ -393,6 +396,16 @@ enum LoadingBarStyle {
         snackbar("Trash emptied")
       }
       isEmptyingTrash = false
+    }
+  }
+
+  func checkForDigestUpdate(dataService: DataService) async {
+    do {
+      if let result = try? await dataService.getLatestDigest(timeoutInterval: 2) {
+        if result.id != lastVisitedDigestId {
+          digestIsUnread = true
+        }
+      }
     }
   }
 }

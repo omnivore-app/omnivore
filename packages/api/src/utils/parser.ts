@@ -33,7 +33,7 @@ import {
   makeHighlightNodeAttributes,
 } from './highlightGenerator'
 import { createImageProxyUrl } from './imageproxy'
-import { buildLogger, LogRecord } from './logger'
+import { logger, LogRecord } from './logger'
 
 interface Feed {
   title: string
@@ -43,7 +43,6 @@ interface Feed {
   description?: string
 }
 
-const logger = buildLogger('utils.parse')
 const signToken = promisify(jwt.sign)
 
 const axiosInstance = axios.create({
@@ -78,7 +77,7 @@ const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
 export const RSS_PARSER_CONFIG = {
-  timeout: 5000, // 5 seconds
+  timeout: 20000, // 20 seconds
   headers: {
     // some rss feeds require user agent
     'User-Agent':
@@ -647,7 +646,6 @@ export const contentConverter = (
       return htmlToMarkdown
     case ArticleFormat.HighlightedMarkdown:
       return htmlToHighlightedMarkdown
-    case ArticleFormat.Html:
     default:
       return undefined
   }
@@ -671,7 +669,7 @@ export const htmlToHighlightedMarkdown = (
       throw new Error('Invalid html content')
     }
   } catch (err) {
-    logger.info(err)
+    logger.error(err)
     return nhm.translate(/* html */ html)
   }
 
@@ -691,7 +689,7 @@ export const htmlToHighlightedMarkdown = (
           articleTextNodes
         )
       } catch (err) {
-        logger.info(err)
+        logger.error(err)
       }
     })
   html = document.documentElement.outerHTML

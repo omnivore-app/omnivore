@@ -15,6 +15,7 @@ struct LibraryTabView: View {
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
 
   @State var isEditMode: EditMode = .inactive
+  @State var showLibraryDigest = false
   @State var showExpandedAudioPlayer = false
   @State var presentPushContainer = true
   @State var pushLinkRequest: String?
@@ -69,27 +70,13 @@ struct LibraryTabView: View {
   @State var operationStatus: OperationStatus = .none
   @State var operationMessage: String?
 
-  @State var digestEnabled = false
-
-  var showDigest: Bool {
-    if digestEnabled, #available(iOS 17.0, *) {
-      return true
-    }
-    return false
-  }
-
   var displayTabs: [String] {
     var res = [String]()
     if !hideFollowingTab {
       res.append("following")
     }
-    if showDigest {
-      res.append("digest")
-    }
     res.append("inbox")
-    if !showDigest {
-      res.append("profile")
-    }
+    res.append("profile")
     return res
   }
 
@@ -133,34 +120,26 @@ struct LibraryTabView: View {
           }.tag("following")
         }
 
-        if showDigest, #available(iOS 17.0, *) {
-          NavigationView {
-            DigestView(dataService: dataService)
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationViewStyle(.stack)
-          }.tag("digest")
-          NavigationView {
-            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationViewStyle(.stack)
-          }.tag("inbox")
-        } else {
-          NavigationView {
-            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationViewStyle(.stack)
-          }.tag("inbox")
-          NavigationView {
-            ProfileView()
-              .navigationViewStyle(.stack)
-          }.tag("profile")
-        }
+        NavigationView {
+          HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationViewStyle(.stack)
+        }.tag("inbox")
 
+        NavigationView {
+          ProfileView()
+            .navigationViewStyle(.stack)
+        }.tag("profile")
       }
+
       if audioController.itemAudioProperties != nil {
         MiniPlayerViewer()
           .onTapGesture {
-            showExpandedAudioPlayer = true
+            if audioController.itemAudioProperties?.audioItemType == .digest {
+              showLibraryDigest = true
+            } else {
+              showExpandedAudioPlayer = true
+            }
           }
           .padding(0)
         Color(hex: "#3D3D3D")
@@ -192,6 +171,15 @@ struct LibraryTabView: View {
           }
         }
       )
+    }
+    .fullScreenCover(isPresented: $showLibraryDigest) {
+      if #available(iOS 17.0, *) {
+        NavigationView {
+          FullScreenDigestView(dataService: dataService, audioController: audioController)
+        }
+      } else {
+        Text("Sorry digest is only available on iOS 17 and above")
+      }
     }
     .navigationBarHidden(true)
     .onReceive(NSNotification.performSyncPublisher) { _ in

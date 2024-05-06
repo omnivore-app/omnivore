@@ -1,5 +1,6 @@
+import { ChatAnthropic } from '@langchain/anthropic'
 import { JsonOutputParser } from '@langchain/core/output_parsers'
-import { PromptTemplate } from '@langchain/core/prompts'
+import { ChatPromptTemplate, PromptTemplate } from '@langchain/core/prompts'
 import { OpenAI } from '@langchain/openai'
 import {
   htmlToSpeechFile,
@@ -7,25 +8,35 @@ import {
   SSMLOptions,
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
+import { truncate } from 'lodash'
 import showdown from 'showdown'
+import { v4 as uuid } from 'uuid'
 import yaml from 'yaml'
 import { LibraryItem } from '../../entity/library_item'
+import { User } from '../../entity/user'
+import { env } from '../../env'
 import { TaskState } from '../../generated/graphql'
 import { redisDataSource } from '../../redis_data_source'
 import { Digest, writeDigest } from '../../services/digest'
 import {
   findLibraryItemsByIds,
+  getItemUrl,
   searchLibraryItems,
 } from '../../services/library_item'
-import { findDeviceTokensByUserId } from '../../services/user_device_tokens'
+import {
+  findUserAndPersonalization,
+  sendPushNotifications,
+} from '../../services/user'
+import { enqueueSendEmail } from '../../utils/createTask'
+import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
-import { sendMulticastPushNotifications } from '../../utils/sendNotification'
+import { uploadToBucket } from '../../utils/uploads'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
-export interface CreateDigestJobData {
-  id: string
+export interface CreateDigestData {
+  id?: string
   userId: string
   voices?: string[]
   language?: string
@@ -58,6 +69,7 @@ interface DigestDefinition {
   assemblePrompt: string
 
   zeroShot: ZeroShotDefinition
+  model?: string
 }
 
 interface RankedItem {
@@ -71,6 +83,8 @@ interface RankedTitle {
   id: string
   title: string
 }
+
+type Channel = 'push' | 'email'
 
 export const CREATE_DIGEST_JOB = 'create-digest'
 export const CRON_PATTERNS = {
@@ -113,18 +127,17 @@ const getPreferencesList = async (userId: string): Promise<LibraryItem[]> => {
   //   reason: "some older items that were interacted with"
 
   const preferences = await Promise.all(
-    digestDefinition.preferenceSelectors.map(async (selector) => {
-      // use the selector to fetch items
-      const results = await searchLibraryItems(
-        {
-          query: selector.query,
-          size: selector.count,
-        },
-        userId
-      )
-
-      return results.libraryItems
-    })
+    digestDefinition.preferenceSelectors.map(
+      async (selector) =>
+        // use the selector to fetch items
+        await searchLibraryItems(
+          {
+            query: selector.query,
+            size: selector.count,
+          },
+          userId
+        )
+    )
   )
 
   // deduplicate and flatten the items
@@ -137,11 +150,17 @@ const getPreferencesList = async (userId: string): Promise<LibraryItem[]> => {
   return dedupedPreferences
 }
 
+const randomSelectCandidates = (candidates: LibraryItem[]): LibraryItem[] => {
+  // randomly choose at most 25 candidates
+  return candidates.sort(() => 0.5 - Math.random()).slice(0, 25)
+}
+
 // Makes multiple DB queries and combines the results
 const getCandidatesList = async (
   userId: string,
   selectedLibraryItemIds?: string[]
 ): Promise<LibraryItem[]> => {
+  console.time('getCandidatesList')
   // use the queries from the digest definitions to lookup preferences
   // There should be a list of multiple queries we use. For now we can
   // hardcode these queries:
@@ -153,28 +172,28 @@ const getCandidatesList = async (
     return findLibraryItemsByIds(selectedLibraryItemIds, userId)
   }
 
-  // get the existing candidate ids from cache
-  const key = `digest:${userId}:existingCandidateIds`
-  const existingCandidateIds = await redisDataSource.redisClient?.get(key)
+  // // get the existing candidate ids from cache
+  // const key = `digest:${userId}:existingCandidateIds`
+  // const existingCandidateIds = await redisDataSource.redisClient?.get(key)
 
-  logger.info('existingCandidateIds: ', { existingCandidateIds })
+  // logger.info('existingCandidateIds: ', { existingCandidateIds })
 
   const candidates = await Promise.all(
-    digestDefinition.candidateSelectors.map(async (selector) => {
-      // use the selector to fetch items
-      const results = await searchLibraryItems(
-        {
-          includeContent: true,
-          query: existingCandidateIds
-            ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
-            : selector.query,
-          size: selector.count,
-        },
-        userId
-      )
-
-      return results.libraryItems
-    })
+    digestDefinition.candidateSelectors.map(
+      async (selector) =>
+        // use the selector to fetch items
+        await searchLibraryItems(
+          {
+            includeContent: true,
+            // query: existingCandidateIds
+            //   ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
+            //   : selector.query,
+            query: selector.query,
+            size: selector.count,
+          },
+          userId
+        )
+    )
   )
 
   // deduplicate and flatten the items
@@ -188,24 +207,38 @@ const getCandidatesList = async (
       readableContent: htmlToMarkdown(item.readableContent),
     })) // convert the html content to markdown
 
+  logger.info(
+    'dedupedCandidates: ',
+    dedupedCandidates.map((item) => item.title)
+  )
+
+  console.timeEnd('getCandidatesList')
+
   if (dedupedCandidates.length === 0) {
     logger.info('No new candidates found')
 
-    if (existingCandidateIds) {
-      // reuse the existing candidates
-      const existingIds = existingCandidateIds.split(',')
-      return findLibraryItemsByIds(existingIds, userId)
-    }
+    // if (existingCandidateIds) {
+    //   // reuse the existing candidates
+    //   const existingIds = existingCandidateIds.split(',')
+    //   return findLibraryItemsByIds(existingIds, userId)
+    // }
 
     // return empty array if no existing candidates
     return []
   }
 
-  // store the ids in cache
-  const candidateIds = dedupedCandidates.map((item) => item.id).join(',')
-  await redisDataSource.redisClient?.set(key, candidateIds)
+  const selectedCandidates = randomSelectCandidates(dedupedCandidates)
 
-  return dedupedCandidates
+  logger.info(
+    'selectedCandidates: ',
+    selectedCandidates.map((item) => item.title)
+  )
+
+  // // store the ids in cache
+  // const candidateIds = selectedCandidates.map((item) => item.id).join(',')
+  // await redisDataSource.redisClient?.set(key, candidateIds)
+
+  return selectedCandidates
 }
 
 // Takes a list of library items, and uses a prompt to generate
@@ -220,7 +253,7 @@ const createUserProfile = async (
     },
   })
 
-  const contextualTemplate = PromptTemplate.fromTemplate(
+  const contextualTemplate = ChatPromptTemplate.fromTemplate(
     digestDefinition.zeroShot.userPreferencesProfilePrompt
   )
 
@@ -345,31 +378,69 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
 }
 
 const summarizeItems = async (
+  model: string,
   rankedCandidates: RankedItem[]
 ): Promise<RankedItem[]> => {
-  const llm = new OpenAI({
-    modelName: 'gpt-4-0125-preview',
-    configuration: {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
-  })
-
   const contextualTemplate = PromptTemplate.fromTemplate(
     digestDefinition.summaryPrompt
   )
-  const chain = contextualTemplate.pipe(llm)
 
-  // send all the ranked candidates to openAI at once in a batch
-  const summaries = await chain.batch(
-    rankedCandidates.map((item) => ({
-      title: item.libraryItem.title,
-      author: item.libraryItem.author ?? '',
-      content: item.libraryItem.readableContent, // markdown content
-    }))
+  if (model === 'openai') {
+    const llm = new OpenAI({
+      modelName: 'gpt-4-0125-preview',
+      configuration: {
+        apiKey: process.env.OPENAI_API_KEY,
+      },
+    })
+
+    const chain = contextualTemplate.pipe(llm)
+
+    // send all the ranked candidates to openAI at once in a batch
+    const summaries = await chain.batch(
+      rankedCandidates.map((item) => ({
+        title: item.libraryItem.title,
+        author: item.libraryItem.author ?? '',
+        content: item.libraryItem.readableContent, // markdown content
+      }))
+    )
+
+    logger.info('summaries: ', summaries)
+
+    summaries.forEach(
+      (summary, index) => (rankedCandidates[index].summary = summary)
+    )
+
+    return rankedCandidates
+  }
+
+  // use anthropic otherwise
+  const llm = new ChatAnthropic({
+    apiKey: process.env.CLAUDE_API_KEY,
+    model: 'claude-3-sonnet-20240229',
+  })
+
+  const prompts = await Promise.all(
+    rankedCandidates.map(async (item) => {
+      try {
+        return await contextualTemplate.format({
+          title: item.libraryItem.title,
+          author: item.libraryItem.author ?? '',
+          content: item.libraryItem.readableContent, // markdown content
+        })
+      } catch (error) {
+        logger.error('summarizeItems error', error)
+        return ''
+      }
+    })
   )
+  logger.info('prompts: ', prompts)
+
+  const summaries = await llm.batch(prompts)
+  logger.info('summaries: ', summaries)
 
   summaries.forEach(
-    (summary, index) => (rankedCandidates[index].summary = summary)
+    (summary, index) =>
+      (rankedCandidates[index].summary = summary.content.toString())
   )
 
   return rankedCandidates
@@ -380,6 +451,7 @@ const generateSpeechFiles = (
   rankedItems: RankedItem[],
   options: SSMLOptions
 ): SpeechFile[] => {
+  console.time('generateSpeechFiles')
   // convert the summaries from markdown to HTML
   const converter = new showdown.Converter({
     backslashEscapesHTMLTags: true,
@@ -398,6 +470,8 @@ const generateSpeechFiles = (
     })
   })
 
+  console.timeEnd('generateSpeechFiles')
+
   return speechFiles
 }
 
@@ -405,7 +479,10 @@ const generateSpeechFiles = (
 // basic checks to make sure the summaries are good.
 const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
   return summaries.filter(
-    (item) => item.summary.length < item.libraryItem.readableContent.length
+    (item) =>
+      wordsCount(item.summary) > 100 &&
+      wordsCount(item.summary) < 1000 &&
+      item.summary.length < item.libraryItem.readableContent.length
   )
 }
 
@@ -434,9 +511,161 @@ const generateByline = (summaries: RankedItem[]): string =>
     .map((item) => item.libraryItem.author)
     .join(', ')
 
-export const createDigestJob = async (jobData: CreateDigestJobData) => {
+const selectModel = (model?: string): string => {
+  switch (model) {
+    case 'random':
+      // randomly choose between openai and anthropic
+      return ['anthropic', 'openai'][Math.floor(Math.random() * 2)]
+    case 'anthropic':
+      return 'anthropic'
+    case 'openai':
+    default:
+      // default to openai
+      return 'openai'
+  }
+}
+
+const uploadSummary = async (
+  userId: string,
+  digest: Digest,
+  summaries: RankedItem[]
+) => {
+  console.time('uploadSummary')
+  logger.info('uploading summaries to gcs')
+
+  const filename = `digest/${userId}/${digest.id}.json`
+  await uploadToBucket(
+    filename,
+    Buffer.from(
+      JSON.stringify({
+        model: digest.model,
+        summaries: summaries.map((item) => ({
+          title: item.libraryItem.title,
+          summary: item.summary,
+        })),
+      })
+    ),
+    {
+      contentType: 'application/json',
+      public: false,
+    }
+  )
+
+  logger.info('uploaded summaries to gcs')
+  console.timeEnd('uploadSummary')
+}
+
+const sendPushNotification = async (userId: string, digest: Digest) => {
+  const notification = {
+    title: 'Omnivore Digest',
+    body: truncate(digest.title, { length: 100 }),
+  }
+
+  await sendPushNotifications(userId, notification, 'reminder')
+}
+
+const sendEmail = async (
+  user: User,
+  digest: Digest,
+  summaries: RankedItem[]
+) => {
+  const createdAt = digest.createdAt ?? new Date()
+
+  const prefix = 'Omnivore Digest'
+  const title = `${prefix} ${createdAt.toLocaleDateString()}`
+  const subTitle = truncate(digest.title, { length: 200 }).slice(
+    prefix.length + 1
+  )
+
+  const chapters = digest.chapters ?? []
+
+  const html = `
+    <div style="text-align: justify;">
+      <h2>${title}</h1>
+      <h2>${subTitle}</h2>
+
+        ${chapters
+          .map(
+            (chapter, index) => `
+              <div>
+                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                <div>
+                  ${summaries[index].summary}
+                </div>
+              </div>`
+          )
+          .join('')}
+    </div>`
+
+  await enqueueSendEmail({
+    to: user.email,
+    from: env.sender.message,
+    subject: subTitle,
+    html,
+  })
+}
+
+const sendNotifications = async (
+  user: User,
+  digest: Digest,
+  summaries: RankedItem[],
+  channels: Channel[] = ['push'] // default to push notification
+) => {
+  const deduplicateChannels = [...new Set(channels)]
+
+  await Promise.all(
+    deduplicateChannels.map(async (channel) => {
+      switch (channel) {
+        case 'push':
+          return sendPushNotification(user.id, digest)
+        case 'email':
+          return sendEmail(user, digest, summaries)
+        default:
+          logger.error('Unknown channel', { channel })
+          return
+      }
+    })
+  )
+}
+
+export const createDigest = async (jobData: CreateDigestData) => {
+  console.time('createDigestJob')
+
+  // generate a unique id for the digest if not provided for scheduled jobs
+  const digestId = jobData.id ?? uuid()
+
+  const user = await findUserAndPersonalization(jobData.userId)
+  if (!user) {
+    logger.error('User not found', { userId: jobData.userId })
+    return writeDigest(jobData.userId, {
+      id: digestId,
+      jobState: TaskState.Failed,
+    })
+  }
+
+  const personalization = user.userPersonalization
+  if (!personalization) {
+    logger.info('User personalization not found')
+  }
+
+  const config = personalization
+    ? (personalization.digestConfig as {
+        model?: string
+        channels?: Channel[]
+      })
+    : undefined
+
+  // default digest
+  let digest: Digest = {
+    id: digestId,
+    jobState: TaskState.Succeeded,
+  }
+  let filteredSummaries: RankedItem[] = []
+
   try {
     digestDefinition = await fetchDigestDefinition()
+    const model = selectModel(config?.model || digestDefinition.model)
+    logger.info(`model: ${model}`)
 
     const candidates = await getCandidatesList(
       jobData.userId,
@@ -444,68 +673,74 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
     )
     if (candidates.length === 0) {
       logger.info('No candidates found')
-      return writeDigest(jobData.userId, {
-        id: jobData.id,
-        jobState: TaskState.Succeeded,
-        title: 'No articles found',
-      })
+      return writeDigest(jobData.userId, digest)
     }
 
-    const userProfile = await findOrCreateUserProfile(jobData.userId)
-    const rankedCandidates = await rankCandidates(candidates, userProfile)
-    const { finalSelections, rankedTopics } =
-      chooseRankedSelections(rankedCandidates)
+    // const userProfile = await findOrCreateUserProfile(jobData.userId)
+    // const rankedCandidates = await rankCandidates(candidates, userProfile)
+    // const { finalSelections, rankedTopics } =
+    //   chooseRankedSelections(rankedCandidates)
 
-    const summaries = await summarizeItems(finalSelections)
+    const selections = candidates.map((item) => ({
+      topic: '',
+      libraryItem: item,
+      summary: '',
+    }))
+    console.time('summarizeItems')
+    const summaries = await summarizeItems(model, selections)
+    console.timeEnd('summarizeItems')
 
-    const filteredSummaries = filterSummaries(summaries)
+    filteredSummaries = filterSummaries(summaries)
 
     const speechFiles = generateSpeechFiles(filteredSummaries, {
       ...jobData,
       primaryVoice: jobData.voices?.[0],
       secondaryVoice: jobData.voices?.[1],
     })
-    const title = generateTitle(summaries)
-    const digest: Digest = {
-      id: jobData.id,
+    const title = generateTitle(filteredSummaries)
+    digest = {
+      id: digestId,
       title,
-      content: generateContent(summaries),
+      content: generateContent(filteredSummaries),
       jobState: TaskState.Succeeded,
       speechFiles,
       chapters: filteredSummaries.map((item, index) => ({
         title: item.libraryItem.title,
         id: item.libraryItem.id,
-        url: item.libraryItem.originalUrl,
+        url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
       })),
       createdAt: new Date(),
-      description: generateDescription(summaries, rankedTopics),
-      byline: generateByline(summaries),
+      description: '',
+      // description: generateDescription(filteredSummaries, rankedTopics),
+      byline: generateByline(filteredSummaries),
       urlsToAudio: [],
+      model,
     }
 
-    await writeDigest(jobData.userId, digest)
+    await Promise.all([
+      // write the digest to redis
+      writeDigest(jobData.userId, digest),
+      // upload the summaries to GCS
+      uploadSummary(jobData.userId, digest, filteredSummaries).catch((error) =>
+        logger.error('uploadSummary error', error)
+      ),
+    ])
+
+    logger.info(`digest created: ${digest.id}`)
   } catch (error) {
     logger.error('createDigestJob error', error)
 
     await writeDigest(jobData.userId, {
-      id: jobData.id,
+      id: digestId,
       jobState: TaskState.Failed,
+      title: 'Failed to create digest',
     })
   } finally {
     // send notification
-    const tokens = await findDeviceTokensByUserId(jobData.userId)
-    if (tokens.length > 0) {
-      const message = {
-        notification: {
-          title: 'Digest ready',
-          body: 'Your digest is ready to listen',
-        },
-        tokens: tokens.map((token) => token.token),
-      }
+    await sendNotifications(user, digest, filteredSummaries, config?.channels)
 
-      await sendMulticastPushNotifications(jobData.userId, message, 'reminder')
-    }
+    console.timeEnd('createDigestJob')
   }
 }

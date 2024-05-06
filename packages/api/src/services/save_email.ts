@@ -114,7 +114,9 @@ export const saveEmail = async (
       labelNames: labels.map((label) => label.name),
       itemLanguage: parseResult.parsedContent?.language,
       directionality:
-        (parseResult.parsedContent?.dir as DirectionalityType) || undefined,
+        parseResult.parsedContent?.dir?.toLowerCase() === 'rtl'
+          ? DirectionalityType.RTL
+          : DirectionalityType.LTR, // default to LTR
     },
     input.userId
   )

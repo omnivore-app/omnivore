@@ -48,7 +48,7 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
 }
 
 func archiveLibraryItemAction(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
-  var localPdf: String? = nil
+  var localPdf: String?
   dataService.viewContext.performAndWait {
     if let item = dataService.viewContext.object(with: objectID) as? Models.LibraryItem {
       item.isArchived = archived

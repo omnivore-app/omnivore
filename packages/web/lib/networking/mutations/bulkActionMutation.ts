@@ -5,6 +5,7 @@ export enum BulkAction {
   ARCHIVE = 'ARCHIVE',
   DELETE = 'DELETE',
   ADD_LABELS = 'ADD_LABELS',
+  MARK_AS_READ = 'MARK_AS_READ',
 }
 
 type BulkActionResponseData = {

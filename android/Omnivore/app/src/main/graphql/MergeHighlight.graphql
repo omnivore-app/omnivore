@@ -1,23 +1,23 @@
 mutation MergeHighlight($input: MergeHighlightInput!) {
-  mergeHighlight(input: $input) {
-    ... on MergeHighlightSuccess {
-      highlight {
-        id
-        shortId
-        quote
-        prefix
-        suffix
-        patch
-        createdAt
-        updatedAt
-        annotation
-        sharedAt
-        createdByMe
-      }
-      overlapHighlightIdList
+    mergeHighlight(input: $input) {
+        ... on MergeHighlightSuccess {
+            highlight {
+                id
+                shortId
+                quote
+                prefix
+                suffix
+                patch
+                createdAt
+                updatedAt
+                annotation
+                sharedAt
+                createdByMe
+            }
+            overlapHighlightIdList
+        }
+        ... on MergeHighlightError {
+            errorCodes
+        }
     }
-    ... on MergeHighlightError {
-      errorCodes
-    }
-  }
 }

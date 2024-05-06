@@ -16,7 +16,6 @@ import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,25 +25,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.feature.components.LabelChipColors
 
 @Composable
 fun LibraryFilterBar(
-    viewModel: LibraryViewModel = hiltViewModel()
+    isFollowingScreen: Boolean,
+    itemsFilter: SavedItemFilter,
+    sortFilter: SavedItemSortFilter,
+    activeLabels: List<SavedItemLabel>,
+    setBottomSheetState: (LibraryBottomSheetState) -> Unit,
+    updateSavedItemFilter: (SavedItemFilter) -> Unit,
+    updateSavedItemSortFilter: (SavedItemSortFilter) -> Unit,
+    updateAppliedLabels: (List<SavedItemLabel>) -> Unit
 ) {
+
     var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }
-    val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(
-        SavedItemFilter.INBOX
-    )
-    val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())
+
 
     var isSavedItemSortFilterMenuExpanded by remember { mutableStateOf(false) }
-    val activeSavedItemSortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.observeAsState(
-        SavedItemSortFilter.NEWEST
-    )
     val listState = rememberLazyListState()
 
     Column {
@@ -58,7 +58,9 @@ fun LibraryFilterBar(
         ) {
             item {
                 AssistChip(onClick = { isSavedItemFilterMenuExpanded = true },
-                    label = { Text(activeSavedItemFilter.displayText) },
+                    label = { Text(
+                        itemsFilter.displayText
+                    ) },
                     trailingIcon = {
                         Icon(
                             Icons.Default.ArrowDropDown,
@@ -68,7 +70,7 @@ fun LibraryFilterBar(
                     modifier = Modifier.padding(end = 6.dp)
                 )
                 AssistChip(onClick = { isSavedItemSortFilterMenuExpanded = true },
-                    label = { Text(activeSavedItemSortFilter.displayText) },
+                    label = { Text(sortFilter.displayText) },
                     trailingIcon = {
                         Icon(
                             Icons.Default.ArrowDropDown,
@@ -78,7 +80,7 @@ fun LibraryFilterBar(
                     modifier = Modifier.padding(end = 6.dp)
                 )
                 AssistChip(
-                    onClick = { viewModel.bottomSheetState.value = LibraryBottomSheetState.LABEL },
+                    onClick = { setBottomSheetState(LibraryBottomSheetState.LABEL) },
                     label = { Text(stringResource(R.string.library_filter_bar_label_labels)) },
                     trailingIcon = {
                         Icon(
@@ -92,10 +94,12 @@ fun LibraryFilterBar(
             items(activeLabels.sortedWith(compareBy { it.name.toLowerCase(Locale.current) })) { label ->
                 val chipColors = LabelChipColors.fromHex(label.color)
 
-                AssistChip(onClick = {
-                    viewModel.updateAppliedLabels((viewModel.activeLabelsLiveData.value
-                        ?: listOf()).filter { it.savedItemLabelId != label.savedItemLabelId })
-                },
+                AssistChip(
+                    onClick = {
+                        updateAppliedLabels(
+                            activeLabels.filter { it.savedItemLabelId != label.savedItemLabelId }
+                        )
+                    },
                     label = { Text(label.name) },
                     border = null,
                     colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
@@ -113,12 +117,15 @@ fun LibraryFilterBar(
             }
         }
 
-        SavedItemFilterContextMenu(isExpanded = isSavedItemFilterMenuExpanded,
+        SavedItemFilterContextMenu(
+            isFollowingScreen = isFollowingScreen,
+            isExpanded = isSavedItemFilterMenuExpanded,
             onDismiss = { isSavedItemFilterMenuExpanded = false },
-            actionHandler = { viewModel.updateSavedItemFilter(it) })
+            actionHandler = { updateSavedItemFilter(it) }
+        )
 
         SavedItemSortFilterContextMenu(isExpanded = isSavedItemSortFilterMenuExpanded,
             onDismiss = { isSavedItemSortFilterMenuExpanded = false },
-            actionHandler = { viewModel.updateSavedItemSortFilter(it) })
+            actionHandler = { updateSavedItemSortFilter(it) })
     }
 }

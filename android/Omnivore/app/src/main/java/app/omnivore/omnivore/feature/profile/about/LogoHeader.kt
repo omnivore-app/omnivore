@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings.about
+package app.omnivore.omnivore.feature.profile.about
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

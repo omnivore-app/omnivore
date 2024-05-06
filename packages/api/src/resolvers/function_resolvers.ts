@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
+import { Highlight as HighlightEntity } from '../entity/highlight'
 import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
@@ -24,10 +25,6 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
-import { findHighlightsByLibraryItemId } from '../services/highlights'
-import { findLabelsByLibraryItemId } from '../services/labels'
-import { findRecommendationsByLibraryItemId } from '../services/recommendation'
-import { findUploadFileById } from '../services/upload_file'
 import {
   highlightDataToHighlight,
   isBase64Image,
@@ -36,11 +33,16 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
+import { contentConverter } from '../utils/parser'
 import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { emptyTrashResolver, fetchContentResolver } from './article'
+import {
+  ArticleFormat,
+  emptyTrashResolver,
+  fetchContentResolver,
+} from './article'
 import {
   addDiscoverFeedResolver,
   deleteDiscoverArticleResolver,
@@ -404,7 +406,9 @@ export const functionResolvers = {
         ctx.claims &&
         article.uploadFileId
       ) {
-        const upload = await findUploadFileById(article.uploadFileId)
+        const upload = await ctx.dataLoaders.uploadFiles.load(
+          article.uploadFileId
+        )
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -439,7 +443,7 @@ export const functionResolvers = {
     ) {
       if (article.labels) return article.labels
 
-      return findLabelsByLibraryItemId(article.id, ctx.uid)
+      return ctx.dataLoaders.labels.load(article.id)
     },
     ...readingProgressHandlers,
   },
@@ -478,7 +482,7 @@ export const functionResolvers = {
         ctx.claims &&
         item.uploadFileId
       ) {
-        const upload = await findUploadFileById(item.uploadFileId)
+        const upload = await ctx.dataLoaders.uploadFiles.load(item.uploadFileId)
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -511,28 +515,22 @@ export const functionResolvers = {
     ) {
       if (item.labels) return item.labels
 
-      return findLabelsByLibraryItemId(item.id, ctx.uid)
+      return ctx.dataLoaders.labels.load(item.id)
     },
     async recommendations(
       item: {
         id: string
         recommendations?: Recommendation[]
-        recommenderNames?: string[] | null
       },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.recommendations) return item.recommendations
 
-      if (item.recommenderNames && item.recommenderNames.length > 0) {
-        const recommendations = await findRecommendationsByLibraryItemId(
-          item.id,
-          ctx.uid
-        )
-        return recommendations.map(recommandationDataToRecommendation)
-      }
-
-      return []
+      const recommendations = await ctx.dataLoaders.recommendations.load(
+        item.id
+      )
+      return recommendations.map(recommandationDataToRecommendation)
     },
     async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       return (
@@ -553,10 +551,46 @@ export const functionResolvers = {
     ) {
       if (item.highlights) return item.highlights
 
-      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+      const highlights = await ctx.dataLoaders.highlights.load(item.id)
       return highlights.map(highlightDataToHighlight)
     },
     ...readingProgressHandlers,
+    async content(
+      item: {
+        id: string
+        content?: string
+        highlightAnnotations?: string[]
+        format?: ArticleFormat
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      // convert html to the requested format if requested
+      if (item.format && item.format !== ArticleFormat.Html && item.content) {
+        let highlights: HighlightEntity[] = []
+        // load highlights if needed
+        if (
+          item.format === ArticleFormat.HighlightedMarkdown &&
+          item.highlightAnnotations?.length
+        ) {
+          highlights = await ctx.dataLoaders.highlights.load(item.id)
+        }
+
+        try {
+          ctx.log.info(`Converting content to: ${item.format}`)
+
+          // convert html to the requested format
+          const converter = contentConverter(item.format)
+          if (converter) {
+            return converter(item.content, highlights)
+          }
+        } catch (error) {
+          ctx.log.error('Error converting content', error)
+        }
+      }
+
+      return item.content
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {

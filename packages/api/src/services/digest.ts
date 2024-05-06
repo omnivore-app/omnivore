@@ -25,6 +25,7 @@ export interface Digest {
 
   urlsToAudio?: string[]
   speechFiles?: SpeechFile[]
+  model?: string
 }
 
 const digestKey = (userId: string) => `digest:${userId}`

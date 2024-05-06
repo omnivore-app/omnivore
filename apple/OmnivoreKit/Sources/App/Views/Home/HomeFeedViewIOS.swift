@@ -181,7 +181,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
 // swiftlint:disable file_length
 #if os(iOS)
-  private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
+  private let enableGrid = UIDevice.isIPad
 
   @MainActor
   struct HomeFeedContainerView: View {
@@ -203,9 +203,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
-
-    @AppStorage("LibraryList::digestEnabled") var digestEnabled = false
-    @AppStorage("LibraryList::hasCheckedForDigestFeature") var hasCheckedForDigestFeature = false
 
     init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
@@ -274,7 +271,11 @@ struct AnimatingCellHeight: AnimatableModifier {
                 .padding(.bottom, 20)
                 .background(Color.themeTabBarColor)
                 .onTapGesture {
-                  showExpandedAudioPlayer = true
+                  if audioController.itemAudioProperties?.audioItemType == .digest {
+                    showLibraryDigest = true
+                  } else {
+                    showExpandedAudioPlayer = true
+                  }
                 }
             }
           }
@@ -351,20 +352,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           viewModel.stopUsingFollowingPrimer = true
         }
       }
-      .task {
-        do {
-          if let viewer = try await dataService.fetchViewer() {
-            digestEnabled = viewer.digestEnabled ?? false
-            if !hasCheckedForDigestFeature {
-              hasCheckedForDigestFeature = true
-              // selectedTab = "digest"
-            }
-          }
-        } catch {
-          print("ERROR FETCHING VIEWER: ", error)
-          print("")
-        }
-      }
       .environment(\.editMode, self.$isEditMode)
       .navigationBarTitleDisplayMode(.inline)
     }
@@ -409,10 +396,10 @@ struct AnimatingCellHeight: AnimatableModifier {
               if isEditMode == .active {
                 Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
               } else {
-                if #available(iOS 17.0, *) {
+                if #available(iOS 17.0, *), dataService.featureFlags.digestEnabled {
                   Button(
                     action: { showLibraryDigest = true },
-                    label: { Image.tabDigestSelected }
+                    label: { viewModel.digestIsUnread ? Image.tabDigestSelected : Image.tabDigest }
                   )
                   .buttonStyle(.plain)
                   .padding(.trailing, 4)

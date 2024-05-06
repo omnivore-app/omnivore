@@ -14,6 +14,11 @@
     <string name="pdf_highlight_menu_note">Note</string>
     <string name="back">Back</string>
 
+    <!-- Navigation -->
+    <string name="following">Following</string>
+    <string name="inbox">Inbox</string>
+    <string name="profile">Profile</string>
+
     <!-- Apple Auth -->
     <string name="apple_auth_text">Continue with Apple</string>
     <string name="apple_auth_loading">Signing in...</string>
@@ -148,6 +153,7 @@
     <string name="reader_preferences_view_auto">Auto</string>
     <string name="reader_preferences_view_high_constrast_text">High Contrast Text</string>
     <string name="reader_preferences_view_justify_text">Justify Text</string>
+    <string name="reader_preferences_view_volume_scroll">Use Volume Rocker to scroll</string>
 
     <!-- WebReaderLoadingContainer -->
     <string name="web_reader_loading_container_error_msg">We were unable to fetch your content.</string>
@@ -196,6 +202,9 @@
     <string name="logout_dialog_action_confirm">Confirm</string>
     <string name="logout_dialog_action_cancel">Cancel</string>
 
+    <!-- Filters -->
+    <string name="hide_following_tab">Hide following tab</string>
+
     <!-- ManageAccount -->
     <string name="manage_account_title">Manage Account</string>
     <string name="manage_account_action_reset_data_cache">Reset Data Cache</string>
@@ -204,13 +213,15 @@
     <string name="policy_webview_title">Settings</string>
 
     <!-- SettingsView -->
-    <string name="settings_view_title">Settings</string>
-    <string name="settings_view_setting_row_documentation">Documentation</string>
-    <string name="settings_view_setting_row_feedback">Feedback</string>
-    <string name="settings_view_setting_row_privacy_policy">Privacy Policy</string>
-    <string name="settings_view_setting_row_terms_and_conditions">Terms and Conditions</string>
-    <string name="settings_view_setting_row_manage_account">Manage Account</string>
-    <string name="settings_view_setting_row_logout">Logout</string>
+    <string name="profile_view_title">Profile</string>
+    <string name="about_documentation">Documentation</string>
+    <string name="about_feedback">Feedback</string>
+    <string name="about_privacy_policy">Privacy Policy</string>
+    <string name="about_terms_and_conditions">Terms and Conditions</string>
+
+    <string name="profile_filters">Filters</string>
+    <string name="profile_manage_account">Manage Account</string>
+    <string name="about_logout">Logout</string>
 
     <!-- About -->
     <string name="about_view_title">About</string>

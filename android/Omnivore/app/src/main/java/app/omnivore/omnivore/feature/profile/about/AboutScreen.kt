@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings.about
+package app.omnivore.omnivore.feature.profile.about
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -27,17 +27,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.core.designsystem.component.TextPreferenceWidget
 import app.omnivore.omnivore.core.ui.LinkIcon
-import app.omnivore.omnivore.feature.settings.RELEASE_URL
-import app.omnivore.omnivore.feature.settings.SettingRow
-import app.omnivore.omnivore.feature.settings.SettingsViewModel
+import app.omnivore.omnivore.feature.profile.ProfileViewModel
+import app.omnivore.omnivore.feature.profile.RELEASE_URL
 import app.omnivore.omnivore.navigation.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AboutScreen(
     navController: NavHostController,
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    settingsViewModel: ProfileViewModel = hiltViewModel()
 ) {
 
     val uriHandler = LocalUriHandler.current
@@ -68,41 +68,45 @@ internal fun AboutScreen(
             }
 
             item {
-                SettingRow(
+                TextPreferenceWidget(
                     title = stringResource(R.string.about_view_row_whats_new),
-                    onClick = { uriHandler.openUri(RELEASE_URL) },
+                    onPreferenceClick = { uriHandler.openUri(RELEASE_URL) },
                 )
             }
 
             item {
-                SettingRow(title = stringResource(R.string.settings_view_setting_row_documentation)) {
-                    navController.navigate(Routes.Documentation.route)
-                }
+                TextPreferenceWidget(
+                    title = stringResource(R.string.about_documentation),
+                    onPreferenceClick = { navController.navigate(Routes.Documentation.route) },
+                )
             }
 
             item {
-                SettingRow(title = stringResource(R.string.settings_view_setting_row_feedback)) {
-                    settingsViewModel.presentIntercom()
-                }
+                TextPreferenceWidget(
+                    title = stringResource(R.string.about_feedback),
+                    onPreferenceClick = { settingsViewModel.presentIntercom() },
+                )
             }
 
             item {
-                SettingRow(title = stringResource(R.string.settings_view_setting_row_privacy_policy)) {
-                    navController.navigate(Routes.PrivacyPolicy.route)
-                }
+                TextPreferenceWidget(
+                    title = stringResource(R.string.about_privacy_policy),
+                    onPreferenceClick = { navController.navigate(Routes.PrivacyPolicy.route) },
+                )
             }
 
             item {
-                SettingRow(title = stringResource(R.string.settings_view_setting_row_terms_and_conditions)) {
-                    navController.navigate(Routes.TermsAndConditions.route)
-                }
+                TextPreferenceWidget(
+                    title = stringResource(R.string.about_terms_and_conditions),
+                    onPreferenceClick = { navController.navigate(Routes.TermsAndConditions.route) },
+                )
             }
 
             item {
-                SettingRow(
+                TextPreferenceWidget(
                     title = stringResource(R.string.about_view_row_version),
                     subtitle = getVersionName(),
-                    onClick = { },
+                    onPreferenceClick = {  },
                 )
             }
 

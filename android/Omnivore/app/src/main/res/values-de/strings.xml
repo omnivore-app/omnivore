@@ -148,6 +148,7 @@
     <string name="reader_preferences_view_justify_text">Text ausrichten</string>
 
     <!-- WebReaderLoadingContainer -->
+    <string name="reader_preferences_view_volume_scroll">Verwenden Sie die Lautstärketasten zum Scrollen</string>
     <string name="web_reader_loading_container_error_msg">Wir konnten deinen Inhalt nicht abrufen.</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">Lese-Einstellungen</string>
     <string name="web_reader_loading_container_bottom_sheet_notebook">Notizbuch</string>
@@ -200,13 +201,13 @@
     <string name="policy_webview_title">Einstellungen</string>
 
     <!-- SettingsView -->
-    <string name="settings_view_title">Einstellungen</string>
-    <string name="settings_view_setting_row_documentation">Dokumentation</string>
-    <string name="settings_view_setting_row_feedback">Feedback</string>
-    <string name="settings_view_setting_row_privacy_policy">Datenschutzerklärung</string>
-    <string name="settings_view_setting_row_terms_and_conditions">Nutzungsbedingungen</string>
-    <string name="settings_view_setting_row_manage_account">Konto verwalten</string>
-    <string name="settings_view_setting_row_logout">Abmelden</string>
+    <string name="profile_view_title">Einstellungen</string>
+    <string name="about_documentation">Dokumentation</string>
+    <string name="about_feedback">Feedback</string>
+    <string name="about_privacy_policy">Datenschutzerklärung</string>
+    <string name="about_terms_and_conditions">Nutzungsbedingungen</string>
+    <string name="profile_manage_account">Konto verwalten</string>
+    <string name="about_logout">Abmelden</string>
 
     <!-- AddLinkSheet -->
     <string name="add_link_sheet_title">Link hinzufügen</string>

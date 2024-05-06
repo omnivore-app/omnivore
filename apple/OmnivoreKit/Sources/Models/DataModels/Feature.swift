@@ -1,3 +1,4 @@
+import SwiftUI
 
 public struct FeatureInternal {
   public let name: String

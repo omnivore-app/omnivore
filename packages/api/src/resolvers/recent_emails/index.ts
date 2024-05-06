@@ -102,19 +102,6 @@ export const markEmailAsItemResolver = authorized<
     }
   }
 
-  const text = `A recent email marked as a library item
-                    by: ${uid}
-                    from: ${recentEmail.from}
-                    subject: ${recentEmail.subject}`
-
-  // email us to let us know that an email failed to parse as an article
-  await sendEmail({
-    to: env.sender.feedback,
-    subject: 'A recent email marked as a library item',
-    text,
-    from: env.sender.message,
-  })
-
   return {
     success,
   }

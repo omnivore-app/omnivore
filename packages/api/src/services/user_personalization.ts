@@ -2,22 +2,22 @@ import { DeepPartial } from 'typeorm'
 import { UserPersonalization } from '../entity/user_personalization'
 import { authTrx } from '../repository'
 
-export const findUserPersonalization = async (id: string, userId: string) => {
+export const findUserPersonalization = async (userId: string) => {
   return authTrx(
     (t) =>
       t.getRepository(UserPersonalization).findOneBy({
-        id,
+        user: { id: userId },
       }),
     undefined,
     userId
   )
 }
 
-export const deleteUserPersonalization = async (id: string, userId: string) => {
+export const deleteUserPersonalization = async (userId: string) => {
   return authTrx(
     (t) =>
       t.getRepository(UserPersonalization).delete({
-        id,
+        user: { id: userId },
       }),
     undefined,
     userId

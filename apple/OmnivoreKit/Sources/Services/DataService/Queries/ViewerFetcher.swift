@@ -18,8 +18,7 @@ public extension DataService {
           selection: .init { try $0.pictureUrl() }
         ),
         intercomHash: try $0.intercomHash(),
-        digestEnabled: true // (try $0.featureList(selection: featureSelection.list.nullable)?
-              // .filter { $0.enabled && $0.name == "digest" } ?? []).count > 0
+        enabledFeatures: try $0.featureList(selection: featureSelection.list.nullable)?.filter { $0.enabled }.map { $0.name }
       )
     }
 
@@ -67,7 +66,11 @@ public struct ViewerInternal {
   public let name: String
   public let profileImageURL: String?
   public let intercomHash: String?
-  public let digestEnabled: Bool?
+  public let enabledFeatures: [String]? // We don't persist these as they can be dynamic
+
+  public func hasFeatureGranted(_ name: String) -> Bool {
+    return enabledFeatures?.contains(name) ?? false
+  }
 
   func persist(context: NSManagedObjectContext) throws {
     try context.performAndWait {
@@ -76,7 +79,6 @@ public struct ViewerInternal {
       viewer.username = username
       viewer.name = name
       viewer.profileImageURL = profileImageURL
-      viewer.digestEnabled = digestEnabled ?? false
 
       do {
         try context.save()

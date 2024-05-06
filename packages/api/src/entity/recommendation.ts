@@ -23,6 +23,9 @@ export class Recommendation {
   @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
 
+  @Column('uuid')
+  libraryItemId!: string
+
   @ManyToOne(() => Group, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'group_id' })
   group!: Group

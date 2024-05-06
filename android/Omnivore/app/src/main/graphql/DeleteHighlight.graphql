@@ -1,12 +1,12 @@
 mutation DeleteHighlight($highlightId: ID!) {
-  deleteHighlight(highlightId: $highlightId) {
-    ... on DeleteHighlightSuccess {
-      highlight {
-        id
-      }
+    deleteHighlight(highlightId: $highlightId) {
+        ... on DeleteHighlightSuccess {
+            highlight {
+                id
+            }
+        }
+        ... on DeleteHighlightError {
+            errorCodes
+        }
     }
-    ... on DeleteHighlightError {
-      errorCodes
-    }
-  }
 }

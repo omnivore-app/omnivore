@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature
+package app.omnivore.omnivore.utils
 
 import android.content.Context
 import androidx.annotation.StringRes

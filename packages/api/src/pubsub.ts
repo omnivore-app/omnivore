@@ -7,12 +7,10 @@ import {
   enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
-import { buildLogger } from './utils/logger'
+import { logger } from './utils/logger'
 import { isYouTubeVideoURL } from './utils/youtube'
 
 export type EntityEvent = { id: string }
-
-const logger = buildLogger('pubsub')
 
 const client = new PubSub()
 

@@ -8,19 +8,20 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.utils.Constants
-import app.omnivore.omnivore.utils.DatastoreKeys
-import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
-import app.omnivore.omnivore.feature.ResourceProvider
+import app.omnivore.omnivore.utils.Constants
+import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.*
+import java.util.TimeZone
+import java.util.UUID
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -48,7 +49,7 @@ class SaveViewModel @Inject constructor(
     private set
 
   private fun getAuthToken(): String? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
+    datastoreRepo.getString(omnivoreAuthToken)
   }
 
   /**

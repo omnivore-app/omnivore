@@ -6,10 +6,10 @@ import {
   EntityManager,
   FindOptionsWhere,
   ObjectLiteral,
-  SelectQueryBuilder,
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
+import { appDataSource } from '../data_source'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
@@ -18,12 +18,7 @@ import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import {
-  authTrx,
-  getColumns,
-  getRepository,
-  queryBuilderToRawSql,
-} from '../repository'
+import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
@@ -619,11 +614,13 @@ export const buildQueryString = (
   return serialize(searchQuery)
 }
 
-export const buildQuery = (
-  queryBuilder: SelectQueryBuilder<LibraryItem>,
+export const createSearchQueryBuilder = (
   args: SearchArgs,
-  userId: string
+  userId: string,
+  em = appDataSource.manager
 ) => {
+  const queryBuilder = em.createQueryBuilder(LibraryItem, 'library_item')
+
   // select all columns except content
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
@@ -688,42 +685,52 @@ export const buildQuery = (
   orders.forEach((order) => {
     queryBuilder.addOrderBy(order.by, order.order, order.nulls)
   })
+
+  return queryBuilder
 }
 
 export const countLibraryItems = async (args: SearchArgs, userId: string) => {
-  const queryBuilder =
-    getRepository(LibraryItem).createQueryBuilder('library_item')
-
-  buildQuery(queryBuilder, args, userId)
-
-  return queryBuilder.getCount()
+  return authTrx(
+    async (tx) => createSearchQueryBuilder(args, userId, tx).getCount(),
+    undefined,
+    userId
+  )
 }
 
 export const searchLibraryItems = async (
   args: SearchArgs,
   userId: string
-): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
+): Promise<LibraryItem[]> => {
   const { from = 0, size = 10 } = args
 
+  if (size === 0) {
+    // return only count if size is 0 because limit 0 is not allowed in typeorm
+    return []
+  }
+
   return authTrx(
-    async (tx) => {
-      const queryBuilder = tx.createQueryBuilder(LibraryItem, 'library_item')
-      buildQuery(queryBuilder, args, userId)
-
-      const count = await queryBuilder.getCount()
-      if (size === 0) {
-        // return only count if size is 0 because limit 0 is not allowed in typeorm
-        return { libraryItems: [], count }
-      }
-
-      // add pagination
-      const libraryItems = await queryBuilder.skip(from).take(size).getMany()
-
-      return { libraryItems, count }
-    },
+    async (tx) =>
+      createSearchQueryBuilder(args, userId, tx)
+        .skip(from)
+        .take(size)
+        .getMany(),
     undefined,
     userId
   )
+}
+
+export const searchAndCountLibraryItems = async (
+  args: SearchArgs,
+  userId: string
+): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
+  const count = await countLibraryItems(args, userId)
+  if (count === 0) {
+    return { libraryItems: [], count }
+  }
+
+  const libraryItems = await searchLibraryItems(args, userId)
+
+  return { libraryItems, count }
 }
 
 export const findRecentLibraryItems = async (

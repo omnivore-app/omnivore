@@ -22,6 +22,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +33,9 @@ import java.util.*
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(
-    styledContent: String, webReaderViewModel: WebReaderViewModel, currentTheme: Themes?
+    styledContent: String,
+    webReaderViewModel: WebReaderViewModel,
+    currentTheme: Themes?
 ) {
     val javascriptActionLoopUUID: UUID by webReaderViewModel.javascriptActionLoopUUIDLiveData.observeAsState(
             UUID.randomUUID()
@@ -40,6 +43,8 @@ fun WebReader(
     val isDarkMode = isSystemInDarkTheme()
 
     WebView.setWebContentsDebuggingEnabled(true)
+
+    val volumeForScrollState by webReaderViewModel.volumeRockerForScrollState.collectAsStateWithLifecycle()
 
     Box {
         AndroidView(factory = {
@@ -170,11 +175,17 @@ fun WebReader(
                     if (event.action == KeyEvent.ACTION_DOWN) {
                         when (keyCode) {
                             KeyEvent.KEYCODE_VOLUME_UP -> {
+                                if (!volumeForScrollState) {
+                                    return@setOnKeyListener false
+                                }
                                 scrollVertically(OmnivoreWebView.Direction.UP)
                                 return@setOnKeyListener true
                             }
 
                             KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                                if (!volumeForScrollState) {
+                                    return@setOnKeyListener false
+                                }
                                 scrollVertically(OmnivoreWebView.Direction.DOWN)
                                 return@setOnKeyListener true
                             }

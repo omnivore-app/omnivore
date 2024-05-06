@@ -1,13 +1,13 @@
 mutation UpdateHighlight($input: UpdateHighlightInput!) {
-  updateHighlight(input: $input) {
-    ... on UpdateHighlightSuccess {
-      highlight {
-        id
-      }
-    }
+    updateHighlight(input: $input) {
+        ... on UpdateHighlightSuccess {
+            highlight {
+                id
+            }
+        }
 
-    ... on UpdateHighlightError {
-      errorCodes
+        ... on UpdateHighlightError {
+            errorCodes
+        }
     }
-  }
 }

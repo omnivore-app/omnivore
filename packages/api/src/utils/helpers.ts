@@ -26,6 +26,7 @@ import {
   SearchItem,
 } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
+import { ArticleFormat } from '../resolvers'
 import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
@@ -230,7 +231,10 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   directionality: item.directionality as unknown as DirectionalityType,
 })
 
-export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
+export const libraryItemToSearchItem = (
+  item: LibraryItem,
+  format?: ArticleFormat
+): SearchItem => ({
   ...item,
   url: item.originalUrl,
   state: item.state as unknown as ArticleSavingRequestStatus,
@@ -247,6 +251,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   highlights: item.highlights?.map(highlightDataToHighlight),
   wordsCount: item.wordCount,
   directionality: item.directionality as unknown as DirectionalityType,
+  format,
 })
 
 export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {

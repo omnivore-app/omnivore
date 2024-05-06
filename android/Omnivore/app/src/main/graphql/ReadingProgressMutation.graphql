@@ -1,14 +1,14 @@
 mutation SaveArticleReadingProgress($input: SaveArticleReadingProgressInput!) {
-  saveArticleReadingProgress(input: $input) {
-    ... on SaveArticleReadingProgressSuccess {
-      updatedArticle {
-        id
-        readingProgressPercent
-        readingProgressAnchorIndex
-      }
+    saveArticleReadingProgress(input: $input) {
+        ... on SaveArticleReadingProgressSuccess {
+            updatedArticle {
+                id
+                readingProgressPercent
+                readingProgressAnchorIndex
+            }
+        }
+        ... on SaveArticleReadingProgressError {
+            errorCodes
+        }
     }
-    ... on SaveArticleReadingProgressError {
-      errorCodes
-    }
-  }
 }

@@ -2748,6 +2748,7 @@ export type SearchItem = {
   directionality?: Maybe<DirectionalityType>;
   feedContent?: Maybe<Scalars['String']>;
   folder: Scalars['String'];
+  format?: Maybe<Scalars['String']>;
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
@@ -3053,6 +3054,7 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
+  digestConfig?: InputMaybe<Scalars['JSON']>;
   fields?: InputMaybe<Scalars['JSON']>;
   fontFamily?: InputMaybe<Scalars['String']>;
   fontSize?: InputMaybe<Scalars['Int']>;
@@ -3766,6 +3768,7 @@ export enum UserErrorCode {
 
 export type UserPersonalization = {
   __typename?: 'UserPersonalization';
+  digestConfig?: Maybe<Scalars['JSON']>;
   fields?: Maybe<Scalars['JSON']>;
   fontFamily?: Maybe<Scalars['String']>;
   fontSize?: Maybe<Scalars['Int']>;
@@ -6617,6 +6620,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   directionality?: Resolver<Maybe<ResolversTypes['DirectionalityType']>, ParentType, ContextType>;
   feedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  format?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -7228,6 +7232,7 @@ export type UserErrorResolvers<ContextType = ResolverContext, ParentType extends
 };
 
 export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserPersonalization'] = ResolversParentTypes['UserPersonalization']> = {
+  digestConfig?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   fields?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   fontFamily?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fontSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;

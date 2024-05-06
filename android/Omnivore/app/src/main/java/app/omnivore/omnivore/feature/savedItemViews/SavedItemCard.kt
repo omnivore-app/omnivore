@@ -73,7 +73,7 @@ fun SavedItemCard(
                 modifier = Modifier
                     .weight(1f, fill = false)
                     .padding(end = 20.dp)
-                    .defaultMinSize(minHeight = 55.dp)
+                    .defaultMinSize(minHeight = 50.dp)
             ) {
                 ReadInfo(item = savedItem)
 

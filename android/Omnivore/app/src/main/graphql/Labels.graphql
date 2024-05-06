@@ -1,12 +1,12 @@
 query GetLabels {
-  labels {
-    ... on LabelsSuccess {
-      labels {
-        ...LabelFields
-      }
+    labels {
+        ... on LabelsSuccess {
+            labels {
+                ...LabelFields
+            }
+        }
+        ... on LabelsError {
+            errorCodes
+        }
     }
-    ... on LabelsError {
-      errorCodes
-    }
-  }
 }

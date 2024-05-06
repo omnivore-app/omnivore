@@ -7,17 +7,40 @@ struct AITaskRequest: Decodable {
   public let requestId: String
 }
 
-public struct DigestResult: Decodable {
+public struct DigestResult: Codable {
   public let id: String
   public let title: String
+  public let byline: String
   public let content: String
+  public let description: String
   public let urlsToAudio: [String]
-  public let speechFile: SpeechDocument
+  public let chapters: [DigestChapter]
+  public let speechFiles: [SpeechDocument]
 
   public let jobState: String
+  public let createdAt: String
 }
 
-public struct DigestItem: Decodable {
+public struct DigestChapter: Codable {
+  public let title: String
+  public let id: String
+  public let url: String
+  public let wordCount: Double
+  public let thumbnail: String?
+  public init(title: String, id: String, url: String, wordCount: Double, thumbnail: String?) {
+    self.title = title
+    self.id = id
+    self.url = url
+    self.wordCount = wordCount
+    self.thumbnail = thumbnail
+  }
+}
+
+public struct RefreshDigestResult: Codable {
+  public let jobId: String
+}
+
+public struct DigestItem: Codable {
   public let id: String
   public let site: String
   public let siteIcon: URL?
@@ -26,7 +49,7 @@ public struct DigestItem: Decodable {
   public let summaryText: String
   public let keyPointsText: String
   public let highlightsText: String
-  public init(id: String, site: String, siteIcon: URL?, 
+  public init(id: String, site: String, siteIcon: URL?,
               author: String, title: String, summaryText: String,
               keyPointsText: String, highlightsText: String) {
     self.id = id
@@ -40,32 +63,53 @@ public struct DigestItem: Decodable {
   }
 }
 
+public struct DigestRequest: Codable {
+  public let schedule: String
+  public let voices: [String]
+  public init(schedule: String, voices: [String]) {
+    self.schedule = schedule
+    self.voices = voices
+  }
+}
+
+public struct ExplainRequest: Codable {
+  public let text: String
+  public let libraryItemId: String
+  public init(text: String, libraryItemId: String) {
+    self.text = text
+    self.libraryItemId = libraryItemId
+  }
+}
+
+public struct ExplainResult: Codable {
+  public let text: String
+}
+
 extension DataService {
-//  public func createAITask(extraText: String?, libraryItemId: String, promptName: String) async throws -> String? {
-//    let jsonData = try JSONSerialization.data(withJSONObject: [
-//      "libraryItemId": libraryItemId,
-//      "promptName": promptName,
-//      "extraText": extraText
-//    ])
-//
-//    let urlRequest = URLRequest.create(
-//      baseURL: appEnvironment.serverBaseURL,
-//      urlPath: "/api/ai-task",
-//      requestMethod: .post(params: jsonData),
-//      includeAuthToken: true
-//    )
-//    let resource = ServerResource<AITaskRequest>(
-//      urlRequest: urlRequest,
-//      decode: AITaskRequest.decode
-//    )
-//
-//    do {
-//      let taskRequest = try await networker.urlSession.performRequest(resource: resource)
-//      return taskRequest.requestId
-//    } catch {
-//      return nil
-//    }
-//  }
+  public func refreshDigest() async throws {
+    let encoder = JSONEncoder()
+    let digestRequest = DigestRequest(schedule: "daily", voices: ["openai-nova"])
+    let data = (try? encoder.encode(digestRequest)) ?? Data()
+
+    let urlRequest = URLRequest.create(
+      baseURL: appEnvironment.serverBaseURL,
+      urlPath: "/api/digest/v1/",
+      requestMethod: .post(params: data),
+      includeAuthToken: true
+    )
+
+    let resource = ServerResource<DigestResult>(
+      urlRequest: urlRequest,
+      decode: RefreshDigestResult.decode
+    )
+
+    do {
+      let digest = try await networker.urlSession.performRequest(resource: resource)
+      print("GOT RESPONSE: ", digest)
+    } catch {
+      print("ERROR FETCHING TASK: ", error)
+    }
+  }
 
   // Function to poll the status of the AI task with timeout
   public func getLatestDigest(timeoutInterval: TimeInterval) async throws -> DigestResult? {
@@ -76,43 +120,81 @@ extension DataService {
         if count > 3 {
           return nil
         }
-          do {
-              // Check if timeout has occurred
-              if -startTime.timeIntervalSinceNow >= timeoutInterval {
-                  throw NSError(domain: "Timeout Error", code: -1, userInfo: nil)
-              }
-
-              let urlRequest = URLRequest.create(
-                baseURL: appEnvironment.serverBaseURL,
-                urlPath: "/api/digest/v1/",
-                requestMethod: .get,
-                includeAuthToken: true
-              )
-
-            let resource = ServerResource<DigestResult>(
-              urlRequest: urlRequest,
-              decode: DigestResult.decode
-            )
-
-            do {
-              let digest = try await networker.urlSession.performRequest(resource: resource)
-              print("GOT RESPONSE: ", digest)
-              return digest
-            } catch {
-              print("ERROR FETCHING TASK: ", error)
-//              if let response = error as? ServerError {
-//                if response != .stillProcessing {
-//                  return nil
-//                }
-//              }
-            }
-              // Wait for some time before polling again
-              try? await Task.sleep(nanoseconds: 3_000_000_000)
-          } catch let error {
-              throw error
+        do {
+          // Check if timeout has occurred
+          if -startTime.timeIntervalSinceNow >= timeoutInterval {
+              throw NSError(domain: "Timeout Error", code: -1, userInfo: nil)
           }
+
+          let urlRequest = URLRequest.create(
+            baseURL: appEnvironment.serverBaseURL,
+            urlPath: "/api/digest/v1/",
+            requestMethod: .get,
+            includeAuthToken: true
+          )
+
+          let resource = ServerResource<DigestResult>(
+            urlRequest: urlRequest,
+            decode: DigestResult.decode
+          )
+
+          do {
+            let digest = try await networker.urlSession.performRequest(resource: resource)
+            let oldDigest = loadStoredDigest()
+
+            saveDigest(digest)
+
+            return digest
+          } catch {
+            print("ERROR FETCHING TASK: ", error)
+          }
+          // Wait for some time before polling again
+          try? await Task.sleep(nanoseconds: 3_000_000_000)
+        } catch let error {
+            throw error
+        }
       }
   }
+
+  public func loadStoredDigest() -> DigestResult? {
+    let decoder = JSONDecoder()
+    let localPath = URL.om_cachesDirectory.appendingPathComponent("digest.json")
+    if let data = try? Data(contentsOf: localPath),
+       let digest = try? decoder.decode(DigestResult.self, from: data) {
+      return digest
+    }
+    return nil
+  }
+
+  func saveDigest(_ digest: DigestResult) {
+    let localPath = URL.om_cachesDirectory.appendingPathComponent("digest.json")
+    if let data = try? JSONEncoder().encode(digest) {
+      try? data.write(to: localPath)
+    }
+  }
+
+  public func explain(text: String, libraryItemId: String) async throws -> String {
+    let encoder = JSONEncoder()
+    let explainRequest = ExplainRequest(text: text, libraryItemId: libraryItemId)
+    let data = (try? encoder.encode(explainRequest)) ?? Data()
+
+    do {
+      let urlRequest = URLRequest.create(
+        baseURL: appEnvironment.serverBaseURL,
+        urlPath: "/api/explain/",
+        requestMethod: .post(params: data),
+        includeAuthToken: true
+      )
+
+      let resource = ServerResource<ExplainResult>(
+        urlRequest: urlRequest,
+        decode: ExplainResult.decode
+      )
+
+      let response = try await networker.urlSession.performRequest(resource: resource)
+      return response.text
+    } catch let error {
+        throw error
+    }
+  }
 }
-
-

@@ -36,12 +36,13 @@ export const claimsFromApiKey = async (key: string): Promise<Claims> => {
 
   const apiKeyRepo = getRepository(ApiKey)
 
-  const apiKey = await apiKeyRepo.findOne({
-    where: {
+  const apiKey = await apiKeyRepo
+    .createQueryBuilder('apiKey')
+    .innerJoinAndSelect('apiKey.user', 'user')
+    .where({
       key: hashedKey,
-    },
-    relations: ['user'],
-  })
+    })
+    .getOne()
   if (!apiKey) {
     throw new Error('api key not found')
   }

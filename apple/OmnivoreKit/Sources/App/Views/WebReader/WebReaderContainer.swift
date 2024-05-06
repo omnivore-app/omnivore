@@ -27,6 +27,7 @@ struct WebReaderContainerView: View {
   @State var annotationSaveTransactionID: UUID?
   @State var showNavBarActionID: UUID?
   @State var showExpandedAudioPlayer = false
+  @State var showLibraryDigest = false
   @State var shareActionID: UUID?
   @State var annotation = String()
   @State private var bottomBarOpacity = 0.0
@@ -327,6 +328,9 @@ struct WebReaderContainerView: View {
         .formSheet(isPresented: $showPreferencesFormsheet, modalSize: CGSize(width: 400, height: 475)) {
           webPreferencesPopoverView
         }
+        .formSheet(isPresented: $showExplainSheet, modalSize: CGSize(width: 400, height: 475)) {
+          explainView
+        }
       #endif
 
       #if os(macOS)
@@ -372,6 +376,10 @@ struct WebReaderContainerView: View {
     }
   #endif
 
+  var explainView: some View {
+    ExplainView(dataService: dataService, text: viewModel.explainText ?? "Nothing to explain", item: item)
+  }
+
   var body: some View {
     ZStack {
       if let articleContent = viewModel.articleContent {
@@ -392,7 +400,7 @@ struct WebReaderContainerView: View {
             #endif
           },
           tapHandler: tapHandler,
-          explainHandler: explainHandler,
+          explainHandler: dataService.featureFlags.explainEnabled ? explainHandler : nil,
           scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityUpdater: { visible in
@@ -475,6 +483,15 @@ struct WebReaderContainerView: View {
             }, viewArticle: { _ in
               showExpandedAudioPlayer = false
             })
+          }
+          .fullScreenCover(isPresented: $showLibraryDigest) {
+            if #available(iOS 17.0, *) {
+              NavigationView {
+                FullScreenDigestView(dataService: dataService, audioController: audioController)
+              }
+            } else {
+              Text("Sorry digest is only available on iOS 17 and above")
+            }
           }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
@@ -621,7 +638,11 @@ struct WebReaderContainerView: View {
               .padding(.bottom, showBottomBar ? 10 : 40)
               .background(Color.themeTabBarColor)
               .onTapGesture {
-                showExpandedAudioPlayer = true
+                if audioController.itemAudioProperties?.audioItemType == .digest {
+                  showLibraryDigest = true
+                } else {
+                  showExpandedAudioPlayer = true
+                }
               }
           }
           if showBottomBar {

@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
@@ -46,8 +47,8 @@ import app.omnivore.omnivore.feature.savedItemViews.TypeaheadSearchCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchView(
-    viewModel: SearchViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: SearchViewModel = hiltViewModel()
 ) {
     val isRefreshing: Boolean by viewModel.isRefreshing.observeAsState(false)
     val typeaheadMode: Boolean by viewModel.typeaheadMode.observeAsState(true)

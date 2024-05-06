@@ -39,14 +39,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.navigation.TopLevelDestination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryNavigationBar(
+    currentDestination: TopLevelDestination?,
     savedItemViewModel: SavedItemViewModel,
     onSearchClicked: () -> Unit,
-    onAddLinkClicked: () -> Unit,
-    onSettingsIconClick: () -> Unit
+    onAddLinkClicked: () -> Unit
 ) {
     val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(
         null
@@ -57,9 +58,11 @@ fun LibraryNavigationBar(
     TopAppBar(
         title = {
             Text(
-                if (actionsMenuItem == null)
-                    stringResource(R.string.library_nav_bar_title) else
+                if (actionsMenuItem == null) {
+                    currentDestination?.titleTextId?.let { stringResource(it) } ?: ""
+                } else {
                     stringResource(R.string.library_nav_bar_title_alt)
+                }
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -156,13 +159,6 @@ fun LibraryNavigationBar(
                 IconButton(onClick = onAddLinkClicked) {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = null
-                    )
-                }
-
-                IconButton(onClick = onSettingsIconClick) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
                         contentDescription = null
                     )
                 }

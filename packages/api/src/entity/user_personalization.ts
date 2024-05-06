@@ -56,4 +56,7 @@ export class UserPersonalization {
 
   @Column('json')
   fields?: any | null
+
+  @Column('jsonb')
+  digestConfig?: any | null
 }

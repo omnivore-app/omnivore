@@ -38,4 +38,5 @@ public enum UserDefaultKey: String {
   case openExternalLinksIn
   case prefersHideStatusBarInReader
   case visibleShareExtensionTab
+  case lastVisitedDigestId
 }

@@ -1,13 +1,17 @@
 package app.omnivore.omnivore.navigation
 
 sealed class Routes(val route: String) {
-    object Library : Routes("Library")
-    object Settings : Routes("Settings")
-    object About : Routes("About")
-    object Account : Routes("Account")
-    object Search : Routes("Search")
-    object Documentation : Routes("Documentation")
-    object PrivacyPolicy : Routes("PrivacyPolicy")
-    object TermsAndConditions : Routes("TermsAndConditions")
-    object Notebook : Routes("Notebook")
+    data object Home : Routes("Home")
+    data object Welcome : Routes("Welcome")
+    data object Following : Routes("Following")
+    data object Inbox : Routes("Inbox")
+    data object Settings : Routes("Settings")
+    data object About : Routes("About")
+    data object Filters : Routes("Filters")
+    data object Account : Routes("Account")
+    data object Search : Routes("Search")
+    data object Documentation : Routes("Documentation")
+    data object PrivacyPolicy : Routes("PrivacyPolicy")
+    data object TermsAndConditions : Routes("TermsAndConditions")
+    data object Notebook : Routes("Notebook")
 }

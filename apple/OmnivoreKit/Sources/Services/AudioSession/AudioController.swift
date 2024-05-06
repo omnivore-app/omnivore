@@ -1,3 +1,4 @@
+// swiftlint:disable file_length type_body_length
 #if os(iOS)
 
   import AVFoundation
@@ -27,27 +28,55 @@
     case high
   }
 
+public struct DigestAudioItem: AudioItemProperties {
+  public let audioItemType = Models.AudioItemType.digest
+  public let digest: DigestResult
+  public let itemID: String
+  public let title: String
+  public var byline: String?
+  public var imageURL: URL?
+  public var language: String?
+  public var startIndex: Int = 0
+  public var startOffset: Double = 0.0
+
+  public init(digest: DigestResult) {
+    self.digest = digest
+    self.itemID = digest.id
+    self.title = digest.title
+    self.startIndex = 0
+    self.startOffset = 0
+
+    self.imageURL = nil
+
+    if let first = digest.speechFiles.first {
+      self.language = first.language
+      self.byline  = digest.byline
+    }
+  }
+}
+
   // swiftlint:disable all
+  @MainActor
   public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published public var state: AudioControllerState = .stopped
     @Published public var currentAudioIndex: Int = 0
     @Published public var readText: String = ""
     @Published public var unreadText: String = ""
     @Published public var itemAudioProperties: AudioItemProperties?
-
+    
     @Published public var timeElapsed: TimeInterval = 0
     @Published public var duration: TimeInterval = 0
     @Published public var timeElapsedString: String?
     @Published public var durationString: String?
     @Published public var voiceList: [VoiceItem]?
     @Published public var realisticVoiceList: [VoiceItem]?
-
+    
     @Published public var textItems: [String]?
-
+    
     @Published public var playbackError: Bool = false
-
+    
     let dataService: DataService
-
+    
     var timer: Timer?
     var player: AVQueuePlayer?
     var observer: Any?
@@ -55,26 +84,26 @@
     var synthesizer: SpeechSynthesizer?
     var durations: [Double]?
     var lastReadUpdate = 0.0
-
+    
     var samplePlayer: AVPlayer?
-
+    
     public init(dataService: DataService) {
       self.dataService = dataService
-
+      
       super.init()
       self.voiceList = generateVoiceList()
       self.realisticVoiceList = generateRealisticVoiceList()
       self._currentLanguage = defaultLanguage
     }
-
+    
     deinit {
       player = nil
       observer = nil
     }
-
+    
     public func play(itemAudioProperties: AudioItemProperties) {
       stop()
-
+      
       playbackError = false
       self.itemAudioProperties = itemAudioProperties
       startAudio(atIndex: itemAudioProperties.startIndex, andOffset: itemAudioProperties.startOffset)
@@ -88,7 +117,7 @@
         )
       )
     }
-
+    
     public var offsets: [Double]? {
       if let durations = durations {
         var currentSum = 0.0
@@ -99,55 +128,55 @@
       }
       return nil
     }
-
+    
     public func stop() {
       let stoppedId = itemAudioProperties?.itemID
       let stoppedTimeElapsed = timeElapsed
-
+      
       savePositionInfo(force: true)
-
+      
       player?.pause()
       timer?.invalidate()
-
+      
       clearNowPlayingInfo()
-
+      
       player?.replaceCurrentItem(with: nil)
       player?.removeAllItems()
-
+      
       document = nil
       textItems = nil
-
+      
       timer = nil
       player = nil
       observer = nil
       synthesizer = nil
       lastReadUpdate = 0
-
+      
       itemAudioProperties = nil
       state = .stopped
       timeElapsed = 0
       duration = 1
       durations = nil
       currentAudioIndex = 0
-
+      
       if let stoppedId = stoppedId {
         EventTracker.track(
           .audioSessionEnd(linkID: stoppedId, timeElapsed: stoppedTimeElapsed)
         )
       }
     }
-
+    
     public func stopWithError() {
       pause()
       playbackError = true
-
+      
       timer?.invalidate()
       timer = nil
       if let player = player {
         player.removeAllItems()
       }
     }
-
+    
     public func generateVoiceList() -> [VoiceItem] {
       Voices.Pairs.flatMap { voicePair in
         [
@@ -156,7 +185,7 @@
         ]
       }.sorted { $0.name.lowercased() < $1.name.lowercased() }
     }
-
+    
     public func generateRealisticVoiceList() -> [VoiceItem] {
       Voices.UltraPairs.flatMap { voicePair in
         [
@@ -165,14 +194,14 @@
         ]
       }.sorted { $0.name.lowercased() < $1.name.lowercased() }
     }
-
+    
     public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
       for itemID in itemIDs {
         _ = try? await downloadSpeechFile(itemID: itemID, priority: .low)
       }
       return false
     }
-
+    
     public func downloadForOffline(itemID: String) async -> Bool {
       if let document = try? await getSpeechFile(itemID: itemID, priority: .low) {
         let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
@@ -188,7 +217,7 @@
       }
       return false
     }
-
+    
     public static func removeAudioFiles(itemID: String) {
       do {
         let audioDirectory = pathForAudioDirectory(itemID: itemID)
@@ -199,7 +228,7 @@
         print("Error removing audio files", error)
       }
     }
-
+    
     public var scrubState: PlayerScrubState = .reset {
       didSet {
         switch scrubState {
@@ -212,34 +241,34 @@
         }
       }
     }
-
+    
     func updateDuration(forItem item: SpeechItem, newDuration: TimeInterval) {
       if let durations = self.durations, item.audioIdx < durations.count {
         self.durations?[item.audioIdx] = (newDuration / playbackRate)
       }
     }
-
+    
     public func seek(toUtterance: Int) {
       player?.pause()
-
+      
       player?.removeAllItems()
       synthesizeFrom(start: toUtterance, playWhenReady: state == .playing, atOffset: 0.0)
       scrubState = .reset
       fireTimer()
     }
-
+    
     public func seek(to: TimeInterval) {
       let position = max(0, to)
-
+      
       // Always reset this state when seeking so we trigger a re-saving of positional info
       lastReadUpdate = 0
-
+      
       // If we are in reachedEnd state, and seek back, we need to move to
       // paused state
       if to < duration, state == .reachedEnd {
         state = .paused
       }
-
+      
       // First find the item that this interval is within
       // Not the most effecient, but these lists should be less than 500 items
       var sum = 0.0
@@ -251,12 +280,12 @@
         }
         sum += duration
       }
-
+      
       if let foundIdx = foundIdx {
         // Now figure out how far into this segment we need to seek to
         let before = durationBefore(playerIndex: foundIdx)
         let remainder = position - before
-
+        
         // if the foundIdx happens to be the current item, we just set the position
         if let playerItem = player?.currentItem as? SpeechPlayerItem {
           if playerItem.speechItem.audioIdx == foundIdx {
@@ -266,7 +295,7 @@
             return
           }
         }
-
+        
         // Move the playback to the found index, we also seek by the remainder amount
         // before moving we pause the player so playback doesnt jump to a previous spot
         player?.pause()
@@ -281,17 +310,41 @@
           synthesizeFrom(start: durations.count - 1, playWhenReady: state == .playing, atOffset: last)
         }
       }
-
+      
       scrubState = .reset
       fireTimer()
     }
+    
+    public func seek(toIdx: Int) {
+      let before = durationBefore(playerIndex: toIdx)
+      let remainder = 0.0
 
+      // if the foundIdx happens to be the current item, we just set the position
+      if let playerItem = player?.currentItem as? SpeechPlayerItem {
+        if playerItem.speechItem.audioIdx == toIdx {
+          playerItem.seek(to: CMTimeMakeWithSeconds(remainder, preferredTimescale: 600), completionHandler: nil)
+          scrubState = .reset
+          fireTimer()
+          return
+        }
+      }
+      
+      // Move the playback to the found index, we also seek by the remainder amount
+      // before moving we pause the player so playback doesnt jump to a previous spot
+      player?.pause()
+      player?.removeAllItems()
+      synthesizeFrom(start: toIdx, playWhenReady: state == .playing, atOffset: remainder)
+      
+      scrubState = .reset
+      fireTimer()
+    }
+    
     @AppStorage(UserDefaultKey.textToSpeechDefaultLanguage.rawValue) public var defaultLanguage = "en" {
       didSet {
         currentLanguage = defaultLanguage
       }
     }
-
+    
     @AppStorage(UserDefaultKey.textToSpeechPlaybackRate.rawValue) public var playbackRate = 1.0 {
       didSet {
         updateDurations(oldPlayback: oldValue, newPlayback: playbackRate)
@@ -299,25 +352,25 @@
         fireTimer()
       }
     }
-
+    
     @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = false
-
+    
     @AppStorage(UserDefaultKey.textToSpeechUseUltraRealisticVoices.rawValue) public var useUltraRealisticVoices = false
-
+    
     @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureKey.rawValue) public var ultraRealisticFeatureKey: String = ""
     @AppStorage(UserDefaultKey.textToSpeechUltraRealisticFeatureRequested.rawValue) public var ultraRealisticFeatureRequested: Bool = false
-
+    
     var speechAuthHeader: String? {
       if Voices.isUltraRealisticVoice(currentVoice), !ultraRealisticFeatureKey.isEmpty {
         return ultraRealisticFeatureKey
       }
       return nil
     }
-
+    
     public var currentVoiceLanguage: VoiceLanguage {
       Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
     }
-
+    
     private var _currentLanguage: String?
     public var currentLanguage: String {
       get {
@@ -331,30 +384,30 @@
       }
       set {
         _currentLanguage = newValue
-
+        
         let newVoice = getPreferredVoice(forLanguage: newValue)
         currentVoice = newVoice
       }
     }
-
+    
     private var _currentVoice: String?
     public var currentVoice: String {
       get {
         if let currentVoice = _currentVoice {
           return currentVoice
         }
-
+        
         if let currentVoice = UserDefaults.standard.string(forKey: "\(currentLanguage)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") {
           return currentVoice
         }
-
+        
         return currentVoiceLanguage.defaultVoice
       }
       set {
         _currentVoice = newValue
         voiceList = generateVoiceList()
         realisticVoiceList = generateRealisticVoiceList()
-
+        
         var currentIdx = 0
         var currentOffset = 0.0
         if let player = self.player, let item = self.player?.currentItem as? SpeechPlayerItem {
@@ -363,11 +416,11 @@
         }
         player?.removeAllItems()
         playbackError = false
-
+        
         downloadAndPlayFrom(currentIdx, currentOffset)
       }
     }
-
+    
     public var currentVoicePair: VoicePair? {
       let voice = currentVoice
       if Voices.isUltraRealisticVoice(currentVoice) {
@@ -378,14 +431,14 @@
       }
       return Voices.Pairs.first(where: { $0.firstKey == voice || $0.secondKey == voice })
     }
-
+    
     struct TextNode: Codable {
       let to: String
       let from: String
       let heading: String
       let body: String
     }
-
+    
     func setTextItems() {
       if let document = self.document {
         textItems = document.utterances.map { utterance in
@@ -400,16 +453,16 @@
         textItems = nil
       }
     }
-
+    
     func updateReadText() {
       if let item = player?.currentItem as? SpeechPlayerItem, let speechMarks = item.speechMarks {
         var currentItemOffset = 0
-        for i in 0 ..< speechMarks.count {
-          if speechMarks[i].time ?? 0 < 0 {
+        for idx in 0 ..< speechMarks.count {
+          if speechMarks[idx].time ?? 0 < 0 {
             continue
           }
-          if (speechMarks[i].time ?? 0.0) > CMTimeGetSeconds(item.currentTime()) * 1000 {
-            currentItemOffset = speechMarks[i].start ?? 0
+          if (speechMarks[idx].time ?? 0.0) > CMTimeGetSeconds(item.currentTime()) * 1000 {
+            currentItemOffset = speechMarks[idx].start ?? 0
             break
           }
         }
@@ -419,17 +472,17 @@
             currentItemOffset = (last.start ?? 0) + (last.length ?? 0)
           }
         }
-
+        
         // Sometimes we get negatives
         currentItemOffset = max(currentItemOffset, 0)
-
+        
         let idx = currentAudioIndex // item.speechItem.audioIdx
         if idx < document?.utterances.count ?? 0 {
           let currentItem = document?.utterances[idx].text ?? ""
           let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
           let lastItem = String(currentItem[..<currentReadIndex])
           let lastItemAfter = String(currentItem[currentReadIndex...])
-
+          
           readText = lastItem
           unreadText = lastItemAfter
         }
@@ -437,34 +490,34 @@
         readText = ""
       }
     }
-
+    
     public func getPreferredVoice(forLanguage language: String) -> String {
       UserDefaults.standard.string(forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") ?? currentVoiceLanguage.defaultVoice
     }
-
+    
     public func setPreferredVoice(_ voice: String, forLanguage language: String) {
       UserDefaults.standard.set(voice, forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)")
     }
-
+    
     private func downloadAndPlayFrom(_ currentIdx: Int, _ currentOffset: Double) {
       let desiredState = state
-
+      
       pause()
       document = nil
       synthesizer = nil
-
+      
       if let itemID = itemAudioProperties?.itemID {
         Task {
           let document = try? await self.getSpeechFile(itemID: itemID, priority: .high)
-
+          
           DispatchQueue.main.async {
             if let document = document {
               let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document, speechAuthHeader: self.speechAuthHeader)
-
+              
               self.setTextItems()
               self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
               self.synthesizer = synthesizer
-
+              
               self.state = desiredState
               self.synthesizeFrom(start: currentIdx, playWhenReady: self.state == .playing, atOffset: currentOffset)
             } else {
@@ -475,7 +528,7 @@
         }
       }
     }
-
+    
     public var secondaryVoice: String {
       if let pair = currentVoicePair {
         if pair.firstKey == currentVoice {
@@ -487,14 +540,14 @@
       }
       return "en-US-CoraNeural"
     }
-
+    
     func previewVoiceURL(_ voice: String) -> URL? {
       URL(string: "https://storage.googleapis.com/omnivore_preview_bucket/tts-voice-previews/\(voice).mp3")
     }
-
+    
     public func playVoiceSample(voice: String) {
       pause()
-
+      
       if let url = previewVoiceURL(voice) {
         samplePlayer = AVPlayer(playerItem: AVPlayerItem(url: url))
         if let samplePlayer = samplePlayer {
@@ -504,7 +557,7 @@
         NSNotification.operationFailed(message: "Error playing voice sample.")
       }
     }
-
+    
     public func isPlayingSample(voice: String) -> Bool {
       if let samplePlayer = self.samplePlayer, let url = previewVoiceURL(voice) {
         if let urlAsset = samplePlayer.currentItem?.asset as? AVURLAsset {
@@ -514,31 +567,31 @@
       }
       return false
     }
-
+    
     public func stopVoiceSample() {
       if let samplePlayer = self.samplePlayer {
         samplePlayer.pause()
         self.samplePlayer = nil
       }
     }
-
+    
     private func updateDurations(oldPlayback: Double, newPlayback: Double) {
       if let oldDurations = durations {
         durations = oldDurations.map { $0 * oldPlayback / newPlayback }
       }
     }
-
+    
     public var isLoading: Bool {
       if state == .reachedEnd {
         return false
       }
       return (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
     }
-
+    
     public var isPlaying: Bool {
       state == .playing
     }
-
+    
     public func isLoadingItem(_ audioItem: AudioItemProperties?) -> Bool {
       if state == .reachedEnd {
         return false
@@ -548,41 +601,41 @@
       }
       return itemAudioProperties?.itemID == audioItem?.itemID && isLoading
     }
-
+    
     public func isPlayingItem(itemID: String) -> Bool {
       itemAudioProperties?.itemID == itemID && isPlaying
     }
-
+    
     public func skipForward(seconds: Double) {
       seek(to: timeElapsed + seconds)
     }
-
+    
     public func skipBackwards(seconds: Double) {
       seek(to: timeElapsed - seconds)
     }
-
+    
     public func fileNameForAudioFile(_ itemID: String) -> String {
       itemID + "-" + currentVoice + ".mp3"
     }
-
+    
     public static func pathForAudioDirectory(itemID: String) -> URL {
       URL.om_documentsDirectory
         .appendingPathComponent("audio-\(itemID)/")
     }
-
+    
     public func pathForSpeechFile(itemID: String) -> URL {
       Self.pathForAudioDirectory(itemID: itemID)
         .appendingPathComponent("speech-\(currentVoice).json")
     }
-
+    
     public func startAudio(atIndex index: Int, andOffset offset: Double) {
       state = .loading
       setupNotifications()
-
+      
       if let itemID = itemAudioProperties?.itemID {
         Task {
           let document = try? await getSpeechFile(itemID: itemID, priority: .high)
-
+          
           DispatchQueue.main.async {
             self.setTextItems()
             if let document = document {
@@ -598,7 +651,7 @@
         }
       }
     }
-
+    
     // swiftlint:disable all
     private func startStreamingAudio(itemID _: String, document: SpeechDocument, atIndex index: Int, andOffset offset: Double) {
       do {
@@ -608,26 +661,30 @@
         // try? FileManager.default.removeItem(atPath: audioUrl.path)
         state = .stopped
       }
-
+      
       player = AVQueuePlayer(items: [])
       if let player = player {
         observer = player.observe(\.currentItem, options: [.new]) { _, _ in
-          self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
-          self.updateReadText()
+          DispatchQueue.main.async {
+            self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
+            self.updateReadText()
+          }
         }
       }
-
+      
       let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document, speechAuthHeader: speechAuthHeader)
       durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
       self.synthesizer = synthesizer
-
+      
+#if !targetEnvironment(simulator)
       synthesizeFrom(start: index, playWhenReady: true, atOffset: offset)
+#endif
     }
-
+    
     func synthesizeFrom(start: Int, playWhenReady: Bool, atOffset: Double = 0.0) {
       if let synthesizer = self.synthesizer, let items = self.synthesizer?.createPlayerItems(from: start) {
         let prefetchQueue = OperationQueue()
-        prefetchQueue.maxConcurrentOperationCount = 5
+        prefetchQueue.maxConcurrentOperationCount = 1
 
         for speechItem in items {
           let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
@@ -655,7 +712,7 @@
         }
       }
     }
-
+    
     public func pause() {
       if let player = player {
         player.pause()
@@ -663,7 +720,7 @@
         savePositionInfo(force: true)
       }
     }
-
+    
     public func unpause() {
       stopVoiceSample()
       if let player = player {
@@ -671,7 +728,7 @@
         state = .playing
       }
     }
-
+    
     func formatTimeInterval(_ time: TimeInterval) -> String? {
       let componentFormatter = DateComponentsFormatter()
       componentFormatter.unitsStyle = .positional
@@ -679,14 +736,14 @@
       componentFormatter.zeroFormattingBehavior = .pad
       return componentFormatter.string(from: time)
     }
-
+    
     // What we need is an array of all items in a document, either Utterances if unloaded or AVPlayerItems
     // if they have been loaded, then for each one we can calculate a duration
     func durationBefore(playerIndex: Int) -> TimeInterval {
       let result = durations?.prefix(playerIndex).reduce(0, +) ?? 0
       return result
     }
-
+    
     func startTimer() {
       if timer == nil {
         lastReadUpdate = 0
@@ -694,22 +751,22 @@
         timer?.fire()
       }
     }
-
+    
     // Every second, get the current playing time of the player and refresh the status of the player progressslider
     @objc func fireTimer() {
       if let player = player {
         if player.error != nil || player.currentItem?.error != nil {
           stopWithError()
         }
-
+        
         if let durations = durations {
           duration = durations.reduce(0, +)
           durationString = formatTimeInterval(duration)
         }
-
+        
         updateReadText()
       }
-
+      
       if let player = player {
         switch scrubState {
         case .reset:
@@ -722,10 +779,10 @@
                 currentAudioIndex = playerItem.speechItem.audioIdx + 1
               }
             }
-
+            
             timeElapsed = durationBefore(playerIndex: playerItem.speechItem.audioIdx) + itemElapsed
             timeElapsedString = formatTimeInterval(timeElapsed)
-
+            
             if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
               nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
               nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
@@ -744,38 +801,38 @@
           }
         }
       }
-
+      
       savePositionInfo()
     }
-
+    
     func savePositionInfo(force: Bool = false) {
       if force || (timeElapsed - 10 > lastReadUpdate) {
         let percentProgress = timeElapsed / duration
         let speechIndex = (player?.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
         let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
-
+        
         if let itemID = itemAudioProperties?.itemID {
           dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex, force: true)
         }
-
+        
         if let itemID = itemAudioProperties?.itemID, let player = player, let currentItem = player.currentItem {
           let currentOffset = CMTimeGetSeconds(currentItem.currentTime())
           print("updating listening info: ", speechIndex, currentOffset, timeElapsed)
-
+          
           dataService.updateLinkListeningProgress(itemID: itemID,
                                                   listenIndex: speechIndex,
                                                   listenOffset: currentOffset,
                                                   listenTime: timeElapsed)
         }
-
+        
         lastReadUpdate = timeElapsed
       }
     }
-
+    
     func clearNowPlayingInfo() {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [:]
     }
-
+    
     func downloadAndSetArtwork() async {
       if let pageId = itemAudioProperties?.itemID, let imageURL = itemAudioProperties?.imageURL {
         if let result = try? await URLSession.shared.data(from: imageURL) {
@@ -795,10 +852,10 @@
         }
       }
     }
-
+    
     func setupRemoteControl() {
       UIApplication.shared.beginReceivingRemoteControlEvents()
-
+      
       if let itemAudioProperties = itemAudioProperties {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
           MPMediaItemPropertyTitle: NSString(string: itemAudioProperties.title),
@@ -807,21 +864,21 @@
           MPNowPlayingInfoPropertyElapsedPlaybackTime: NSNumber(value: timeElapsed)
         ]
       }
-
+      
       let commandCenter = MPRemoteCommandCenter.shared()
-
+      
       commandCenter.playCommand.isEnabled = true
       commandCenter.playCommand.addTarget { _ -> MPRemoteCommandHandlerStatus in
         self.unpause()
         return .success
       }
-
+      
       commandCenter.pauseCommand.isEnabled = true
       commandCenter.pauseCommand.addTarget { _ -> MPRemoteCommandHandlerStatus in
         self.pause()
         return .success
       }
-
+      
       commandCenter.skipForwardCommand.isEnabled = true
       commandCenter.skipForwardCommand.preferredIntervals = [15, 30, 60]
       commandCenter.skipForwardCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
@@ -831,7 +888,7 @@
         }
         return .commandFailed
       }
-
+      
       commandCenter.skipBackwardCommand.isEnabled = true
       commandCenter.skipBackwardCommand.preferredIntervals = [15, 30, 60]
       commandCenter.skipBackwardCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
@@ -841,7 +898,7 @@
         }
         return .commandFailed
       }
-
+      
       commandCenter.changePlaybackPositionCommand.isEnabled = true
       commandCenter.changePlaybackPositionCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
         if let event = event as? MPChangePlaybackPositionCommandEvent {
@@ -850,12 +907,12 @@
         }
         return .commandFailed
       }
-
+      
       Task {
         await downloadAndSetArtwork()
       }
     }
-
+    
     func isoLangForCurrentVoice() -> String {
       // currentVoicePair should not ever be nil but if it is we return an empty string
       if let isoLang = currentVoicePair?.language {
@@ -874,11 +931,11 @@
         return nil
       }
     }
-
+    
     func downloadLibraryItemSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
       let decoder = JSONDecoder()
       let speechFileUrl = pathForSpeechFile(itemID: itemID)
-
+      
       if FileManager.default.fileExists(atPath: speechFileUrl.path) {
         let data = try Data(contentsOf: speechFileUrl)
         document = try decoder.decode(SpeechDocument.self, from: data)
@@ -887,30 +944,30 @@
           return document
         }
       }
-
+      
       let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)\(isoLangForCurrentVoice())"
       guard let url = URL(string: path, relativeTo: dataService.appEnvironment.serverBaseURL) else {
         throw BasicError.message(messageText: "Invalid audio URL")
       }
-
+      
       var request = URLRequest(url: url)
       request.httpMethod = "GET"
       for (header, value) in dataService.networker.defaultHeaders {
         request.setValue(value, forHTTPHeaderField: header)
       }
-
+      
       let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
       guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
         throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
       }
-
+      
       guard let data = result?.0 else {
         throw BasicError.message(messageText: "audioFetch failed. no data received.")
       }
-
+      
       let str = String(decoding: data, as: UTF8.self)
       print("result speech file: ", str)
-
+      
       if let document = try? JSONDecoder().decode(SpeechDocument.self, from: data) {
         do {
           try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
@@ -920,76 +977,53 @@
           print("error writing file", error)
         }
       }
-
+      
       return nil
     }
-
+    
+    func combineSpeechFiles(from digest: DigestResult) -> ([Utterance], Double) {
+      let allUtterances = digest.speechFiles.flatMap { $0.utterances }
+      var updatedUtterances: [Utterance] = []
+      var currentWordOffset = 0.0
+      
+      for (index, utterance) in allUtterances.enumerated() {
+        let newUtterance = Utterance(
+          idx: String(index + 1),
+          text: utterance.text,
+          voice: utterance.voice,
+          wordOffset: currentWordOffset,
+          wordCount: utterance.wordCount
+        )
+        updatedUtterances.append(newUtterance)
+        currentWordOffset += utterance.wordCount
+      }
+      
+      return (updatedUtterances, currentWordOffset)
+    }
+    
     func downloadDigestItemSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
-      let decoder = JSONDecoder()
-      let speechFileUrl = URL.om_documentsDirectory.appendingPathComponent("digest").appendingPathComponent("speech-\(currentVoice).json")
-
-      if FileManager.default.fileExists(atPath: speechFileUrl.path) {
-        let data = try Data(contentsOf: speechFileUrl)
-        document = try decoder.decode(SpeechDocument.self, from: data)
-        // If we can't load it from disk we make the API call
-        if let document = document {
-          return document
-        }
+      if let digestItem = itemAudioProperties as? DigestAudioItem, let firstFile = digestItem.digest.speechFiles.first {
+        let (utterances, wordCount) = combineSpeechFiles(from: digestItem.digest)
+        
+        let document = SpeechDocument(
+          pageId: digestItem.itemID,
+          wordCount: wordCount,
+          language: firstFile.language,
+          defaultVoice: firstFile.defaultVoice,
+          utterances: utterances
+        )
+        try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
+        return document
       }
-
-      let path = "/api/digest/v1/"
-      guard let url = URL(string: path, relativeTo: dataService.appEnvironment.serverBaseURL) else {
-        throw BasicError.message(messageText: "Invalid audio URL")
-      }
-
-      var request = URLRequest(url: url)
-      request.httpMethod = "GET"
-      for (header, value) in dataService.networker.defaultHeaders {
-        request.setValue(value, forHTTPHeaderField: header)
-      }
-
-      let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
-      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
-        throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
-      }
-
-      guard let data = result?.0 else {
-        throw BasicError.message(messageText: "audioFetch failed. no data received.")
-      }
-
-      let str = String(decoding: data, as: UTF8.self)
-      print("result digest file: ", str)
-
-      do {
-        let digest = try JSONDecoder().decode(DigestResult.self, from: data)
-        let directory = URL.om_documentsDirectory.appendingPathComponent("digest")
-         // do {
-            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try data.write(to: speechFileUrl)
-            return digest.speechFile
-//          } catch {
-//            print("error writing file", error)
-//          }
-        // }
-      } catch {
-        print("error with digest file", error)
-      }
-
+      
       return nil
     }
-
+    
     func getSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
       document = try await downloadSpeechFile(itemID: itemID, priority: priority)
       return document
     }
-
-    public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {
-      if player == self.player {
-        pause()
-        player.currentTime = 0
-      }
-    }
-
+    
     func setupNotifications() {
       NotificationCenter.default.removeObserver(self, name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance())
       NotificationCenter.default.addObserver(self,
@@ -997,7 +1031,7 @@
                                              name: AVAudioSession.interruptionNotification,
                                              object: AVAudioSession.sharedInstance())
     }
-
+    
     @objc func handleInterruption(notification: Notification) {
       guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
@@ -1005,7 +1039,7 @@
       else {
         return
       }
-
+      
       // Switch over the interruption type.
       switch type {
       case .began:
@@ -1013,7 +1047,6 @@
         pause()
       case .ended:
         // An interruption ended. Resume playback, if appropriate.
-
         guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
         let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
         if options.contains(.shouldResume) {
@@ -1022,6 +1055,6 @@
       default: ()
       }
     }
-  }
+}
 
 #endif

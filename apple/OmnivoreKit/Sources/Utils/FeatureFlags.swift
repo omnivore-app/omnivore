@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 #if DEBUG
   public let isDebug = true
@@ -6,11 +7,13 @@ import Foundation
   public let isDebug = false
 #endif
 
-public enum FeatureFlag {
-  public static let enableSnoozeFromShareExtension = false
-  public static let enableRemindersFromShareExtension = false
-  public static let enableShareButton = false
-  public static let enableSnooze = false
-  public static let enableGridCardsOnPhone = false
-  public static let enableUltraRealisticVoices = true
+public struct FeatureFlags {
+  @AppStorage("FeatureFlag::digestEnabled")
+  public var digestEnabled = false
+
+  @AppStorage("FeatureFlag::explainEnabled")
+  public var explainEnabled = false
+  
+  public init() {
+  }
 }
