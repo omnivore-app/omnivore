@@ -6,6 +6,7 @@ import {
   QueryGetDiscoverFeedArticlesArgs,
 } from '../../../generated/graphql'
 import { searchAndCountLibraryItems } from '../../../services/library_item'
+import { findTopicByName } from '../../../services/topic'
 import { authorized } from '../../../utils/gql-utils'
 
 const COMMUNITY_FEED_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
@@ -111,24 +112,20 @@ export const getDiscoverFeedArticlesResolver = authorized<
   const startCursor: string = after || ''
   first = Math.min(first || 10, 100) // limit to 100 items
 
-  let topic = '*'
+  let topicEmbedding = '*'
   if (discoverTopicId !== 'All') {
-    const topics = await authTrx(
-      async (tx) =>
-        (await tx.query(
-          `SELECT embedding FROM omnivore.discover_topic_embedding_link WHERE discover_topic_name = $1 LIMIT 1`,
-          [discoverTopicId]
-        )) as Array<{ embedding: string }>
+    const topic = await authTrx(
+      async (tx) => await findTopicByName(discoverTopicId, tx)
     )
 
-    if (topics.length == 0) {
+    if (!topic || !topic.embedding) {
       return {
         __typename: 'GetDiscoverFeedArticleError',
-        errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized], // TODO - no.
+        errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized],
       }
     }
 
-    topic = topics[0].embedding
+    topicEmbedding = topic.embedding.toString()
   }
 
   const { libraryItems, count } = await searchAndCountLibraryItems(
@@ -136,7 +133,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
       includeShared: true,
-      query: `topic:${topic}`,
+      query: `topic:${topicEmbedding}`,
     },
     uid
   )

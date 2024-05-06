@@ -11,7 +11,7 @@ export class Topic {
   @Column('text')
   description?: string
 
-  @Column('vector')
+  @Column('text')
   embedding?: number[]
 
   @Column('timestamptz')

@@ -549,7 +549,7 @@ export const buildQueryString = (
         case 'topic': {
           if (value === '*') {
             // select all if * is provided
-            return 'library_item.embedding is not null'
+            return null
           }
 
           const param = `topic_embedding_${parameters.length}`
