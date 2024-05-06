@@ -560,8 +560,11 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
     title: 'Omnivore Digest',
     body: truncate(digest.title, { length: 100 }),
   }
+  const data = {
+    digestId: digest.id,
+  }
 
-  await sendPushNotifications(userId, notification, 'reminder')
+  await sendPushNotifications(userId, notification, 'reminder', data)
 }
 
 const sendEmail = async (
