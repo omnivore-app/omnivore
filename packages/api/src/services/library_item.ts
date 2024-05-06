@@ -547,6 +547,11 @@ export const buildQueryString = (
           )
         }
         case 'topic': {
+          if (value === '*') {
+            // select all if * is provided
+            return 'library_item.embedding is not null'
+          }
+
           const param = `topic_embedding_${parameters.length}`
           const similarity = `1 - (embedding <=> :${param})`
           const alias = 'similarity'

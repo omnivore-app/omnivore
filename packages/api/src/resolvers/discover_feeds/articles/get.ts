@@ -111,7 +111,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
   const startCursor: string = after || ''
   first = Math.min(first || 10, 100) // limit to 100 items
 
-  let topic
+  let topic = '*'
   if (discoverTopicId !== 'All') {
     const topics = await authTrx(
       async (tx) =>
@@ -128,7 +128,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
       }
     }
 
-    topic = topics[0]
+    topic = topics[0].embedding
   }
 
   const { libraryItems, count } = await searchAndCountLibraryItems(
@@ -136,7 +136,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
       includeShared: true,
-      query: topic ? `topic:${topic.embedding}` : '',
+      query: `topic:${topic}`,
     },
     uid
   )
