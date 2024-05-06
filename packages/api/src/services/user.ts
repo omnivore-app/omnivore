@@ -165,4 +165,5 @@ export const findUserAndPersonalization = async (id: string) => {
   )
 }
 
-export const isDiscoverUser = (user: User) => user.name === 'omnivore_discover'
+export const isDiscoverUser = (user: User) =>
+  user.profile.username === 'omnivore_discover'

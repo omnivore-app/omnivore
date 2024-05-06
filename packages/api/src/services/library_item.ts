@@ -807,17 +807,29 @@ export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
 
 export const findLibraryItemById = async (
   id: string,
-  userId: string
+  userId: string,
+  option?: {
+    fields?: (keyof LibraryItem)[]
+    relations?: string[]
+  }
 ): Promise<LibraryItem | null> => {
+  const select = option?.fields?.length
+    ? option?.fields.map((field) => `library_item.${field}`)
+    : undefined
+
   return authTrx(
-    async (tx) =>
-      tx
-        .createQueryBuilder(LibraryItem, 'library_item')
-        .leftJoinAndSelect('library_item.labels', 'labels')
-        .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .leftJoinAndSelect('highlights.user', 'user')
-        .where('library_item.id = :id', { id })
-        .getOne(),
+    async (tx) => {
+      const qb = tx.createQueryBuilder(LibraryItem, 'library_item')
+      if (select) {
+        qb.select(select)
+      }
+
+      option?.relations?.forEach((relation) => {
+        qb.leftJoinAndSelect(`library_item.${relation}`, relation)
+      })
+
+      return qb.where('library_item.id = :id', { id }).getOne()
+    },
     undefined,
     userId
   )

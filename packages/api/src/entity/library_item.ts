@@ -138,9 +138,8 @@ export class LibraryItem {
   @Column('text')
   readableContent!: string
 
-  // NOT SUPPORTED IN TYPEORM
-  // @Column('vector', { nullable: true })
-  // embedding?: number[]
+  @Column('text')
+  embedding?: number[]
 
   @Column('text', { nullable: true })
   textContentHash?: string | null

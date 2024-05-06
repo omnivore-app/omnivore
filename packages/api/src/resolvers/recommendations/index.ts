@@ -141,7 +141,9 @@ export const recommendResolver = authorized<
   MutationRecommendArgs
 >(async (_, { input }, { uid, log, signToken }) => {
   try {
-    const item = await findLibraryItemById(input.pageId, uid)
+    const item = await findLibraryItemById(input.pageId, uid, {
+      relations: ['highlights'],
+    })
     if (!item) {
       return {
         errorCodes: [RecommendErrorCode.NotFound],
@@ -158,7 +160,7 @@ export const recommendResolver = authorized<
 
     // only recommend highlights created by the user
     const recommendedHighlightIds = input.recommendedWithHighlights
-      ? item.highlights?.filter((h) => h.user.id === uid)?.map((h) => h.id)
+      ? item.highlights?.filter((h) => h.userId === uid)?.map((h) => h.id)
       : undefined
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day

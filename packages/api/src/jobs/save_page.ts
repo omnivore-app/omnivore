@@ -11,6 +11,8 @@ import { userRepository } from '../repository/user'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
 import { uploadFile } from '../services/upload_file'
+import { isDiscoverUser } from '../services/user'
+import { enqueueUpdateEmbedding } from '../utils/createTask'
 import { logError, logger } from '../utils/logger'
 
 const signToken = promisify(jwt.sign)
@@ -259,13 +261,19 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         source,
         folder,
+        sharedAt: isDiscoverUser(user) ? new Date() : undefined, // if the user is a discover user, we want to share the item
       },
       user
     )
 
-    if (result.__typename == 'SaveError') {
+    if (result.__typename === 'SaveError') {
       throw new Error(result.message || result.errorCodes[0])
     }
+
+    await enqueueUpdateEmbedding({
+      libraryItemId: result.clientRequestId,
+      userId,
+    })
 
     isImported = true
     isSaved = true

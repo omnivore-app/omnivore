@@ -25,6 +25,10 @@ import {
   CRON_PATTERNS,
   getCronPattern,
 } from '../jobs/ai/create_digest'
+import {
+  UDPATE_EMBEDDING_JOB_NAME,
+  UpdateEmbeddingJobData,
+} from '../jobs/ai/update_embedding'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
@@ -98,6 +102,7 @@ export const getJobPriority = (jobName: string): number => {
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
+    case UDPATE_EMBEDDING_JOB_NAME:
       return 100
 
     default:
@@ -936,6 +941,20 @@ export const enqueueCreateDigest = async (
     jobId: digest.id,
     jobState: digest.jobState,
   }
+}
+
+export const enqueueUpdateEmbedding = async (
+  jobData: UpdateEmbeddingJobData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(UDPATE_EMBEDDING_JOB_NAME, jobData, {
+    attempts: 1,
+    priority: getJobPriority(UDPATE_EMBEDDING_JOB_NAME),
+  })
 }
 
 export default createHttpTaskWithToken

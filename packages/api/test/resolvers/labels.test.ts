@@ -293,8 +293,8 @@ describe('Labels API', () => {
             labelId,
           }).expect(200)
 
-          const updatedItem = await findLibraryItemById(item.id, user.id)
-          expect(updatedItem?.labels).not.deep.include(toDeleteLabel)
+          const labels = await findLabelsByLibraryItemId(item.id, user.id)
+          expect(labels).not.deep.include(toDeleteLabel)
         })
       })
 
@@ -545,10 +545,8 @@ describe('Labels API', () => {
         it('should update the item with the label', async () => {
           await graphqlRequest(query, authToken).expect(200)
 
-          const updatedItem = await findLibraryItemById(item.id, user.id)
-          const updatedLabel = updatedItem?.labels?.filter(
-            (l) => l.id === labelId
-          )?.[0]
+          const labels = await findLabelsByLibraryItemId(item.id, user.id)
+          const updatedLabel = labels.filter((l) => l.id === labelId)?.[0]
 
           expect(updatedLabel?.name).to.eql(name)
           expect(updatedLabel?.color).to.eql(color)

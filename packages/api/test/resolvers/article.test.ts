@@ -25,7 +25,7 @@ import {
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
-import { createLabel, deleteLabels } from '../../src/services/labels'
+import { createLabel, deleteLabels, findLabelsByLibraryItemId } from '../../src/services/labels'
 import {
   createLibraryItems,
   createOrUpdateLibraryItem,
@@ -2345,8 +2345,8 @@ describe('Article API', () => {
         authToken
       ).expect(200)
 
-      const item = await findLibraryItemById(articleId, user.id)
-      expect(item?.labels?.map((l) => l.name)).to.eql(['Favorites'])
+      const labels = await findLabelsByLibraryItemId(articleId, user.id)
+      expect(labels.map((l) => l.name)).to.eql(['Favorites'])
     })
   })
 

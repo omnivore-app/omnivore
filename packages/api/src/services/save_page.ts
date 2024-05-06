@@ -31,7 +31,6 @@ import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
 import { createAndAddLabelsToLibraryItem } from './labels'
 import { createOrUpdateLibraryItem } from './library_item'
-import { isDiscoverUser } from './user'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -69,7 +68,12 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 
 export type SavePageArgs = Merge<
   SavePageInput,
-  { feedContent?: string; previewImage?: string; author?: string }
+  {
+    feedContent?: string
+    previewImage?: string
+    author?: string
+    sharedAt?: Date
+  }
 >
 
 export const savePage = async (
@@ -138,15 +142,10 @@ export const savePage = async (
     preparedDocument,
     labelNames: input.labels?.map((label) => label.name),
     highlightAnnotations: parseResult.highlightData ? [''] : undefined,
+    sharedAt: input.sharedAt,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
-
-  // if the user is a discover user, we want to share the item to the discover folder
-  if (isDiscoverUser(user)) {
-    itemToSave.folder = 'discover'
-    itemToSave.sharedAt = new Date()
-  }
 
   // do not publish a pubsub event if the item is imported
   const newItem = await createOrUpdateLibraryItem(
@@ -226,6 +225,7 @@ export const parsedContentToLibraryItem = ({
   dir,
   labelNames,
   highlightAnnotations,
+  sharedAt,
 }: {
   url: string
   userId: string
@@ -249,6 +249,7 @@ export const parsedContentToLibraryItem = ({
   dir?: string | null
   labelNames?: string[]
   highlightAnnotations?: string[]
+  sharedAt?: Date
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   logger.info('save_page', { url, state, itemId })
   return {
@@ -298,5 +299,6 @@ export const parsedContentToLibraryItem = ({
         : DirectionalityType.LTR, // default to LTR
     labelNames,
     highlightAnnotations,
+    sharedAt,
   }
 }
