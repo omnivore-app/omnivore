@@ -17,16 +17,15 @@ import {
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
-import { userHasFeature } from '../../lib/featureFlag'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 import {
   ImportItemState,
-  setIntegrationMutation
+  setIntegrationMutation,
 } from '../../lib/networking/mutations/setIntegrationMutation'
 import {
   Integration,
-  useGetIntegrationsQuery
+  useGetIntegrationsQuery,
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -76,7 +75,6 @@ type integrationsCard = {
 export default function Integrations(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
 
-
   const { integrations, revalidate } = useGetIntegrationsQuery()
   // const { webhooks } = useGetWebhooksQuery()
 
@@ -112,25 +110,25 @@ export default function Integrations(): JSX.Element {
     }
   }
 
-  const redirectToIntegration = useCallback((
-    name: string,
-    importItemState?: ImportItemState
-  ) => {
-    // create a form and submit it to the backend
-    const form = document.createElement('form')
-    form.method = 'POST'
-    form.action = `${fetchEndpoint}/integration/${name.toLowerCase()}/auth`
-    if (importItemState) {
-      const input = document.createElement('input')
-      input.type = 'hidden'
-      input.name = 'state'
-      input.value = importItemState
-      form.appendChild(input)
-    }
-    document.body.appendChild(form)
+  const redirectToIntegration = useCallback(
+    (name: string, importItemState?: ImportItemState) => {
+      // create a form and submit it to the backend
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = `${fetchEndpoint}/integration/${name.toLowerCase()}/auth`
+      if (importItemState) {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = 'state'
+        input.value = importItemState
+        form.appendChild(input)
+      }
+      document.body.appendChild(form)
 
-    form.submit()
-  }, [])
+      form.submit()
+    },
+    []
+  )
 
   const isImporting = (integration: Integration | undefined) => {
     return !!integration && !!integration.taskName
@@ -307,10 +305,7 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
-    ]
-
-    userHasFeature(viewerData?.me, 'notion') &&
-      integrationsArray.push({
+      {
         icon: '/static/icons/notion.png',
         title: 'Notion',
         subText:
@@ -325,7 +320,8 @@ export default function Integrations(): JSX.Element {
               : redirectToIntegration('NOTION')
           },
         },
-      })
+      },
+    ]
 
     setIntegrationsArray(integrationsArray)
   }, [getIntegration, router])

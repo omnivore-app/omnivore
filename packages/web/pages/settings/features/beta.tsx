@@ -12,8 +12,6 @@ import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQ
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
-const ACCOUNT_LIMIT = 50_000
-
 const StyledLabel = styled('label', {
   fontWeight: 600,
   fontSize: '16px',
@@ -47,10 +45,6 @@ export default function Account(): JSX.Element {
     return viewerData?.me?.featureList?.some(
       (f) => f.name === 'youtube-transcripts'
     )
-  }, [viewerData])
-
-  const hasNotion = useMemo(() => {
-    return viewerData?.me?.featureList?.some((f) => f.name === 'notion')
   }, [viewerData])
 
   applyStoredTheme()
@@ -116,8 +110,7 @@ export default function Account(): JSX.Element {
                   )
                 })}
 
-                {(!hasYouTube ||
-                  !hasNotion) /* || !hasAISummaries || !hasDigest */ && (
+                {!hasYouTube /* || !hasAISummaries || !hasDigest */ && (
                   <StyledLabel css={{ mt: '25px' }}>
                     Available beta features
                   </StyledLabel>
@@ -142,31 +135,6 @@ export default function Account(): JSX.Element {
                         style="ctaDarkYellow"
                         onClick={(event) => {
                           requestFeatureAccess('youtube-transcripts')
-                          event.preventDefault()
-                        }}
-                      >
-                        Request feature
-                      </Button>
-                    </VStack>
-                  )}
-
-                  {!hasNotion && (
-                    <VStack
-                      alignment="start"
-                      distribution="start"
-                      css={{ width: '100%' }}
-                    >
-                      <StyledText
-                        style="footnote"
-                        css={{ display: 'flex', gap: '5px' }}
-                      >
-                        - Notion integration: Export your items and highlights
-                        to Notion.
-                      </StyledText>
-                      <Button
-                        style="ctaDarkYellow"
-                        onClick={(event) => {
-                          requestFeatureAccess('notion')
                           event.preventDefault()
                         }}
                       >
