@@ -284,10 +284,11 @@ public struct LibraryItemCard: View {
       let texts = [savedAtText, estimatedReadingTimeText, readingProgressText, highlightsText, notesText]
         .compactMap { $0 }
 
-      texts.dropLast().reduce(Text("")) { result, text in
+      if texts.count > 0 {
+        texts.dropLast().reduce(Text("")) { result, text in
           result + text + Text(" • ").font(.footnote).foregroundColor(Color.themeLibraryItemSubtle)
-      } + texts.last!
-        // .reduce(Text(""), +)
+        } + texts.last!
+      }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }

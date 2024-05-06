@@ -38,7 +38,7 @@ enum LoadingBarStyle {
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var appliedSort = LinkedItemSort.newest.rawValue
-  
+
   @Published var digestIsUnread = false
 
   @State var lastMoreFetched: Date?
