@@ -36,6 +36,18 @@ public struct DigestChapter: Codable {
   }
 }
 
+public struct DigestChapterData {
+  public let time: String
+  public let start: Int
+  public let end: Int
+
+  public init(time: String, start: Int, end: Int) {
+    self.time = time
+    self.start = start
+    self.end = end
+  }
+}
+
 public struct RefreshDigestResult: Codable {
   public let jobId: String
 }

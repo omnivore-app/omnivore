@@ -55,7 +55,7 @@ func savedDateString(_ savedAt: Date?) -> String {
       dateFormatter.dateFormat = "MMM dd"
     }
     dateFormatter.locale = locale
-    return dateFormatter.string(from: savedAt) + " • "
+    return dateFormatter.string(from: savedAt)
   }
   return ""
 }
@@ -160,12 +160,19 @@ public struct LibraryItemCard: View {
   var estimatedReadingTime: String {
     if item.wordsCount > 0 {
       let readLen = max(1, item.wordsCount / readingSpeed)
-      return "\(readLen) MIN READ • "
+      return "\(readLen) MIN READ"
     }
     return ""
   }
 
   var readingProgress: String {
+    if item.readingProgress < 2 {
+      return ""
+    }
+    var readingProgress = item.readingProgress
+    if readingProgress > 95 {
+      readingProgress = 100
+    }
     // If there is no wordsCount don't show progress because it will make no sense
     if item.wordsCount > 0 {
       return "\(String(format: "%d", Int(item.readingProgress)))%"
@@ -181,18 +188,15 @@ public struct LibraryItemCard: View {
     item.wordsCount > 0 || item.highlights?.first { ($0 as? Highlight)?.annotation != nil } != nil
   }
 
-  var highlightsText: String {
+  var highlightsStr: String {
     if let highlights = item.highlights, highlights.count > 0 {
       let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
-      if item.wordsCount > 0 || item.isPDF {
-        return " • \(fmted)"
-      }
       return fmted
     }
     return ""
   }
 
-  var notesText: String {
+  var notesStr: String {
     let notes = item.highlights?.filter { item in
       if let highlight = item as? Highlight {
         return !(highlight.annotation ?? "").isEmpty
@@ -202,9 +206,6 @@ public struct LibraryItemCard: View {
 
     if let notes = notes, notes.count > 0 {
       let fmted = LocalText.pluralizedText(key: "number_of_notes", count: notes.count)
-      if hasMultipleInfoItems {
-        return " • \(fmted)"
-      }
       return fmted
     }
     return ""
@@ -228,35 +229,66 @@ public struct LibraryItemCard: View {
     }
   }
 
+  var savedAtText: Text? {
+    if !savedAtStr.isEmpty {
+      return Text(savedAtStr)
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+    }
+    return nil
+  }
+
+  var estimatedReadingTimeText: Text? {
+    if !estimatedReadingTime.isEmpty {
+      return Text("\(estimatedReadingTime)")
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+
+    }
+    return nil
+  }
+
+  var readingProgressText: Text? {
+    if !readingProgress.isEmpty {
+      return Text("\(readingProgress)")
+      .font(.footnote)
+      .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeLibraryItemSubtle)
+    }
+    return nil
+  }
+
+  var highlightsText: Text? {
+    if !highlightsStr.isEmpty {
+      return Text("\(highlightsStr)")
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+    }
+    return nil
+  }
+
+  var notesText: Text? {
+    if !notesStr.isEmpty {
+      return Text("\(notesStr)")
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+    }
+    return nil
+  }
+
   var readInfo: some View {
     HStack(alignment: .center, spacing: 5.0) {
       ForEach(flairLabels, id: \.self) {
         $0.icon
       }
 
-      Text(savedAtStr)
-        .font(.footnote)
-        .foregroundColor(Color.themeLibraryItemSubtle)
+      let texts = [savedAtText, estimatedReadingTimeText, readingProgressText, highlightsText, notesText]
+        .compactMap { $0 }
 
-      +
-      Text("\(estimatedReadingTime)")
-        .font(.footnote)
-        .foregroundColor(Color.themeLibraryItemSubtle)
-
-        +
-        Text("\(readingProgress)")
-        .font(.footnote)
-        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeLibraryItemSubtle)
-
-        +
-        Text("\(highlightsText)")
-        .font(.footnote)
-        .foregroundColor(Color.themeLibraryItemSubtle)
-
-        +
-        Text("\(notesText)")
-        .font(.footnote)
-        .foregroundColor(Color.themeLibraryItemSubtle)
+      if texts.count > 0 {
+        texts.dropLast().reduce(Text("")) { result, text in
+          result + text + Text(" • ").font(.footnote).foregroundColor(Color.themeLibraryItemSubtle)
+        } + texts.last!
+      }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }

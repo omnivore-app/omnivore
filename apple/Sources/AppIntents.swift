@@ -28,6 +28,20 @@
   }
 
   @available(iOS 16.0, *)
+  enum OmnivoreIntentError: Swift.Error, CustomLocalizedStringResourceConvertible {
+    case general
+    case message(_ message: String)
+
+    var localizedStringResource: LocalizedStringResource {
+      switch self {
+      case let .message(message): return "Error: \(message)"
+      case .general: return "My general error"
+      }
+    }
+  }
+
+
+  @available(iOS 16.0, *)
   struct LibraryItemEntity: AppEntity {
     static var defaultQuery = LibraryItemQuery()
 
@@ -108,15 +122,36 @@
     var link: URL
 
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
-      do {
-        let requestId = UUID().uuidString.lowercased()
-        _ = try? await Services().dataService.saveURL(id: requestId, url: link.absoluteString)
-        return .result(dialog: "Link saved to Omnivore")
-      } catch {
-        print("error saving URL: ", error)
+    func perform() async throws -> some IntentResult & ProvidesDialog & ReturnsValue<URL> {
+      let requestId = UUID().uuidString.lowercased()
+      let result  = try? await Services().dataService.saveURL(id: requestId, url: link.absoluteString)
+      if let result = result, let deepLink = URL(string: "omnivore://read/\(result)") {
+        return .result(value: deepLink, dialog: "Link saved")
       }
-      return .result(dialog: "Error saving link")
+      throw OmnivoreIntentError.message("Unable to save link")
+    }
+  }
+
+  @available(iOS 16.0, *)
+  struct SaveToOmnivoreAndReturnDeeplinkIntent: AppIntent {
+    static var title: LocalizedStringResource = "Save to Omnivore"
+    static var description: LocalizedStringResource = "Save a URL to your Omnivore library"
+
+    static var parameterSummary: some ParameterSummary {
+      Summary("Save \(\.$link) to your Omnivore library.")
+    }
+
+    @Parameter(title: "link")
+    var link: URL
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<URL> {
+      let requestId = UUID().uuidString.lowercased()
+      let result  = try? await Services().dataService.saveURL(id: requestId, url: link.absoluteString)
+      if let result = result, let deepLink = URL(string: "omnivore://read/\(result)") {
+        return .result(value: deepLink)
+      }
+      throw OmnivoreIntentError.message("Unable to save link")
     }
   }
 

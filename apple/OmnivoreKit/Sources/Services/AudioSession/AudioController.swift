@@ -33,16 +33,20 @@ public struct DigestAudioItem: AudioItemProperties {
   public let digest: DigestResult
   public let itemID: String
   public let title: String
+  public let chapters: [DigestChapterData]
+
   public var byline: String?
   public var imageURL: URL?
   public var language: String?
   public var startIndex: Int = 0
   public var startOffset: Double = 0.0
 
-  public init(digest: DigestResult) {
+  public init(digest: DigestResult, chapters: [DigestChapterData]) {
     self.digest = digest
     self.itemID = digest.id
     self.title = digest.title
+    self.chapters = chapters
+ 
     self.startIndex = 0
     self.startOffset = 0
 
@@ -697,7 +701,6 @@ public struct DigestAudioItem: AudioItemProperties {
           player?.insert(playerItem, after: nil)
           if player?.items().count == 1, atOffset > 0.0 {
             playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
-              print("success seeking to time: ", success)
               self.fireTimer()
             }
           }
@@ -810,15 +813,16 @@ public struct DigestAudioItem: AudioItemProperties {
         let percentProgress = timeElapsed / duration
         let speechIndex = (player?.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
         let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
-        
+
         if let itemID = itemAudioProperties?.itemID {
           dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex, force: true)
         }
-        
-        if let itemID = itemAudioProperties?.itemID, let player = player, let currentItem = player.currentItem {
+
+        if let itemID = itemAudioProperties?.itemID,
+            let player = player,
+            let currentItem = player.currentItem,
+            itemAudioProperties?.audioItemType == .libraryItem {
           let currentOffset = CMTimeGetSeconds(currentItem.currentTime())
-          print("updating listening info: ", speechIndex, currentOffset, timeElapsed)
-          
           dataService.updateLinkListeningProgress(itemID: itemID,
                                                   listenIndex: speechIndex,
                                                   listenOffset: currentOffset,
@@ -907,12 +911,61 @@ public struct DigestAudioItem: AudioItemProperties {
         }
         return .commandFailed
       }
-      
+
+      if let digest = self.itemAudioProperties as? DigestAudioItem {
+        commandCenter.nextTrackCommand.isEnabled = true
+        commandCenter.nextTrackCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+          if let next = self.nextChapterIndex(chapters: digest.chapters, idx: self.currentAudioIndex) {
+            self.seek(toIdx: next)
+            return .success
+          }
+          return .commandFailed
+        }
+
+        commandCenter.previousTrackCommand.isEnabled = true
+        commandCenter.previousTrackCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+          if let next = self.prevChapterIndex(chapters: digest.chapters, idx: self.currentAudioIndex) {
+            self.seek(toIdx: next)
+            return .success
+          }
+          return .commandFailed
+        }
+      }
+
       Task {
         await downloadAndSetArtwork()
       }
     }
-    
+
+    func nextChapterIndex(chapters: [DigestChapterData], idx: Int) -> Int? {
+      if let chapterIdx = currentChapterIndex(chapters: chapters, idx: idx) {
+        if chapterIdx + 1 < chapters.count {
+          return chapters[chapterIdx + 1].start
+        }
+      }
+      return nil
+    }
+
+    func prevChapterIndex(chapters: [DigestChapterData], idx: Int) -> Int? {
+      if let chapterIdx = currentChapterIndex(chapters: chapters, idx: idx) {
+        if chapterIdx - 1 > 0 {
+          return chapterIdx - 1
+        }
+      }
+      return nil
+    }
+
+    func currentChapterIndex(chapters: [DigestChapterData], idx: Int) -> Int? {
+      for (chapterIdx, chapter) in chapters.enumerated() {
+        if idx >= chapter.start && idx < chapter.end {
+          if chapterIdx + 1 < chapters.count {
+            return chapterIdx
+          }
+        }
+      }
+      return nil
+    }
+
     func isoLangForCurrentVoice() -> String {
       // currentVoicePair should not ever be nil but if it is we return an empty string
       if let isoLang = currentVoicePair?.language {
@@ -965,9 +1018,7 @@ public struct DigestAudioItem: AudioItemProperties {
         throw BasicError.message(messageText: "audioFetch failed. no data received.")
       }
       
-      let str = String(decoding: data, as: UTF8.self)
-      print("result speech file: ", str)
-      
+      let str = String(decoding: data, as: UTF8.self)      
       if let document = try? JSONDecoder().decode(SpeechDocument.self, from: data) {
         do {
           try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
