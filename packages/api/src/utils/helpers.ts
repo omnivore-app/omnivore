@@ -411,3 +411,15 @@ export const setRecentlySavedItemInRedis = async (
     })
   }
 }
+
+export const getClientFromUserAgent = (userAgent: string): string => {
+  // for plugins, currently only obsidian and logseq are supported
+  const plugins = userAgent.match(/(obsidian|logseq)/i)
+  if (plugins) return plugins[0].toLowerCase()
+
+  // web browser
+  const browsers = userAgent.match(/(chrome|safari|firefox|edge|opera)/i)
+  if (browsers) return 'web'
+
+  return 'other'
+}
