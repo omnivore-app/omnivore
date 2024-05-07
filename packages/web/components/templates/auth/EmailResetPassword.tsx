@@ -13,8 +13,9 @@ export function EmailResetPassword(): JSX.Element {
   const router = useRouter()
   const [token, setToken] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string>('')
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -39,42 +40,48 @@ export function EmailResetPassword(): JSX.Element {
         alignment="center"
         css={{
           padding: '16px',
-          background: 'white',
           minWidth: '340px',
           width: '70vw',
           maxWidth: '576px',
           borderRadius: '8px',
-          border: '1px solid #3D3D3D',
-          boxShadow: '#B1B1B1 9px 9px 9px -9px',
+          background: '#343434',
+          border: '1px solid #6A6968',
+          boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.15)',
         }}
       >
         <VStack
           css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
         >
-          <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Enter new password</FormLabel>
+          <VStack css={{ width: '100%', gap: '5px' }}>
+            <FormLabel className="required" css={{ color: '#D9D9D9' }}>
+              Enter new password
+            </FormLabel>
             <BorderedFormInput
               type="password"
               key="password"
               name="password"
               value={password}
               placeholder="Password"
-              css={{ bg: 'white', color: 'black' }}
+              css={{
+                backgroundColor: '#2A2A2A',
+                color: 'white',
+                border: 'unset',
+              }}
               onChange={(e) => {
                 e.preventDefault()
                 setPassword(e.target.value)
               }}
             />
-            <FormLabel css={{ fontSize: '12px' }}>
+            <FormLabel css={{ fontSize: '12px', color: '#D9D9D9' }}>
               (Password must be at least 8 chars)
             </FormLabel>
 
             <input type="hidden" name="token" value={token} />
-          </SpanBox>
+          </VStack>
         </VStack>
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
-        <Button type="submit" style="ctaDarkYellow" css={{ my: '$2' }}>
+        <Button type="submit" style="ctaBlue" css={{ my: '$2' }}>
           Update Password
         </Button>
       </VStack>

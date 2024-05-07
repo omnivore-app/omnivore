@@ -15,7 +15,8 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
         distribution="center"
         css={{
           height: '100vh',
-          bg: '$omnivoreYellow',
+          color: '#898989',
+          background: '#2A2A2A',
         }}
       >
         {props.children}
