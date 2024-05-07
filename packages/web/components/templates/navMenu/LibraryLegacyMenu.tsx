@@ -34,6 +34,74 @@ type LibraryFilterMenuProps = {
   setShowFilterMenu: (show: boolean) => void
 }
 
+const OnboardingBox = (): JSX.Element => {
+  return (
+    <Box css={{ p: '15px' }}>
+      <VStack
+        css={{
+          color: '#01A800',
+          border: '1px solid #01A80080',
+          borderRadius: '5px',
+          bg: '#01A80010',
+          fontFamily: 'Inter',
+          fontWeight: '600',
+          fontSize: '14px',
+          lineHeight: '125%',
+          p: '10px',
+          mt: '20px',
+          mb: '10px',
+          gap: '10px',
+        }}
+      >
+        <HStack css={{ width: '100%' }} distribution="between">
+          <SpanBox>Get Started</SpanBox>
+          <SpanBox>20%</SpanBox>
+        </HStack>
+        <HStack css={{ gap: '5px' }}>
+          <Box
+            css={{
+              borderRadius: '5px 0px 0px 5px',
+              height: '10px',
+              width: '40px',
+              bg: '#01A800',
+            }}
+          ></Box>
+          <Box
+            css={{
+              height: '10px',
+              width: '40px',
+              bg: '#01A80030',
+            }}
+          ></Box>
+          <Box
+            css={{
+              height: '10px',
+              width: '40px',
+              bg: '#01A80030',
+            }}
+          ></Box>
+          <Box
+            css={{
+              height: '10px',
+              width: '40px',
+              bg: '#01A80030',
+            }}
+          ></Box>
+          <Box
+            css={{
+              borderRadius: '0px 5px 5px 0px',
+
+              height: '10px',
+              width: '40px',
+              bg: '#01A80030',
+            }}
+          ></Box>
+        </HStack>
+      </VStack>
+    </Box>
+  )
+}
+
 export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
   const [labels, setLabels] = usePersistedState<Label[]>({
     key: 'menu-labels',
@@ -145,6 +213,7 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
             <X size={30} />
           </Button>
         </Box>
+        <OnboardingBox />
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
         <Labels {...props} labels={labels} />
