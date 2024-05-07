@@ -12,24 +12,21 @@ export type RequestContext = {
   }
 }
 
-type RequestHeaders = {
-  authorization?: string
-  pendingUserAuth?: string
-}
-
-function requestHeaders(): RequestHeaders {
+function requestHeaders(): Record<string, string> {
   const authToken = window?.localStorage.getItem('authToken') || undefined
   const pendingAuthToken =
     window?.localStorage.getItem('pendingUserAuth') || undefined
 
   if (authToken) {
     return {
+      'X-OmnivoreClient': 'web',
       authorization: authToken,
     }
   }
 
   if (pendingAuthToken) {
     return {
+      'X-OmnivoreClient': 'web',
       pendingUserAuth: pendingAuthToken,
     }
   }
