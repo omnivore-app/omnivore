@@ -4,31 +4,74 @@ import Services
 import Views
 import MarkdownUI
 import Utils
+import Transmission
+
+func getChapterData(digest: DigestResult) -> [(DigestChapter, DigestChapterData)] {
+  let speed = 1.0
+  var chapterData: [(DigestChapter, DigestChapterData)] = []
+  var currentAudioIndex = 0
+  var currentWordCount = 0.0
+
+  for (index, speechFile) in digest.speechFiles.enumerated() {
+    let chapter = digest.chapters[index]
+    let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
+
+    chapterData.append((chapter, DigestChapterData(
+      time: formatTimeInterval(duration) ?? "00:00",
+      start: Int(currentAudioIndex),
+      end: currentAudioIndex + Int(speechFile.utterances.count)
+    )))
+    currentAudioIndex += Int(speechFile.utterances.count)
+    currentWordCount += chapter.wordCount
+  }
+  return chapterData
+}
+
+func formatTimeInterval(_ time: TimeInterval) -> String? {
+  let componentFormatter = DateComponentsFormatter()
+  componentFormatter.unitsStyle = .positional
+  componentFormatter.allowedUnits = time >= 3600 ? [.second, .minute, .hour] : [.second, .minute]
+  componentFormatter.zeroFormattingBehavior = .pad
+  return componentFormatter.string(from: time)
+}
 
 @MainActor
 public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var digest: DigestResult?
+  @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
+  @Published var presentedLibraryItem: String?
+  @Published var presentWebContainer = false
+
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func load(dataService: DataService, audioController: AudioController) async {
-    if let digest = dataService.loadStoredDigest() {
-      self.digest = digest
-    } else {
-      isLoading = true
-    }
-    do {
-      if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
+    if !digestNeedsRefresh() {
+      if let digest = dataService.loadStoredDigest() {
         self.digest = digest
-        lastVisitedDigestId = digest.id
-        if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
-          // Don't think we need to do anything here
-        } else {
-          audioController.play(itemAudioProperties: DigestAudioItem(digest: digest))
-        }
       }
-    } catch {
-      print("ERROR WITH DIGEST: ", error)
+    } else {
+      do {
+        if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
+          self.digest = digest
+        }
+      } catch {
+        print("ERROR WITH DIGEST: ", error)
+        self.digest = nil
+      }
+    }
+
+    if let digest = self.digest {
+      self.digest = digest
+      self.chapterInfo = getChapterData(digest: digest)
+      self.lastVisitedDigestId = digest.id
+
+      if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
+        // Don't think we need to do anything here
+      } else {
+        let chapterData = self.chapterInfo?.map { $0.1 }
+        audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapterData ?? []))
+      }
     }
 
     isLoading = false
@@ -40,6 +83,22 @@ public class FullScreenDigestViewModel: ObservableObject {
     } catch {
       print("ERROR WITH DIGEST: ", error)
     }
+  }
+
+  func digestNeedsRefresh() -> Bool {
+    let fileManager = FileManager.default
+    let localURL = URL.om_cachesDirectory.appendingPathComponent("digest.json")
+    do {
+      let attributes = try fileManager.attributesOfItem(atPath: localURL.path)
+      if let modificationDate = attributes[.modificationDate] as? Date {
+        // Two hours ago
+        let twoHoursAgo = Date().addingTimeInterval(-2 * 60 * 60)
+        return modificationDate < twoHoursAgo
+      }
+    } catch {
+        print("Error: \(error)")
+    }
+    return true
   }
 }
 
@@ -82,9 +141,35 @@ struct FullScreenDigestView: View {
     return ""
   }
 
+  var slideTransition: PresentationLinkTransition {
+    PresentationLinkTransition.slide(
+      options: PresentationLinkTransition.SlideTransitionOptions(
+        edge: .trailing,
+        options: PresentationLinkTransition.Options(
+          modalPresentationCapturesStatusBarAppearance: true
+        )
+      ))
+  }
+
   var body: some View {
     VStack {
       titleBlock
+
+      if let presentedLibraryItem = self.viewModel.presentedLibraryItem {
+        PresentationLink(
+          transition: slideTransition,
+          isPresented: $viewModel.presentWebContainer,
+          destination: {
+            WebReaderLoadingContainer(requestID: presentedLibraryItem)
+              .background(ThemeManager.currentBgColor)
+              .onDisappear {
+                self.viewModel.presentedLibraryItem = nil
+              }
+          }, label: {
+            EmptyView()
+          }
+        )
+      }
 
       Group {
         if viewModel.isLoading {
@@ -114,35 +199,6 @@ struct FullScreenDigestView: View {
     .buttonStyle(.plain)
   }
 
-  func getChapterData(digest: DigestResult) -> [String:(time: String, start: Int, end: Int)] {
-    let speed = 1.0
-    var chapterData: [String:(time: String, start: Int, end: Int)] = [:]
-    var currentAudioIndex = 0
-    var currentWordCount = 0.0
-
-    for (index, speechFile) in digest.speechFiles.enumerated() {
-      let chapter = digest.chapters[index]
-      let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
-
-      chapterData[chapter.id] = (
-        time: formatTimeInterval(duration) ?? "00:00",
-        start: Int(currentAudioIndex),
-        end: currentAudioIndex + Int(speechFile.utterances.count)
-      )
-      currentAudioIndex += Int(speechFile.utterances.count)
-      currentWordCount += chapter.wordCount
-    }
-    return chapterData
-  }
-
-  func formatTimeInterval(_ time: TimeInterval) -> String? {
-    let componentFormatter = DateComponentsFormatter()
-    componentFormatter.unitsStyle = .positional
-    componentFormatter.allowedUnits = time >= 3600 ? [.second, .minute, .hour] : [.second, .minute]
-    componentFormatter.zeroFormattingBehavior = .pad
-    return componentFormatter.string(from: time)
-  }
-
   @available(iOS 17.0, *)
   var itemBody: some View {
     VStack {
@@ -166,11 +222,6 @@ struct FullScreenDigestView: View {
               .font(Font.system(size: 12))
               .foregroundColor(Color(hex: "#898989"))
               .lineLimit(1)
-            Text(digest.description)
-              .font(Font.system(size: 14))
-              .lineSpacing(/*@START_MENU_TOKEN@*/10.0/*@END_MENU_TOKEN@*/)
-              .foregroundColor(Color.themeLibraryItemSubtle)
-              .lineLimit(6)
           } else {
             Text("We're building you a new digest")
               .font(Font.system(size: 17, weight: .semibold))
@@ -182,30 +233,35 @@ struct FullScreenDigestView: View {
         .background(Color.themeLabelBackground.opacity(0.6))
         .cornerRadius(5)
 
-        if let digest = viewModel.digest {
+        if let chapters = viewModel.chapterInfo {
           VStack(alignment: .leading, spacing: 10) {
             Text("Chapters")
               .font(Font.system(size: 17, weight: .semibold))
               .frame(maxWidth: .infinity, alignment: .leading)
               .padding(0)
-            let chapterData = getChapterData(digest: digest)
-            ForEach(digest.chapters, id: \.id) { chapter in
-              if let startTime = chapterData[chapter.id]?.time, let skipIndex = chapterData[chapter.id]?.start {
-                let currentChapter = audioController.currentAudioIndex >= (chapterData[chapter.id]?.start ?? 0) &&
-                                     audioController.currentAudioIndex  < (chapterData[chapter.id]?.end ?? 0)
-                ChapterView(
-                  startTime: startTime,
-                  skipIndex: skipIndex,
-                  chapter: chapter
-                )
-                .onTapGesture {
-                  audioController.seek(toIdx: skipIndex)
+            ForEach(chapters, id: \.0.id) { chaps in
+              let (chapter, chapterData) = chaps
+              let currentChapter = (audioController.currentAudioIndex >= chapterData.start && audioController.currentAudioIndex < chapterData.end)
+
+              ChapterView(
+                startTime: chapterData.time,
+                skipIndex: chapterData.start,
+                chapter: chapter
+              )
+              .onTapGesture {
+                audioController.seek(toIdx: chapterData.start)
+                if audioController.state != .loading && !audioController.isPlaying {
+                  audioController.unpause()
                 }
-                .background(
-                  currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
-                )
-                .cornerRadius(5)
               }
+              .onLongPressGesture {
+                viewModel.presentedLibraryItem = chapter.id
+                viewModel.presentWebContainer = true
+              }
+              .background(
+                currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
+              )
+              .cornerRadius(5)
             }
           }
           .padding(.top, 20)
@@ -238,27 +294,27 @@ struct FullScreenDigestView: View {
           RatingWidget()
           Spacer(minLength: 60)
         }
-        
-        VStack(alignment: .leading, spacing: 20) {
-          Text("If you didn't like today's digest or would like another one you can create another one. The process takes a few minutes")
-          Button(action: {
-            Task {
-              await viewModel.refreshDigest(dataService: dataService)
-            }
-          }, label: {
-            Text("Create new digest")
-              .font(Font.system(size: 13, weight: .medium))
-              .padding(.horizontal, 8)
-              .padding(.vertical, 5)
-              .tint(Color.blue)
-              .background(Color.themeLabelBackground)
-              .cornerRadius(5)
-          })
-        }
-        .padding(15)
-        .background(Color.themeLabelBackground.opacity(0.6))
-        .cornerRadius(5)
-
+//        
+//        VStack(alignment: .leading, spacing: 20) {
+//          Text("If you didn't like today's digest or would like another one you can create another one. The process takes a few minutes")
+//          Button(action: {
+//            Task {
+//              await viewModel.refreshDigest(dataService: dataService)
+//            }
+//          }, label: {
+//            Text("Create new digest")
+//              .font(Font.system(size: 13, weight: .medium))
+//              .padding(.horizontal, 8)
+//              .padding(.vertical, 5)
+//              .tint(Color.blue)
+//              .background(Color.themeLabelBackground)
+//              .cornerRadius(5)
+//          })
+//        }
+//        .padding(15)
+//        .background(Color.themeLabelBackground.opacity(0.6))
+//        .cornerRadius(5)
+//
       }.contentMargins(10, for: .scrollContent)
 
       Spacer()

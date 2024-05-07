@@ -351,6 +351,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         if viewModel.currentFolder == "following", viewModel.fetcher.items.count > 0 {
           viewModel.stopUsingFollowingPrimer = true
         }
+        await viewModel.checkForDigestUpdate(dataService: dataService)
       }
       .environment(\.editMode, self.$isEditMode)
       .navigationBarTitleDisplayMode(.inline)

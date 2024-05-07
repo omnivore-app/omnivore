@@ -216,7 +216,9 @@ public enum WebFont: String, CaseIterable {
           updateReaderPreferences()
 
         }, label: { Image(systemName: "textformat.size.smaller") })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
         CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 48) { _ in
           if storedFontSize % 1 == 0 {
             updateReaderPreferences()
@@ -230,7 +232,9 @@ public enum WebFont: String, CaseIterable {
           updateReaderPreferences()
 
         }, label: { Image(systemName: "textformat.size.larger") })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
       }
     }
 
@@ -244,7 +248,9 @@ public enum WebFont: String, CaseIterable {
           updateReaderPreferences()
 
         }, label: { Image("margin-smaller", bundle: .module) })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
         CustomSlider(value: $storedMaxWidthPercentage, minValue: minValue, maxValue: 100) { _ in
           updateReaderPreferences()
         }
@@ -256,7 +262,9 @@ public enum WebFont: String, CaseIterable {
           updateReaderPreferences()
 
         }, label: { Image("margin-larger", bundle: .module) })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
       }
     }
 
@@ -267,7 +275,9 @@ public enum WebFont: String, CaseIterable {
           updateReaderPreferences()
 
         }, label: { Image("lineheight-smaller", bundle: .module) })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
         CustomSlider(value: $storedLineSpacing, minValue: 100, maxValue: 300) { _ in
           updateReaderPreferences()
         }
@@ -279,7 +289,9 @@ public enum WebFont: String, CaseIterable {
           updateReaderPreferences()
 
         }, label: { Image("lineheight-larger", bundle: .module) })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
       }
     }
 
@@ -288,7 +300,9 @@ public enum WebFont: String, CaseIterable {
         Button(action: {
           storedFontSize = min(storedFontSize + 2, 28)
         }, label: { Image("brightness-lower", bundle: .module) })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
         CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
           updateReaderPreferences()
         }
@@ -297,7 +311,9 @@ public enum WebFont: String, CaseIterable {
         Button(action: {
           storedFontSize = max(storedFontSize - 2, 10)
         }, label: { Image("brightness-higher", bundle: .module) })
+          .buttonStyle(.plain)
           .frame(width: 25, height: 25, alignment: .center)
+          .foregroundColor(.appGrayTextContrast.opacity(0.4))
       }
     }
 
@@ -371,6 +387,7 @@ public enum WebFont: String, CaseIterable {
           Text("Margin")
             .font(Font.system(size: 14))
             .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.appGrayTextContrast)
 
           marginSlider
             .padding(.top, 5)
@@ -379,6 +396,7 @@ public enum WebFont: String, CaseIterable {
           Text("Line Height")
             .font(Font.system(size: 14))
             .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.appGrayTextContrast)
 
           lineHeightSlider
           // .padding(.bottom, 20)
@@ -390,7 +408,7 @@ public enum WebFont: String, CaseIterable {
           //
           //            brightnessSlider
 
-        }.tint(Color(hex: "#6A6968"))
+        }.tint(.appGrayTextContrast)
           .padding(.horizontal, 30)
 
         Divider()
@@ -401,6 +419,7 @@ public enum WebFont: String, CaseIterable {
             Text("Theme")
               .font(Font.system(size: 14))
               .frame(maxWidth: .infinity, alignment: .leading)
+              .foregroundColor(.appGrayTextContrast)
             Spacer()
 
             systemThemeCheckbox

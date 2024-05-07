@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -30,8 +30,8 @@ import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
 import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { useRouter } from 'next/router'
-import { DiscoverIcon } from "../../elements/icons/DiscoverIcon"
-import { escapeQuotes } from "../../../utils/helper"
+import { DiscoverIcon } from '../../elements/icons/DiscoverIcon'
+import { escapeQuotes } from '../../../utils/helper'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -158,9 +158,6 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         </Box>
         <LibraryNav {...props} />
         <Shortcuts {...props} />
-        {/* <SavedSearches {...props} savedSearches={savedSearches} />
-        <Subscriptions {...props} subscriptions={subscriptions} />
-        <Labels {...props} labels={labels} /> */}
         <NavMenuFooter {...props} />
         <Box css={{ height: '250px ' }} />
       </Box>

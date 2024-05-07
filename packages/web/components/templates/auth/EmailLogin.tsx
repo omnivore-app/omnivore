@@ -1,4 +1,4 @@
-import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText, StyledTextSpan } from '../../elements/StyledText'
 import { useEffect, useRef, useState } from 'react'
@@ -17,8 +17,8 @@ const LoginForm = (): JSX.Element => {
 
   return (
     <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
-      <SpanBox css={{ width: '100%' }}>
-        <FormLabel>Email</FormLabel>
+      <VStack css={{ width: '100%', gap: '5px' }}>
+        <FormLabel css={{ color: '#D9D9D9' }}>Email</FormLabel>
         <BorderedFormInput
           autoFocus={true}
           key="email"
@@ -26,26 +26,26 @@ const LoginForm = (): JSX.Element => {
           name="email"
           value={email}
           placeholder="Email"
-          css={{ backgroundColor: 'white', color: 'black' }}
+          css={{ backgroundColor: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => {
             e.preventDefault()
             setEmail(e.target.value)
           }}
         />
-      </SpanBox>
+      </VStack>
 
-      <SpanBox css={{ width: '100%' }}>
-        <FormLabel>Password</FormLabel>
+      <VStack css={{ width: '100%', gap: '5px' }}>
+        <FormLabel css={{ color: '#D9D9D9' }}>Password</FormLabel>
         <BorderedFormInput
           key="password"
           type="password"
           name="password"
           value={password}
           placeholder="Password"
-          css={{ bg: 'white', color: 'black' }}
+          css={{ bg: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => setPassword(e.target.value)}
         />
-      </SpanBox>
+      </VStack>
     </VStack>
   )
 }
@@ -72,16 +72,16 @@ export function EmailLogin(): JSX.Element {
         alignment="center"
         css={{
           padding: '16px',
-          background: 'white',
           minWidth: '340px',
           width: '70vw',
           maxWidth: '576px',
           borderRadius: '8px',
-          border: '1px solid #3D3D3D',
-          boxShadow: '#B1B1B1 9px 9px 9px -9px',
+          background: '#343434',
+          border: '1px solid #6A6968',
+          boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.15)',
         }}
       >
-        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
+        <StyledText style="subHeadline" css={{ color: '#D9D9D9' }}>
           Login
         </StyledText>
 
@@ -118,8 +118,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           <Button
-            style={'ctaOutlineYellow'}
-            css={{ color: '$omnivoreGray', borderColor: '$omnivoreLightGray' }}
+            style={'cancelAuth'}
             type="button"
             onClick={async (event) => {
               window.localStorage.removeItem('authVerified')
@@ -134,7 +133,13 @@ export function EmailLogin(): JSX.Element {
           >
             Cancel
           </Button>
-          <Button type="submit" style={'ctaDarkYellow'}>
+          <Button
+            type="submit"
+            style="ctaBlue"
+            css={{
+              padding: '10px 50px',
+            }}
+          >
             Login
           </Button>
         </HStack>
@@ -151,7 +156,7 @@ export function EmailLogin(): JSX.Element {
         >
           Don&apos;t have an account?{' '}
           <Link href="/auth/email-signup" passHref legacyBehavior>
-            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
+            <StyledTextSpan style="actionLink" css={{ color: '$ctaBlue' }}>
               Sign up
             </StyledTextSpan>
           </Link>
@@ -169,7 +174,10 @@ export function EmailLogin(): JSX.Element {
         >
           Forgot your password?{' '}
           <Link href="/auth/forgot-password" passHref legacyBehavior>
-            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
+            <StyledTextSpan
+              style="actionLink"
+              css={{ color: '$omnivoreLightGray' }}
+            >
               Click here
             </StyledTextSpan>
           </Link>

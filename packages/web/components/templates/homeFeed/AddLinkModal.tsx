@@ -240,9 +240,12 @@ const AddFromURL = (props: AddFromURLProps): JSX.Element => {
           </HStack>
         )}
         <Button
-          style="ctaBlue"
+          style="ctaOmnivoreYellow"
           type="submit"
-          css={{ marginLeft: 'auto', marginTop: 'auto' }}
+          css={{
+            marginLeft: 'auto',
+            marginTop: 'auto',
+          }}
         >
           Add
         </Button>

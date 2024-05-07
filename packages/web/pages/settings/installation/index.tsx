@@ -1,8 +1,24 @@
 import React from 'react'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import MobileInstallHelp from '../../../components/elements/MobileInstallHelp'
+import IOSInstallHelp from '../../../components/elements/IOSInstallHelp'
 import ExtensionInstallHelp from '../../../components/elements/ExtensionsInstallHelp'
 import { Box } from '../../../components/elements/LayoutPrimitives'
+import AndroidInstallHelp from '../../../components/elements/AndroidInstallHelp'
+
+const Divider = (): JSX.Element => {
+  return (
+    <Box
+      css={{
+        my: '$2',
+        '@lg': {
+          my: '12px',
+          height: '1px',
+          backgroundColor: '$grayBorder',
+        },
+      }}
+    />
+  )
+}
 
 export default function Installation(): JSX.Element {
   return (
@@ -22,17 +38,10 @@ export default function Installation(): JSX.Element {
           },
         }}
       >
-        <MobileInstallHelp />
-        <Box
-          css={{
-            my: '$2',
-            '@lg': {
-              my: '12px',
-              height: '1px',
-              backgroundColor: '$grayBorder',
-            },
-          }}
-        />
+        <IOSInstallHelp />
+        <Divider />
+        <AndroidInstallHelp />
+        <Divider />
         <ExtensionInstallHelp />
       </Box>
     </SettingsLayout>

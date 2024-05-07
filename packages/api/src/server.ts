@@ -21,6 +21,7 @@ import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
 import { digestRouter } from './routers/digest_router'
+import { explainRouter } from './routers/explain_router'
 import { integrationRouter } from './routers/integration_router'
 import { localDebugRouter } from './routers/local_debug_router'
 import { notificationRouter } from './routers/notification_router'
@@ -42,9 +43,9 @@ import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { analytics } from './utils/analytics'
 import { corsConfig } from './utils/corsConfig'
+import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiLimiter, authLimiter } from './utils/rate_limit'
-import { explainRouter } from './routers/explain_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -70,8 +71,16 @@ export const createApp = (): Express => {
   // set client info in the request context
   app.use(httpContext.middleware)
   app.use('/api/', (req, res, next) => {
+    // get client info from header
     const client = req.header('X-OmnivoreClient')
     if (client) {
+      httpContext.set('client', client)
+    }
+
+    // get client info from user agent
+    const userAgent = req.header('User-Agent')
+    if (userAgent) {
+      const client = getClientFromUserAgent(userAgent)
       httpContext.set('client', client)
     }
     next()

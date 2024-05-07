@@ -1,19 +1,20 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import MobileInstallHelp from '../components/elements/MobileInstallHelp'
+import IOSInstallHelp from '../components/elements/IOSInstallHelp'
 import { Box } from '../components/elements/LayoutPrimitives'
 
 export default {
   title: 'Components/MobileInstallHelp',
-  component: MobileInstallHelp,
+  component: IOSInstallHelp,
   argTypes: {
     onboarding: {
-      description: 'Changes the appearence of the component to match onboarding page designs.',
+      description:
+        'Changes the appearence of the component to match onboarding page designs.',
       control: { type: 'boolean' },
     },
   },
-} as ComponentMeta<typeof MobileInstallHelp>
+} as ComponentMeta<typeof IOSInstallHelp>
 
-const Template: ComponentStory<typeof MobileInstallHelp> = (args) => (
+const Template: ComponentStory<typeof IOSInstallHelp> = (args) => (
   <Box
     css={{
       maxWidth: '50rem',
@@ -25,7 +26,7 @@ const Template: ComponentStory<typeof MobileInstallHelp> = (args) => (
       boxShadow: '0px 3px 11px 0px #201F1D0A',
     }}
   >
-    <MobileInstallHelp {...args} />
+    <IOSInstallHelp {...args} />
   </Box>
 )
 

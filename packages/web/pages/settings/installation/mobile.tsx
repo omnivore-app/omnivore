@@ -1,11 +1,11 @@
 import React from 'react'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import MobileInstallHelp from '../../../components/elements/MobileInstallHelp'
+import IOSInstallHelp from '../../../components/elements/IOSInstallHelp'
 
 export default function Mobile(): JSX.Element {
   return (
     <SettingsLayout title="Mobile Installation">
-      <MobileInstallHelp />
+      <IOSInstallHelp />
     </SettingsLayout>
   )
 }
