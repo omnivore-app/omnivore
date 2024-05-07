@@ -1,4 +1,4 @@
-import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText, StyledTextSpan } from '../../elements/StyledText'
 import { useEffect, useRef, useState } from 'react'
@@ -17,7 +17,7 @@ const LoginForm = (): JSX.Element => {
 
   return (
     <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
-      <SpanBox css={{ width: '100%' }}>
+      <VStack css={{ width: '100%', gap: '5px' }}>
         <FormLabel css={{ color: '#D9D9D9' }}>Email</FormLabel>
         <BorderedFormInput
           autoFocus={true}
@@ -32,9 +32,9 @@ const LoginForm = (): JSX.Element => {
             setEmail(e.target.value)
           }}
         />
-      </SpanBox>
+      </VStack>
 
-      <SpanBox css={{ width: '100%' }}>
+      <VStack css={{ width: '100%', gap: '5px' }}>
         <FormLabel css={{ color: '#D9D9D9' }}>Password</FormLabel>
         <BorderedFormInput
           key="password"
@@ -45,7 +45,7 @@ const LoginForm = (): JSX.Element => {
           css={{ bg: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => setPassword(e.target.value)}
         />
-      </SpanBox>
+      </VStack>
     </VStack>
   )
 }
@@ -119,7 +119,6 @@ export function EmailLogin(): JSX.Element {
         >
           <Button
             style={'cancelAuth'}
-            css={{}}
             type="button"
             onClick={async (event) => {
               window.localStorage.removeItem('authVerified')

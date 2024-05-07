@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router'
-import Script from 'next/script'
 import { useState, useEffect } from 'react'
 import { LoginLayout } from './../components/templates/LoginLayout'
 import { parseErrorCodes } from '../lib/queryParamParser'

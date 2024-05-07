@@ -39,7 +39,9 @@ const SignUpForm = (): JSX.Element => {
   return (
     <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
       <SpanBox css={{ width: '100%' }}>
-        <FormLabel className="required">Email</FormLabel>
+        <FormLabel className="required" css={{ color: '#D9D9D9' }}>
+          Email
+        </FormLabel>
         <BorderedFormInput
           autoFocus={true}
           key="email"
@@ -47,7 +49,7 @@ const SignUpForm = (): JSX.Element => {
           name="email"
           defaultValue={email}
           placeholder="Email"
-          css={{ backgroundColor: 'white', color: 'black' }}
+          css={{ backgroundColor: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => {
             e.preventDefault()
             setEmail(e.target.value)
@@ -56,40 +58,46 @@ const SignUpForm = (): JSX.Element => {
         />
       </SpanBox>
       <SpanBox css={{ width: '100%' }}>
-        <FormLabel className="required">Password</FormLabel>
+        <FormLabel className="required" css={{ color: '#D9D9D9' }}>
+          Password
+        </FormLabel>
         <BorderedFormInput
           key="password"
           type="password"
           name="password"
           defaultValue={password}
           placeholder="Password"
-          css={{ bg: 'white', color: 'black' }}
+          css={{ backgroundColor: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
       </SpanBox>
       <SpanBox css={{ width: '100%' }}>
-        <FormLabel className="required">Full Name</FormLabel>
+        <FormLabel className="required" css={{ color: '#D9D9D9' }}>
+          Full Name
+        </FormLabel>
         <BorderedFormInput
           key="fullname"
           type="text"
           name="name"
           defaultValue={fullname}
           placeholder="Full Name"
-          css={{ bg: 'white', color: 'black' }}
+          css={{ backgroundColor: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => setFullname(e.target.value)}
           required
         />
       </SpanBox>
       <SpanBox css={{ width: '100%' }}>
-        <FormLabel className="required">Username</FormLabel>
+        <FormLabel className="required" css={{ color: '#D9D9D9' }}>
+          Username
+        </FormLabel>
         <BorderedFormInput
           key="username"
           type="text"
           name="username"
           defaultValue={username}
           placeholder="Username"
-          css={{ bg: 'white', color: 'black' }}
+          css={{ backgroundColor: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={handleUsernameChange}
           required
         />
@@ -145,16 +153,16 @@ export function EmailSignup(): JSX.Element {
           alignment="center"
           css={{
             padding: '16px',
-            background: 'white',
             minWidth: '340px',
             width: '70vw',
             maxWidth: '576px',
             borderRadius: '8px',
-            border: '1px solid #3D3D3D',
-            boxShadow: '#B1B1B1 9px 9px 9px -9px',
+            background: '#343434',
+            border: '1px solid #6A6968',
+            boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.15)',
           }}
         >
-          <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
+          <StyledText style="subHeadline" css={{ color: '#D9D9D9' }}>
             Sign Up
           </StyledText>
 
@@ -204,11 +212,7 @@ export function EmailSignup(): JSX.Element {
             }}
           >
             <Button
-              style={'ctaOutlineYellow'}
-              css={{
-                color: '$omnivoreGray',
-                borderColor: 'rgba(0, 0, 0, 0.06)',
-              }}
+              style="cancelAuth"
               type="button"
               onClick={async () => {
                 window.localStorage.removeItem('authVerified')
@@ -223,7 +227,13 @@ export function EmailSignup(): JSX.Element {
             >
               Cancel
             </Button>
-            <Button type="submit" style={'ctaDarkYellow'}>
+            <Button
+              type="submit"
+              style="ctaBlue"
+              css={{
+                padding: '10px 50px',
+              }}
+            >
               Sign Up
             </Button>
           </HStack>
@@ -238,10 +248,7 @@ export function EmailSignup(): JSX.Element {
           >
             Already have an account?{' '}
             <Link href="/auth/email-login" passHref legacyBehavior>
-              <StyledTextSpan
-                style="actionLink"
-                css={{ color: '$omnivoreGray' }}
-              >
+              <StyledTextSpan style="actionLink" css={{ color: '$ctaBlue' }}>
                 Login instead
               </StyledTextSpan>
             </Link>
