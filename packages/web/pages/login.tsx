@@ -8,8 +8,9 @@ import { formatMessage } from '../locales/en/messages'
 
 export default function Login(): JSX.Element {
   const router = useRouter()
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -30,10 +31,6 @@ export default function Login(): JSX.Element {
 
   return (
     <>
-      <Script
-        src="https://accounts.google.com/gsi/client"
-        strategy="afterInteractive"
-      />
       <PageMetaData
         title="Welcome to Omnivore"
         path="/login"
