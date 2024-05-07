@@ -74,6 +74,7 @@ export const createApp = (): Express => {
     if (client) {
       httpContext.set('client', client)
     }
+    // TODO: get client info from user agent
     next()
   })
 
