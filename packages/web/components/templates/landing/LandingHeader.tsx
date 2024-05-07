@@ -34,7 +34,7 @@ export function LandingHeader(): JSX.Element {
         width: '100%',
       }}
     >
-      <OmnivoreNameLogo color={'#3D3D3D'} href="/login" />
+      <OmnivoreNameLogo color="#898989" href="/login" />
       <LoginButton />
     </Box>
   )

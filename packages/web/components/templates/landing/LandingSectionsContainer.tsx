@@ -15,14 +15,7 @@ import Link from 'next/link'
 
 export function GetStartedButton(props: { lang: 'en' | 'zh' }): JSX.Element {
   return (
-    <Button
-      as={Link}
-      href="/login"
-      style="landingCta"
-      css={{
-        boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.15)`,
-      }}
-    >
+    <Button as={Link} href="/login" style="landingCta">
       {props.lang == 'zh' ? `免费注册` : `Sign Up for Free`}
     </Button>
   )

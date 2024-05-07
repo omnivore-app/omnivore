@@ -45,7 +45,7 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
           }}
         >
           <OmnivoreNameLogo
-            color={theme.colors.omnivoreGray.toString()}
+            color="#898989"
             href={props.logoDestination ?? '/login'}
           />
         </HStack>

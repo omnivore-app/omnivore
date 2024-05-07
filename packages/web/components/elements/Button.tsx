@@ -25,12 +25,12 @@ export const Button = styled('button', {
         fontSize: '14px',
         fontWeight: '500',
         cursor: 'pointer',
-        border: '1px solid $yellow3',
+        border: '0px solid $yellow3',
         bg: '$ctaBlue',
         color: 'white',
         '&:hover': {
-          opacity: '0.6',
-          border: '0px solid $ctaBlue',
+          border: '0px solid #0056D2',
+          background: `#0056D2`,
         },
       },
       tldr: {
@@ -72,7 +72,6 @@ export const Button = styled('button', {
       landingCta: {
         borderRadius: 10,
         backgroundColor: '#1A1A1A',
-
         padding: '12px 100px',
         color: '#FFFFFF',
         font: '$inter',
@@ -80,6 +79,7 @@ export const Button = styled('button', {
         fontWeight: '500',
         textDecoration: 'none',
         transition: 'background-color ease-out 50ms',
+        boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.15)`,
         '&:hover': {
           backgroundColor: '#3D3D3D',
           outline: '0px solid #1A1A1A',
@@ -88,7 +88,7 @@ export const Button = styled('button', {
       landingSimple: {
         borderRadius: 10,
         backgroundColor: '#1A1A1A',
-        padding: '12px 25px',
+        padding: '10px 20px',
         color: '#FFFFFF',
         font: '$inter',
         fontSize: '20px',
@@ -98,6 +98,7 @@ export const Button = styled('button', {
         '&:hover': {
           backgroundColor: '#1A1A1A',
           outline: '0px solid #1A1A1A',
+          boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.15)`,
         },
       },
       cancelGeneric: {
@@ -113,6 +114,21 @@ export const Button = styled('button', {
         '&:hover, &:focus': {
           bg: '#EBEBEB',
           outline: '1px solid $omnivoreCtaYellow',
+        },
+      },
+      cancelAuth: {
+        fontSize: '13px',
+        fontWeight: 500,
+        fontFamily: 'Inter',
+        cursor: 'pointer',
+        color: '#6A6968',
+        borderRadius: '5px',
+        border: '1px solid transparent',
+        p: '10px 15px',
+        bg: 'transparent',
+        '&:hover': {
+          backgroundColor: '#2A2A2A',
+          outline: '0px solid #2A2A2A',
         },
       },
       ctaOutlineYellow: {
