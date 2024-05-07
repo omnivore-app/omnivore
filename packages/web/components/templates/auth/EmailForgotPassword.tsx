@@ -15,8 +15,10 @@ const ForgotPasswordForm = (): JSX.Element => {
 
   return (
     <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
-      <SpanBox css={{ width: '100%' }}>
-        <FormLabel>Email</FormLabel>
+      <VStack css={{ width: '100%', gap: '5px' }}>
+        <FormLabel className="required" css={{ color: '#D9D9D9' }}>
+          Email
+        </FormLabel>
         <BorderedFormInput
           key="email"
           type="email"
@@ -24,13 +26,13 @@ const ForgotPasswordForm = (): JSX.Element => {
           value={email}
           placeholder="Email"
           autoFocus={true}
-          css={{ bg: 'white', color: 'black' }}
+          css={{ backgroundColor: '#2A2A2A', color: 'white', border: 'unset' }}
           onChange={(e) => {
             e.preventDefault()
             setEmail(e.target.value)
           }}
         />
-      </SpanBox>
+      </VStack>
     </VStack>
   )
 }
@@ -58,16 +60,16 @@ export function EmailForgotPassword(): JSX.Element {
         alignment="center"
         css={{
           padding: '16px',
-          background: 'white',
           minWidth: '340px',
           width: '70vw',
           maxWidth: '576px',
           borderRadius: '8px',
-          border: '1px solid #3D3D3D',
-          boxShadow: '#B1B1B1 9px 9px 9px -9px',
+          background: '#343434',
+          border: '1px solid #6A6968',
+          boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.15)',
         }}
       >
-        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
+        <StyledText style="subHeadline" css={{ color: '#D9D9D9' }}>
           Reset your password
         </StyledText>
 
@@ -93,7 +95,7 @@ export function EmailForgotPassword(): JSX.Element {
         )}
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
-        <Button type="submit" style="ctaDarkYellow" css={{ my: '$2' }}>
+        <Button type="submit" style="ctaBlue" css={{ my: '20px' }}>
           Reset Password
         </Button>
         <Button
@@ -112,7 +114,7 @@ export function EmailForgotPassword(): JSX.Element {
         >
           <StyledText
             css={{
-              color: '$omnivoreRed',
+              color: '$omnivoreLightGray',
               textDecoration: 'underline',
               cursor: 'pointer',
             }}

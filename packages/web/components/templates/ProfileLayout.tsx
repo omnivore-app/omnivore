@@ -14,7 +14,6 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
         alignment="center"
         distribution="center"
         css={{
-          // bg: '$omnivoreYellow',
           height: '100vh',
           bg: '$omnivoreYellow',
         }}
@@ -45,7 +44,7 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
           }}
         >
           <OmnivoreNameLogo
-            color={theme.colors.omnivoreGray.toString()}
+            color="#898989"
             href={props.logoDestination ?? '/login'}
           />
         </HStack>

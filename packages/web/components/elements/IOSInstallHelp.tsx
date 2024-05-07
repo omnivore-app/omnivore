@@ -4,38 +4,16 @@ import {
   DeviceTabletSpeaker,
   DeviceMobileCamera,
 } from 'phosphor-react'
-import { Box, HStack } from '../elements/LayoutPrimitives'
-import { StyledText, StyledAnchor } from '../elements/StyledText'
-
-const TooltipStyle = {
-  backgroundColor: '#F9D354',
-  color: '#0A0806',
-}
+import { Box, HStack } from './LayoutPrimitives'
+import { StyledText, StyledAnchor } from './StyledText'
 
 type MobileInstallHelpProps = {
   onboarding?: boolean
 }
 
-export default function MobileInstallHelp({
+export default function IOSInstallHelp({
   onboarding = false,
 }: MobileInstallHelpProps): JSX.Element {
-  const [selectedTooltip, setSelectedTooltip] =
-    React.useState<string>('Available for Mac')
-  const platformSizes = [
-    {
-      label: 'Available for Mac',
-      icon: <Desktop color="#F9D354" />,
-    },
-    {
-      label: 'Available for iPad',
-      icon: <DeviceTabletSpeaker color="#F9D354" />,
-    },
-    {
-      label: 'Available for iPhone',
-      icon: <DeviceMobileCamera color="#F9D354" />,
-    },
-  ]
-
   const iosContainerStyles = {
     marginTop: '12px',
     width: '100%',
@@ -143,24 +121,9 @@ export default function MobileInstallHelp({
           },
         }}
       >
-        With the Omnivore for iOS and macOS app installed you can save any link
-        using our Share extension.
-        <br />
-        {!onboarding && (
-          <StyledAnchor
-            href="https://docs.omnivore.app/using/saving.html"
-            target="_blank"
-            rel="noreferrer"
-            css={{
-              color: '$grayTextContrast',
-              fontSize: '14px',
-              fontWeight: 600,
-              textDecoration: 'underline',
-            }}
-          >
-            Learn more about the iOS and macOS app -&gt;
-          </StyledAnchor>
-        )}
+        With the native Omnivore for iOS and macOS app installed you can save
+        any link, read offline, and listen to your saved items using
+        text-to-speech.
       </StyledText>
       <HStack
         alignment="center"
@@ -231,49 +194,7 @@ export default function MobileInstallHelp({
                   },
                 }
           }
-        >
-          {platformSizes.map((item, idx) => (
-            <Box
-              key={`platformSize-${idx}`}
-              title={item.label}
-              css={{
-                ml: '$1',
-              }}
-            >
-              <StyledAnchor
-                onClick={() => setSelectedTooltip(item.label)}
-                css={{
-                  mx: 'auto',
-                  borderRadius: '50%',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 35,
-                  width: 35,
-                  cursor: 'pointer',
-                  backgroundColor: '$labelButtonsBg',
-                  ...(selectedTooltip !== item.label && {
-                    filter: 'grayscale(1)',
-                  }),
-                  '&:focus': {
-                    filter: 'grayscale(0)',
-                  },
-                  '&:active': {
-                    filter: 'grayscale(0)',
-                  },
-                  '@lg': {
-                    transition: 'filter .3s linear',
-                    '&:hover': {
-                      filter: 'grayscale(0)',
-                    },
-                  },
-                }}
-              >
-                {item.icon}
-              </StyledAnchor>
-            </Box>
-          ))}
-        </HStack>
+        ></HStack>
       </HStack>
     </Box>
   )

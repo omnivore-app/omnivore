@@ -9,6 +9,7 @@ export const Recaptcha = (props: RecaptchaProps): JSX.Element => {
     <>
       <GoogleReCaptchaCheckbox
         key="recaptcha"
+        theme="dark"
         onChange={(token) => {
           console.log('recaptcha: ', token)
           props.setRecaptchaToken(token)

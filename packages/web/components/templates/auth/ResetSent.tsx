@@ -9,7 +9,8 @@ export function ResetSent(): JSX.Element {
         css={{
           width: '100vw',
           height: '100vh',
-          bg: '$omnivoreYellow',
+          color: '#898989',
+          background: '#2A2A2A',
           overflowY: 'clip',
         }}
       >
@@ -17,11 +18,11 @@ export function ResetSent(): JSX.Element {
           css={{
             width: '100%',
             margin: '40px',
-            color: '$omnivoreGray',
+            color: '#898989',
             '@xl': { margin: '138px' },
           }}
         >
-          <h1>Reset email sent</h1>
+          <h1 style={{ color: 'white' }}>Reset email sent</h1>
           <Box>
             If there is an account associated with the email specified we sent a
             password reset link. Click the link to reset your password. You may

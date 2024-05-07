@@ -14,7 +14,8 @@ export function LandingSection(props: LandingSectionProps): JSX.Element {
       css={{
         width: '100%',
         flexWrap: 'wrap',
-        flexDirection: (props?.imagePosition ?? 'left') === 'left' ? 'row-reverse' : 'row',
+        flexDirection:
+          (props?.imagePosition ?? 'left') === 'left' ? 'row-reverse' : 'row',
         marginBottom: 20,
         '@mdDown': {
           width: '100%',
@@ -40,7 +41,7 @@ export function LandingSection(props: LandingSectionProps): JSX.Element {
           as="h2"
           css={{
             fontWeight: '700',
-            color: '#3D3D3D',
+            color: '#FFFFFF',
             lineHeight: 1.25,
             '@mdDown': {
               fontSize: 24,
@@ -58,7 +59,7 @@ export function LandingSection(props: LandingSectionProps): JSX.Element {
         <Box
           as="p"
           css={{
-            color: '#666',
+            color: '#898989',
           }}
         >
           {props.descriptionText}

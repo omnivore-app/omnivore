@@ -15,23 +15,7 @@ import Link from 'next/link'
 
 export function GetStartedButton(props: { lang: 'en' | 'zh' }): JSX.Element {
   return (
-    <Button
-      as={Link}
-      href="/login"
-      style="ctaDarkYellow"
-      css={{
-        borderRadius: 4,
-        background: '$omnivoreCtaYellow',
-        padding: '12px 25px',
-        color: '#3D3D3D',
-        fontWeight: '600',
-        textDecoration: 'none',
-        transition: 'background-color ease-out 50ms',
-        '&:hover': {
-          backgroundColor: '$omnivoreYellow',
-        },
-      }}
-    >
+    <Button as={Link} href="/login" style="landingCta">
       {props.lang == 'zh' ? `免费注册` : `Sign Up for Free`}
     </Button>
   )
@@ -43,8 +27,6 @@ const containerStyles = {
   pb: 100,
   width: '100%',
   maxWidth: '1224px',
-  background:
-    'linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), linear-gradient(0deg, rgba(253, 250, 236, 0.7), rgba(253, 250, 236, 0.7))',
   '@mdDown': {
     pt: 50,
   },
@@ -64,7 +46,7 @@ const sections = [
   {
     en: {
       titleText: `Save it now. Read it later.`,
-      descriptionText: `Save articles, PDFs, and Twitter threads as you come across them
+      descriptionText: `Save articles and PDFs as you come across them
       using Omnivore's mobile apps and browser extensions. Read them
       later using our distraction free reader.`,
     },
@@ -77,7 +59,7 @@ const sections = [
   },
   {
     en: {
-      titleText: `Get all your newsletters in one place.`,
+      titleText: `Get all your RSS feeds and newsletters in one place.`,
       descriptionText: `Send newsletters directly to your Omnivore library rather than
       scattered across multiple inboxes. Read them on your own time, away
       from the constant distractions and interruptions of your email.`,
@@ -93,7 +75,7 @@ const sections = [
     en: {
       titleText: `Keep your reading organized, whatever that means to you.`,
       descriptionText: `Keep your reading organized and easily available with labels,
-      filters, rules, and fully indexed text searches. We're not here
+      filters, rules, and ful text searches. We're not here
       to tell you how to stay organized — our job is to give you the tools
       to build a system that works for you.`,
     },
@@ -107,8 +89,7 @@ const sections = [
   {
     en: {
       titleText: `Add highlights and notes.`,
-      descriptionText: `Become a better reader — engage your brain and improve retention by
-      reading actively, not passively. Highlight key sections and add
+      descriptionText: `Highlight key sections and add
       notes as you read. You can access your highlights and notes any time
       — they stay with your articles forever.`,
     },
@@ -123,7 +104,7 @@ const sections = [
     en: {
       titleText: `Sync with your second brain.`,
       descriptionText: `Omnivore syncs with popular Personal Knowledge Management systems
-      including Logseq and Obsidian, so you can pull all your saved
+      including Logseq, Obsidian, and Notion, so you can pull all your saved
       reading, highlights, and notes into your second brain.`,
     },
     zh: {
@@ -137,7 +118,7 @@ const sections = [
     en: {
       titleText: `Listen to your reading with text-to-speech.`,
       descriptionText: `Work through your to-be-read list and give your eyes a break with
-      TTS, exclusively in the Omnivore app for iOS. Realistic,
+      text-to-speech, exclusively in the Omnivore app for iOS. Realistic,
       natural-sounding AI voices will read any saved article aloud.`,
     },
     zh: {
@@ -209,41 +190,6 @@ export function LandingSectionsContainer(
           />
         )
       })}
-
-      <VStack
-        alignment="center"
-        css={{
-          width: '100vw',
-          backgroundColor: '#fff',
-          paddingBottom: '40px',
-          marginTop: '40px',
-          borderTop: '1px solid var(--colors-omnivoreYellow)',
-          borderBottom: '1px solid var(--colors-omnivoreYellow)',
-          '@md': {
-            marginTop: 0,
-          },
-        }}
-      >
-        {props.lang == 'en' && (
-          <Box
-            as="p"
-            css={{
-              color: '#3D3D3D',
-              fontWeight: '700',
-              fontSize: '2.5rem',
-              lineHeight: '1.25',
-              textAlign: 'center',
-              marginBottom: '40px',
-              '@mdDown': {
-                fontSize: '2rem',
-              },
-            }}
-          >
-            Get Started With Omnivore Today
-          </Box>
-        )}
-        <GetStartedButton lang={props.lang} />
-      </VStack>
     </VStack>
   )
 }

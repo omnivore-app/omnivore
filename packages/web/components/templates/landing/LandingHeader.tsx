@@ -8,22 +8,8 @@ const LoginButton = (): JSX.Element => {
     <Button
       as={Link}
       href="/login"
-      style="ctaDarkYellow"
-      css={{
-        display: 'flex',
-        marginLeft: 'auto',
-        borderRadius: 4,
-        background: 'unset',
-        color: '#3D3D3D',
-        height: '42px',
-        fontSize: 24,
-        lineHeight: '24px',
-        fontWeight: 'normal',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textDecoration: "none",
-        transition: "all ease-in 50ms"
-      }}
+      style="landingSimple"
+      css={{ background: 'transparent' }}
     >
       Login
     </Button>
@@ -48,7 +34,7 @@ export function LandingHeader(): JSX.Element {
         width: '100%',
       }}
     >
-      <OmnivoreNameLogo color={'#3D3D3D'} href="/login" />
+      <OmnivoreNameLogo color="#898989" href="/login" />
       <LoginButton />
     </Box>
   )

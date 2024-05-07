@@ -1,4 +1,4 @@
-import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
@@ -12,10 +12,44 @@ import { logout } from '../../lib/logout'
 import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
+import Link from 'next/link'
+import { CaretLeft } from 'phosphor-react'
 
 type SettingsLayoutProps = {
   title?: string
   children: React.ReactNode
+}
+
+const ReturnButton = (): JSX.Element => {
+  return (
+    <SpanBox
+      css={{
+        a: {
+          textDecorationColor: '$thLibraryMenuUnselected',
+        },
+        'a:visited': {
+          textDecorationColor: '$thLibraryMenuUnselected',
+        },
+      }}
+    >
+      <Link href="/home">
+        <HStack
+          css={{
+            pl: '20px',
+            pb: '6px',
+            gap: '2px',
+            font: '$inter',
+            fontWeight: '500',
+            color: '$thLibraryMenuUnselected',
+          }}
+          alignment="center"
+        >
+          <CaretLeft />
+          Return to library
+        </HStack>
+      </Link>
+    </SpanBox>
+  )
 }
 
 export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
@@ -57,7 +91,9 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
             },
           }}
         ></Box>
-        <Box
+        <HStack
+          alignment="center"
+          distribution="start"
           css={{
             p: '15px',
             display: 'none',
@@ -68,10 +104,24 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
           }}
         >
           <SettingsDropdown />
-        </Box>
+          <ReturnButton />
+        </HStack>
+
         <HStack css={{ width: '100%', height: '100%' }} distribution="start">
           <SettingsMenu />
-          {props.children}
+          <VStack css={{ width: '100%', height: '100%' }}>
+            <SpanBox
+              css={{
+                marginTop: '-50px',
+                '@mdDown': {
+                  display: 'none',
+                },
+              }}
+            >
+              <ReturnButton />
+            </SpanBox>
+            {props.children}
+          </VStack>
         </HStack>
         <Box css={{ height: '120px', width: '100%' }} />
       </VStack>
