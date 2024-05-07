@@ -16,7 +16,7 @@ export function About(props: AboutProps): JSX.Element {
       <LandingHeader />
       <VStack
         alignment="center"
-        css={{ background: '#FEFCF5', color: '#3D3D3D' }}
+        css={{ background: '#2A2A2A', color: '#898989' }}
       >
         <VStack
           css={{
@@ -36,7 +36,7 @@ export function About(props: AboutProps): JSX.Element {
             as="p"
             css={{
               fontWeight: '700',
-              color: '#3D3D3D',
+              color: '#EDEDED',
               fontSize: 45,
               lineHeight: '53px',
               padding: '10px 10px 0',
@@ -50,9 +50,9 @@ export function About(props: AboutProps): JSX.Element {
             readers.`}
           </Box>
           <Box
-          as="p"
+            as="p"
             css={{
-              color: 'rgb(125, 125, 125)',
+              color: '#898989',
               padding: '10px',
               margin: 0,
               textAlign: 'center',
@@ -69,7 +69,7 @@ export function About(props: AboutProps): JSX.Element {
           <Box
             as="p"
             css={{
-              color: 'rgb(125, 125, 125)',
+              color: '#898989',
               padding: '10px',
               margin: 0,
               textAlign: 'center',

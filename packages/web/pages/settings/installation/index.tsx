@@ -1,6 +1,6 @@
 import React from 'react'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import MobileInstallHelp from '../../../components/elements/MobileInstallHelp'
+import IOSInstallHelp from '../../../components/elements/IOSInstallHelp'
 import ExtensionInstallHelp from '../../../components/elements/ExtensionsInstallHelp'
 import { Box } from '../../../components/elements/LayoutPrimitives'
 
@@ -22,7 +22,7 @@ export default function Installation(): JSX.Element {
           },
         }}
       >
-        <MobileInstallHelp />
+        <IOSInstallHelp />
         <Box
           css={{
             my: '$2',

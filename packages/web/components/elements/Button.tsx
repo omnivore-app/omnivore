@@ -69,6 +69,37 @@ export const Button = styled('button', {
           outline: '1px solid $omnivoreCtaYellow',
         },
       },
+      landingCta: {
+        borderRadius: 10,
+        backgroundColor: '#1A1A1A',
+
+        padding: '12px 100px',
+        color: '#FFFFFF',
+        font: '$inter',
+        fontSize: '20px',
+        fontWeight: '500',
+        textDecoration: 'none',
+        transition: 'background-color ease-out 50ms',
+        '&:hover': {
+          backgroundColor: '#3D3D3D',
+          outline: '0px solid #1A1A1A',
+        },
+      },
+      landingSimple: {
+        borderRadius: 10,
+        backgroundColor: '#1A1A1A',
+        padding: '12px 25px',
+        color: '#FFFFFF',
+        font: '$inter',
+        fontSize: '20px',
+        fontWeight: '500',
+        textDecoration: 'none',
+        transition: 'background-color ease-out 50ms',
+        '&:hover': {
+          backgroundColor: '#1A1A1A',
+          outline: '0px solid #1A1A1A',
+        },
+      },
       cancelGeneric: {
         fontSize: '13px',
         fontWeight: 500,

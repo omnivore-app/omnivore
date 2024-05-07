@@ -17,7 +17,7 @@ export function AuthLayout(props: ProfileLayoutProps): JSX.Element {
         css={{
           // bg: '$omnivoreYellow',
           height: '100vh',
-          bg: '$omnivoreYellow',
+          bg: '#898989',
         }}
       >
         {props.children}
