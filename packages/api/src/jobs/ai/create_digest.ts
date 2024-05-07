@@ -637,35 +637,29 @@ export const createDigest = async (jobData: CreateDigestData) => {
   // generate a unique id for the digest if not provided for scheduled jobs
   const digestId = jobData.id ?? uuid()
 
-  const user = await findUserAndPersonalization(jobData.userId)
-  if (!user) {
-    logger.error('User not found', { userId: jobData.userId })
-    return writeDigest(jobData.userId, {
-      id: digestId,
-      jobState: TaskState.Failed,
-    })
-  }
-
-  const personalization = user.userPersonalization
-  if (!personalization) {
-    logger.info('User personalization not found')
-  }
-
-  const config = personalization
-    ? (personalization.digestConfig as {
-        model?: string
-        channels?: Channel[]
-      })
-    : undefined
-
-  // default digest
-  let digest: Digest = {
-    id: digestId,
-    jobState: TaskState.Succeeded,
-  }
-  let filteredSummaries: RankedItem[] = []
-
   try {
+    const user = await findUserAndPersonalization(jobData.userId)
+    if (!user) {
+      logger.error('User not found', { userId: jobData.userId })
+      return await writeDigest(jobData.userId, {
+        id: digestId,
+        jobState: TaskState.Failed,
+        title: 'User not found',
+      })
+    }
+
+    const personalization = user.userPersonalization
+    if (!personalization) {
+      logger.info('User personalization not found')
+    }
+
+    const config = personalization
+      ? (personalization.digestConfig as {
+          model?: string
+          channels?: Channel[]
+        })
+      : undefined
+
     digestDefinition = await fetchDigestDefinition()
     const model = selectModel(config?.model || digestDefinition.model)
     logger.info(`model: ${model}`)
@@ -676,7 +670,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
     )
     if (candidates.length === 0) {
       logger.info('No candidates found')
-      return writeDigest(jobData.userId, digest)
+      return await writeDigest(jobData.userId, {
+        id: digestId,
+        jobState: TaskState.Failed,
+        title: 'No candidates found',
+      })
     }
 
     // const userProfile = await findOrCreateUserProfile(jobData.userId)
@@ -693,7 +691,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     const summaries = await summarizeItems(model, selections)
     console.timeEnd('summarizeItems')
 
-    filteredSummaries = filterSummaries(summaries)
+    const filteredSummaries = filterSummaries(summaries)
 
     const speechFiles = generateSpeechFiles(filteredSummaries, {
       ...jobData,
@@ -701,7 +699,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       secondaryVoice: jobData.voices?.[1],
     })
     const title = generateTitle(filteredSummaries)
-    digest = {
+    const digest = {
       id: digestId,
       title,
       content: generateContent(filteredSummaries),
@@ -732,6 +730,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
     ])
 
     logger.info(`digest created: ${digest.id}`)
+
+    // send notifications when digest is created
+    await sendNotifications(user, digest, filteredSummaries, config?.channels)
+
+    console.timeEnd('createDigestJob')
   } catch (error) {
     logger.error('createDigestJob error', error)
 
@@ -740,10 +743,5 @@ export const createDigest = async (jobData: CreateDigestData) => {
       jobState: TaskState.Failed,
       title: 'Failed to create digest',
     })
-  } finally {
-    // send notification
-    await sendNotifications(user, digest, filteredSummaries, config?.channels)
-
-    console.timeEnd('createDigestJob')
   }
 }
