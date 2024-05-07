@@ -138,8 +138,9 @@ export class LibraryItem {
   @Column('text')
   readableContent!: string
 
+  // typeorm does not support vector type, so we store it as a string
   @Column('text')
-  embedding?: number[]
+  embedding?: string
 
   @Column('text', { nullable: true })
   textContentHash?: string | null

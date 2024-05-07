@@ -270,13 +270,15 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       throw new Error(result.message || result.errorCodes[0])
     }
 
-    await enqueueUpdateEmbedding({
-      libraryItemId: result.clientRequestId,
-      userId,
-    })
+    if (result.__typename === 'SaveSuccess') {
+      await enqueueUpdateEmbedding({
+        libraryItemId: result.clientRequestId,
+        userId,
+      })
 
-    isImported = true
-    isSaved = true
+      isImported = true
+      isSaved = true
+    }
   } catch (e) {
     logError(e)
 

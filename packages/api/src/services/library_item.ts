@@ -563,7 +563,7 @@ export const buildQueryString = (
 
           orders.push({ by: alias, order: SortOrder.DESCENDING })
 
-          return escapeQueryWithParameters(`${similarity} > 0.5`, {
+          return escapeQueryWithParameters(`${similarity} > 0.55`, {
             [param]: value,
           })
         }

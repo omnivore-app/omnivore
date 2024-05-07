@@ -44,7 +44,7 @@ export const updateEmbedding = async (data: UpdateEmbeddingJobData) => {
 
   await updateLibraryItem(
     libraryItemId,
-    { embedding: `[${embedding.toString()}]` },
+    { embedding: JSON.stringify(embedding) },
     userId,
     undefined,
     true
