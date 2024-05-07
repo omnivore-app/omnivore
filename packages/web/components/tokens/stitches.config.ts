@@ -145,7 +145,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // Brand Colors
         omnivoreRed: '#FA5E4A;',
         omnivoreGray: '#3D3D3D',
-        omnivoreYellow: 'rgb(255, 234, 159)',
+        omnivoreYellow: '#FFEAA0',
         omnivoreLightGray: 'rgb(125, 125, 125)',
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
         searchActiveOutline: 'rgb(255, 210, 52)',

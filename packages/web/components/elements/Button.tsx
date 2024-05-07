@@ -18,6 +18,22 @@ export const Button = styled('button', {
           border: '1px solid $grayBorderHover',
         },
       },
+      ctaOmnivoreYellow: {
+        borderRadius: '5px',
+        px: '20px',
+        py: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+        cursor: 'pointer',
+        border: '0px solid $yellow3',
+        bg: '$omnivoreYellow',
+        color: '#2A2A2A',
+        '&:hover': {
+          opacity: 1.0,
+          border: '0px solid #FFD800',
+          background: `#FFD800`,
+        },
+      },
       ctaBlue: {
         borderRadius: '5px',
         px: '20px',

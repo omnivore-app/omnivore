@@ -45,9 +45,8 @@ export const SplitButton = (props: SplitButtonProps): JSX.Element => {
       <Button
         css={{
           display: 'flex',
-          // minWidth: '70px',
-          bg: '$ctaBlue',
-          color: '#EDEDED',
+          bg: '$omnivoreYellow',
+          color: '#2A2A2A',
           fontSize: '14px',
           fontFamily: '$inter',
           border: '0px solid transparent',
@@ -56,7 +55,7 @@ export const SplitButton = (props: SplitButtonProps): JSX.Element => {
           borderTopRightRadius: '5px',
           borderBottomRightRadius: '5px',
           '&:hover': {
-            opacity: 0.6,
+            background: '#FFD800',
             border: '0px solid transparent',
           },
           '&:focus': {

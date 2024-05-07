@@ -16,7 +16,6 @@ export const NavMenuFooter = (props: NavMenuFooterProps): JSX.Element => {
         position: 'fixed',
         bottom: '0%',
         alignItems: 'center',
-
         backgroundColor: '$thBackground2',
         width: LIBRARY_LEFT_MENU_WIDTH,
         overflowY: 'auto',
