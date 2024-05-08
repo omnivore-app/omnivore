@@ -3,7 +3,7 @@ import { SpeechFile } from '@omnivore/text-to-speech-handler'
 import { logger } from '../utils/logger'
 import { TaskState } from '../generated/graphql'
 
-interface Chapter {
+export interface Chapter {
   title: string
   id: string
   url: string

@@ -36,7 +36,7 @@ const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
   }
 }
 
-const getImageSize = async (src: string): Promise<ImageSize | null> => {
+export const getImageSize = async (src: string): Promise<ImageSize | null> => {
   try {
     const response = await fetchImage(src)
     if (!response) {
