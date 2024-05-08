@@ -6,6 +6,8 @@ import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.core.network.loadLibraryItemContent
+import app.omnivore.omnivore.core.network.saveLibraryItemContentToFile
 import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.core.network.savedItemUpdates
 import app.omnivore.omnivore.core.network.search
@@ -46,6 +48,7 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
     }
 
     val savedItems = syncResult.items.map {
+        saveLibraryItemContentToFile(it.id, it.content)
         val savedItem = SavedItem(
             savedItemId = it.id,
             title = it.title,
@@ -67,7 +70,6 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
             isArchived = it.isArchived,
             contentReader = it.contentReader.rawValue,
             wordsCount = it.wordsCount,
-            content = it.content
         )
         val labels = it.labels?.map { label ->
             SavedItemLabel(
@@ -116,8 +118,11 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
 
 suspend fun DataService.isSavedItemContentStoredInDB(slug: String): Boolean {
     val existingItem = db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
-    val content = existingItem?.savedItem?.content ?: ""
-    return content.length > 10
+    existingItem?.savedItem?.savedItemId?.let { savedItemId ->
+        val htmlContent = loadLibraryItemContent(savedItemId)
+        return (htmlContent ?: "").length > 10
+    }
+    return false
 }
 
 suspend fun DataService.fetchSavedItemContent(slug: String) {

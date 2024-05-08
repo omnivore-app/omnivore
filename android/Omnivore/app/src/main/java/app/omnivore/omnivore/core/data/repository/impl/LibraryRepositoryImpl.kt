@@ -27,7 +27,9 @@ import app.omnivore.omnivore.core.network.createHighlight
 import app.omnivore.omnivore.core.network.createNewLabel
 import app.omnivore.omnivore.core.network.deleteHighlights
 import app.omnivore.omnivore.core.network.deleteSavedItem
+import app.omnivore.omnivore.core.network.loadLibraryItemContent
 import app.omnivore.omnivore.core.network.mergeHighlights
+import app.omnivore.omnivore.core.network.saveLibraryItemContentToFile
 import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.core.network.savedItemLabels
 import app.omnivore.omnivore.core.network.savedItemUpdates
@@ -219,8 +221,11 @@ class LibraryRepositoryImpl @Inject constructor(
 
     override suspend fun isSavedItemContentStoredInDB(slug: String): Boolean {
         val existingItem = savedItemDao.getSavedItemWithLabelsAndHighlights(slug)
-        val content = existingItem?.savedItem?.content ?: ""
-        return content.length > 10
+        existingItem?.savedItem?.savedItemId?.let { savedItemId ->
+            val htmlContent = loadLibraryItemContent(savedItemId)
+            return (htmlContent ?: "").length > 10
+        }
+        return false
     }
 
     override suspend fun deleteSavedItem(itemID: String) {
@@ -416,6 +421,7 @@ class LibraryRepositoryImpl @Inject constructor(
         }
 
         val savedItems = syncResult.items.map {
+            saveLibraryItemContentToFile(it.id, it.content)
             val savedItem = SavedItem(
                 savedItemId = it.id,
                 title = it.title,
@@ -436,7 +442,6 @@ class LibraryRepositoryImpl @Inject constructor(
                 slug = it.slug,
                 isArchived = it.isArchived,
                 contentReader = it.contentReader.rawValue,
-                content = it.content,
                 wordsCount = it.wordsCount
             )
             val labels = it.labels?.map { label ->
