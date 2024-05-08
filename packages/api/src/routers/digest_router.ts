@@ -5,7 +5,6 @@ import { TaskState } from '../generated/graphql'
 import { CreateDigestJobSchedule } from '../jobs/ai/create_digest'
 import { getDigest } from '../services/digest'
 import { FeatureName, findGrantedFeatureByName } from '../services/features'
-import { findActiveUser } from '../services/user'
 import { analytics } from '../utils/analytics'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
@@ -54,14 +53,18 @@ export function digestRouter() {
       const claims = await getClaimsByToken(token)
       if (!claims) {
         logger.info('Token not found')
-        return res.sendStatus(401)
+        return res.status(401).send({
+          error: 'UNAUTHORIZED',
+        })
       }
 
       // get user by uid from claims
       userId = claims.uid
     } catch (error) {
       logger.info('Error while getting claims from token', error)
-      return res.sendStatus(401)
+      return res.status(401).send({
+        error: 'UNAUTHORIZED',
+      })
     }
 
     try {
@@ -71,7 +74,9 @@ export function digestRouter() {
       )
       if (!feature) {
         logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-        return res.sendStatus(403)
+        return res.status(403).send({
+          error: 'FORBIDDEN',
+        })
       }
 
       const data = req.body as CreateDigestRequest
@@ -82,7 +87,7 @@ export function digestRouter() {
       const digest = await getDigest(userId)
       if (digest?.jobState === TaskState.Running) {
         logger.info(`Digest job is running: ${userId}`)
-        return res.sendStatus(202)
+        return res.status(202).send(digest)
       }
 
       // enqueue job and return job id
@@ -101,7 +106,9 @@ export function digestRouter() {
       return res.status(201).send(result)
     } catch (error) {
       logger.error('Error while enqueuing create digest task', error)
-      return res.sendStatus(500)
+      return res.status(500).send({
+        error: 'INTERNAL_SERVER_ERROR',
+      })
     }
   })
 
@@ -115,14 +122,18 @@ export function digestRouter() {
       const claims = await getClaimsByToken(token)
       if (!claims) {
         logger.info('Token not found')
-        return res.sendStatus(401)
+        return res.status(401).send({
+          error: 'UNAUTHORIZED',
+        })
       }
 
       // get user by uid from claims
       userId = claims.uid
     } catch (error) {
       logger.info('Error while getting claims from token', error)
-      return res.sendStatus(401)
+      return res.status(401).send({
+        error: 'UNAUTHORIZED',
+      })
     }
 
     try {
@@ -132,25 +143,33 @@ export function digestRouter() {
       )
       if (!feature) {
         logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-        return res.sendStatus(403)
+        return res.status(403).send({
+          error: 'FORBIDDEN',
+        })
       }
 
       // get the digest from redis
       const digest = await getDigest(userId)
       if (!digest) {
         logger.info(`Digest not found: ${userId}`)
-        return res.sendStatus(404)
+        return res.status(404).send({
+          error: 'NOT_FOUND',
+        })
       }
 
       if (digest.jobState === TaskState.Failed) {
         logger.error(`Digest job failed: ${userId}`)
-        return res.sendStatus(500)
+        return res.status(500).send({
+          error: 'INTERNAL_SERVER_ERROR',
+        })
       }
 
       return res.send(digest)
     } catch (error) {
       logger.error('Error while getting digest', error)
-      return res.sendStatus(500)
+      return res.status(500).send({
+        error: 'INTERNAL_SERVER_ERROR',
+      })
     }
   })
 
@@ -167,36 +186,38 @@ export function digestRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           logger.info('Token not found')
-          return res.sendStatus(401)
+          return res.status(401).send({
+            error: 'UNAUTHORIZED',
+          })
         }
 
         // get user by uid from claims
         userId = claims.uid
       } catch (error) {
         logger.info('Error while getting claims from token', error)
-        return res.sendStatus(401)
+        return res.status(401).send({
+          error: 'UNAUTHORIZED',
+        })
       }
 
       try {
-        const user = await findActiveUser(userId)
-        if (!user) {
-          logger.info(`User not found: ${userId}`)
-          return res.sendStatus(401)
-        }
-
         const feature = await findGrantedFeatureByName(
           FeatureName.AIDigest,
           userId
         )
         if (!feature) {
           logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-          return res.sendStatus(403)
+          return res.status(403).send({
+            error: 'FORBIDDEN',
+          })
         }
 
         // get feedback from request body
         if (!isFeedback(req.body)) {
           logger.info('Invalid feedback format')
-          return res.sendStatus(400)
+          return res.status(400).send({
+            error: 'INVALID_REQUEST_BODY',
+          })
         }
 
         const feedback = req.body
@@ -215,10 +236,14 @@ export function digestRouter() {
         })
 
         // return success
-        return res.sendStatus(200)
+        return res.send({
+          success: true,
+        })
       } catch (error) {
         logger.error('Error while saving feedback', error)
-        return res.sendStatus(500)
+        return res.status(500).send({
+          error: 'INTERNAL_SERVER_ERROR',
+        })
       }
     }
   )
