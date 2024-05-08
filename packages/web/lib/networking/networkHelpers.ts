@@ -68,19 +68,14 @@ export function apiFetcher(path: string): Promise<unknown> {
   })
 }
 
-export function apiPoster(path: string, body: any): Promise<unknown> {
+export function apiPoster(path: string, body: any): Promise<Response> {
   const url = new URL(path, fetchEndpoint)
   return fetch(url.toString(), {
     method: 'POST',
     credentials: 'include',
     mode: 'cors',
-    // headers: {
-    //   Accept: 'application/json',
-    //   'X-OmnivoreClient': 'web',
-    // },
+    headers: requestHeaders(),
     body: JSON.stringify(body),
-  }).then((result) => {
-    return result.json()
   })
 }
 

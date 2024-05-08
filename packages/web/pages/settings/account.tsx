@@ -569,19 +569,21 @@ const DigestSection = (): JSX.Element => {
           showErrorToast('Error updating digest config')
         }
         if (updatedChannels.length) {
-          // Queue the daily job
-          console.log('queueing daily digest job')
-          const scheduled = await scheduleDigest({
-            schedule: 'daily',
-            voices: ['openai-nova'],
-          })
-          if (scheduled) {
-            showSuccessToast(
-              'Your daily digest is scheduled to start tomorrow.'
-            )
-          } else {
-            showErrorToast('Error scheduling your daily digest')
-          }
+          // Schedule the job in a timeout so the user notifications
+          // make sense
+          setTimeout(async () => {
+            const scheduled = await scheduleDigest({
+              schedule: 'daily',
+              voices: ['openai-nova'],
+            })
+            if (scheduled) {
+              showSuccessToast(
+                'Your daily digest is scheduled to start tomorrow.'
+              )
+            } else {
+              showErrorToast('Error scheduling your daily digest')
+            }
+          }, 500)
         } else {
           console.log('deleting daily digest job')
         }

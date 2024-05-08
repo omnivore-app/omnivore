@@ -70,12 +70,6 @@ export function useGetUserPersonalization(): UserPersonalizationResult {
 
   const { data, error, mutate } = useSWR(query, publicGqlFetcher)
   const response = data as Response | undefined
-  console.log(
-    'useGetUserPersonalization:data: ',
-    response?.getUserPersonalization?.userPersonalization,
-    'data',
-    data
-  )
 
   if (
     !response ||
