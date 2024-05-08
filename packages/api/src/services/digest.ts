@@ -9,6 +9,7 @@ export interface Chapter {
   url: string
   wordCount: number
   thumbnail?: string
+  summary: string
 }
 
 export interface Digest {

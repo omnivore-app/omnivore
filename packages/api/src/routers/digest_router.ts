@@ -2,7 +2,10 @@ import cors from 'cors'
 import express from 'express'
 import { env } from '../env'
 import { TaskState } from '../generated/graphql'
-import { CreateDigestJobSchedule } from '../jobs/ai/create_digest'
+import {
+  CreateDigestJobSchedule,
+  saveInLibrary,
+} from '../jobs/ai/create_digest'
 import { getDigest } from '../services/digest'
 import { FeatureName, findGrantedFeatureByName } from '../services/features'
 import { analytics } from '../utils/analytics'
@@ -241,6 +244,70 @@ export function digestRouter() {
         })
       } catch (error) {
         logger.error('Error while saving feedback', error)
+        return res.status(500).send({
+          error: 'INTERNAL_SERVER_ERROR',
+        })
+      }
+    }
+  )
+
+  // v1 version of move digest to library api
+  router.post(
+    '/v1/move',
+    cors<express.Request>(corsConfig),
+    async (req, res) => {
+      const token = getTokenByRequest(req)
+
+      let userId: string
+      try {
+        // get claims from token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          logger.info('Token not found')
+          return res.status(401).send({
+            error: 'UNAUTHORIZED',
+          })
+        }
+
+        // get user by uid from claims
+        userId = claims.uid
+      } catch (error) {
+        logger.info('Error while getting claims from token', error)
+        return res.status(401).send({
+          error: 'UNAUTHORIZED',
+        })
+      }
+
+      try {
+        const feature = await findGrantedFeatureByName(
+          FeatureName.AIDigest,
+          userId,
+          ['user']
+        )
+        if (!feature) {
+          logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+          return res.status(403).send({
+            error: 'FORBIDDEN',
+          })
+        }
+
+        // get the digest from redis
+        const digest = await getDigest(userId)
+        if (!digest) {
+          logger.info(`Digest not found: ${userId}`)
+          return res.status(404).send({
+            error: 'NOT_FOUND',
+          })
+        }
+
+        // move digest to library
+        await saveInLibrary(feature.user, digest)
+
+        res.send({
+          success: true,
+        })
+      } catch (error) {
+        logger.error('Error while moving digest to library', error)
         return res.status(500).send({
           error: 'INTERNAL_SERVER_ERROR',
         })

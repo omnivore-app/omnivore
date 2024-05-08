@@ -575,11 +575,7 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
   await sendPushNotifications(userId, notification, 'reminder', data)
 }
 
-const sendEmail = async (
-  user: User,
-  digest: Digest,
-  summaries: RankedItem[]
-) => {
+const sendEmail = async (user: User, digest: Digest) => {
   const title = `${AUTHOR} ${new Date().toLocaleDateString()}`
   const subTitle = truncate(digest.title, { length: 200 }).slice(
     AUTHOR.length + 1
@@ -594,11 +590,11 @@ const sendEmail = async (
 
         ${chapters
           .map(
-            (chapter, index) => `
+            (chapter) => `
               <div>
                 <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
                 <div>
-                  ${summaries[index].summary}
+                  ${chapter.summary}
                 </div>
               </div>`
           )
@@ -623,11 +619,7 @@ const findThumbnail = async (chapters: Chapter[]) => {
   return _findThumbnail(images)
 }
 
-const saveInLibrary = async (
-  user: User,
-  digest: Digest,
-  summaries: RankedItem[]
-) => {
+export const saveInLibrary = async (user: User, digest: Digest) => {
   const subTitle = digest.title?.slice(AUTHOR.length + 1) ?? ''
   const title = `${AUTHOR}: ${subTitle}`
 
@@ -637,11 +629,11 @@ const saveInLibrary = async (
     <div style="text-align: justify;" class="_omnivore_digest">
         ${chapters
           .map(
-            (chapter, index) => `
+            (chapter) => `
               <div>
                 <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
                 <div>
-                  ${summaries[index].summary}
+                  ${chapter.summary}
                 </div>
               </div>`
           )
@@ -668,7 +660,6 @@ const saveInLibrary = async (
 const sendToChannels = async (
   user: User,
   digest: Digest,
-  summaries: RankedItem[],
   channels: Channel[] = ['push'] // default to push notification
 ) => {
   const deduplicateChannels = [...new Set(channels)]
@@ -679,9 +670,9 @@ const sendToChannels = async (
         case 'push':
           return sendPushNotification(user.id, digest)
         case 'email':
-          return sendEmail(user, digest, summaries)
+          return sendEmail(user, digest)
         case 'library':
-          return saveInLibrary(user, digest, summaries)
+          return saveInLibrary(user, digest)
         default:
           logger.error('Unknown channel', { channel })
           return
@@ -770,6 +761,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
         url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
+        summary: item.summary,
       })),
       createdAt: new Date(),
       description: '',
@@ -791,7 +783,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     logger.info(`digest created: ${digest.id}`)
 
     // send notifications when digest is created
-    await sendToChannels(user, digest, filteredSummaries, config?.channels)
+    await sendToChannels(user, digest, config?.channels)
 
     console.timeEnd('createDigestJob')
   } catch (error) {
