@@ -34,6 +34,7 @@ import {
 } from '../../lib/networking/queries/useGetUserPersonalization'
 import { updateDigestConfigMutation } from '../../lib/networking/mutations/updateDigestConfigMutation'
 import { scheduleDigest } from '../../lib/networking/mutations/scheduleDigest'
+import { optInFeature } from '../../lib/networking/mutations/optIntoFeatureMutation'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -524,6 +525,7 @@ const BetaFeaturesSection = (): JSX.Element => {
 }
 
 const DigestSection = (): JSX.Element => {
+  const { viewerData, isLoading, mutate } = useGetViewerQuery()
   const [channelState, setChannelState] = useState({
     push: false,
     email: false,
@@ -532,7 +534,7 @@ const DigestSection = (): JSX.Element => {
   const {
     userPersonalization,
     isLoading: isDigestConfigLoading,
-    mutate,
+    mutate: mutatePersonalization,
   } = useGetUserPersonalization()
 
   useEffect(() => {
@@ -544,6 +546,10 @@ const DigestSection = (): JSX.Element => {
     }
     setChannelState({ ...initialState })
   }, [userPersonalization])
+
+  const hasDigest = useMemo(() => {
+    return viewerData?.me?.featureList?.some((f) => f.name === 'ai-digest')
+  }, [viewerData])
 
   const handleDigestCheckboxChange = useCallback(
     (name: DigestChannel, checked: boolean) => {
@@ -588,11 +594,23 @@ const DigestSection = (): JSX.Element => {
           console.log('deleting daily digest job')
         }
 
-        mutate()
+        mutatePersonalization()
       })()
     },
     [channelState]
   )
+
+  const requestDigestAccess = useCallback(() => {
+    ;(async () => {
+      const result = await optInFeature({ name: 'ai-digest' })
+      if (!result) {
+        showErrorToast('Error enabling digest')
+        return
+      }
+      mutate()
+    })()
+  }, [])
+
   return (
     <VStack
       css={{
@@ -616,13 +634,23 @@ const DigestSection = (): JSX.Element => {
       >
         Omnivore Digest is a free daily digest of some of your best recent
         library items. Omnivore filters and ranks all the items recently added
-        them to your library, uses AI to summarize them, and creates a short
-        email for you to review, or a daily podcast you can listen to in our iOS
-        app. Note that if you sign up for Digest, your recent library items will
-        be processed by an AI service (Anthropic, or OpenAI). Your highlights,
+        to your library, uses AI to summarize them, and creates a short library
+        item, email, or a daily podcast you can listen to in our iOS app.
+      </StyledText>
+      <StyledText
+        style="footnote"
+        css={{
+          display: 'flex',
+          gap: '5px',
+          lineHeight: '22px',
+          mt: '0px',
+        }}
+      >
+        Note that if you sign up for Digest, your recent library items will be
+        processed by an AI service (Anthropic, or OpenAI). Your highlights,
         notes, and labels will not be sent to the AI service
       </StyledText>
-      {!isDigestConfigLoading && (
+      {hasDigest && (
         <>
           <StyledText
             style="footnote"
@@ -667,6 +695,17 @@ const DigestSection = (): JSX.Element => {
             Deliver to iOS (daily podcast available in the iOS app)
           </StyledText>
         </>
+      )}
+      {!hasDigest && (
+        <Button
+          style="ctaDarkYellow"
+          onClick={(event) => {
+            requestDigestAccess()
+            event.preventDefault()
+          }}
+        >
+          Enable Digest
+        </Button>
       )}
     </VStack>
   )

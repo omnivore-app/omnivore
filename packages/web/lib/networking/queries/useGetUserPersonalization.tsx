@@ -80,7 +80,6 @@ export function useGetUserPersonalization(): UserPersonalizationResult {
       response.getUserPersonalization?.userPersonalization.digestConfig
     )
   ) {
-    console.log('invalid digest config')
     return {
       mutate,
       isLoading: false,
