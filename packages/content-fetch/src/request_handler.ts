@@ -1,9 +1,8 @@
-import { Storage } from '@google-cloud/storage'
 import { fetchContent } from '@omnivore/puppeteer-parse'
-import crypto from 'crypto'
 import { RequestHandler } from 'express'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
+import { redisDataSource } from './redis_data_source'
 
 interface User {
   id: string
@@ -48,27 +47,20 @@ interface LogRecord {
   totalTime?: number
 }
 
-const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
-  ? new Storage({ keyFilename: process.env.GCS_UPLOAD_SA_KEY_FILE_PATH })
-  : new Storage()
-const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
-
-export const uploadToBucket = async (filename: string, data: string) => {
-  const file = storage.bucket(bucketName).file(`originalContent/${filename}`)
-
-  // check if the file already exists
-  const [exists] = await file.exists()
-
-  if (exists) {
-    console.log('file already exists', filename)
-    return
-  }
-
-  await file.save(data, { public: false, timeout: 30000 })
+interface FetchResult {
+  finalUrl: string
+  title?: string
+  content?: string
+  contentType?: string
 }
 
-const hash = (content: string) =>
-  crypto.createHash('md5').update(content).digest('hex')
+export const cacheFetchResult = async (fetchResult: FetchResult) => {
+  // cache the fetch result for 24 hours
+  const ttl = 24 * 60 * 60
+  const key = `fetch-result:${fetchResult.finalUrl}`
+  const value = JSON.stringify(fetchResult)
+  return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
+}
 
 export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   const functionStartTime = Date.now()
@@ -122,15 +114,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   try {
     const fetchResult = await fetchContent(url, locale, timezone)
     const finalUrl = fetchResult.finalUrl
-    let urlHash: string | undefined
-
-    const content = fetchResult.content
-    if (content) {
-      // hash final url to use as key
-      urlHash = hash(finalUrl)
-      await uploadToBucket(urlHash, content)
-      console.log('content uploaded to bucket', urlHash)
-    }
 
     const savePageJobs = users.map((user) => ({
       userId: user.id,
@@ -147,14 +130,14 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         savedAt,
         publishedAt,
         taskId,
-        title: fetchResult.title,
-        contentType: fetchResult.contentType,
-        urlHash,
       },
       isRss: !!rssFeedUrl,
       isImport: !!taskId,
       priority,
     }))
+
+    const cacheResult = await cacheFetchResult(fetchResult)
+    console.log('cacheFetchResult result', cacheResult)
 
     const jobs = await queueSavePageJob(savePageJobs)
     console.log('save-page jobs queued', jobs.length)

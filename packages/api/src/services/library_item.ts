@@ -21,11 +21,7 @@ import { redisDataSource } from '../redis_data_source'
 import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import {
-  deepDelete,
-  setRecentlySavedItemInRedis,
-  stringToHash,
-} from '../utils/helpers'
+import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { downloadFileFromBucket, uploadToBucket } from '../utils/uploads'
@@ -1021,13 +1017,13 @@ export const createOrUpdateLibraryItem = async (
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
-  // if (libraryItem.originalContent && !urlHash) {
-  //   // upload original content to GCS
-  //   await uploadContent(libraryItem.originalUrl, libraryItem.originalContent)
+  let originalContent: string | null = null
+  if (libraryItem.originalContent) {
+    originalContent = libraryItem.originalContent
 
-  //   // remove original content
-  //   delete libraryItem.originalContent
-  // }
+    // remove original content from the item
+    delete libraryItem.originalContent
+  }
 
   const newLibraryItem = await authTrx(
     async (tx) => {
@@ -1101,6 +1097,14 @@ export const createOrUpdateLibraryItem = async (
 
   const data = deepDelete(newLibraryItem, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
+
+  // upload original content to GCS
+  if (originalContent) {
+    await uploadOriginalContent(userId, newLibraryItem.id, originalContent)
+    logger.info('Uploaded original content to GCS', {
+      id: newLibraryItem.id,
+    })
+  }
 
   return newLibraryItem
 }
@@ -1677,22 +1681,27 @@ export const filterItemEvents = (
   throw new Error('Unexpected state.')
 }
 
-const originalContentFilename = (originalUrl: string) =>
-  `originalContent/${stringToHash(originalUrl)}`
+const originalContentFilename = (userId: string, libraryItemId: string) =>
+  `original-content/${userId}/${libraryItemId}.html`
 
 export const uploadOriginalContent = async (
-  originalUrl: string,
+  userId: string,
+  libraryItemId: string,
   originalContent: string
 ) => {
   await uploadToBucket(
-    originalContentFilename(originalUrl),
+    originalContentFilename(userId, libraryItemId),
     Buffer.from(originalContent),
     {
       public: false,
+      contentType: 'text/html',
     }
   )
 }
 
-export const downloadOriginalContent = async (originalUrl: string) => {
-  return downloadFileFromBucket(originalContentFilename(originalUrl))
+export const downloadOriginalContent = async (
+  userId: string,
+  libraryItemId: string
+) => {
+  return downloadFileFromBucket(originalContentFilename(userId, libraryItemId))
 }

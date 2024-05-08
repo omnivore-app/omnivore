@@ -6,8 +6,8 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { redisDataSource } from '../redis_data_source'
 import { userRepository } from '../repository/user'
-import { downloadOriginalContent } from '../services/library_item'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
 import { uploadFile } from '../services/upload_file'
@@ -27,8 +27,6 @@ interface Data {
   url: string
   finalUrl: string
   articleSavingRequestId: string
-  title: string
-  contentType: string
 
   state?: string
   labels?: CreateLabelInput[]
@@ -38,7 +36,76 @@ interface Data {
   savedAt?: string
   publishedAt?: string
   taskId?: string
-  urlHash?: string
+}
+
+interface FetchResult {
+  finalUrl: string
+  title?: string
+  content?: string
+  contentType?: string
+}
+
+const isFetchResult = (obj: unknown): obj is FetchResult => {
+  return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
+}
+
+const uploadToSignedUrl = async (
+  uploadSignedUrl: string,
+  contentType: string,
+  contentObjUrl: string
+) => {
+  const maxContentLength = 10 * 1024 * 1024 // 10MB
+
+  logger.info('downloading content', {
+    contentObjUrl,
+  })
+
+  // download the content as stream and max 10MB
+  const response = await axios.get(contentObjUrl, {
+    responseType: 'stream',
+    maxContentLength,
+    timeout: REQUEST_TIMEOUT,
+  })
+
+  logger.info('uploading to signed url', {
+    uploadSignedUrl,
+    contentType,
+  })
+
+  // upload the stream to the signed url
+  await axios.put(uploadSignedUrl, response.data, {
+    headers: {
+      'Content-Type': contentType,
+    },
+    maxBodyLength: maxContentLength,
+    timeout: REQUEST_TIMEOUT,
+  })
+}
+
+const getCachedFetchResult = async (url: string) => {
+  const key = `fetch-result:${url}`
+  if (!redisDataSource.redisClient || !redisDataSource.workerRedisClient) {
+    throw new Error('redis client is not initialized')
+  }
+
+  let result = await redisDataSource.redisClient.get(key)
+  if (!result) {
+    logger.debug(`fetch result is not cached in cache redis ${url}`)
+    // fallback to worker redis client if the result is not found
+    result = await redisDataSource.workerRedisClient.get(key)
+    if (!result) {
+      throw new Error('fetch result is not cached')
+    }
+  }
+
+  const fetchResult = JSON.parse(result) as unknown
+  if (!isFetchResult(fetchResult)) {
+    throw new Error('fetch result is not valid')
+  }
+
+  logger.info('fetch result is cached', url)
+
+  return fetchResult
 }
 
 const uploadPdf = async (
@@ -126,11 +193,10 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     taskId,
     url,
     finalUrl,
-    title,
-    contentType,
-    state,
   } = data
-  let isImported, isSaved
+  let isImported,
+    isSaved,
+    state = data.state
 
   logger.info('savePageJob', {
     userId,
@@ -149,6 +215,11 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
   }
 
   try {
+    // get the fetch result from cache
+    const fetchedResult = await getCachedFetchResult(finalUrl)
+    const { title, contentType } = fetchedResult
+    let content = fetchedResult.content
+
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
       const uploadResult = await uploadPdf(
@@ -181,8 +252,12 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    // download content from the bucket
-    const originalContent = (await downloadOriginalContent(finalUrl)).toString()
+    if (!content) {
+      logger.info(`content is not fetched: ${finalUrl}`)
+      // set the state to failed if we don't have content
+      content = 'Failed to fetch content'
+      state = ArticleSavingRequestStatus.Failed
+    }
 
     // for non-pdf content, we need to save the page
     const result = await savePage(
@@ -190,7 +265,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         url: finalUrl,
         clientRequestId: articleSavingRequestId,
         title,
-        originalContent,
+        originalContent: content,
         state: (state as ArticleSavingRequestStatus) || undefined,
         labels,
         rssFeedUrl,
