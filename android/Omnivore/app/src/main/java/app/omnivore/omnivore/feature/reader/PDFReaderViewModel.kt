@@ -73,7 +73,6 @@ class PDFReaderViewModel @Inject constructor(
               htmlContent = "",
               highlights = item.highlights,
               contentStatus = "SUCCEEDED",
-              objectID = "",
               labelsJSONString = Gson().toJson(item.labels)
             )
 
@@ -103,10 +102,9 @@ class PDFReaderViewModel @Inject constructor(
         override fun onComplete(output: File) {
           val articleContent = ArticleContent(
             title = article.title,
-            htmlContent = article.content ?: "",
+            htmlContent = "",
             highlights = articleQueryResult.highlights,
             contentStatus = "SUCCEEDED",
-            objectID = "",
             labelsJSONString = Gson().toJson(articleQueryResult.labels)
           )
 

@@ -27,7 +27,7 @@ import app.omnivore.omnivore.core.database.entities.ViewerDao
         HighlightChange::class,
         SavedItemAndSavedItemLabelCrossRef::class,
         SavedItemAndHighlightCrossRef::class],
-    version = 27,
+    version = 28,
     exportSchema = true
 )
 abstract class OmnivoreDatabase : RoomDatabase() {

@@ -37,7 +37,6 @@ data class ArticleContent(
   val htmlContent: String,
   val highlights: List<Highlight>,
   val contentStatus: String, // ArticleContentStatus,
-  val objectID: String?, // whatever the Room Equivalent of objectID is
   val labelsJSONString: String
 ) {
   fun highlightsJSONString(): String {

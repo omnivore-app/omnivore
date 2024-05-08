@@ -39,6 +39,7 @@ import app.omnivore.omnivore.core.datastore.prefersWebHighContrastText
 import app.omnivore.omnivore.core.datastore.volumeForScroll
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.createNewLabel
+import app.omnivore.omnivore.core.network.loadLibraryItemContent
 import app.omnivore.omnivore.core.network.saveUrl
 import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.feature.components.HighlightColor
@@ -263,35 +264,36 @@ class WebReaderViewModel @Inject constructor(
 
     private suspend fun loadItemFromDB(slug: String) {
         withContext(Dispatchers.IO) {
-            val persistedItem =
-                dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+            val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+            val savedItemId = persistedItem?.savedItem?.savedItemId
+            if (savedItemId != null) {
+                val htmlContent = loadLibraryItemContent(savedItemId)
+                if (htmlContent != null) {
+                    val articleContent = ArticleContent(
+                        title = persistedItem.savedItem.title,
+                        htmlContent = htmlContent,
+                        highlights = persistedItem.highlights,
+                        contentStatus = "SUCCEEDED",
+                        labelsJSONString = Gson().toJson(persistedItem.labels)
+                    )
 
-            if (persistedItem?.savedItem?.content != null) {
-                val articleContent = ArticleContent(
-                    title = persistedItem.savedItem.title,
-                    htmlContent = persistedItem.savedItem.content,
-                    highlights = persistedItem.highlights,
-                    contentStatus = "SUCCEEDED",
-                    objectID = "",
-                    labelsJSONString = Gson().toJson(persistedItem.labels)
-                )
+                    val webReaderParams = WebReaderParams(
+                        persistedItem.savedItem,
+                        articleContent,
+                        persistedItem.labels
+                    )
 
-                val webReaderParams = WebReaderParams(
-                    persistedItem.savedItem,
-                    articleContent,
-                    persistedItem.labels
-                )
-
-                Log.d("sync", "data loaded from db")
-                eventTracker.track(
-                    "link_read",
-                    com.posthog.android.Properties()
-                        .putValue("linkID", webReaderParams.item.savedItemId)
-                        .putValue("slug", webReaderParams.item.slug)
-                        .putValue("originalArticleURL", webReaderParams.item.pageURLString)
-                        .putValue("loaded_from", "db")
-                )
-                webReaderParamsLiveData.postValue(webReaderParams)
+                    Log.d("sync", "data loaded from db")
+                    eventTracker.track(
+                        "link_read",
+                        com.posthog.android.Properties()
+                            .putValue("linkID", webReaderParams.item.savedItemId)
+                            .putValue("slug", webReaderParams.item.slug)
+                            .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+                            .putValue("loaded_from", "db")
+                    )
+                    webReaderParamsLiveData.postValue(webReaderParams)
+                }
             }
             isLoading = false
         }
@@ -301,13 +303,13 @@ class WebReaderViewModel @Inject constructor(
         val articleQueryResult = networker.savedItem(slug)
 
         val article = articleQueryResult.item ?: return null
+        val htmlContent = loadLibraryItemContent(article.savedItemId)
 
         val articleContent = ArticleContent(
             title = article.title,
-            htmlContent = article.content ?: "",
+            htmlContent = htmlContent ?: "",
             highlights = articleQueryResult.highlights,
             contentStatus = articleQueryResult.state,
-            objectID = "",
             labelsJSONString = Gson().toJson(articleQueryResult.labels)
         )
 

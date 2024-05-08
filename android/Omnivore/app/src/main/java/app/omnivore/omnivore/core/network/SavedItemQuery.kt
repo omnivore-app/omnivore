@@ -80,6 +80,8 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
             localPDFPath = localFile.toPath().toString()
         }
 
+        saveLibraryItemContentToFile(article.articleFields.id, article.articleFields.content)
+
         val savedItem = SavedItem(
             savedItemId = article.articleFields.id,
             title = article.articleFields.title,
@@ -100,7 +102,6 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
             slug = article.articleFields.slug,
             isArchived = article.articleFields.isArchived,
             contentReader = article.articleFields.contentReader.rawValue,
-            content = article.articleFields.content,
             wordsCount = article.articleFields.wordsCount,
             localPDFPath = localPDFPath
         )

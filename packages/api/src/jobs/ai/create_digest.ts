@@ -17,12 +17,13 @@ import { User } from '../../entity/user'
 import { env } from '../../env'
 import { TaskState } from '../../generated/graphql'
 import { redisDataSource } from '../../redis_data_source'
-import { Digest, writeDigest } from '../../services/digest'
+import { Chapter, Digest, writeDigest } from '../../services/digest'
 import {
   findLibraryItemsByIds,
   getItemUrl,
   searchLibraryItems,
 } from '../../services/library_item'
+import { savePage } from '../../services/save_page'
 import {
   findUserAndPersonalization,
   sendPushNotifications,
@@ -32,6 +33,7 @@ import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
+import { getImageSize, _findThumbnail } from '../find_thumbnail'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -84,7 +86,7 @@ interface RankedTitle {
   title: string
 }
 
-type Channel = 'push' | 'email'
+type Channel = 'push' | 'email' | 'library'
 
 export const CREATE_DIGEST_JOB = 'create-digest'
 export const CRON_PATTERNS = {
@@ -93,6 +95,8 @@ export const CRON_PATTERNS = {
   // every Sunday at 10:30 UTC
   weekly: '30 10 * * 7',
 }
+
+const AUTHOR = 'Omnivore Digest'
 
 let digestDefinition: DigestDefinition
 
@@ -200,7 +204,9 @@ const getCandidatesList = async (
   const dedupedCandidates = candidates
     .flat()
     .filter(
-      (item, index, self) => index === self.findIndex((t) => t.id === item.id)
+      (item, index, self) =>
+        index === self.findIndex((t) => t.id === item.id) &&
+        !item.title.startsWith(AUTHOR) // exclude the digest items
     )
     .map((item) => ({
       ...item,
@@ -489,7 +495,9 @@ const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
 // we can use something more sophisticated to generate titles
 const generateTitle = (summaries: RankedItem[]): string =>
   'Omnivore digest: ' +
-  summaries.map((item) => item.libraryItem.title).join(', ')
+  summaries
+    .map((item) => item.libraryItem.title.replace(/\|.*/, '').trim()) // remove the author
+    .join(', ')
 
 // generate description based on the summaries
 const generateDescription = (
@@ -557,7 +565,7 @@ const uploadSummary = async (
 
 const sendPushNotification = async (userId: string, digest: Digest) => {
   const notification = {
-    title: 'Omnivore Digest',
+    title: AUTHOR,
     body: truncate(digest.title, { length: 100 }),
   }
   const data = {
@@ -567,17 +575,10 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
   await sendPushNotifications(userId, notification, 'reminder', data)
 }
 
-const sendEmail = async (
-  user: User,
-  digest: Digest,
-  summaries: RankedItem[]
-) => {
-  const createdAt = digest.createdAt ?? new Date()
-
-  const prefix = 'Omnivore Digest'
-  const title = `${prefix} ${createdAt.toLocaleDateString()}`
+const sendEmail = async (user: User, digest: Digest) => {
+  const title = `${AUTHOR} ${new Date().toLocaleDateString()}`
   const subTitle = truncate(digest.title, { length: 200 }).slice(
-    prefix.length + 1
+    AUTHOR.length + 1
   )
 
   const chapters = digest.chapters ?? []
@@ -589,15 +590,26 @@ const sendEmail = async (
 
         ${chapters
           .map(
-            (chapter, index) => `
+            (chapter) => `
               <div>
                 <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
                 <div>
-                  ${summaries[index].summary}
+                  ${chapter.summary}
                 </div>
               </div>`
           )
           .join('')}
+
+      <button style="background-color: #FFEAA0;
+                    border: 0px solid transparent;
+                    color: rgb(42, 42, 42);
+                    padding:15px 32px;
+                    font-size: 14px;
+                    margin: 20px 0;
+                    font-family: Inter, sans-serif;
+                    border-radius: 5px;">
+        <a href="${env.client.url}/digest/${digest.id}">Read in Omnivore</a>
+      </button>
     </div>`
 
   await enqueueSendEmail({
@@ -608,10 +620,75 @@ const sendEmail = async (
   })
 }
 
-const sendNotifications = async (
+const findThumbnail = async (
+  chapters: Chapter[]
+): Promise<string | undefined> => {
+  const thumbnails = chapters
+    .filter((chapter) => !!chapter.thumbnail)
+    .map((chapter) => chapter.thumbnail as string)
+    // randomly sort the thumbnails
+    .sort(() => 0.5 - Math.random())
+
+  try {
+    for (const thumbnail of thumbnails) {
+      const size = await getImageSize(thumbnail)
+      if (!size) {
+        continue
+      }
+
+      const selectedThumbnail = _findThumbnail([size])
+      if (selectedThumbnail) {
+        return selectedThumbnail
+      }
+    }
+  } catch {
+    logger.error('findThumbnail error')
+  }
+
+  return undefined
+}
+
+export const moveDigestToLibrary = async (user: User, digest: Digest) => {
+  const subTitle = digest.title?.slice(AUTHOR.length + 1) ?? ''
+  const title = `${AUTHOR}: ${subTitle}`
+
+  const chapters = digest.chapters ?? []
+
+  const html = `
+    <div style="text-align: justify;" class="_omnivore_digest">
+        ${chapters
+          .map(
+            (chapter) => `
+              <div>
+                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                <div>
+                  ${chapter.summary}
+                </div>
+              </div>`
+          )
+          .join('')}
+    </div>`
+
+  const previewImage = await findThumbnail(chapters)
+
+  await savePage(
+    {
+      url: `${env.client.url}/omnivore-digest/${digest.id}`,
+      title,
+      originalContent: html,
+      clientRequestId: digest.id,
+      source: 'digest',
+      author: AUTHOR,
+      publishedAt: new Date(),
+      previewImage,
+    },
+    user
+  )
+}
+
+const sendToChannels = async (
   user: User,
   digest: Digest,
-  summaries: RankedItem[],
   channels: Channel[] = ['push'] // default to push notification
 ) => {
   const deduplicateChannels = [...new Set(channels)]
@@ -622,7 +699,9 @@ const sendNotifications = async (
         case 'push':
           return sendPushNotification(user.id, digest)
         case 'email':
-          return sendEmail(user, digest, summaries)
+          return sendEmail(user, digest)
+        case 'library':
+          return moveDigestToLibrary(user, digest)
         default:
           logger.error('Unknown channel', { channel })
           return
@@ -637,35 +716,29 @@ export const createDigest = async (jobData: CreateDigestData) => {
   // generate a unique id for the digest if not provided for scheduled jobs
   const digestId = jobData.id ?? uuid()
 
-  const user = await findUserAndPersonalization(jobData.userId)
-  if (!user) {
-    logger.error('User not found', { userId: jobData.userId })
-    return writeDigest(jobData.userId, {
-      id: digestId,
-      jobState: TaskState.Failed,
-    })
-  }
-
-  const personalization = user.userPersonalization
-  if (!personalization) {
-    logger.info('User personalization not found')
-  }
-
-  const config = personalization
-    ? (personalization.digestConfig as {
-        model?: string
-        channels?: Channel[]
-      })
-    : undefined
-
-  // default digest
-  let digest: Digest = {
-    id: digestId,
-    jobState: TaskState.Succeeded,
-  }
-  let filteredSummaries: RankedItem[] = []
-
   try {
+    const user = await findUserAndPersonalization(jobData.userId)
+    if (!user) {
+      logger.error('User not found', { userId: jobData.userId })
+      return await writeDigest(jobData.userId, {
+        id: digestId,
+        jobState: TaskState.Failed,
+        title: 'User not found',
+      })
+    }
+
+    const personalization = user.userPersonalization
+    if (!personalization) {
+      logger.info('User personalization not found')
+    }
+
+    const config = personalization
+      ? (personalization.digestConfig as {
+          model?: string
+          channels?: Channel[]
+        })
+      : undefined
+
     digestDefinition = await fetchDigestDefinition()
     const model = selectModel(config?.model || digestDefinition.model)
     logger.info(`model: ${model}`)
@@ -676,7 +749,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
     )
     if (candidates.length === 0) {
       logger.info('No candidates found')
-      return writeDigest(jobData.userId, digest)
+      return await writeDigest(jobData.userId, {
+        id: digestId,
+        jobState: TaskState.Failed,
+        title: 'No candidates found',
+      })
     }
 
     // const userProfile = await findOrCreateUserProfile(jobData.userId)
@@ -693,7 +770,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
     const summaries = await summarizeItems(model, selections)
     console.timeEnd('summarizeItems')
 
-    filteredSummaries = filterSummaries(summaries)
+    const filteredSummaries = filterSummaries(summaries)
 
     const speechFiles = generateSpeechFiles(filteredSummaries, {
       ...jobData,
@@ -701,7 +778,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       secondaryVoice: jobData.voices?.[1],
     })
     const title = generateTitle(filteredSummaries)
-    digest = {
+    const digest = {
       id: digestId,
       title,
       content: generateContent(filteredSummaries),
@@ -713,6 +790,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
         url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
+        summary: item.summary,
       })),
       createdAt: new Date(),
       description: '',
@@ -732,6 +810,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
     ])
 
     logger.info(`digest created: ${digest.id}`)
+
+    // send notifications when digest is created
+    await sendToChannels(user, digest, config?.channels)
+
+    console.timeEnd('createDigestJob')
   } catch (error) {
     logger.error('createDigestJob error', error)
 
@@ -740,10 +823,5 @@ export const createDigest = async (jobData: CreateDigestData) => {
       jobState: TaskState.Failed,
       title: 'Failed to create digest',
     })
-  } finally {
-    // send notification
-    await sendNotifications(user, digest, filteredSummaries, config?.channels)
-
-    console.timeEnd('createDigestJob')
   }
 }

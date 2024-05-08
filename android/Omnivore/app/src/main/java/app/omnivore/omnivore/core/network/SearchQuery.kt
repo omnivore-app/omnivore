@@ -1,11 +1,16 @@
 package app.omnivore.omnivore.core.network
 
+import android.os.Environment
 import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import com.apollographql.apollo3.api.Optional
+import androidx.core.content.ContextCompat
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 data class LibrarySearchQueryResponse(
     val cursor: String?, val items: List<LibrarySearchItem>
@@ -31,6 +36,7 @@ suspend fun Networker.search(
         val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
         val searchItems = itemList.map {
+            saveLibraryItemContentToFile(it.node.id, it.node.content)
             LibrarySearchItem(item = SavedItem(
                 savedItemId = it.node.id,
                 title = it.node.title,
@@ -51,7 +57,6 @@ suspend fun Networker.search(
                 slug = it.node.slug,
                 isArchived = it.node.isArchived,
                 contentReader = it.node.contentReader.rawValue,
-                content = it.node.content,
                 wordsCount = it.node.wordsCount
             ), labels = (it.node.labels ?: listOf()).map { label ->
                 SavedItemLabel(
@@ -87,5 +92,35 @@ suspend fun Networker.search(
         )
     } catch (e: java.lang.Exception) {
         return LibrarySearchQueryResponse(null, listOf())
+    }
+}
+
+fun saveLibraryItemContentToFile(libraryItemId: String, content: String?): Boolean {
+    return try {
+        content?.let { content ->
+            val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            val file = File(directory, "${libraryItemId}.html")
+            FileOutputStream(file).use { it.write(content.toByteArray()) }
+            return false
+        }
+        false
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+fun loadLibraryItemContent(libraryItemId: String): String? {
+    return try {
+        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        val file = File(directory, "${libraryItemId}.html")
+        if (file.exists()) {
+            return FileInputStream(file).bufferedReader().use { it.readText() }
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }

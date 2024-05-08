@@ -43,6 +43,8 @@ const RESERVED_NAMES = new Set([
   'create',
   'delete',
   '_debug',
+  'digest',
+  'digests',
   'discover',
   'direct_messages',
   'documentation',
@@ -110,6 +112,7 @@ const RESERVED_NAMES = new Set([
   'plans',
   'popular',
   'post',
+  'posts',
   'postmaster',
   'privacy',
   'profile',
@@ -169,6 +172,7 @@ const RESERVED_NAMES = new Set([
   'xmpp',
   'yaml',
   'yml',
+  'digest',
 ])
 
 export const validateUsername = (username: string): boolean => {
