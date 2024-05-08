@@ -4,7 +4,7 @@ import { env } from '../env'
 import { TaskState } from '../generated/graphql'
 import {
   CreateDigestJobSchedule,
-  saveInLibrary,
+  moveToLibrary,
 } from '../jobs/ai/create_digest'
 import { getDigest } from '../services/digest'
 import { FeatureName, findGrantedFeatureByName } from '../services/features'
@@ -301,7 +301,7 @@ export function digestRouter() {
         }
 
         // move digest to library
-        await saveInLibrary(feature.user, digest)
+        await moveToLibrary(feature.user, digest)
 
         res.send({
           success: true,
