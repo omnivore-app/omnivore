@@ -169,6 +169,7 @@ const RESERVED_NAMES = new Set([
   'xmpp',
   'yaml',
   'yml',
+  'digest',
 ])
 
 export const validateUsername = (username: string): boolean => {

@@ -648,7 +648,7 @@ const findThumbnail = async (
   return undefined
 }
 
-export const moveToLibrary = async (user: User, digest: Digest) => {
+export const moveDigestToLibrary = async (user: User, digest: Digest) => {
   const subTitle = digest.title?.slice(AUTHOR.length + 1) ?? ''
   const title = `${AUTHOR}: ${subTitle}`
 
@@ -701,7 +701,7 @@ const sendToChannels = async (
         case 'email':
           return sendEmail(user, digest)
         case 'library':
-          return moveToLibrary(user, digest)
+          return moveDigestToLibrary(user, digest)
         default:
           logger.error('Unknown channel', { channel })
           return
