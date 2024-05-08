@@ -45,7 +45,6 @@ export interface RequestContext {
   tracingSpan: Span
   dataSources: {
     readingProgress: ReadingProgressDataSource
-    originalContent: ReadingProgressDataSource
   }
   dataLoaders: {
     labels: DataLoader<string, Label[]>
