@@ -261,7 +261,10 @@ export const parsedContentToLibraryItem = ({
     itemType,
     textContentHash:
       uploadFileHash || stringToHash(parsedContent?.content || url),
-    thumbnail: parsedContent?.previewImage ?? undefined,
+    thumbnail:
+      (preparedDocument?.pageInfo.previewImage ||
+        parsedContent?.previewImage) ??
+      undefined,
     publishedAt: validatedDate(
       publishedAt || parsedContent?.publishedDate || undefined
     ),

@@ -135,12 +135,12 @@ export const findUserFeatures = async (userId: string) => {
 
 export const findGrantedFeatureByName = async (
   name: FeatureName,
-  userId: string
+  userId: string,
+  relations?: 'user'[]
 ): Promise<Feature | null> => {
-  return getRepository(Feature).findOneBy({
-    name,
-    user: { id: userId },
-    grantedAt: Not(IsNull()),
+  return getRepository(Feature).findOne({
+    where: { name, user: { id: userId }, grantedAt: Not(IsNull()) },
+    relations,
   })
 }
 
