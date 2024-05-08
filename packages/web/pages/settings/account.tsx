@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
@@ -21,6 +28,12 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import {
+  DigestChannel,
+  useGetUserPersonalization,
+} from '../../lib/networking/queries/useGetUserPersonalization'
+import { updateDigestConfigMutation } from '../../lib/networking/mutations/updateDigestConfigMutation'
+import { scheduleDigest } from '../../lib/networking/mutations/scheduleDigest'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -388,6 +401,8 @@ export default function Account(): JSX.Element {
             </form>
           </VStack>
 
+          <DigestSection />
+
           <VStack
             css={{
               padding: '24px',
@@ -429,52 +444,7 @@ export default function Account(): JSX.Element {
             {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
           </VStack>
 
-          <VStack
-            css={{
-              padding: '24px',
-              width: '100%',
-              height: '100%',
-              bg: '$grayBg',
-              gap: '10px',
-              borderRadius: '5px',
-            }}
-          >
-            <StyledLabel>Beta features</StyledLabel>
-            {!isValidating && (
-              <>
-                {viewerData?.me?.featureList.map((feature) => {
-                  return (
-                    <StyledText
-                      key={`feature-${feature.name}`}
-                      style="footnote"
-                      css={{ display: 'flex', gap: '5px' }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={userHasFeature(viewerData?.me, feature.name)}
-                        disabled={true}
-                      ></input>
-                      {`${feature.name}${
-                        userHasFeature(viewerData?.me, feature.name)
-                          ? ''
-                          : ' - Requested'
-                      }`}
-                    </StyledText>
-                  )
-                })}
-                <StyledText
-                  style="footnote"
-                  css={{ display: 'flex', gap: '5px' }}
-                >
-                  To learn more about beta features available,{' '}
-                  <a href="https://discord.gg/h2z5rppzz9">
-                    join the Omnivore Discord
-                  </a>
-                </StyledText>
-              </>
-            )}
-            {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
-          </VStack>
+          <BetaFeaturesSection />
 
           <VStack
             css={{
@@ -510,5 +480,192 @@ export default function Account(): JSX.Element {
         />
       ) : null}
     </SettingsLayout>
+  )
+}
+
+const BetaFeaturesSection = (): JSX.Element => {
+  const { viewerData } = useGetViewerQuery()
+  return (
+    <VStack
+      css={{
+        padding: '24px',
+        width: '100%',
+        height: '100%',
+        bg: '$grayBg',
+        gap: '10px',
+        borderRadius: '5px',
+      }}
+    >
+      <StyledLabel>Beta features</StyledLabel>
+      {viewerData?.me?.featureList.map((feature) => {
+        return (
+          <StyledText
+            key={`feature-${feature.name}`}
+            style="footnote"
+            css={{ display: 'flex', gap: '5px', m: '0px' }}
+          >
+            <input
+              type="checkbox"
+              checked={userHasFeature(viewerData?.me, feature.name)}
+              disabled={true}
+            ></input>
+            {`${feature.name}${
+              userHasFeature(viewerData?.me, feature.name) ? '' : ' - Requested'
+            }`}
+          </StyledText>
+        )
+      })}
+      <StyledText style="footnote" css={{ display: 'flex', gap: '5px' }}>
+        To learn more about beta features available,{' '}
+        <a href="https://discord.gg/h2z5rppzz9">join the Omnivore Discord</a>
+      </StyledText>
+    </VStack>
+  )
+}
+
+const DigestSection = (): JSX.Element => {
+  const [channelState, setChannelState] = useState({
+    push: false,
+    email: false,
+    library: false,
+  })
+  const {
+    userPersonalization,
+    isLoading: isDigestConfigLoading,
+    mutate,
+  } = useGetUserPersonalization()
+
+  useEffect(() => {
+    const channels = userPersonalization?.digestConfig?.channels ?? []
+    const initialState = {
+      push: channels.indexOf('push') !== -1,
+      email: channels.indexOf('email') !== -1,
+      library: channels.indexOf('library') !== -1,
+    }
+    setChannelState({ ...initialState })
+  }, [userPersonalization])
+
+  const handleDigestCheckboxChange = useCallback(
+    (name: DigestChannel, checked: boolean) => {
+      ;(async () => {
+        let selectedChannels = channelState
+        channelState[name] = checked
+        setChannelState({ ...selectedChannels })
+
+        let updatedChannels: DigestChannel[] = []
+        if (channelState.push) {
+          updatedChannels.push('push')
+        }
+        if (channelState.email) {
+          updatedChannels.push('email')
+        }
+        if (channelState.library) {
+          updatedChannels.push('library')
+        }
+        const result = await updateDigestConfigMutation(updatedChannels)
+        if (result) {
+          showSuccessToast('Updated digest config')
+        } else {
+          showErrorToast('Error updating digest config')
+        }
+        if (updatedChannels.length) {
+          // Queue the daily job
+          console.log('queueing daily digest job')
+          const scheduled = await scheduleDigest({
+            schedule: 'daily',
+            voices: ['openai-nova'],
+          })
+          if (scheduled) {
+            showSuccessToast(
+              'Your daily digest is scheduled to start tomorrow.'
+            )
+          } else {
+            showErrorToast('Error scheduling your daily digest')
+          }
+        } else {
+          console.log('deleting daily digest job')
+        }
+
+        mutate()
+      })()
+    },
+    [channelState]
+  )
+  return (
+    <VStack
+      css={{
+        padding: '24px',
+        width: '100%',
+        height: '100%',
+        bg: '$grayBg',
+        gap: '10px',
+        borderRadius: '5px',
+      }}
+    >
+      <StyledLabel>Digest</StyledLabel>
+      <StyledText
+        style="footnote"
+        css={{
+          display: 'flex',
+          gap: '5px',
+          lineHeight: '22px',
+          mt: '0px',
+        }}
+      >
+        Omnivore Digest is a free daily digest of some of your best recent
+        library items. Omnivore filters and ranks all the items recently added
+        them to your library, uses AI to summarize them, and creates a short
+        email for you to review, or a daily podcast you can listen to in our iOS
+        app. Note that if you sign up for Digest, your recent library items will
+        be processed by an AI service (Anthropic, or OpenAI). Your highlights,
+        notes, and labels will not be sent to the AI service
+      </StyledText>
+      {!isDigestConfigLoading && (
+        <>
+          <StyledText
+            style="footnote"
+            css={{ display: 'flex', gap: '5px', m: '0px' }}
+          >
+            <input
+              type="checkbox"
+              name="digest-library"
+              checked={channelState.library}
+              onChange={(event) =>
+                handleDigestCheckboxChange('library', event.target.checked)
+              }
+            ></input>
+            Deliver to library (added to your library each morning)
+          </StyledText>
+          <StyledText
+            style="footnote"
+            css={{ display: 'flex', gap: '5px', m: '0px' }}
+          >
+            <input
+              type="checkbox"
+              name="digest-email"
+              checked={channelState.email}
+              onChange={(event) =>
+                handleDigestCheckboxChange('email', event.target.checked)
+              }
+            ></input>
+            Deliver to email (daily email sent each morning)
+          </StyledText>
+          <StyledText
+            style="footnote"
+            css={{ display: 'flex', gap: '5px', m: '0px' }}
+          >
+            <input
+              type="checkbox"
+              name="digest-ios"
+              checked={channelState.push}
+              onChange={(event) =>
+                handleDigestCheckboxChange('push', event.target.checked)
+              }
+            ></input>
+            Deliver to iOS (daily podcast available in the iOS app)
+          </StyledText>
+        </>
+      )}
+    </VStack>
   )
 }
