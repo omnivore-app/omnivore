@@ -548,11 +548,11 @@ const DigestSection = (): JSX.Element => {
   const handleDigestCheckboxChange = useCallback(
     (name: DigestChannel, checked: boolean) => {
       ;(async () => {
-        let selectedChannels = channelState
+        const selectedChannels = channelState
         channelState[name] = checked
         setChannelState({ ...selectedChannels })
 
-        let updatedChannels: DigestChannel[] = []
+        const updatedChannels: DigestChannel[] = []
         if (channelState.push) {
           updatedChannels.push('push')
         }
