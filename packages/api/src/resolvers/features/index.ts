@@ -6,6 +6,7 @@ import {
 } from '../../generated/graphql'
 import {
   getFeatureName,
+  isOptInFeatureErrorCode,
   optInFeature,
   signFeatureToken,
 } from '../../services/features'
@@ -34,9 +35,9 @@ export const optInFeatureResolver = authorized<
     }
 
     const optedInFeature = await optInFeature(featureName, claims.uid)
-    if (!optedInFeature) {
+    if (isOptInFeatureErrorCode(optedInFeature)) {
       return {
-        errorCodes: [OptInFeatureErrorCode.NotFound],
+        errorCodes: [optedInFeature],
       }
     }
     log.info('Opted in to a feature', optedInFeature)

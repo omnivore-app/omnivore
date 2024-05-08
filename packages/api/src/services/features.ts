@@ -5,11 +5,14 @@ import { Feature } from '../entity/feature'
 import { env } from '../env'
 import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
+import { OptInFeatureErrorCode } from '../generated/graphql'
+import { Subscription, SubscriptionStatus } from '../entity/subscription'
+import { libraryItemRepository } from '../repository/library_item'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
 const MAX_NOTION_USERS = 1000
-const MAX_AIDIGEST_USERS = 10
+const MAX_AIDIGEST_USERS = 1000
 
 export enum FeatureName {
   AISummaries = 'ai-summaries',
@@ -20,6 +23,14 @@ export enum FeatureName {
   AIExplain = 'ai-explain',
 }
 
+export function isOptInFeatureErrorCode(
+  value: Feature | OptInFeatureErrorCode
+): value is OptInFeatureErrorCode {
+  return Object.values(OptInFeatureErrorCode).includes(
+    value as OptInFeatureErrorCode
+  )
+}
+
 export const getFeatureName = (name: string): FeatureName | undefined => {
   return Object.values(FeatureName).find((v) => v === name)
 }
@@ -27,7 +38,7 @@ export const getFeatureName = (name: string): FeatureName | undefined => {
 export const optInFeature = async (
   name: FeatureName,
   uid: string
-): Promise<Feature | undefined> => {
+): Promise<Feature | OptInFeatureErrorCode> => {
   switch (name) {
     case FeatureName.UltraRealisticVoice:
       return optInLimitedFeature(
@@ -44,9 +55,13 @@ export const optInFeature = async (
     case FeatureName.Notion:
       return optInLimitedFeature(FeatureName.Notion, uid, MAX_NOTION_USERS)
     case FeatureName.AIDigest:
+      const eligible = await userDigestEligible(uid)
+      if (!eligible) {
+        return OptInFeatureErrorCode.Ineligible
+      }
       return optInLimitedFeature(FeatureName.AIDigest, uid, MAX_AIDIGEST_USERS)
     default:
-      return undefined
+      return OptInFeatureErrorCode.NotFound
   }
 }
 
@@ -156,4 +171,14 @@ export const createFeature = async (feature: DeepPartial<Feature>) => {
 
 export const createFeatures = async (features: DeepPartial<Feature>[]) => {
   return getRepository(Feature).save(features)
+}
+
+export const userDigestEligible = async (uid: string): Promise<boolean> => {
+  const subscriptionsCount = await getRepository(Subscription).count({
+    where: { user: { id: uid }, status: SubscriptionStatus.Active },
+  })
+  const libraryItemsCount = await libraryItemRepository.count({
+    where: { user: { id: uid } },
+  })
+  return subscriptionsCount > 2 && libraryItemsCount > 10
 }

@@ -5,9 +5,9 @@ import { Box } from '../../components/elements/LayoutPrimitives'
 export default function Extensions(): JSX.Element {
   useEffect(() => {
     if (window.innerWidth <= 1024) {
-      Router.push('/settings/installation/mobile')
+      Router.push('/settings/account')
     } else {
-      Router.push('/settings/installation/extensions')
+      Router.push('/settings/account')
     }
   }, [])
 
