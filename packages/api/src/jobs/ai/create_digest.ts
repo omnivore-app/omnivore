@@ -623,17 +623,29 @@ const sendEmail = async (user: User, digest: Digest) => {
 const findThumbnail = async (
   chapters: Chapter[]
 ): Promise<string | undefined> => {
-  const images = await Promise.all(
-    chapters
-      .filter((chapter) => chapter.thumbnail)
-      .map((chapter) => getImageSize(chapter.thumbnail as string))
-  )
+  const thumbnails = chapters
+    .filter((chapter) => !!chapter.thumbnail)
+    .map((chapter) => chapter.thumbnail as string)
+    // randomly sort the thumbnails
+    .sort(() => 0.5 - Math.random())
 
   try {
-    return _findThumbnail(images)
+    for (const thumbnail of thumbnails) {
+      const size = await getImageSize(thumbnail)
+      if (!size) {
+        continue
+      }
+
+      const selectedThumbnail = _findThumbnail([size])
+      if (selectedThumbnail) {
+        return selectedThumbnail
+      }
+    }
   } catch {
-    return undefined
+    logger.error('findThumbnail error')
   }
+
+  return undefined
 }
 
 export const moveToLibrary = async (user: User, digest: Digest) => {
