@@ -18,6 +18,7 @@ const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
   }
 
   const tok = req.query.tok
+  const redirect = req.query.redirect
   if (ssoJwtSecret && tok && !Array.isArray(tok)) {
     const payload = jwt.verify(tok, ssoJwtSecret) as AuthPayload
     res.setHeader(
@@ -29,7 +30,7 @@ const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     })
   } else {
     res.writeHead(302, {
-      Location: '/home',
+      Location: redirect ?? '/home',
     })
   }
 

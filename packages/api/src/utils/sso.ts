@@ -15,9 +15,15 @@ export const createSsoToken = (
   return ssoToken
 }
 
-export const ssoRedirectURL = (ssoToken: string): string => {
+export const ssoRedirectURL = (
+  ssoToken: string,
+  redirect: string | undefined
+): string => {
   const u = new URL(homePageURL())
   u.pathname = 'api/client/auth'
   u.searchParams.append('tok', ssoToken)
+  if (redirect) {
+    u.searchParams.append('redirect', redirect)
+  }
   return u.toString()
 }

@@ -161,7 +161,7 @@ export async function handleGoogleWebAuth(
     if (authToken) {
       const ssoToken = createSsoToken(authToken, `${baseURL()}/home`)
       const redirectURL = isVercel
-        ? ssoRedirectURL(ssoToken)
+        ? ssoRedirectURL(ssoToken, `${baseURL()}/home`)
         : `${baseURL()}/home`
 
       return {

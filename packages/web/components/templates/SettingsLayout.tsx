@@ -11,7 +11,7 @@ import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { logout } from '../../lib/logout'
 import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
-import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
+import { useIsUserLoggedOut } from '../../lib/hooks/useIsUserLoggedOut'
 import Link from 'next/link'
 import { CaretLeft } from 'phosphor-react'
 
@@ -53,9 +53,8 @@ const ReturnButton = (): JSX.Element => {
 }
 
 export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
-  useVerifyAuth()
-
   const router = useRouter()
+  const userLoggedOut = useIsUserLoggedOut()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
@@ -66,6 +65,13 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)
   }, [setShowLogoutConfirmation])
+
+  useEffect(() => {
+    console.log('AUTH VERIFIED: ', userLoggedOut)
+    if (userLoggedOut) {
+      router.replace('/login')
+    }
+  }, [userLoggedOut])
 
   useEffect(() => {
     document.addEventListener('logout', showLogout)
