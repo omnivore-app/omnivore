@@ -28,6 +28,7 @@ import {
   findUserAndPersonalization,
   sendPushNotifications,
 } from '../../services/user'
+import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
@@ -674,19 +675,23 @@ export const moveDigestToLibrary = async (user: User, digest: Digest) => {
   const chapters = digest.chapters ?? []
 
   const html = `
-    <div style="text-align: justify;" class="_omnivore_digest">
-        ${chapters
-          .map(
-            (chapter) => `
-              <div>
-                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
-                <div>
-                  ${chapter.summary}
-                </div>
-              </div>`
-          )
-          .join('')}
-    </div>`
+    <html>
+      <body>
+        <div style="text-align: justify;" class="_omnivore_digest">
+            ${chapters
+              .map(
+                (chapter) => `
+                  <div>
+                    <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                    <div>
+                      ${chapter.summary}
+                    </div>
+                  </div>`
+              )
+              .join('')}
+        </div>
+      </body>
+    </html>`
 
   const previewImage = await findThumbnail(chapters)
 
@@ -716,15 +721,27 @@ const sendToChannels = async (
     deduplicateChannels.map(async (channel) => {
       switch (channel) {
         case 'push':
-          return sendPushNotification(user.id, digest)
+          await sendPushNotification(user.id, digest)
+          break
         case 'email':
-          return sendEmail(user, digest, deduplicateChannels)
+          await sendEmail(user, digest, deduplicateChannels)
+          break
         case 'library':
-          return moveDigestToLibrary(user, digest)
+          await moveDigestToLibrary(user, digest)
+          break
         default:
           logger.error('Unknown channel', { channel })
           return
       }
+
+      analytics.capture({
+        distinctId: user.id,
+        event: 'digest_created',
+        properties: {
+          channel,
+          digestId: digest.id,
+        },
+      })
     })
   )
 }

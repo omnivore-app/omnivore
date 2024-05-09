@@ -30,6 +30,7 @@ class PostHogClient implements AnalyticClient {
       properties: {
         ...properties,
         client,
+        env: env.server.apiEnv,
       },
     })
   }
