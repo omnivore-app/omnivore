@@ -75,7 +75,7 @@ export function ConfirmProfileForm(): JSX.Element {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-    }).then((response) => {
+    }).then(async (response) => {
       if (response.status === 200) {
         window.localStorage.setItem('authVerified', 'true')
         window.location.href = '/home'

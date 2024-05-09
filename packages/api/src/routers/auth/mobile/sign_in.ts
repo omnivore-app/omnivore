@@ -11,7 +11,7 @@ import {
   JsonResponsePayload,
 } from '../auth_types'
 import { decodeGoogleToken } from '../google_auth'
-import { createMobileAuthPayload } from '../jwt_helpers'
+import { createAuthPayload } from '../jwt_helpers'
 
 export async function createMobileSignInResponse(
   isAndroid: boolean,
@@ -67,7 +67,7 @@ export async function createMobileEmailSignInResponse(
       }
     }
 
-    const mobileAuthPayload = await createMobileAuthPayload(user.id)
+    const mobileAuthPayload = await createAuthPayload(user.id)
 
     return {
       statusCode: 200,
@@ -109,7 +109,7 @@ async function createAuthResponsePayload(
       }
     }
 
-    const mobileAuthPayload = await createMobileAuthPayload(userId)
+    const mobileAuthPayload = await createAuthPayload(userId)
 
     return {
       statusCode: 200,

@@ -67,7 +67,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   }, [setShowLogoutConfirmation])
 
   useEffect(() => {
-    console.log('AUTH VERIFIED: ', userLoggedOut)
     if (userLoggedOut) {
       router.replace('/login')
     }

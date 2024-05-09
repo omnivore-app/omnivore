@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import axios from 'axios'
 import cors from 'cors'
-import type { Request, Response } from 'express'
+import type { CookieOptions, Request, Response } from 'express'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
@@ -47,7 +47,7 @@ import {
   validateGoogleUser,
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
-import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import { createAccountCreationResponse } from '../../services/account_creation'
 
 export interface SignupRequest {
   email: string
@@ -61,8 +61,10 @@ export interface SignupRequest {
 
 const signToken = promisify(jwt.sign)
 
-const cookieParams = {
+const cookieParams: CookieOptions = {
   httpOnly: true,
+  sameSite: 'strict',
+  secure: true,
   maxAge: 365 * 24 * 60 * 60 * 1000,
 }
 
@@ -127,7 +129,7 @@ export function authRouter() {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const token = req.cookies?.pendingUserAuth as string | undefined
 
-      const payload = await createMobileAccountCreationResponse(token, {
+      const payload = await createAccountCreationResponse(token, {
         name,
         username,
         bio,
