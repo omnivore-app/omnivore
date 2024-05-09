@@ -675,19 +675,23 @@ export const moveDigestToLibrary = async (user: User, digest: Digest) => {
   const chapters = digest.chapters ?? []
 
   const html = `
-    <div style="text-align: justify;" class="_omnivore_digest">
-        ${chapters
-          .map(
-            (chapter) => `
-              <div>
-                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
-                <div>
-                  ${chapter.summary}
-                </div>
-              </div>`
-          )
-          .join('')}
-    </div>`
+    <html>
+      <body>
+        <div style="text-align: justify;" class="_omnivore_digest">
+            ${chapters
+              .map(
+                (chapter) => `
+                  <div>
+                    <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                    <div>
+                      ${chapter.summary}
+                    </div>
+                  </div>`
+              )
+              .join('')}
+        </div>
+      </body>
+    </html>`
 
   const previewImage = await findThumbnail(chapters)
 
