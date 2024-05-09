@@ -440,6 +440,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               '-webkit-box-orient': 'vertical',
               '-webkit-line-clamp': '4',
               overflow: 'hidden',
+              '@smDown': {
+                '-webkit-line-clamp': '6',
+              },
             }}
             title={title}
           >
