@@ -602,13 +602,26 @@ const sendEmail = async (user: User, digest: Digest) => {
 
       <button style="background-color: #FFEAA0;
                     border: 0px solid transparent;
-                    color: rgb(42, 42, 42);
                     padding:15px 32px;
                     font-size: 14px;
                     margin: 20px 0;
                     font-family: Inter, sans-serif;
                     border-radius: 5px;">
         <a href="${env.client.url}/digest/${digest.id}">Read in Omnivore</a>
+      </button>
+
+      <button style="
+          font-size: 14px;
+          margin: 20px 0;
+          border: 0px solid transparent;
+          padding: 15px 32px;
+          font-size: 14px;
+          margin: 20px 0;
+          font-family: Inter, sans-serif;
+          border-radius: 5px;
+      "><a href="${
+        env.client.url
+      }/settings/account">Update digest preferences</a>
       </button>
     </div>`
 
