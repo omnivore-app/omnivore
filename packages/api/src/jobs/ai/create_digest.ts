@@ -575,11 +575,12 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
   await sendPushNotifications(userId, notification, 'reminder', data)
 }
 
-const sendEmail = async (user: User, digest: Digest) => {
+const sendEmail = async (user: User, digest: Digest, channels: Channel[]) => {
   const title = `${AUTHOR} ${new Date().toLocaleDateString()}`
   const subTitle = truncate(digest.title, { length: 200 }).slice(
     AUTHOR.length + 1
   )
+  const isInLibrary = channels.includes('library')
 
   const chapters = digest.chapters ?? []
 
@@ -600,15 +601,19 @@ const sendEmail = async (user: User, digest: Digest) => {
           )
           .join('')}
 
-      <button style="background-color: #FFEAA0;
+      ${
+        isInLibrary
+          ? `<button style="background-color: #FFEAA0;
                     border: 0px solid transparent;
                     padding:15px 32px;
                     font-size: 14px;
                     margin: 20px 0;
                     font-family: Inter, sans-serif;
                     border-radius: 5px;">
-        <a href="${env.client.url}/digest/${digest.id}">Read in Omnivore</a>
-      </button>
+              <a href="${env.client.url}/digest/${digest.id}">Read in Omnivore</a>
+            </button>`
+          : ''
+      }
 
       <button style="
           font-size: 14px;
@@ -619,9 +624,10 @@ const sendEmail = async (user: User, digest: Digest) => {
           margin: 20px 0;
           font-family: Inter, sans-serif;
           border-radius: 5px;
-      "><a href="${
-        env.client.url
-      }/settings/account">Update digest preferences</a>
+      ">
+        <a href="${
+          env.client.url
+        }/settings/account">Update digest preferences</a>
       </button>
     </div>`
 
@@ -712,7 +718,7 @@ const sendToChannels = async (
         case 'push':
           return sendPushNotification(user.id, digest)
         case 'email':
-          return sendEmail(user, digest)
+          return sendEmail(user, digest, deduplicateChannels)
         case 'library':
           return moveDigestToLibrary(user, digest)
         default:
