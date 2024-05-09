@@ -347,9 +347,11 @@ export function digestRouter() {
 
       // cancel and remove the digest job
       await removeDigestJobs(userId)
+      logger.info(`Digest job removed: ${userId}`)
 
       // delete digest
       await deleteDigest(userId)
+      logger.info(`Digest deleted: ${userId}`)
 
       res.send({
         success: true,

@@ -55,11 +55,13 @@ export function taskRouter() {
     try {
       const job = await getJob(req.params.id)
       if (!job || !job.id) {
+        logger.info('Task not found')
         return res.sendStatus(404)
       }
 
       const jobState = await job.getState()
       if (jobState === 'active') {
+        logger.error('Task is active')
         // cannot delete active task
         return res.status(400).send('Task is active')
       }
@@ -68,9 +70,12 @@ export function taskRouter() {
       await job.remove()
 
       if (['completed', 'failed'].includes(jobState)) {
+        logger.info('Task removed')
         return res.status(200).send('Task removed')
       }
 
+      // job is waiting or delayed
+      logger.info('Task cancelled')
       res.status(200).send('Task cancelled')
     } catch (e) {
       logger.error('failed to delete task', e)
