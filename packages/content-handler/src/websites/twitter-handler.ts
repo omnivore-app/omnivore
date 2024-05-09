@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
-import { truncate } from 'lodash'
 import { DateTime } from 'luxon'
 import { Browser, BrowserContext } from 'puppeteer-core'
 import { ContentHandler, PreHandleResult } from '../content-handler'
@@ -72,7 +71,7 @@ interface EmbedTweet {
 
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN
 const TWITTER_URL_MATCH =
-  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+  /(twitter|x)\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
 const MAX_THREAD_DEPTH = 100
 
 const getTweetFields = () => {
@@ -159,9 +158,7 @@ const getTweetsByIds = async (ids: string[]): Promise<Tweets> => {
 }
 
 const titleForTweet = (author: string, text: string) => {
-  return `${author} on Twitter: ${truncate(text.replace(/http\S+/, ''), {
-    length: 100,
-  })}`
+  return `${author} on X: ${text.replace(/http\S+/, '')}`
 }
 
 const tweetIdFromStatusUrl = (url: string): string | undefined => {
