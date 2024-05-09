@@ -1,7 +1,7 @@
-import { redisDataSource } from '../redis_data_source'
 import { SpeechFile } from '@omnivore/text-to-speech-handler'
-import { logger } from '../utils/logger'
 import { TaskState } from '../generated/graphql'
+import { redisDataSource } from '../redis_data_source'
+import { logger } from '../utils/logger'
 
 export interface Chapter {
   title: string
@@ -9,7 +9,7 @@ export interface Chapter {
   url: string
   wordCount: number
   thumbnail?: string
-  summary: string
+  html: string
 }
 
 export interface Digest {
