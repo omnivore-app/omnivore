@@ -68,6 +68,17 @@ export function apiFetcher(path: string): Promise<unknown> {
   })
 }
 
+export function apiPoster(path: string, body: any): Promise<Response> {
+  const url = new URL(path, fetchEndpoint)
+  return fetch(url.toString(), {
+    method: 'POST',
+    credentials: 'include',
+    mode: 'cors',
+    headers: requestHeaders(),
+    body: JSON.stringify(body),
+  })
+}
+
 export function makePublicGqlFetcher(
   variables?: unknown
 ): (query: string) => Promise<unknown> {

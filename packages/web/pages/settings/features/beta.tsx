@@ -18,7 +18,7 @@ const StyledLabel = styled('label', {
   marginBottom: '5px',
 })
 
-export default function Account(): JSX.Element {
+export default function BetaFeatures(): JSX.Element {
   const { viewerData, isLoading, mutate } = useGetViewerQuery()
   const [pageLoading, setPageLoading] = useState(false)
 
