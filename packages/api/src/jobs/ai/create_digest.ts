@@ -9,7 +9,6 @@ import {
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
 import { truncate } from 'lodash'
-import showdown from 'showdown'
 import { v4 as uuid } from 'uuid'
 import yaml from 'yaml'
 import { LibraryItem } from '../../entity/library_item'
@@ -32,7 +31,7 @@ import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
-import { htmlToMarkdown } from '../../utils/parser'
+import { htmlToMarkdown, markdownToHtml } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
 import { getImageSize, _findThumbnail } from '../find_thumbnail'
 
@@ -455,22 +454,18 @@ const summarizeItems = async (
 
 // generate speech files from the summaries
 const generateSpeechFiles = (
-  rankedItems: RankedItem[],
+  summariesInHtml: string[],
   options: SSMLOptions
 ): SpeechFile[] => {
   console.time('generateSpeechFiles')
-  // convert the summaries from markdown to HTML
-  const converter = new showdown.Converter({
-    backslashEscapesHTMLTags: true,
-  })
 
-  const speechFiles = rankedItems.map((item) => {
+  const speechFiles = summariesInHtml.map((summary) => {
     const html = `
-    <div id="readability-content">
-      <div id="readability-page-1">
-        ${converter.makeHtml(item.summary)}
-      </div>
-    </div>`
+      <div id="readability-content">
+        <div id="readability-page-1">
+          ${summary}
+        </div>
+      </div>`
     return htmlToSpeechFile({
       content: html,
       options,
@@ -596,7 +591,7 @@ const sendEmail = async (user: User, digest: Digest, channels: Channel[]) => {
               <div>
                 <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
                 <div>
-                  ${chapter.summary}
+                  ${chapter.html}
                 </div>
               </div>`
           )
@@ -677,14 +672,14 @@ export const moveDigestToLibrary = async (user: User, digest: Digest) => {
   const html = `
     <html>
       <body>
-        <div style="text-align: justify;" class="_omnivore_digest">
+        <div class="_omnivore_digest">
             ${chapters
               .map(
                 (chapter) => `
                   <div>
                     <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
                     <div>
-                      ${chapter.summary}
+                      ${chapter.html}
                     </div>
                   </div>`
               )
@@ -807,8 +802,16 @@ export const createDigest = async (jobData: CreateDigestData) => {
     console.timeEnd('summarizeItems')
 
     const filteredSummaries = filterSummaries(summaries)
+    const summariesInHtml = filteredSummaries.map((item) => {
+      try {
+        return markdownToHtml(item.summary)
+      } catch (error) {
+        logger.error('markdownToHtml error', error)
+        return ''
+      }
+    })
 
-    const speechFiles = generateSpeechFiles(filteredSummaries, {
+    const speechFiles = generateSpeechFiles(summariesInHtml, {
       ...jobData,
       primaryVoice: jobData.voices?.[0],
       secondaryVoice: jobData.voices?.[1],
@@ -826,7 +829,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
         url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
-        summary: item.summary,
+        html: summariesInHtml[index],
       })),
       createdAt: new Date(),
       description: '',
