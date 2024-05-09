@@ -28,6 +28,7 @@ import {
   findUserAndPersonalization,
   sendPushNotifications,
 } from '../../services/user'
+import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
@@ -716,15 +717,27 @@ const sendToChannels = async (
     deduplicateChannels.map(async (channel) => {
       switch (channel) {
         case 'push':
-          return sendPushNotification(user.id, digest)
+          await sendPushNotification(user.id, digest)
+          break
         case 'email':
-          return sendEmail(user, digest, deduplicateChannels)
+          await sendEmail(user, digest, deduplicateChannels)
+          break
         case 'library':
-          return moveDigestToLibrary(user, digest)
+          await moveDigestToLibrary(user, digest)
+          break
         default:
           logger.error('Unknown channel', { channel })
           return
       }
+
+      analytics.capture({
+        distinctId: user.id,
+        event: 'digest_created',
+        properties: {
+          channel,
+          digestId: digest.id,
+        },
+      })
     })
   )
 }
