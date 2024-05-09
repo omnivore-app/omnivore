@@ -855,6 +855,40 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
   })
 }
 
+export const scheduledDigestJobOptions = (
+  schedule: CreateDigestJobSchedule
+) => ({
+  pattern: getCronPattern(schedule),
+  tz: 'UTC',
+})
+
+export const removeDigestJobs = async (userId: string) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    throw new Error('No queue found')
+  }
+
+  const jobId = `${CREATE_DIGEST_JOB}_${userId}`
+
+  // remove existing one-time job if any
+  const job = await queue.getJob(jobId)
+  if (job) {
+    await job.remove()
+    logger.info('existing job removed', { jobId })
+  }
+
+  // remove existing repeated job if any
+  await Promise.all(
+    Object.keys(CRON_PATTERNS).map((key) =>
+      queue.removeRepeatable(
+        CREATE_DIGEST_JOB,
+        scheduledDigestJobOptions(key as CreateDigestJobSchedule),
+        jobId
+      )
+    )
+  )
+}
+
 export const enqueueCreateDigest = async (
   data: CreateDigestData,
   schedule?: CreateDigestJobSchedule
@@ -892,24 +926,6 @@ export const enqueueCreateDigest = async (
   await writeDigest(data.userId, digest)
 
   if (schedule) {
-    // remove existing repeated job if any
-    await Promise.all(
-      Object.keys(CRON_PATTERNS).map(async (key) => {
-        const isDeleted = await queue.removeRepeatable(
-          CREATE_DIGEST_JOB,
-          {
-            pattern: CRON_PATTERNS[key as keyof typeof CRON_PATTERNS],
-            tz: 'UTC',
-          },
-          jobId
-        )
-
-        if (isDeleted) {
-          logger.info('existing repeated job removed', { jobId, schedule: key })
-        }
-      })
-    )
-
     // schedule repeated job
     // delete the digest id to avoid duplication
     delete data.id
@@ -918,9 +934,8 @@ export const enqueueCreateDigest = async (
       attempts: 1,
       priority: getJobPriority(CREATE_DIGEST_JOB),
       repeat: {
-        pattern: getCronPattern(schedule),
+        ...scheduledDigestJobOptions(schedule), // cron parser options (tz, etc.)
         jobId,
-        tz: 'UTC',
       },
     })
 

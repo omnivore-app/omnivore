@@ -51,3 +51,7 @@ export const writeDigest = async (userId: string, digest: Digest) => {
     throw new Error(msg)
   }
 }
+
+export const deleteDigest = async (userId: string) => {
+  await redisDataSource.redisClient?.del(digestKey(userId))
+}

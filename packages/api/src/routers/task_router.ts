@@ -41,7 +41,45 @@ export function taskRouter() {
       res.send(result)
     } catch (e) {
       logger.error('failed to get task', e)
-      res.status(500)
+      res.sendStatus(500)
+    }
+  })
+
+  router.delete('/:id', cors<express.Request>(corsConfig), async (req, res) => {
+    const token = getTokenByRequest(req)
+    const claims = await getClaimsByToken(token)
+    if (!claims) {
+      return res.sendStatus(401)
+    }
+
+    try {
+      const job = await getJob(req.params.id)
+      if (!job || !job.id) {
+        logger.info('Task not found')
+        return res.sendStatus(404)
+      }
+
+      const jobState = await job.getState()
+      if (jobState === 'active') {
+        logger.error('Task is active')
+        // cannot delete active task
+        return res.status(400).send('Task is active')
+      }
+
+      // remove job
+      await job.remove()
+
+      if (['completed', 'failed'].includes(jobState)) {
+        logger.info('Task removed')
+        return res.status(200).send('Task removed')
+      }
+
+      // job is waiting or delayed
+      logger.info('Task cancelled')
+      res.status(200).send('Task cancelled')
+    } catch (e) {
+      logger.error('failed to delete task', e)
+      res.sendStatus(500)
     }
   })
 
