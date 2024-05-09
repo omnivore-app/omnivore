@@ -48,6 +48,8 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createAccountCreationResponse } from '../../services/account_creation'
+import { libraryItemRepository } from '../../repository/library_item'
+import { Claims } from '../../resolvers/types'
 
 export interface SignupRequest {
   email: string
@@ -124,6 +126,7 @@ export function authRouter() {
     hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req, res) => {
+      const WELCOME_TO_OMNIVORE_SLUG = 'welcome-to-omnivore'
       const { name, bio, username } = req.body
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -135,12 +138,27 @@ export function authRouter() {
         bio,
       })
 
+      let hasGettingStarted = false
+      if (payload.json.authToken) {
+        const { uid } = jwt.decode(payload.json.authToken) as Claims
+        hasGettingStarted =
+          uid != null &&
+          (await libraryItemRepository.count({
+            where: { user: { id: uid }, slug: WELCOME_TO_OMNIVORE_SLUG },
+          })) > 0
+      }
+
       if (payload.json.authToken) {
         res.cookie('auth', payload.json.authToken, cookieParams)
         res.clearCookie('pendingUserAuth')
       }
 
-      res.status(payload.statusCode).json({})
+      const redirect = hasGettingStarted
+        ? `/${username}/${WELCOME_TO_OMNIVORE_SLUG}`
+        : '/home'
+      res.status(payload.statusCode).json({
+        redirect: redirect,
+      })
     }
   )
 

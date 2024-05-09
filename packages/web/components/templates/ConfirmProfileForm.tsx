@@ -76,9 +76,11 @@ export function ConfirmProfileForm(): JSX.Element {
       },
       body: JSON.stringify(data),
     }).then(async (response) => {
+      const body = await response.json()
+      console.log('response: ', body)
       if (response.status === 200) {
         window.localStorage.setItem('authVerified', 'true')
-        window.location.href = '/home'
+        window.location.href = body['redirect'] ?? '/home'
       } else {
         setErrorMessage('Error creating account')
       }
