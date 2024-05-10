@@ -1,16 +1,16 @@
 import { findLibraryItemById } from '../services/library_item'
 import { htmlToHighlightedMarkdown, htmlToMarkdown } from '../utils/parser'
-import { uploadToSignedUrl } from '../utils/uploads'
+import { uploadToBucket } from '../utils/uploads'
 
 export const UPLOAD_CONTENT_JOB = 'UPLOAD_CONTENT_JOB'
 
-type ContentFormat = 'markdown' | 'highlightedMarkdown' | 'original'
+export type ContentFormat = 'markdown' | 'highlightedMarkdown' | 'original'
 
 export interface UploadContentJobData {
   libraryItemId: string
   userId: string
   format: ContentFormat
-  uploadUrl: string
+  filePath: string
 }
 
 const convertContent = (content: string, format: ContentFormat): string => {
@@ -33,7 +33,7 @@ const CONTENT_TYPES = {
 }
 
 export const uploadContentJob = async (data: UploadContentJobData) => {
-  const { libraryItemId, userId, format, uploadUrl } = data
+  const { libraryItemId, userId, format, filePath } = data
   const libraryItem = await findLibraryItemById(libraryItemId, userId, {
     select: ['originalContent'],
   })
@@ -47,10 +47,8 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
 
   const content = convertContent(libraryItem.originalContent, format)
 
-  // 1 minute timeout
-  const timeout = 60000
-
-  const contentType = CONTENT_TYPES[format]
-
-  await uploadToSignedUrl(uploadUrl, Buffer.from(content), contentType, timeout)
+  await uploadToBucket(filePath, Buffer.from(content), {
+    contentType: CONTENT_TYPES[format],
+    timeout: 60000, // 1 minute
+  })
 }

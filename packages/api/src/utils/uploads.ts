@@ -64,12 +64,16 @@ export const generateUploadSignedUrl = async (
 }
 
 export const generateDownloadSignedUrl = async (
-  filePathName: string
+  filePathName: string,
+  config?: {
+    expires?: number
+  }
 ): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: 'v4',
     action: 'read',
     expires: Date.now() + 240 * 60 * 1000, // four hours
+    ...config,
   }
   const [url] = await storage
     .bucket(bucketName)
@@ -102,13 +106,13 @@ export const generateUploadFilePathName = (
 export const uploadToBucket = async (
   filePath: string,
   data: Buffer,
-  options?: { contentType?: string; public?: boolean },
+  options?: { contentType?: string; public?: boolean; timeout?: number },
   selectedBucket?: string
 ): Promise<void> => {
   await storage
     .bucket(selectedBucket || bucketName)
     .file(filePath)
-    .save(data, { ...options, timeout: 30000 })
+    .save(data, { timeout: 30000, ...options }) // default timeout 30s
 }
 
 export const createGCSFile = (filename: string): File => {

@@ -764,10 +764,18 @@ export const findRecentLibraryItems = async (
   )
 }
 
-export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
-  const selectColumns = getColumns(libraryItemRepository)
-    .filter((column) => column !== 'originalContent')
-    .map((column) => `library_item.${column}`)
+export const findLibraryItemsByIds = async (
+  ids: string[],
+  userId: string,
+  options?: {
+    select?: (keyof LibraryItem)[]
+  }
+) => {
+  const selectColumns =
+    options?.select ||
+    getColumns(libraryItemRepository)
+      .filter((column) => column !== 'originalContent')
+      .map((column) => `library_item.${column}`)
   return authTrx(
     async (tx) =>
       tx
