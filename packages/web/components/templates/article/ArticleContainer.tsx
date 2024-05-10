@@ -124,21 +124,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
-  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -441,7 +436,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               fontFamily: styles.fontFamily,
               width: '100%',
               wordWrap: 'break-word',
+              display: '-webkit-box',
+              '-webkit-box-orient': 'vertical',
+              '-webkit-line-clamp': '4',
+              overflow: 'hidden',
+              '@smDown': {
+                '-webkit-line-clamp': '6',
+              },
             }}
+            title={title}
           >
             {title}
           </StyledText>

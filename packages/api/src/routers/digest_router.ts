@@ -6,12 +6,12 @@ import {
   CreateDigestJobSchedule,
   moveDigestToLibrary,
 } from '../jobs/ai/create_digest'
-import { getDigest } from '../services/digest'
+import { deleteDigest, getDigest } from '../services/digest'
 import { FeatureName, findGrantedFeatureByName } from '../services/features'
 import { analytics } from '../utils/analytics'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
-import { enqueueCreateDigest } from '../utils/createTask'
+import { enqueueCreateDigest, removeDigestJobs } from '../utils/createTask'
 import { logger } from '../utils/logger'
 
 interface Feedback {
@@ -92,6 +92,9 @@ export function digestRouter() {
         logger.info(`Digest job is running: ${userId}`)
         return res.status(202).send(digest)
       }
+
+      // remove existing digest jobs
+      await removeDigestJobs(userId)
 
       // enqueue job and return job id
       const result = await enqueueCreateDigest(
@@ -314,6 +317,52 @@ export function digestRouter() {
       }
     }
   )
+
+  // v1 version of delete digest api
+  router.delete('/v1', cors<express.Request>(corsConfig), async (req, res) => {
+    const token = getTokenByRequest(req)
+    // get claims from token
+    const claims = await getClaimsByToken(token)
+    if (!claims) {
+      logger.error('Token not found')
+      return res.status(401).send({
+        error: 'UNAUTHORIZED',
+      })
+    }
+
+    // get user by uid from claims
+    const userId = claims.uid
+
+    try {
+      const feature = await findGrantedFeatureByName(
+        FeatureName.AIDigest,
+        userId
+      )
+      if (!feature) {
+        logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+        return res.status(403).send({
+          error: 'FORBIDDEN',
+        })
+      }
+
+      // cancel and remove the digest job
+      await removeDigestJobs(userId)
+      logger.info(`Digest job removed: ${userId}`)
+
+      // delete digest
+      await deleteDigest(userId)
+      logger.info(`Digest deleted: ${userId}`)
+
+      res.send({
+        success: true,
+      })
+    } catch (error) {
+      logger.error('Error while deleting digest', error)
+      return res.status(500).send({
+        error: 'INTERNAL_SERVER_ERROR',
+      })
+    }
+  })
 
   return router
 }

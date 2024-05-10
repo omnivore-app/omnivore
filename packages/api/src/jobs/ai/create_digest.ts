@@ -9,7 +9,6 @@ import {
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
 import { truncate } from 'lodash'
-import showdown from 'showdown'
 import { v4 as uuid } from 'uuid'
 import yaml from 'yaml'
 import { LibraryItem } from '../../entity/library_item'
@@ -28,10 +27,11 @@ import {
   findUserAndPersonalization,
   sendPushNotifications,
 } from '../../services/user'
+import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
-import { htmlToMarkdown } from '../../utils/parser'
+import { htmlToMarkdown, markdownToHtml } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
 import { getImageSize, _findThumbnail } from '../find_thumbnail'
 
@@ -454,22 +454,18 @@ const summarizeItems = async (
 
 // generate speech files from the summaries
 const generateSpeechFiles = (
-  rankedItems: RankedItem[],
+  summariesInHtml: string[],
   options: SSMLOptions
 ): SpeechFile[] => {
   console.time('generateSpeechFiles')
-  // convert the summaries from markdown to HTML
-  const converter = new showdown.Converter({
-    backslashEscapesHTMLTags: true,
-  })
 
-  const speechFiles = rankedItems.map((item) => {
+  const speechFiles = summariesInHtml.map((summary) => {
     const html = `
-    <div id="readability-content">
-      <div id="readability-page-1">
-        ${converter.makeHtml(item.summary)}
-      </div>
-    </div>`
+      <div id="readability-content">
+        <div id="readability-page-1">
+          ${summary}
+        </div>
+      </div>`
     return htmlToSpeechFile({
       content: html,
       options,
@@ -575,16 +571,17 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
   await sendPushNotifications(userId, notification, 'reminder', data)
 }
 
-const sendEmail = async (user: User, digest: Digest) => {
+const sendEmail = async (user: User, digest: Digest, channels: Channel[]) => {
   const title = `${AUTHOR} ${new Date().toLocaleDateString()}`
-  const subTitle = truncate(digest.title, { length: 200 }).slice(
+  const subTitle = truncate(digest.title, { length: 65 }).slice(
     AUTHOR.length + 1
   )
+  const isInLibrary = channels.includes('library')
 
   const chapters = digest.chapters ?? []
 
   const html = `
-    <div style="text-align: justify;">
+    <div>
       <h2>${title}</h1>
       <h2>${subTitle}</h2>
 
@@ -594,21 +591,39 @@ const sendEmail = async (user: User, digest: Digest) => {
               <div>
                 <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
                 <div>
-                  ${chapter.summary}
+                  ${chapter.html}
                 </div>
               </div>`
           )
           .join('')}
 
-      <button style="background-color: #FFEAA0;
+      ${
+        isInLibrary
+          ? `<button style="background-color: #FFEAA0;
                     border: 0px solid transparent;
-                    color: rgb(42, 42, 42);
                     padding:15px 32px;
                     font-size: 14px;
                     margin: 20px 0;
                     font-family: Inter, sans-serif;
                     border-radius: 5px;">
-        <a href="${env.client.url}/digest/${digest.id}">Read in Omnivore</a>
+              <a href="${env.client.url}/digest/${digest.id}">Read in Omnivore</a>
+            </button>`
+          : ''
+      }
+
+      <button style="
+          font-size: 14px;
+          margin: 20px 0;
+          border: 0px solid transparent;
+          padding: 15px 32px;
+          font-size: 14px;
+          margin: 20px 0;
+          font-family: Inter, sans-serif;
+          border-radius: 5px;
+      ">
+        <a href="${
+          env.client.url
+        }/settings/account">Update digest preferences</a>
       </button>
     </div>`
 
@@ -655,19 +670,23 @@ export const moveDigestToLibrary = async (user: User, digest: Digest) => {
   const chapters = digest.chapters ?? []
 
   const html = `
-    <div style="text-align: justify;" class="_omnivore_digest">
-        ${chapters
-          .map(
-            (chapter) => `
-              <div>
-                <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
-                <div>
-                  ${chapter.summary}
-                </div>
-              </div>`
-          )
-          .join('')}
-    </div>`
+    <html>
+      <body>
+        <div class="_omnivore_digest">
+            ${chapters
+              .map(
+                (chapter) => `
+                  <div>
+                    <a href="${chapter.url}"><h3>${chapter.title} (${chapter.wordCount} words)</h3></a>
+                    <div>
+                      ${chapter.html}
+                    </div>
+                  </div>`
+              )
+              .join('')}
+        </div>
+      </body>
+    </html>`
 
   const previewImage = await findThumbnail(chapters)
 
@@ -697,15 +716,27 @@ const sendToChannels = async (
     deduplicateChannels.map(async (channel) => {
       switch (channel) {
         case 'push':
-          return sendPushNotification(user.id, digest)
+          await sendPushNotification(user.id, digest)
+          break
         case 'email':
-          return sendEmail(user, digest)
+          await sendEmail(user, digest, deduplicateChannels)
+          break
         case 'library':
-          return moveDigestToLibrary(user, digest)
+          await moveDigestToLibrary(user, digest)
+          break
         default:
           logger.error('Unknown channel', { channel })
           return
       }
+
+      analytics.capture({
+        distinctId: user.id,
+        event: 'digest_created',
+        properties: {
+          channel,
+          digestId: digest.id,
+        },
+      })
     })
   )
 }
@@ -771,8 +802,16 @@ export const createDigest = async (jobData: CreateDigestData) => {
     console.timeEnd('summarizeItems')
 
     const filteredSummaries = filterSummaries(summaries)
+    const summariesInHtml = filteredSummaries.map((item) => {
+      try {
+        return markdownToHtml(item.summary)
+      } catch (error) {
+        logger.error('markdownToHtml error', error)
+        return ''
+      }
+    })
 
-    const speechFiles = generateSpeechFiles(filteredSummaries, {
+    const speechFiles = generateSpeechFiles(summariesInHtml, {
       ...jobData,
       primaryVoice: jobData.voices?.[0],
       secondaryVoice: jobData.voices?.[1],
@@ -790,7 +829,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
         url: getItemUrl(item.libraryItem.id),
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
-        summary: item.summary,
+        html: summariesInHtml[index],
       })),
       createdAt: new Date(),
       description: '',

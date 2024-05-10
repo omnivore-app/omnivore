@@ -16,6 +16,7 @@ import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
 import { ElementNode } from 'node-html-markdown/dist/nodes'
 import Parser from 'rss-parser'
 import { parser } from 'sax'
+import showdown from 'showdown'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
@@ -702,7 +703,10 @@ export const htmlToMarkdown = (html: string) => {
 }
 
 export const markdownToHtml = (markdown: string) => {
-  return nhm.translate(/* markdown */ markdown)
+  const converter = new showdown.Converter({
+    backslashEscapesHTMLTags: true,
+  })
+  return converter.makeHtml(markdown)
 }
 
 export const getDistillerResult = async (

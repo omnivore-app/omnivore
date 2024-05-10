@@ -2042,6 +2042,7 @@ export type OptInFeatureError = {
 
 export enum OptInFeatureErrorCode {
   BadRequest = 'BAD_REQUEST',
+  Ineligible = 'INELIGIBLE',
   NotFound = 'NOT_FOUND'
 }
 
