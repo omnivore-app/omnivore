@@ -378,7 +378,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         ToolbarItemGroup(placement: .barTrailing) {
-
             if viewModel.appliedFilter?.name == "Deleted" {
               if viewModel.isEmptyingTrash {
                 ProgressView()
@@ -440,7 +439,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 }
               ).buttonStyle(.plain)
                 .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
-                
+
                 Button(
                   action: {
                     searchPresented = true
