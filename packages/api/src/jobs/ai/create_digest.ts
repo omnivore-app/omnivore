@@ -573,7 +573,7 @@ const sendPushNotification = async (userId: string, digest: Digest) => {
 
 const sendEmail = async (user: User, digest: Digest, channels: Channel[]) => {
   const title = `${AUTHOR} ${new Date().toLocaleDateString()}`
-  const subTitle = truncate(digest.title, { length: 200 }).slice(
+  const subTitle = truncate(digest.title, { length: 65 }).slice(
     AUTHOR.length + 1
   )
   const isInLibrary = channels.includes('library')
@@ -581,7 +581,7 @@ const sendEmail = async (user: User, digest: Digest, channels: Channel[]) => {
   const chapters = digest.chapters ?? []
 
   const html = `
-    <div style="text-align: justify;">
+    <div>
       <h2>${title}</h1>
       <h2>${subTitle}</h2>
 
