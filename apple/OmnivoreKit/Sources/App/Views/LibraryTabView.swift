@@ -216,5 +216,8 @@ struct LibraryTabView: View {
       }
       selectedTab = "inbox"
     }
+    .task {
+      await dataService.tryUpdateFeatureFlags()
+    }
   }
 }

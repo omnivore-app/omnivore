@@ -761,9 +761,10 @@ struct WebReaderContainerView: View {
   }
 
   func startUserActivity() {
-    if let slug = item.slug, let webpageURL = URL(string: "https://omnivore.app/me/\(slug)") {
+    if let slug = item.slug,
+       let webpageURL = URL(string: "\(dataService.appEnvironment.webAppBaseURL)/me/\(slug)") {
       let activity = NSUserActivity(activityType: "com.omnivore.omnivore.openURL")
-      activity.title = "Open in Safari"
+      activity.title = "Open in browser"
       activity.webpageURL = webpageURL
       activity.isEligibleForHandoff = true
       activity.becomeCurrent()
