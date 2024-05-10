@@ -1,7 +1,9 @@
-import { Router } from 'express'
+import cors from 'cors'
+import express, { Router } from 'express'
 import { ContentFormat, UploadContentJobData } from '../jobs/upload_content'
 import { findLibraryItemsByIds } from '../services/library_item'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
+import { corsConfig } from '../utils/corsConfig'
 import { enqueueBulkUploadContentJob } from '../utils/createTask'
 import { logger } from '../utils/logger'
 import { generateDownloadSignedUrl } from '../utils/uploads'
@@ -23,8 +25,10 @@ export function contentRouter() {
     )
   }
 
+  router.options('/', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
+
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/', async (req, res) => {
+  router.post('/', cors<express.Request>(corsConfig), async (req, res) => {
     if (!isContentRequest(req.body)) {
       logger.error('Bad request')
       return res.status(400).send({ errorCode: 'BAD_REQUEST' })
