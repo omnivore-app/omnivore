@@ -50,6 +50,7 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
+  @AppStorage("LibraryTabView::digestHidden") var digestHidden = false
 
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
