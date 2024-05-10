@@ -54,12 +54,13 @@ export const optInFeature = async (
       )
     case FeatureName.Notion:
       return optInLimitedFeature(FeatureName.Notion, uid, MAX_NOTION_USERS)
-    case FeatureName.AIDigest:
+    case FeatureName.AIDigest: {
       const eligible = await userDigestEligible(uid)
       if (!eligible) {
         return OptInFeatureErrorCode.Ineligible
       }
       return optInLimitedFeature(FeatureName.AIDigest, uid, MAX_AIDIGEST_USERS)
+    }
     default:
       return OptInFeatureErrorCode.NotFound
   }
