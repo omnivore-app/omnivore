@@ -92,6 +92,7 @@ export const articleSavingRequestResolver = authorized<
           'author',
           'createdAt',
           'updatedAt',
+          'savedAt',
         ],
         relations: {
           user: true,

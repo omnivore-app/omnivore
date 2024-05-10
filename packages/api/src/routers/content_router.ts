@@ -64,7 +64,7 @@ export function contentRouter() {
     // generate signed url for each library item
     const data = await Promise.all(
       libraryItems.map(async (libraryItem) => {
-        const filePath = `${userId}/${
+        const filePath = `content/${userId}/${
           libraryItem.id
         }.${libraryItem.updatedAt.getTime()}.${format}`
 
