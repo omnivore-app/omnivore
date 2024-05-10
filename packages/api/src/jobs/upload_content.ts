@@ -1,4 +1,5 @@
 import { findLibraryItemById } from '../services/library_item'
+import { logger } from '../utils/logger'
 import { htmlToHighlightedMarkdown, htmlToMarkdown } from '../utils/parser'
 import { uploadToBucket } from '../utils/uploads'
 
@@ -33,22 +34,32 @@ const CONTENT_TYPES = {
 }
 
 export const uploadContentJob = async (data: UploadContentJobData) => {
+  logger.info('Uploading content to bucket', data)
+
   const { libraryItemId, userId, format, filePath } = data
   const libraryItem = await findLibraryItemById(libraryItemId, userId, {
     select: ['originalContent'],
   })
   if (!libraryItem) {
+    logger.error('Library item not found', data)
     throw new Error('Library item not found')
   }
 
   if (!libraryItem.originalContent) {
+    logger.error('Original content not found', data)
     throw new Error('Original content not found')
   }
 
+  logger.info('Converting content', data)
   const content = convertContent(libraryItem.originalContent, format)
 
+  console.time('uploadToBucket')
+  logger.info('Uploading content', data)
   await uploadToBucket(filePath, Buffer.from(content), {
     contentType: CONTENT_TYPES[format],
     timeout: 60000, // 1 minute
   })
+  console.timeEnd('uploadToBucket')
+
+  logger.info('Content uploaded', data)
 }

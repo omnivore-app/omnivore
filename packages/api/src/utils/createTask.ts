@@ -93,12 +93,12 @@ export const getJobPriority = (jobName: string): number => {
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
-      return 10
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+    case UPLOAD_CONTENT_JOB:
+      return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
     case CREATE_DIGEST_JOB:
-    case UPLOAD_CONTENT_JOB:
       return 50
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:

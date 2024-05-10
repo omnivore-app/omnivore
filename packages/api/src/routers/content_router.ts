@@ -24,13 +24,13 @@ export function contentRouter() {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.get('/', async (req, res) => {
-    if (!isContentRequest(req.query)) {
+  router.post('/', async (req, res) => {
+    if (!isContentRequest(req.body)) {
       logger.error('Bad request')
       return res.status(400).send({ errorCode: 'BAD_REQUEST' })
     }
 
-    const { libraryItemIds, format } = req.query
+    const { libraryItemIds, format } = req.body
     if (
       !Array.isArray(libraryItemIds) ||
       libraryItemIds.length === 0 ||
@@ -89,12 +89,14 @@ export function contentRouter() {
         }
       })
     )
+    logger.info('Signed urls generated', data)
 
     const validData = data.filter(
       (d) => d.downloadUrl !== undefined && !('error' in d)
     ) as UploadContentJobData[]
 
     await enqueueBulkUploadContentJob(validData)
+    logger.info('Bulk upload content job enqueued', validData)
 
     res.send({
       data: data.map((d) => ({

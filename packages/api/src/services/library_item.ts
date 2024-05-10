@@ -772,7 +772,7 @@ export const findLibraryItemsByIds = async (
   }
 ) => {
   const selectColumns =
-    options?.select ||
+    options?.select?.map((column) => `library_item.${column}`) ||
     getColumns(libraryItemRepository)
       .filter((column) => column !== 'originalContent')
       .map((column) => `library_item.${column}`)
