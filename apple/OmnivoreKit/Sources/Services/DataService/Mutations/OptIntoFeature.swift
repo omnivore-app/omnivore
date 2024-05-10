@@ -15,6 +15,10 @@ public struct Feature {
   public let granted: Bool
 }
 
+public enum IneligibleError: Error {
+  case message(messageText: String)
+}
+
 public extension DataService {
   func optInFeature(name: String) async throws -> Feature? {
     enum MutationResult {
@@ -51,6 +55,9 @@ public extension DataService {
         case let .success(feature: feature):
           continuation.resume(returning: feature)
         case let .error(errorCode: errorCode):
+          if errorCode == .ineligible {
+            continuation.resume(throwing: IneligibleError.message(messageText: "You are not eligible for this feature."))
+          }
           continuation.resume(throwing: BasicError.message(messageText: errorCode.rawValue))
         }
       }

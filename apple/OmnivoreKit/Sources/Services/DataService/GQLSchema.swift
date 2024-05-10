@@ -38237,6 +38237,8 @@ extension Enums {
     enum OptInFeatureErrorCode: String, CaseIterable, Codable {
         case badRequest = "BAD_REQUEST"
 
+        case ineligible = "INELIGIBLE"
+
         case notFound = "NOT_FOUND"
     }
 }

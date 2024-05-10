@@ -50,13 +50,13 @@ struct NewAppleSignupView: View {
           },
           label: { Text(LocalText.genericContinue) }
         )
-        .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
+        .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, textColor: Color.themeDarkGray, width: 300))
 
         Button(
           action: showProfileEditView,
           label: { Text(LocalText.registrationChangeUsername) }
         )
-        .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
+        .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, textColor: Color.themeDarkGray, width: 300))
 
         if let loginError = viewModel.loginError {
           LoginErrorMessageView(loginError: loginError)

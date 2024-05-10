@@ -20,13 +20,12 @@ public struct NewUserProfile: Codable {
 public extension NewUserProfile {
   static func make(
     username: String,
-    name: String,
-    bio: String?
+    name: String
   ) -> Either<NewUserProfile, String> {
     let userProfile = NewUserProfile(
       username: username,
       name: name,
-      bio: bio
+      bio: nil
     )
 
     if let errorMessage = userProfile.validationErrorMessage {

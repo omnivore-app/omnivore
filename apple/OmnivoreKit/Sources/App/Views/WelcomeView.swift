@@ -159,6 +159,8 @@ struct WelcomeView: View {
 
   var logoView: some View {
     Image.omnivoreTitleLogo
+      .renderingMode(.template)
+      .foregroundColor(Color.appGrayTextContrast)
       .gesture(
         TapGesture(count: 2)
           .onEnded {
@@ -231,7 +233,7 @@ struct WelcomeView: View {
 
   public var body: some View {
     ZStack(alignment: viewModel.registrationState == nil ? .leading : .center) {
-      Color.appBackground
+      Color.themeSolidBackground
         .edgesIgnoringSafeArea(.all)
         .modifier(SizeModifier())
         .onPreferenceChange(SizePreferenceKey.self) {
@@ -286,7 +288,6 @@ struct WelcomeView: View {
         }
       }
     }
-    .preferredColorScheme(.light)
     .task { selectedEnvironment = dataService.appEnvironment }
   }
 }
