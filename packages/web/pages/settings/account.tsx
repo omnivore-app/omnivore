@@ -525,7 +525,8 @@ const BetaFeaturesSection = (): JSX.Element => {
 }
 
 const DigestSection = (): JSX.Element => {
-  const { viewerData, isLoading, mutate } = useGetViewerQuery()
+  const [optInError, setOptInError] = useState<string | undefined>(undefined)
+  const { viewerData, mutate } = useGetViewerQuery()
   const [channelState, setChannelState] = useState({
     push: false,
     email: false,
@@ -603,13 +604,23 @@ const DigestSection = (): JSX.Element => {
   const requestDigestAccess = useCallback(() => {
     ;(async () => {
       const result = await optInFeature({ name: 'ai-digest' })
-      if (!result) {
+      if (result.ineligible) {
+        setOptInError(
+          'To enable digest you need to have saved at least ten library items and have two active subscriptions.'
+        )
+        showErrorToast('You are not eligible for Digest')
+      } else if (!result.feature) {
         showErrorToast('Error enabling digest')
-        return
+      } else {
+        setOptInError(undefined)
       }
       mutate()
     })()
   }, [])
+
+  const noChannelsSelected = useMemo(() => {
+    return !channelState.email && !channelState.library && !channelState.push
+  }, [channelState])
 
   return (
     <VStack
@@ -652,6 +663,20 @@ const DigestSection = (): JSX.Element => {
       </StyledText>
       {hasDigest && (
         <>
+          {noChannelsSelected && (
+            <StyledText
+              style="error"
+              css={{
+                display: 'flex',
+                gap: '5px',
+                lineHeight: '22px',
+                mt: '0px',
+              }}
+            >
+              You are opted into Omnivore Digest, please make sure to pick at
+              least one channel for your digest delivery.
+            </StyledText>
+          )}
           <StyledText
             style="footnote"
             css={{ display: 'flex', gap: '5px', m: '0px' }}
@@ -695,6 +720,14 @@ const DigestSection = (): JSX.Element => {
             Deliver to iOS (daily podcast available in the iOS app)
           </StyledText>
         </>
+      )}
+      {optInError && (
+        <StyledText
+          style="error"
+          css={{ display: 'flex', gap: '5px', m: '0px', mb: '5px' }}
+        >
+          {optInError}
+        </StyledText>
       )}
       {!hasDigest && (
         <Button

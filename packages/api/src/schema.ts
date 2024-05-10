@@ -2139,6 +2139,7 @@ const schema = gql`
   enum OptInFeatureErrorCode {
     BAD_REQUEST
     NOT_FOUND
+    INELIGIBLE
   }
 
   union RulesResult = RulesSuccess | RulesError
