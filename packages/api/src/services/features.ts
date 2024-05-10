@@ -3,11 +3,12 @@ import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
-import { getRepository } from '../repository'
+import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { OptInFeatureErrorCode } from '../generated/graphql'
 import { Subscription, SubscriptionStatus } from '../entity/subscription'
 import { libraryItemRepository } from '../repository/library_item'
+import { LibraryItem } from '../entity/library_item'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
@@ -175,11 +176,25 @@ export const createFeatures = async (features: DeepPartial<Feature>[]) => {
 }
 
 export const userDigestEligible = async (uid: string): Promise<boolean> => {
-  const subscriptionsCount = await getRepository(Subscription).count({
-    where: { user: { id: uid }, status: SubscriptionStatus.Active },
-  })
-  const libraryItemsCount = await libraryItemRepository.count({
-    where: { user: { id: uid } },
-  })
+  const subscriptionsCount = await authTrx(
+    async (tx) => {
+      return tx.getRepository(Subscription).count({
+        where: { user: { id: uid }, status: SubscriptionStatus.Active },
+      })
+    },
+    undefined,
+    uid
+  )
+
+  const libraryItemsCount = await authTrx(
+    async (tx) => {
+      return tx.getRepository(LibraryItem).count({
+        where: { user: { id: uid } },
+      })
+    },
+    undefined,
+    uid
+  )
+
   return subscriptionsCount > 2 && libraryItemsCount > 10
 }
