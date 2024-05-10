@@ -127,7 +127,9 @@ export const _findThumbnail = (imagesSizes: (ImageSize | null)[]) => {
 export const findThumbnail = async (data: Data) => {
   const { libraryItemId, userId } = data
 
-  const item = await findLibraryItemById(libraryItemId, userId)
+  const item = await findLibraryItemById(libraryItemId, userId, {
+    select: ['thumbnail', 'readableContent'],
+  })
   if (!item) {
     logger.info('page not found')
     return false

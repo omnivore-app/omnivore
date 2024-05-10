@@ -782,17 +782,27 @@ export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
 
 export const findLibraryItemById = async (
   id: string,
-  userId: string
+  userId: string,
+  options?: {
+    select?: (keyof LibraryItem)[]
+    relations?: {
+      user?: boolean
+      labels?: boolean
+      highlights?:
+        | {
+            user?: boolean
+          }
+        | boolean
+    }
+  }
 ): Promise<LibraryItem | null> => {
   return authTrx(
     async (tx) =>
-      tx
-        .createQueryBuilder(LibraryItem, 'library_item')
-        .leftJoinAndSelect('library_item.labels', 'labels')
-        .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .leftJoinAndSelect('highlights.user', 'user')
-        .where('library_item.id = :id', { id })
-        .getOne(),
+      tx.withRepository(libraryItemRepository).findOne({
+        select: options?.select,
+        where: { id },
+        relations: options?.relations,
+      }),
     undefined,
     userId
   )
