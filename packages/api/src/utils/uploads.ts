@@ -148,3 +148,8 @@ export const uploadToSignedUrl = async (
     timeout,
   })
 }
+
+export const isFileExists = async (filePath: string): Promise<boolean> => {
+  const [exists] = await storage.bucket(bucketName).file(filePath).exists()
+  return exists
+}

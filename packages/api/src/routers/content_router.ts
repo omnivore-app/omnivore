@@ -6,7 +6,7 @@ import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueBulkUploadContentJob } from '../utils/createTask'
 import { logger } from '../utils/logger'
-import { generateDownloadSignedUrl } from '../utils/uploads'
+import { generateDownloadSignedUrl, isFileExists } from '../utils/uploads'
 
 export function contentRouter() {
   const router = Router()
@@ -77,12 +77,19 @@ export function contentRouter() {
             expires: Date.now() + 60 * 60 * 1000, // 1 hour
           })
 
+          // check if file is already uploaded
+          const exists = await isFileExists(filePath)
+          if (exists) {
+            logger.info('File already exists', filePath)
+          }
+
           return {
             libraryItemId: libraryItem.id,
             userId,
             filePath,
             downloadUrl,
             format,
+            exists,
           }
         } catch (error) {
           logger.error('Error while generating signed url', error)
@@ -95,12 +102,15 @@ export function contentRouter() {
     )
     logger.info('Signed urls generated', data)
 
-    const validData = data.filter(
-      (d) => d.downloadUrl !== undefined && !('error' in d)
+    // skip uploading if there is an error or file already exists
+    const uploadData = data.filter(
+      (d) => !('error' in d) && d.downloadUrl !== undefined && !d.exists
     ) as UploadContentJobData[]
 
-    await enqueueBulkUploadContentJob(validData)
-    logger.info('Bulk upload content job enqueued', validData)
+    if (uploadData.length > 0) {
+      await enqueueBulkUploadContentJob(uploadData)
+      logger.info('Bulk upload content job enqueued', uploadData)
+    }
 
     res.send({
       data: data.map((d) => ({
