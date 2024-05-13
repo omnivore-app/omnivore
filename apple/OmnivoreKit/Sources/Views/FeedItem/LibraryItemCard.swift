@@ -9,6 +9,7 @@ enum FlairLabels: String {
   case newsletter
   case rss
   case feed
+  case digest
 
   var icon: Image {
     switch self {
@@ -17,6 +18,7 @@ enum FlairLabels: String {
     case .recommended: return Image.flairRecommended
     case .newsletter: return Image.flairNewsletter
     case .feed, .rss: return Image.flairFeed
+    case .digest: return Image.tabDigestSelected
     }
   }
 
@@ -27,6 +29,7 @@ enum FlairLabels: String {
     case .newsletter: return 2
     case .recommended: return 3
     case .pinned: return 4
+    case .digest: return 5
     }
   }
 }
