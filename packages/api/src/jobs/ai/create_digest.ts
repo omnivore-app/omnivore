@@ -700,6 +700,7 @@ export const moveDigestToLibrary = async (user: User, digest: Digest) => {
       author: AUTHOR,
       publishedAt: new Date(),
       previewImage,
+      labels: [{ name: 'Digest', color: '#767AF8' }],
     },
     user
   )
