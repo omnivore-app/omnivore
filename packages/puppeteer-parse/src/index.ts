@@ -240,7 +240,9 @@ export const fetchContent = async (
   } finally {
     // close browser context if it was opened
     if (context) {
+      console.info('closing context...', logRecord)
       await context.close()
+      console.info('context closed', logRecord)
     }
 
     console.info(`content-fetch result`, logRecord)
