@@ -97,7 +97,23 @@ public struct ExplainResult: Codable {
   public let text: String
 }
 
-extension DataService {
+extension DataService {  
+  
+  public func digestNeedsRefresh() -> Bool {
+    let fileManager = FileManager.default
+    let localURL = URL.om_cachesDirectory.appendingPathComponent("digest.json")
+    do {
+      let attributes = try fileManager.attributesOfItem(atPath: localURL.path)
+      if let modificationDate = attributes[.modificationDate] as? Date {
+        // Two hours ago
+        let twoHoursAgo = Date().addingTimeInterval(-2 * 60 * 60)
+        return modificationDate < twoHoursAgo
+      }
+    } catch {
+        print("Error: \(error)")
+    }
+    return true
+  }
   public func refreshDigest() async throws {
     let encoder = JSONEncoder()
     let digestRequest = DigestRequest(schedule: "daily", voices: ["openai-nova"])
