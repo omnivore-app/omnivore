@@ -163,8 +163,7 @@ export const fetchContent = async (
 
     // pre handle url with custom handlers
     try {
-      const browser = await getBrowserPromise
-      const result = await preHandleContent(url, browser)
+      const result = await preHandleContent(url)
       if (result && result.url) {
         validateUrlString(url)
         url = result.url
