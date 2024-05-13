@@ -192,6 +192,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var listTitle = ""
     @State var showExpandedAudioPlayer = false
     @State var showLibraryDigest = false
+    @State var showDigestConfig = false
 
     @Binding var isEditMode: EditMode
 
@@ -330,6 +331,15 @@ struct AnimatingCellHeight: AnimatableModifier {
           Text("Sorry digest is only available on iOS 17 and above")
         }
       }
+      .sheet(isPresented: $showDigestConfig) {
+        if #available(iOS 17.0, *) {
+          NavigationView {
+            DigestConfigView(dataService: dataService)
+          }
+        } else {
+          Text("Sorry digest is only available on iOS 17 and above")
+        }
+      }
       .toolbar {
         toolbarItems
       }
@@ -401,6 +411,15 @@ struct AnimatingCellHeight: AnimatableModifier {
                   Button(
                     action: { showLibraryDigest = true },
                     label: { viewModel.digestIsUnread ? Image.tabDigestSelected : Image.tabDigest }
+                  )
+                  .buttonStyle(.plain)
+                  .padding(.trailing, 4)
+                }
+                if #available(iOS 17.0, *), !dataService.featureFlags.digestEnabled, !viewModel.digestHidden {
+                  // Give the user an opportunity to enable digest
+                  Button(
+                    action: { showDigestConfig = true },
+                    label: { Image.tabDigestSelected }
                   )
                   .buttonStyle(.plain)
                   .padding(.trailing, 4)
