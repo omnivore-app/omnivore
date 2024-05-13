@@ -96,7 +96,8 @@ const enableJavascriptForUrl = (url: string) => {
 // launch Puppeteer
 const getBrowserPromise = (async () => {
   console.log('starting puppeteer browser')
-  return (await puppeteer.launch({
+
+  const browser = (await puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
       '--autoplay-policy=user-gesture-required',
@@ -130,9 +131,13 @@ const getBrowserPromise = (async () => {
     },
     executablePath: process.env.CHROMIUM_PATH,
     headless: !!process.env.LAUNCH_HEADLESS,
-    timeout: 30_000, // 30 seconds
+    timeout: 120000, // 2 minutes
     dumpio: true, // show console logs in the terminal
   })) as Browser
+
+  console.log('browser started')
+
+  return browser
 })()
 
 export const fetchContent = async (
@@ -220,6 +225,8 @@ export const fetchContent = async (
     }
   } catch (e) {
     console.error(`Error while retrieving page ${url}`, e)
+    const browser = await getBrowserPromise
+    console.log(browser.debugInfo.pendingProtocolErrors)
 
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
@@ -239,9 +246,9 @@ export const fetchContent = async (
   } finally {
     // close browser context if it was opened
     if (context) {
-      console.info('closing context...', logRecord)
+      console.info('closing context...', url)
       await context.close()
-      console.info('context closed', logRecord)
+      console.info('context closed', url)
     }
 
     console.info(`content-fetch result`, logRecord)
@@ -310,7 +317,8 @@ async function retrievePage(
     browserOpened: Date.now() - functionStartTime,
   }
 
-  const context = await browser.createIncognitoBrowserContext()
+  // create a new incognito browser context
+  const context = await browser.createBrowserContext()
   const page = await context.newPage()
 
   if (!enableJavascriptForUrl(url)) {

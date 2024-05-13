@@ -63,6 +63,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
 
   web:
     build:
@@ -99,3 +101,9 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+  redis:
+    image: "redis:7.2.4"
+    container_name: "omnivore-redis"
+    ports:
+      - "6379:6379"
