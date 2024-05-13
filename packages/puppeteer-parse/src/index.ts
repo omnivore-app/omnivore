@@ -9,7 +9,6 @@ import { Browser, BrowserContext, Page, Protocol } from 'puppeteer-core'
 import puppeteer from 'puppeteer-extra'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
-import Url from 'url'
 
 // Add stealth plugin to hide puppeteer usage
 puppeteer.use(StealthPlugin())
@@ -298,7 +297,7 @@ function getUrl(urlStr: string) {
 
   validateUrlString(url)
 
-  const parsed = Url.parse(url)
+  const parsed = new URL(url)
   return parsed.href
 }
 
@@ -319,118 +318,120 @@ async function retrievePage(
 
   // create a new incognito browser context
   const context = await browser.createBrowserContext()
-  const page = await context.newPage()
-
-  if (!enableJavascriptForUrl(url)) {
-    await page.setJavaScriptEnabled(false)
-  }
-  await page.setUserAgent(userAgentForUrl(url))
-
-  // set locale for the page
-  if (locale) {
-    await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
-  }
-
-  // set timezone for the page
-  if (timezone) {
-    await page.emulateTimezone(timezone)
-  }
-
-  const client = await page.target().createCDPSession()
-
-  const downloadPath = path.resolve('./download_dir/')
-  await client.send('Page.setDownloadBehavior', {
-    behavior: 'allow',
-    downloadPath,
-  })
-
-  // intercept request when response headers was received
-  await client.send('Network.setRequestInterception', {
-    patterns: [
-      {
-        urlPattern: '*',
-        resourceType: 'Document',
-        interceptionStage: 'HeadersReceived',
-      },
-    ],
-  })
-
-  client.on(
-    'Network.requestIntercepted',
-    (e: Protocol.Network.RequestInterceptedEvent) => {
-      ;(async () => {
-        const headers = e.responseHeaders || {}
-
-        const [contentType] = (
-          headers['content-type'] ||
-          headers['Content-Type'] ||
-          ''
-        )
-          .toLowerCase()
-          .split(';')
-        const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
-          interceptionId: e.interceptionId,
-        }
-
-        if (
-          e.responseStatusCode &&
-          e.responseStatusCode >= 200 &&
-          e.responseStatusCode < 300
-        ) {
-          // We only check content-type on success responses
-          // as it doesn't matter what the content type is for things
-          // like redirects
-          if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
-            obj['errorReason'] = 'BlockedByClient'
-          }
-        }
-
-        try {
-          await client.send('Network.continueInterceptedRequest', obj)
-        } catch {
-          // ignore
-        }
-      })()
-    }
-  )
-
-  /*
-   * Disallow MathJax from running in Puppeteer and modifying the document,
-   * we shall instead run it in our frontend application to transform any
-   * mathjax content when present.
-   */
-  await page.setRequestInterception(true)
-  let requestCount = 0
-  page.on('request', (request) => {
-    ;(async () => {
-      if (request.resourceType() === 'font') {
-        // Disallow fonts from loading
-        return request.abort()
-      }
-      if (requestCount++ > 100) {
-        return request.abort()
-      }
-      if (
-        request.resourceType() === 'script' &&
-        request.url().toLowerCase().indexOf('mathjax') > -1
-      ) {
-        return request.abort()
-      }
-
-      await request.continue()
-    })()
-  })
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
-  let lastPdfUrl = undefined
-  page.on('response', (response) => {
-    if (response.headers()['content-type'] === 'application/pdf') {
-      lastPdfUrl = response.url()
-    }
-  })
-
+  let lastPdfUrl
+  let page
   try {
+    page = await context.newPage()
+
+    if (!enableJavascriptForUrl(url)) {
+      await page.setJavaScriptEnabled(false)
+    }
+    await page.setUserAgent(userAgentForUrl(url))
+
+    // set locale for the page
+    if (locale) {
+      await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
+    }
+
+    // set timezone for the page
+    if (timezone) {
+      await page.emulateTimezone(timezone)
+    }
+
+    const client = await page.createCDPSession()
+
+    const downloadPath = path.resolve('./download_dir/')
+    await client.send('Page.setDownloadBehavior', {
+      behavior: 'allow',
+      downloadPath,
+    })
+
+    // intercept request when response headers was received
+    await client.send('Network.setRequestInterception', {
+      patterns: [
+        {
+          urlPattern: '*',
+          resourceType: 'Document',
+          interceptionStage: 'HeadersReceived',
+        },
+      ],
+    })
+
+    client.on(
+      'Network.requestIntercepted',
+      (e: Protocol.Network.RequestInterceptedEvent) => {
+        ;(async () => {
+          const headers = e.responseHeaders || {}
+
+          const [contentType] = (
+            headers['content-type'] ||
+            headers['Content-Type'] ||
+            ''
+          )
+            .toLowerCase()
+            .split(';')
+          const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
+            interceptionId: e.interceptionId,
+          }
+
+          if (
+            e.responseStatusCode &&
+            e.responseStatusCode >= 200 &&
+            e.responseStatusCode < 300
+          ) {
+            // We only check content-type on success responses
+            // as it doesn't matter what the content type is for things
+            // like redirects
+            if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
+              obj['errorReason'] = 'BlockedByClient'
+            }
+          }
+
+          try {
+            await client.send('Network.continueInterceptedRequest', obj)
+          } catch {
+            // ignore
+          }
+        })()
+      }
+    )
+
+    /*
+     * Disallow MathJax from running in Puppeteer and modifying the document,
+     * we shall instead run it in our frontend application to transform any
+     * mathjax content when present.
+     */
+    await page.setRequestInterception(true)
+    let requestCount = 0
+    page.on('request', (request) => {
+      ;(async () => {
+        if (request.resourceType() === 'font') {
+          // Disallow fonts from loading
+          return request.abort()
+        }
+        if (requestCount++ > 100) {
+          return request.abort()
+        }
+        if (
+          request.resourceType() === 'script' &&
+          request.url().toLowerCase().indexOf('mathjax') > -1
+        ) {
+          return request.abort()
+        }
+
+        await request.continue()
+      })()
+    })
+
+    page.on('response', (response) => {
+      if (response.headers()['content-type'] === 'application/pdf') {
+        lastPdfUrl = response.url()
+      }
+    })
+
     const response = await page.goto(url, {
       timeout: 30 * 1000,
       waitUntil: ['networkidle2'],
