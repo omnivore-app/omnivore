@@ -63,6 +63,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
 
@@ -107,3 +109,5 @@ services:
     container_name: "omnivore-redis"
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
