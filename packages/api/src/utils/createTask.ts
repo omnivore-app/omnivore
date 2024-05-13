@@ -53,6 +53,10 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
+import {
+  UploadContentJobData,
+  UPLOAD_CONTENT_JOB,
+} from '../jobs/upload_content'
 import { getBackendQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { writeDigest } from '../services/digest'
@@ -89,8 +93,9 @@ export const getJobPriority = (jobName: string): number => {
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
-      return 10
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+    case UPLOAD_CONTENT_JOB:
+      return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
     case CREATE_DIGEST_JOB:
@@ -951,6 +956,26 @@ export const enqueueCreateDigest = async (
     jobId: digest.id,
     jobState: digest.jobState,
   }
+}
+
+export const enqueueBulkUploadContentJob = async (
+  data: UploadContentJobData[]
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return ''
+  }
+
+  const jobs = data.map((d) => ({
+    name: UPLOAD_CONTENT_JOB,
+    data: d,
+    opts: {
+      attempts: 3,
+      priority: getJobPriority(UPLOAD_CONTENT_JOB),
+    },
+  }))
+
+  return queue.addBulk(jobs)
 }
 
 export default createHttpTaskWithToken

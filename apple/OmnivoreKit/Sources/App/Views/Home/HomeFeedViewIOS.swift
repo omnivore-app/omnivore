@@ -331,15 +331,15 @@ struct AnimatingCellHeight: AnimatableModifier {
           Text("Sorry digest is only available on iOS 17 and above")
         }
       }
-//      .sheet(isPresented: $showDigestConfig) {
-//        if #available(iOS 17.0, *) {
-//          NavigationView {
-//            DigestConfigView(dataService: dataService)
-//          }
-//        } else {
-//          Text("Sorry digest is only available on iOS 17 and above")
-//        }
-//      }
+      .sheet(isPresented: $showDigestConfig) {
+        if #available(iOS 17.0, *) {
+          NavigationView {
+            DigestConfigView(dataService: dataService)
+          }
+        } else {
+          Text("Sorry digest is only available on iOS 17 and above")
+        }
+      }
       .toolbar {
         toolbarItems
       }
@@ -422,6 +422,15 @@ struct AnimatingCellHeight: AnimatableModifier {
 //                  .buttonStyle(.plain)
 //                  .padding(.trailing, 4)
 //                }
+                if #available(iOS 17.0, *), !dataService.featureFlags.digestEnabled, !viewModel.digestHidden {
+                  // Give the user an opportunity to enable digest
+                  Button(
+                    action: { showDigestConfig = true },
+                    label: { Image.tabDigestSelected }
+                  )
+                  .buttonStyle(.plain)
+                  .padding(.trailing, 4)
+                }
                 if prefersListLayout {
                   Button(
                     action: { isEditMode = isEditMode == .active ? .inactive : .active },

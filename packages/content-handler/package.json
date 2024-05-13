@@ -36,7 +36,6 @@
     "linkedom": "^0.14.16",
     "lodash": "^4.17.21",
     "luxon": "^3.0.4",
-    "puppeteer-core": "^20.9.0",
     "underscore": "^1.13.6",
     "uuid": "^9.0.0"
   },

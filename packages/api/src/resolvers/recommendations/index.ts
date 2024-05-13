@@ -141,7 +141,14 @@ export const recommendResolver = authorized<
   MutationRecommendArgs
 >(async (_, { input }, { uid, log, signToken }) => {
   try {
-    const item = await findLibraryItemById(input.pageId, uid)
+    const item = await findLibraryItemById(input.pageId, uid, {
+      select: ['id'],
+      relations: {
+        highlights: {
+          user: true,
+        },
+      },
+    })
     if (!item) {
       return {
         errorCodes: [RecommendErrorCode.NotFound],
@@ -259,7 +266,9 @@ export const recommendHighlightsResolver = authorized<
       }
     }
 
-    const item = await findLibraryItemById(input.pageId, uid)
+    const item = await findLibraryItemById(input.pageId, uid, {
+      select: ['id'],
+    })
     if (!item) {
       return {
         errorCodes: [RecommendHighlightsErrorCode.NotFound],

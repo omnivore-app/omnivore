@@ -12,6 +12,7 @@ import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
 import { uploadFile } from '../services/upload_file'
 import { logError, logger } from '../utils/logger'
+import { downloadFromUrl, uploadToSignedUrl } from '../utils/uploads'
 
 const signToken = promisify(jwt.sign)
 
@@ -47,39 +48,6 @@ const isFetchResult = (obj: unknown): obj is FetchResult => {
   return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
 }
 
-const uploadToSignedUrl = async (
-  uploadSignedUrl: string,
-  contentType: string,
-  contentObjUrl: string
-) => {
-  const maxContentLength = 10 * 1024 * 1024 // 10MB
-
-  logger.info('downloading content', {
-    contentObjUrl,
-  })
-
-  // download the content as stream and max 10MB
-  const response = await axios.get(contentObjUrl, {
-    responseType: 'stream',
-    maxContentLength,
-    timeout: REQUEST_TIMEOUT,
-  })
-
-  logger.info('uploading to signed url', {
-    uploadSignedUrl,
-    contentType,
-  })
-
-  // upload the stream to the signed url
-  await axios.put(uploadSignedUrl, response.data, {
-    headers: {
-      'Content-Type': contentType,
-    },
-    maxBodyLength: maxContentLength,
-    timeout: REQUEST_TIMEOUT,
-  })
-}
-
 const uploadPdf = async (
   url: string,
   userId: string,
@@ -98,7 +66,19 @@ const uploadPdf = async (
     throw new Error('error while getting upload id and signed url')
   }
 
-  await uploadToSignedUrl(result.uploadSignedUrl, 'application/pdf', url)
+  logger.info('downloading content', {
+    url,
+  })
+
+  const data = await downloadFromUrl(url, REQUEST_TIMEOUT)
+
+  const uploadSignedUrl = result.uploadSignedUrl
+  const contentType = 'application/pdf'
+  logger.info('uploading to signed url', {
+    uploadSignedUrl,
+    contentType,
+  })
+  await uploadToSignedUrl(uploadSignedUrl, data, contentType, REQUEST_TIMEOUT)
 
   logger.info('pdf uploaded successfully', {
     url,

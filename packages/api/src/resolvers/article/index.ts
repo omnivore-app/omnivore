@@ -399,6 +399,10 @@ export const getArticleResolver = authorized<
           'recommendations.recommender',
           'recommendations_recommender'
         )
+        .leftJoinAndSelect(
+          'recommendations_recommender.profile',
+          'recommendations_recommender_profile'
+        )
         .where('libraryItem.user_id = :uid', { uid })
 
       // We allow the backend to use the ID instead of a slug to fetch the article

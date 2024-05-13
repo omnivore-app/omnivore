@@ -60,6 +60,7 @@ import {
   UPDATE_LABELS_JOB,
 } from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
+import { uploadContentJob, UPLOAD_CONTENT_JOB } from './jobs/upload_content'
 import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
@@ -182,6 +183,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return forwardEmailJob(job.data)
         case CREATE_DIGEST_JOB:
           return createDigest(job.data)
+        case UPLOAD_CONTENT_JOB:
+          return uploadContentJob(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }
