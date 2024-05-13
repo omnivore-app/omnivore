@@ -119,7 +119,7 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--window-size=1920,1080',
       '--disable-extensions',
-    ].filter((item) => !!item),
+    ],
     defaultViewport: {
       deviceScaleFactor: 1,
       hasTouch: false,
@@ -130,7 +130,8 @@ const getBrowserPromise = (async () => {
     },
     executablePath: process.env.CHROMIUM_PATH,
     headless: !!process.env.LAUNCH_HEADLESS,
-    timeout: 120000, // 2 minutes
+    timeout: 30_000, // 30 seconds
+    dumpio: true, // show console logs in the terminal
   })) as Browser
 })()
 
