@@ -152,8 +152,10 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
     users.forEach((user) => {
       analytics.capture({
         distinctId: user.id,
-        event: 'content-fetch-failure',
-        properties: logRecord,
+        event: 'content_fetch_failure',
+        properties: {
+          url,
+        },
       })
     })
 
@@ -167,8 +169,10 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   users.forEach((user) => {
     analytics.capture({
       distinctId: user.id,
-      event: 'content-fetch-success',
-      properties: logRecord,
+      event: 'content_fetch_success',
+      properties: {
+        url,
+      },
     })
   })
 
