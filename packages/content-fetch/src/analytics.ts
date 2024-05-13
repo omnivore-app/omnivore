@@ -7,7 +7,6 @@ interface AnalyticEvent {
 
 interface AnalyticClient {
   capture: (userIds: string[], event: AnalyticEvent) => void
-  shutdownAsync?: () => Promise<void>
 }
 
 class PostHogClient implements AnalyticClient {
@@ -34,10 +33,6 @@ class PostHogClient implements AnalyticClient {
     }
 
     console.log('analytics', { userIds, result, properties })
-  }
-
-  async shutdownAsync() {
-    return this.client.shutdownAsync()
   }
 }
 
