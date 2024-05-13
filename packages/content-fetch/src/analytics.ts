@@ -1,13 +1,12 @@
 import { PostHog } from 'posthog-node'
 
 interface AnalyticEvent {
-  distinctId: string
-  event: string
+  result: 'success' | 'failure'
   properties?: Record<string | number, any>
 }
 
 interface AnalyticClient {
-  capture: (event: AnalyticEvent) => void
+  capture: (userIds: string[], event: AnalyticEvent) => void
   shutdownAsync?: () => Promise<void>
 }
 
@@ -18,17 +17,23 @@ class PostHogClient implements AnalyticClient {
     this.client = new PostHog(apiKey)
   }
 
-  capture({ distinctId, event, properties }: AnalyticEvent) {
-    // get client from request context
+  capture(userIds: string[], { properties, result }: AnalyticEvent) {
+    if (process.env.SEND_ANALYTICS) {
+      userIds.forEach((userId) => {
+        this.client.capture({
+          distinctId: userId,
+          event: `content_fetch_${result}`,
+          properties: {
+            ...properties,
+            env: process.env.API_ENV,
+          },
+        })
+      })
 
-    this.client.capture({
-      distinctId,
-      event,
-      properties: {
-        ...properties,
-        env: process.env.API_ENV || 'demo',
-      },
-    })
+      return
+    }
+
+    console.log('analytics', { userIds, result, properties })
   }
 
   async shutdownAsync() {
