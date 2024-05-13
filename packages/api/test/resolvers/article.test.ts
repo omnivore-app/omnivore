@@ -2345,7 +2345,11 @@ describe('Article API', () => {
         authToken
       ).expect(200)
 
-      const item = await findLibraryItemById(articleId, user.id)
+      const item = await findLibraryItemById(articleId, user.id, {
+        relations: {
+          labels: true,
+        },
+      })
       expect(item?.labels?.map((l) => l.name)).to.eql(['Favorites'])
     })
   })

@@ -82,7 +82,22 @@ export const articleSavingRequestResolver = authorized<
 
     let libraryItem: LibraryItem | null = null
     if (id) {
-      libraryItem = await findLibraryItemById(id, uid)
+      libraryItem = await findLibraryItemById(id, uid, {
+        select: [
+          'id',
+          'state',
+          'originalUrl',
+          'slug',
+          'title',
+          'author',
+          'createdAt',
+          'updatedAt',
+          'savedAt',
+        ],
+        relations: {
+          user: true,
+        },
+      })
     } else if (url) {
       libraryItem = await findLibraryItemByUrl(cleanUrl(url), uid)
     }

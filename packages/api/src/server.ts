@@ -20,6 +20,7 @@ import { aiSummariesRouter } from './routers/ai_summary_router'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
+import { contentRouter } from './routers/content_router'
 import { digestRouter } from './routers/digest_router'
 import { explainRouter } from './routers/explain_router'
 import { integrationRouter } from './routers/integration_router'
@@ -101,6 +102,8 @@ export const createApp = (): Express => {
   app.use('/api/integration', integrationRouter())
   app.use('/api/tasks', taskRouter())
   app.use('/api/digest', digestRouter())
+  app.use('/api/content', contentRouter())
+
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
+import axios from 'axios'
 import { ContentReaderType } from '../entity/library_item'
 import { env } from '../env'
 import { PageType } from '../generated/graphql'
@@ -33,6 +34,7 @@ const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
   : new Storage()
 const bucketName = env.fileUpload.gcsUploadBucket
+const maxContentLength = 10 * 1024 * 1024 // 10MB
 
 export const countOfFilesWithPrefix = async (prefix: string) => {
   const [files] = await storage.bucket(bucketName).getFiles({ prefix })
@@ -62,12 +64,16 @@ export const generateUploadSignedUrl = async (
 }
 
 export const generateDownloadSignedUrl = async (
-  filePathName: string
+  filePathName: string,
+  config?: {
+    expires?: number
+  }
 ): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: 'v4',
     action: 'read',
     expires: Date.now() + 240 * 60 * 1000, // four hours
+    ...config,
   }
   const [url] = await storage
     .bucket(bucketName)
@@ -100,15 +106,50 @@ export const generateUploadFilePathName = (
 export const uploadToBucket = async (
   filePath: string,
   data: Buffer,
-  options?: { contentType?: string; public?: boolean },
+  options?: { contentType?: string; public?: boolean; timeout?: number },
   selectedBucket?: string
 ): Promise<void> => {
   await storage
     .bucket(selectedBucket || bucketName)
     .file(filePath)
-    .save(data, { ...options, timeout: 30000 })
+    .save(data, { timeout: 30000, ...options }) // default timeout 30s
 }
 
 export const createGCSFile = (filename: string): File => {
   return storage.bucket(bucketName).file(filename)
+}
+
+export const downloadFromUrl = async (
+  contentObjUrl: string,
+  timeout?: number
+) => {
+  // download the content as stream and max 10MB
+  const response = await axios.get<Buffer>(contentObjUrl, {
+    responseType: 'stream',
+    maxContentLength,
+    timeout,
+  })
+
+  return response.data
+}
+
+export const uploadToSignedUrl = async (
+  uploadSignedUrl: string,
+  data: Buffer,
+  contentType: string,
+  timeout?: number
+) => {
+  // upload the stream to the signed url
+  await axios.put(uploadSignedUrl, data, {
+    headers: {
+      'Content-Type': contentType,
+    },
+    maxBodyLength: maxContentLength,
+    timeout,
+  })
+}
+
+export const isFileExists = async (filePath: string): Promise<boolean> => {
+  const [exists] = await storage.bucket(bucketName).file(filePath).exists()
+  return exists
 }
