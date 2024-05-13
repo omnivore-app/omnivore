@@ -807,7 +807,7 @@ export const findLibraryItemById = async (
   return authTrx(
     async (tx) =>
       tx.withRepository(libraryItemRepository).findOne({
-        select: options?.select,
+        select: ['id' as keyof LibraryItem].concat(options?.select || []), // always select id
         where: { id },
         relations: options?.relations,
       }),
