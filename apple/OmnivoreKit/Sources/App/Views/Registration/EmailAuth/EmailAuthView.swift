@@ -45,7 +45,7 @@ struct EmailAuthView: View {
 
   var innerBody: some View {
     ZStack {
-      Color.appBackground.edgesIgnoringSafeArea(.all)
+      Color.themeSolidBackground.edgesIgnoringSafeArea(.all)
       primaryContent
         .frame(maxWidth: 300)
       #if os(iOS)

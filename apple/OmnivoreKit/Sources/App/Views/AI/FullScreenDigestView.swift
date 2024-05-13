@@ -223,10 +223,11 @@ struct FullScreenDigestView: View {
               .foregroundColor(Color(hex: "#898989"))
               .lineLimit(1)
           } else {
-            Text("We're building you a new digest")
-              .font(Font.system(size: 17, weight: .semibold))
-              .lineLimit(3)
-            ProgressView()
+            HStack {
+              Spacer()
+              ProgressView()
+              Spacer()
+            }
           }
         }
         .padding(15)
