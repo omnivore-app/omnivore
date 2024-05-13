@@ -1,5 +1,6 @@
 import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RequestHandler } from 'express'
+import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
 import { redisDataSource } from './redis_data_source'
 
@@ -147,11 +148,29 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       logRecord.error = 'unknown error'
     }
 
+    // capture error event
+    users.forEach((user) => {
+      analytics.capture({
+        distinctId: user.id,
+        event: 'content-fetch-failure',
+        properties: logRecord,
+      })
+    })
+
     return res.sendStatus(500)
   } finally {
     logRecord.totalTime = Date.now() - functionStartTime
     console.log(`parse-page result`, logRecord)
   }
+
+  // capture success event
+  users.forEach((user) => {
+    analytics.capture({
+      distinctId: user.id,
+      event: 'content-fetch-success',
+      properties: logRecord,
+    })
+  })
 
   res.sendStatus(200)
 }
