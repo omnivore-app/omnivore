@@ -38,6 +38,7 @@ import { WeixinQqHandler } from './websites/weixin-qq-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 import { ZhihuHandler } from './websites/zhihu-handler'
+import { TikTokHandler } from './websites/tiktok-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -82,6 +83,7 @@ const contentHandlers: ContentHandler[] = [
   new WeixinQqHandler(),
   new ZhihuHandler(),
   new TwitterHandler(),
+  new TikTokHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

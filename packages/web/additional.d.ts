@@ -16,6 +16,7 @@ declare global {
     AndroidWebKitMessenger?: AndroidWebKitMessenger
     themeKey?: string
     twttr?: EmbedTweetWidget
+    tiktokEmbed?: EmbedTiktokWidget
   }
 }
 
@@ -49,4 +50,10 @@ export interface EmbedTweetWidget {
     createTweet: (string, HTMLElement, unknown) => void
   }
   [key: string]: string | { createTweet: unknown }
+}
+
+export interface EmbedTiktokWidget {
+  lib: {
+    render: (tiktoksOnPage) => void
+  }
 }
