@@ -1,3 +1,4 @@
+import { Highlight } from '../entity/highlight'
 import { findLibraryItemById } from '../services/library_item'
 import { logger } from '../utils/logger'
 import { htmlToHighlightedMarkdown, htmlToMarkdown } from '../utils/parser'
@@ -14,12 +15,16 @@ export interface UploadContentJobData {
   filePath: string
 }
 
-const convertContent = (content: string, format: ContentFormat): string => {
+const convertContent = (
+  content: string,
+  format: ContentFormat,
+  highlights?: Highlight[]
+): string => {
   switch (format) {
     case 'markdown':
       return htmlToMarkdown(content)
     case 'highlightedMarkdown':
-      return htmlToHighlightedMarkdown(content)
+      return htmlToHighlightedMarkdown(content, highlights)
     case 'original':
       return content
     default:
@@ -33,29 +38,62 @@ const CONTENT_TYPES = {
   original: 'text/html',
 }
 
+const getSelectOptions = (
+  format: ContentFormat
+): { column: 'readableContent' | 'originalContent'; highlights?: boolean } => {
+  switch (format) {
+    case 'markdown':
+      return {
+        column: 'readableContent',
+      }
+    case 'highlightedMarkdown':
+      return {
+        column: 'readableContent',
+        highlights: true,
+      }
+    case 'original':
+      return {
+        column: 'originalContent',
+      }
+    default:
+      throw new Error('Unsupported format')
+  }
+}
+
 export const uploadContentJob = async (data: UploadContentJobData) => {
   logger.info('Uploading content to bucket', data)
 
   const { libraryItemId, userId, format, filePath } = data
+
+  const { column, highlights } = getSelectOptions(format)
   const libraryItem = await findLibraryItemById(libraryItemId, userId, {
-    select: ['originalContent'],
+    select: ['id', column], // id is required for relations
+    relations: {
+      highlights,
+    },
   })
   if (!libraryItem) {
     logger.error('Library item not found', data)
     throw new Error('Library item not found')
   }
 
-  if (!libraryItem.originalContent) {
-    logger.error('Original content not found', data)
-    throw new Error('Original content not found')
+  const content = libraryItem[column]
+
+  if (!content) {
+    logger.error(`${column} not found`, data)
+    throw new Error('Content not found')
   }
 
   logger.info('Converting content', data)
-  const content = convertContent(libraryItem.originalContent, format)
+  const convertedContent = convertContent(
+    content,
+    format,
+    libraryItem.highlights
+  )
 
   console.time('uploadToBucket')
   logger.info('Uploading content', data)
-  await uploadToBucket(filePath, Buffer.from(content), {
+  await uploadToBucket(filePath, Buffer.from(convertedContent), {
     contentType: CONTENT_TYPES[format],
     timeout: 60000, // 1 minute
   })

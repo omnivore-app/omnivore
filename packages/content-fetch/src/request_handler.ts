@@ -148,33 +148,23 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       logRecord.error = 'unknown error'
     }
 
-    // capture error event
-    users.forEach((user) => {
-      analytics.capture({
-        distinctId: user.id,
-        event: 'content_fetch_failure',
-        properties: {
-          url,
-        },
-      })
-    })
-
     return res.sendStatus(500)
   } finally {
     logRecord.totalTime = Date.now() - functionStartTime
     console.log(`parse-page result`, logRecord)
-  }
 
-  // capture success event
-  users.forEach((user) => {
-    analytics.capture({
-      distinctId: user.id,
-      event: 'content_fetch_success',
-      properties: {
-        url,
-      },
-    })
-  })
+    // capture events
+    analytics.capture(
+      users.map((user) => user.id),
+      {
+        result: logRecord.error ? 'failure' : 'success',
+        properties: {
+          url,
+          totalTime: logRecord.totalTime,
+        },
+      }
+    )
+  }
 
   res.sendStatus(200)
 }
