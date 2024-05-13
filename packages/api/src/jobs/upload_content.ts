@@ -67,7 +67,7 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
 
   const { column, highlights } = getSelectOptions(format)
   const libraryItem = await findLibraryItemById(libraryItemId, userId, {
-    select: [column],
+    select: ['id', column], // id is required for relations
     relations: {
       highlights,
     },
