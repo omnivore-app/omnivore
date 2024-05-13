@@ -2,19 +2,20 @@ import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import _ from 'underscore'
 
-const getRedirectUrl = async (url: string): Promise<string | null> => {
+const getRedirectUrl = async (url: string): Promise<string | undefined> => {
   try {
     const response = await axios.get(url, {
       maxRedirects: 0,
       validateStatus: (status) => status === 302,
     })
-    return response.headers.location as string
+    return response.headers.location
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (error.response && error.response.headers.location) {
-      return error.response.headers.location
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      return error.response.headers.location as string
     }
-    console.error('No redirect or network error occurred:', error.message)
-    return null
+    return undefined
   }
 }
 
