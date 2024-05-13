@@ -51,9 +51,9 @@ enum LoadingBarStyle {
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage("LibraryTabView::digestHidden") var digestHidden = false
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
-  @AppStorage("LibraryTabView::digestHidden") var digestHidden = false
 
-  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = 
+  FeaturedItemFilter.continueReading.rawValue
 
   @Published var appliedFilter: InternalFilter? {
     didSet {
