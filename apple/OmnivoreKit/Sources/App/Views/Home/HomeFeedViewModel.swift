@@ -403,7 +403,8 @@ enum LoadingBarStyle {
 
   func checkForDigestUpdate(dataService: DataService) async {
     do {
-      if dataService.featureFlags.digestEnabled, let result = try? await dataService.getLatestDigest(timeoutInterval: 2) {
+      if dataService.featureFlags.digestEnabled, 
+          let result = try? await dataService.getLatestDigest(timeoutInterval: 2) {
         if result.id != lastVisitedDigestId {
           digestIsUnread = true
         }

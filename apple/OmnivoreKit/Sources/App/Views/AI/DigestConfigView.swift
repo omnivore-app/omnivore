@@ -16,20 +16,14 @@ public class DigestConfigViewModel: ObservableObject {
 
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
-  func load(dataService: DataService) async {
+  func enableDigest(dataService: DataService) async {
     isLoading = true
-    if !dataService.digestNeedsRefresh() {
-      if let digest = dataService.loadStoredDigest() {
-        self.digest = digest
-      }
-    } else {
-      do {
-        if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
-          self.digest = digest
-        }
-      } catch {
-        print("ERROR WITH DIGEST: ", error)
-        self.digest = nil
+    
+    do {
+      try await dataService.optInFeature(name: "ai-digest")
+    } catch {
+      if let err as? IneligibleError {
+        
       }
     }
 
@@ -126,7 +120,9 @@ struct DigestConfigView: View {
         Button(action: {}, label: { Text("Hide digest") })
           .buttonStyle(RoundedRectButtonStyle())
 
-        Button(action: {}, label: { Text("Enable digest") })
+        Button(action: {
+          viewModel.en
+        }, label: { Text("Enable digest") })
           .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
       }
     }

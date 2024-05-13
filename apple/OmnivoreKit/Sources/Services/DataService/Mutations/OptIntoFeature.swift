@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Jackson Harper on 11/10/22.
-//
-
 import Foundation
 import Models
 import SwiftGraphQL
