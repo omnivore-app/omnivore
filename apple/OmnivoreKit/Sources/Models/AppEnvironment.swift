@@ -69,6 +69,21 @@ public extension AppEnvironment {
     "\(serverBaseURL.absoluteString)/api/graphql"
   }
 
+  var name: String {
+    switch self {
+    case .demo:
+      return "Demo"
+    case .prod:
+      return "Production"
+    case .test:
+      return "Test"
+    case .local:
+      return "Local"
+    case .custom:
+      return "Self hosted"
+    }
+  }
+
   var serverBaseURL: URL {
     switch self {
     case .demo:
