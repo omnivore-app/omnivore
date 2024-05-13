@@ -168,10 +168,12 @@ const main = async (): Promise<void> => {
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
-  const mwLogger = loggers.get('express', { levels: config.syslog.levels })
-  const transport = buildLoggerTransport('express')
-  const mw = await lw.express.makeMiddleware(mwLogger, transport)
-  app.use(mw)
+  if (!env.dev.isLocal) {
+    const mwLogger = loggers.get('express', { levels: config.syslog.levels })
+    const transport = buildLoggerTransport('express')
+    const mw = await lw.express.makeMiddleware(mwLogger, transport)
+    app.use(mw)
+  }
 
   const listener = httpServer.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')

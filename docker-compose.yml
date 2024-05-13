@@ -96,6 +96,17 @@ services:
       - JWT_SECRET=some_secret
       - VERIFICATION_TOKEN=some_token
       - REST_BACKEND_ENDPOINT=http://api:8080/api
+      - REDIS_URL=redis://redis:6379
     depends_on:
+      redis:
+        condition: service_healthy
       api:
         condition: service_healthy
+
+  redis:
+    image: "redis:7.2.4"
+    container_name: "omnivore-redis"
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
