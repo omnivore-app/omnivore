@@ -266,7 +266,6 @@ export function Article(props: ArticleProps): JSX.Element {
               if (window.tiktokEmbed) {
                 window.tiktokEmbed.lib.render(tikTokPlaceholders)
               }
-
               resolve(true)
             },
             error: () => reject(new Error('Could not load TikTok handler')),
