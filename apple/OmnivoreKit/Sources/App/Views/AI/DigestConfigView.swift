@@ -18,7 +18,7 @@ public class DigestConfigViewModel: ObservableObject {
 
   func load(dataService: DataService) async {
     isLoading = true
-    if !digestNeedsRefresh() {
+    if !dataService.digestNeedsRefresh() {
       if let digest = dataService.loadStoredDigest() {
         self.digest = digest
       }
@@ -34,30 +34,6 @@ public class DigestConfigViewModel: ObservableObject {
     }
 
     isLoading = false
-  }
-
-  func refreshDigest(dataService: DataService) async {
-    do {
-      try await dataService.refreshDigest()
-    } catch {
-      print("ERROR WITH DIGEST: ", error)
-    }
-  }
-
-  func digestNeedsRefresh() -> Bool {
-    let fileManager = FileManager.default
-    let localURL = URL.om_cachesDirectory.appendingPathComponent("digest.json")
-    do {
-      let attributes = try fileManager.attributesOfItem(atPath: localURL.path)
-      if let modificationDate = attributes[.modificationDate] as? Date {
-        // Two hours ago
-        let twoHoursAgo = Date().addingTimeInterval(-2 * 60 * 60)
-        return modificationDate < twoHoursAgo
-      }
-    } catch {
-        print("Error: \(error)")
-    }
-    return true
   }
 }
 
