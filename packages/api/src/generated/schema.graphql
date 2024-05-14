@@ -720,6 +720,10 @@ type DigestConfig {
   channels: [String]
 }
 
+input DigestConfigInput {
+  channels: [String]
+}
+
 enum DirectionalityType {
   LTR
   RTL
@@ -2390,7 +2394,7 @@ enum SetUserPersonalizationErrorCode {
 }
 
 input SetUserPersonalizationInput {
-  digestConfig: DigestConfig
+  digestConfig: DigestConfigInput
   fields: JSON
   fontFamily: String
   fontSize: Int

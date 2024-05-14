@@ -810,6 +810,10 @@ export type DigestConfig = {
   channels?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
+export type DigestConfigInput = {
+  channels?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
 export enum DirectionalityType {
   Ltr = 'LTR',
   Rtl = 'RTL'
@@ -3060,7 +3064,7 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
-  digestConfig?: InputMaybe<DigestConfig>;
+  digestConfig?: InputMaybe<DigestConfigInput>;
   fields?: InputMaybe<Scalars['JSON']>;
   fontFamily?: InputMaybe<Scalars['String']>;
   fontSize?: InputMaybe<Scalars['Int']>;
@@ -4090,6 +4094,7 @@ export type ResolversTypes = {
   DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
   DigestConfig: ResolverTypeWrapper<DigestConfig>;
+  DigestConfigInput: DigestConfigInput;
   DirectionalityType: DirectionalityType;
   DiscoverFeed: ResolverTypeWrapper<DiscoverFeed>;
   DiscoverFeedArticle: ResolverTypeWrapper<DiscoverFeedArticle>;
@@ -4655,6 +4660,7 @@ export type ResolversParentTypes = {
   DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: DeviceTokensSuccess;
   DigestConfig: DigestConfig;
+  DigestConfigInput: DigestConfigInput;
   DiscoverFeed: DiscoverFeed;
   DiscoverFeedArticle: DiscoverFeedArticle;
   DiscoverFeedError: DiscoverFeedError;
