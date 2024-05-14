@@ -49,39 +49,6 @@ const isFetchResult = (obj: unknown): obj is FetchResult => {
   return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
 }
 
-const uploadToSignedUrl = async (
-  uploadSignedUrl: string,
-  contentType: string,
-  contentObjUrl: string
-) => {
-  const maxContentLength = 10 * 1024 * 1024 // 10MB
-
-  logger.info('downloading content', {
-    contentObjUrl,
-  })
-
-  // download the content as stream and max 10MB
-  const response = await axios.get(contentObjUrl, {
-    responseType: 'stream',
-    maxContentLength,
-    timeout: REQUEST_TIMEOUT,
-  })
-
-  logger.info('uploading to signed url', {
-    uploadSignedUrl,
-    contentType,
-  })
-
-  // upload the stream to the signed url
-  await axios.put(uploadSignedUrl, response.data, {
-    headers: {
-      'Content-Type': contentType,
-    },
-    maxBodyLength: maxContentLength,
-    timeout: REQUEST_TIMEOUT,
-  })
-}
-
 const getCachedFetchResult = async (url: string) => {
   const key = `fetch-result:${url}`
   if (!redisDataSource.redisClient || !redisDataSource.workerRedisClient) {
