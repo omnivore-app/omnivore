@@ -68,7 +68,12 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 
 export type SavePageArgs = Merge<
   SavePageInput,
-  { feedContent?: string; previewImage?: string; author?: string }
+  {
+    feedContent?: string
+    previewImage?: string
+    author?: string
+    originalContentUploaded?: boolean
+  }
 >
 
 export const savePage = async (
@@ -145,7 +150,8 @@ export const savePage = async (
     itemToSave,
     user.id,
     undefined,
-    isImported
+    isImported,
+    input.originalContentUploaded
   )
   clientRequestId = newItem.id
 

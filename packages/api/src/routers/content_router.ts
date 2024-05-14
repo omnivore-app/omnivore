@@ -6,7 +6,11 @@ import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueBulkUploadContentJob } from '../utils/createTask'
 import { logger } from '../utils/logger'
-import { generateDownloadSignedUrl, isFileExists } from '../utils/uploads'
+import {
+  contentFilePath,
+  generateDownloadSignedUrl,
+  isFileExists,
+} from '../utils/uploads'
 
 export function contentRouter() {
   const router = Router()
@@ -58,7 +62,7 @@ export function contentRouter() {
     const userId = claims.uid
 
     const libraryItems = await findLibraryItemsByIds(libraryItemIds, userId, {
-      select: ['id', 'updatedAt'],
+      select: ['id', 'updatedAt', 'savedAt'],
     })
     if (libraryItems.length === 0) {
       logger.error('Library items not found')
@@ -68,9 +72,14 @@ export function contentRouter() {
     // generate signed url for each library item
     const data = await Promise.all(
       libraryItems.map(async (libraryItem) => {
-        const filePath = `content/${userId}/${
-          libraryItem.id
-        }.${libraryItem.updatedAt.getTime()}.${format}`
+        const date =
+          format === 'original' ? libraryItem.savedAt : libraryItem.updatedAt
+        const filePath = contentFilePath(
+          userId,
+          libraryItem.id,
+          date.getTime(),
+          format
+        )
 
         try {
           const downloadUrl = await generateDownloadSignedUrl(filePath, {

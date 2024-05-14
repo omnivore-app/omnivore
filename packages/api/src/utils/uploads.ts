@@ -5,6 +5,7 @@ import axios from 'axios'
 import { ContentReaderType } from '../entity/library_item'
 import { env } from '../env'
 import { PageType } from '../generated/graphql'
+import { ContentFormat } from '../jobs/upload_content'
 import { logger } from './logger'
 
 export const contentReaderForLibraryItem = (
@@ -157,13 +158,14 @@ export const isFileExists = async (filePath: string): Promise<boolean> => {
 export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
   const file = storage.bucket(bucketName).file(filePath)
 
-  const [exists] = await file.exists()
-  if (!exists) {
-    logger.error(`File not found: ${filePath}`)
-    throw new Error('File not found')
-  }
-
-  // Download the file contents as a string
+  // Download the file contents
   const [data] = await file.download()
   return data
 }
+
+export const contentFilePath = (
+  userId: string,
+  libraryItemId: string,
+  timestamp: number,
+  format: ContentFormat
+) => `content/${userId}/${libraryItemId}.${timestamp}.${format}`
