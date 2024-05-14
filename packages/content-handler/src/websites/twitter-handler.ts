@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import { DateTime } from 'luxon'
-import { Browser, BrowserContext } from 'puppeteer-core'
 import { ContentHandler, PreHandleResult } from '../content-handler'
 
 interface TweetIncludes {
@@ -188,126 +187,6 @@ const getTweetsFromResponse = (response: Tweets): Tweet[] => {
     tweets.push(tweet)
   }
   return tweets
-}
-
-const getOldTweets = async (
-  browser: Browser,
-  conversationId: string,
-  username: string
-): Promise<Tweet[]> => {
-  const tweetIds = await getTweetIds(browser, conversationId, username)
-  if (tweetIds.length === 0) {
-    return []
-  }
-  const response = await getTweetsByIds(tweetIds)
-  return getTweetsFromResponse(response)
-}
-
-const getRecentTweets = async (conversationId: string): Promise<Tweet[]> => {
-  const thread = await getTweetThread(conversationId)
-  if (thread.meta.result_count === 0) {
-    return []
-  }
-  // tweets are in reverse chronological order in the thread
-  return getTweetsFromResponse(thread).reverse()
-}
-
-/**
- * Wait for `ms` amount of milliseconds
- * @param {number} ms
- */
-const waitFor = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms))
-
-/**
- * Get tweets(even older than 7 days) using puppeteer
- * @param browser
- * @param {string} tweetId
- * @param {string} author
- */
-const getTweetIds = async (
-  browser: Browser,
-  tweetId: string,
-  author: string
-): Promise<string[]> => {
-  const pageURL = `https://twitter.com/${author}/status/${tweetId}`
-
-  let context: BrowserContext | undefined
-  try {
-    context = await browser.createIncognitoBrowserContext()
-    const page = await context.newPage()
-
-    // Modify this variable to control the size of viewport
-    const deviceScaleFactor = 0.2
-    const height = Math.floor(2000 / deviceScaleFactor)
-    const width = Math.floor(1700 / deviceScaleFactor)
-    await page.setViewport({ width, height, deviceScaleFactor })
-
-    await page.goto(pageURL, {
-      waitUntil: 'networkidle0',
-      timeout: 60000, // 60 seconds
-    })
-
-    return await page.evaluate(async (author) => {
-      /**
-       * Wait for `ms` amount of milliseconds
-       * @param {number} ms
-       */
-      const waitFor = (ms: number) =>
-        new Promise((resolve) => setTimeout(resolve, ms))
-
-      const ids = []
-
-      // Find the first Show thread button and click it
-      const showRepliesButton = Array.from(
-        document.querySelectorAll('div[dir]')
-      )
-        .filter(
-          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
-        )
-        .find((node) => node.children[0].innerHTML === 'Show replies')
-
-      if (showRepliesButton) {
-        ;(showRepliesButton as HTMLElement).click()
-
-        await waitFor(2000)
-      }
-
-      const timeNodes = Array.from(document.querySelectorAll('time'))
-
-      for (const timeNode of timeNodes) {
-        /** @type {HTMLAnchorElement | HTMLSpanElement} */
-        const timeContainerAnchor: HTMLAnchorElement | HTMLSpanElement | null =
-          timeNode.parentElement
-        if (!timeContainerAnchor) continue
-
-        if (timeContainerAnchor.tagName === 'SPAN') continue
-
-        const href = timeContainerAnchor.getAttribute('href')
-        if (!href) continue
-
-        // Get the tweet id and username from the href: https://twitter.com/username/status/1234567890
-        const match = href.match(/\/([^/]+)\/status\/(\d+)/)
-        if (!match) continue
-
-        const id = match[2]
-        const username = match[1]
-
-        // skip non-author replies
-        username === author && ids.push(id)
-      }
-
-      return ids
-    }, author)
-  } catch (error) {
-    console.error('Error getting tweets', error)
-
-    return []
-  } finally {
-    if (context) {
-      await context.close()
-    }
-  }
 }
 
 export class TwitterHandler extends ContentHandler {

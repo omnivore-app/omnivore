@@ -1,5 +1,4 @@
 import { parseHTML } from 'linkedom'
-import { Browser } from 'puppeteer-core'
 import {
   ContentHandler,
   NewsletterInput,
@@ -39,6 +38,7 @@ import { WeixinQqHandler } from './websites/weixin-qq-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 import { ZhihuHandler } from './websites/zhihu-handler'
+import { TikTokHandler } from './websites/tiktok-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -83,6 +83,7 @@ const contentHandlers: ContentHandler[] = [
   new WeixinQqHandler(),
   new ZhihuHandler(),
   new TwitterHandler(),
+  new TikTokHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [
@@ -104,8 +105,7 @@ const newsletterHandlers: ContentHandler[] = [
 ]
 
 export const preHandleContent = async (
-  url: string,
-  browser: Browser
+  url: string
 ): Promise<PreHandleResult | undefined> => {
   // Before we run the regular handlers we check to see if we need tp
   // pre-resolve the URL. TODO: This should probably happen recursively,
@@ -129,7 +129,7 @@ export const preHandleContent = async (
   for (const handler of contentHandlers) {
     if (handler.shouldPreHandle(url)) {
       console.log('preHandleContent', handler.name, url)
-      return handler.preHandle(url, browser)
+      return handler.preHandle(url)
     }
   }
   return undefined

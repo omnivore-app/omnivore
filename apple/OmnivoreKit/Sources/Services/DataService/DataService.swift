@@ -300,7 +300,7 @@ public final class DataService: ObservableObject {
     }
     return objectID
   }
-  
+
   public func tryUpdateFeatureFlags() async {
     if let features = (try? await fetchViewer())?.enabledFeatures {
       featureFlags.digestEnabled = features.contains("ai-digest")

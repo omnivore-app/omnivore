@@ -196,5 +196,5 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
     uid
   )
 
-  return subscriptionsCount > 2 && libraryItemsCount > 10
+  return subscriptionsCount >= 2 && libraryItemsCount >= 10
 }

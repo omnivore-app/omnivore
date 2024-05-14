@@ -12,7 +12,6 @@
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @Environment(\.dismiss) private var dismiss
 
     let delete: (_: NSManagedObjectID) -> Void
@@ -364,6 +363,8 @@
           playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
           playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
           playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
+          playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.3)
+          playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.4)
           playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
           playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
           playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)

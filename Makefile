@@ -30,5 +30,12 @@ web:
 qp:
 	yarn workspace @omnivore/api dev_qp
 
-content:
-	yarn workspace @omnivore/content_fetch start
+content_handler:
+	yarn workspace @omnivore/content-handler build
+
+puppeteer:
+	yarn workspace @omnivore/puppeteer-parse build
+
+content_fetch: content_handler puppeteer
+	yarn workspace @omnivore/content-fetch build
+	yarn workspace @omnivore/content-fetch start

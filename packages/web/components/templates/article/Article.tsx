@@ -67,9 +67,8 @@ export function Article(props: ArticleProps): JSX.Element {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
   const [lightboxIndex, setlightBoxIndex] = useState(0)
-  const [linkHoverData, setlinkHoverData] = useState<
-    LinkHoverData | undefined
-  >()
+  const [linkHoverData, setlinkHoverData] =
+    useState<LinkHoverData | undefined>()
 
   useEffect(() => {
     ;(async () => {
@@ -241,6 +240,35 @@ export function Article(props: ArticleProps): JSX.Element {
             theme: isDarkTheme() ? 'dark' : 'light',
             align: 'center',
             dnt: 'true',
+          })
+        })
+      })()
+    }
+  }, [])
+
+  useEffect(() => {
+    const tikTokPlaceholders = Array.from(
+      document.getElementsByClassName('tiktok-embed')
+    )
+
+    if (tikTokPlaceholders.length > 0) {
+      ;(async () => {
+        const tkScriptUrl = 'https://www.tiktok.com/embed.js'
+        const tkScriptWindowFieldName = 'tiktok'
+        const tkScriptName = tkScriptWindowFieldName
+
+        await new Promise((resolve, reject) => {
+          if (!loadjs.isDefined(tkScriptName)) {
+            loadjs(tkScriptUrl, tkScriptName)
+          }
+          loadjs.ready(tkScriptName, {
+            success: () => {
+              if (window.tiktokEmbed) {
+                window.tiktokEmbed.lib.render(tikTokPlaceholders)
+              }
+              resolve(true)
+            },
+            error: () => reject(new Error('Could not load TikTok handler')),
           })
         })
       })()

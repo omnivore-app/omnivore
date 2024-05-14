@@ -9,7 +9,6 @@ import { Browser, BrowserContext, Page, Protocol } from 'puppeteer-core'
 import puppeteer from 'puppeteer-extra'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
-import Url from 'url'
 
 // Add stealth plugin to hide puppeteer usage
 puppeteer.use(StealthPlugin())
@@ -58,25 +57,19 @@ const userAgentForUrl = (url: string) => {
 }
 
 const fetchContentWithScrapingBee = async (url: string) => {
-  try {
-    const response = await axios.get('https://app.scrapingbee.com/api/v1', {
-      params: {
-        api_key: process.env.SCRAPINGBEE_API_KEY,
-        url: url,
-        render_js: 'false',
-        premium_proxy: 'true',
-        country_code: 'us',
-      },
-      timeout: REQUEST_TIMEOUT,
-    })
+  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+    params: {
+      api_key: process.env.SCRAPINGBEE_API_KEY,
+      url: url,
+      render_js: 'false',
+      premium_proxy: 'true',
+      country_code: 'us',
+    },
+    timeout: REQUEST_TIMEOUT,
+  })
 
-    const dom = parseHTML(response.data).document
-    return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
-  } catch (e) {
-    console.error('error fetching with scrapingbee', e)
-
-    return { title: url, domContent: '', url }
-  }
+  const dom = parseHTML(response.data).document
+  return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
 }
 
 const enableJavascriptForUrl = (url: string) => {
@@ -93,10 +86,13 @@ const enableJavascriptForUrl = (url: string) => {
   return true
 }
 
+let browser: Browser
+
 // launch Puppeteer
-const getBrowserPromise = (async () => {
+const launchBrowser = async () => {
   console.log('starting puppeteer browser')
-  return (await puppeteer.launch({
+
+  browser = (await puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
       '--autoplay-policy=user-gesture-required',
@@ -119,7 +115,7 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--window-size=1920,1080',
       '--disable-extensions',
-    ].filter((item) => !!item),
+    ],
     defaultViewport: {
       deviceScaleFactor: 1,
       hasTouch: false,
@@ -131,8 +127,29 @@ const getBrowserPromise = (async () => {
     executablePath: process.env.CHROMIUM_PATH,
     headless: !!process.env.LAUNCH_HEADLESS,
     timeout: 120000, // 2 minutes
+    dumpio: true, // show console logs in the terminal
   })) as Browser
-})()
+
+  const version = await browser.version()
+  console.log('browser started', version)
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  browser.on('disconnected', async () => {
+    console.log('browser disconnected, reconnecting...')
+
+    const childProcess = browser.process()
+    if (childProcess) {
+      childProcess.kill('SIGINT')
+      console.log('browser child process killed')
+    }
+
+    await launchBrowser()
+    console.log('browser reconnected')
+  })
+}
+
+// initialize Puppeteer
+;(async () => await launchBrowser())()
 
 export const fetchContent = async (
   url: string,
@@ -162,8 +179,7 @@ export const fetchContent = async (
 
     // pre handle url with custom handlers
     try {
-      const browser = await getBrowserPromise
-      const result = await preHandleContent(url, browser)
+      const result = await preHandleContent(url)
       if (result && result.url) {
         validateUrlString(url)
         url = result.url
@@ -221,6 +237,11 @@ export const fetchContent = async (
   } catch (e) {
     console.error(`Error while retrieving page ${url}`, e)
 
+    console.error(
+      'pendingProtocolErrors',
+      browser.debugInfo.pendingProtocolErrors
+    )
+
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
       console.info('fallback to scrapingbee', url)
@@ -239,7 +260,9 @@ export const fetchContent = async (
   } finally {
     // close browser context if it was opened
     if (context) {
+      console.info('closing context...', url)
       await context.close()
+      console.info('context closed', url)
     }
 
     console.info(`content-fetch result`, logRecord)
@@ -289,7 +312,7 @@ function getUrl(urlStr: string) {
 
   validateUrlString(url)
 
-  const parsed = Url.parse(url)
+  const parsed = new URL(url)
   return parsed.href
 }
 
@@ -302,125 +325,127 @@ async function retrievePage(
 ) {
   validateUrlString(url)
 
-  const browser = await getBrowserPromise
   logRecord.timing = {
     ...logRecord.timing,
     browserOpened: Date.now() - functionStartTime,
   }
 
-  const context = await browser.createIncognitoBrowserContext()
-  const page = await context.newPage()
-
-  if (!enableJavascriptForUrl(url)) {
-    await page.setJavaScriptEnabled(false)
-  }
-  await page.setUserAgent(userAgentForUrl(url))
-
-  // set locale for the page
-  if (locale) {
-    await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
-  }
-
-  // set timezone for the page
-  if (timezone) {
-    await page.emulateTimezone(timezone)
-  }
-
-  const client = await page.target().createCDPSession()
-
-  const downloadPath = path.resolve('./download_dir/')
-  await client.send('Page.setDownloadBehavior', {
-    behavior: 'allow',
-    downloadPath,
-  })
-
-  // intercept request when response headers was received
-  await client.send('Network.setRequestInterception', {
-    patterns: [
-      {
-        urlPattern: '*',
-        resourceType: 'Document',
-        interceptionStage: 'HeadersReceived',
-      },
-    ],
-  })
-
-  client.on(
-    'Network.requestIntercepted',
-    (e: Protocol.Network.RequestInterceptedEvent) => {
-      ;(async () => {
-        const headers = e.responseHeaders || {}
-
-        const [contentType] = (
-          headers['content-type'] ||
-          headers['Content-Type'] ||
-          ''
-        )
-          .toLowerCase()
-          .split(';')
-        const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
-          interceptionId: e.interceptionId,
-        }
-
-        if (
-          e.responseStatusCode &&
-          e.responseStatusCode >= 200 &&
-          e.responseStatusCode < 300
-        ) {
-          // We only check content-type on success responses
-          // as it doesn't matter what the content type is for things
-          // like redirects
-          if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
-            obj['errorReason'] = 'BlockedByClient'
-          }
-        }
-
-        try {
-          await client.send('Network.continueInterceptedRequest', obj)
-        } catch {
-          // ignore
-        }
-      })()
-    }
-  )
-
-  /*
-   * Disallow MathJax from running in Puppeteer and modifying the document,
-   * we shall instead run it in our frontend application to transform any
-   * mathjax content when present.
-   */
-  await page.setRequestInterception(true)
-  let requestCount = 0
-  page.on('request', (request) => {
-    ;(async () => {
-      if (request.resourceType() === 'font') {
-        // Disallow fonts from loading
-        return request.abort()
-      }
-      if (requestCount++ > 100) {
-        return request.abort()
-      }
-      if (
-        request.resourceType() === 'script' &&
-        request.url().toLowerCase().indexOf('mathjax') > -1
-      ) {
-        return request.abort()
-      }
-
-      await request.continue()
-    })()
-  })
+  // create a new incognito browser context
+  const context = await browser.createBrowserContext()
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
-  let lastPdfUrl = undefined
-  page.on('response', (response) => {
-    if (response.headers()['content-type'] === 'application/pdf') {
-      lastPdfUrl = response.url()
-    }
-  })
-
+  let lastPdfUrl
+  let page
   try {
+    page = await context.newPage()
+
+    if (!enableJavascriptForUrl(url)) {
+      await page.setJavaScriptEnabled(false)
+    }
+    await page.setUserAgent(userAgentForUrl(url))
+
+    // set locale for the page
+    if (locale) {
+      await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
+    }
+
+    // set timezone for the page
+    if (timezone) {
+      await page.emulateTimezone(timezone)
+    }
+
+    const client = await page.createCDPSession()
+
+    const downloadPath = path.resolve('./download_dir/')
+    await client.send('Page.setDownloadBehavior', {
+      behavior: 'allow',
+      downloadPath,
+    })
+
+    // intercept request when response headers was received
+    await client.send('Network.setRequestInterception', {
+      patterns: [
+        {
+          urlPattern: '*',
+          resourceType: 'Document',
+          interceptionStage: 'HeadersReceived',
+        },
+      ],
+    })
+
+    client.on(
+      'Network.requestIntercepted',
+      (e: Protocol.Network.RequestInterceptedEvent) => {
+        ;(async () => {
+          const headers = e.responseHeaders || {}
+
+          const [contentType] = (
+            headers['content-type'] ||
+            headers['Content-Type'] ||
+            ''
+          )
+            .toLowerCase()
+            .split(';')
+          const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
+            interceptionId: e.interceptionId,
+          }
+
+          if (
+            e.responseStatusCode &&
+            e.responseStatusCode >= 200 &&
+            e.responseStatusCode < 300
+          ) {
+            // We only check content-type on success responses
+            // as it doesn't matter what the content type is for things
+            // like redirects
+            if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
+              obj['errorReason'] = 'BlockedByClient'
+            }
+          }
+
+          try {
+            await client.send('Network.continueInterceptedRequest', obj)
+          } catch {
+            // ignore
+          }
+        })()
+      }
+    )
+
+    /*
+     * Disallow MathJax from running in Puppeteer and modifying the document,
+     * we shall instead run it in our frontend application to transform any
+     * mathjax content when present.
+     */
+    await page.setRequestInterception(true)
+    let requestCount = 0
+    page.on('request', (request) => {
+      ;(async () => {
+        if (request.resourceType() === 'font') {
+          // Disallow fonts from loading
+          return request.abort()
+        }
+        if (requestCount++ > 100) {
+          return request.abort()
+        }
+        if (
+          request.resourceType() === 'script' &&
+          request.url().toLowerCase().indexOf('mathjax') > -1
+        ) {
+          return request.abort()
+        }
+
+        await request.continue()
+      })()
+    })
+
+    page.on('response', (response) => {
+      if (response.headers()['content-type'] === 'application/pdf') {
+        lastPdfUrl = response.url()
+      }
+    })
+
     const response = await page.goto(url, {
       timeout: 30 * 1000,
       waitUntil: ['networkidle2'],
@@ -458,9 +483,9 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
 
     const pageScrollingStart = Date.now()
     /* scroll with a 5 seconds timeout */
-    await Promise.race([
-      await page
-        .evaluate(
+    try {
+      await Promise.race([
+        page.evaluate(
           `(async () => {
                 /* credit: https://github.com/puppeteer/puppeteer/issues/305 */
                 return new Promise((resolve, reject) => {
@@ -477,13 +502,13 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
                   }, 10);
                 });
               })()`
-        )
-        .catch((e) => {
-          console.log('error scrolling page', e)
-          logRecord.scrollError = true
-        }),
-      new Promise((r) => setTimeout(r, 5000)),
-    ])
+        ),
+        new Promise((r) => setTimeout(r, 5000)),
+      ])
+    } catch (error) {
+      console.error('Error scrolling page', error)
+      logRecord.scrollError = true
+    }
 
     logRecord.timing = {
       ...logRecord.timing,

@@ -46,7 +46,7 @@ public class FullScreenDigestViewModel: ObservableObject {
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func load(dataService: DataService, audioController: AudioController) async {
-    if !digestNeedsRefresh() {
+    if !dataService.digestNeedsRefresh() {
       if let digest = dataService.loadStoredDigest() {
         self.digest = digest
       }
@@ -85,21 +85,7 @@ public class FullScreenDigestViewModel: ObservableObject {
     }
   }
 
-  func digestNeedsRefresh() -> Bool {
-    let fileManager = FileManager.default
-    let localURL = URL.om_cachesDirectory.appendingPathComponent("digest.json")
-    do {
-      let attributes = try fileManager.attributesOfItem(atPath: localURL.path)
-      if let modificationDate = attributes[.modificationDate] as? Date {
-        // Two hours ago
-        let twoHoursAgo = Date().addingTimeInterval(-2 * 60 * 60)
-        return modificationDate < twoHoursAgo
-      }
-    } catch {
-        print("Error: \(error)")
-    }
-    return true
-  }
+
 }
 
 @available(iOS 17.0, *)
@@ -223,10 +209,11 @@ struct FullScreenDigestView: View {
               .foregroundColor(Color(hex: "#898989"))
               .lineLimit(1)
           } else {
-            Text("We're building you a new digest")
-              .font(Font.system(size: 17, weight: .semibold))
-              .lineLimit(3)
-            ProgressView()
+            HStack {
+              Spacer()
+              ProgressView()
+              Spacer()
+            }
           }
         }
         .padding(15)

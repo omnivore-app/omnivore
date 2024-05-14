@@ -94,7 +94,9 @@ export function articleRouter() {
       })
 
       try {
-        const item = await findLibraryItemById(articleId, uid)
+        const item = await findLibraryItemById(articleId, uid, {
+          select: ['title', 'readableContent', 'itemLanguage'],
+        })
         if (!item) {
           return res.status(404).send('Page not found')
         }

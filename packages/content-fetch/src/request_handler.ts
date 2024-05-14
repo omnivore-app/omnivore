@@ -1,5 +1,6 @@
 import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RequestHandler } from 'express'
+import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
 import { redisDataSource } from './redis_data_source'
 
@@ -151,6 +152,18 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   } finally {
     logRecord.totalTime = Date.now() - functionStartTime
     console.log(`parse-page result`, logRecord)
+
+    // capture events
+    analytics.capture(
+      users.map((user) => user.id),
+      {
+        result: logRecord.error ? 'failure' : 'success',
+        properties: {
+          url,
+          totalTime: logRecord.totalTime,
+        },
+      }
+    )
   }
 
   res.sendStatus(200)

@@ -44,6 +44,8 @@ struct WebReaderContainerView: View {
 
   @State var showExplainSheet = false
 
+  @State var handoffActivity: NSUserActivity?
+
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
   @Environment(\.openURL) var openURL
@@ -422,6 +424,8 @@ struct WebReaderContainerView: View {
           .statusBar(hidden: prefersHideStatusBarInReader)
         #endif
         .onAppear {
+          startUserActivity()
+
           dataService.updateLinkReadingProgress(
             itemID: item.unwrappedID,
             readingProgress: max(item.readingProgress, 0.1),
@@ -436,6 +440,9 @@ struct WebReaderContainerView: View {
               await audioController.preload(itemIDs: [item.unwrappedID])
             }
           }
+        }
+        .onDisappear {
+          stopUserActivity()
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
                             titleVisibility: .visible) {
@@ -708,7 +715,7 @@ struct WebReaderContainerView: View {
   func share() {
     shareActionID = UUID()
   }
-  
+
   func printReader() {
     shareActionID = UUID()
   }
@@ -751,5 +758,24 @@ struct WebReaderContainerView: View {
     else { return }
 
     openURL(url)
+  }
+
+  func startUserActivity() {
+    if let slug = item.slug,
+       let webpageURL = URL(string: "\(dataService.appEnvironment.webAppBaseURL)/me/\(slug)") {
+      let activity = NSUserActivity(activityType: "com.omnivore.omnivore.openURL")
+      activity.title = "Open in browser"
+      activity.webpageURL = webpageURL
+      activity.isEligibleForHandoff = true
+      activity.becomeCurrent()
+      handoffActivity = activity
+    }
+  }
+
+  func stopUserActivity() {
+    self.handoffActivity = nil
+    Task {
+      await NSUserActivity.deleteAllSavedUserActivities()
+    }
   }
 }

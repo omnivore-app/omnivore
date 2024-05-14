@@ -93,7 +93,7 @@ struct EmailLoginFormView: View {
               },
               label: { Text(LocalText.genericSubmit) }
             )
-            .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
+            .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, textColor: Color.themeDarkGray, width: 300))
 
             if let loginError = viewModel.loginError {
               LoginErrorMessageView(loginError: loginError)
@@ -186,7 +186,7 @@ struct EmailPendingVerificationView: View {
           }
         }
       )
-      .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
+      .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, textColor: Color.themeDarkGray, width: 300))
 
       HStack {
         Button(

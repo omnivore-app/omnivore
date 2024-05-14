@@ -30,11 +30,10 @@ import Views
 
   init() {}
 
-  func submitProfile(name: String, bio: String, authenticator: Authenticator) {
+  func submitProfile(name: String, authenticator: Authenticator) {
     let profileOrError = NewUserProfile.make(
       username: potentialUsername,
-      name: name,
-      bio: bio.isEmpty ? nil : bio
+      name: name
     )
 
     switch profileOrError {
@@ -112,7 +111,6 @@ struct CreateProfileView: View {
   @StateObject private var viewModel = CreateProfileViewModel()
 
   @State private var name = ""
-  @State private var bio = ""
 
   init(userProfile: NewUserProfile) {
     self.initialUserProfile = userProfile
@@ -171,29 +169,11 @@ struct CreateProfileView: View {
               }
               .animation(.default, value: 0.35)
 
-              VStack(alignment: .leading, spacing: 6) {
-                Text(LocalText.registrationBio)
-                  .font(.appFootnote)
-                  .foregroundColor(.appGrayText)
-                TextEditor(text: $bio)
-                  .lineSpacing(6)
-                  .accentColor(.appGraySolid)
-                  .foregroundColor(.appGrayText)
-                  .font(.appBody)
-                  .padding(12)
-                  .background(
-                    RoundedRectangle(cornerRadius: 16)
-                      .strokeBorder(Color.appGrayBorder, lineWidth: 1)
-                      .background(RoundedRectangle(cornerRadius: 16).fill(Color.systemBackground))
-                  )
-                  .frame(height: 160)
-              }
-
               Button(
-                action: { viewModel.submitProfile(name: name, bio: bio, authenticator: authenticator) },
+                action: { viewModel.submitProfile(name: name, authenticator: authenticator) },
                 label: { Text(viewModel.submitButtonText) }
               )
-              .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
+              .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, textColor: Color.themeDarkGray, width: 300))
 
               if let errorMessage = viewModel.validationErrorMessage {
                 Text(errorMessage)

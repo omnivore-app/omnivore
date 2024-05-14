@@ -1,7 +1,6 @@
 import addressparser from 'addressparser'
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
-import { Browser } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
 interface Unsubscribe {
@@ -61,7 +60,7 @@ export abstract class ContentHandler {
     return false
   }
 
-  async preHandle(url: string, browser?: Browser): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     return Promise.resolve({ url })
   }
 
