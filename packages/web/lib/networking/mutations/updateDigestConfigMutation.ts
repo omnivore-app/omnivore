@@ -27,7 +27,9 @@ export async function updateDigestConfigMutation(
         }
         ... on SetUserPersonalizationSuccess {
           updatedUserPersonalization {
-            digestConfig
+            digestConfig {
+              channels
+            }
           }
         }
       }

@@ -40,7 +40,6 @@
     }
   }
 
-
   @available(iOS 16.0, *)
   struct LibraryItemEntity: AppEntity {
     static var defaultQuery = LibraryItemQuery()

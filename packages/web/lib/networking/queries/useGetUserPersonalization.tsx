@@ -58,7 +58,9 @@ export function useGetUserPersonalization(): UserPersonalizationResult {
       getUserPersonalization {
         ... on GetUserPersonalizationSuccess {
           userPersonalization {
-            digestConfig
+            digestConfig {
+              channels
+            }
           }
         }
         ... on GetUserPersonalizationError {

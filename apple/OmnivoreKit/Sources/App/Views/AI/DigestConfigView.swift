@@ -9,7 +9,7 @@ import Transmission
 @MainActor
 public class DigestConfigViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var alreadyGranted = false
+  @Published var digestEnabled = false
 
   @Published var isIneligible = false
   @Published var hasOptInError = false
@@ -23,7 +23,7 @@ public class DigestConfigViewModel: ObservableObject {
   func checkAlreadyOptedIn(dataService: DataService) async {
     isLoading = true
     if let user = try? await dataService.fetchViewer() {
-      alreadyGranted = user.hasFeatureGranted("ai-digest")
+      digestEnabled = user.hasFeatureGranted("ai-digest")
     }
     isLoading = false
   }
@@ -35,6 +35,8 @@ public class DigestConfigViewModel: ObservableObject {
         throw BasicError.message(messageText: "Could not opt into feature")
       }
       try await dataService.setupUserDigestConfig()
+      try await dataService.refreshDigest()
+      digestEnabled = true
     } catch {
       if error is IneligibleError {
         isIneligible = true
@@ -42,7 +44,6 @@ public class DigestConfigViewModel: ObservableObject {
         hasOptInError = true
       }
     }
-
     isLoading = false
   }
 }
@@ -84,7 +85,8 @@ struct DigestConfigView: View {
           ProgressView()
           Spacer()
         }
-      } else if viewModel.alreadyGranted {
+        .padding(.top, 50)
+      } else if viewModel.digestEnabled {
         Text("You've been added to the AI Digest demo. You first issue should be ready soon.")
           .padding(15)
       } else if viewModel.isIneligible {
@@ -160,7 +162,9 @@ struct DigestConfigView: View {
           .buttonStyle(RoundedRectButtonStyle())
 
         Button(action: {
-          // viewModel.en
+          Task {
+            await viewModel.enableDigest(dataService: dataService)
+          }
         }, label: { Text("Enable digest") })
           .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
       }
