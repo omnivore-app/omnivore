@@ -57,25 +57,19 @@ const userAgentForUrl = (url: string) => {
 }
 
 const fetchContentWithScrapingBee = async (url: string) => {
-  try {
-    const response = await axios.get('https://app.scrapingbee.com/api/v1', {
-      params: {
-        api_key: process.env.SCRAPINGBEE_API_KEY,
-        url: url,
-        render_js: 'false',
-        premium_proxy: 'true',
-        country_code: 'us',
-      },
-      timeout: REQUEST_TIMEOUT,
-    })
+  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+    params: {
+      api_key: process.env.SCRAPINGBEE_API_KEY,
+      url: url,
+      render_js: 'false',
+      premium_proxy: 'true',
+      country_code: 'us',
+    },
+    timeout: REQUEST_TIMEOUT,
+  })
 
-    const dom = parseHTML(response.data).document
-    return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
-  } catch (e) {
-    console.error('error fetching with scrapingbee', e)
-
-    return { title: url, domContent: '', url }
-  }
+  const dom = parseHTML(response.data).document
+  return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
 }
 
 const enableJavascriptForUrl = (url: string) => {
@@ -92,11 +86,13 @@ const enableJavascriptForUrl = (url: string) => {
   return true
 }
 
+let browser: Browser
+
 // launch Puppeteer
-const getBrowserPromise = (async () => {
+const launchBrowser = async () => {
   console.log('starting puppeteer browser')
 
-  const browser = (await puppeteer.launch({
+  browser = (await puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
       '--autoplay-policy=user-gesture-required',
@@ -134,10 +130,28 @@ const getBrowserPromise = (async () => {
     dumpio: true, // show console logs in the terminal
   })) as Browser
 
-  console.log('browser started')
+  const version = await browser.version()
+  console.log('browser started', version)
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  browser.on('disconnected', async () => {
+    console.log('browser disconnected, reconnecting...')
+
+    const childProcess = browser.process()
+    if (childProcess) {
+      childProcess.kill('SIGINT')
+      console.log('browser child process killed')
+    }
+
+    browser = await launchBrowser()
+    console.log('browser reconnected')
+  })
 
   return browser
-})()
+}
+
+// initialize Puppeteer
+;(async () => await launchBrowser())()
 
 export const fetchContent = async (
   url: string,
@@ -224,8 +238,11 @@ export const fetchContent = async (
     }
   } catch (e) {
     console.error(`Error while retrieving page ${url}`, e)
-    const browser = await getBrowserPromise
-    console.log(browser.debugInfo.pendingProtocolErrors)
+
+    console.error(
+      'pendingProtocolErrors',
+      browser.debugInfo.pendingProtocolErrors
+    )
 
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
@@ -310,7 +327,6 @@ async function retrievePage(
 ) {
   validateUrlString(url)
 
-  const browser = await getBrowserPromise
   logRecord.timing = {
     ...logRecord.timing,
     browserOpened: Date.now() - functionStartTime,
@@ -469,9 +485,9 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
 
     const pageScrollingStart = Date.now()
     /* scroll with a 5 seconds timeout */
-    await Promise.race([
-      await page
-        .evaluate(
+    try {
+      await Promise.race([
+        page.evaluate(
           `(async () => {
                 /* credit: https://github.com/puppeteer/puppeteer/issues/305 */
                 return new Promise((resolve, reject) => {
@@ -488,13 +504,13 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
                   }, 10);
                 });
               })()`
-        )
-        .catch((e) => {
-          console.log('error scrolling page', e)
-          logRecord.scrollError = true
-        }),
-      new Promise((r) => setTimeout(r, 5000)),
-    ])
+        ),
+        new Promise((r) => setTimeout(r, 5000)),
+      ])
+    } catch (error) {
+      console.error('Error scrolling page', error)
+      logRecord.scrollError = true
+    }
 
     logRecord.timing = {
       ...logRecord.timing,
