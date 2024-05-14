@@ -143,11 +143,9 @@ const launchBrowser = async () => {
       console.log('browser child process killed')
     }
 
-    browser = await launchBrowser()
+    await launchBrowser()
     console.log('browser reconnected')
   })
-
-  return browser
 }
 
 // initialize Puppeteer
