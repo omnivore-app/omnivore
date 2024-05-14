@@ -280,7 +280,7 @@ export const parsedContentToLibraryItem = ({
     state: state
       ? (state as unknown as LibraryItemState)
       : LibraryItemState.Succeeded,
-    savedAt: validatedDate(savedAt),
+    savedAt: validatedDate(savedAt) || new Date(),
     siteName: parsedContent?.siteName,
     itemLanguage: parsedContent?.language,
     siteIcon: parsedContent?.siteIcon,

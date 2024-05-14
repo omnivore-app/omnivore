@@ -54,6 +54,10 @@ class MockFile {
   makePublic() {
     return
   }
+
+  save() {
+    return
+  }
 }
 
 class MockWriteStream extends Writable {
