@@ -1067,6 +1067,10 @@ const schema = gql`
     following: [User!]!
   }
 
+  type DigestConfig {
+    channels: [String]
+  }
+
   type UserPersonalization {
     id: ID
     theme: String
@@ -1080,7 +1084,7 @@ const schema = gql`
     speechRate: String
     speechVolume: String
     fields: JSON
-    digestConfig: JSON
+    digestConfig: DigestConfig
   }
 
   # Query: UserPersonalization

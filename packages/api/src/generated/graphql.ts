@@ -805,6 +805,11 @@ export type DeviceTokensSuccess = {
   deviceTokens: Array<DeviceToken>;
 };
 
+export type DigestConfig = {
+  __typename?: 'DigestConfig';
+  channels?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
 export enum DirectionalityType {
   Ltr = 'LTR',
   Rtl = 'RTL'
@@ -3769,7 +3774,7 @@ export enum UserErrorCode {
 
 export type UserPersonalization = {
   __typename?: 'UserPersonalization';
-  digestConfig?: Maybe<Scalars['JSON']>;
+  digestConfig?: Maybe<DigestConfig>;
   fields?: Maybe<Scalars['JSON']>;
   fontFamily?: Maybe<Scalars['String']>;
   fontSize?: Maybe<Scalars['Int']>;
@@ -4084,6 +4089,7 @@ export type ResolversTypes = {
   DeviceTokensErrorCode: DeviceTokensErrorCode;
   DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
+  DigestConfig: ResolverTypeWrapper<DigestConfig>;
   DirectionalityType: DirectionalityType;
   DiscoverFeed: ResolverTypeWrapper<DiscoverFeed>;
   DiscoverFeedArticle: ResolverTypeWrapper<DiscoverFeedArticle>;
@@ -4648,6 +4654,7 @@ export type ResolversParentTypes = {
   DeviceTokensError: DeviceTokensError;
   DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: DeviceTokensSuccess;
+  DigestConfig: DigestConfig;
   DiscoverFeed: DiscoverFeed;
   DiscoverFeedArticle: DiscoverFeedArticle;
   DiscoverFeedError: DiscoverFeedError;
@@ -5528,6 +5535,11 @@ export type DeviceTokensResultResolvers<ContextType = ResolverContext, ParentTyp
 
 export type DeviceTokensSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceTokensSuccess'] = ResolversParentTypes['DeviceTokensSuccess']> = {
   deviceTokens?: Resolver<Array<ResolversTypes['DeviceToken']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DigestConfigResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DigestConfig'] = ResolversParentTypes['DigestConfig']> = {
+  channels?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -7233,7 +7245,7 @@ export type UserErrorResolvers<ContextType = ResolverContext, ParentType extends
 };
 
 export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserPersonalization'] = ResolversParentTypes['UserPersonalization']> = {
-  digestConfig?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  digestConfig?: Resolver<Maybe<ResolversTypes['DigestConfig']>, ParentType, ContextType>;
   fields?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   fontFamily?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fontSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -7412,6 +7424,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeviceTokensError?: DeviceTokensErrorResolvers<ContextType>;
   DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
   DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
+  DigestConfig?: DigestConfigResolvers<ContextType>;
   DiscoverFeed?: DiscoverFeedResolvers<ContextType>;
   DiscoverFeedArticle?: DiscoverFeedArticleResolvers<ContextType>;
   DiscoverFeedError?: DiscoverFeedErrorResolvers<ContextType>;

@@ -716,6 +716,10 @@ type DeviceTokensSuccess {
   deviceTokens: [DeviceToken!]!
 }
 
+type DigestConfig {
+  channels: [String]
+}
+
 enum DirectionalityType {
   LTR
   RTL
@@ -3046,7 +3050,7 @@ enum UserErrorCode {
 }
 
 type UserPersonalization {
-  digestConfig: JSON
+  digestConfig: DigestConfig
   fields: JSON
   fontFamily: String
   fontSize: Int
