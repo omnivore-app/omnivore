@@ -1127,7 +1127,7 @@ const schema = gql`
     speechRate: String
     speechVolume: String
     fields: JSON
-    digestConfig: JSON
+    digestConfig: DigestConfig
   }
 
   # Type: ArticleSavingRequest

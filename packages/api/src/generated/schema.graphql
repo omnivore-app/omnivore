@@ -2390,7 +2390,7 @@ enum SetUserPersonalizationErrorCode {
 }
 
 input SetUserPersonalizationInput {
-  digestConfig: JSON
+  digestConfig: DigestConfig
   fields: JSON
   fontFamily: String
   fontSize: Int

@@ -3060,7 +3060,7 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
-  digestConfig?: InputMaybe<Scalars['JSON']>;
+  digestConfig?: InputMaybe<DigestConfig>;
   fields?: InputMaybe<Scalars['JSON']>;
   fontFamily?: InputMaybe<Scalars['String']>;
   fontSize?: InputMaybe<Scalars['Int']>;
