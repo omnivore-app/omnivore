@@ -24,7 +24,7 @@ import { Merge, PickTuple } from '../util'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { downloadFileFromBucket, uploadToBucket } from '../utils/uploads'
+import { downloadFromBucket, uploadToBucket } from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -1703,5 +1703,5 @@ export const downloadOriginalContent = async (
   userId: string,
   libraryItemId: string
 ) => {
-  return downloadFileFromBucket(originalContentFilename(userId, libraryItemId))
+  return downloadFromBucket(originalContentFilename(userId, libraryItemId))
 }

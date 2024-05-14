@@ -154,44 +154,7 @@ export const isFileExists = async (filePath: string): Promise<boolean> => {
   return exists
 }
 
-export const downloadFromUrl = async (
-  contentObjUrl: string,
-  timeout?: number
-) => {
-  // download the content as stream and max 10MB
-  const response = await axios.get<Buffer>(contentObjUrl, {
-    responseType: 'stream',
-    maxContentLength,
-    timeout,
-  })
-
-  return response.data
-}
-
-export const uploadToSignedUrl = async (
-  uploadSignedUrl: string,
-  data: Buffer,
-  contentType: string,
-  timeout?: number
-) => {
-  // upload the stream to the signed url
-  await axios.put(uploadSignedUrl, data, {
-    headers: {
-      'Content-Type': contentType,
-    },
-    maxBodyLength: maxContentLength,
-    timeout,
-  })
-}
-
-export const isFileExists = async (filePath: string): Promise<boolean> => {
-  const [exists] = await storage.bucket(bucketName).file(filePath).exists()
-  return exists
-}
-
-export const downloadFileFromBucket = async (
-  filePath: string
-): Promise<Buffer> => {
+export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
   const file = storage.bucket(bucketName).file(filePath)
 
   const [exists] = await file.exists()
