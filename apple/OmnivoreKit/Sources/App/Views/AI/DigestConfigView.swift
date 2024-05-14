@@ -9,6 +9,10 @@ import Transmission
 @MainActor
 public class DigestConfigViewModel: ObservableObject {
   @Published var isLoading = false
+  @Published var alreadyGranted = false
+
+  @Published var isIneligible = false
+  @Published var hasOptInError = false
   @Published var digest: DigestResult?
   @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
   @Published var presentedLibraryItem: String?
@@ -16,14 +20,26 @@ public class DigestConfigViewModel: ObservableObject {
 
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
+  func checkAlreadyOptedIn(dataService: DataService) async {
+    isLoading = true
+    if let user = try? await dataService.fetchViewer() {
+      alreadyGranted = user.hasFeatureGranted("ai-digest")
+    }
+    isLoading = false
+  }
+
   func enableDigest(dataService: DataService) async {
     isLoading = true
-    
     do {
-      try await dataService.optInFeature(name: "ai-digest")
+      if try await dataService.optInFeature(name: "ai-digest") == nil {
+        throw BasicError.message(messageText: "Could not opt into feature")
+      }
+      try await dataService.setupUserDigestConfig()
     } catch {
-      if let err as? IneligibleError {
-        
+      if error is IneligibleError {
+        isIneligible = true
+      } else {
+        hasOptInError = true
       }
     }
 
@@ -35,12 +51,14 @@ public class DigestConfigViewModel: ObservableObject {
 @MainActor
 struct DigestConfigView: View {
   @StateObject var viewModel = DigestConfigViewModel()
+  let homeViewModel: HomeFeedViewModel
   let dataService: DataService
 
   @Environment(\.dismiss) private var dismiss
 
-  public init(dataService: DataService) {
+  public init(dataService: DataService, homeViewModel: HomeFeedViewModel) {
     self.dataService = dataService
+    self.homeViewModel = homeViewModel
   }
 
   var titleBlock: some View {
@@ -59,12 +77,30 @@ struct DigestConfigView: View {
     VStack {
       titleBlock
         .padding(.top, 10)
-      itemBody
-        .padding(15)
+
+      if viewModel.isLoading {
+        HStack {
+          Spacer()
+          ProgressView()
+          Spacer()
+        }
+      } else if viewModel.alreadyGranted {
+        Text("You've been added to the AI Digest demo. You first issue should be ready soon.")
+          .padding(15)
+      } else if viewModel.isIneligible {
+        Text("To enable digest you need to have saved at least ten library items and have two active subscriptions.")
+          .padding(15)
+      } else if viewModel.hasOptInError {
+        Text("There was an error setting up digest for your account.")
+          .padding(15)
+      } else {
+        itemBody
+          .padding(15)
+      }
 
       Spacer()
      }.task {
-       await viewModel.load(dataService: dataService)
+       await viewModel.checkAlreadyOptedIn(dataService: dataService)
      }
   }
 
@@ -117,11 +153,14 @@ struct DigestConfigView: View {
       HStack {
         Spacer()
 
-        Button(action: {}, label: { Text("Hide digest") })
+        Button(action: {
+          homeViewModel.hideDigestIcon = true
+          dismiss()
+        }, label: { Text("Hide digest") })
           .buttonStyle(RoundedRectButtonStyle())
 
         Button(action: {
-          viewModel.en
+          // viewModel.en
         }, label: { Text("Enable digest") })
           .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
       }

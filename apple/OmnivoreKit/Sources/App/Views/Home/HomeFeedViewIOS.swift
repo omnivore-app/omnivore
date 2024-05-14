@@ -335,7 +335,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(isPresented: $showDigestConfig) {
         if #available(iOS 17.0, *) {
           NavigationView {
-            DigestConfigView(dataService: dataService)
+            DigestConfigView(dataService: dataService, homeViewModel: viewModel)
           }
         } else {
           Text("Sorry digest is only available on iOS 17 and above")
@@ -416,16 +416,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   )
                   .buttonStyle(.plain)
                   .padding(.trailing, 4)
-                } else if #available(iOS 17.0, *), !dataService.featureFlags.digestEnabled, !viewModel.digestHidden {
-                  Button(
-                    action: { showDigestConfig = true },
-                    label: { Image.tabDigestSelected }
-                  )
-                  .buttonStyle(.plain)
-                  .padding(.trailing, 4)
-                }
-                if #available(iOS 17.0, *), !dataService.featureFlags.digestEnabled, !viewModel.digestHidden {
-                  // Give the user an opportunity to enable digest
+                } else if #available(iOS 17.0, *), !dataService.featureFlags.digestEnabled, !viewModel.hideDigestIcon {
                   Button(
                     action: { showDigestConfig = true },
                     label: { Image.tabDigestSelected }

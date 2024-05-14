@@ -49,7 +49,7 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
-  @AppStorage("LibraryTabView::digestHidden") var digestHidden = false
+  @AppStorage("LibraryTabView::hideDigestIcon") var hideDigestIcon = false
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = 
