@@ -17,19 +17,12 @@ export const setUserPersonalizationResolver = authorized<
   MutationSetUserPersonalizationArgs
 >(async (_, { input }, { authTrx, uid }) => {
   const newValues = input as Omit<SetUserPersonalizationInput, 'digestConfig'>
-  const digestValues = input.digestConfig
-    ? {
-        digestConfig: () => {
-          return JSON.stringify(input.digestConfig)
-        },
-      }
-    : {}
   const result = await authTrx(async (t) => {
     return t.getRepository(UserPersonalization).upsert(
       {
         user: { id: uid },
+        digestConfig: input.digestConfig as any,
         ...newValues,
-        ...digestValues,
       },
       ['user']
     )
