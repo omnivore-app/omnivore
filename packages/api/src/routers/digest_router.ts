@@ -46,6 +46,7 @@ interface CreateDigestRequest {
 export function digestRouter() {
   const router = express.Router()
 
+  router.options('/v1', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
   // v1 version of create digest api
   router.post('/v1', cors<express.Request>(corsConfig), async (req, res) => {
     const token = getTokenByRequest(req)
@@ -83,6 +84,7 @@ export function digestRouter() {
       }
 
       const data = req.body as CreateDigestRequest
+      logger.info(`Creating digest: ${JSON.stringify(data)}`)
 
       // check if job is running
       // if yes then return 202 accepted
@@ -179,6 +181,10 @@ export function digestRouter() {
     }
   })
 
+  router.options(
+    '/v1/feedback',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
   // v1 version of sending feedback api
   router.post(
     '/v1/feedback',
@@ -254,6 +260,10 @@ export function digestRouter() {
     }
   )
 
+  router.options(
+    '/v1/move',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
   // v1 version of move digest to library api
   router.post(
     '/v1/move',
