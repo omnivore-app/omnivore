@@ -27,6 +27,7 @@ import {
   findUserAndPersonalization,
   sendPushNotifications,
 } from '../../services/user'
+import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
 import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
@@ -34,7 +35,6 @@ import { logger } from '../../utils/logger'
 import { htmlToMarkdown, markdownToHtml } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
 import { getImageSize, _findThumbnail } from '../find_thumbnail'
-import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -174,7 +174,9 @@ const getCandidatesList = async (
   //   reason: "most recent 100 items saved over 500 words
 
   if (selectedLibraryItemIds) {
-    return findLibraryItemsByIds(selectedLibraryItemIds, userId)
+    return findLibraryItemsByIds(selectedLibraryItemIds, userId, {
+      select: ['id', 'title', 'readableContent', 'author', 'thumbnail'],
+    })
   }
 
   // // get the existing candidate ids from cache
