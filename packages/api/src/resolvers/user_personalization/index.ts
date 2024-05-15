@@ -21,6 +21,8 @@ export const setUserPersonalizationResolver = authorized<
     return t.getRepository(UserPersonalization).upsert(
       {
         user: { id: uid },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         digestConfig: input.digestConfig as any,
         ...newValues,
       },
