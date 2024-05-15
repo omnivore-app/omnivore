@@ -1,12 +1,9 @@
-import sinon from 'sinon'
 import { appDataSource } from '../src/data_source'
 import { env } from '../src/env'
 import { redisDataSource } from '../src/redis_data_source'
 import { stopApolloServer, stopWorker } from './util'
 
 export const mochaGlobalTeardown = async () => {
-  sinon.restore()
-
   await stopApolloServer()
   console.log('apollo server stopped')
 

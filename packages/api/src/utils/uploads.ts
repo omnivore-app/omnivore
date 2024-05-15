@@ -31,7 +31,7 @@ export const contentReaderForLibraryItem = (
  * the default app engine service account on the IAM page. We also need to
  * enable IAM related APIs on the project.
  */
-const storage = env.fileUpload?.gcsUploadSAKeyFilePath
+export const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
   : new Storage()
 const bucketName = env.fileUpload.gcsUploadBucket

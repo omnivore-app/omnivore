@@ -435,7 +435,13 @@ describe('Article API', () => {
         originalUrl: 'https://blog.omnivore.app/test-with-omnivore',
         directionality: DirectionalityType.RTL,
       }
-      const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
+      const item = await createOrUpdateLibraryItem(
+        itemToCreate,
+        user.id,
+        undefined,
+        true,
+        true
+      )
       itemId = item.id
 
       // save highlights
@@ -528,11 +534,11 @@ describe('Article API', () => {
   })
 
   describe('SavePage', () => {
-    let title = 'Example Title'
+    const title = 'Example Title'
     let url = 'https://blog.omnivore.app'
-    let originalContent =
+    const originalContent =
       '<html dir="rtl"><body><div>Example Content</div></body></html>'
-    let source = 'puppeteer-parse'
+    const source = 'puppeteer-parse'
 
     context('when we save a new item', () => {
       after(async () => {
@@ -668,7 +674,7 @@ describe('Article API', () => {
 
   describe('SaveUrl', () => {
     let query = ''
-    let url = 'https://blog.omnivore.app/new-url-1'
+    const url = 'https://blog.omnivore.app/new-url-1'
 
     before(() => {
       sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
@@ -727,8 +733,8 @@ describe('Article API', () => {
   describe('saveArticleReadingProgressResolver', () => {
     let query = ''
     let itemId = ''
-    let progress = 0.5
-    let topPercent: number | null = null
+    const progress = 0.5
+    const topPercent: number | null = null
 
     before(async () => {
       itemId = (await createTestLibraryItem(user.id)).id
@@ -1976,7 +1982,7 @@ describe('Article API', () => {
     const items: LibraryItem[] = []
 
     let query = ''
-    let keyword = 'typeahead'
+    const keyword = 'typeahead'
 
     before(async () => {
       // Create some test items
@@ -2049,8 +2055,8 @@ describe('Article API', () => {
       }
     `
     let since: string
-    let items: LibraryItem[] = []
-    let deletedItems: LibraryItem[] = []
+    const items: LibraryItem[] = []
+    const deletedItems: LibraryItem[] = []
 
     before(async () => {
       // Create some test items
@@ -2263,7 +2269,7 @@ describe('Article API', () => {
     )
 
     context('when action is Delete and query contains item id', () => {
-      let items: LibraryItem[] = []
+      const items: LibraryItem[] = []
 
       before(async () => {
         // Create some test items
@@ -2367,7 +2373,7 @@ describe('Article API', () => {
         }
       }`
 
-    let items: LibraryItem[] = []
+    const items: LibraryItem[] = []
 
     before(async () => {
       // Create some test items

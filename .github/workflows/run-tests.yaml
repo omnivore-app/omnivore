@@ -96,7 +96,6 @@ jobs:
           PG_LOGGER: debug
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
           MQ_REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
-          GCS_UPLOAD_BUCKET: omnivore-demo-files
   build-docker-images:
     name: Build docker images
     runs-on: ubuntu-latest

@@ -1,9 +1,6 @@
-import { Storage } from '@google-cloud/storage'
-import sinon from 'sinon'
 import { env } from '../src/env'
 import { redisDataSource } from '../src/redis_data_source'
 import { createTestConnection } from './db'
-import { MockBucket } from './mock_storage'
 import { startApolloServer, startWorker } from './util'
 
 export const mochaGlobalSetup = async () => {
@@ -22,12 +19,4 @@ export const mochaGlobalSetup = async () => {
 
   await startApolloServer()
   console.log('apollo server started')
-
-  const mockBucket = new MockBucket('test')
-  sinon.replace(
-    Storage.prototype,
-    'bucket',
-    sinon.fake.returns(mockBucket as never)
-  )
-  console.log('mock cloud storage created')
 }

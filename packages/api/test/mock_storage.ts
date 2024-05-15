@@ -1,10 +1,11 @@
 import { Writable } from 'stream'
 
-class MockStorage {
+export class MockStorage {
   buckets: { [name: string]: MockBucket }
 
   constructor() {
     this.buckets = {}
+    console.log('MockStorage initialized')
   }
 
   bucket(name: string) {
@@ -12,13 +13,14 @@ class MockStorage {
   }
 }
 
-export class MockBucket {
+class MockBucket {
   name: string
   files: { [path: string]: MockFile }
 
   constructor(name: string) {
     this.name = name
     this.files = {}
+    console.log('MockBucket initialized')
   }
 
   file(path: string) {
@@ -33,6 +35,7 @@ class MockFile {
   constructor(path: string) {
     this.path = path
     this.contents = Buffer.alloc(0)
+    console.log('MockFile initialized')
   }
 
   createWriteStream() {
