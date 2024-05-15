@@ -1695,14 +1695,21 @@ export const uploadOriginalContent = async (
   userId: string,
   libraryItemId: string,
   savedAt: Date,
-  originalContent: string
+  originalContent: string,
+  timeout = 10_000 // 10 seconds
 ) => {
   await uploadToBucket(
-    contentFilePath(userId, libraryItemId, savedAt.getTime(), 'original'),
+    contentFilePath({
+      userId,
+      libraryItemId,
+      savedAt,
+      format: 'original',
+    }),
     Buffer.from(originalContent),
     {
       public: false,
       contentType: 'text/html',
+      timeout,
     }
   )
 }
@@ -1713,6 +1720,11 @@ export const downloadOriginalContent = async (
   savedAt: Date
 ) => {
   return downloadFromBucket(
-    contentFilePath(userId, libraryItemId, savedAt.getTime(), 'original')
+    contentFilePath({
+      userId,
+      libraryItemId,
+      savedAt,
+      format: 'original',
+    })
   )
 }
