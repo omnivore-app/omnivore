@@ -97,8 +97,7 @@ public struct ExplainResult: Codable {
   public let text: String
 }
 
-extension DataService {  
-  
+extension DataService {
   public func digestNeedsRefresh() -> Bool {
     let fileManager = FileManager.default
     let localURL = URL.om_cachesDirectory.appendingPathComponent("digest.json")

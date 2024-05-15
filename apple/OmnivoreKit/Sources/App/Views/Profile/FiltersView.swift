@@ -19,6 +19,8 @@ import Views
   }
 
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
+  @AppStorage("LibraryTabView::hideDigestIcon") var hideDigestIcon = false
+
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
 
   func loadFilters(dataService: DataService) async {
@@ -95,6 +97,7 @@ struct FiltersView: View {
     List {
       Section(header: Text("User Interface")) {
         Toggle("Hide following tab", isOn: $viewModel.hideFollowingTab)
+        Toggle("Hide digest icon", isOn: $viewModel.hideDigestIcon)
         Toggle("Hide feature section", isOn: $viewModel.hideFeatureSection)
       }
 

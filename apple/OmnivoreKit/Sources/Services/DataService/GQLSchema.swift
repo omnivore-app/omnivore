@@ -5867,6 +5867,68 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+    struct DigestConfig {
+        let __typename: TypeName = .digestConfig
+        let channels: [String: [String?]]
+
+        enum TypeName: String, Codable {
+            case digestConfig = "DigestConfig"
+        }
+    }
+}
+
+extension Objects.DigestConfig: Decodable {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+        var map = HashMap()
+        for codingKey in container.allKeys {
+            if codingKey.isTypenameKey { continue }
+
+            let alias = codingKey.stringValue
+            let field = GraphQLField.getFieldNameFromAlias(alias)
+
+            switch field {
+            case "channels":
+                if let value = try container.decode([String?]?.self, forKey: codingKey) {
+                    map.set(key: field, hash: alias, value: value as Any)
+                }
+            default:
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Unknown key \(field)."
+                    )
+                )
+            }
+        }
+
+        channels = map["channels"]
+    }
+}
+
+extension Fields where TypeLock == Objects.DigestConfig {
+    func channels() throws -> [String?]? {
+        let field = GraphQLField.leaf(
+            name: "channels",
+            arguments: []
+        )
+        select(field)
+
+        switch response {
+        case let .decoding(data):
+            return data.channels[field.alias!]
+        case .mocking:
+            return nil
+        }
+    }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+    typealias DigestConfig<T> = Selection<T, Objects.DigestConfig>
+}
+
+extension Objects {
     struct DiscoverFeed {
         let __typename: TypeName = .discoverFeed
         let description: [String: String]
@@ -28003,7 +28065,7 @@ extension Selection where TypeLock == Never, Type == Never {
 extension Objects {
     struct UserPersonalization {
         let __typename: TypeName = .userPersonalization
-        let digestConfig: [String: String]
+        let digestConfig: [String: Objects.DigestConfig]
         let fields: [String: String]
         let fontFamily: [String: String]
         let fontSize: [String: Int]
@@ -28036,7 +28098,7 @@ extension Objects.UserPersonalization: Decodable {
 
             switch field {
             case "digestConfig":
-                if let value = try container.decode(String?.self, forKey: codingKey) {
+                if let value = try container.decode(Objects.DigestConfig?.self, forKey: codingKey) {
                     map.set(key: field, hash: alias, value: value as Any)
                 }
             case "fields":
@@ -28114,18 +28176,19 @@ extension Objects.UserPersonalization: Decodable {
 }
 
 extension Fields where TypeLock == Objects.UserPersonalization {
-    func digestConfig() throws -> String? {
-        let field = GraphQLField.leaf(
+    func digestConfig<Type>(selection: Selection<Type, Objects.DigestConfig?>) throws -> Type {
+        let field = GraphQLField.composite(
             name: "digestConfig",
-            arguments: []
+            arguments: [],
+            selection: selection.selection
         )
         select(field)
 
         switch response {
         case let .decoding(data):
-            return data.digestConfig[field.alias!]
+            return try selection.decode(data: data.digestConfig[field.alias!])
         case .mocking:
-            return nil
+            return selection.mock()
         }
     }
 
@@ -39402,6 +39465,21 @@ extension InputObjects {
 }
 
 extension InputObjects {
+    struct DigestConfigInput: Encodable, Hashable {
+        var channels: OptionalArgument<[OptionalArgument<String>]> = .absent()
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            if channels.hasValue { try container.encode(channels, forKey: .channels) }
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case channels
+        }
+    }
+}
+
+extension InputObjects {
     struct EditDiscoverFeedInput: Encodable, Hashable {
         var feedId: String
 
@@ -40379,7 +40457,7 @@ extension InputObjects {
 
 extension InputObjects {
     struct SetUserPersonalizationInput: Encodable, Hashable {
-        var digestConfig: OptionalArgument<String> = .absent()
+        var digestConfig: OptionalArgument<InputObjects.DigestConfigInput> = .absent()
 
         var fields: OptionalArgument<String> = .absent()
 

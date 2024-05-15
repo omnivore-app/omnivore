@@ -9,6 +9,10 @@ import Transmission
 @MainActor
 public class DigestConfigViewModel: ObservableObject {
   @Published var isLoading = false
+  @Published var digestEnabled = false
+
+  @Published var isIneligible = false
+  @Published var hasOptInError = false
   @Published var digest: DigestResult?
   @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
   @Published var presentedLibraryItem: String?
@@ -16,23 +20,30 @@ public class DigestConfigViewModel: ObservableObject {
 
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
-  func load(dataService: DataService) async {
+  func checkAlreadyOptedIn(dataService: DataService) async {
     isLoading = true
-    if !dataService.digestNeedsRefresh() {
-      if let digest = dataService.loadStoredDigest() {
-        self.digest = digest
+    if let user = try? await dataService.fetchViewer() {
+      digestEnabled = user.hasFeatureGranted("ai-digest")
+    }
+    isLoading = false
+  }
+
+  func enableDigest(dataService: DataService) async {
+    isLoading = true
+    do {
+      if try await dataService.optInFeature(name: "ai-digest") == nil {
+        throw BasicError.message(messageText: "Could not opt into feature")
       }
-    } else {
-      do {
-        if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
-          self.digest = digest
-        }
-      } catch {
-        print("ERROR WITH DIGEST: ", error)
-        self.digest = nil
+      try await dataService.setupUserDigestConfig()
+      try await dataService.refreshDigest()
+      digestEnabled = true
+    } catch {
+      if error is IneligibleError {
+        isIneligible = true
+      } else {
+        hasOptInError = true
       }
     }
-
     isLoading = false
   }
 }
@@ -41,12 +52,14 @@ public class DigestConfigViewModel: ObservableObject {
 @MainActor
 struct DigestConfigView: View {
   @StateObject var viewModel = DigestConfigViewModel()
+  let homeViewModel: HomeFeedViewModel
   let dataService: DataService
 
   @Environment(\.dismiss) private var dismiss
 
-  public init(dataService: DataService) {
+  public init(dataService: DataService, homeViewModel: HomeFeedViewModel) {
     self.dataService = dataService
+    self.homeViewModel = homeViewModel
   }
 
   var titleBlock: some View {
@@ -65,12 +78,31 @@ struct DigestConfigView: View {
     VStack {
       titleBlock
         .padding(.top, 10)
-      itemBody
-        .padding(15)
+
+      if viewModel.isLoading {
+        HStack {
+          Spacer()
+          ProgressView()
+          Spacer()
+        }
+        .padding(.top, 50)
+      } else if viewModel.digestEnabled {
+        Text("You've been added to the AI Digest demo. You first issue should be ready soon.")
+          .padding(15)
+      } else if viewModel.isIneligible {
+        Text("To enable digest you need to have saved at least ten library items and have two active subscriptions.")
+          .padding(15)
+      } else if viewModel.hasOptInError {
+        Text("There was an error setting up digest for your account.")
+          .padding(15)
+      } else {
+        itemBody
+          .padding(15)
+      }
 
       Spacer()
      }.task {
-       await viewModel.load(dataService: dataService)
+       await viewModel.checkAlreadyOptedIn(dataService: dataService)
      }
   }
 
@@ -123,10 +155,17 @@ struct DigestConfigView: View {
       HStack {
         Spacer()
 
-        Button(action: {}, label: { Text("Hide digest") })
+        Button(action: {
+          homeViewModel.hideDigestIcon = true
+          dismiss()
+        }, label: { Text("Hide digest") })
           .buttonStyle(RoundedRectButtonStyle())
 
-        Button(action: {}, label: { Text("Enable digest") })
+        Button(action: {
+          Task {
+            await viewModel.enableDigest(dataService: dataService)
+          }
+        }, label: { Text("Enable digest") })
           .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
       }
     }
