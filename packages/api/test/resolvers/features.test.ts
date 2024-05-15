@@ -159,12 +159,14 @@ describe('features resolvers', () => {
     })
 
     context('when user is already opted in', () => {
+      const grantedAt = new Date('2024-05-15')
+
       before(async () => {
         // opt in
         await createFeature({
           user: { id: loginUser.id },
           name: featureName,
-          grantedAt: new Date(),
+          grantedAt,
         })
       })
 
@@ -182,7 +184,7 @@ describe('features resolvers', () => {
           {
             uid: loginUser.id,
             featureName,
-            grantedAt: Date.now() / 1000,
+            grantedAt: grantedAt.getTime() / 1000,
           },
           env.server.jwtSecret,
           { expiresIn: '1y' }
@@ -191,7 +193,7 @@ describe('features resolvers', () => {
         expect(res.body.data.optInFeature).to.eql({
           feature: {
             name: featureName,
-            grantedAt: new Date().toISOString(),
+            grantedAt: grantedAt.toISOString(),
             token,
           },
         })

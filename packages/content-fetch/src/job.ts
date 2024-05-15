@@ -9,6 +9,7 @@ interface SavePageJobData {
   url: string
   finalUrl: string
   articleSavingRequestId: string
+
   state?: string
   labels?: string[]
   source: string
@@ -17,6 +18,8 @@ interface SavePageJobData {
   savedAt?: string
   publishedAt?: string
   taskId?: string
+  title?: string
+  contentType?: string
 }
 
 interface SavePageJob {

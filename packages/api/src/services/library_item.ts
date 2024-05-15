@@ -24,6 +24,11 @@ import { Merge, PickTuple } from '../util'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
+import {
+  contentFilePath,
+  downloadFromBucket,
+  uploadToBucket,
+} from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -1014,8 +1019,17 @@ export const createOrUpdateLibraryItem = async (
   libraryItem: CreateOrUpdateLibraryItemArgs,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false
+  skipPubSub = false,
+  originalContentUploaded = false
 ): Promise<LibraryItem> => {
+  let originalContent: string | null = null
+  if (libraryItem.originalContent) {
+    originalContent = libraryItem.originalContent
+
+    // remove original content from the item
+    delete libraryItem.originalContent
+  }
+
   const newLibraryItem = await authTrx(
     async (tx) => {
       const repo = tx.withRepository(libraryItemRepository)
@@ -1088,6 +1102,19 @@ export const createOrUpdateLibraryItem = async (
 
   const data = deepDelete(newLibraryItem, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
+
+  // upload original content to GCS if it's not already uploaded
+  if (originalContent && !originalContentUploaded) {
+    await uploadOriginalContent(
+      userId,
+      newLibraryItem.id,
+      newLibraryItem.savedAt,
+      originalContent
+    )
+    logger.info('Uploaded original content to GCS', {
+      id: newLibraryItem.id,
+    })
+  }
 
   return newLibraryItem
 }
@@ -1662,4 +1689,30 @@ export const filterItemEvents = (
   }
 
   throw new Error('Unexpected state.')
+}
+
+export const uploadOriginalContent = async (
+  userId: string,
+  libraryItemId: string,
+  savedAt: Date,
+  originalContent: string
+) => {
+  await uploadToBucket(
+    contentFilePath(userId, libraryItemId, savedAt.getTime(), 'original'),
+    Buffer.from(originalContent),
+    {
+      public: false,
+      contentType: 'text/html',
+    }
+  )
+}
+
+export const downloadOriginalContent = async (
+  userId: string,
+  libraryItemId: string,
+  savedAt: Date
+) => {
+  return downloadFromBucket(
+    contentFilePath(userId, libraryItemId, savedAt.getTime(), 'original')
+  )
 }

@@ -112,7 +112,6 @@ export function followingServiceRouter() {
         userId,
         slug,
         croppedPathname,
-        originalHtml: req.body.feedContent,
         itemType: parsedResult?.pageType || PageType.Unknown,
         canonicalUrl: url,
         folder: FOLDER,
