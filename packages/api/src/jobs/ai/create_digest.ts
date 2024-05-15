@@ -834,10 +834,12 @@ export const createDigest = async (jobData: CreateDigestData) => {
         title: item.libraryItem.title,
         id: item.libraryItem.id,
         url: getItemUrl(item.libraryItem.id),
-        thumbnail: item.libraryItem.thumbnail ?? undefined,
+        thumbnail: item.libraryItem.thumbnail
+          ? createThumbnailProxyUrl(item.libraryItem.thumbnail)
+          : undefined,
         wordCount: speechFiles[index].wordCount,
         html: summariesInHtml[index],
-        author: item.libraryItem.author ?? '',
+        author: item.libraryItem.author ?? undefined,
       })),
       createdAt: new Date(),
       description: '',
