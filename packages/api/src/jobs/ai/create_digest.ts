@@ -27,14 +27,15 @@ import {
   findUserAndPersonalization,
   sendPushNotifications,
 } from '../../services/user'
+import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
 import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
+import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown, markdownToHtml } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
 import { getImageSize, _findThumbnail } from '../find_thumbnail'
-import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -174,7 +175,9 @@ const getCandidatesList = async (
   //   reason: "most recent 100 items saved over 500 words
 
   if (selectedLibraryItemIds) {
-    return findLibraryItemsByIds(selectedLibraryItemIds, userId)
+    return findLibraryItemsByIds(selectedLibraryItemIds, userId, {
+      select: ['id', 'title', 'readableContent', 'author', 'thumbnail'],
+    })
   }
 
   // // get the existing candidate ids from cache
@@ -647,7 +650,9 @@ const findThumbnail = async (
 
   try {
     for (const thumbnail of thumbnails) {
-      const size = await getImageSize(thumbnail)
+      const proxyUrl = createThumbnailProxyUrl(thumbnail)
+      // pre-cache thumbnail first if exists
+      const size = await getImageSize(proxyUrl)
       if (!size) {
         continue
       }
@@ -829,9 +834,12 @@ export const createDigest = async (jobData: CreateDigestData) => {
         title: item.libraryItem.title,
         id: item.libraryItem.id,
         url: getItemUrl(item.libraryItem.id),
-        thumbnail: item.libraryItem.thumbnail ?? undefined,
+        thumbnail: item.libraryItem.thumbnail
+          ? createThumbnailProxyUrl(item.libraryItem.thumbnail)
+          : undefined,
         wordCount: speechFiles[index].wordCount,
         html: summariesInHtml[index],
+        author: item.libraryItem.author ?? undefined,
       })),
       createdAt: new Date(),
       description: '',

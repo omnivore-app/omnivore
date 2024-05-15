@@ -28,5 +28,5 @@ export function createImageProxyUrl(
   return `${env.imageProxy.url}/${width}x${height},s${signature}/${url}`
 }
 
-export const createThumbnailUrl = (url: string): string =>
+export const createThumbnailProxyUrl = (url: string): string =>
   createImageProxyUrl(url, 320, 320)
