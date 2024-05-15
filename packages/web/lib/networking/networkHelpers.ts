@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request'
-import { gqlEndpoint, fetchEndpoint } from '../appConfig'
 import { IncomingMessage } from 'http'
+import { fetchEndpoint, gqlEndpoint } from '../appConfig'
 
 declare type RequestCookies = {
   [key: string]: string
@@ -74,7 +74,10 @@ export function apiPoster(path: string, body: any): Promise<Response> {
     method: 'POST',
     credentials: 'include',
     mode: 'cors',
-    headers: requestHeaders(),
+    headers: {
+      'Content-Type': 'application/json',
+      ...requestHeaders(),
+    },
     body: JSON.stringify(body),
   })
 }
