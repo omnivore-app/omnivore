@@ -34,6 +34,7 @@ import { logger } from '../../utils/logger'
 import { htmlToMarkdown, markdownToHtml } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
 import { getImageSize, _findThumbnail } from '../find_thumbnail'
+import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -253,7 +254,7 @@ const createUserProfile = async (
   preferences: LibraryItem[]
 ): Promise<string> => {
   const llm = new OpenAI({
-    modelName: 'gpt-4-0125-preview',
+    modelName: OPENAI_MODEL,
     configuration: {
       apiKey: process.env.OPENAI_API_KEY,
     },
@@ -297,7 +298,7 @@ const rankCandidates = async (
   userProfile: string
 ): Promise<RankedItem[]> => {
   const llm = new OpenAI({
-    modelName: 'gpt-4-0125-preview',
+    modelName: OPENAI_MODEL,
     configuration: {
       apiKey: process.env.OPENAI_API_KEY,
     },
@@ -393,7 +394,7 @@ const summarizeItems = async (
 
   if (model === 'openai') {
     const llm = new OpenAI({
-      modelName: 'gpt-4-0125-preview',
+      modelName: OPENAI_MODEL,
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
@@ -422,7 +423,7 @@ const summarizeItems = async (
   // use anthropic otherwise
   const llm = new ChatAnthropic({
     apiKey: process.env.CLAUDE_API_KEY,
-    model: 'claude-3-sonnet-20240229',
+    model: ANTHROPIC_MODEL,
   })
 
   const prompts = await Promise.all(

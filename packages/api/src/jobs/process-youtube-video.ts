@@ -15,6 +15,7 @@ import { stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { videoIdFromYouTubeUrl } from '../utils/youtube'
+import { OPENAI_MODEL } from '../utils/ai'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -97,7 +98,7 @@ export const createTranscriptHTML = async (
     }
 
     const llm = new OpenAI({
-      modelName: 'gpt-4-0125-preview',
+      modelName: OPENAI_MODEL,
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
