@@ -23,7 +23,6 @@ export const mochaGlobalSetup = async () => {
   await startApolloServer()
   console.log('apollo server started')
 
-  // mock cloud storage
   const mockBucket = new MockBucket('test')
   sinon.replace(
     Storage.prototype,

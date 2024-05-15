@@ -88,6 +88,7 @@ jobs:
           yarn test
         timeout-minutes: 10
         env:
+          API_ENV: local
           PG_HOST: localhost
           PG_PORT: ${{ job.services.postgres.ports[5432] }}
           PG_USER: app_user

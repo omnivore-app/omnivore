@@ -177,11 +177,6 @@ const nullableEnvVars = [
   'NOTION_AUTH_URL',
 ] // Allow some vars to be null/empty
 
-/* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
-if (process.env.API_ENV == 'local') {
-  nullableEnvVars.push(...['GCS_UPLOAD_BUCKET'])
-}
-
 const envParser =
   (env: { [key: string]: string | undefined }) =>
   (varName: string): string => {
@@ -203,6 +198,11 @@ interface Dict<T> {
 export function getEnv(): BackendEnv {
   // Dotenv parses env file merging into proces.env which is then read into custom struct here.
   dotenv.config()
+
+  /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
+  if (process.env.API_ENV == 'local') {
+    nullableEnvVars.push(...['GCS_UPLOAD_BUCKET'])
+  }
 
   const parse = envParser(process.env)
   const pg = {

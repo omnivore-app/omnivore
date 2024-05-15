@@ -56,6 +56,7 @@ class MockFile {
   }
 
   save() {
+    console.log('Saved file to:', this.path)
     return
   }
 }
