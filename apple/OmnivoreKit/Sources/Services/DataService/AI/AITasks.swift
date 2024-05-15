@@ -26,11 +26,13 @@ public struct DigestChapter: Codable {
   public let id: String
   public let url: String
   public let wordCount: Double
+  public let author: String?
   public let thumbnail: String?
-  public init(title: String, id: String, url: String, wordCount: Double, thumbnail: String?) {
+  public init(title: String, id: String, url: String, wordCount: Double, author: String?, thumbnail: String?) {
     self.title = title
     self.id = id
     self.url = url
+    self.author = author
     self.wordCount = wordCount
     self.thumbnail = thumbnail
   }
