@@ -832,6 +832,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
         thumbnail: item.libraryItem.thumbnail ?? undefined,
         wordCount: speechFiles[index].wordCount,
         html: summariesInHtml[index],
+        author: item.libraryItem.author ?? '',
       })),
       createdAt: new Date(),
       description: '',
