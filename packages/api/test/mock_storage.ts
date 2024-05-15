@@ -5,7 +5,6 @@ export class MockStorage {
 
   constructor() {
     this.buckets = {}
-    console.log('MockStorage initialized')
   }
 
   bucket(name: string) {
@@ -20,7 +19,6 @@ class MockBucket {
   constructor(name: string) {
     this.name = name
     this.files = {}
-    console.log('MockBucket initialized')
   }
 
   file(path: string) {
@@ -35,7 +33,6 @@ class MockFile {
   constructor(path: string) {
     this.path = path
     this.contents = Buffer.alloc(0)
-    console.log('MockFile initialized')
   }
 
   createWriteStream() {

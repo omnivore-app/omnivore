@@ -9,7 +9,5 @@ export const mochaHooks = {
     sinon
       .stub(uploads, 'storage')
       .value(new MockStorage() as unknown as Storage)
-
-    console.log('mock cloud storage created')
   },
 }
