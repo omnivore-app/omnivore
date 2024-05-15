@@ -16,7 +16,7 @@ import {
 import { findActiveUser } from '../../services/user'
 import createHttpTaskWithToken from '../../utils/createTask'
 import { cleanUrl } from '../../utils/helpers'
-import { createThumbnailUrl } from '../../utils/imageproxy'
+import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
 import { RSSRefreshContext } from './refreshAllFeeds'
 
@@ -367,7 +367,7 @@ const createItemWithFeedContent = async (
     })
 
     const thumbnail = getThumbnail(item)
-    const previewImage = thumbnail && createThumbnailUrl(thumbnail)
+    const previewImage = thumbnail && createThumbnailProxyUrl(thumbnail)
     const url = cleanUrl(item.link)
 
     const user = await findActiveUser(userId)

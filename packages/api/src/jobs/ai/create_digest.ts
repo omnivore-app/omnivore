@@ -31,6 +31,7 @@ import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
 import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
+import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown, markdownToHtml } from '../../utils/parser'
 import { uploadToBucket } from '../../utils/uploads'
@@ -649,7 +650,9 @@ const findThumbnail = async (
 
   try {
     for (const thumbnail of thumbnails) {
-      const size = await getImageSize(thumbnail)
+      const proxyUrl = createThumbnailProxyUrl(thumbnail)
+      // pre-cache thumbnail first if exists
+      const size = await getImageSize(proxyUrl)
       if (!size) {
         continue
       }
