@@ -44,7 +44,7 @@
     "@opentelemetry/tracing": "^0.24.0",
     "@sendgrid/mail": "^7.6.0",
     "@sentry/integrations": "^7.10.0",
-    "@sentry/node": "^5.26.0",
+    "@sentry/node": "7.88.0",
     "@types/showdown": "^2.0.6",
     "addressparser": "^1.0.1",
     "apollo-datasource": "^3.3.1",
@@ -114,7 +114,7 @@
     "winston": "^3.3.3",
     "word-counting": "^1.1.4",
     "yaml": "^2.4.1",
-    "youtubei": "1.4.0"
+    "youtubei": "1.4.1"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
