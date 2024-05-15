@@ -2,6 +2,6 @@
   "extension": ["ts"],
   "spec": "test/**/*.test.ts",
   "reporter": "mocha-unfunk-reporter",
-  "require": ["test/global-setup.ts", "test/global-teardown.ts"],
+  "require": ["test/global-setup.ts", "test/global-teardown.ts", "test/hooks.ts"],
   "timeout": 10000
 }

@@ -36,7 +36,7 @@ describe('Subscriptions API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
 
     // create test newsletter subscriptions
     const newsletterEmail = await createNewsletterEmail(user.id)
@@ -181,7 +181,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteUser(user2.id)
+        await deleteUser(user2.id)
       }
     })
 
@@ -222,7 +222,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteUser(user3.id)
+        await deleteUser(user3.id)
       }
     })
 
@@ -263,7 +263,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteUser(user2.id)
+        await deleteUser(user2.id)
       }
     })
 
@@ -372,7 +372,7 @@ describe('Subscriptions API', () => {
       const url = 'https://www.omnivore.app/rss'
       const subscriptionType = SubscriptionType.Rss
 
-      before(async () => {
+      before(() => {
         // fake rss parser
         sinon.replace(
           Parser.prototype,
