@@ -44,7 +44,7 @@
     "@opentelemetry/tracing": "^0.24.0",
     "@sendgrid/mail": "^7.6.0",
     "@sentry/integrations": "^7.10.0",
-    "@sentry/node": "7.88.0",
+    "@sentry/node": "^5.26.0",
     "@types/showdown": "^2.0.6",
     "addressparser": "^1.0.1",
     "apollo-datasource": "^3.3.1",
