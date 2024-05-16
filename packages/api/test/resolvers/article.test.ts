@@ -58,7 +58,7 @@ const archiveLink = async (authToken: string, linkId: string) => {
     setLinkArchived(
       input: {
         linkId: "${linkId}",
-        archived: ${true}
+        archived: true
       }
     ) {
       ... on ArchiveLinkSuccess {
@@ -239,11 +239,13 @@ const saveUrlQuery = (
           url: "${url}",
           source: "test",
           clientRequestId: "${generateFakeUuid()}",
-          state: ${state}
+          state: ${state ?? 'null'},
           labels: ${
             labels
-              ? '[' + labels.map((label) => `{ name: "${label}" }`) + ']'
-              : null
+              ? '[' +
+                labels.map((label) => `{ name: "${label}" }`).join(',') +
+                ']'
+              : 'null'
           }
         }
       ) {
@@ -264,7 +266,7 @@ const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
       setBookmarkArticle(
         input: {
           articleID: "${articleId}",
-          bookmark: ${bookmark}
+          bookmark: ${String(bookmark)}
         }
       ) {
         ... on SetBookmarkArticleSuccess {
@@ -293,8 +295,8 @@ const saveArticleReadingProgressQuery = (
           id: "${articleId}",
           readingProgressPercent: ${progress},
           readingProgressAnchorIndex: 0,
-          readingProgressTopPercent: ${topPercent},
-          force: ${force}
+          readingProgressTopPercent: ${topPercent ?? 'null'},
+          force: ${String(force) ?? 'null'}
         }
       ) {
         ... on SaveArticleReadingProgressSuccess {
@@ -344,7 +346,7 @@ describe('Article API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
   })
 
   after(async () => {
@@ -360,7 +362,7 @@ describe('Article API', () => {
     let title = ''
     let itemId = ''
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = createArticleQuery(url, source, document, title)
     })
 
@@ -380,7 +382,7 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
-        itemId = res.body.data.createArticle.createdArticle.id
+        itemId = res.body.data.createArticle.createdArticle.id as string
       })
     })
 
@@ -435,7 +437,13 @@ describe('Article API', () => {
         originalUrl: 'https://blog.omnivore.app/test-with-omnivore',
         directionality: DirectionalityType.RTL,
       }
-      const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
+      const item = await createOrUpdateLibraryItem(
+        itemToCreate,
+        user.id,
+        undefined,
+        true,
+        true
+      )
       itemId = item.id
 
       // save highlights
@@ -456,7 +464,7 @@ describe('Article API', () => {
       await deleteLibraryItemById(itemId, user.id)
     })
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = getArticleQuery(slug)
     })
 
@@ -528,11 +536,11 @@ describe('Article API', () => {
   })
 
   describe('SavePage', () => {
-    let title = 'Example Title'
+    const title = 'Example Title'
     let url = 'https://blog.omnivore.app'
-    let originalContent =
+    const originalContent =
       '<html dir="rtl"><body><div>Example Content</div></body></html>'
-    let source = 'puppeteer-parse'
+    const source = 'puppeteer-parse'
 
     context('when we save a new item', () => {
       after(async () => {
@@ -581,7 +589,7 @@ describe('Article API', () => {
           searchQuery('in:inbox'),
           authToken
         ).expect(200)
-        const justSavedId = allLinks.body.data.search.edges[0].node.id
+        const justSavedId = allLinks.body.data.search.edges[0].node.id as string
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
@@ -668,7 +676,7 @@ describe('Article API', () => {
 
   describe('SaveUrl', () => {
     let query = ''
-    let url = 'https://blog.omnivore.app/new-url-1'
+    const url = 'https://blog.omnivore.app/new-url-1'
 
     before(() => {
       sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
@@ -727,8 +735,8 @@ describe('Article API', () => {
   describe('saveArticleReadingProgressResolver', () => {
     let query = ''
     let itemId = ''
-    let progress = 0.5
-    let topPercent: number | null = null
+    const progress = 0.5
+    const topPercent: number | null = null
 
     before(async () => {
       itemId = (await createTestLibraryItem(user.id)).id
@@ -882,7 +890,7 @@ describe('Article API', () => {
     })
 
     context('when the file is not uploaded', () => {
-      before(async () => {
+      before(() => {
         url = 'fake url'
         uploadFileId = generateFakeUuid()
       })
@@ -957,7 +965,7 @@ describe('Article API', () => {
       }
     })
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = searchQuery(keyword)
     })
 
@@ -1033,7 +1041,7 @@ describe('Article API', () => {
     })
 
     context('when no:label is in the query', () => {
-      before(async () => {
+      before(() => {
         keyword = `'${searchedKeyword}' no:label`
       })
 
@@ -1045,7 +1053,7 @@ describe('Article API', () => {
     })
 
     context('when no:highlight is in the query', () => {
-      before(async () => {
+      before(() => {
         keyword = `'${searchedKeyword}' no:highlight`
       })
 
@@ -1057,7 +1065,7 @@ describe('Article API', () => {
     })
 
     context('when site:${site_name} is in the query', () => {
-      before(async () => {
+      before(() => {
         keyword = `'${searchedKeyword}' site:example`
       })
 
@@ -1262,7 +1270,7 @@ describe('Article API', () => {
     })
 
     context('when wildcard search for labels', () => {
-      let items: LibraryItem[] = []
+      const items: LibraryItem[] = []
       let labelIds: string[]
 
       before(async () => {
@@ -1272,32 +1280,41 @@ describe('Article API', () => {
         const label2 = await createLabel('test/two', '', user.id)
         labelIds = [label1.id, label2.id]
 
-        items = await createLibraryItems(
-          [
-            {
-              user,
-              title: 'test title wildcard',
-              readableContent: '<p>test wildcard</p>',
-              slug: 'test slug wildcard',
-              originalUrl: `${url}/wildcard`,
-            },
-            {
-              user,
-              title: 'test title wildcard 1',
-              readableContent: '<p>test wildcard</p>',
-              slug: 'test slug wildcard 1',
-              originalUrl: `${url}/wildcard_1`,
-            },
-            {
-              user,
-              title: 'test title wildcard 2',
-              readableContent: '<p>test wildcard</p>',
-              slug: 'test slug wildcard 2',
-              originalUrl: `${url}/wildcard_2`,
-            },
-          ],
-          user.id
-        )
+        const itemsToSave = [
+          {
+            user,
+            title: 'test title wildcard',
+            readableContent: '<p>test wildcard</p>',
+            slug: 'test slug wildcard',
+            originalUrl: `${url}/wildcard`,
+          },
+          {
+            user,
+            title: 'test title wildcard 1',
+            readableContent: '<p>test wildcard</p>',
+            slug: 'test slug wildcard 1',
+            originalUrl: `${url}/wildcard_1`,
+          },
+          {
+            user,
+            title: 'test title wildcard 2',
+            readableContent: '<p>test wildcard</p>',
+            slug: 'test slug wildcard 2',
+            originalUrl: `${url}/wildcard_2`,
+          },
+        ]
+
+        for (const item of itemsToSave) {
+          const savedItem = await createOrUpdateLibraryItem(
+            item,
+            user.id,
+            undefined,
+            true,
+            true
+          )
+          items.push(savedItem)
+        }
+
         await saveLabelsInLibraryItem([label1], items[0].id, user.id)
         await saveLabelsInLibraryItem([label2], items[1].id, user.id)
       })
@@ -1311,8 +1328,8 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
-        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[0].id)
       })
     })
 
@@ -1976,7 +1993,7 @@ describe('Article API', () => {
     const items: LibraryItem[] = []
 
     let query = ''
-    let keyword = 'typeahead'
+    const keyword = 'typeahead'
 
     before(async () => {
       // Create some test items
@@ -1993,7 +2010,7 @@ describe('Article API', () => {
       }
     })
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = typeaheadSearchQuery(keyword)
     })
 
@@ -2049,8 +2066,8 @@ describe('Article API', () => {
       }
     `
     let since: string
-    let items: LibraryItem[] = []
-    let deletedItems: LibraryItem[] = []
+    const items: LibraryItem[] = []
+    const deletedItems: LibraryItem[] = []
 
     before(async () => {
       // Create some test items
@@ -2089,7 +2106,7 @@ describe('Article API', () => {
       ).expect(200)
 
       expect(
-        res.body.data.updatesSince.edges.filter(
+        (res.body.data.updatesSince.edges as SyncUpdatedItemEdge[]).filter(
           (e: SyncUpdatedItemEdge) => e.updateReason === UpdateReason.Deleted
         ).length
       ).to.eql(3)
@@ -2263,7 +2280,7 @@ describe('Article API', () => {
     )
 
     context('when action is Delete and query contains item id', () => {
-      let items: LibraryItem[] = []
+      const items: LibraryItem[] = []
 
       before(async () => {
         // Create some test items
@@ -2367,7 +2384,7 @@ describe('Article API', () => {
         }
       }`
 
-    let items: LibraryItem[] = []
+    const items: LibraryItem[] = []
 
     before(async () => {
       // Create some test items

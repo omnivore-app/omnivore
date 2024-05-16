@@ -5,6 +5,7 @@ import {
   MutationSetUserPersonalizationArgs,
   SetUserPersonalizationError,
   SetUserPersonalizationErrorCode,
+  SetUserPersonalizationInput,
   SetUserPersonalizationSuccess,
   SortOrder,
 } from '../../generated/graphql'
@@ -15,11 +16,15 @@ export const setUserPersonalizationResolver = authorized<
   SetUserPersonalizationError,
   MutationSetUserPersonalizationArgs
 >(async (_, { input }, { authTrx, uid }) => {
+  const newValues = input as Omit<SetUserPersonalizationInput, 'digestConfig'>
   const result = await authTrx(async (t) => {
     return t.getRepository(UserPersonalization).upsert(
       {
         user: { id: uid },
-        ...input,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        digestConfig: input.digestConfig as any,
+        ...newValues,
       },
       ['user']
     )

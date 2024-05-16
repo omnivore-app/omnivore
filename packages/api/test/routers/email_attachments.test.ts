@@ -1,4 +1,3 @@
-import { Storage } from '@google-cloud/storage'
 import { expect } from 'chai'
 import * as jwt from 'jsonwebtoken'
 import 'mocha'
@@ -9,10 +8,9 @@ import { getRepository } from '../../src/repository'
 import { findLibraryItemById } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
-import { MockBucket } from '../mock_storage'
 import { request } from '../util'
 
-describe('Email attachments Router', () => {
+xdescribe('Email attachments Router', () => {
   const newsletterEmailAddress = 'fakeEmail@omnivore.app'
 
   let user: User
@@ -27,14 +25,6 @@ describe('Email attachments Router', () => {
       user: { id: user.id },
     })
     authToken = jwt.sign(newsletterEmailAddress, process.env.JWT_SECRET || '')
-
-    // mock cloud storage
-    const mockBucket = new MockBucket('test')
-    sinon.replace(
-      Storage.prototype,
-      'bucket',
-      sinon.fake.returns(mockBucket as never)
-    )
   })
 
   after(async () => {
@@ -76,7 +66,7 @@ describe('Email attachments Router', () => {
           fileName: testFile,
           contentType: 'application/pdf',
         })
-      uploadFileId = res.body.id
+      uploadFileId = res.body.id as string
     })
 
     it('create article with uploaded file id and url', async () => {

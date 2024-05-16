@@ -49,7 +49,7 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
-  @AppStorage("LibraryTabView::digestHidden") var digestHidden = false
+  @AppStorage("LibraryTabView::hideDigestIcon") var hideDigestIcon = false
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = 
@@ -403,7 +403,8 @@ enum LoadingBarStyle {
 
   func checkForDigestUpdate(dataService: DataService) async {
     do {
-      if dataService.featureFlags.digestEnabled, let result = try? await dataService.getLatestDigest(timeoutInterval: 2) {
+      if dataService.featureFlags.digestEnabled, 
+          let result = try? await dataService.getLatestDigest(timeoutInterval: 2) {
         if result.id != lastVisitedDigestId {
           digestIsUnread = true
         }

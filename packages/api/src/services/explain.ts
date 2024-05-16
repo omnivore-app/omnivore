@@ -3,6 +3,7 @@ import { PromptTemplate } from '@langchain/core/prompts'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { htmlToMarkdown } from '../utils/parser'
+import { OPENAI_MODEL } from '../utils/ai'
 
 export const explainText = async (
   userId: string,
@@ -10,7 +11,7 @@ export const explainText = async (
   libraryItemId: string
 ): Promise<string> => {
   const llm = new OpenAI({
-    modelName: 'gpt-4-0125-preview',
+    modelName: OPENAI_MODEL,
     configuration: {
       apiKey: process.env.OPENAI_API_KEY,
     },

@@ -38,6 +38,7 @@ func formatTimeInterval(_ time: TimeInterval) -> String? {
 @MainActor
 public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
+  @Published var hasError = false
   @Published var digest: DigestResult?
   @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
   @Published var presentedLibraryItem: String?
@@ -46,6 +47,9 @@ public class FullScreenDigestViewModel: ObservableObject {
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func load(dataService: DataService, audioController: AudioController) async {
+    hasError = false
+    isLoading = true
+
     if !dataService.digestNeedsRefresh() {
       if let digest = dataService.loadStoredDigest() {
         self.digest = digest
@@ -72,6 +76,8 @@ public class FullScreenDigestViewModel: ObservableObject {
         let chapterData = self.chapterInfo?.map { $0.1 }
         audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapterData ?? []))
       }
+    } else {
+      hasError = true
     }
 
     isLoading = false
@@ -162,6 +168,19 @@ struct FullScreenDigestView: View {
           VStack {
             Spacer()
             ProgressView()
+            Spacer()
+          }
+        } else if viewModel.hasError {
+          VStack {
+            Spacer()
+            Text("There was an error loading your digest.")
+            Button(action: {
+              Task {
+                await viewModel.load(dataService: dataService, audioController: audioController)
+              }
+            }, label: { Text("Try again") })
+              .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
+            
             Spacer()
           }
         } else {

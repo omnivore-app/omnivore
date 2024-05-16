@@ -5,6 +5,7 @@ import axios from 'axios'
 import { ContentReaderType } from '../entity/library_item'
 import { env } from '../env'
 import { PageType } from '../generated/graphql'
+import { ContentFormat } from '../jobs/upload_content'
 import { logger } from './logger'
 
 export const contentReaderForLibraryItem = (
@@ -30,7 +31,7 @@ export const contentReaderForLibraryItem = (
  * the default app engine service account on the IAM page. We also need to
  * enable IAM related APIs on the project.
  */
-const storage = env.fileUpload?.gcsUploadSAKeyFilePath
+export const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
   : new Storage()
 const bucketName = env.fileUpload.gcsUploadBucket
@@ -152,4 +153,35 @@ export const uploadToSignedUrl = async (
 export const isFileExists = async (filePath: string): Promise<boolean> => {
   const [exists] = await storage.bucket(bucketName).file(filePath).exists()
   return exists
+}
+
+export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
+  const file = storage.bucket(bucketName).file(filePath)
+
+  // Download the file contents
+  const [data] = await file.download()
+  return data
+}
+
+export const contentFilePath = ({
+  userId,
+  libraryItemId,
+  format,
+  savedAt,
+  updatedAt,
+}: {
+  userId: string
+  libraryItemId: string
+  format: ContentFormat
+  savedAt?: Date
+  updatedAt?: Date
+}) => {
+  // Use updatedAt for highlightedMarkdown format because highlights are saved
+  const date = format === 'highlightedMarkdown' ? updatedAt : savedAt
+
+  if (!date) {
+    throw new Error('Date not found')
+  }
+
+  return `content/${userId}/${libraryItemId}.${date.getTime()}.${format}`
 }

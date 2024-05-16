@@ -25,7 +25,6 @@ export const saveContentDisplayReport = async (
   const report = await getRepository(ContentDisplayReport).save({
     user: { id: uid },
     content: item.readableContent,
-    originalHtml: item.originalContent || undefined,
     originalUrl: item.originalUrl,
     reportComment: input.reportComment,
     libraryItemId: item.id,

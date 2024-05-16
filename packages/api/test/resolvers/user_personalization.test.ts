@@ -102,6 +102,43 @@ describe('User Personalization API', () => {
         )
         expect(updatedUserPersonalization?.fields).to.eql(newFields)
       })
+
+      it('updates and can clear the user personalization', async () => {
+        const newFields = {
+          channels: ['push', 'email'],
+        }
+
+        const res = await graphqlRequest(query, authToken, {
+          input: { fields: newFields },
+        }).expect(200)
+
+        expect(
+          res.body.data.setUserPersonalization.updatedUserPersonalization.fields
+        ).to.eql(newFields)
+
+        const updatedUserPersonalization = await findUserPersonalization(
+          user.id
+        )
+        expect(updatedUserPersonalization?.fields).to.eql(newFields)
+
+        const updatedFields = {
+          channels: ['push', 'email'],
+        }
+
+        const updatedRes = await graphqlRequest(query, authToken, {
+          input: { fields: updatedFields },
+        }).expect(200)
+
+        expect(
+          updatedRes.body.data.setUserPersonalization.updatedUserPersonalization
+            .fields
+        ).to.eql(updatedFields)
+
+        const updatedUserPersonalization2 = await findUserPersonalization(
+          user.id
+        )
+        expect(updatedUserPersonalization2?.fields).to.eql(newFields)
+      })
     })
   })
 

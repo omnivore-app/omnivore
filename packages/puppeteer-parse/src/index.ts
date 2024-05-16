@@ -460,7 +460,7 @@ async function retrievePage(
     logRecord.finalUrl = finalUrl
     logRecord.contentType = contentType
 
-    return { context, page, response, finalUrl, contentType }
+    return { context, page, finalUrl, contentType }
   } catch (error) {
     if (lastPdfUrl) {
       return {

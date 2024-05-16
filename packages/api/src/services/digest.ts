@@ -10,6 +10,7 @@ export interface Chapter {
   wordCount: number
   thumbnail?: string
   html: string
+  author?: string
 }
 
 export interface Digest {

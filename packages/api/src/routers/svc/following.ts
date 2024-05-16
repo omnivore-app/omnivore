@@ -9,7 +9,7 @@ import { createAndSaveLabelsInLibraryItem } from '../../services/labels'
 import { createOrUpdateLibraryItem } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import { cleanUrl, generateSlug } from '../../utils/helpers'
-import { createThumbnailUrl } from '../../utils/imageproxy'
+import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
 import {
   ParsedContentPuppeteer,
@@ -72,7 +72,7 @@ export function followingServiceRouter() {
 
       const feedUrl = req.body.addedToFollowingBy
       const thumbnail =
-        req.body.thumbnail && createThumbnailUrl(req.body.thumbnail)
+        req.body.thumbnail && createThumbnailProxyUrl(req.body.thumbnail)
       const url = cleanUrl(req.body.url)
 
       const preparedDocument: PreparedDocumentInput = {
@@ -112,7 +112,6 @@ export function followingServiceRouter() {
         userId,
         slug,
         croppedPathname,
-        originalHtml: req.body.feedContent,
         itemType: parsedResult?.pageType || PageType.Unknown,
         canonicalUrl: url,
         folder: FOLDER,

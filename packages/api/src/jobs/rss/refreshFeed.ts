@@ -2,6 +2,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
+import { v4 as uuid } from 'uuid'
 import { FetchContentType } from '../../entity/subscription'
 import { env } from '../../env'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
@@ -15,7 +16,7 @@ import {
 import { findActiveUser } from '../../services/user'
 import createHttpTaskWithToken from '../../utils/createTask'
 import { cleanUrl } from '../../utils/helpers'
-import { createThumbnailUrl } from '../../utils/imageproxy'
+import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
 import { RSSRefreshContext } from './refreshAllFeeds'
 
@@ -72,13 +73,14 @@ export type RssFeedItem = Item & {
   link: string
 }
 
-interface User {
+interface UserConfig {
   id: string
   folder: FolderType
+  libraryItemId: string
 }
 
 interface FetchContentTask {
-  users: Map<string, User> // userId -> User
+  users: Map<string, UserConfig> // userId -> User
   item: RssFeedItem
 }
 
@@ -160,8 +162,12 @@ const getThumbnail = (item: RssFeedItem) => {
     return item['media:thumbnail'].$.url
   }
 
-  return item['media:content']?.find((media) => media.$.medium === 'image')?.$
-    .url
+  if (item['media:content']) {
+    return item['media:content'].find((media) => media.$?.medium === 'image')?.$
+      .url
+  }
+
+  return undefined
 }
 
 export const fetchAndChecksum = async (url: string) => {
@@ -276,13 +282,16 @@ const addFetchContentTask = (
 ) => {
   const url = item.link
   const task = fetchContentTasks.get(url)
+  const libraryItemId = uuid()
+  const userConfig = { id: userId, folder, libraryItemId }
+
   if (!task) {
     fetchContentTasks.set(url, {
-      users: new Map([[userId, { id: userId, folder }]]),
+      users: new Map([[userId, userConfig]]),
       item,
     })
   } else {
-    task.users.set(userId, { id: userId, folder })
+    task.users.set(userId, userConfig)
   }
 
   return true
@@ -315,7 +324,7 @@ const createTask = async (
 }
 
 const fetchContentAndCreateItem = async (
-  users: User[],
+  users: UserConfig[],
   feedUrl: string,
   item: RssFeedItem
 ) => {
@@ -323,7 +332,6 @@ const fetchContentAndCreateItem = async (
     users,
     source: 'rss-feeder',
     url: item.link.trim(),
-    saveRequestId: '',
     labels: [{ name: 'RSS' }],
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
@@ -359,7 +367,7 @@ const createItemWithFeedContent = async (
     })
 
     const thumbnail = getThumbnail(item)
-    const previewImage = thumbnail && createThumbnailUrl(thumbnail)
+    const previewImage = thumbnail && createThumbnailProxyUrl(thumbnail)
     const url = cleanUrl(item.link)
 
     const user = await findActiveUser(userId)

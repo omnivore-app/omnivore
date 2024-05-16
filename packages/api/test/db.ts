@@ -120,7 +120,13 @@ export const createTestLibraryItem = async (
     slug: 'test-with-omnivore',
   }
 
-  const createdItem = await createOrUpdateLibraryItem(item, userId)
+  const createdItem = await createOrUpdateLibraryItem(
+    item,
+    userId,
+    undefined,
+    true,
+    true
+  )
   if (labels) {
     await saveLabelsInLibraryItem(labels, createdItem.id, userId)
   }
