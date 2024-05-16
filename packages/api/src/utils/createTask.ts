@@ -970,6 +970,9 @@ export const enqueueBulkUploadContentJob = async (
     name: UPLOAD_CONTENT_JOB,
     data: d,
     opts: {
+      jobId: `${UPLOAD_CONTENT_JOB}_${d.filePath}_${JOB_VERSION}`, // dedupe by job id
+      removeOnComplete: true,
+      removeOnFail: true,
       attempts: 3,
       priority: getJobPriority(UPLOAD_CONTENT_JOB),
     },

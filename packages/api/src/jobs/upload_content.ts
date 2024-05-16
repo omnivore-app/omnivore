@@ -2,11 +2,15 @@ import { Highlight } from '../entity/highlight'
 import { findLibraryItemById } from '../services/library_item'
 import { logger } from '../utils/logger'
 import { htmlToHighlightedMarkdown, htmlToMarkdown } from '../utils/parser'
-import { uploadToBucket } from '../utils/uploads'
+import { isFileExists, uploadToBucket } from '../utils/uploads'
 
 export const UPLOAD_CONTENT_JOB = 'UPLOAD_CONTENT_JOB'
 
-export type ContentFormat = 'markdown' | 'highlightedMarkdown' | 'original'
+export type ContentFormat =
+  | 'markdown'
+  | 'highlightedMarkdown'
+  | 'original'
+  | 'readable'
 
 export interface UploadContentJobData {
   libraryItemId: string
@@ -26,6 +30,7 @@ const convertContent = (
     case 'highlightedMarkdown':
       return htmlToHighlightedMarkdown(content, highlights)
     case 'original':
+    case 'readable':
       return content
     default:
       throw new Error('Unsupported format')
@@ -36,6 +41,7 @@ const CONTENT_TYPES = {
   markdown: 'text/markdown',
   highlightedMarkdown: 'text/markdown',
   original: 'text/html',
+  readable: 'text/html',
 }
 
 const getSelectOptions = (
@@ -43,6 +49,7 @@ const getSelectOptions = (
 ): { column: 'readableContent' | 'originalContent'; highlights?: boolean } => {
   switch (format) {
     case 'markdown':
+    case 'readable':
       return {
         column: 'readableContent',
       }
@@ -73,31 +80,40 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
     },
   })
   if (!libraryItem) {
-    logger.error('Library item not found', data)
+    logger.error(`Library item not found: ${libraryItemId}`)
     throw new Error('Library item not found')
   }
 
   const content = libraryItem[column]
 
   if (!content) {
-    logger.error(`${column} not found`, data)
+    logger.error(`${column} not found`)
     throw new Error('Content not found')
   }
 
-  logger.info('Converting content', data)
+  logger.info('Converting content')
   const convertedContent = convertContent(
     content,
     format,
     libraryItem.highlights
   )
 
-  console.time('uploadToBucket')
-  logger.info('Uploading content', data)
+  const exists = await isFileExists(filePath)
+  if (exists) {
+    logger.info(`File already exists: ${filePath}`)
+    return
+  }
+
+  logger.info(`Uploading content: ${filePath}`)
+  logger.profile('Uploader')
+
   await uploadToBucket(filePath, Buffer.from(convertedContent), {
     contentType: CONTENT_TYPES[format],
-    timeout: 60000, // 1 minute
+    timeout: 10_000, // 10 seconds
   })
-  console.timeEnd('uploadToBucket')
 
-  logger.info('Content uploaded', data)
+  logger.profile('Uploader', {
+    level: 'info',
+    message: 'Content uploaded',
+  })
 }

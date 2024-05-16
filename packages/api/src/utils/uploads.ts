@@ -163,9 +163,25 @@ export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
   return data
 }
 
-export const contentFilePath = (
-  userId: string,
-  libraryItemId: string,
-  timestamp: number,
+export const contentFilePath = ({
+  userId,
+  libraryItemId,
+  format,
+  savedAt,
+  updatedAt,
+}: {
+  userId: string
+  libraryItemId: string
   format: ContentFormat
-) => `content/${userId}/${libraryItemId}.${timestamp}.${format}`
+  savedAt?: Date
+  updatedAt?: Date
+}) => {
+  // Use updatedAt for highlightedMarkdown format because highlights are saved
+  const date = format === 'highlightedMarkdown' ? updatedAt : savedAt
+
+  if (!date) {
+    throw new Error('Date not found')
+  }
+
+  return `content/${userId}/${libraryItemId}.${date.getTime()}.${format}`
+}

@@ -186,12 +186,12 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     }
 
     // download the original content
-    const filePath = contentFilePath(
+    const filePath = contentFilePath({
       userId,
-      articleSavingRequestId,
-      new Date(savedAt).getTime(),
-      'original'
-    )
+      libraryItemId: articleSavingRequestId,
+      format: 'original',
+      savedAt: new Date(savedAt),
+    })
     const exists = await isFileExists(filePath)
     if (!exists) {
       logger.error('Original content file does not exist', {

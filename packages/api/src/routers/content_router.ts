@@ -72,14 +72,13 @@ export function contentRouter() {
     // generate signed url for each library item
     const data = await Promise.all(
       libraryItems.map(async (libraryItem) => {
-        const date =
-          format === 'original' ? libraryItem.savedAt : libraryItem.updatedAt
-        const filePath = contentFilePath(
+        const filePath = contentFilePath({
           userId,
-          libraryItem.id,
-          date.getTime(),
-          format
-        )
+          libraryItemId: libraryItem.id,
+          format,
+          savedAt: libraryItem.savedAt,
+          updatedAt: libraryItem.updatedAt,
+        })
 
         try {
           const downloadUrl = await generateDownloadSignedUrl(filePath, {
@@ -89,7 +88,7 @@ export function contentRouter() {
           // check if file is already uploaded
           const exists = await isFileExists(filePath)
           if (exists) {
-            logger.info('File already exists', filePath)
+            logger.info(`File already exists: ${filePath}`)
           }
 
           return {
@@ -109,7 +108,10 @@ export function contentRouter() {
         }
       })
     )
-    logger.info('Signed urls generated', data)
+    logger.info(
+      'Signed urls generated',
+      data.map((d) => d.downloadUrl)
+    )
 
     // skip uploading if there is an error or file already exists
     const uploadData = data.filter(
@@ -117,8 +119,8 @@ export function contentRouter() {
     ) as UploadContentJobData[]
 
     if (uploadData.length > 0) {
-      await enqueueBulkUploadContentJob(uploadData)
-      logger.info('Bulk upload content job enqueued', uploadData)
+      const jobs = await enqueueBulkUploadContentJob(uploadData)
+      logger.info('Bulk upload content job enqueued', jobs)
     }
 
     res.send({
