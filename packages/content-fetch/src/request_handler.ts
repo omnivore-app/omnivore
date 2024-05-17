@@ -49,6 +49,13 @@ interface LogRecord {
   totalTime?: number
 }
 
+interface FetchResult {
+  finalUrl: string
+  title?: string
+  content?: string
+  contentType?: string
+}
+
 const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
   ? new Storage({ keyFilename: process.env.GCS_UPLOAD_SA_KEY_FILE_PATH })
   : new Storage()
@@ -80,22 +87,37 @@ const uploadOriginalContent = async (
 const cacheKey = (url: string, locale = '', timezone = '') =>
   `fetch-result:${url}:${locale}:${timezone}`
 
-export const cacheContent = async (key: string, content: string) => {
-  // cache the fetch result for 24 hours
-  const ttl = 24 * 60 * 60
-  return redisDataSource.cacheClient.set(key, content, 'EX', ttl, 'NX')
+const isFetchResult = (obj: unknown): obj is FetchResult => {
+  return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
 }
 
-const getCachedContent = async (key: string): Promise<string | null> => {
-  const content = await redisDataSource.cacheClient.get(key)
-  if (!content) {
+export const cacheFetchResult = async (
+  key: string,
+  fetchResult: FetchResult
+) => {
+  // cache the fetch result for 24 hours
+  const ttl = 24 * 60 * 60
+  const value = JSON.stringify(fetchResult)
+  return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
+}
+
+const getCachedFetchResult = async (
+  key: string
+): Promise<FetchResult | null> => {
+  const result = await redisDataSource.cacheClient.get(key)
+  if (!result) {
     console.info('fetch result is not cached', key)
     return null
   }
 
-  console.info('content is cached', key)
+  const fetchResult = JSON.parse(result) as unknown
+  if (!isFetchResult(fetchResult)) {
+    throw new Error('fetch result is not valid')
+  }
 
-  return content
+  console.info('fetch result is cached', key)
+
+  return fetchResult
 }
 
 export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
@@ -149,31 +171,25 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   console.log(`Article parsing request`, logRecord)
 
   try {
-    let finalUrl: string,
-      title: string | undefined,
-      contentType: string | undefined
-
     const key = cacheKey(url, locale, timezone)
-    let content = await getCachedContent(key)
-    if (!content) {
-      console.log('content not found in cache, fetching content now...', url)
+    let fetchResult = await getCachedFetchResult(key)
+    if (!fetchResult) {
+      console.log(
+        'fetch result not found in cache, fetching content now...',
+        url
+      )
 
-      const fetchResult = await fetchContent(url, locale, timezone)
+      fetchResult = await fetchContent(url, locale, timezone)
       console.log('content has been fetched')
 
       if (fetchResult.content) {
-        content = fetchResult.content
-        const cacheResult = await cacheContent(key, content)
-
+        const cacheResult = await cacheFetchResult(key, fetchResult)
         console.log('cache result', cacheResult)
       }
-
-      finalUrl = fetchResult.finalUrl
-      title = fetchResult.title
-      contentType = fetchResult.contentType
     }
 
     const savedDate = savedAt ? new Date(savedAt) : new Date()
+    const { finalUrl, title, content, contentType } = fetchResult
     if (content) {
       await uploadOriginalContent(users, content, savedDate.getTime())
     }

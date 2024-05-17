@@ -47,16 +47,33 @@ interface Data {
   cacheKey?: string
 }
 
-const getCachedContent = async (key: string): Promise<string | null> => {
+interface FetchResult {
+  finalUrl: string
+  title?: string
+  content?: string
+  contentType?: string
+}
+
+const isFetchResult = (obj: unknown): obj is FetchResult => {
+  return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
+}
+
+const getCachedContent = async (key: string): Promise<string | undefined> => {
   const result = await redisDataSource.redisClient?.get(key)
   if (!result) {
     logger.info('fetch result is not cached', { key })
-    return null
+    return undefined
   }
 
-  logger.info('content is cached', { key })
+  const fetchResult = JSON.parse(result) as unknown
+  if (!isFetchResult(fetchResult)) {
+    logger.error('invalid fetch result in cache', { key })
+    return undefined
+  }
 
-  return result
+  logger.info('fetch result is cached', { key })
+
+  return fetchResult.content
 }
 
 const uploadPdf = async (
@@ -208,13 +225,18 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       })
       content = await getCachedContent(cacheKey)
 
-      logger.info('fetched content from cache')
+      if (content) {
+        logger.info('fetched content from cache')
+      }
     }
 
     if (!content) {
-      logger.info('downloading content from GCS', {
-        url,
-      })
+      logger.info(
+        'content not found from cache, downloading content from GCS',
+        {
+          url,
+        }
+      )
 
       // download the original content
       const filePath = contentFilePath({
