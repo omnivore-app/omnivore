@@ -627,6 +627,8 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
       logRecord.puppeteerSuccess = false
       logRecord.puppeteerError = e
     }
+
+    throw e
   }
   if (domContent === 'IS_BLOCKED') {
     return { isBlocked: true }

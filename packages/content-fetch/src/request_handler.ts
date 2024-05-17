@@ -241,6 +241,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
           url,
           source,
           totalTime: logRecord.totalTime,
+          errorMessage: logRecord.error,
         },
       }
     )
