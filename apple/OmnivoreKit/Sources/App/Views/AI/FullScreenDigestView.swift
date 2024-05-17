@@ -12,17 +12,19 @@ func getChapterData(digest: DigestResult) -> [(DigestChapter, DigestChapterData)
   var currentAudioIndex = 0
   var currentWordCount = 0.0
 
-  for (index, speechFile) in digest.speechFiles.enumerated() {
-    let chapter = digest.chapters[index]
+  for (index, speechFile) in (digest.speechFiles ?? []).enumerated() {
+    let chapter = digest.chapters?[index]
     let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
 
-    chapterData.append((chapter, DigestChapterData(
-      time: formatTimeInterval(duration) ?? "00:00",
-      start: Int(currentAudioIndex),
-      end: currentAudioIndex + Int(speechFile.utterances.count)
-    )))
-    currentAudioIndex += Int(speechFile.utterances.count)
-    currentWordCount += chapter.wordCount
+    if let chapter = chapter {
+      chapterData.append((chapter, DigestChapterData(
+        time: formatTimeInterval(duration) ?? "00:00",
+        start: Int(currentAudioIndex),
+        end: currentAudioIndex + Int(speechFile.utterances.count)
+      )))
+      currentAudioIndex += Int(speechFile.utterances.count)
+      currentWordCount += chapter.wordCount
+    }
   }
   return chapterData
 }
@@ -39,6 +41,7 @@ func formatTimeInterval(_ time: TimeInterval) -> String? {
 public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var hasError = false
+  @Published var isRunning = false
   @Published var digest: DigestResult?
   @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
   @Published var presentedLibraryItem: String?
@@ -49,6 +52,7 @@ public class FullScreenDigestViewModel: ObservableObject {
   func load(dataService: DataService, audioController: AudioController) async {
     hasError = false
     isLoading = true
+    isRunning = false
 
     if !dataService.digestNeedsRefresh() {
       if let digest = dataService.loadStoredDigest() {
@@ -69,6 +73,8 @@ public class FullScreenDigestViewModel: ObservableObject {
       self.digest = digest
       self.chapterInfo = getChapterData(digest: digest)
       self.lastVisitedDigestId = digest.id
+      self.isRunning = digest.jobState == "RUNNING" || digest.jobState == "PENDING"
+      self.hasError = digest.jobState == "FAILED"
 
       if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
         // Don't think we need to do anything here
@@ -179,10 +185,11 @@ struct FullScreenDigestView: View {
                 await viewModel.load(dataService: dataService, audioController: audioController)
               }
             }, label: { Text("Try again") })
-              .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
-            
+            .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
             Spacer()
           }
+        } else if viewModel.isRunning {
+          jobRunningText
         } else {
           itemBody
         }
@@ -192,6 +199,19 @@ struct FullScreenDigestView: View {
      }.task {
        await viewModel.load(dataService: dataService, audioController: audioController)
      }
+  }
+  
+  var jobRunningText: some View {
+    VStack {
+      Spacer()
+      Text("""
+         You've been added to the AI Digest demo. Your first issue should be ready soon.
+         When a new digest is ready the icon in the library header will change color.
+         You can close this window now.
+         """)
+      .padding(20)
+      Spacer()
+    }
   }
 
   var closeButton: some View {
@@ -219,7 +239,7 @@ struct FullScreenDigestView: View {
             Spacer()
           }
           if let digest = viewModel.digest {
-            Text(digest.title)
+            Text(digest.title ?? "")
               .font(Font.system(size: 17, weight: .semibold))
               .lineSpacing(5)
               .lineLimit(3)
@@ -252,7 +272,8 @@ struct FullScreenDigestView: View {
               ChapterView(
                 startTime: chapterData.time,
                 skipIndex: chapterData.start,
-                chapter: chapter
+                chapter: chapter,
+                isCurrentChapter: currentChapter
               )
               .onTapGesture {
                 audioController.seek(toIdx: chapterData.start)
@@ -264,8 +285,9 @@ struct FullScreenDigestView: View {
                 viewModel.presentedLibraryItem = chapter.id
                 viewModel.presentWebContainer = true
               }
+              .contentShape(Rectangle())
               .background(
-                currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
+                currentChapter ? Color.blue.opacity(0.2) : Color.clear
               )
               .cornerRadius(5)
             }
@@ -273,19 +295,18 @@ struct FullScreenDigestView: View {
           .padding(.top, 20)
         }
 
-        if let digest = viewModel.digest {
+        if let digest = viewModel.digest, let content = digest.content {
           Text("Transcript")
             .font(Font.system(size: 17, weight: .semibold))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 20)
 
           VStack {
-            Markdown(digest.content)
+            Markdown(content)
               .foregroundColor(Color.appGrayTextContrast)
           }
           .padding(15)
           .background(Color.themeLabelBackground.opacity(0.6))
-          .cornerRadius(5)
         }
 
         Spacer(minLength: 60)
@@ -300,27 +321,6 @@ struct FullScreenDigestView: View {
           RatingWidget()
           Spacer(minLength: 60)
         }
-//        
-//        VStack(alignment: .leading, spacing: 20) {
-//          Text("If you didn't like today's digest or would like another one you can create another one. The process takes a few minutes")
-//          Button(action: {
-//            Task {
-//              await viewModel.refreshDigest(dataService: dataService)
-//            }
-//          }, label: {
-//            Text("Create new digest")
-//              .font(Font.system(size: 13, weight: .medium))
-//              .padding(.horizontal, 8)
-//              .padding(.vertical, 5)
-//              .tint(Color.blue)
-//              .background(Color.themeLabelBackground)
-//              .cornerRadius(5)
-//          })
-//        }
-//        .padding(15)
-//        .background(Color.themeLabelBackground.opacity(0.6))
-//        .cornerRadius(5)
-//
       }.contentMargins(10, for: .scrollContent)
 
       Spacer()
@@ -340,41 +340,70 @@ struct ChapterView: View {
   let startTime: String
   let skipIndex: Int
   let chapter: DigestChapter
+  let isCurrentChapter: Bool
 
   var body: some View {
-    HStack(spacing: 15) {
+    HStack {
+      VStack(spacing: 5) {
+        HStack {
+          Text(startTime)
+            .padding(4)
+            .padding(.horizontal, 4)
+            .foregroundColor(.blue)
+            .font(Font.system(size: 13))
+            .background(Color.themeLabelBackground.opacity(0.6))
+            .cornerRadius(5)
+
+          if let author = chapter.author {
+            Text(author)
+              .font(Font.system(size: 14))
+              .foregroundColor(Color.themeLibraryItemSubtle)
+              .lineLimit(1)
+              .padding(.trailing, 10)
+          }
+
+          Spacer()
+        }
+        Text(chapter.title)
+          .foregroundColor(isCurrentChapter ? .primary :Color.themeLibraryItemSubtle.opacity(0.60))
+          .font(Font.system(size: 14))
+          .lineLimit(4)
+          .frame(maxWidth: .infinity, alignment: .topLeading)
+      }
+      .padding(.leading, 10)
+      Spacer()
       if let thumbnail = chapter.thumbnail, let thumbnailURL = URL(string: thumbnail) {
         AsyncImage(url: thumbnailURL) { image in
           image
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: 90, height: 50)
+            .frame(width: 65, height: 65)
+            .cornerRadius(5)
             .clipped()
-        } placeholder: {
-          Rectangle()
-            .foregroundColor(.gray)
-            .frame(width: 90, height: 50)
-        }
-        .cornerRadius(8)
-      } else {
-        Rectangle()
-          .foregroundColor(.gray)
-          .frame(width: 90, height: 50)
-          .cornerRadius(8)
-      }
-      VStack(alignment: .leading) {
-        (Text(startTime)
-          .foregroundColor(.blue)
-          .font(.caption)
+            .padding(.trailing, 10)
 
-                +
-        Text(" - " + chapter.title)
-          .foregroundColor(.primary)
-          .font(.caption))
-        .lineLimit(2)
+        } placeholder: {
+            Rectangle()
+              .foregroundColor(.clear)
+              .frame(width: 65, height: 65)
+              .cornerRadius(5)
+              .padding(.trailing, 10)
+        }
+      } else {
+        ZStack {
+          Rectangle()
+            .foregroundColor(.thLibrarySeparator)
+            .frame(width: 65, height: 65)
+            .cornerRadius(5)
+          Image(systemName: "photo")
+            .foregroundColor(.thBorderColor)
+            .frame(width: 65, height: 65)
+            .cornerRadius(5)
+        }
+        .padding(.trailing, 10)
       }
-      Spacer()
     }
+    .frame(maxWidth: .infinity, alignment: .topLeading)
     .padding(.leading, 4)
     .padding(.vertical, 15)
   }
@@ -424,8 +453,6 @@ struct PreviewItemView: View {
         }
         .padding(.top, 10)
         Text(viewModel.item.title)
-          // .font(.body)
-          // .fontWeight(.semibold)
           .font(Font.system(size: 18, weight: .semibold))
           .frame(maxWidth: .infinity, alignment: .topLeading)
 

@@ -18,7 +18,7 @@ enum FlairLabels: String {
     case .recommended: return Image.flairRecommended
     case .newsletter: return Image.flairNewsletter
     case .feed, .rss: return Image.flairFeed
-    case .digest: return Image.tabDigestSelected
+    case .digest: return Image.flairDigest
     }
   }
 
