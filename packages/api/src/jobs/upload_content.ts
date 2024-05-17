@@ -17,6 +17,7 @@ export interface UploadContentJobData {
   userId: string
   format: ContentFormat
   filePath: string
+  content?: string
 }
 
 const convertContent = (
@@ -84,7 +85,7 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
     throw new Error('Library item not found')
   }
 
-  const content = libraryItem[column]
+  const content = data.content || libraryItem[column]
 
   if (!content) {
     logger.error(`${column} not found`)
