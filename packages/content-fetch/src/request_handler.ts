@@ -178,6 +178,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         result: logRecord.error ? 'failure' : 'success',
         properties: {
           url,
+          source,
           totalTime: logRecord.totalTime,
         },
       }
