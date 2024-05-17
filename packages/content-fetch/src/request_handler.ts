@@ -84,31 +84,29 @@ const uploadOriginalContent = async (
   )
 }
 
-const cacheKey = (url: string) => `fetch-result:${url}`
+const cacheKey = (url: string, locale = '', timezone = '') =>
+  `fetch-result:${url}:${locale}:${timezone}`
 
 const isFetchResult = (obj: unknown): obj is FetchResult => {
   return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
 }
 
 export const cacheFetchResult = async (
-  url: string,
+  key: string,
   fetchResult: FetchResult
 ) => {
   // cache the fetch result for 24 hours
   const ttl = 24 * 60 * 60
-  const key = cacheKey(url)
   const value = JSON.stringify(fetchResult)
   return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
 }
 
 const getCachedFetchResult = async (
-  url: string
+  key: string
 ): Promise<FetchResult | null> => {
-  const key = cacheKey(url)
-
   const result = await redisDataSource.cacheClient.get(key)
   if (!result) {
-    console.info('fetch result is not cached', url)
+    console.info('fetch result is not cached', key)
     return null
   }
 
@@ -117,7 +115,7 @@ const getCachedFetchResult = async (
     throw new Error('fetch result is not valid')
   }
 
-  console.info('fetch result is cached', url)
+  console.info('fetch result is cached', key)
 
   return fetchResult
 }
@@ -173,7 +171,8 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   console.log(`Article parsing request`, logRecord)
 
   try {
-    let fetchResult = await getCachedFetchResult(url)
+    const key = cacheKey(url, locale, timezone)
+    let fetchResult = await getCachedFetchResult(key)
     if (!fetchResult) {
       console.log(
         'fetch result not found in cache, fetching content now...',
