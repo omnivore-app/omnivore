@@ -103,16 +103,17 @@ export const cacheFetchResult = async (
 
 const getCachedFetchResult = async (
   key: string
-): Promise<FetchResult | null> => {
+): Promise<FetchResult | undefined> => {
   const result = await redisDataSource.cacheClient.get(key)
   if (!result) {
     console.info('fetch result is not cached', key)
-    return null
+    return undefined
   }
 
   const fetchResult = JSON.parse(result) as unknown
   if (!isFetchResult(fetchResult)) {
-    throw new Error('fetch result is not valid')
+    console.error('invalid fetch result in cache', key)
+    return undefined
   }
 
   console.info('fetch result is cached', key)
