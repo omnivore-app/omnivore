@@ -6,6 +6,7 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { redisDataSource } from '../redis_data_source'
 import { userRepository } from '../repository/user'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
@@ -43,6 +44,19 @@ interface Data {
   rssFeedUrl?: string
   publishedAt?: string
   taskId?: string
+  cacheKey?: string
+}
+
+const getCachedContent = async (key: string): Promise<string | null> => {
+  const result = await redisDataSource.redisClient?.get(key)
+  if (!result) {
+    logger.info('fetch result is not cached', { key })
+    return null
+  }
+
+  logger.info('content is cached', { key })
+
+  return result
 }
 
 const uploadPdf = async (
@@ -133,6 +147,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     title,
     contentType,
     state,
+    cacheKey,
   } = data
   let isImported, isSaved
 
@@ -185,25 +200,42 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    // download the original content
-    const filePath = contentFilePath({
-      userId,
-      libraryItemId: articleSavingRequestId,
-      format: 'original',
-      savedAt: new Date(savedAt),
-    })
-    const exists = await isFileExists(filePath)
-    if (!exists) {
-      logger.error('Original content file does not exist', {
-        finalUrl,
-        filePath,
-      })
+    let content
 
-      throw new Error('Original content file does not exist')
+    if (cacheKey) {
+      logger.info('fetching content from cache', {
+        cacheKey,
+      })
+      content = await getCachedContent(cacheKey)
+
+      logger.info('fetched content from cache')
     }
 
-    const content = (await downloadFromBucket(filePath)).toString()
-    console.log('Downloaded original content from:', filePath)
+    if (!content) {
+      logger.info('downloading content from GCS', {
+        url,
+      })
+
+      // download the original content
+      const filePath = contentFilePath({
+        userId,
+        libraryItemId: articleSavingRequestId,
+        format: 'original',
+        savedAt: new Date(savedAt),
+      })
+      const exists = await isFileExists(filePath)
+      if (!exists) {
+        logger.error('Original content file does not exist', {
+          finalUrl,
+          filePath,
+        })
+
+        throw new Error('Original content file does not exist')
+      }
+
+      content = (await downloadFromBucket(filePath)).toString()
+      logger.info('Downloaded original content from:', { filePath })
+    }
 
     // for non-pdf content, we need to save the content
     const result = await savePage(
