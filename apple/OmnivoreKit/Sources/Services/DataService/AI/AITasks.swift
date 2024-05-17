@@ -9,16 +9,16 @@ struct AITaskRequest: Decodable {
 
 public struct DigestResult: Codable {
   public let id: String
-  public let title: String
-  public let byline: String
-  public let content: String
-  public let description: String
-  public let urlsToAudio: [String]
-  public let chapters: [DigestChapter]
-  public let speechFiles: [SpeechDocument]
+  public let title: String?
+  public let byline: String?
+  public let content: String?
+  public let description: String?
+  public let urlsToAudio: [String]?
+  public let chapters: [DigestChapter]?
+  public let speechFiles: [SpeechDocument]?
 
-  public let jobState: String
-  public let createdAt: String
+  public let jobState: String?
+  public let createdAt: String?
 }
 
 public struct DigestChapter: Codable {
@@ -169,9 +169,10 @@ extension DataService {
 
           do {
             let digest = try await networker.urlSession.performRequest(resource: resource)
-            let oldDigest = loadStoredDigest()
 
-            saveDigest(digest)
+            if digest.jobState == "SUCCEEDED" {
+              saveDigest(digest)
+            }
 
             return digest
           } catch {

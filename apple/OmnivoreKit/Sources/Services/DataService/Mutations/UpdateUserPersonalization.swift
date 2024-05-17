@@ -40,7 +40,7 @@ public extension DataService {
       try $0.setUserPersonalization(
         input: InputObjects.SetUserPersonalizationInput(
           digestConfig: OptionalArgument(
-            InputObjects.DigestConfigInput(channels: OptionalArgument([OptionalArgument("email")]))
+            InputObjects.DigestConfigInput(channels: OptionalArgument([OptionalArgument("push")]))
           )
         ),
         selection: selection

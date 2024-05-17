@@ -40,6 +40,7 @@ public class DigestConfigViewModel: ObservableObject {
       try await dataService.setupUserDigestConfig()
       try await dataService.refreshDigest()
       digestEnabled = true
+      dataService.featureFlags.digestEnabled = true
     } catch {
       if error is IneligibleError {
         isIneligible = true
@@ -109,20 +110,17 @@ struct DigestConfigView: View {
         }
         .padding(.top, 50)
       } else if viewModel.digestEnabled {
-        VStack(spacing: 15) {
+        VStack(spacing: 25) {
           Spacer()
-          Text("""
-               You've been added to the AI Digest demo. Your first issue should be ready soon.
-               When a new digest is ready the icon in the library header will change color.
-               You can close this window now.
-               """)
+          // swiftlint:disable:next line_length
+          Text("You've been added to the AI Digest demo. Your first issue should be ready soon. When a new digest is ready the icon in the library header will change color. You can close this window now.")
           if !viewModel.notificationsEnabled {
             if viewModel.isTryingToEnableNotifications {
                ProgressView()
             } else {
               Button(action: {
                 viewModel.tryEnableNotifications(dataService: dataService)
-              }, label: { Text("Notify me when its ready") })
+              }, label: { Text("Enable digest notifications") })
               .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
             }
           }

@@ -44,7 +44,7 @@ public struct DigestAudioItem: AudioItemProperties {
   public init(digest: DigestResult, chapters: [DigestChapterData]) {
     self.digest = digest
     self.itemID = digest.id
-    self.title = digest.title
+    self.title = digest.title ?? "Omnivore digest"
     self.chapters = chapters
  
     self.startIndex = 0
@@ -52,7 +52,7 @@ public struct DigestAudioItem: AudioItemProperties {
 
     self.imageURL = nil
 
-    if let first = digest.speechFiles.first {
+    if let first = digest.speechFiles?.first {
       self.language = first.language
       self.byline  = digest.byline
     }
@@ -1033,7 +1033,7 @@ public struct DigestAudioItem: AudioItemProperties {
     }
     
     func combineSpeechFiles(from digest: DigestResult) -> ([Utterance], Double) {
-      let allUtterances = digest.speechFiles.flatMap { $0.utterances }
+      let allUtterances = digest.speechFiles?.flatMap { $0.utterances } ?? []
       var updatedUtterances: [Utterance] = []
       var currentWordOffset = 0.0
       
@@ -1053,7 +1053,7 @@ public struct DigestAudioItem: AudioItemProperties {
     }
     
     func downloadDigestItemSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
-      if let digestItem = itemAudioProperties as? DigestAudioItem, let firstFile = digestItem.digest.speechFiles.first {
+      if let digestItem = itemAudioProperties as? DigestAudioItem, let firstFile = digestItem.digest.speechFiles?.first {
         let (utterances, wordCount) = combineSpeechFiles(from: digestItem.digest)
         
         let document = SpeechDocument(

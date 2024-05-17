@@ -12,17 +12,19 @@ func getChapterData(digest: DigestResult) -> [(DigestChapter, DigestChapterData)
   var currentAudioIndex = 0
   var currentWordCount = 0.0
 
-  for (index, speechFile) in digest.speechFiles.enumerated() {
-    let chapter = digest.chapters[index]
+  for (index, speechFile) in (digest.speechFiles ?? []).enumerated() {
+    let chapter = digest.chapters?[index]
     let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
 
-    chapterData.append((chapter, DigestChapterData(
-      time: formatTimeInterval(duration) ?? "00:00",
-      start: Int(currentAudioIndex),
-      end: currentAudioIndex + Int(speechFile.utterances.count)
-    )))
-    currentAudioIndex += Int(speechFile.utterances.count)
-    currentWordCount += chapter.wordCount
+    if let chapter = chapter {
+      chapterData.append((chapter, DigestChapterData(
+        time: formatTimeInterval(duration) ?? "00:00",
+        start: Int(currentAudioIndex),
+        end: currentAudioIndex + Int(speechFile.utterances.count)
+      )))
+      currentAudioIndex += Int(speechFile.utterances.count)
+      currentWordCount += chapter.wordCount
+    }
   }
   return chapterData
 }
@@ -39,6 +41,7 @@ func formatTimeInterval(_ time: TimeInterval) -> String? {
 public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var hasError = false
+  @Published var isRunning = false
   @Published var digest: DigestResult?
   @Published var chapterInfo: [(DigestChapter, DigestChapterData)]?
   @Published var presentedLibraryItem: String?
@@ -49,6 +52,7 @@ public class FullScreenDigestViewModel: ObservableObject {
   func load(dataService: DataService, audioController: AudioController) async {
     hasError = false
     isLoading = true
+    isRunning = false
 
     if !dataService.digestNeedsRefresh() {
       if let digest = dataService.loadStoredDigest() {
@@ -69,6 +73,8 @@ public class FullScreenDigestViewModel: ObservableObject {
       self.digest = digest
       self.chapterInfo = getChapterData(digest: digest)
       self.lastVisitedDigestId = digest.id
+      self.isRunning = digest.jobState == "RUNNING" || digest.jobState == "PENDING"
+      self.hasError = digest.jobState == "FAILED"
 
       if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
         // Don't think we need to do anything here
@@ -179,9 +185,11 @@ struct FullScreenDigestView: View {
                 await viewModel.load(dataService: dataService, audioController: audioController)
               }
             }, label: { Text("Try again") })
-              .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
+            .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
             Spacer()
           }
+        } else if viewModel.isRunning {
+          jobRunningText
         } else {
           itemBody
         }
@@ -191,6 +199,19 @@ struct FullScreenDigestView: View {
      }.task {
        await viewModel.load(dataService: dataService, audioController: audioController)
      }
+  }
+  
+  var jobRunningText: some View {
+    VStack {
+      Spacer()
+      Text("""
+         You've been added to the AI Digest demo. Your first issue should be ready soon.
+         When a new digest is ready the icon in the library header will change color.
+         You can close this window now.
+         """)
+      .padding(20)
+      Spacer()
+    }
   }
 
   var closeButton: some View {
@@ -218,7 +239,7 @@ struct FullScreenDigestView: View {
             Spacer()
           }
           if let digest = viewModel.digest {
-            Text(digest.title)
+            Text(digest.title ?? "")
               .font(Font.system(size: 17, weight: .semibold))
               .lineSpacing(5)
               .lineLimit(3)
@@ -274,14 +295,14 @@ struct FullScreenDigestView: View {
           .padding(.top, 20)
         }
 
-        if let digest = viewModel.digest {
+        if let digest = viewModel.digest, let content = digest.content {
           Text("Transcript")
             .font(Font.system(size: 17, weight: .semibold))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 20)
 
           VStack {
-            Markdown(digest.content)
+            Markdown(content)
               .foregroundColor(Color.appGrayTextContrast)
           }
           .padding(15)
