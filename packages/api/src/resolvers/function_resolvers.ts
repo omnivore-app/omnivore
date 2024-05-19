@@ -33,6 +33,7 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
+import { logger } from '../utils/logger'
 import { contentConverter } from '../utils/parser'
 import {
   generateDownloadSignedUrl,
@@ -482,7 +483,9 @@ export const functionResolvers = {
         ctx.claims &&
         item.uploadFileId
       ) {
+        logger.profile('uploadFiles' + item.id)
         const upload = await ctx.dataLoaders.uploadFiles.load(item.uploadFileId)
+        logger.profile('uploadFiles' + item.id)
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -515,7 +518,10 @@ export const functionResolvers = {
     ) {
       if (item.labels) return item.labels
 
-      return ctx.dataLoaders.labels.load(item.id)
+      logger.profile('labels' + item.id)
+      const labels = await ctx.dataLoaders.labels.load(item.id)
+      logger.profile('labels' + item.id)
+      return labels
     },
     async recommendations(
       item: {
@@ -527,9 +533,11 @@ export const functionResolvers = {
     ) {
       if (item.recommendations) return item.recommendations
 
+      logger.profile('recommendations' + item.id)
       const recommendations = await ctx.dataLoaders.recommendations.load(
         item.id
       )
+      logger.profile('recommendations' + item.id)
       return recommendations.map(recommandationDataToRecommendation)
     },
     async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
@@ -551,7 +559,9 @@ export const functionResolvers = {
     ) {
       if (item.highlights) return item.highlights
 
+      logger.profile('highlights' + item.id)
       const highlights = await ctx.dataLoaders.highlights.load(item.id)
+      logger.profile('highlights' + item.id)
       return highlights.map(highlightDataToHighlight)
     },
     ...readingProgressHandlers,

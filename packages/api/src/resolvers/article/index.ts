@@ -670,7 +670,7 @@ export const searchResolver = authorized<
   SearchSuccess,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { uid }) => {
+>(async (_obj, params, { uid, log }) => {
   const startCursor = params.after || ''
   const first = Math.min(params.first || 10, 100) // limit to 100 items
 
@@ -679,6 +679,7 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
+  log.profile('searchResolver')
   const { libraryItems, count } = await searchAndCountLibraryItems(
     {
       from: Number(startCursor),
@@ -691,6 +692,7 @@ export const searchResolver = authorized<
     },
     uid
   )
+  log.profile('searchResolver')
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
