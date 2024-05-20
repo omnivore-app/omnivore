@@ -27,6 +27,7 @@ import {
 } from '../jobs/ai/create_digest'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
+import { DISCOVER_JOB_NAME } from '../jobs/cron/discover'
 import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/cron/sync_read_positions'
 import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
@@ -103,6 +104,7 @@ export const getJobPriority = (jobName: string): number => {
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
+    case DISCOVER_JOB_NAME:
       return 100
 
     default:
