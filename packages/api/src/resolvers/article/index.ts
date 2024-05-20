@@ -679,7 +679,6 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  log.profile('searchResolver')
   const { libraryItems, count } = await searchAndCountLibraryItems(
     {
       from: Number(startCursor),
@@ -692,7 +691,6 @@ export const searchResolver = authorized<
     },
     uid
   )
-  log.profile('searchResolver')
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
