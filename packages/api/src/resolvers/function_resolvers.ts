@@ -33,6 +33,7 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
+import { logger } from '../utils/logger'
 import { contentConverter } from '../utils/parser'
 import {
   generateDownloadSignedUrl,
@@ -515,7 +516,8 @@ export const functionResolvers = {
     ) {
       if (item.labels) return item.labels
 
-      return ctx.dataLoaders.labels.load(item.id)
+      const labels = await ctx.dataLoaders.labels.load(item.id)
+      return labels
     },
     async recommendations(
       item: {

@@ -302,12 +302,14 @@ export const buildQueryString = (
             case InFilter.ALL:
               return null
             case InFilter.ARCHIVE:
-              return "(library_item.state = 'ARCHIVED' or (library_item.state != 'DELETED' and library_item.archived_at is not null))"
+              return `(library_item.state = 'ARCHIVED' 
+                        OR (library_item.state IN ('SUCCEEDED', 'ARCHIVED', 'PROCESSING', 'FAILED', 'CONTENT_NOT_FETCHED') 
+                          AND library_item.archived_at IS NOT NULL))`
             case InFilter.TRASH:
               // return only deleted pages within 14 days
-              return "(library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days')"
+              return "(library_item.state = 'DELETED' AND library_item.deleted_at >= NOW() - INTERVAL '14 days')"
             default: {
-              let sql = 'library_item.archived_at is null'
+              let sql = 'library_item.archived_at IS NULL'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
@@ -664,7 +666,9 @@ export const createSearchQueryBuilder = (
   }
 
   if (!args.includeDeleted) {
-    queryBuilder.andWhere("library_item.state <> 'DELETED'")
+    queryBuilder.andWhere(
+      "library_item.state IN ('SUCCEEDED', 'ARCHIVED', 'PROCESSING', 'FAILED', 'CONTENT_NOT_FETCHED')"
+    )
   }
 
   if (queryString) {
