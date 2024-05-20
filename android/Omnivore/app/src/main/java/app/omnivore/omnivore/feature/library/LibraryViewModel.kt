@@ -177,20 +177,23 @@ class LibraryViewModel @Inject constructor(
     fun loadUsingSearchAPI() {
         val context = applicationContext
         viewModelScope.launch {
-            val result = libraryRepository.librarySearch(
-                context = context,
-                cursor = librarySearchCursor,
-                query = searchQueryString()
-            )
-            result.cursor?.let {
-                librarySearchCursor = it
-            }
-            result.savedItems.map {
-                val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(context, it.savedItem.slug)
+            withContext(Dispatchers.IO) {
+                val result = libraryRepository.librarySearch(
+                    context = context,
+                    cursor = librarySearchCursor,
+                    query = searchQueryString()
+                )
+                result.cursor?.let {
+                    librarySearchCursor = it
+                }
+                result.savedItems.map {
+                    val isSavedInDB =
+                        libraryRepository.isSavedItemContentStoredInDB(context, it.savedItem.slug)
 
-                if (!isSavedInDB) {
-                    delay(2000)
-                    contentRequestChannel.send(it.savedItem.slug)
+                    if (!isSavedInDB) {
+                        delay(2000)
+                        contentRequestChannel.send(it.savedItem.slug)
+                    }
                 }
             }
         }

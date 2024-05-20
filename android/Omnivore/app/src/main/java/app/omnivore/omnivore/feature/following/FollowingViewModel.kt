@@ -150,21 +150,26 @@ class FollowingViewModel @Inject constructor(
 
     fun loadUsingSearchAPI() {
         viewModelScope.launch {
-            val context = applicationContext
-            val result = libraryRepository.librarySearch(
-                context = context,
-                cursor = librarySearchCursor,
-                query = searchQueryString()
-            )
-            result.cursor?.let {
-                librarySearchCursor = it
-            }
-            result.savedItems.map {
-                val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(context = applicationContext, it.savedItem.slug)
+            withContext(Dispatchers.IO) {
+                val context = applicationContext
+                val result = libraryRepository.librarySearch(
+                    context = context,
+                    cursor = librarySearchCursor,
+                    query = searchQueryString()
+                )
+                result.cursor?.let {
+                    librarySearchCursor = it
+                }
+                result.savedItems.map {
+                    val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(
+                        context = applicationContext,
+                        it.savedItem.slug
+                    )
 
-                if (!isSavedInDB) {
-                    delay(2000)
-                    contentRequestChannel.send(it.savedItem.slug)
+                    if (!isSavedInDB) {
+                        delay(2000)
+                        contentRequestChannel.send(it.savedItem.slug)
+                    }
                 }
             }
         }
