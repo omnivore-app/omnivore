@@ -126,7 +126,7 @@ const launchBrowser = async () => {
     },
     executablePath: process.env.CHROMIUM_PATH,
     headless: !!process.env.LAUNCH_HEADLESS,
-    timeout: 120000, // 2 minutes
+    timeout: 30_000, // 30 seconds
     dumpio: true, // show console logs in the terminal
   })) as Browser
 
@@ -627,6 +627,8 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
       logRecord.puppeteerSuccess = false
       logRecord.puppeteerError = e
     }
+
+    throw e
   }
   if (domContent === 'IS_BLOCKED') {
     return { isBlocked: true }

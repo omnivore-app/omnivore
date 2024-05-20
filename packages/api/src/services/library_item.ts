@@ -21,14 +21,11 @@ import { redisDataSource } from '../redis_data_source'
 import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
+import { enqueueBulkUploadContentJob } from '../utils/createTask'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
-import { logger } from '../utils/logger'
+import { logError, logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import {
-  contentFilePath,
-  downloadFromBucket,
-  uploadToBucket,
-} from '../utils/uploads'
+import { contentFilePath, downloadFromBucket } from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -1103,17 +1100,22 @@ export const createOrUpdateLibraryItem = async (
   const data = deepDelete(newLibraryItem, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
-  // upload original content to GCS if it's not already uploaded
+  // upload original content to GCS in a job if it's not already uploaded
   if (originalContent && !originalContentUploaded) {
-    await uploadOriginalContent(
-      userId,
-      newLibraryItem.id,
-      newLibraryItem.savedAt,
-      originalContent
-    )
-    logger.info('Uploaded original content to GCS', {
-      id: newLibraryItem.id,
-    })
+    try {
+      await enqueueUploadOriginalContent(
+        userId,
+        newLibraryItem.id,
+        newLibraryItem.savedAt,
+        originalContent
+      )
+
+      logger.info('Queued to upload original content in GCS', {
+        id: newLibraryItem.id,
+      })
+    } catch (error) {
+      logError(error)
+    }
   }
 
   return newLibraryItem
@@ -1691,27 +1693,27 @@ export const filterItemEvents = (
   throw new Error('Unexpected state.')
 }
 
-export const uploadOriginalContent = async (
+export const enqueueUploadOriginalContent = async (
   userId: string,
   libraryItemId: string,
   savedAt: Date,
-  originalContent: string,
-  timeout = 10_000 // 10 seconds
+  originalContent: string
 ) => {
-  await uploadToBucket(
-    contentFilePath({
+  const filePath = contentFilePath({
+    userId,
+    libraryItemId,
+    savedAt,
+    format: 'original',
+  })
+  await enqueueBulkUploadContentJob([
+    {
       userId,
       libraryItemId,
-      savedAt,
+      filePath,
       format: 'original',
-    }),
-    Buffer.from(originalContent),
-    {
-      public: false,
-      contentType: 'text/html',
-      timeout,
-    }
-  )
+      content: originalContent,
+    },
+  ])
 }
 
 export const downloadOriginalContent = async (

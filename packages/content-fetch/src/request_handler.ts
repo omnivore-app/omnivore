@@ -3,6 +3,7 @@ import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RequestHandler } from 'express'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
+import { redisDataSource } from './redis_data_source'
 
 interface UserConfig {
   id: string
@@ -48,6 +49,13 @@ interface LogRecord {
   totalTime?: number
 }
 
+interface FetchResult {
+  finalUrl: string
+  title?: string
+  content?: string
+  contentType?: string
+}
+
 const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
   ? new Storage({ keyFilename: process.env.GCS_UPLOAD_SA_KEY_FILE_PATH })
   : new Storage()
@@ -74,6 +82,43 @@ const uploadOriginalContent = async (
       console.log(`Original content uploaded to ${filePath}`)
     })
   )
+}
+
+const cacheKey = (url: string, locale = '', timezone = '') =>
+  `fetch-result:${url}:${locale}:${timezone}`
+
+const isFetchResult = (obj: unknown): obj is FetchResult => {
+  return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
+}
+
+export const cacheFetchResult = async (
+  key: string,
+  fetchResult: FetchResult
+) => {
+  // cache the fetch result for 24 hours
+  const ttl = 24 * 60 * 60
+  const value = JSON.stringify(fetchResult)
+  return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
+}
+
+const getCachedFetchResult = async (
+  key: string
+): Promise<FetchResult | undefined> => {
+  const result = await redisDataSource.cacheClient.get(key)
+  if (!result) {
+    console.info('fetch result is not cached', key)
+    return undefined
+  }
+
+  const fetchResult = JSON.parse(result) as unknown
+  if (!isFetchResult(fetchResult)) {
+    console.error('invalid fetch result in cache', key)
+    return undefined
+  }
+
+  console.info('fetch result is cached', key)
+
+  return fetchResult
 }
 
 export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
@@ -127,9 +172,25 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   console.log(`Article parsing request`, logRecord)
 
   try {
+    const key = cacheKey(url, locale, timezone)
+    let fetchResult = await getCachedFetchResult(key)
+    if (!fetchResult) {
+      console.log(
+        'fetch result not found in cache, fetching content now...',
+        url
+      )
+
+      fetchResult = await fetchContent(url, locale, timezone)
+      console.log('content has been fetched')
+
+      if (fetchResult.content) {
+        const cacheResult = await cacheFetchResult(key, fetchResult)
+        console.log('cache result', cacheResult)
+      }
+    }
+
     const savedDate = savedAt ? new Date(savedAt) : new Date()
-    const fetchResult = await fetchContent(url, locale, timezone)
-    const { title, content, contentType, finalUrl } = fetchResult
+    const { finalUrl, title, content, contentType } = fetchResult
     if (content) {
       await uploadOriginalContent(users, content, savedDate.getTime())
     }
@@ -151,6 +212,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         taskId,
         title,
         contentType,
+        cacheKey: key,
       },
       isRss: !!rssFeedUrl,
       isImport: !!taskId,
@@ -178,7 +240,9 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         result: logRecord.error ? 'failure' : 'success',
         properties: {
           url,
+          source,
           totalTime: logRecord.totalTime,
+          errorMessage: logRecord.error,
         },
       }
     )

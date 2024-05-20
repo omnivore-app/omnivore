@@ -20,6 +20,7 @@ interface SavePageJobData {
   taskId?: string
   title?: string
   contentType?: string
+  cacheKey?: string
 }
 
 interface SavePageJob {
