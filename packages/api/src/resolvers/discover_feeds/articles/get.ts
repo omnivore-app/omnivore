@@ -10,21 +10,19 @@ import { authorized } from '../../../utils/gql-utils'
 const COMMUNITY_FEED_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
 
 type DiscoverFeedArticleDBRows = {
-  rows: {
-    id: string
-    feed: string
-    title: string
-    slug: string
-    url: string
-    author: string
-    image: string
-    published_at: Date
-    description: string
-    saves: number
-    article_save_id: string | undefined
-    article_save_url: string | undefined
-  }[]
-}
+  id: string
+  feed: string
+  title: string
+  slug: string
+  url: string
+  author: string
+  image: string
+  published_at: Date
+  description: string
+  saves: number
+  article_save_id: string | undefined
+  article_save_url: string | undefined
+}[]
 
 const getPopularTopics = (
   uid: string,
@@ -111,10 +109,11 @@ export const getDiscoverFeedArticlesResolver = authorized<
     const startCursor: string = after || ''
     const firstAmnt = Math.min(first || 10, 100) // limit to 100 items
 
-    const { rows: topics } = (await appDataSource.query(
+    const topics = (await appDataSource.query(
       `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
       [discoverTopicId]
-    )) as { rows: unknown[] }
+    )) as { name: string }[]
+    log.info('Topics', { topics })
 
     if (topics.length == 0) {
       return {
@@ -123,7 +122,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
       }
     }
 
-    let discoverArticles: DiscoverFeedArticleDBRows = { rows: [] }
+    let discoverArticles: DiscoverFeedArticleDBRows = []
     if (discoverTopicId === 'Popular') {
       discoverArticles = await getPopularTopics(
         uid,
@@ -150,7 +149,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
 
     return {
       __typename: 'GetDiscoverFeedArticleSuccess',
-      discoverArticles: discoverArticles.rows.slice(0, firstAmnt).map((it) => ({
+      discoverArticles: discoverArticles.slice(0, firstAmnt).map((it) => ({
         author: it.author,
         id: it.id,
         feed: it.feed,
@@ -168,13 +167,12 @@ export const getDiscoverFeedArticlesResolver = authorized<
       })),
       pageInfo: {
         endCursor: `${
-          Number(startCursor) +
-          Math.min(discoverArticles.rows.length, firstAmnt)
+          Number(startCursor) + Math.min(discoverArticles.length, firstAmnt)
         }`,
-        hasNextPage: discoverArticles.rows.length > firstAmnt,
+        hasNextPage: discoverArticles.length > firstAmnt,
         hasPreviousPage: Number(startCursor) != 0,
         startCursor: Number(startCursor).toString(),
-        totalCount: Math.min(discoverArticles.rows.length, firstAmnt),
+        totalCount: Math.min(discoverArticles.length, firstAmnt),
       },
     }
   } catch (error) {

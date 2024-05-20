@@ -23,9 +23,7 @@ const parser = new XMLParser({
   ignorePiTags: false,
 })
 
-type DiscoverFeedRows = {
-  rows: DiscoverFeed[]
-}
+type DiscoverFeedRows = DiscoverFeed[]
 
 const extractAtomData = (
   url: string,
@@ -164,8 +162,8 @@ export const addDiscoverFeedResolver = authorized<
       [url]
     )) as DiscoverFeedRows
 
-    if (existingFeed.rows.length > 0) {
-      return await handleExistingSubscription(existingFeed.rows[0], uid)
+    if (existingFeed.length > 0) {
+      return await handleExistingSubscription(existingFeed[0], uid)
     }
 
     const result = await addNewSubscription(url, uid)

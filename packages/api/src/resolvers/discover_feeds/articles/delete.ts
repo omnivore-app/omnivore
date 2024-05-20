@@ -24,12 +24,12 @@ export const deleteDiscoverArticleResolver = authorized<
       }
     }
 
-    const { rows: discoverArticles } = (await appDataSource.query(
+    const discoverArticles = (await appDataSource.query(
       `SELECT article_save_id FROM omnivore.discover_feed_save_link WHERE discover_article_id=$1 and user_id=$2`,
       [discoverArticleId, uid]
     )) as {
-      rows: { article_save_id: string }[]
-    }
+      article_save_id: string
+    }[]
 
     if (discoverArticles.length != 1) {
       return {
