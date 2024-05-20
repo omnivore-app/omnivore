@@ -27,8 +27,8 @@ android {
         applicationId = "app.omnivore.omnivore"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2080000
-        versionName = "0.208.0"
+        versionCode = 2100000
+        versionName = "0.210.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
