@@ -27,6 +27,7 @@ import {
 } from '../jobs/ai/create_digest'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
+import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/cron/sync_read_positions'
 import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
@@ -45,7 +46,6 @@ import {
   REFRESH_ALL_FEEDS_JOB_NAME,
   REFRESH_FEED_JOB_NAME,
 } from '../jobs/rss/refreshAllFeeds'
-import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/sync_read_positions'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import {
   UpdateHighlightData,

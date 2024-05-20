@@ -3,7 +3,7 @@ import {
   insertArticleToStore$,
   removeDuplicateArticles$,
 } from './lib/store/articles'
-import { merge, Observable } from 'rxjs'
+import { merge, Observable, lastValueFrom } from 'rxjs'
 import { OmnivoreArticle } from './types/OmnivoreArticle'
 import { rss$ } from './lib/inputSources/articles/rss/rssIngestor'
 import { putImageInProxy$ } from './lib/clients/omnivore/imageProxy'
@@ -13,16 +13,14 @@ const enrichedArticles$ = (): Observable<OmnivoreArticle> => {
   return merge(communityArticles$, rss$) as Observable<OmnivoreArticle>
 }
 
-;(() => {
-  enrichedArticles$()
-    .pipe(
-      // removeDuplicateArticles$,
+const discover = async () =>
+  await lastValueFrom(
+    rss$.pipe(
       addEmbeddingToArticle$,
       addTopicsToArticle$,
       putImageInProxy$,
       insertArticleToStore$
     )
-    .subscribe((it) => {
-      console.log('enriched: ', it)
-    })
-})()
+  )
+
+export default discover

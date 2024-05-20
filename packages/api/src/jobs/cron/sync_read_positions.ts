@@ -1,13 +1,13 @@
 import Redis from 'ioredis'
-import { redisDataSource } from '../redis_data_source'
+import { redisDataSource } from '../../redis_data_source'
 import {
   CACHED_READING_POSITION_PREFIX,
   componentsForCachedReadingPositionKey,
   fetchCachedReadingPositionsAndMembers,
   reduceCachedReadingPositionMembers,
-} from '../services/cached_reading_position'
-import { logger } from '../utils/logger'
-import { updateLibraryItemReadingProgress } from '../services/library_item'
+} from '../../services/cached_reading_position'
+import { updateLibraryItemReadingProgress } from '../../services/library_item'
+import { logger } from '../../utils/logger'
 
 export const SYNC_READ_POSITIONS_JOB_NAME = 'sync-read-positions'
 

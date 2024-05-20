@@ -44,7 +44,7 @@ const rssToArticles = (site: OmnivoreFeed) =>
 export const rss$ = (() => {
   let lastUpdatedTime = new Date(0)
 
-  const filteredRss$ = getRssFeeds$.pipe(
+  return getRssFeeds$.pipe(
     onErrorContinue(
       mergeMap((it) => rssToArticles(it).pipe(exponentialBackOff(5)))
     ),
@@ -53,18 +53,6 @@ export const rss$ = (() => {
       lastUpdatedTime = new Date()
       console.log(lastUpdatedTime)
     })
-  )
-
-  return merge(
-    newFeeds$.pipe(
-      onErrorContinue(
-        mergeMap((it) => rssToArticles(it).pipe(exponentialBackOff(5)))
-      )
-    ),
-    timer(0, REFRESH_DELAY_MS).pipe(
-      tap((e) => console.log('Refreshing Stream')),
-      concatMap(() => filteredRss$)
-    )
   )
 
   // return fromArrayLike([

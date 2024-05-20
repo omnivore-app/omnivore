@@ -19,6 +19,11 @@ import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
 import { createDigest, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
+import { DISCOVER_JOB_NAME, syncDiscover } from './jobs/cron/discover'
+import {
+  syncReadPositionsJob,
+  SYNC_READ_POSITIONS_JOB_NAME,
+} from './jobs/cron/sync_read_positions'
 import {
   confirmEmailJob,
   CONFIRM_EMAIL_JOB,
@@ -48,10 +53,6 @@ import {
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
-import {
-  syncReadPositionsJob,
-  SYNC_READ_POSITIONS_JOB_NAME,
-} from './jobs/sync_read_positions'
 import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
 import {
   updateHighlight,
@@ -185,6 +186,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return createDigest(job.data)
         case UPLOAD_CONTENT_JOB:
           return uploadContentJob(job.data)
+        case DISCOVER_JOB_NAME:
+          return syncDiscover()
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }
@@ -210,6 +213,19 @@ const setupCronJobs = async () => {
       priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
+        immediately: false,
+      },
+    }
+  )
+
+  await queue.add(
+    DISCOVER_JOB_NAME,
+    {},
+    {
+      priority: 100,
+      repeat: {
+        every: 3_600_000, // 1 hour
+        immediately: false,
       },
     }
   )

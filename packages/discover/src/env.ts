@@ -1,7 +1,5 @@
 import * as dotenv from 'dotenv'
 
-dotenv.config({ path: __dirname + '/./../env' })
-
 interface BackendEnv {
   pg: {
     host: string

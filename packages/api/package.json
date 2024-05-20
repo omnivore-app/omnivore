@@ -26,6 +26,7 @@
     "@langchain/openai": "^0.0.14",
     "@notionhq/client": "^2.2.14",
     "@omnivore/content-handler": "1.0.0",
+    "@omnivore/discover": "0.0.1",
     "@omnivore/liqe": "1.0.0",
     "@omnivore/readability": "1.0.0",
     "@omnivore/text-to-speech-handler": "1.0.0",

@@ -1,6 +1,8 @@
 {
   "name": "@omnivore/discover",
   "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-dev --files src/index.ts",
@@ -11,8 +13,8 @@
   },
   "dependencies": {
     "aws4-axios": "^3.3.0",
-    "axios": "^1.5.1",
-    "dotenv": "^16.3.1",
+    "axios": "^0.27.2",
+    "dotenv": "^8.2.0",
     "fast-xml-parser": "^4.3.2",
     "html-to-text": "^9.0.5",
     "lodash": "^4.17.21",
@@ -24,7 +26,7 @@
     "postgres": "^3.4.0",
     "rxjs": "^7.8.1",
     "@google-cloud/pubsub": "^4.0.0",
-    "uuid": "^9.0.1",
+    "uuid": "^8.3.1",
     "urlsafe-base64": "^1.0.0"
 
   },
@@ -38,7 +40,13 @@
     "@types/voca": "^1.4.3",
     "ts-node": "^10.9.1",
     "tslib": "^2.6.2",
-    "@types/uuid": "^9.0.1",
-    "@types/urlsafe-base64": "^1.0.28"
+    "@types/uuid": "^8.3.1",
+    "@types/urlsafe-base64": "^1.0.0"
+  },
+  "engines": {
+    "node": "18.16.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }
