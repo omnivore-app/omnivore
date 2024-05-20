@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.core.data
 
+import android.content.Context
 import android.util.Log
 import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import app.omnivore.omnivore.core.database.entities.Highlight
@@ -12,8 +13,8 @@ import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.core.network.savedItemUpdates
 import app.omnivore.omnivore.core.network.search
 
-suspend fun DataService.librarySearch(cursor: String?, query: String): SearchResult {
-    val searchResult = networker.search(cursor = cursor, limit = 10, query = query)
+suspend fun DataService.librarySearch(context: Context, cursor: String?, query: String): SearchResult {
+    val searchResult = networker.search(context, cursor = cursor, limit = 10, query = query)
 
     val savedItems = searchResult.items.map {
         SavedItemWithLabelsAndHighlights(
@@ -39,7 +40,7 @@ suspend fun DataService.librarySearch(cursor: String?, query: String): SearchRes
     )
 }
 
-suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): SavedItemSyncResult {
+suspend fun DataService.sync(context: Context, since: String, cursor: String?, limit: Int = 20): SavedItemSyncResult {
     val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since)
         ?: return SavedItemSyncResult.errorResult
 
@@ -48,7 +49,16 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
     }
 
     val savedItems = syncResult.items.map {
-        saveLibraryItemContentToFile(it.id, it.content)
+        if (!saveLibraryItemContentToFile(context, it.id, it.content)) {
+            return SavedItemSyncResult(
+                hasError = true,
+                errorString = "Error saving page content",
+                hasMoreItems = false,
+                count = 0,
+                cursor = null,
+                savedItemSlugs = listOf()
+            )
+        }
         val savedItem = SavedItem(
             savedItemId = it.id,
             title = it.title,
@@ -109,25 +119,27 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
 
     Log.d("sync", "found ${syncResult.items.size} items with sync api. Since: $since")
 
-    return SavedItemSyncResult(hasError = false,
+    return SavedItemSyncResult(
+        hasError = false,
+        errorString = null,
         hasMoreItems = syncResult.hasMoreItems,
         cursor = syncResult.cursor,
         count = syncResult.items.size,
-        savedItemSlugs = syncResult.items.map { it.slug })
+        savedItemSlugs = syncResult.items.map { it.slug }
+    )
 }
 
-suspend fun DataService.isSavedItemContentStoredInDB(slug: String): Boolean {
+suspend fun DataService.isSavedItemContentStoredInDB(context: Context, slug: String): Boolean {
     val existingItem = db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
     existingItem?.savedItem?.savedItemId?.let { savedItemId ->
-        val htmlContent = loadLibraryItemContent(savedItemId)
+        val htmlContent = loadLibraryItemContent(context, savedItemId)
         return (htmlContent ?: "").length > 10
     }
     return false
 }
 
-suspend fun DataService.fetchSavedItemContent(slug: String) {
-    val syncResult = networker.savedItem(slug)
-
+suspend fun DataService.fetchSavedItemContent(context: Context, slug: String) {
+    val syncResult = networker.savedItem(context, slug)
     val savedItem = syncResult.item
     savedItem?.let {
         val item = SavedItemWithLabelsAndHighlights(
@@ -140,6 +152,7 @@ suspend fun DataService.fetchSavedItemContent(slug: String) {
 
 data class SavedItemSyncResult(
     val hasError: Boolean,
+    val errorString: String?,
     val hasMoreItems: Boolean,
     val count: Int,
     val savedItemSlugs: List<String>,
@@ -151,6 +164,7 @@ data class SavedItemSyncResult(
             hasMoreItems = true,
             cursor = null,
             count = 0,
+            errorString = null,
             savedItemSlugs = listOf()
         )
     }

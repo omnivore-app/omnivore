@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.feature.library
 
+import android.content.Context
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +18,7 @@ import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.typeaheadSearch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -28,7 +30,8 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val networker: Networker,
     private val dataService: DataService,
-    private val datastoreRepo: DatastoreRepository
+    private val datastoreRepo: DatastoreRepository,
+    @ApplicationContext private val applicationContext: Context
 ) : ViewModel(), SavedItemViewModel {
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
@@ -76,8 +79,10 @@ class SearchViewModel @Inject constructor(
 
     private fun loadUsingSearchAPI() {
         viewModelScope.launch {
+            val context = applicationContext
             withContext(Dispatchers.IO) {
                 val result = dataService.librarySearch(
+                    context = applicationContext,
                     cursor = librarySearchCursor,
                     query = searchQueryString()
                 )
@@ -86,7 +91,7 @@ class SearchViewModel @Inject constructor(
                 }
 
                 result.savedItems.map {
-                    val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.savedItem.slug)
+                    val isSavedInDB = dataService.isSavedItemContentStoredInDB(applicationContext, it.savedItem.slug)
 
                     if (!isSavedInDB) {
                         delay(2000)

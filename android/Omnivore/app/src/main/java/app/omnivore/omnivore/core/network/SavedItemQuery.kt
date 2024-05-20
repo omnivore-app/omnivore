@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.core.network
 
+import android.content.Context
 import android.util.Log
 import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.core.database.entities.SavedItem
@@ -24,7 +25,7 @@ data class SavedItemQueryResponse(
     }
 }
 
-suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
+suspend fun Networker.savedItem(context: Context, slug: String): SavedItemQueryResponse {
     try {
         val result = authenticatedApolloClient().query(
             GetArticleQuery(slug = slug)
@@ -80,7 +81,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
             localPDFPath = localFile.toPath().toString()
         }
 
-        saveLibraryItemContentToFile(article.articleFields.id, article.articleFields.content)
+        saveLibraryItemContentToFile(context, article.articleFields.id, article.articleFields.content)
 
         val savedItem = SavedItem(
             savedItemId = article.articleFields.id,

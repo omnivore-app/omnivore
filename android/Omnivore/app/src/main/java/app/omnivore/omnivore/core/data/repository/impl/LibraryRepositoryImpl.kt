@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.core.data.repository.impl
 
+import android.content.Context
 import android.util.Log
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.data.SavedItemSyncResult
@@ -81,8 +82,8 @@ class LibraryRepositoryImpl @Inject constructor(
         savedItemLabelDao.insertAll(labels)
     }
 
-    override suspend fun fetchSavedItemContent(slug: String) {
-        val syncResult = networker.savedItem(slug)
+    override suspend fun fetchSavedItemContent(context: Context, slug: String) {
+        val syncResult = networker.savedItem(context, slug)
 
         val savedItem = syncResult.item
         savedItem?.let {
@@ -192,9 +193,8 @@ class LibraryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun librarySearch(cursor: String?, query: String): SearchResult {
-        val searchResult = networker.search(cursor = cursor, limit = 10, query = query)
-
+    override suspend fun librarySearch(context: Context, cursor: String?, query: String): SearchResult {
+        val searchResult = networker.search(context = context, cursor = cursor, limit = 10, query = query)
         val savedItems = searchResult.items.map {
             SavedItemWithLabelsAndHighlights(
                 savedItem = it.item,
@@ -219,10 +219,10 @@ class LibraryRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun isSavedItemContentStoredInDB(slug: String): Boolean {
+    override suspend fun isSavedItemContentStoredInDB(context: Context, slug: String): Boolean {
         val existingItem = savedItemDao.getSavedItemWithLabelsAndHighlights(slug)
         existingItem?.savedItem?.savedItemId?.let { savedItemId ->
-            val htmlContent = loadLibraryItemContent(savedItemId)
+            val htmlContent = loadLibraryItemContent(context, savedItemId)
             return (htmlContent ?: "").length > 10
         }
         return false
@@ -412,7 +412,7 @@ class LibraryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sync(since: String, cursor: String?, limit: Int): SavedItemSyncResult {
+    override suspend fun sync(context: Context, since: String, cursor: String?, limit: Int): SavedItemSyncResult {
         val syncResult = networker.savedItemUpdates(cursor = cursor, limit = limit, since = since)
             ?: return SavedItemSyncResult.errorResult
 
@@ -421,7 +421,7 @@ class LibraryRepositoryImpl @Inject constructor(
         }
 
         val savedItems = syncResult.items.map {
-            saveLibraryItemContentToFile(it.id, it.content)
+            saveLibraryItemContentToFile(context, it.id, it.content)
             val savedItem = SavedItem(
                 savedItemId = it.id,
                 title = it.title,
@@ -482,10 +482,13 @@ class LibraryRepositoryImpl @Inject constructor(
 
         Log.d("sync", "found ${syncResult.items.size} items with sync api. Since: $since")
 
-        return SavedItemSyncResult(hasError = false,
+        return SavedItemSyncResult(
+            hasError = false,
+            errorString = null,
             hasMoreItems = syncResult.hasMoreItems,
             cursor = syncResult.cursor,
             count = syncResult.items.size,
-            savedItemSlugs = syncResult.items.map { it.slug })
+            savedItemSlugs = syncResult.items.map { it.slug }
+        )
     }
 }

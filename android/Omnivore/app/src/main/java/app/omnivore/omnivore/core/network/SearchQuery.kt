@@ -1,16 +1,22 @@
 package app.omnivore.omnivore.core.network
 
 import android.os.Environment
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import com.apollographql.apollo3.api.Optional
-import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import android.Manifest
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 
 data class LibrarySearchQueryResponse(
     val cursor: String?, val items: List<LibrarySearchItem>
@@ -21,6 +27,7 @@ data class LibrarySearchItem(
 )
 
 suspend fun Networker.search(
+    context: Context,
     cursor: String? = null, limit: Int = 15, query: String
 ): LibrarySearchQueryResponse {
     try {
@@ -36,7 +43,7 @@ suspend fun Networker.search(
         val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
         val searchItems = itemList.map {
-            saveLibraryItemContentToFile(it.node.id, it.node.content)
+            saveLibraryItemContentToFile(context, it.node.id, it.node.content)
             LibrarySearchItem(item = SavedItem(
                 savedItemId = it.node.id,
                 title = it.node.title,
@@ -95,12 +102,38 @@ suspend fun Networker.search(
     }
 }
 
-fun saveLibraryItemContentToFile(libraryItemId: String, content: String?): Boolean {
+//
+private fun writeToInternalStorage(context: Context, content: String, fileName: String) {
+    try {
+        context.openFileOutput(fileName, MODE_PRIVATE).use { outputStream ->
+            outputStream.write(content.toByteArray())
+            outputStream.flush()
+            Log.d("FileWrite", "File written successfully to internal storage.")
+        }
+    } catch (e: Exception) {
+        Log.e("FileWrite", "Error writing file", e)
+        throw e
+    }
+}
+
+private fun readFromInternalStorage(context: Context, fileName: String): String? {
+    return try {
+        context.openFileInput(fileName).bufferedReader().useLines { lines ->
+            lines.fold("") { some, text ->
+                "$some\n$text"
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("FileRead", "Error reading file", e)
+        null
+    }
+}
+
+
+fun saveLibraryItemContentToFile(context: Context, libraryItemId: String, content: String?): Boolean {
     return try {
         content?.let { content ->
-            val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val file = File(directory, "${libraryItemId}.html")
-            FileOutputStream(file).use { it.write(content.toByteArray()) }
+            writeToInternalStorage(context, content = content, fileName = "${libraryItemId}.html", )
             return false
         }
         false
@@ -110,15 +143,9 @@ fun saveLibraryItemContentToFile(libraryItemId: String, content: String?): Boole
     }
 }
 
-fun loadLibraryItemContent(libraryItemId: String): String? {
+fun loadLibraryItemContent(context: Context, libraryItemId: String): String? {
     return try {
-        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-        val file = File(directory, "${libraryItemId}.html")
-        if (file.exists()) {
-            return FileInputStream(file).bufferedReader().use { it.readText() }
-        } else {
-            null
-        }
+        return readFromInternalStorage(context = context, fileName = "${libraryItemId}.html")
     } catch (e: Exception) {
         e.printStackTrace()
         null
