@@ -159,7 +159,7 @@ const moduleExports = {
       {
         source: '/install/chrome',
         destination:
-          'https://chrome.google.com/webstore/detail/omnivore/blkggjdmcfjdbmmmlfcpplkchpeaiiab/',
+          'https://chromewebstore.google.com/detail/omnivore/blkggjdmcfjdbmmmlfcpplkchpeaiiab',
         permanent: true,
       },
       {

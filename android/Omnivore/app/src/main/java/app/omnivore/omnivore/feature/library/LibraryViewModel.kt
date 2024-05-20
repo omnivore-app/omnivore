@@ -1,9 +1,15 @@
 package app.omnivore.omnivore.feature.library
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.*
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.util.jar.Manifest
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -113,7 +120,8 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             handleFilterChanges()
             for (slug in contentRequestChannel) {
-                libraryRepository.fetchSavedItemContent(slug)
+                val context = applicationContext
+                libraryRepository.fetchSavedItemContent(context, slug)
             }
         }
 
@@ -167,8 +175,10 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun loadUsingSearchAPI() {
+        val context = applicationContext
         viewModelScope.launch {
             val result = libraryRepository.librarySearch(
+                context = context,
                 cursor = librarySearchCursor,
                 query = searchQueryString()
             )
@@ -176,7 +186,7 @@ class LibraryViewModel @Inject constructor(
                 librarySearchCursor = it
             }
             result.savedItems.map {
-                val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(it.savedItem.slug)
+                val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(context, it.savedItem.slug)
 
                 if (!isSavedInDB) {
                     delay(2000)
@@ -277,8 +287,14 @@ class LibraryViewModel @Inject constructor(
     ) {
         libraryRepository.syncOfflineItemsWithServerIfNeeded()
 
-        val result = libraryRepository.sync(since = since, cursor = cursor, limit = 20)
+        val result = libraryRepository.sync(context = this.applicationContext, since = since, cursor = cursor, limit = 10)
         val totalCount = count + result.count
+
+        if (result.hasError) {
+            result.errorString?.let { errorString ->
+                System.out.println("SYNC ERROR: ${errorString}")
+            }
+        }
 
         if (!result.hasError && result.hasMoreItems && result.cursor != null) {
             performItemSync(

@@ -48,6 +48,7 @@ import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -92,7 +93,8 @@ class WebReaderViewModel @Inject constructor(
     private val dataService: DataService,
     private val networker: Networker,
     private val eventTracker: EventTracker,
-    private val savedItemDao: SavedItemDao // TODO - Use repo
+    private val savedItemDao: SavedItemDao,
+    @ApplicationContext private val applicationContext: Context
 ) : ViewModel() {
     var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
     var javascriptDispatchQueue: MutableList<String> = mutableListOf()
@@ -267,7 +269,7 @@ class WebReaderViewModel @Inject constructor(
             val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
             val savedItemId = persistedItem?.savedItem?.savedItemId
             if (savedItemId != null) {
-                val htmlContent = loadLibraryItemContent(savedItemId)
+                val htmlContent = loadLibraryItemContent(applicationContext, savedItemId)
                 if (htmlContent != null) {
                     val articleContent = ArticleContent(
                         title = persistedItem.savedItem.title,
@@ -300,10 +302,10 @@ class WebReaderViewModel @Inject constructor(
     }
 
     private suspend fun loadItemFromServer(slug: String): WebReaderParams? {
-        val articleQueryResult = networker.savedItem(slug)
+        val articleQueryResult = networker.savedItem(context = applicationContext, slug)
 
         val article = articleQueryResult.item ?: return null
-        val htmlContent = loadLibraryItemContent(article.savedItemId)
+        val htmlContent = loadLibraryItemContent(applicationContext, article.savedItemId)
 
         val articleContent = ArticleContent(
             title = article.title,

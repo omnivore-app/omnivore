@@ -132,7 +132,6 @@ internal fun AboutScreen(
                         icon = ImageVector.vectorResource(R.drawable.ic_x),
                         url = "https://x.com/omnivoreapp",
                     )
-
                     LinkIcon(
                         label = "GitHub",
                         icon = ImageVector.vectorResource(R.drawable.ic_github),
