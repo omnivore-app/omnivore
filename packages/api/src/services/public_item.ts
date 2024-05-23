@@ -1,4 +1,3 @@
-import { IsNull } from 'typeorm'
 import { PublicItem } from '../entity/public_item'
 import { getRepository } from '../repository'
 
@@ -8,21 +7,17 @@ export const findUnseenPublicItems = async (
     limit?: number
     offset?: number
   }
-) =>
-  getRepository(PublicItem).find({
-    where: {
-      interaction: IsNull(),
-      interaction: {
-        user: {
-          id: userId,
-        },
-        seenAt: IsNull(),
-      },
-      approved: true,
-    },
-    order: {
-      createdAt: 'DESC',
-    },
-    take: options.limit,
-    skip: options.offset,
-  })
+): Promise<Array<PublicItem>> =>
+  getRepository(PublicItem)
+    .createQueryBuilder('public_item')
+    .leftJoin(
+      'omnivore.public_item_interactions',
+      'interaction',
+      'interaction.public_item_id = public_item.id'
+    )
+    .where('interaction.user_id = :userId', { userId })
+    .andWhere('interaction.seen_at IS NULL')
+    .orderBy('public_item.created_at', 'DESC')
+    .limit(options.limit)
+    .offset(options.offset)
+    .getMany()

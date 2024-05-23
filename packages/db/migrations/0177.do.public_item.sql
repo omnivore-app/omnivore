@@ -21,7 +21,8 @@ CREATE TRIGGER update_public_item_source_modtime BEFORE UPDATE ON omnivore.publi
 
 CREATE TABLE omnivore.public_item (
 	id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-    source_id uuid NOT NULL, -- user_id or public_item_source_id
+    source_name TEXT NOT NULL,
+    source_icon TEXT,
     type TEXT NOT NULL, -- public feeds, newsletters, or user recommended
     title TEXT NOT NULL,
     url TEXT NOT NULL,
@@ -60,7 +61,7 @@ CREATE TABLE omnivore.public_item_interactions (
     saved_at TIMESTAMPTZ,
     liked_at TIMESTAMPTZ,
     broadcasted_at TIMESTAMPTZ,
-    seen_at TIMESTAMPTZ,
+    seen_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

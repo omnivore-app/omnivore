@@ -3,7 +3,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { PublicItem } from './public_item'
@@ -14,16 +13,19 @@ export class PublicItemInteraction {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @OneToOne(() => PublicItem, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PublicItem, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'public_item_id' })
   publicItem!: PublicItem
+
+  @Column('uuid')
+  publicItemId!: string
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User
 
   @Column('timestamptz')
-  seenAt?: Date
+  seenAt!: Date
 
   @Column('timestamptz')
   savedAt?: Date

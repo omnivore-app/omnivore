@@ -2,22 +2,20 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { PublicItemInteraction } from './public_item_interaction'
 
 @Entity()
 export class PublicItem {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @OneToOne(() => PublicItemInteraction)
-  interaction?: PublicItemInteraction
+  @Column('text')
+  source_name!: string
 
-  @Column('uuid')
-  sourceId!: string
+  @Column('text')
+  source_icon!: string
 
   @Column('text')
   type!: string
@@ -31,23 +29,23 @@ export class PublicItem {
   @Column('boolean')
   approved!: boolean
 
-  @Column('text', { nullable: true })
-  thumbnail?: string | null
+  @Column('text')
+  thumbnail?: string
 
-  @Column('text', { nullable: true })
-  previewContent?: string | null
+  @Column('text')
+  previewContent?: string
 
-  @Column('text', { nullable: true })
-  languageCode?: string | null
+  @Column('text')
+  languageCode?: string
 
-  @Column('text', { nullable: true })
-  author?: string | null
+  @Column('text')
+  author?: string
 
-  @Column('text', { nullable: true })
-  dir?: string | null
+  @Column('text')
+  dir?: string
 
-  @Column('timestamptz', { nullable: true })
-  publishedAt?: Date | null
+  @Column('timestamptz')
+  publishedAt?: Date
 
   @CreateDateColumn()
   createdAt!: Date
