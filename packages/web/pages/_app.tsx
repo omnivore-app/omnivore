@@ -81,7 +81,7 @@ const ConditionalCaptchaProvider = (props: {
       </GoogleReCaptchaProvider>
     )
   }
-  return <>props.children</>
+  return <>{props.children}</>
 }
 
 export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
