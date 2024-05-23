@@ -26,6 +26,7 @@ CREATE TABLE omnivore.public_item (
     type TEXT NOT NULL, -- public feeds, newsletters, or user recommended
     title TEXT NOT NULL,
     url TEXT NOT NULL,
+    topic TEXT NOT NULL,
     approved BOOLEAN NOT NULL DEFAULT FALSE,
     thumbnail TEXT,
     preview_content TEXT,
@@ -71,6 +72,8 @@ CREATE INDEX public_item_interaction_public_item_id_idx ON omnivore.public_item_
 CREATE TRIGGER update_public_item_interactions_modtime BEFORE UPDATE ON omnivore.public_item_interactions FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 
-ALTER TABLE omnivore.library_item ADD COLUMN seen_at timestamptz;
+ALTER TABLE omnivore.library_item 
+    ADD COLUMN seen_at timestamptz,
+    ADD COLUMN topic TEXT NOT NULL;
 
 COMMIT;

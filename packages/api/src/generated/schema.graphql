@@ -1249,7 +1249,6 @@ type JustReadFeedItem {
   thumbnail: String
   title: String!
   topic: String!
-  type: String!
   updatedAt: Date
   url: String!
 }
@@ -1693,7 +1692,7 @@ type Query {
   hello: String
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
-  justReadFeed(language: String, location: String): JustReadFeedResult!
+  justReadFeed(after: String, first: Int, language: String, location: String): JustReadFeedResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!

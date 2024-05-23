@@ -207,4 +207,7 @@ export class LibraryItem {
 
   @Column('timestamptz')
   seenAt?: Date
+
+  @Column('text')
+  topic!: string
 }

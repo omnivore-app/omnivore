@@ -1392,7 +1392,6 @@ export type JustReadFeedItem = {
   thumbnail?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   topic: Scalars['String'];
-  type: Scalars['String'];
   updatedAt?: Maybe<Scalars['Date']>;
   url: Scalars['String'];
 };
@@ -2272,6 +2271,8 @@ export type QueryIntegrationArgs = {
 
 
 export type QueryJustReadFeedArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
   language?: InputMaybe<Scalars['String']>;
   location?: InputMaybe<Scalars['String']>;
 };
@@ -6089,7 +6090,6 @@ export type JustReadFeedItemResolvers<ContextType = ResolverContext, ParentType 
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   topic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

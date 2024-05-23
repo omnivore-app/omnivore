@@ -54,6 +54,10 @@ import {
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
 import {
+  UpdateJustReadFeedJobData,
+  UPDATE_JUST_READ_FEED_JOB,
+} from '../jobs/update_just_read_feed'
+import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
@@ -85,6 +89,7 @@ export const getJobPriority = (jobName: string): number => {
     case UPDATE_HIGHLIGHT_JOB:
     case SYNC_READ_POSITIONS_JOB_NAME:
     case SEND_EMAIL_JOB:
+    case UPDATE_JUST_READ_FEED_JOB:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
@@ -979,6 +984,23 @@ export const enqueueBulkUploadContentJob = async (
   }))
 
   return queue.addBulk(jobs)
+}
+
+export const enqueueUpdateJustReadFeed = async (
+  data: UpdateJustReadFeedJobData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(UPDATE_JUST_READ_FEED_JOB, data, {
+    jobId: `${UPDATE_JUST_READ_FEED_JOB}_${data.userId}_${JOB_VERSION}`,
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority: getJobPriority(UPDATE_JUST_READ_FEED_JOB),
+    attempts: 3,
+  })
 }
 
 export default createHttpTaskWithToken

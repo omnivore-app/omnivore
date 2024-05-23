@@ -33,7 +33,6 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
-import { logger } from '../utils/logger'
 import { contentConverter } from '../utils/parser'
 import {
   generateDownloadSignedUrl,
@@ -153,6 +152,7 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
+import { justReadFeedResolver } from './just_read_feed'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -360,6 +360,7 @@ export const functionResolvers = {
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
+    justReadFeed: justReadFeedResolver,
   },
   User: {
     async intercomHash(
@@ -722,4 +723,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Integration'),
   ...resultResolveTypeResolver('ExportToIntegration'),
   ...resultResolveTypeResolver('ReplyToEmail'),
+  ...resultResolveTypeResolver('JustReadFeed'),
 }

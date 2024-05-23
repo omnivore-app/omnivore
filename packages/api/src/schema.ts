@@ -3128,7 +3128,6 @@ const schema = gql`
     updatedAt: Date
     comments: [String!]
     author: String
-    type: String!
     languageCode: String
     dir: String
     seen_at: Date
@@ -3350,7 +3349,12 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
-    justReadFeed(location: String, language: String): JustReadFeedResult!
+    justReadFeed(
+      location: String
+      language: String
+      first: Int
+      after: String
+    ): JustReadFeedResult!
   }
 `
 

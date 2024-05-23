@@ -52,4 +52,7 @@ export class PublicItem {
 
   @UpdateDateColumn()
   updatedAt!: Date
+
+  @Column('text')
+  topic!: string
 }
