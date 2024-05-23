@@ -16,6 +16,9 @@ CREATE TABLE omnivore.public_item_source (
     updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TRIGGER update_public_item_source_modtime BEFORE UPDATE ON omnivore.public_item_source FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+
 CREATE TABLE omnivore.public_item (
 	id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     source_id uuid NOT NULL, -- user_id or public_item_source_id
@@ -33,18 +36,8 @@ CREATE TABLE omnivore.public_item (
     updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE omnivore.public_item_features (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-    public_item_id uuid NOT NULL REFERENCES omnivore.public_item(id) ON DELETE CASCADE,
-    classified_topic TEXT,
-    sentiment_score FLOAT,
-    writing_style TEXT,
-    popularity_score FLOAT,
-    embedding VECTOR(768),
-    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TRIGGER update_public_item_modtime BEFORE UPDATE ON omnivore.public_item FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
-CREATE INDEX public_item_feature_public_item_id_idx ON omnivore.public_item_features(public_item_id);
 
 CREATE TABLE omnivore.public_item_stats (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
@@ -57,28 +50,26 @@ CREATE TABLE omnivore.public_item_stats (
 );
 
 CREATE INDEX public_item_stats_public_item_id_idx ON omnivore.public_item_stats(public_item_id);
+CREATE TRIGGER update_public_item_stats_modtime BEFORE UPDATE ON omnivore.public_item_stats FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
 
 CREATE TABLE omnivore.public_item_interactions (
 	id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     user_id uuid NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE,
     public_item_id uuid NOT NULL REFERENCES omnivore.public_item(id) ON DELETE CASCADE,
-    action TEXT NOT NULL, -- save, like, broadcast, comment, see
-    action_data TEXT, -- for comment, the comment text
+    saved_at TIMESTAMPTZ,
+    liked_at TIMESTAMPTZ,
+    broadcasted_at TIMESTAMPTZ,
+    seen_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX public_item_interaction_user_id_idx ON omnivore.public_item_interactions(user_id);
 CREATE INDEX public_item_interaction_public_item_id_idx ON omnivore.public_item_interactions(public_item_id);
+CREATE TRIGGER update_public_item_interactions_modtime BEFORE UPDATE ON omnivore.public_item_interactions FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
-CREATE TABLE omnivore.library_item_interactions (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-    user_id uuid NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE,
-    library_item_id uuid NOT NULL REFERENCES omnivore.library_item(id) ON DELETE CASCADE,
-    action TEXT NOT NULL, -- seen
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
 
-CREATE INDEX library_item_interaction_user_id_idx ON omnivore.library_item_interactions(user_id);
-CREATE INDEX library_item_interaction_library_item_id_idx ON omnivore.library_item_interactions(library_item_id);
+ALTER TABLE omnivore.library_item ADD COLUMN seen_at timestamptz;
 
 COMMIT;

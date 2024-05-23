@@ -60,6 +60,7 @@ enum ReadFilter {
   READ = 'read',
   READING = 'reading',
   UNREAD = 'unread',
+  SEEN = 'seen',
 }
 
 enum InFilter {
@@ -332,6 +333,8 @@ export const buildQueryString = (
               return 'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
             case ReadFilter.UNREAD:
               return 'library_item.reading_progress_bottom_percent < 2'
+            case ReadFilter.SEEN:
+              return 'library_item.seen_at IS NOT NULL'
             default:
               throw new Error(`Unexpected keyword: ${value}`)
           }
