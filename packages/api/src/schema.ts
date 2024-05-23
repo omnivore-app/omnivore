@@ -3101,6 +3101,60 @@ const schema = gql`
     SUBSCRIBE
   }
 
+  type JustReadFeedSource {
+    id: ID!
+    name: String!
+    url: String!
+    topics: [String!]
+    thumbnail: String
+    url: String
+    languageCodes: [String!]
+  }
+
+  type JustReadFeedItem {
+    id: ID!
+    title: String!
+    topic: String!
+    url: String!
+    thumbnail: String
+    publishedAt: Date
+    source: JustReadFeedSource
+    previewContent: String
+    highlights: String
+    savedCount: Int
+    likedCount: Int
+    broadcastCount: Int
+    createdAt: Date
+    updatedAt: Date
+    comments: [String!]
+    author: String
+    type: String!
+    languageCode: String
+    dir: String
+    seen_at: Date
+  }
+
+  type JustReadFeedTopic {
+    name: String!
+    items: [JustReadFeedItem!]!
+    thumbnail: String
+  }
+
+  type JustReadFeedSuccess {
+    topics: [JustReadFeedTopic!]!
+  }
+
+  enum JustReadFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  type JustReadFeedError {
+    errorCodes: [JustReadFeedErrorCode!]!
+  }
+
+  union JustReadFeedResult = JustReadFeedSuccess | JustReadFeedError
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3296,6 +3350,7 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
+    justReadFeed(location: String, language: String): JustReadFeedResult!
   }
 `
 

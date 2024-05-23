@@ -1222,6 +1222,59 @@ type JoinGroupSuccess {
   group: RecommendationGroup!
 }
 
+type JustReadFeedError {
+  errorCodes: [JustReadFeedErrorCode!]!
+}
+
+enum JustReadFeedErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+type JustReadFeedItem {
+  author: String
+  broadcastCount: Int
+  comments: [String!]
+  createdAt: Date
+  dir: String
+  highlights: String
+  id: ID!
+  languageCode: String
+  likedCount: Int
+  previewContent: String
+  publishedAt: Date
+  savedCount: Int
+  seen_at: Date
+  source: JustReadFeedSource
+  thumbnail: String
+  title: String!
+  topic: String!
+  type: String!
+  updatedAt: Date
+  url: String!
+}
+
+union JustReadFeedResult = JustReadFeedError | JustReadFeedSuccess
+
+type JustReadFeedSource {
+  id: ID!
+  languageCodes: [String!]
+  name: String!
+  thumbnail: String
+  topics: [String!]
+  url: String
+}
+
+type JustReadFeedSuccess {
+  topics: [JustReadFeedTopic!]!
+}
+
+type JustReadFeedTopic {
+  items: [JustReadFeedItem!]!
+  name: String!
+  thumbnail: String
+}
+
 type Label {
   color: String!
   createdAt: Date
@@ -1640,6 +1693,7 @@ type Query {
   hello: String
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
+  justReadFeed(language: String, location: String): JustReadFeedResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
