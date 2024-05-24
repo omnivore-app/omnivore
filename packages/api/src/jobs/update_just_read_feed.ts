@@ -31,6 +31,10 @@ interface JustReadFeedItem {
   dir?: string
   wordCount?: number
   sourceIcon?: string
+
+  saveCount?: number
+  likeCount?: number
+  broadcastCount?: number
 }
 
 interface JustReadFeedTopic {
@@ -83,6 +87,9 @@ const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
   sourceName: item.sourceName,
   siteName: item.siteName,
   updatedAt: item.updatedAt,
+  saveCount: item.stats.saveCount,
+  likeCount: item.stats.likeCount,
+  broadcastCount: item.stats.broadcastCount,
 })
 
 interface FeedItemScore {

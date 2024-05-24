@@ -2,14 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { PublicItemStats } from './public_item_stats'
 
 @Entity({ name: 'public_item' })
 export class PublicItem {
   @PrimaryGeneratedColumn('uuid')
   id!: string
+
+  @OneToOne(() => PublicItemStats)
+  stats!: PublicItemStats
 
   @Column('text')
   sourceName!: string
