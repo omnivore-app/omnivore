@@ -3107,7 +3107,6 @@ const schema = gql`
     url: String!
     topics: [String!]
     thumbnail: String
-    url: String
     languageCodes: [String!]
   }
 
@@ -3117,21 +3116,22 @@ const schema = gql`
     topic: String
     url: String!
     thumbnail: String
-    publishedAt: Date
-    source: JustReadFeedSource
     previewContent: String
     highlights: String
     savedCount: Int
     likedCount: Int
     broadcastCount: Int
-    createdAt: Date
-    updatedAt: Date
+    createdAt: Date!
+    updatedAt: Date!
     comments: [String!]
     author: String
     languageCode: String
     dir: String
     seen_at: Date
     wordCount: Int
+    sourceName: String!
+    sourceIcon: String
+    siteName: String
   }
 
   type JustReadFeedTopic {
@@ -3156,7 +3156,7 @@ const schema = gql`
   union JustReadFeedResult = JustReadFeedSuccess | JustReadFeedError
 
   type MySubscriptionRootType {
-    justReadFeed: JustReadFeedResult!
+    hello: String # for testing only
   }
 
   # Mutations
@@ -3354,6 +3354,7 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
+    justReadFeed: JustReadFeedResult!
   }
 
   schema {

@@ -18,6 +18,7 @@ interface JustReadFeedItem {
   title: string
   url: string
   createdAt: Date
+  updatedAt: Date
   sourceName: string
 
   siteName?: string
@@ -59,6 +60,7 @@ const libraryItemToFeedItem = (
   sourceIcon: user.profile.pictureUrl || undefined,
   sourceName: user.name,
   siteName: item.siteName || undefined,
+  updatedAt: item.updatedAt,
 })
 
 const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
@@ -76,6 +78,7 @@ const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
   sourceIcon: item.sourceIcon,
   sourceName: item.sourceName,
   siteName: item.siteName,
+  updatedAt: item.updatedAt,
 })
 
 interface FeedItemScore {
@@ -97,19 +100,27 @@ const selectCandidates = async (
     userId
   )
 
+  logger.info(`Found ${libraryItems.length} library items`)
+
   // map library items to candidates
   const privateCandidates: Array<JustReadFeedItem> = libraryItems.map(
     (libraryItem) => libraryItemToFeedItem(user, libraryItem)
   )
+
+  logger.info(`Found ${privateCandidates.length} private candidates`)
 
   // get candidates from public inventory
   const publicItems = await findUnseenPublicItems(userId, {
     limit: 100,
   })
 
+  logger.info(`Found ${publicItems.length} public items`)
+
   // map public items to candidates
   const publicCandidates: Array<JustReadFeedItem> =
     publicItems.map(publicItemToFeedItem)
+
+  logger.info(`Found ${publicCandidates.length} public candidates`)
 
   // combine candidates
   return [...privateCandidates, ...publicCandidates]
@@ -124,29 +135,37 @@ const rankFeedItems = async (
   }
 
   // TODO: get score of candidates
-  const API_URL = 'https://score.omnivore.app' // fake URL
+  // const API_URL = 'https://score.omnivore.app' // fake URL
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ candidates: feedItems }),
-  })
+  // const response = await fetch(API_URL, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({ candidates: feedItems }),
+  // })
 
-  if (!response.ok) {
-    throw new Error(`Failed to score candidates: ${response.statusText}`)
-  }
+  // if (!response.ok) {
+  //   throw new Error(`Failed to score candidates: ${response.statusText}`)
+  // }
 
-  const scores = (await response.json()) as Array<FeedItemScore>
+  // const scores = (await response.json()) as Array<FeedItemScore>
+
+  // fake scores
+  const scores: Array<FeedItemScore> = feedItems.map((item) => ({
+    id: item.id,
+    score: Math.random(),
+  }))
 
   // rank candidates by score in ascending order
-  return feedItems.sort((a, b) => {
+  feedItems.sort((a, b) => {
     const scoreA = scores.find((score) => score.id === a.id)?.score || 0
     const scoreB = scores.find((score) => score.id === b.id)?.score || 0
 
     return scoreA - scoreB
   })
+
+  return Promise.resolve(feedItems)
 }
 
 const redisKey = (userId: string) => `just-read-feed:${userId}`
@@ -209,6 +228,7 @@ const appendItemsToFeed = async (
   pipeline.zremrangebyrank(key, 0, -(MAX_FEED_ITEMS + 1))
   pipeline.zremrangebyscore(key, '-inf', Date.now())
 
+  logger.info('Adding feed items to redis')
   await pipeline.exec()
 }
 
@@ -227,11 +247,18 @@ export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
 
   // TODO: integrity check on candidates?
 
+  logger.info('Ranking feed items')
   const rankedFeedItems = await rankFeedItems(feedItems)
+  if (rankedFeedItems.length === 0) {
+    logger.info('No feed items to append')
+    return
+  }
 
+  logger.info('Filtering feed items')
   // TODO: filtering
   // get top 100 ranked feed items
   const filteredFeedItems = rankedFeedItems.slice(0, 100)
 
+  logger.info('Appending feed items to feed')
   await appendItemsToFeed(filteredFeedItems, userId)
 }

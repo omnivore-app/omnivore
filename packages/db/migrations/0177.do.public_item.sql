@@ -17,6 +17,7 @@ CREATE TABLE omnivore.public_item_source (
 );
 
 CREATE TRIGGER update_public_item_source_modtime BEFORE UPDATE ON omnivore.public_item_source FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+GRANT SELECT ON omnivore.public_item_source TO omnivore_user;
 
 
 CREATE TABLE omnivore.public_item (
@@ -41,6 +42,7 @@ CREATE TABLE omnivore.public_item (
 );
 
 CREATE TRIGGER update_public_item_modtime BEFORE UPDATE ON omnivore.public_item FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+GRANT SELECT ON omnivore.public_item TO omnivore_user;
 
 
 CREATE TABLE omnivore.public_item_stats (
@@ -55,6 +57,7 @@ CREATE TABLE omnivore.public_item_stats (
 
 CREATE INDEX public_item_stats_public_item_id_idx ON omnivore.public_item_stats(public_item_id);
 CREATE TRIGGER update_public_item_stats_modtime BEFORE UPDATE ON omnivore.public_item_stats FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+GRANT SELECT ON omnivore.public_item_stats TO omnivore_user;
 
 
 CREATE TABLE omnivore.public_item_interactions (
@@ -66,13 +69,14 @@ CREATE TABLE omnivore.public_item_interactions (
     broadcasted_at TIMESTAMPTZ,
     seen_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     digested_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX public_item_interaction_user_id_idx ON omnivore.public_item_interactions(user_id);
 CREATE INDEX public_item_interaction_public_item_id_idx ON omnivore.public_item_interactions(public_item_id);
 CREATE TRIGGER update_public_item_interactions_modtime BEFORE UPDATE ON omnivore.public_item_interactions FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+GRANT SELECT, INSERT, UPDATE ON omnivore.public_item_interactions TO omnivore_user;
 
 
 ALTER TABLE omnivore.library_item 

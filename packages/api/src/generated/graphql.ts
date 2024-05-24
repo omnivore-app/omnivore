@@ -1378,21 +1378,22 @@ export type JustReadFeedItem = {
   author?: Maybe<Scalars['String']>;
   broadcastCount?: Maybe<Scalars['Int']>;
   comments?: Maybe<Array<Scalars['String']>>;
-  createdAt?: Maybe<Scalars['Date']>;
+  createdAt: Scalars['Date'];
   dir?: Maybe<Scalars['String']>;
   highlights?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   languageCode?: Maybe<Scalars['String']>;
   likedCount?: Maybe<Scalars['Int']>;
   previewContent?: Maybe<Scalars['String']>;
-  publishedAt?: Maybe<Scalars['Date']>;
   savedCount?: Maybe<Scalars['Int']>;
   seen_at?: Maybe<Scalars['Date']>;
-  source?: Maybe<JustReadFeedSource>;
+  siteName?: Maybe<Scalars['String']>;
+  sourceIcon?: Maybe<Scalars['String']>;
+  sourceName: Scalars['String'];
   thumbnail?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   topic?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['Date']>;
+  updatedAt: Scalars['Date'];
   url: Scalars['String'];
   wordCount?: Maybe<Scalars['Int']>;
 };
@@ -1406,7 +1407,7 @@ export type JustReadFeedSource = {
   name: Scalars['String'];
   thumbnail?: Maybe<Scalars['String']>;
   topics?: Maybe<Array<Scalars['String']>>;
-  url?: Maybe<Scalars['String']>;
+  url: Scalars['String'];
 };
 
 export type JustReadFeedSuccess = {
@@ -2075,7 +2076,7 @@ export type MutationUploadImportFileArgs = {
 
 export type MySubscriptionRootType = {
   __typename?: 'MySubscriptionRootType';
-  justReadFeed: JustReadFeedResult;
+  hello?: Maybe<Scalars['String']>;
 };
 
 export type NewsletterEmail = {
@@ -2224,6 +2225,7 @@ export type Query = {
   hello?: Maybe<Scalars['String']>;
   integration: IntegrationResult;
   integrations: IntegrationsResult;
+  justReadFeed: JustReadFeedResult;
   labels: LabelsResult;
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
@@ -6075,21 +6077,22 @@ export type JustReadFeedItemResolvers<ContextType = ResolverContext, ParentType 
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   broadcastCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   comments?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
-  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   dir?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   highlights?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   languageCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   likedCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   savedCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  source?: Resolver<Maybe<ResolversTypes['JustReadFeedSource']>, ParentType, ContextType>;
+  siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sourceIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sourceName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   topic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6105,7 +6108,7 @@ export type JustReadFeedSourceResolvers<ContextType = ResolverContext, ParentTyp
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   topics?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
-  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6358,7 +6361,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
 };
 
 export type MySubscriptionRootTypeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MySubscriptionRootType'] = ResolversParentTypes['MySubscriptionRootType']> = {
-  justReadFeed?: SubscriptionResolver<ResolversTypes['JustReadFeedResult'], "justReadFeed", ParentType, ContextType>;
+  hello?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "hello", ParentType, ContextType>;
 };
 
 export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmail'] = ResolversParentTypes['NewsletterEmail']> = {
@@ -6452,6 +6455,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'name'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
+  justReadFeed?: Resolver<ResolversTypes['JustReadFeedResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;

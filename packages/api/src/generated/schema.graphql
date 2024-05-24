@@ -1241,21 +1241,22 @@ type JustReadFeedItem {
   author: String
   broadcastCount: Int
   comments: [String!]
-  createdAt: Date
+  createdAt: Date!
   dir: String
   highlights: String
   id: ID!
   languageCode: String
   likedCount: Int
   previewContent: String
-  publishedAt: Date
   savedCount: Int
   seen_at: Date
-  source: JustReadFeedSource
+  siteName: String
+  sourceIcon: String
+  sourceName: String!
   thumbnail: String
   title: String!
   topic: String
-  updatedAt: Date
+  updatedAt: Date!
   url: String!
   wordCount: Int
 }
@@ -1268,7 +1269,7 @@ type JustReadFeedSource {
   name: String!
   thumbnail: String
   topics: [String!]
-  url: String
+  url: String!
 }
 
 type JustReadFeedSuccess {
@@ -1563,7 +1564,7 @@ type Mutation {
 }
 
 type MySubscriptionRootType {
-  justReadFeed: JustReadFeedResult!
+  hello: String
 }
 
 type NewsletterEmail {
@@ -1703,6 +1704,7 @@ type Query {
   hello: String
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
+  justReadFeed: JustReadFeedResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
