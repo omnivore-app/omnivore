@@ -1,3 +1,9 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: MySubscriptionRootType
+}
+
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddDiscoverFeedError {
@@ -1248,9 +1254,10 @@ type JustReadFeedItem {
   source: JustReadFeedSource
   thumbnail: String
   title: String!
-  topic: String!
+  topic: String
   updatedAt: Date
   url: String!
+  wordCount: Int
 }
 
 union JustReadFeedResult = JustReadFeedError | JustReadFeedSuccess
@@ -1270,7 +1277,7 @@ type JustReadFeedSuccess {
 
 type JustReadFeedTopic {
   items: [JustReadFeedItem!]!
-  name: String!
+  name: String
   thumbnail: String
 }
 
@@ -1555,6 +1562,10 @@ type Mutation {
   uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
+type MySubscriptionRootType {
+  justReadFeed: JustReadFeedResult!
+}
+
 type NewsletterEmail {
   address: String!
   confirmationCode: String
@@ -1692,7 +1703,6 @@ type Query {
   hello: String
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
-  justReadFeed(after: String, first: Int, language: String, location: String): JustReadFeedResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!

@@ -11,6 +11,7 @@ DROP TABLE omnivore.public_item_source;
 
 ALTER TABLE omnivore.library_item 
     DROP COLUMN seen_at,
+    DROP COLUMN digested_at,
     DROP COLUMN topic;
 
 COMMIT;

@@ -209,5 +209,8 @@ export class LibraryItem {
   seenAt?: Date
 
   @Column('text')
-  topic!: string
+  topic?: string
+
+  @Column('timestamptz')
+  digestedAt?: Date
 }

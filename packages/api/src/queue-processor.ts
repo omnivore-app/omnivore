@@ -59,6 +59,10 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from './jobs/update_db'
+import {
+  updateJustReadFeed,
+  UPDATE_JUST_READ_FEED_JOB,
+} from './jobs/update_just_read_feed'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { uploadContentJob, UPLOAD_CONTENT_JOB } from './jobs/upload_content'
 import { redisDataSource } from './redis_data_source'
@@ -185,6 +189,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return createDigest(job.data)
         case UPLOAD_CONTENT_JOB:
           return uploadContentJob(job.data)
+        case UPDATE_JUST_READ_FEED_JOB:
+          return updateJustReadFeed(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

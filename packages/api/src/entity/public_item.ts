@@ -12,10 +12,10 @@ export class PublicItem {
   id!: string
 
   @Column('text')
-  source_name!: string
+  sourceName!: string
 
   @Column('text')
-  source_icon!: string
+  sourceIcon?: string
 
   @Column('text')
   type!: string
@@ -54,5 +54,11 @@ export class PublicItem {
   updatedAt!: Date
 
   @Column('text')
-  topic!: string
+  topic?: string
+
+  @Column('integer')
+  wordCount?: number
+
+  @Column('text')
+  siteName?: string
 }

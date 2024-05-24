@@ -12,8 +12,8 @@ CREATE TABLE omnivore.public_item_source (
     url TEXT NOT NULL,
     language_codes TEXT[] NOT NULL,
     approved BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TRIGGER update_public_item_source_modtime BEFORE UPDATE ON omnivore.public_item_source FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
@@ -26,7 +26,7 @@ CREATE TABLE omnivore.public_item (
     type TEXT NOT NULL, -- public feeds, newsletters, or user recommended
     title TEXT NOT NULL,
     url TEXT NOT NULL,
-    topic TEXT NOT NULL,
+    topic TEXT,
     approved BOOLEAN NOT NULL DEFAULT FALSE,
     thumbnail TEXT,
     preview_content TEXT,
@@ -34,8 +34,10 @@ CREATE TABLE omnivore.public_item (
     author TEXT,
     dir TEXT,
     published_at timestamptz,
-    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+    word_count INT,
+    site_name TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TRIGGER update_public_item_modtime BEFORE UPDATE ON omnivore.public_item FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
@@ -47,8 +49,8 @@ CREATE TABLE omnivore.public_item_stats (
     save_count INT NOT NULL DEFAULT 0,
     like_count INT NOT NULL DEFAULT 0,
     broadcast_count INT NOT NULL DEFAULT 0,
-    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX public_item_stats_public_item_id_idx ON omnivore.public_item_stats(public_item_id);
@@ -63,6 +65,7 @@ CREATE TABLE omnivore.public_item_interactions (
     liked_at TIMESTAMPTZ,
     broadcasted_at TIMESTAMPTZ,
     seen_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    digested_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -74,6 +77,7 @@ CREATE TRIGGER update_public_item_interactions_modtime BEFORE UPDATE ON omnivore
 
 ALTER TABLE omnivore.library_item 
     ADD COLUMN seen_at timestamptz,
-    ADD COLUMN topic TEXT NOT NULL;
+    ADD COLUMN digested_at timestamptz,
+    ADD COLUMN topic TEXT;
 
 COMMIT;

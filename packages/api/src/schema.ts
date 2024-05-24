@@ -3114,7 +3114,7 @@ const schema = gql`
   type JustReadFeedItem {
     id: ID!
     title: String!
-    topic: String!
+    topic: String
     url: String!
     thumbnail: String
     publishedAt: Date
@@ -3131,10 +3131,11 @@ const schema = gql`
     languageCode: String
     dir: String
     seen_at: Date
+    wordCount: Int
   }
 
   type JustReadFeedTopic {
-    name: String!
+    name: String
     items: [JustReadFeedItem!]!
     thumbnail: String
   }
@@ -3153,6 +3154,10 @@ const schema = gql`
   }
 
   union JustReadFeedResult = JustReadFeedSuccess | JustReadFeedError
+
+  type MySubscriptionRootType {
+    justReadFeed: JustReadFeedResult!
+  }
 
   # Mutations
   type Mutation {
@@ -3349,12 +3354,12 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
-    justReadFeed(
-      location: String
-      language: String
-      first: Int
-      after: String
-    ): JustReadFeedResult!
+  }
+
+  schema {
+    query: Query
+    mutation: Mutation
+    subscription: MySubscriptionRootType
   }
 `
 

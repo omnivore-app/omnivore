@@ -41,4 +41,7 @@ export class PublicItemInteraction {
 
   @Column('timestamptz')
   updated!: Date
+
+  @Column('timestamptz')
+  digested?: Date
 }
