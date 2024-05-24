@@ -1,3 +1,4 @@
+import languages from '@cospired/i18n-iso-languages'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
 import { User } from '../entity/user'
@@ -42,6 +43,9 @@ interface JustReadFeed {
   topics: Array<JustReadFeedTopic>
 }
 
+const lanaugeToCode = (language: string): string =>
+  languages.getAlpha2Code(language, 'en') || 'en'
+
 const libraryItemToFeedItem = (
   user: User,
   item: LibraryItem
@@ -51,9 +55,9 @@ const libraryItemToFeedItem = (
   url: item.originalUrl,
   thumbnail: item.thumbnail || undefined,
   previewContent: item.description || undefined,
-  languageCode: item.itemLanguage || undefined, // TODO: map to language code
+  languageCode: lanaugeToCode(item.itemLanguage || 'English'),
   author: item.author || undefined,
-  dir: item.directionality || undefined,
+  dir: item.directionality || 'ltr',
   createdAt: item.createdAt,
   topic: item.topic,
   wordCount: item.wordCount || undefined,
@@ -69,9 +73,9 @@ const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
   url: item.url,
   thumbnail: item.thumbnail,
   previewContent: item.previewContent,
-  languageCode: item.languageCode,
+  languageCode: item.languageCode || 'en',
   author: item.author,
-  dir: item.dir,
+  dir: item.dir || 'ltr',
   createdAt: item.createdAt,
   topic: item.topic,
   wordCount: item.wordCount || undefined,

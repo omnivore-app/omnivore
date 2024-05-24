@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@bmatei/apollo-prometheus-exporter": "^3.0.0",
+    "@cospired/i18n-iso-languages": "^4.2.0",
     "@google-cloud/logging-winston": "^6.0.0",
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
