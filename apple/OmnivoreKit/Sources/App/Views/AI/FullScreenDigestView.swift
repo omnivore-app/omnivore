@@ -76,12 +76,17 @@ public class FullScreenDigestViewModel: ObservableObject {
       self.isRunning = digest.jobState == "RUNNING" || digest.jobState == "PENDING"
       self.hasError = digest.jobState == "FAILED"
 
-      if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
+      if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, 
+          playingDigest.digest.id == digest.id {
         // Don't think we need to do anything here
       } else {
         let chapterData = self.chapterInfo?.map { $0.1 }
         audioController.play(itemAudioProperties: DigestAudioItem(digest: digest, chapters: chapterData ?? []))
       }
+
+      EventTracker.track(
+       .digestOpened(digestID: digest.id)
+      )
     } else {
       hasError = true
     }
@@ -200,7 +205,7 @@ struct FullScreenDigestView: View {
        await viewModel.load(dataService: dataService, audioController: audioController)
      }
   }
-  
+
   var jobRunningText: some View {
     VStack {
       Spacer()

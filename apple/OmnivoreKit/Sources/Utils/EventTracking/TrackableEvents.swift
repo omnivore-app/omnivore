@@ -6,6 +6,7 @@ public enum TrackableEvent {
   case backgroundFetch(jobStatus: BackgroundFetchJobStatus, itemCount: Int, secondsElapsed: Int)
   case audioSessionStart(linkID: String, voice: String, voiceProvider: String)
   case audioSessionEnd(linkID: String, timeElapsed: Double)
+  case digestOpened(digestID: String)
 }
 
 public enum BackgroundFetchJobStatus: String {
@@ -28,6 +29,8 @@ public extension TrackableEvent {
       return "audio_session_start"
     case .audioSessionEnd:
       return "audio_session_end"
+    case .digestOpened:
+      return "digest_opened"
     }
   }
 
@@ -58,6 +61,11 @@ public extension TrackableEvent {
       return [
         "link": linkID,
         "timeElapsed": String(timeElapsed)
+      ]
+    case let .digestOpened(digestID: digestID):
+      return [
+        "channel": "push",
+        "digestID": digestID
       ]
     }
   }
