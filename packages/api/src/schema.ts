@@ -3101,19 +3101,16 @@ const schema = gql`
     SUBSCRIBE
   }
 
-  type JustReadFeedSource {
+  type JustReadFeedSubscription {
     id: ID!
     name: String!
-    url: String!
-    topics: [String!]
-    thumbnail: String
-    languageCodes: [String!]
+    url: String
+    icon: String
   }
 
   type JustReadFeedItem {
     id: ID!
     title: String!
-    topic: String
     url: String!
     thumbnail: String
     previewContent: String
@@ -3121,32 +3118,34 @@ const schema = gql`
     savedCount: Int
     likedCount: Int
     broadcastCount: Int
-    createdAt: Date!
-    updatedAt: Date!
-    comments: [String!]
+    date: Date!
     author: String
-    languageCode: String
     dir: String
     seen_at: Date
     wordCount: Int
-    sourceName: String!
-    sourceIcon: String
-    siteName: String
+    subscription: JustReadFeedSubscription!
+    canSave: Boolean
+    canComment: Boolean
+    canShare: Boolean
+    canArchive: Boolean
+    canDelete: Boolean
   }
 
-  type JustReadFeedTopic {
-    name: String
+  type JustReadFeedSection {
+    title: String
+    layout: String
     items: [JustReadFeedItem!]!
     thumbnail: String
   }
 
   type JustReadFeedSuccess {
-    topics: [JustReadFeedTopic!]!
+    sections: [JustReadFeedSection!]!
   }
 
   enum JustReadFeedErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
+    PENDING
   }
 
   type JustReadFeedError {
@@ -3155,7 +3154,7 @@ const schema = gql`
 
   union JustReadFeedResult = JustReadFeedSuccess | JustReadFeedError
 
-  type MySubscriptionRootType {
+  type SubscriptionRootType {
     hello: String # for testing only
   }
 
@@ -3354,13 +3353,13 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
-    justReadFeed: JustReadFeedResult!
+    justReadFeed(first: Int, after: String): JustReadFeedResult!
   }
 
   schema {
     query: Query
     mutation: Mutation
-    subscription: MySubscriptionRootType
+    subscription: SubscriptionRootType
   }
 `
 

@@ -2,6 +2,11 @@ import languages from '@cospired/i18n-iso-languages'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
 import { User } from '../entity/user'
+import {
+  JustReadFeedItem,
+  JustReadFeedSection,
+  JustReadFeedSuccess,
+} from '../generated/graphql'
 import { redisDataSource } from '../redis_data_source'
 import { findUnseenPublicItems } from '../services/just_read_feed'
 import { searchLibraryItems } from '../services/library_item'
@@ -14,37 +19,44 @@ export interface UpdateJustReadFeedJobData {
   userId: string
 }
 
-interface JustReadFeedItem {
+interface Feature {
+  title: string
+  has_thumbnail: boolean
+  has_site_icon: boolean
+  saved_at: Date
+  site?: string
+  language?: string
+  author?: string
+  directionality: string
+  word_count?: number
+  subscription_type: string
+  folder: string
+}
+
+interface ScoreApiRequestBody {
+  user_id: string
+  item_features: Record<string, Feature> // item_id -> feature
+}
+
+interface Candidate {
   id: string
   title: string
   url: string
-  createdAt: Date
-  updatedAt: Date
-  sourceName: string
-
-  siteName?: string
-  topic?: string
   thumbnail?: string
   previewContent?: string
-  languageCode?: string
+  languageCode: string
   author?: string
-  dir?: string
+  dir: string
+  date: Date
+  topic?: string
   wordCount?: number
   sourceIcon?: string
-
-  saveCount?: number
-  likeCount?: number
-  broadcastCount?: number
-}
-
-interface JustReadFeedTopic {
-  name?: string
-  items: Array<JustReadFeedItem>
-  thumbnail: string
-}
-
-interface JustReadFeed {
-  topics: Array<JustReadFeedTopic>
+  siteName?: string
+  subscription: {
+    id: string
+    name: string
+    icon?: string
+  }
 }
 
 const lanaugeToCode = (language: string): string =>
@@ -62,13 +74,16 @@ const libraryItemToFeedItem = (
   languageCode: lanaugeToCode(item.itemLanguage || 'English'),
   author: item.author || undefined,
   dir: item.directionality || 'ltr',
-  createdAt: item.createdAt,
+  date: item.createdAt,
   topic: item.topic,
   wordCount: item.wordCount || undefined,
   sourceIcon: user.profile.pictureUrl || undefined,
-  sourceName: user.name,
   siteName: item.siteName || undefined,
-  updatedAt: item.updatedAt,
+  subscription: {
+    id: user.id,
+    name: user.name,
+    icon: user.profile.pictureUrl || undefined,
+  },
 })
 
 const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
@@ -80,11 +95,9 @@ const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
   languageCode: item.languageCode || 'en',
   author: item.author,
   dir: item.dir || 'ltr',
-  createdAt: item.createdAt,
+  date: item.createdAt,
   topic: item.topic,
   wordCount: item.wordCount || undefined,
-  sourceIcon: item.sourceIcon,
-  sourceName: item.sourceName,
   siteName: item.siteName,
   updatedAt: item.updatedAt,
   saveCount: item.stats.saveCount,
@@ -92,10 +105,7 @@ const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
   broadcastCount: item.stats.broadcastCount,
 })
 
-interface FeedItemScore {
-  id: string
-  score: number
-}
+type ScoreApiResponse = Record<string, number> // item_id -> score
 
 const selectCandidates = async (
   user: User
@@ -138,6 +148,7 @@ const selectCandidates = async (
 }
 
 const rankFeedItems = async (
+  userId: string,
   feedItems: Array<JustReadFeedItem>
 ): Promise<Array<JustReadFeedItem>> => {
   if (feedItems.length <= 10) {
@@ -146,32 +157,46 @@ const rankFeedItems = async (
   }
 
   // TODO: get score of candidates
-  // const API_URL = 'https://score.omnivore.app' // fake URL
+  const API_URL = 'http://127.0.0.1:5000/predictions'
+  const requestBody: ScoreApiRequestBody = {
+    user_id: userId,
+    item_features: feedItems.reduce((acc, item) => {
+      acc[item.id] = {
+        title: item.title,
+        has_thumbnail: !!item.thumbnail,
+        has_site_icon: !!item.sourceIcon,
+        saved_at: item.date,
+        site: item.siteName,
+        language: item.languageCode,
+      } as Feature
+      return acc
+    }, {} as Record<string, Feature>),
+  }
 
-  // const response = await fetch(API_URL, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({ candidates: feedItems }),
-  // })
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  })
 
-  // if (!response.ok) {
-  //   throw new Error(`Failed to score candidates: ${response.statusText}`)
-  // }
+  if (!response.ok) {
+    throw new Error(`Failed to score candidates: ${response.statusText}`)
+  }
 
-  // const scores = (await response.json()) as Array<FeedItemScore>
+  const scores = (await response.json()) as ScoreApiResponse
 
-  // fake scores
-  const scores: Array<FeedItemScore> = feedItems.map((item) => ({
-    id: item.id,
-    score: Math.random(),
-  }))
+  // // fake scores
+  // const scores: Array<FeedItemScore> = feedItems.map((item) => ({
+  //   id: item.id,
+  //   score: Math.random(),
+  // }))
 
   // rank candidates by score in ascending order
   feedItems.sort((a, b) => {
-    const scoreA = scores.find((score) => score.id === a.id)?.score || 0
-    const scoreB = scores.find((score) => score.id === b.id)?.score || 0
+    const scoreA = scores[a.id] || 0
+    const scoreB = scores[b.id] || 0
 
     return scoreA - scoreB
   })
@@ -183,8 +208,10 @@ const redisKey = (userId: string) => `just-read-feed:${userId}`
 const MAX_FEED_ITEMS = 500
 
 export const getJustReadFeed = async (
-  userId: string
-): Promise<JustReadFeed> => {
+  userId: string,
+  first = 10,
+  after?: string
+): Promise<JustReadFeedSuccess> => {
   const redisClient = redisDataSource.redisClient
   if (!redisClient) {
     throw new Error('Redis client not available')
@@ -192,31 +219,16 @@ export const getJustReadFeed = async (
 
   const key = redisKey(userId)
 
-  const results = await redisClient.zrevrange(key, 0, MAX_FEED_ITEMS)
+  const results = await redisClient.zrevrange(key, 0, first - 1, 'WITHSCORES')
 
-  const feedItems = results.map((item) => JSON.parse(item) as JustReadFeedItem)
+  const sections = JSON.parse(results.join(',')) as JustReadFeedSection[]
 
-  const topics: Array<JustReadFeedTopic> = []
-
-  feedItems.forEach((item) => {
-    const topic = topics.find((topic) => topic.name === item.topic)
-    if (topic) {
-      topic.items.push(item)
-    } else {
-      topics.push({
-        name: item.topic,
-        thumbnail: item.thumbnail || '',
-        items: [item],
-      })
-    }
-  })
-
-  return { topics }
+  return { sections }
 }
 
-const appendItemsToFeed = async (
-  feedItems: Array<JustReadFeedItem>,
-  userId: string
+const appendSectionsToFeed = async (
+  userId: string,
+  sections: Array<JustReadFeedSection>
 ) => {
   const redisClient = redisDataSource.redisClient
   if (!redisClient) {
@@ -228,18 +240,18 @@ const appendItemsToFeed = async (
   // store candidates in redis sorted set
   const pipeline = redisClient.pipeline()
 
-  const scoreMembers = feedItems.flatMap((item) => [
-    Date.now() + 86_400_000, // items expire in 24 hours
+  const scoreMembers = sections.flatMap((item) => [
+    Date.now() + 86_400_000, // sections expire in 24 hours
     JSON.stringify(item),
   ])
-  // add candidates to the sorted set
+  // add section to the sorted set
   pipeline.zadd(key, ...scoreMembers)
 
-  // remove expired items and keep only the top 500
+  // remove expired sections and keep only the top 500
   pipeline.zremrangebyrank(key, 0, -(MAX_FEED_ITEMS + 1))
   pipeline.zremrangebyscore(key, '-inf', Date.now())
 
-  logger.info('Adding feed items to redis')
+  logger.info('Adding feed sections to redis')
   await pipeline.exec()
 }
 
@@ -259,7 +271,7 @@ export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
   // TODO: integrity check on candidates?
 
   logger.info('Ranking feed items')
-  const rankedFeedItems = await rankFeedItems(feedItems)
+  const rankedFeedItems = await rankFeedItems(userId, feedItems)
   if (rankedFeedItems.length === 0) {
     logger.info('No feed items to append')
     return
@@ -271,5 +283,5 @@ export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
   const filteredFeedItems = rankedFeedItems.slice(0, 100)
 
   logger.info('Appending feed items to feed')
-  await appendItemsToFeed(filteredFeedItems, userId)
+  await appendSectionsToFeed(userId, filteredFeedItems)
 }

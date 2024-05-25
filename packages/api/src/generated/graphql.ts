@@ -1370,6 +1370,7 @@ export type JustReadFeedError = {
 
 export enum JustReadFeedErrorCode {
   BadRequest = 'BAD_REQUEST',
+  Pending = 'PENDING',
   Unauthorized = 'UNAUTHORIZED'
 }
 
@@ -1377,49 +1378,47 @@ export type JustReadFeedItem = {
   __typename?: 'JustReadFeedItem';
   author?: Maybe<Scalars['String']>;
   broadcastCount?: Maybe<Scalars['Int']>;
-  comments?: Maybe<Array<Scalars['String']>>;
-  createdAt: Scalars['Date'];
+  canArchive?: Maybe<Scalars['Boolean']>;
+  canComment?: Maybe<Scalars['Boolean']>;
+  canDelete?: Maybe<Scalars['Boolean']>;
+  canSave?: Maybe<Scalars['Boolean']>;
+  canShare?: Maybe<Scalars['Boolean']>;
+  date: Scalars['Date'];
   dir?: Maybe<Scalars['String']>;
   highlights?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  languageCode?: Maybe<Scalars['String']>;
   likedCount?: Maybe<Scalars['Int']>;
   previewContent?: Maybe<Scalars['String']>;
   savedCount?: Maybe<Scalars['Int']>;
   seen_at?: Maybe<Scalars['Date']>;
-  siteName?: Maybe<Scalars['String']>;
-  sourceIcon?: Maybe<Scalars['String']>;
-  sourceName: Scalars['String'];
+  subscription: JustReadFeedSubscription;
   thumbnail?: Maybe<Scalars['String']>;
   title: Scalars['String'];
-  topic?: Maybe<Scalars['String']>;
-  updatedAt: Scalars['Date'];
   url: Scalars['String'];
   wordCount?: Maybe<Scalars['Int']>;
 };
 
 export type JustReadFeedResult = JustReadFeedError | JustReadFeedSuccess;
 
-export type JustReadFeedSource = {
-  __typename?: 'JustReadFeedSource';
-  id: Scalars['ID'];
-  languageCodes?: Maybe<Array<Scalars['String']>>;
-  name: Scalars['String'];
+export type JustReadFeedSection = {
+  __typename?: 'JustReadFeedSection';
+  items: Array<JustReadFeedItem>;
+  layout?: Maybe<Scalars['String']>;
   thumbnail?: Maybe<Scalars['String']>;
-  topics?: Maybe<Array<Scalars['String']>>;
-  url: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
+};
+
+export type JustReadFeedSubscription = {
+  __typename?: 'JustReadFeedSubscription';
+  icon?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  url?: Maybe<Scalars['String']>;
 };
 
 export type JustReadFeedSuccess = {
   __typename?: 'JustReadFeedSuccess';
-  topics: Array<JustReadFeedTopic>;
-};
-
-export type JustReadFeedTopic = {
-  __typename?: 'JustReadFeedTopic';
-  items: Array<JustReadFeedItem>;
-  name?: Maybe<Scalars['String']>;
-  thumbnail?: Maybe<Scalars['String']>;
+  sections: Array<JustReadFeedSection>;
 };
 
 export type Label = {
@@ -2074,11 +2073,6 @@ export type MutationUploadImportFileArgs = {
   type: UploadImportFileType;
 };
 
-export type MySubscriptionRootType = {
-  __typename?: 'MySubscriptionRootType';
-  hello?: Maybe<Scalars['String']>;
-};
-
 export type NewsletterEmail = {
   __typename?: 'NewsletterEmail';
   address: Scalars['String'];
@@ -2274,6 +2268,12 @@ export type QueryGetDiscoverFeedArticlesArgs = {
 
 export type QueryIntegrationArgs = {
   name: Scalars['String'];
+};
+
+
+export type QueryJustReadFeedArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -3285,6 +3285,11 @@ export type Subscription = {
   url?: Maybe<Scalars['String']>;
 };
 
+export type SubscriptionRootType = {
+  __typename?: 'SubscriptionRootType';
+  hello?: Maybe<Scalars['String']>;
+};
+
 export enum SubscriptionStatus {
   Active = 'ACTIVE',
   Deleted = 'DELETED',
@@ -4270,9 +4275,9 @@ export type ResolversTypes = {
   JustReadFeedErrorCode: JustReadFeedErrorCode;
   JustReadFeedItem: ResolverTypeWrapper<JustReadFeedItem>;
   JustReadFeedResult: ResolversTypes['JustReadFeedError'] | ResolversTypes['JustReadFeedSuccess'];
-  JustReadFeedSource: ResolverTypeWrapper<JustReadFeedSource>;
+  JustReadFeedSection: ResolverTypeWrapper<JustReadFeedSection>;
+  JustReadFeedSubscription: ResolverTypeWrapper<JustReadFeedSubscription>;
   JustReadFeedSuccess: ResolverTypeWrapper<JustReadFeedSuccess>;
-  JustReadFeedTopic: ResolverTypeWrapper<JustReadFeedTopic>;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
@@ -4316,7 +4321,6 @@ export type ResolversTypes = {
   MoveToFolderResult: ResolversTypes['MoveToFolderError'] | ResolversTypes['MoveToFolderSuccess'];
   MoveToFolderSuccess: ResolverTypeWrapper<MoveToFolderSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
-  MySubscriptionRootType: ResolverTypeWrapper<{}>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
   NewsletterEmailsErrorCode: NewsletterEmailsErrorCode;
@@ -4495,6 +4499,7 @@ export type ResolversTypes = {
   SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
   SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<Subscription>;
+  SubscriptionRootType: ResolverTypeWrapper<{}>;
   SubscriptionStatus: SubscriptionStatus;
   SubscriptionType: SubscriptionType;
   SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
@@ -4819,9 +4824,9 @@ export type ResolversParentTypes = {
   JustReadFeedError: JustReadFeedError;
   JustReadFeedItem: JustReadFeedItem;
   JustReadFeedResult: ResolversParentTypes['JustReadFeedError'] | ResolversParentTypes['JustReadFeedSuccess'];
-  JustReadFeedSource: JustReadFeedSource;
+  JustReadFeedSection: JustReadFeedSection;
+  JustReadFeedSubscription: JustReadFeedSubscription;
   JustReadFeedSuccess: JustReadFeedSuccess;
-  JustReadFeedTopic: JustReadFeedTopic;
   Label: Label;
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
@@ -4856,7 +4861,6 @@ export type ResolversParentTypes = {
   MoveToFolderResult: ResolversParentTypes['MoveToFolderError'] | ResolversParentTypes['MoveToFolderSuccess'];
   MoveToFolderSuccess: MoveToFolderSuccess;
   Mutation: {};
-  MySubscriptionRootType: {};
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
   NewsletterEmailsResult: ResolversParentTypes['NewsletterEmailsError'] | ResolversParentTypes['NewsletterEmailsSuccess'];
@@ -4996,6 +5000,7 @@ export type ResolversParentTypes = {
   SubscribeResult: ResolversParentTypes['SubscribeError'] | ResolversParentTypes['SubscribeSuccess'];
   SubscribeSuccess: SubscribeSuccess;
   Subscription: Subscription;
+  SubscriptionRootType: {};
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
@@ -6076,23 +6081,22 @@ export type JustReadFeedErrorResolvers<ContextType = ResolverContext, ParentType
 export type JustReadFeedItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedItem'] = ResolversParentTypes['JustReadFeedItem']> = {
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   broadcastCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  comments?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  canArchive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  canComment?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  canDelete?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  canSave?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  canShare?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   dir?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   highlights?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  languageCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   likedCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   savedCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  sourceIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  sourceName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subscription?: Resolver<ResolversTypes['JustReadFeedSubscription'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  topic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6102,25 +6106,24 @@ export type JustReadFeedResultResolvers<ContextType = ResolverContext, ParentTyp
   __resolveType: TypeResolveFn<'JustReadFeedError' | 'JustReadFeedSuccess', ParentType, ContextType>;
 };
 
-export type JustReadFeedSourceResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedSource'] = ResolversParentTypes['JustReadFeedSource']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  languageCodes?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type JustReadFeedSectionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedSection'] = ResolversParentTypes['JustReadFeedSection']> = {
+  items?: Resolver<Array<ResolversTypes['JustReadFeedItem']>, ParentType, ContextType>;
+  layout?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  topics?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type JustReadFeedSubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedSubscription'] = ResolversParentTypes['JustReadFeedSubscription']> = {
+  icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type JustReadFeedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedSuccess'] = ResolversParentTypes['JustReadFeedSuccess']> = {
-  topics?: Resolver<Array<ResolversTypes['JustReadFeedTopic']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type JustReadFeedTopicResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedTopic'] = ResolversParentTypes['JustReadFeedTopic']> = {
-  items?: Resolver<Array<ResolversTypes['JustReadFeedItem']>, ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sections?: Resolver<Array<ResolversTypes['JustReadFeedSection']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6360,10 +6363,6 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   uploadImportFile?: Resolver<ResolversTypes['UploadImportFileResult'], ParentType, ContextType, RequireFields<MutationUploadImportFileArgs, 'contentType' | 'type'>>;
 };
 
-export type MySubscriptionRootTypeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MySubscriptionRootType'] = ResolversParentTypes['MySubscriptionRootType']> = {
-  hello?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "hello", ParentType, ContextType>;
-};
-
 export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmail'] = ResolversParentTypes['NewsletterEmail']> = {
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   confirmationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6455,7 +6454,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'name'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
-  justReadFeed?: Resolver<ResolversTypes['JustReadFeedResult'], ParentType, ContextType>;
+  justReadFeed?: Resolver<ResolversTypes['JustReadFeedResult'], ParentType, ContextType, Partial<QueryJustReadFeedArgs>>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
@@ -7064,6 +7063,10 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SubscriptionRootTypeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionRootType'] = ResolversParentTypes['SubscriptionRootType']> = {
+  hello?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "hello", ParentType, ContextType>;
+};
+
 export type SubscriptionsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsError'] = ResolversParentTypes['SubscriptionsError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SubscriptionsErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -7650,9 +7653,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   JustReadFeedError?: JustReadFeedErrorResolvers<ContextType>;
   JustReadFeedItem?: JustReadFeedItemResolvers<ContextType>;
   JustReadFeedResult?: JustReadFeedResultResolvers<ContextType>;
-  JustReadFeedSource?: JustReadFeedSourceResolvers<ContextType>;
+  JustReadFeedSection?: JustReadFeedSectionResolvers<ContextType>;
+  JustReadFeedSubscription?: JustReadFeedSubscriptionResolvers<ContextType>;
   JustReadFeedSuccess?: JustReadFeedSuccessResolvers<ContextType>;
-  JustReadFeedTopic?: JustReadFeedTopicResolvers<ContextType>;
   Label?: LabelResolvers<ContextType>;
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;
@@ -7684,7 +7687,6 @@ export type Resolvers<ContextType = ResolverContext> = {
   MoveToFolderResult?: MoveToFolderResultResolvers<ContextType>;
   MoveToFolderSuccess?: MoveToFolderSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
-  MySubscriptionRootType?: MySubscriptionRootTypeResolvers<ContextType>;
   NewsletterEmail?: NewsletterEmailResolvers<ContextType>;
   NewsletterEmailsError?: NewsletterEmailsErrorResolvers<ContextType>;
   NewsletterEmailsResult?: NewsletterEmailsResultResolvers<ContextType>;
@@ -7795,6 +7797,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscribeResult?: SubscribeResultResolvers<ContextType>;
   SubscribeSuccess?: SubscribeSuccessResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  SubscriptionRootType?: SubscriptionRootTypeResolvers<ContextType>;
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;

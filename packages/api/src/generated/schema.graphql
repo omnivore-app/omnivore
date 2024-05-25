@@ -1,7 +1,7 @@
 schema {
   query: Query
   mutation: Mutation
-  subscription: MySubscriptionRootType
+  subscription: SubscriptionRootType
 }
 
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
@@ -1234,52 +1234,51 @@ type JustReadFeedError {
 
 enum JustReadFeedErrorCode {
   BAD_REQUEST
+  PENDING
   UNAUTHORIZED
 }
 
 type JustReadFeedItem {
   author: String
   broadcastCount: Int
-  comments: [String!]
-  createdAt: Date!
+  canArchive: Boolean
+  canComment: Boolean
+  canDelete: Boolean
+  canSave: Boolean
+  canShare: Boolean
+  date: Date!
   dir: String
   highlights: String
   id: ID!
-  languageCode: String
   likedCount: Int
   previewContent: String
   savedCount: Int
   seen_at: Date
-  siteName: String
-  sourceIcon: String
-  sourceName: String!
+  subscription: JustReadFeedSubscription!
   thumbnail: String
   title: String!
-  topic: String
-  updatedAt: Date!
   url: String!
   wordCount: Int
 }
 
 union JustReadFeedResult = JustReadFeedError | JustReadFeedSuccess
 
-type JustReadFeedSource {
-  id: ID!
-  languageCodes: [String!]
-  name: String!
+type JustReadFeedSection {
+  items: [JustReadFeedItem!]!
+  layout: String
   thumbnail: String
-  topics: [String!]
-  url: String!
+  title: String
+}
+
+type JustReadFeedSubscription {
+  icon: String
+  id: ID!
+  name: String!
+  url: String
 }
 
 type JustReadFeedSuccess {
-  topics: [JustReadFeedTopic!]!
-}
-
-type JustReadFeedTopic {
-  items: [JustReadFeedItem!]!
-  name: String
-  thumbnail: String
+  sections: [JustReadFeedSection!]!
 }
 
 type Label {
@@ -1563,10 +1562,6 @@ type Mutation {
   uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
-type MySubscriptionRootType {
-  hello: String
-}
-
 type NewsletterEmail {
   address: String!
   confirmationCode: String
@@ -1704,7 +1699,7 @@ type Query {
   hello: String
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
-  justReadFeed: JustReadFeedResult!
+  justReadFeed(after: String, first: Int): JustReadFeedResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
@@ -2604,6 +2599,10 @@ type Subscription {
   unsubscribeMailTo: String
   updatedAt: Date
   url: String
+}
+
+type SubscriptionRootType {
+  hello: String
 }
 
 enum SubscriptionStatus {
