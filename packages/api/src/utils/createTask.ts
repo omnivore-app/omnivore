@@ -986,6 +986,9 @@ export const enqueueBulkUploadContentJob = async (
   return queue.addBulk(jobs)
 }
 
+export const updateJustReadFeedJobId = (userId: string) =>
+  `${UPDATE_JUST_READ_FEED_JOB}_${userId}_${JOB_VERSION}`
+
 export const enqueueUpdateJustReadFeed = async (
   data: UpdateJustReadFeedJobData
 ) => {
@@ -995,7 +998,7 @@ export const enqueueUpdateJustReadFeed = async (
   }
 
   return queue.add(UPDATE_JUST_READ_FEED_JOB, data, {
-    jobId: `${UPDATE_JUST_READ_FEED_JOB}_${data.userId}_${JOB_VERSION}`,
+    jobId: updateJustReadFeedJobId(data.userId),
     removeOnComplete: true,
     removeOnFail: true,
     priority: getJobPriority(UPDATE_JUST_READ_FEED_JOB),

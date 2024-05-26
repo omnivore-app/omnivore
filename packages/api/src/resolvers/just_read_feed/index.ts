@@ -5,7 +5,11 @@ import {
   QueryJustReadFeedArgs,
 } from '../../generated/graphql'
 import { getJustReadFeedSections } from '../../jobs/update_just_read_feed'
-import { enqueueUpdateJustReadFeed } from '../../utils/createTask'
+import { getJob } from '../../queue-processor'
+import {
+  enqueueUpdateJustReadFeed,
+  updateJustReadFeedJobId,
+} from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 
 // This resolver is used to fetch the just read feed for the user.
@@ -23,6 +27,15 @@ export const justReadFeedResolver = authorized<
   log.info('Just read feed sections fetched')
 
   if (sections.length === 0) {
+    const existingJob = await getJob(updateJustReadFeedJobId(uid))
+    if (existingJob) {
+      log.info('Just read feed update job already enqueued')
+
+      return {
+        errorCodes: [JustReadFeedErrorCode.Pending],
+      }
+    }
+
     await enqueueUpdateJustReadFeed({
       userId: uid,
     })
