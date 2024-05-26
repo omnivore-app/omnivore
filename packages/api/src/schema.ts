@@ -3138,8 +3138,14 @@ const schema = gql`
     thumbnail: String
   }
 
+  type JustReadFeedEdge {
+    cursor: String!
+    node: JustReadFeedSection!
+  }
+
   type JustReadFeedSuccess {
-    sections: [JustReadFeedSection!]!
+    edges: [JustReadFeedEdge!]!
+    pageInfo: PageInfo!
   }
 
   enum JustReadFeedErrorCode {

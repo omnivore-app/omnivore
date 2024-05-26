@@ -2,11 +2,7 @@ import languages from '@cospired/i18n-iso-languages'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
 import { User } from '../entity/user'
-import {
-  JustReadFeedItem,
-  JustReadFeedSection,
-  JustReadFeedSuccess,
-} from '../generated/graphql'
+import { JustReadFeedSection } from '../generated/graphql'
 import { redisDataSource } from '../redis_data_source'
 import { findUnseenPublicItems } from '../services/just_read_feed'
 import { searchLibraryItems } from '../services/library_item'
@@ -38,7 +34,7 @@ interface ScoreApiRequestBody {
   item_features: Record<string, Feature> // item_id -> feature
 }
 
-interface Candidate {
+interface FeedItem {
   id: string
   title: string
   url: string
@@ -50,8 +46,13 @@ interface Candidate {
   date: Date
   topic?: string
   wordCount?: number
-  sourceIcon?: string
+  siteIcon?: string
   siteName?: string
+  saveCount?: number
+  likeCount?: number
+  broadcastCount?: number
+  folder?: string
+  subscriptionType: string
   subscription: {
     id: string
     name: string
@@ -62,10 +63,7 @@ interface Candidate {
 const lanaugeToCode = (language: string): string =>
   languages.getAlpha2Code(language, 'en') || 'en'
 
-const libraryItemToFeedItem = (
-  user: User,
-  item: LibraryItem
-): JustReadFeedItem => ({
+const libraryItemToCandidate = (user: User, item: LibraryItem): FeedItem => ({
   id: item.id,
   title: item.title,
   url: item.originalUrl,
@@ -77,8 +75,10 @@ const libraryItemToFeedItem = (
   date: item.createdAt,
   topic: item.topic,
   wordCount: item.wordCount || undefined,
-  sourceIcon: user.profile.pictureUrl || undefined,
   siteName: item.siteName || undefined,
+  siteIcon: item.siteIcon || undefined,
+  folder: item.folder,
+  subscriptionType: 'library',
   subscription: {
     id: user.id,
     name: user.name,
@@ -86,7 +86,7 @@ const libraryItemToFeedItem = (
   },
 })
 
-const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
+const publicItemToCandidate = (item: PublicItem): FeedItem => ({
   id: item.id,
   title: item.title,
   url: item.url,
@@ -97,19 +97,24 @@ const publicItemToFeedItem = (item: PublicItem): JustReadFeedItem => ({
   dir: item.dir || 'ltr',
   date: item.createdAt,
   topic: item.topic,
-  wordCount: item.wordCount || undefined,
+  wordCount: item.wordCount,
   siteName: item.siteName,
-  updatedAt: item.updatedAt,
   saveCount: item.stats.saveCount,
   likeCount: item.stats.likeCount,
   broadcastCount: item.stats.broadcastCount,
+  siteIcon: item.siteIcon,
+  // TODO
+  subscriptionType: 'public',
+  subscription: {
+    id: item.id,
+    name: item.siteName || '',
+    icon: item.siteIcon,
+  },
 })
 
 type ScoreApiResponse = Record<string, number> // item_id -> score
 
-const selectCandidates = async (
-  user: User
-): Promise<Array<JustReadFeedItem>> => {
+const selectCandidates = async (user: User): Promise<Array<FeedItem>> => {
   const userId = user.id
   // get last 100 library items saved and not seen by user
   const libraryItems = await searchLibraryItems(
@@ -123,51 +128,59 @@ const selectCandidates = async (
 
   logger.info(`Found ${libraryItems.length} library items`)
 
-  // map library items to candidates
-  const privateCandidates: Array<JustReadFeedItem> = libraryItems.map(
-    (libraryItem) => libraryItemToFeedItem(user, libraryItem)
-  )
+  // map library items to candidates and limit to 70
+  const privateCandidates: Array<FeedItem> = libraryItems
+    .map((libraryItem) => libraryItemToCandidate(user, libraryItem))
+    .slice(0, 70)
+  const privateCandidatesSize = privateCandidates.length
 
-  logger.info(`Found ${privateCandidates.length} private candidates`)
+  logger.info(`Found ${privateCandidatesSize} private candidates`)
 
-  // get candidates from public inventory
+  // get 100 items not seen by the user from public inventory
   const publicItems = await findUnseenPublicItems(userId, {
     limit: 100,
   })
 
   logger.info(`Found ${publicItems.length} public items`)
 
-  // map public items to candidates
-  const publicCandidates: Array<JustReadFeedItem> =
-    publicItems.map(publicItemToFeedItem)
+  // map public items to candidates and limit to the remaining vacancies
+  const publicCandidates: Array<FeedItem> = publicItems
+    .map(publicItemToCandidate)
+    .slice(0, 100 - privateCandidatesSize)
 
-  logger.info(`Found ${publicCandidates.length} public candidates`)
+  const publicCandidatesSize = publicCandidates.length
+  logger.info(`Found ${publicCandidatesSize} public candidates`)
 
-  // combine candidates
+  // return 100 candidates and 70 from private and 30 from public
   return [...privateCandidates, ...publicCandidates]
 }
 
-const rankFeedItems = async (
+const rankCandidates = async (
   userId: string,
-  feedItems: Array<JustReadFeedItem>
-): Promise<Array<JustReadFeedItem>> => {
-  if (feedItems.length <= 10) {
+  candidates: Array<FeedItem>
+): Promise<Array<FeedItem>> => {
+  if (candidates.length <= 10) {
     // no need to rank if there are less than 10 candidates
-    return feedItems
+    return candidates
   }
 
   // TODO: get score of candidates
   const API_URL = 'http://127.0.0.1:5000/predictions'
   const requestBody: ScoreApiRequestBody = {
     user_id: userId,
-    item_features: feedItems.reduce((acc, item) => {
+    item_features: candidates.reduce((acc, item) => {
       acc[item.id] = {
         title: item.title,
         has_thumbnail: !!item.thumbnail,
-        has_site_icon: !!item.sourceIcon,
+        has_site_icon: !!item.subscription.icon,
         saved_at: item.date,
         site: item.siteName,
         language: item.languageCode,
+        directionality: item.dir,
+        folder: item.subscription.name,
+        subscription_type: item.subscriptionType,
+        author: item.author,
+        word_count: item.wordCount,
       } as Feature
       return acc
     }, {} as Record<string, Feature>),
@@ -187,31 +200,25 @@ const rankFeedItems = async (
 
   const scores = (await response.json()) as ScoreApiResponse
 
-  // // fake scores
-  // const scores: Array<FeedItemScore> = feedItems.map((item) => ({
-  //   id: item.id,
-  //   score: Math.random(),
-  // }))
-
   // rank candidates by score in ascending order
-  feedItems.sort((a, b) => {
+  candidates.sort((a, b) => {
     const scoreA = scores[a.id] || 0
     const scoreB = scores[b.id] || 0
 
     return scoreA - scoreB
   })
 
-  return Promise.resolve(feedItems)
+  return candidates
 }
 
 const redisKey = (userId: string) => `just-read-feed:${userId}`
 const MAX_FEED_ITEMS = 500
 
-export const getJustReadFeed = async (
+export const getJustReadFeedSections = async (
   userId: string,
-  first = 10,
-  after?: string
-): Promise<JustReadFeedSuccess> => {
+  limit: number,
+  minScore?: number
+): Promise<Array<{ member: JustReadFeedSection; score: number }>> => {
   const redisClient = redisDataSource.redisClient
   if (!redisClient) {
     throw new Error('Redis client not available')
@@ -219,11 +226,28 @@ export const getJustReadFeed = async (
 
   const key = redisKey(userId)
 
-  const results = await redisClient.zrevrange(key, 0, first - 1, 'WITHSCORES')
+  // get feed items from redis sorted set in descending order
+  // with score greater than minScore
+  // limit to the first `limit` items
+  // response is an array of [member1, score1, member2, score2, ...]
+  const results = await redisClient.zrevrangebyscore(
+    key,
+    '+inf',
+    minScore || '-inf',
+    'WITHSCORES',
+    'LIMIT',
+    0,
+    limit
+  )
 
-  const sections = JSON.parse(results.join(',')) as JustReadFeedSection[]
+  const sections = []
+  for (let i = 0; i < results.length; i += 2) {
+    const member = JSON.parse(results[i]) as JustReadFeedSection
+    const score = Number(results[i + 1])
+    sections.push({ member, score })
+  }
 
-  return { sections }
+  return sections
 }
 
 const appendSectionsToFeed = async (
@@ -240,9 +264,9 @@ const appendSectionsToFeed = async (
   // store candidates in redis sorted set
   const pipeline = redisClient.pipeline()
 
-  const scoreMembers = sections.flatMap((item) => [
+  const scoreMembers = sections.flatMap((section) => [
     Date.now() + 86_400_000, // sections expire in 24 hours
-    JSON.stringify(item),
+    JSON.stringify(section),
   ])
   // add section to the sorted set
   pipeline.zadd(key, ...scoreMembers)
@@ -255,6 +279,92 @@ const appendSectionsToFeed = async (
   await pipeline.exec()
 }
 
+const mixFeedItems = (
+  rankedFeedItems: Array<FeedItem>
+): Array<JustReadFeedSection> => {
+  // find the median word count
+  const wordCounts = rankedFeedItems.map((item) => item.wordCount || 0)
+  wordCounts.sort()
+  const medianWordCount = wordCounts[Math.floor(wordCounts.length / 2)]
+  // separate items into two groups based on word count
+  const shortItems: Array<FeedItem> = []
+  const longItems: Array<FeedItem> = []
+  for (const item of rankedFeedItems) {
+    if (item.wordCount && item.wordCount < medianWordCount) {
+      shortItems.push(item)
+    } else {
+      longItems.push(item)
+    }
+  }
+  // initialize empty batches
+  const batches = [[]]
+
+  const checkConstraints = (batch: Array<FeedItem>, item: FeedItem) => {
+    const titleCount = batch.filter((i) => i.title === item.title).length
+    const authorCount = batch.filter((i) => i.author === item.author).length
+    const siteCount = batch.filter((i) => i.siteName === item.siteName).length
+    const subscriptionCount = batch.filter(
+      (i) => i.subscription.name === item.subscription.name
+    ).length
+
+    return (
+      titleCount < 1 &&
+      authorCount < 2 &&
+      siteCount < 2 &&
+      subscriptionCount < 2
+    )
+  }
+
+  const distributeItems = (
+    items: Array<FeedItem>,
+    batches: Array<Array<FeedItem>>
+  ) => {
+    for (const item of items) {
+      let added = false
+      for (const batch of batches) {
+        if (batch.length < 5 && checkConstraints(batch, item)) {
+          batch.push(item)
+          added = true
+          break
+        }
+      }
+
+      if (!added) {
+        for (const batch of batches) {
+          if (batch.length < 5) {
+            batch.push(item)
+            break
+          }
+        }
+      }
+    }
+  }
+
+  // distribute longer items first and then shorter items
+  distributeItems(longItems, batches)
+  distributeItems(shortItems, batches)
+
+  // convert batches to sections
+  const sections = []
+  for (const batch of batches) {
+    // create a section for each long item
+    for (let i = 0; i < 5; i++) {
+      const section: JustReadFeedSection = {
+        items: [batch[i]],
+        layout: 'long',
+      }
+      sections.push(section)
+    }
+    // create a section for short items
+    sections.push({
+      items: batch.slice(5),
+      layout: 'quick links',
+    })
+  }
+
+  return sections
+}
+
 export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
   const { userId } = data
   const user = await findActiveUser(userId)
@@ -265,23 +375,25 @@ export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
 
   logger.info(`Updating just read feed for user ${userId}`)
 
-  const feedItems = await selectCandidates(user)
-  logger.info(`Found ${feedItems.length} candidates`)
+  const candidates = await selectCandidates(user)
+  logger.info(`Found ${candidates.length} candidates`)
 
-  // TODO: integrity check on candidates?
+  // TODO: integrity check on candidates
 
-  logger.info('Ranking feed items')
-  const rankedFeedItems = await rankFeedItems(userId, feedItems)
-  if (rankedFeedItems.length === 0) {
-    logger.info('No feed items to append')
+  logger.info('Ranking candidates')
+  const rankedCandidates = await rankCandidates(userId, candidates)
+  if (rankedCandidates.length === 0) {
+    logger.info('No candidates found')
     return
   }
 
-  logger.info('Filtering feed items')
-  // TODO: filtering
-  // get top 100 ranked feed items
-  const filteredFeedItems = rankedFeedItems.slice(0, 100)
+  // TODO: filter candidates
+
+  logger.info('Mix feed items to create sections')
+  const rankedSections = mixFeedItems(rankedCandidates)
+  logger.info(`Created ${rankedSections.length} sections`)
 
   logger.info('Appending feed items to feed')
-  await appendSectionsToFeed(userId, filteredFeedItems)
+  await appendSectionsToFeed(userId, rankedSections)
+  logger.info('Feed updated for user', { userId })
 }

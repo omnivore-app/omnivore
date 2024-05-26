@@ -17,10 +17,7 @@ export class PublicItem {
   stats!: PublicItemStats
 
   @Column('text')
-  sourceName!: string
-
-  @Column('text')
-  sourceIcon?: string
+  siteIcon?: string
 
   @Column('text')
   type!: string

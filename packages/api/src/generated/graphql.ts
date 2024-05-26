@@ -1363,6 +1363,12 @@ export type JoinGroupSuccess = {
   group: RecommendationGroup;
 };
 
+export type JustReadFeedEdge = {
+  __typename?: 'JustReadFeedEdge';
+  cursor: Scalars['String'];
+  node: JustReadFeedSection;
+};
+
 export type JustReadFeedError = {
   __typename?: 'JustReadFeedError';
   errorCodes: Array<JustReadFeedErrorCode>;
@@ -1418,7 +1424,8 @@ export type JustReadFeedSubscription = {
 
 export type JustReadFeedSuccess = {
   __typename?: 'JustReadFeedSuccess';
-  sections: Array<JustReadFeedSection>;
+  edges: Array<JustReadFeedEdge>;
+  pageInfo: PageInfo;
 };
 
 export type Label = {
@@ -4271,6 +4278,7 @@ export type ResolversTypes = {
   JoinGroupErrorCode: JoinGroupErrorCode;
   JoinGroupResult: ResolversTypes['JoinGroupError'] | ResolversTypes['JoinGroupSuccess'];
   JoinGroupSuccess: ResolverTypeWrapper<JoinGroupSuccess>;
+  JustReadFeedEdge: ResolverTypeWrapper<JustReadFeedEdge>;
   JustReadFeedError: ResolverTypeWrapper<JustReadFeedError>;
   JustReadFeedErrorCode: JustReadFeedErrorCode;
   JustReadFeedItem: ResolverTypeWrapper<JustReadFeedItem>;
@@ -4821,6 +4829,7 @@ export type ResolversParentTypes = {
   JoinGroupError: JoinGroupError;
   JoinGroupResult: ResolversParentTypes['JoinGroupError'] | ResolversParentTypes['JoinGroupSuccess'];
   JoinGroupSuccess: JoinGroupSuccess;
+  JustReadFeedEdge: JustReadFeedEdge;
   JustReadFeedError: JustReadFeedError;
   JustReadFeedItem: JustReadFeedItem;
   JustReadFeedResult: ResolversParentTypes['JustReadFeedError'] | ResolversParentTypes['JustReadFeedSuccess'];
@@ -6073,6 +6082,12 @@ export type JoinGroupSuccessResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type JustReadFeedEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedEdge'] = ResolversParentTypes['JustReadFeedEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['JustReadFeedSection'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type JustReadFeedErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedError'] = ResolversParentTypes['JustReadFeedError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['JustReadFeedErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6123,7 +6138,8 @@ export type JustReadFeedSubscriptionResolvers<ContextType = ResolverContext, Par
 };
 
 export type JustReadFeedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JustReadFeedSuccess'] = ResolversParentTypes['JustReadFeedSuccess']> = {
-  sections?: Resolver<Array<ResolversTypes['JustReadFeedSection']>, ParentType, ContextType>;
+  edges?: Resolver<Array<ResolversTypes['JustReadFeedEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -7650,6 +7666,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   JoinGroupError?: JoinGroupErrorResolvers<ContextType>;
   JoinGroupResult?: JoinGroupResultResolvers<ContextType>;
   JoinGroupSuccess?: JoinGroupSuccessResolvers<ContextType>;
+  JustReadFeedEdge?: JustReadFeedEdgeResolvers<ContextType>;
   JustReadFeedError?: JustReadFeedErrorResolvers<ContextType>;
   JustReadFeedItem?: JustReadFeedItemResolvers<ContextType>;
   JustReadFeedResult?: JustReadFeedResultResolvers<ContextType>;

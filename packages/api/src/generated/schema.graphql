@@ -1228,6 +1228,11 @@ type JoinGroupSuccess {
   group: RecommendationGroup!
 }
 
+type JustReadFeedEdge {
+  cursor: String!
+  node: JustReadFeedSection!
+}
+
 type JustReadFeedError {
   errorCodes: [JustReadFeedErrorCode!]!
 }
@@ -1278,7 +1283,8 @@ type JustReadFeedSubscription {
 }
 
 type JustReadFeedSuccess {
-  sections: [JustReadFeedSection!]!
+  edges: [JustReadFeedEdge!]!
+  pageInfo: PageInfo!
 }
 
 type Label {
