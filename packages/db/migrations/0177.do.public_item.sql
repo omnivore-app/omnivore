@@ -7,10 +7,11 @@ BEGIN;
 CREATE TABLE omnivore.public_item_source (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     name TEXT NOT NULL,
-    topics TEXT[] NOT NULL,
-    thumbnail TEXT,
-    url TEXT NOT NULL,
-    language_codes TEXT[] NOT NULL,
+    type TEXT NOT NULL, -- public feeds, newsletters, or user recommended
+    topics TEXT[],
+    icon TEXT,
+    url TEXT,
+    language_codes TEXT[],
     approved BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -22,8 +23,8 @@ GRANT SELECT ON omnivore.public_item_source TO omnivore_user;
 
 CREATE TABLE omnivore.public_item (
 	id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-    source_name TEXT NOT NULL,
-    source_icon TEXT,
+    source_id uuid NOT NULL REFERENCES omnivore.public_item_source(id) ON DELETE CASCADE,
+    site_icon TEXT,
     type TEXT NOT NULL, -- public feeds, newsletters, or user recommended
     title TEXT NOT NULL,
     url TEXT NOT NULL,

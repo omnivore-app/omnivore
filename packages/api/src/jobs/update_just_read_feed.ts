@@ -103,12 +103,11 @@ const publicItemToCandidate = (item: PublicItem): FeedItem => ({
   likeCount: item.stats.likeCount,
   broadcastCount: item.stats.broadcastCount,
   siteIcon: item.siteIcon,
-  // TODO
-  subscriptionType: 'public',
+  subscriptionType: item.type,
   subscription: {
-    id: item.id,
-    name: item.siteName || '',
-    icon: item.siteIcon,
+    id: item.source.id,
+    name: item.source.name,
+    icon: item.source.icon,
   },
 })
 

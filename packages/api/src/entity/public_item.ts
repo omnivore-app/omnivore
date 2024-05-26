@@ -2,10 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { PublicItemSource } from './public_item_source'
 import { PublicItemStats } from './public_item_stats'
 
 @Entity({ name: 'public_item' })
@@ -15,6 +18,10 @@ export class PublicItem {
 
   @OneToOne(() => PublicItemStats)
   stats!: PublicItemStats
+
+  @ManyToOne(() => PublicItemSource)
+  @JoinColumn({ name: 'source_id' })
+  source!: PublicItemSource
 
   @Column('text')
   siteIcon?: string

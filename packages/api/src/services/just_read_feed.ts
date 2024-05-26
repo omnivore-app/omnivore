@@ -23,6 +23,11 @@ export const findUnseenPublicItems = async (
           'stats',
           'stats.public_item_id = public_item.id'
         )
+        .innerJoin(
+          'public_item_source',
+          'source',
+          'source.id = public_item.source_id'
+        )
         .where('interaction.user_id = :userId', { userId })
         .andWhere('interaction.seen_at IS NULL')
         .orderBy('public_item.createdAt', 'DESC')
