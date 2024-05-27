@@ -213,4 +213,7 @@ export class LibraryItem {
 
   @Column('timestamptz')
   digestedAt?: Date
+
+  @Column('float')
+  score?: number
 }
