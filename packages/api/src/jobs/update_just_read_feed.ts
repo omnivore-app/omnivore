@@ -5,7 +5,7 @@ import { JustReadFeedSection } from '../generated/graphql'
 import { redisDataSource } from '../redis_data_source'
 import { findUnseenPublicItems } from '../services/just_read_feed'
 import { searchLibraryItems } from '../services/library_item'
-import { Feature, getScores } from '../services/score'
+import { Feature, getScores, ScoreApiResponse } from '../services/score'
 import { findActiveUser } from '../services/user'
 import { lanaugeToCode } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -35,6 +35,7 @@ interface FeedItem {
   broadcastCount?: number
   folder?: string
   subscriptionType: string
+  score?: number
   subscription: {
     id: string
     name: string
@@ -58,6 +59,7 @@ const libraryItemToCandidate = (user: User, item: LibraryItem): FeedItem => ({
   siteIcon: item.siteIcon || undefined,
   folder: item.folder,
   subscriptionType: 'library',
+  score: item.score,
   subscription: {
     id: user.id,
     name: user.name,
@@ -140,9 +142,13 @@ const rankCandidates = async (
     return candidates
   }
 
+  const unscoredCandidates = candidates.filter(
+    (item) => item.score === undefined
+  )
+
   const data = {
     user_id: userId,
-    item_features: candidates.reduce((acc, item) => {
+    item_features: unscoredCandidates.reduce((acc, item) => {
       acc[item.id] = {
         title: item.title,
         has_thumbnail: !!item.thumbnail,
@@ -160,7 +166,14 @@ const rankCandidates = async (
     }, {} as Record<string, Feature>),
   }
 
-  const scores = await getScores(data)
+  const newScores = await getScores(data)
+  const preCalculatedScores = candidates
+    .filter((item) => item.score !== undefined)
+    .reduce((acc, item) => {
+      acc[item.id] = item.score as number
+      return acc
+    }, {} as ScoreApiResponse)
+  const scores = { ...preCalculatedScores, ...newScores }
 
   // rank candidates by score in ascending order
   candidates.sort((a, b) => {
