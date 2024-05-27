@@ -83,6 +83,7 @@ GRANT SELECT, INSERT, UPDATE ON omnivore.public_item_interactions TO omnivore_us
 ALTER TABLE omnivore.library_item 
     ADD COLUMN seen_at timestamptz,
     ADD COLUMN digested_at timestamptz,
-    ADD COLUMN topic TEXT;
+    ADD COLUMN topic TEXT,
+    ADD COLUMN score FLOAT;
 
 COMMIT;
