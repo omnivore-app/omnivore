@@ -36,6 +36,7 @@ interface FeedItem {
   folder?: string
   subscriptionType: string
   score?: number
+  publishedAt?: Date
   subscription: {
     id: string
     name: string
@@ -60,6 +61,7 @@ const libraryItemToCandidate = (user: User, item: LibraryItem): FeedItem => ({
   folder: item.folder,
   subscriptionType: 'library',
   score: item.score,
+  publishedAt: item.publishedAt || undefined,
   subscription: {
     id: user.id,
     name: user.name,
@@ -85,6 +87,7 @@ const publicItemToCandidate = (item: PublicItem): FeedItem => ({
   broadcastCount: item.stats.broadcastCount,
   siteIcon: item.siteIcon,
   subscriptionType: item.type,
+  publishedAt: item.publishedAt,
   subscription: {
     id: item.source.id,
     name: item.source.name,
@@ -161,6 +164,7 @@ const rankCandidates = async (
         subscription_type: item.subscriptionType,
         author: item.author,
         word_count: item.wordCount,
+        published_at: item.publishedAt,
       } as Feature
       return acc
     }, {} as Record<string, Feature>),
