@@ -166,8 +166,9 @@ const rankCandidates = async (
 
   const data = {
     user_id: userId,
-    item_features: unscoredCandidates.reduce((acc, item) => {
+    items: unscoredCandidates.reduce((acc, item) => {
       acc[item.id] = {
+        library_item_id: item.id,
         title: item.title,
         has_thumbnail: !!item.thumbnail,
         has_site_icon: !!item.siteIcon,

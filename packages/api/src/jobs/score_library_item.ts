@@ -42,6 +42,7 @@ export const scoreLibraryItem = async (
 
   const itemFeatures = {
     [libraryItem.id]: {
+      library_item_id: libraryItem.id,
       title: libraryItem.title,
       has_thumbnail: !!libraryItem.thumbnail,
       has_site_icon: !!libraryItem.siteIcon,
@@ -59,7 +60,7 @@ export const scoreLibraryItem = async (
 
   const scores = await getScores({
     user_id: userId,
-    item_features: itemFeatures,
+    items: itemFeatures,
   })
 
   logger.info('Scores', scores)

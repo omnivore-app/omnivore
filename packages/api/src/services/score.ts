@@ -1,4 +1,5 @@
 export interface Feature {
+  library_item_id?: string
   title: string
   has_thumbnail: boolean
   has_site_icon: boolean
@@ -15,7 +16,7 @@ export interface Feature {
 
 export interface ScoreApiRequestBody {
   user_id: string
-  item_features: Record<string, Feature> // item_id -> feature
+  items: Record<string, Feature> // item_id -> feature
 }
 
 export type ScoreApiResponse = Record<string, number> // item_id -> score
@@ -23,7 +24,7 @@ export type ScoreApiResponse = Record<string, number> // item_id -> score
 export const getScores = async (
   data: ScoreApiRequestBody
 ): Promise<ScoreApiResponse> => {
-  const API_URL = 'http://127.0.0.1:5000/predictions'
+  const API_URL = 'http://digest-score/batch'
   // const token = process.env.SCORE_API_TOKEN
 
   // if (!token) {
