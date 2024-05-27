@@ -208,7 +208,7 @@ export class LibraryItem {
   @Column('timestamptz')
   seenAt?: Date
 
-  @Column('text')
+  @Column('ltree')
   topic?: string
 
   @Column('timestamptz')
