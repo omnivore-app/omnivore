@@ -221,7 +221,7 @@ export const getJustReadFeedSections = async (
   const key = redisKey(userId)
 
   // get feed items from redis sorted set in descending order
-  // with score greater than minScore
+  // with score smalled than maxScore
   // limit to the first `limit` items
   // response is an array of [member1, score1, member2, score2, ...]
   const results = await redisClient.zrevrangebyscore(
@@ -335,34 +335,29 @@ const mixFeedItems = (rankedFeedItems: Array<Candidate>): Array<Section> => {
     }
   }
 
-  // distribute longer items first and then shorter items
-  distributeItems(longItems, batches)
+  // distribute quick link items first
   distributeItems(shortItems, batches)
+  distributeItems(longItems, batches)
 
   // convert batches to sections
   const sections = []
   for (const batch of batches) {
-    // create a section for each long item
-    for (let i = 0; i < 5; i++) {
-      const section: Section = {
-        items: [
-          {
-            id: batch[i].id,
-            type: batch[i].type,
-          },
-        ],
-        layout: 'long',
-      }
-      sections.push(section)
-    }
-    // create a section for short items
+    // create a section for all quick links
     sections.push({
-      items: batch.slice(5).map((item) => ({
+      items: batch.slice(0, 5).map((item) => ({
         id: item.id,
         type: item.type,
       })),
       layout: 'quick links',
     })
+
+    // create a section for each long item
+    sections.push(
+      ...batch.slice(5).map((item) => ({
+        items: [{ id: item.id, type: item.type }],
+        layout: 'long',
+      }))
+    )
   }
 
   return sections
