@@ -24,17 +24,17 @@ export const getScores = async (
   data: ScoreApiRequestBody
 ): Promise<ScoreApiResponse> => {
   const API_URL = 'http://127.0.0.1:5000/predictions'
-  const token = process.env.SCORE_API_TOKEN
+  // const token = process.env.SCORE_API_TOKEN
 
-  if (!token) {
-    throw new Error('No score API token found')
-  }
+  // if (!token) {
+  //   throw new Error('No score API token found')
+  // }
 
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      // Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   })
