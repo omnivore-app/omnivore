@@ -49,6 +49,10 @@ import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import {
+  scoreLibraryItem,
+  SCORE_LIBRARY_ITEM_JOB,
+} from './jobs/score_library_item'
+import {
   syncReadPositionsJob,
   SYNC_READ_POSITIONS_JOB_NAME,
 } from './jobs/sync_read_positions'
@@ -191,6 +195,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return uploadContentJob(job.data)
         case UPDATE_JUST_READ_FEED_JOB:
           return updateJustReadFeed(job.data)
+        case SCORE_LIBRARY_ITEM_JOB:
+          return scoreLibraryItem(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

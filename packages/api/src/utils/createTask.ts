@@ -45,6 +45,10 @@ import {
   REFRESH_ALL_FEEDS_JOB_NAME,
   REFRESH_FEED_JOB_NAME,
 } from '../jobs/rss/refreshAllFeeds'
+import {
+  ScoreLibraryItemJobData,
+  SCORE_LIBRARY_ITEM_JOB,
+} from '../jobs/score_library_item'
 import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/sync_read_positions'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import {
@@ -1002,6 +1006,24 @@ export const enqueueUpdateJustReadFeed = async (
     removeOnComplete: true,
     removeOnFail: true,
     priority: getJobPriority(UPDATE_JUST_READ_FEED_JOB),
+    attempts: 3,
+  })
+}
+
+export const updateScoreJobId = (userId: string) =>
+  `${SCORE_LIBRARY_ITEM_JOB}_${userId}_${JOB_VERSION}`
+
+export const enqueueScoreJob = async (data: ScoreLibraryItemJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(SCORE_LIBRARY_ITEM_JOB, data, {
+    jobId: updateScoreJobId(data.userId),
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority: getJobPriority(SCORE_LIBRARY_ITEM_JOB),
     attempts: 3,
   })
 }

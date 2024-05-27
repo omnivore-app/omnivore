@@ -5,6 +5,7 @@ import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
   enqueueProcessYouTubeVideo,
+  enqueueScoreJob,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
 import { logger } from './utils/logger'
@@ -74,6 +75,11 @@ export const createPubSubClient = (): PubsubClient => {
             libraryItemId: data.id,
           })
         }
+
+        await enqueueScoreJob({
+          userId,
+          libraryItemId: data.id,
+        })
       }
     },
     entityUpdated: async <T extends EntityEvent>(
