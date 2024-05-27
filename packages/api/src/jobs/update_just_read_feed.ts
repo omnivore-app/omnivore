@@ -1,4 +1,3 @@
-import languages from '@cospired/i18n-iso-languages'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
 import { User } from '../entity/user'
@@ -6,32 +5,15 @@ import { JustReadFeedSection } from '../generated/graphql'
 import { redisDataSource } from '../redis_data_source'
 import { findUnseenPublicItems } from '../services/just_read_feed'
 import { searchLibraryItems } from '../services/library_item'
+import { Feature, getScores } from '../services/score'
 import { findActiveUser } from '../services/user'
+import { lanaugeToCode } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
 export const UPDATE_JUST_READ_FEED_JOB = 'UPDATE_JUST_READ_FEED_JOB'
 
 export interface UpdateJustReadFeedJobData {
   userId: string
-}
-
-interface Feature {
-  title: string
-  has_thumbnail: boolean
-  has_site_icon: boolean
-  saved_at: Date
-  site?: string
-  language?: string
-  author?: string
-  directionality: string
-  word_count?: number
-  subscription_type: string
-  folder: string
-}
-
-interface ScoreApiRequestBody {
-  user_id: string
-  item_features: Record<string, Feature> // item_id -> feature
 }
 
 interface FeedItem {
@@ -59,9 +41,6 @@ interface FeedItem {
     icon?: string
   }
 }
-
-const lanaugeToCode = (language: string): string =>
-  languages.getAlpha2Code(language, 'en') || 'en'
 
 const libraryItemToCandidate = (user: User, item: LibraryItem): FeedItem => ({
   id: item.id,
@@ -110,8 +89,6 @@ const publicItemToCandidate = (item: PublicItem): FeedItem => ({
     icon: item.source.icon,
   },
 })
-
-type ScoreApiResponse = Record<string, number> // item_id -> score
 
 const selectCandidates = async (user: User): Promise<Array<FeedItem>> => {
   const userId = user.id
@@ -163,9 +140,7 @@ const rankCandidates = async (
     return candidates
   }
 
-  // TODO: get score of candidates
-  const API_URL = 'http://127.0.0.1:5000/predictions'
-  const requestBody: ScoreApiRequestBody = {
+  const data = {
     user_id: userId,
     item_features: candidates.reduce((acc, item) => {
       acc[item.id] = {
@@ -185,19 +160,7 @@ const rankCandidates = async (
     }, {} as Record<string, Feature>),
   }
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Failed to score candidates: ${response.statusText}`)
-  }
-
-  const scores = (await response.json()) as ScoreApiResponse
+  const scores = await getScores(data)
 
   // rank candidates by score in ascending order
   candidates.sort((a, b) => {
