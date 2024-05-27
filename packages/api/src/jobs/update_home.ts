@@ -147,7 +147,7 @@ const selectCandidates = async (user: User): Promise<Array<Candidate>> => {
   const publicCandidatesSize = publicCandidates.length
   logger.info(`Found ${publicCandidatesSize} public candidates`)
 
-  // return 100 candidates and 70 from private and 30 from public
+  // returns 100 candidates which are a mix of private and public candidates
   return [...privateCandidates, ...publicCandidates]
 }
 
