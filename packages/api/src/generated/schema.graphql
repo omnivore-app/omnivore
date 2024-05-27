@@ -1142,6 +1142,64 @@ enum HighlightType {
   REDACTION
 }
 
+type HomeEdge {
+  cursor: String!
+  node: HomeSection!
+}
+
+type HomeError {
+  errorCodes: [HomeErrorCode!]!
+}
+
+enum HomeErrorCode {
+  BAD_REQUEST
+  PENDING
+  UNAUTHORIZED
+}
+
+type HomeItem {
+  author: String
+  broadcastCount: Int
+  canArchive: Boolean
+  canComment: Boolean
+  canDelete: Boolean
+  canSave: Boolean
+  canShare: Boolean
+  date: Date!
+  dir: String
+  id: ID!
+  likeCount: Int
+  previewContent: String
+  saveCount: Int
+  seen_at: Date
+  subscription: HomeSubscription!
+  thumbnail: String
+  title: String!
+  url: String!
+  wordCount: Int
+}
+
+union HomeResult = HomeError | HomeSuccess
+
+type HomeSection {
+  items: [HomeItem!]!
+  layout: String
+  thumbnail: String
+  title: String
+}
+
+type HomeSubscription {
+  icon: String
+  id: ID!
+  name: String!
+  url: String
+}
+
+type HomeSuccess {
+  edges: [HomeEdge!]!
+  pageInfo: PageInfo!
+}
+
 type ImportFromIntegrationError {
   errorCodes: [ImportFromIntegrationErrorCode!]!
 }
@@ -1226,64 +1284,6 @@ union JoinGroupResult = JoinGroupError | JoinGroupSuccess
 
 type JoinGroupSuccess {
   group: RecommendationGroup!
-}
-
-type JustReadFeedEdge {
-  cursor: String!
-  node: JustReadFeedSection!
-}
-
-type JustReadFeedError {
-  errorCodes: [JustReadFeedErrorCode!]!
-}
-
-enum JustReadFeedErrorCode {
-  BAD_REQUEST
-  PENDING
-  UNAUTHORIZED
-}
-
-type JustReadFeedItem {
-  author: String
-  broadcastCount: Int
-  canArchive: Boolean
-  canComment: Boolean
-  canDelete: Boolean
-  canSave: Boolean
-  canShare: Boolean
-  date: Date!
-  dir: String
-  id: ID!
-  likeCount: Int
-  previewContent: String
-  saveCount: Int
-  seen_at: Date
-  subscription: JustReadFeedSubscription!
-  thumbnail: String
-  title: String!
-  url: String!
-  wordCount: Int
-}
-
-union JustReadFeedResult = JustReadFeedError | JustReadFeedSuccess
-
-type JustReadFeedSection {
-  items: [JustReadFeedItem!]!
-  layout: String
-  thumbnail: String
-  title: String
-}
-
-type JustReadFeedSubscription {
-  icon: String
-  id: ID!
-  name: String!
-  url: String
-}
-
-type JustReadFeedSuccess {
-  edges: [JustReadFeedEdge!]!
-  pageInfo: PageInfo!
 }
 
 type Label {
@@ -1702,9 +1702,9 @@ type Query {
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
+  home(after: String, first: Int): HomeResult!
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
-  justReadFeed(after: String, first: Int): JustReadFeedResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!

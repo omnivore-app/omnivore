@@ -775,7 +775,7 @@ export const findRecentLibraryItems = async (
 
 export const findLibraryItemsByIds = async (
   ids: string[],
-  userId: string,
+  userId?: string,
   options?: {
     select?: (keyof LibraryItem)[]
   }

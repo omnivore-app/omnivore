@@ -1,66 +1,57 @@
 import {
-  JustReadFeedError,
-  JustReadFeedErrorCode,
-  JustReadFeedItem,
-  JustReadFeedSection,
-  JustReadFeedSuccess,
-  QueryJustReadFeedArgs,
+  HomeError,
+  HomeErrorCode,
+  HomeItem,
+  HomeSection,
+  HomeSuccess,
+  QueryHomeArgs,
 } from '../../generated/graphql'
-import { getJustReadFeedSections } from '../../jobs/update_just_read_feed'
+import { getHomeSections } from '../../jobs/update_home'
 import { getJob } from '../../queue-processor'
 import { Merge } from '../../util'
-import {
-  enqueueUpdateJustReadFeed,
-  updateJustReadFeedJobId,
-} from '../../utils/createTask'
+import { enqueueUpdateHomeJob, updateHomeJobId } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 
-type PartialJustReadFeedItem = Merge<
-  Partial<JustReadFeedItem>,
-  { type: string }
->
-type PartialJustReadFeedSection = Merge<
-  JustReadFeedSection,
-  { items: Array<PartialJustReadFeedItem> }
->
-type PartialJustReadFeedSuccess = Merge<
-  JustReadFeedSuccess,
+type PartialHomeItem = Merge<Partial<HomeItem>, { type: string }>
+type PartialHomeSection = Merge<HomeSection, { items: Array<PartialHomeItem> }>
+type PartialHomeSuccess = Merge<
+  HomeSuccess,
   {
-    edges: Array<{ cursor: string; node: PartialJustReadFeedSection }>
+    edges: Array<{ cursor: string; node: PartialHomeSection }>
   }
 >
 // This resolver is used to fetch the just read feed for the user.
 // when the feed is empty, it enqueues a job to update the feed.
 // when client tries to fetch more then the feed has, it enqueues a job to update the feed.
-export const justReadFeedResolver = authorized<
-  PartialJustReadFeedSuccess,
-  JustReadFeedError,
-  QueryJustReadFeedArgs
+export const homeResolver = authorized<
+  PartialHomeSuccess,
+  HomeError,
+  QueryHomeArgs
 >(async (_, { first, after }, { uid, log }) => {
   const limit = first || 10
   const cursor = after ? parseInt(after) : undefined
 
-  const sections = await getJustReadFeedSections(uid, limit, cursor)
+  const sections = await getHomeSections(uid, limit, cursor)
   log.info('Just read feed sections fetched')
 
   if (sections.length === 0) {
-    const existingJob = await getJob(updateJustReadFeedJobId(uid))
+    const existingJob = await getJob(updateHomeJobId(uid))
     if (existingJob) {
       log.info('Just read feed update job already enqueued')
 
       return {
-        errorCodes: [JustReadFeedErrorCode.Pending],
+        errorCodes: [HomeErrorCode.Pending],
       }
     }
 
-    await enqueueUpdateJustReadFeed({
+    await enqueueUpdateHomeJob({
       userId: uid,
     })
 
     log.info('Just read feed update enqueued')
 
     return {
-      errorCodes: [JustReadFeedErrorCode.Pending],
+      errorCodes: [HomeErrorCode.Pending],
     }
   }
 

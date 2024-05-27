@@ -53,6 +53,7 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
+import { homeResolver } from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -152,7 +153,6 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { justReadFeedResolver } from './just_read_feed'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -360,7 +360,7 @@ export const functionResolvers = {
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
-    justReadFeed: justReadFeedResolver,
+    home: homeResolver,
   },
   User: {
     async intercomHash(
@@ -624,15 +624,13 @@ export const functionResolvers = {
       return newsletterEmail.folder || EXISTING_NEWSLETTER_FOLDER
     },
   },
-  JustReadFeedSection: {
+  HomeSection: {
     async items(
       section: { items: Array<{ id: string }> },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return ctx.dataLoaders.justReadFeedItems.loadMany(
-        section.items.map((i) => i.id)
-      )
+      return ctx.dataLoaders.homeItems.loadMany(section.items.map((i) => i.id))
     },
   },
   ...resultResolveTypeResolver('Login'),
@@ -734,5 +732,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Integration'),
   ...resultResolveTypeResolver('ExportToIntegration'),
   ...resultResolveTypeResolver('ReplyToEmail'),
-  ...resultResolveTypeResolver('JustReadFeed'),
+  ...resultResolveTypeResolver('Home'),
 }

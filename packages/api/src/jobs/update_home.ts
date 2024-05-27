@@ -3,7 +3,7 @@ import { PublicItem } from '../entity/public_item'
 import { Subscription } from '../entity/subscription'
 import { User } from '../entity/user'
 import { redisDataSource } from '../redis_data_source'
-import { findUnseenPublicItems } from '../services/just_read_feed'
+import { findUnseenPublicItems } from '../services/home'
 import { searchLibraryItems } from '../services/library_item'
 import { Feature, getScores, ScoreApiResponse } from '../services/score'
 import { findSubscriptionsByNames } from '../services/subscriptions'
@@ -11,9 +11,9 @@ import { findActiveUser } from '../services/user'
 import { lanaugeToCode } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
-export const UPDATE_JUST_READ_FEED_JOB = 'UPDATE_JUST_READ_FEED_JOB'
+export const UPDATE_HOME_JOB = 'UPDATE_HOME_JOB'
 
-export interface UpdateJustReadFeedJobData {
+export interface UpdateHomeJobData {
   userId: string
 }
 
@@ -208,7 +208,7 @@ const rankCandidates = async (
 const redisKey = (userId: string) => `just-read-feed:${userId}`
 const MAX_FEED_ITEMS = 500
 
-export const getJustReadFeedSections = async (
+export const getHomeSections = async (
   userId: string,
   limit: number,
   maxScore?: number
@@ -244,7 +244,7 @@ export const getJustReadFeedSections = async (
   return sections
 }
 
-const appendSectionsToFeed = async (
+const appendSectionsToHome = async (
   userId: string,
   sections: Array<Section>
 ) => {
@@ -269,19 +269,19 @@ const appendSectionsToFeed = async (
   pipeline.zremrangebyrank(key, 0, -(MAX_FEED_ITEMS + 1))
   pipeline.zremrangebyscore(key, '-inf', Date.now())
 
-  logger.info('Adding feed sections to redis')
+  logger.info('Adding home sections to redis')
   await pipeline.exec()
 }
 
-const mixFeedItems = (rankedFeedItems: Array<Candidate>): Array<Section> => {
+const mixHomeItems = (rankedHomeItems: Array<Candidate>): Array<Section> => {
   // find the median word count
-  const wordCounts = rankedFeedItems.map((item) => item.wordCount)
+  const wordCounts = rankedHomeItems.map((item) => item.wordCount)
   wordCounts.sort((a, b) => a - b)
   const medianWordCount = wordCounts[Math.floor(wordCounts.length / 2)]
   // separate items into two groups based on word count
   const shortItems: Array<Candidate> = []
   const longItems: Array<Candidate> = []
-  for (const item of rankedFeedItems) {
+  for (const item of rankedHomeItems) {
     if (item.wordCount < medianWordCount) {
       shortItems.push(item)
     } else {
@@ -290,7 +290,7 @@ const mixFeedItems = (rankedFeedItems: Array<Candidate>): Array<Section> => {
   }
   // initialize empty batches
   const batches: Array<Array<Candidate>> = Array.from(
-    { length: Math.floor(rankedFeedItems.length / 10) },
+    { length: Math.floor(rankedHomeItems.length / 10) },
     () => []
   )
 
@@ -363,7 +363,7 @@ const mixFeedItems = (rankedFeedItems: Array<Candidate>): Array<Section> => {
   return sections
 }
 
-export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
+export const updateHome = async (data: UpdateHomeJobData) => {
   const { userId } = data
   const user = await findActiveUser(userId)
   if (!user) {
@@ -371,7 +371,7 @@ export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
     return
   }
 
-  logger.info(`Updating just read feed for user ${userId}`)
+  logger.info(`Updating home for user ${userId}`)
 
   const candidates = await selectCandidates(user)
   logger.info(`Found ${candidates.length} candidates`)
@@ -387,11 +387,11 @@ export const updateJustReadFeed = async (data: UpdateJustReadFeedJobData) => {
 
   // TODO: filter candidates
 
-  logger.info('Mix feed items to create sections')
-  const rankedSections = mixFeedItems(rankedCandidates)
+  logger.info('Mix home items to create sections')
+  const rankedSections = mixHomeItems(rankedCandidates)
   logger.info(`Created ${rankedSections.length} sections`)
 
-  logger.info('Appending sections to feed')
-  await appendSectionsToFeed(userId, rankedSections)
-  logger.info('Feed updated for user', { userId })
+  logger.info('Appending sections to home')
+  await appendSectionsToHome(userId, rankedSections)
+  logger.info('Home updated for user', { userId })
 }

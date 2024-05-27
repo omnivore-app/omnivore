@@ -57,10 +57,7 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
-import {
-  UpdateJustReadFeedJobData,
-  UPDATE_JUST_READ_FEED_JOB,
-} from '../jobs/update_just_read_feed'
+import { UpdateHomeJobData, UPDATE_HOME_JOB } from '../jobs/update_home'
 import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
@@ -93,7 +90,7 @@ export const getJobPriority = (jobName: string): number => {
     case UPDATE_HIGHLIGHT_JOB:
     case SYNC_READ_POSITIONS_JOB_NAME:
     case SEND_EMAIL_JOB:
-    case UPDATE_JUST_READ_FEED_JOB:
+    case UPDATE_HOME_JOB:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
@@ -991,22 +988,20 @@ export const enqueueBulkUploadContentJob = async (
   return queue.addBulk(jobs)
 }
 
-export const updateJustReadFeedJobId = (userId: string) =>
-  `${UPDATE_JUST_READ_FEED_JOB}_${userId}_${JOB_VERSION}`
+export const updateHomeJobId = (userId: string) =>
+  `${UPDATE_HOME_JOB}_${userId}_${JOB_VERSION}`
 
-export const enqueueUpdateJustReadFeed = async (
-  data: UpdateJustReadFeedJobData
-) => {
+export const enqueueUpdateHomeJob = async (data: UpdateHomeJobData) => {
   const queue = await getBackendQueue()
   if (!queue) {
     return undefined
   }
 
-  return queue.add(UPDATE_JUST_READ_FEED_JOB, data, {
-    jobId: updateJustReadFeedJobId(data.userId),
+  return queue.add(UPDATE_HOME_JOB, data, {
+    jobId: updateHomeJobId(data.userId),
     removeOnComplete: true,
     removeOnFail: true,
-    priority: getJobPriority(UPDATE_JUST_READ_FEED_JOB),
+    priority: getJobPriority(UPDATE_HOME_JOB),
     attempts: 3,
   })
 }

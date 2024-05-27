@@ -32,7 +32,7 @@ import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
-import { batchGetJustReadFeedItems } from './services/just_read_feed'
+import { batchGetHomeItems } from './services/home'
 import { batchGetLabelsFromLibraryItemIds } from './services/labels'
 import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
@@ -113,7 +113,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
         batchGetRecommendationsFromLibraryItemIds
       ),
       uploadFiles: new DataLoader(batchGetUploadFilesByIds),
-      justReadFeedItems: new DataLoader(batchGetJustReadFeedItems),
+      homeItems: new DataLoader(batchGetHomeItems),
     },
   }
 

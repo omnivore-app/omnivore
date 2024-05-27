@@ -1,12 +1,12 @@
 import { PublicItem } from '../entity/public_item'
-import { JustReadFeedItem } from '../generated/graphql'
+import { HomeItem } from '../generated/graphql'
 import { authTrx } from '../repository'
 import { findLibraryItemsByIds } from './library_item'
 
-export const batchGetJustReadFeedItems = async (
+export const batchGetHomeItems = async (
   ids: readonly string[]
-): Promise<Array<JustReadFeedItem>> => {
-  const libraryItems = await findLibraryItemsByIds(ids as string[], '')
+): Promise<Array<HomeItem>> => {
+  const libraryItems = await findLibraryItemsByIds(ids as string[])
 
   const publicItems = await authTrx(async (tx) =>
     tx
@@ -57,7 +57,7 @@ export const batchGetJustReadFeedItems = async (
           : undefined
       }
     })
-    .filter((item) => item !== undefined) as JustReadFeedItem[]
+    .filter((item) => item !== undefined) as Array<HomeItem>
 }
 
 export const findUnseenPublicItems = async (

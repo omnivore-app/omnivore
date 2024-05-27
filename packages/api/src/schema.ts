@@ -3101,14 +3101,14 @@ const schema = gql`
     SUBSCRIBE
   }
 
-  type JustReadFeedSubscription {
+  type HomeSubscription {
     id: ID!
     name: String!
     url: String
     icon: String
   }
 
-  type JustReadFeedItem {
+  type HomeItem {
     id: ID!
     title: String!
     url: String!
@@ -3122,7 +3122,7 @@ const schema = gql`
     dir: String
     seen_at: Date
     wordCount: Int
-    subscription: JustReadFeedSubscription!
+    subscription: HomeSubscription!
     canSave: Boolean
     canComment: Boolean
     canShare: Boolean
@@ -3130,34 +3130,34 @@ const schema = gql`
     canDelete: Boolean
   }
 
-  type JustReadFeedSection {
+  type HomeSection {
     title: String
     layout: String
-    items: [JustReadFeedItem!]!
+    items: [HomeItem!]!
     thumbnail: String
   }
 
-  type JustReadFeedEdge {
+  type HomeEdge {
     cursor: String!
-    node: JustReadFeedSection!
+    node: HomeSection!
   }
 
-  type JustReadFeedSuccess {
-    edges: [JustReadFeedEdge!]!
+  type HomeSuccess {
+    edges: [HomeEdge!]!
     pageInfo: PageInfo!
   }
 
-  enum JustReadFeedErrorCode {
+  enum HomeErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     PENDING
   }
 
-  type JustReadFeedError {
-    errorCodes: [JustReadFeedErrorCode!]!
+  type HomeError {
+    errorCodes: [HomeErrorCode!]!
   }
 
-  union JustReadFeedResult = JustReadFeedSuccess | JustReadFeedError
+  union HomeResult = HomeSuccess | HomeError
 
   type SubscriptionRootType {
     hello: String # for testing only
@@ -3358,7 +3358,7 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
-    justReadFeed(first: Int, after: String): JustReadFeedResult!
+    home(first: Int, after: String): HomeResult!
   }
 
   schema {
