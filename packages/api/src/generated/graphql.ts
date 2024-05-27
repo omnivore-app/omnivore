@@ -1391,11 +1391,10 @@ export type JustReadFeedItem = {
   canShare?: Maybe<Scalars['Boolean']>;
   date: Scalars['Date'];
   dir?: Maybe<Scalars['String']>;
-  highlights?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  likedCount?: Maybe<Scalars['Int']>;
+  likeCount?: Maybe<Scalars['Int']>;
   previewContent?: Maybe<Scalars['String']>;
-  savedCount?: Maybe<Scalars['Int']>;
+  saveCount?: Maybe<Scalars['Int']>;
   seen_at?: Maybe<Scalars['Date']>;
   subscription: JustReadFeedSubscription;
   thumbnail?: Maybe<Scalars['String']>;
@@ -6103,11 +6102,10 @@ export type JustReadFeedItemResolvers<ContextType = ResolverContext, ParentType 
   canShare?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   date?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   dir?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  highlights?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  likedCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  savedCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  saveCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   subscription?: Resolver<ResolversTypes['JustReadFeedSubscription'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

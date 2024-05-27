@@ -53,6 +53,7 @@ export const scoreLibraryItem = async (
       author: libraryItem.author,
       language: lanaugeToCode(libraryItem.itemLanguage || 'English'),
       word_count: libraryItem.wordCount,
+      published_at: libraryItem.publishedAt,
     } as Feature,
   }
 
@@ -77,4 +78,5 @@ export const scoreLibraryItem = async (
     undefined,
     true
   )
+  logger.info('Library item scored', data)
 }

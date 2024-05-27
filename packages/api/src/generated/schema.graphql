@@ -1253,11 +1253,10 @@ type JustReadFeedItem {
   canShare: Boolean
   date: Date!
   dir: String
-  highlights: String
   id: ID!
-  likedCount: Int
+  likeCount: Int
   previewContent: String
-  savedCount: Int
+  saveCount: Int
   seen_at: Date
   subscription: JustReadFeedSubscription!
   thumbnail: String

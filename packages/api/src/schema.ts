@@ -3114,9 +3114,8 @@ const schema = gql`
     url: String!
     thumbnail: String
     previewContent: String
-    highlights: String
-    savedCount: Int
-    likedCount: Int
+    saveCount: Int
+    likeCount: Int
     broadcastCount: Int
     date: Date!
     author: String

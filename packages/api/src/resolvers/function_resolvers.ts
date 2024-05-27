@@ -624,6 +624,17 @@ export const functionResolvers = {
       return newsletterEmail.folder || EXISTING_NEWSLETTER_FOLDER
     },
   },
+  JustReadFeedSection: {
+    async items(
+      section: { items: Array<{ id: string }> },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      return ctx.dataLoaders.justReadFeedItems.loadMany(
+        section.items.map((i) => i.id)
+      )
+    },
+  },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
   ...resultResolveTypeResolver('GoogleSignup'),
