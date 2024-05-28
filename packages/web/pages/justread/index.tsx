@@ -44,6 +44,9 @@ export default function Home(): JSX.Element {
           width: '646px',
           gap: '40px',
           minHeight: '100vh',
+          '@mdDown': {
+            width: '100%',
+          },
         }}
       >
         {homeData.sections?.map((homeSection, idx) => {
