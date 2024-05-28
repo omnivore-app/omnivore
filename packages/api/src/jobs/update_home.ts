@@ -15,6 +15,7 @@ export const UPDATE_HOME_JOB = 'UPDATE_HOME_JOB'
 
 export interface UpdateHomeJobData {
   userId: string
+  cursor?: number
 }
 
 interface Candidate {
@@ -249,7 +250,8 @@ export const getHomeSections = async (
 
 const appendSectionsToHome = async (
   userId: string,
-  sections: Array<Section>
+  sections: Array<Section>,
+  cursor = Date.now()
 ) => {
   const redisClient = redisDataSource.redisClient
   if (!redisClient) {
@@ -261,10 +263,14 @@ const appendSectionsToHome = async (
   // store candidates in redis sorted set
   const pipeline = redisClient.pipeline()
 
+  const offset = sections.length + 86_400_000
+  cursor = cursor - offset
+
   const scoreMembers = sections.flatMap((section, index) => [
-    Date.now() + index + 86_400_000, // sections expire in 24 hours
+    cursor + index + 86_400_000, // sections expire in 24 hours
     JSON.stringify(section),
   ])
+
   // add section to the sorted set
   pipeline.zadd(key, ...scoreMembers)
 
@@ -367,7 +373,9 @@ const mixHomeItems = (rankedHomeItems: Array<Candidate>): Array<Section> => {
 }
 
 export const updateHome = async (data: UpdateHomeJobData) => {
-  const { userId } = data
+  const { userId, cursor } = data
+  logger.info('Updating home for user', data)
+
   const user = await findActiveUser(userId)
   if (!user) {
     logger.error(`User ${userId} not found`)
@@ -395,6 +403,6 @@ export const updateHome = async (data: UpdateHomeJobData) => {
   logger.info(`Created ${rankedSections.length} sections`)
 
   logger.info('Appending sections to home')
-  await appendSectionsToHome(userId, rankedSections)
+  await appendSectionsToHome(userId, rankedSections, cursor)
   logger.info('Home updated for user', { userId })
 }

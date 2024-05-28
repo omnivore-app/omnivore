@@ -47,11 +47,4 @@ export const getScores = async (
 
   const scores = (await response.json()) as ScoreApiResponse
   return scores
-
-  // // fake random scores
-  // const scores: ScoreApiResponse = {}
-  // for (const itemId of Object.keys(data.item_features)) {
-  //   scores[itemId] = Math.random()
-  // }
-  // return Promise.resolve(scores)
 }

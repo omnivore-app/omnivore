@@ -46,6 +46,7 @@ export const homeResolver = authorized<
 
     await enqueueUpdateHomeJob({
       userId: uid,
+      cursor,
     })
 
     log.info('Just read feed update enqueued')
