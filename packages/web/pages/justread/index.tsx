@@ -24,7 +24,10 @@ import {
 import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
 import { theme } from '../../components/tokens/stitches.config'
 import { useRouter } from 'next/router'
-import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
+import {
+  SubscriptionType,
+  useGetSubscriptionsQuery,
+} from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useMemo } from 'react'
 
 export default function Home(): JSX.Element {
