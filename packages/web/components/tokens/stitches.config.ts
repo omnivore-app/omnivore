@@ -156,6 +156,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerFontHighContrast: 'black',
         readerTableHeader: '#FFFFFF',
         readerMargin: 'white',
+        readerTextSubtle: '#898989',
 
         // Avatar Fallback color
         avatarBg: '#FFEA9F',
@@ -216,6 +217,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thTextSubtle: '#1E1E1E',
         thTextSubtle2: '#6A6968',
         thTextSubtle3: '#ADADAD',
+        thTextSubtle4: '#EDEDED',
 
         thBorderColor: '#E1E1E1',
         thBorderSubtle: '#EEEEEE',
