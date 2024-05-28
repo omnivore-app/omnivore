@@ -309,8 +309,12 @@ const SubscriptionSourceHoverContent = (
         >
           {props.source.name}
         </SpanBox>
-        <SpanBox css={{ ml: 'auto' }}>
-          <Button style="ctaBlue">+ Follow</Button>
+        <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
+          {subscription && subscription.status == 'ACTIVE' && (
+            <Button style="ctaGray" css={{ fontSize: '12px' }}>
+              + Unsubscribe
+            </Button>
+          )}
         </SpanBox>
       </HStack>
       <SpanBox
