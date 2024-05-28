@@ -182,6 +182,7 @@ const rankCandidates = async (
         author: item.author,
         word_count: item.wordCount,
         published_at: item.publishedAt,
+        subscription: item.subscription?.name,
       } as Feature
       return acc
     }, {} as Record<string, Feature>),

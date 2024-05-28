@@ -12,6 +12,7 @@ export interface Feature {
   subscription_type?: string
   folder?: string
   published_at?: Date
+  subscription?: string
 }
 
 export interface ScoreApiRequestBody {

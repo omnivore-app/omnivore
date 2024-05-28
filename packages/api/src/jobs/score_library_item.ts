@@ -55,6 +55,7 @@ export const scoreLibraryItem = async (
       language: lanaugeToCode(libraryItem.itemLanguage || 'English'),
       word_count: libraryItem.wordCount,
       published_at: libraryItem.publishedAt,
+      subscription: libraryItem.subscription,
     } as Feature,
   }
 
