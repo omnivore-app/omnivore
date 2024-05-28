@@ -138,6 +138,7 @@ const HomeItemView = (props: HomeItemViewProps): JSX.Element => {
         borderRadius: '5px',
         '&:hover': {
           bg: '$thBackground',
+          borderRadius: '0px',
         },
       }}
       onClick={(event) => {
