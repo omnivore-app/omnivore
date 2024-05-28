@@ -49,6 +49,10 @@ import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import {
+  scoreLibraryItem,
+  SCORE_LIBRARY_ITEM_JOB,
+} from './jobs/score_library_item'
+import {
   syncReadPositionsJob,
   SYNC_READ_POSITIONS_JOB_NAME,
 } from './jobs/sync_read_positions'
@@ -59,6 +63,7 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from './jobs/update_db'
+import { updateHome, UPDATE_HOME_JOB } from './jobs/update_home'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { uploadContentJob, UPLOAD_CONTENT_JOB } from './jobs/upload_content'
 import { redisDataSource } from './redis_data_source'
@@ -185,6 +190,10 @@ export const createWorker = (connection: ConnectionOptions) =>
           return createDigest(job.data)
         case UPLOAD_CONTENT_JOB:
           return uploadContentJob(job.data)
+        case UPDATE_HOME_JOB:
+          return updateHome(job.data)
+        case SCORE_LIBRARY_ITEM_JOB:
+          return scoreLibraryItem(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

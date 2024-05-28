@@ -204,4 +204,16 @@ export class LibraryItem {
 
   @Column('text')
   highlightAnnotations?: string[]
+
+  @Column('timestamptz')
+  seenAt?: Date
+
+  @Column('ltree')
+  topic?: string
+
+  @Column('timestamptz')
+  digestedAt?: Date
+
+  @Column('float')
+  score?: number
 }

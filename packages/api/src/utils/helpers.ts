@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import languages from '@cospired/i18n-iso-languages'
 import crypto from 'crypto'
 import Redis from 'ioredis'
 import normalizeUrl from 'normalize-url'
@@ -31,6 +32,7 @@ import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
 import { logger } from './logger'
+
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
@@ -423,3 +425,6 @@ export const getClientFromUserAgent = (userAgent: string): string => {
 
   return 'other'
 }
+
+export const lanaugeToCode = (language: string): string =>
+  languages.getAlpha2Code(language, 'en') || 'en'

@@ -1,3 +1,9 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: SubscriptionRootType
+}
+
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddDiscoverFeedError {
@@ -1136,6 +1142,72 @@ enum HighlightType {
   REDACTION
 }
 
+type HomeEdge {
+  cursor: String!
+  node: HomeSection!
+}
+
+type HomeError {
+  errorCodes: [HomeErrorCode!]!
+}
+
+enum HomeErrorCode {
+  BAD_REQUEST
+  PENDING
+  UNAUTHORIZED
+}
+
+type HomeItem {
+  author: String
+  broadcastCount: Int
+  canArchive: Boolean
+  canComment: Boolean
+  canDelete: Boolean
+  canSave: Boolean
+  canShare: Boolean
+  date: Date!
+  dir: String
+  id: ID!
+  likeCount: Int
+  previewContent: String
+  saveCount: Int
+  seen_at: Date
+  source: HomeItemSource
+  thumbnail: String
+  title: String!
+  url: String!
+  wordCount: Int
+}
+
+type HomeItemSource {
+  icon: String
+  id: ID
+  name: String!
+  type: HomeItemSourceType!
+  url: String
+}
+
+enum HomeItemSourceType {
+  LIBRARY
+  NEWSLETTER
+  RECOMMENDATION
+  RSS
+}
+
+union HomeResult = HomeError | HomeSuccess
+
+type HomeSection {
+  items: [HomeItem!]!
+  layout: String
+  thumbnail: String
+  title: String
+}
+
+type HomeSuccess {
+  edges: [HomeEdge!]!
+  pageInfo: PageInfo!
+}
+
 type ImportFromIntegrationError {
   errorCodes: [ImportFromIntegrationErrorCode!]!
 }
@@ -1638,6 +1710,7 @@ type Query {
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
+  home(after: String, first: Int): HomeResult!
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
   labels: LabelsResult!
@@ -2539,6 +2612,10 @@ type Subscription {
   unsubscribeMailTo: String
   updatedAt: Date
   url: String
+}
+
+type SubscriptionRootType {
+  hello: String
 }
 
 enum SubscriptionStatus {

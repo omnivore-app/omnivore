@@ -1,0 +1,50 @@
+export interface Feature {
+  library_item_id?: string
+  title: string
+  has_thumbnail: boolean
+  has_site_icon: boolean
+  saved_at: Date
+  site?: string
+  language?: string
+  author?: string
+  directionality: string
+  word_count?: number
+  subscription_type?: string
+  folder?: string
+  published_at?: Date
+  subscription?: string
+}
+
+export interface ScoreApiRequestBody {
+  user_id: string
+  items: Record<string, Feature> // item_id -> feature
+}
+
+export type ScoreApiResponse = Record<string, number> // item_id -> score
+
+export const getScores = async (
+  data: ScoreApiRequestBody
+): Promise<ScoreApiResponse> => {
+  const API_URL = 'http://digest-score/batch'
+  // const token = process.env.SCORE_API_TOKEN
+
+  // if (!token) {
+  //   throw new Error('No score API token found')
+  // }
+
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to score candidates: ${response.statusText}`)
+  }
+
+  const scores = (await response.json()) as ScoreApiResponse
+  return scores
+}

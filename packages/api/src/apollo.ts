@@ -32,12 +32,15 @@ import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
+import { batchGetPublicItems } from './services/home'
 import { batchGetLabelsFromLibraryItemIds } from './services/labels'
+import { batchGetLibraryItems } from './services/library_item'
 import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
   countDailyServiceUsage,
   createServiceUsage,
 } from './services/service_usage'
+import { findSubscriptionsByNames } from './services/subscriptions'
 import { batchGetUploadFilesByIds } from './services/upload_file'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
@@ -112,6 +115,15 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
         batchGetRecommendationsFromLibraryItemIds
       ),
       uploadFiles: new DataLoader(batchGetUploadFilesByIds),
+      libraryItems: new DataLoader(batchGetLibraryItems),
+      publicItems: new DataLoader(batchGetPublicItems),
+      subscriptions: new DataLoader(async (names: readonly string[]) => {
+        if (!claims?.uid) {
+          throw new Error('No user id found in claims')
+        }
+
+        return findSubscriptionsByNames(claims?.uid || '', names as string[])
+      }),
     },
   }
 

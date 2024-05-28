@@ -45,6 +45,10 @@ import {
   REFRESH_ALL_FEEDS_JOB_NAME,
   REFRESH_FEED_JOB_NAME,
 } from '../jobs/rss/refreshAllFeeds'
+import {
+  ScoreLibraryItemJobData,
+  SCORE_LIBRARY_ITEM_JOB,
+} from '../jobs/score_library_item'
 import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/sync_read_positions'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import {
@@ -53,6 +57,7 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
+import { UpdateHomeJobData, UPDATE_HOME_JOB } from '../jobs/update_home'
 import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
@@ -85,6 +90,7 @@ export const getJobPriority = (jobName: string): number => {
     case UPDATE_HIGHLIGHT_JOB:
     case SYNC_READ_POSITIONS_JOB_NAME:
     case SEND_EMAIL_JOB:
+    case UPDATE_HOME_JOB:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
@@ -95,6 +101,7 @@ export const getJobPriority = (jobName: string): number => {
     case `${REFRESH_FEED_JOB_NAME}_high`:
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
     case UPLOAD_CONTENT_JOB:
+    case SCORE_LIBRARY_ITEM_JOB:
       return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
@@ -979,6 +986,42 @@ export const enqueueBulkUploadContentJob = async (
   }))
 
   return queue.addBulk(jobs)
+}
+
+export const updateHomeJobId = (userId: string) =>
+  `${UPDATE_HOME_JOB}_${userId}_${JOB_VERSION}`
+
+export const enqueueUpdateHomeJob = async (data: UpdateHomeJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(UPDATE_HOME_JOB, data, {
+    jobId: updateHomeJobId(data.userId),
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority: getJobPriority(UPDATE_HOME_JOB),
+    attempts: 3,
+  })
+}
+
+export const updateScoreJobId = (userId: string) =>
+  `${SCORE_LIBRARY_ITEM_JOB}_${userId}_${JOB_VERSION}`
+
+export const enqueueScoreJob = async (data: ScoreLibraryItemJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(SCORE_LIBRARY_ITEM_JOB, data, {
+    jobId: updateScoreJobId(data.userId),
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority: getJobPriority(SCORE_LIBRARY_ITEM_JOB),
+    attempts: 3,
+  })
 }
 
 export default createHttpTaskWithToken

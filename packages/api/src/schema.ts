@@ -3101,6 +3101,76 @@ const schema = gql`
     SUBSCRIBE
   }
 
+  enum HomeItemSourceType {
+    RSS
+    NEWSLETTER
+    RECOMMENDATION
+    LIBRARY
+  }
+
+  type HomeItemSource {
+    id: ID
+    name: String!
+    url: String
+    icon: String
+    type: HomeItemSourceType!
+  }
+
+  type HomeItem {
+    id: ID!
+    title: String!
+    url: String!
+    thumbnail: String
+    previewContent: String
+    saveCount: Int
+    likeCount: Int
+    broadcastCount: Int
+    date: Date!
+    author: String
+    dir: String
+    seen_at: Date
+    wordCount: Int
+    source: HomeItemSource
+    canSave: Boolean
+    canComment: Boolean
+    canShare: Boolean
+    canArchive: Boolean
+    canDelete: Boolean
+  }
+
+  type HomeSection {
+    title: String
+    layout: String
+    items: [HomeItem!]!
+    thumbnail: String
+  }
+
+  type HomeEdge {
+    cursor: String!
+    node: HomeSection!
+  }
+
+  type HomeSuccess {
+    edges: [HomeEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  enum HomeErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    PENDING
+  }
+
+  type HomeError {
+    errorCodes: [HomeErrorCode!]!
+  }
+
+  union HomeResult = HomeSuccess | HomeError
+
+  type SubscriptionRootType {
+    hello: String # for testing only
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3296,6 +3366,13 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
+    home(first: Int, after: String): HomeResult!
+  }
+
+  schema {
+    query: Query
+    mutation: Mutation
+    subscription: SubscriptionRootType
   }
 `
 

@@ -60,6 +60,7 @@ enum ReadFilter {
   READ = 'read',
   READING = 'reading',
   UNREAD = 'unread',
+  SEEN = 'seen',
 }
 
 enum InFilter {
@@ -138,6 +139,10 @@ interface Select {
 }
 
 const readingProgressDataSource = new ReadingProgressDataSource()
+
+export const batchGetLibraryItems = async (ids: readonly string[]) => {
+  return findLibraryItemsByIds(ids as string[])
+}
 
 export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
 
@@ -332,6 +337,8 @@ export const buildQueryString = (
               return 'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
             case ReadFilter.UNREAD:
               return 'library_item.reading_progress_bottom_percent < 2'
+            case ReadFilter.SEEN:
+              return 'library_item.seen_at IS NOT NULL'
             default:
               throw new Error(`Unexpected keyword: ${value}`)
           }
@@ -772,7 +779,7 @@ export const findRecentLibraryItems = async (
 
 export const findLibraryItemsByIds = async (
   ids: string[],
-  userId: string,
+  userId?: string,
   options?: {
     select?: (keyof LibraryItem)[]
   }

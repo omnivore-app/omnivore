@@ -4,11 +4,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
+import { isError } from 'lodash'
 import { Highlight as HighlightEntity } from '../entity/highlight'
+import { LibraryItem } from '../entity/library_item'
 import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
 } from '../entity/newsletter_email'
+import { PublicItem } from '../entity/public_item'
 import {
   DEFAULT_SUBSCRIPTION_FOLDER,
   Subscription,
@@ -17,6 +20,9 @@ import { env } from '../env'
 import {
   Article,
   Highlight,
+  HomeItem,
+  HomeItemSource,
+  HomeItemSourceType,
   Label,
   PageType,
   Recommendation,
@@ -25,6 +31,7 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
+import { Merge } from '../util'
 import {
   highlightDataToHighlight,
   isBase64Image,
@@ -33,7 +40,6 @@ import {
   wordsCount,
 } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
-import { logger } from '../utils/logger'
 import { contentConverter } from '../utils/parser'
 import {
   generateDownloadSignedUrl,
@@ -54,6 +60,7 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
+import { homeResolver } from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -360,6 +367,7 @@ export const functionResolvers = {
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
+    home: homeResolver,
   },
   User: {
     async intercomHash(
@@ -623,6 +631,108 @@ export const functionResolvers = {
       return newsletterEmail.folder || EXISTING_NEWSLETTER_FOLDER
     },
   },
+  HomeSection: {
+    async items(
+      section: {
+        items: Array<{ id: string; type: 'library_item' | 'public_item' }>
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const libraryItemIds = section.items
+        .filter((item) => item.type === 'library_item')
+        .map((item) => item.id)
+      const libraryItems = (
+        await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
+      ).filter((libraryItem) => !isError(libraryItem)) as Array<LibraryItem>
+
+      const publicItemIds = section.items
+        .filter((item) => item.type === 'public_item')
+        .map((item) => item.id)
+      const publicItems = (
+        await ctx.dataLoaders.publicItems.loadMany(publicItemIds)
+      ).filter((publicItem) => !isError(publicItem)) as Array<PublicItem>
+
+      return libraryItems
+        .map(
+          (libraryItem) =>
+            ({
+              id: libraryItem.id,
+              title: libraryItem.title,
+              author: libraryItem.author,
+              thumbnail: libraryItem.thumbnail,
+              wordCount: libraryItem.wordCount,
+              date: libraryItem.savedAt,
+              url: libraryItem.originalUrl,
+              canArchive: !libraryItem.archivedAt,
+              canDelete: !libraryItem.deletedAt,
+              canSave: false,
+              dir: libraryItem.directionality,
+              previewContent: libraryItem.description,
+              subscription: libraryItem.subscription,
+              siteName: libraryItem.siteName,
+              siteIcon: libraryItem.siteIcon,
+            } as HomeItem)
+        )
+        .concat(
+          publicItems.map(
+            (publicItem) =>
+              ({
+                id: publicItem.id,
+                title: publicItem.title,
+                author: publicItem.author,
+                dir: publicItem.dir,
+                previewContent: publicItem.previewContent,
+                thumbnail: publicItem.thumbnail,
+                wordCount: publicItem.wordCount,
+                date: publicItem.createdAt,
+                url: publicItem.url,
+                canArchive: false,
+                canDelete: false,
+                canSave: true,
+                broadcastCount: publicItem.stats.broadcastCount,
+                likeCount: publicItem.stats.likeCount,
+                saveCount: publicItem.stats.saveCount,
+                source: publicItem.source,
+              } as HomeItem)
+          )
+        )
+    },
+  },
+  HomeItem: {
+    async source(
+      item: Merge<
+        HomeItem,
+        { subscription?: string; siteName: string; siteIcon?: string }
+      >,
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ): Promise<HomeItemSource> {
+      if (item.source) {
+        return item.source
+      }
+
+      if (!item.subscription) {
+        return {
+          name: item.siteName,
+          icon: item.siteIcon,
+          type: HomeItemSourceType.Library,
+        }
+      }
+
+      const subscription = await ctx.dataLoaders.subscriptions.load(
+        item.subscription
+      )
+
+      return {
+        id: subscription.id,
+        url: subscription.url,
+        name: subscription.name,
+        icon: subscription.icon,
+        type: subscription.type as unknown as HomeItemSourceType,
+      }
+    },
+  },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
   ...resultResolveTypeResolver('GoogleSignup'),
@@ -722,4 +832,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Integration'),
   ...resultResolveTypeResolver('ExportToIntegration'),
   ...resultResolveTypeResolver('ReplyToEmail'),
+  ...resultResolveTypeResolver('Home'),
 }
