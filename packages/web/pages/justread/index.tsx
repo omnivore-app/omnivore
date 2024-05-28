@@ -312,7 +312,7 @@ const SubscriptionSourceHoverContent = (
         </SpanBox>
         <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
           {subscription && subscription.status == 'ACTIVE' && (
-            <Button style="ctaGray" css={{ fontSize: '12px' }}>
+            <Button style="ctaSubtle" css={{ fontSize: '12px' }}>
               + Unsubscribe
             </Button>
           )}

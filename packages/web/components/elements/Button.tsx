@@ -49,7 +49,7 @@ export const Button = styled('button', {
           background: `#0056D2`,
         },
       },
-      ctaGray: {
+      ctaSubtle: {
         borderRadius: '5px',
         px: '10px',
         py: '8px',
