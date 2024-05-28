@@ -41,7 +41,11 @@ export type HomeItem = {
   thumbnail?: string
 }
 
-type HomeItemSourceType = 'LIBRARY' | 'NEWSLETTER' | 'RECOMMENDATION' | 'RSS'
+export type HomeItemSourceType =
+  | 'LIBRARY'
+  | 'NEWSLETTER'
+  | 'RECOMMENDATION'
+  | 'RSS'
 
 export type HomeItemSource = {
   name: string

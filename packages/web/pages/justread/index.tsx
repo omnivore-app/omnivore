@@ -15,12 +15,17 @@ import * as HoverCard from '@radix-ui/react-hover-card'
 import { Button } from '../../components/elements/Button'
 import {
   HomeItem,
+  HomeItemSource,
+  HomeItemSourceType,
   HomeSection,
   stubHomeItems,
   useGetHomeItems,
 } from '../../lib/networking/queries/useGetHome'
 import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
 import { theme } from '../../components/tokens/stitches.config'
+import { useRouter } from 'next/router'
+import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
+import { useMemo } from 'react'
 
 export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
@@ -123,6 +128,8 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
 }
 
 const HomeItemView = (props: HomeItemViewProps): JSX.Element => {
+  const router = useRouter()
+
   return (
     <VStack
       css={{
@@ -132,6 +139,13 @@ const HomeItemView = (props: HomeItemViewProps): JSX.Element => {
         '&:hover': {
           bg: '$thBackground',
         },
+      }}
+      onClick={(event) => {
+        if (event.metaKey || event.ctrlKey) {
+          window.open(props.homeItem.url, '_blank')
+        } else {
+          router.push(props.homeItem.url)
+        }
       }}
     >
       <HStack css={{ width: '100%', gap: '5px' }}>
@@ -206,11 +220,12 @@ const SourceInfo = (props: HomeItemViewProps) => (
         alignment="center"
         css={{ gap: '5px', cursor: 'pointer' }}
       >
-        <SiteIconSmall
-          className="Image normal"
-          src="https://pbs.twimg.com/profile_images/1337055608613253126/r_eiMp2H_400x400.png"
-          alt={props.homeItem.source.name}
-        />
+        {props.homeItem.source.icon && (
+          <SiteIconSmall
+            src={props.homeItem.source.icon}
+            alt={props.homeItem.source.name}
+          />
+        )}
         <HStack
           css={{
             lineHeight: '1',
@@ -228,54 +243,85 @@ const SourceInfo = (props: HomeItemViewProps) => (
     </HoverCard.Trigger>
     <HoverCard.Portal>
       <HoverCard.Content sideOffset={5}>
-        <VStack
-          alignment="start"
-          distribution="start"
-          css={{
-            width: '380px',
-            height: '200px',
-            bg: '$thBackground2',
-            borderRadius: '10px',
-            padding: '15px',
-            gap: '10px',
-            boxShadow: theme.shadows.cardBoxShadow.toString(),
-          }}
-        >
-          <HStack
-            distribution="start"
-            alignment="center"
-            css={{ width: '100%', gap: '10px' }}
-          >
-            <SiteIconLarge
-              className="Image normal"
-              src="https://pbs.twimg.com/profile_images/1337055608613253126/r_eiMp2H_400x400.png"
-              alt={props.homeItem.source.name}
-            />
-            <SpanBox
-              css={{
-                fontFamily: '$inter',
-                fontWeight: '500',
-                fontSize: '14px',
-              }}
-            >
-              {props.homeItem.source.name}
-            </SpanBox>
-            <SpanBox css={{ ml: 'auto' }}>
-              <Button style="ctaBlue">+ Follow</Button>
-            </SpanBox>
-          </HStack>
-          <SpanBox
-            css={{
-              fontFamily: '$inter',
-              fontSize: '13px',
-              color: '$thTextSubtle4',
-            }}
-          >
-            The description of the newsletter or RSS feed, this would lazy load.
-          </SpanBox>
-        </VStack>
+        <SubscriptionSourceHoverContent source={props.homeItem.source} />
         <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
       </HoverCard.Content>
     </HoverCard.Portal>
   </HoverCard.Root>
 )
+
+type SourceHoverContentProps = {
+  source: HomeItemSource
+}
+
+const SubscriptionSourceHoverContent = (
+  props: SourceHoverContentProps
+): JSX.Element => {
+  const mapSourceType = (
+    sourceType: HomeItemSourceType
+  ): SubscriptionType | undefined => {
+    switch (sourceType) {
+      case 'RSS':
+      case 'NEWSLETTER':
+        return sourceType
+      default:
+        return undefined
+    }
+  }
+  const { subscriptions, isValidating } = useGetSubscriptionsQuery(
+    mapSourceType(props.source.type)
+  )
+  const subscription = useMemo(() => {
+    if (props.source.id && subscriptions) {
+      return subscriptions.find((sub) => sub.id == props.source.id)
+    }
+    return undefined
+  }, [subscriptions])
+
+  return (
+    <VStack
+      alignment="start"
+      distribution="start"
+      css={{
+        width: '380px',
+        height: '200px',
+        bg: '$thBackground2',
+        borderRadius: '10px',
+        padding: '15px',
+        gap: '10px',
+        boxShadow: theme.shadows.cardBoxShadow.toString(),
+      }}
+    >
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ width: '100%', gap: '10px' }}
+      >
+        {props.source.icon && (
+          <SiteIconLarge src={props.source.icon} alt={props.source.name} />
+        )}
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontWeight: '500',
+            fontSize: '14px',
+          }}
+        >
+          {props.source.name}
+        </SpanBox>
+        <SpanBox css={{ ml: 'auto' }}>
+          <Button style="ctaBlue">+ Follow</Button>
+        </SpanBox>
+      </HStack>
+      <SpanBox
+        css={{
+          fontFamily: '$inter',
+          fontSize: '13px',
+          color: '$thTextSubtle4',
+        }}
+      >
+        {subscription ? <>{subscription.description}</> : <></>}
+      </SpanBox>
+    </VStack>
+  )
+}
