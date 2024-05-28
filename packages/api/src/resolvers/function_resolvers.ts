@@ -679,6 +679,7 @@ export const functionResolvers = {
               subscription: libraryItem.subscription,
               siteName: libraryItem.siteName,
               siteIcon: libraryItem.siteIcon,
+              slug: libraryItem.slug,
             }
           }
 

@@ -157,6 +157,7 @@ export const batchGetLibraryItems = async (ids: readonly string[]) => {
       'siteIcon',
       'archivedAt',
       'deletedAt',
+      'slug',
     ],
   })
 
