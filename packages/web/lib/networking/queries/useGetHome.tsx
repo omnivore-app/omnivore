@@ -123,7 +123,7 @@ export function useGetHomeItems(): HomeItemResponse {
   `
 
   const variables = {
-    first: 20,
+    first: 100,
     after: null,
   }
 
@@ -153,6 +153,7 @@ export function useGetHomeItems(): HomeItemResponse {
   }
 
   if (result && result.home && result.home.edges) {
+    console.log('data', result.home)
     return {
       error: false,
       isValidating,
