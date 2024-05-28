@@ -1172,11 +1172,26 @@ type HomeItem {
   previewContent: String
   saveCount: Int
   seen_at: Date
-  subscription: HomeSubscription!
+  subscription: HomeItemSource
   thumbnail: String
   title: String!
   url: String!
   wordCount: Int
+}
+
+type HomeItemSource {
+  icon: String
+  id: ID
+  name: String!
+  type: HomeItemSourceType!
+  url: String
+}
+
+enum HomeItemSourceType {
+  LIBRARY
+  NEWSLETTER
+  RECOMMENDATION
+  RSS
 }
 
 union HomeResult = HomeError | HomeSuccess
@@ -1186,13 +1201,6 @@ type HomeSection {
   layout: String
   thumbnail: String
   title: String
-}
-
-type HomeSubscription {
-  icon: String
-  id: ID!
-  name: String!
-  url: String
 }
 
 type HomeSuccess {

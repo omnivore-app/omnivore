@@ -8,6 +8,8 @@ import winston from 'winston'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
+import { LibraryItem } from '../entity/library_item'
+import { PublicItem } from '../entity/public_item'
 import { Recommendation } from '../entity/recommendation'
 import { UploadFile } from '../entity/upload_file'
 import { HomeItem } from '../generated/graphql'
@@ -52,7 +54,8 @@ export interface RequestContext {
     highlights: DataLoader<string, Highlight[]>
     recommendations: DataLoader<string, Recommendation[]>
     uploadFiles: DataLoader<string, UploadFile | undefined>
-    homeItems: DataLoader<string, HomeItem>
+    libraryItems: DataLoader<string, LibraryItem>
+    publicItems: DataLoader<string, PublicItem>
   }
 }
 

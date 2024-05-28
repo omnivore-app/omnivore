@@ -3101,11 +3101,19 @@ const schema = gql`
     SUBSCRIBE
   }
 
-  type HomeSubscription {
-    id: ID!
+  enum HomeItemSourceType {
+    RSS
+    NEWSLETTER
+    RECOMMENDATION
+    LIBRARY
+  }
+
+  type HomeItemSource {
+    id: ID
     name: String!
     url: String
     icon: String
+    type: HomeItemSourceType!
   }
 
   type HomeItem {
@@ -3122,7 +3130,7 @@ const schema = gql`
     dir: String
     seen_at: Date
     wordCount: Int
-    subscription: HomeSubscription!
+    subscription: HomeItemSource
     canSave: Boolean
     canComment: Boolean
     canShare: Boolean

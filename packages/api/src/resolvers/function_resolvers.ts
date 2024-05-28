@@ -4,11 +4,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
+import { isError } from 'lodash'
 import { Highlight as HighlightEntity } from '../entity/highlight'
+import { LibraryItem } from '../entity/library_item'
 import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
 } from '../entity/newsletter_email'
+import { PublicItem } from '../entity/public_item'
 import {
   DEFAULT_SUBSCRIPTION_FOLDER,
   Subscription,
@@ -17,6 +20,7 @@ import { env } from '../env'
 import {
   Article,
   Highlight,
+  HomeItem,
   Label,
   PageType,
   Recommendation,
@@ -626,11 +630,87 @@ export const functionResolvers = {
   },
   HomeSection: {
     async items(
-      section: { items: Array<{ id: string }> },
+      section: {
+        items: Array<{ id: string; type: 'library_item' | 'public_item' }>
+      },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return ctx.dataLoaders.homeItems.loadMany(section.items.map((i) => i.id))
+      const libraryItemIds = section.items
+        .filter((item) => item.type === 'library_item')
+        .map((item) => item.id)
+      const libraryItems = (
+        await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
+      ).filter((libraryItem) => !isError(libraryItem)) as Array<LibraryItem>
+
+      const publicItemIds = section.items
+        .filter((item) => item.type === 'public_item')
+        .map((item) => item.id)
+      const publicItems = (
+        await ctx.dataLoaders.publicItems.loadMany(publicItemIds)
+      ).filter((publicItem) => !isError(publicItem)) as Array<PublicItem>
+
+      return libraryItems
+        .map(
+          (libraryItem) =>
+            ({
+              id: libraryItem.id,
+              title: libraryItem.title,
+              author: libraryItem.author,
+              thumbnail: libraryItem.thumbnail,
+              wordCount: libraryItem.wordCount,
+              date: libraryItem.savedAt,
+              url: libraryItem.originalUrl,
+              canArchive: !libraryItem.archivedAt,
+              canDelete: !libraryItem.deletedAt,
+              canSave: false,
+              dir: libraryItem.directionality,
+              subscription: null,
+              previewContent: libraryItem.description,
+            } as HomeItem)
+        )
+        .concat(
+          publicItems.map(
+            (publicItem) =>
+              ({
+                id: publicItem.id,
+                title: publicItem.title,
+                author: publicItem.author,
+                dir: publicItem.dir,
+                previewContent: publicItem.previewContent,
+                thumbnail: publicItem.thumbnail,
+                wordCount: publicItem.wordCount,
+                date: publicItem.createdAt,
+                url: publicItem.url,
+                canArchive: false,
+                canDelete: false,
+                canSave: true,
+                broadcastCount: publicItem.stats.broadcastCount,
+                likeCount: publicItem.stats.likeCount,
+                saveCount: publicItem.stats.saveCount,
+                subscription: publicItem.source,
+              } as HomeItem)
+          )
+        )
+    },
+  },
+  HomeItem: {
+    async subscription(
+      item: HomeItem,
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      // if (item.subscription) {
+      //   return item.subscription
+      // }
+      // const subscription = await ctx.dataLoaders.subscriptions.load(item.id)
+      // if (!subscription) {
+      //   return {
+      //     name: item.siteName,
+      //     icon: item.siteIcon,
+      //     type: 'rss',
+      //   }
+      // }
     },
   },
   ...resultResolveTypeResolver('Login'),

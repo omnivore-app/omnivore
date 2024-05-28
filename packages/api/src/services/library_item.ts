@@ -140,6 +140,10 @@ interface Select {
 
 const readingProgressDataSource = new ReadingProgressDataSource()
 
+export const batchGetLibraryItems = async (ids: readonly string[]) => {
+  return findLibraryItemsByIds(ids as string[])
+}
+
 export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
 
 const markItemAsRead = async (libraryItemId: string, userId: string) => {

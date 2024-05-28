@@ -3,6 +3,18 @@ import { HomeItem } from '../generated/graphql'
 import { authTrx } from '../repository'
 import { findLibraryItemsByIds } from './library_item'
 
+export const batchGetPublicItems = async (
+  ids: readonly string[]
+): Promise<Array<PublicItem>> => {
+  return authTrx(async (tx) =>
+    tx
+      .getRepository(PublicItem)
+      .createQueryBuilder('public_item')
+      .where('public_item.id IN (:...ids)', { ids })
+      .getMany()
+  )
+}
+
 export const batchGetHomeItems = async (
   ids: readonly string[]
 ): Promise<Array<HomeItem>> => {
@@ -38,11 +50,13 @@ export const batchGetHomeItems = async (
           canDelete: !libraryItem.deletedAt,
           canSave: false,
           dir: libraryItem.directionality,
-        }
+          subscription: null,
+          previewContent: libraryItem.description,
+        } as HomeItem
       } else {
         const publicItem = publicItems.find((pi) => pi.id === id)
         return publicItem
-          ? {
+          ? ({
               ...publicItem,
               date: publicItem.createdAt,
               url: publicItem.url,
@@ -53,7 +67,7 @@ export const batchGetHomeItems = async (
               likeCount: publicItem.stats.likeCount,
               saveCount: publicItem.stats.saveCount,
               subscription: publicItem.source,
-            }
+            } as HomeItem)
           : undefined
       }
     })

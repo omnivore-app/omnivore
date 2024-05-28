@@ -32,8 +32,9 @@ import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
-import { batchGetHomeItems } from './services/home'
+import { batchGetPublicItems } from './services/home'
 import { batchGetLabelsFromLibraryItemIds } from './services/labels'
+import { batchGetLibraryItems } from './services/library_item'
 import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
   countDailyServiceUsage,
@@ -113,7 +114,8 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
         batchGetRecommendationsFromLibraryItemIds
       ),
       uploadFiles: new DataLoader(batchGetUploadFilesByIds),
-      homeItems: new DataLoader(batchGetHomeItems),
+      libraryItems: new DataLoader(batchGetLibraryItems),
+      publicItems: new DataLoader(batchGetPublicItems),
     },
   }
 

@@ -1303,12 +1303,28 @@ export type HomeItem = {
   previewContent?: Maybe<Scalars['String']>;
   saveCount?: Maybe<Scalars['Int']>;
   seen_at?: Maybe<Scalars['Date']>;
-  subscription: HomeSubscription;
+  subscription?: Maybe<HomeItemSource>;
   thumbnail?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   url: Scalars['String'];
   wordCount?: Maybe<Scalars['Int']>;
 };
+
+export type HomeItemSource = {
+  __typename?: 'HomeItemSource';
+  icon?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['ID']>;
+  name: Scalars['String'];
+  type: HomeItemSourceType;
+  url?: Maybe<Scalars['String']>;
+};
+
+export enum HomeItemSourceType {
+  Library = 'LIBRARY',
+  Newsletter = 'NEWSLETTER',
+  Recommendation = 'RECOMMENDATION',
+  Rss = 'RSS'
+}
 
 export type HomeResult = HomeError | HomeSuccess;
 
@@ -1318,14 +1334,6 @@ export type HomeSection = {
   layout?: Maybe<Scalars['String']>;
   thumbnail?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
-};
-
-export type HomeSubscription = {
-  __typename?: 'HomeSubscription';
-  icon?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  url?: Maybe<Scalars['String']>;
 };
 
 export type HomeSuccess = {
@@ -4259,9 +4267,10 @@ export type ResolversTypes = {
   HomeError: ResolverTypeWrapper<HomeError>;
   HomeErrorCode: HomeErrorCode;
   HomeItem: ResolverTypeWrapper<HomeItem>;
+  HomeItemSource: ResolverTypeWrapper<HomeItemSource>;
+  HomeItemSourceType: HomeItemSourceType;
   HomeResult: ResolversTypes['HomeError'] | ResolversTypes['HomeSuccess'];
   HomeSection: ResolverTypeWrapper<HomeSection>;
-  HomeSubscription: ResolverTypeWrapper<HomeSubscription>;
   HomeSuccess: ResolverTypeWrapper<HomeSuccess>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   ImportFromIntegrationError: ResolverTypeWrapper<ImportFromIntegrationError>;
@@ -4815,9 +4824,9 @@ export type ResolversParentTypes = {
   HomeEdge: HomeEdge;
   HomeError: HomeError;
   HomeItem: HomeItem;
+  HomeItemSource: HomeItemSource;
   HomeResult: ResolversParentTypes['HomeError'] | ResolversParentTypes['HomeSuccess'];
   HomeSection: HomeSection;
-  HomeSubscription: HomeSubscription;
   HomeSuccess: HomeSuccess;
   ID: Scalars['ID'];
   ImportFromIntegrationError: ImportFromIntegrationError;
@@ -6034,11 +6043,20 @@ export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends 
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   saveCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  subscription?: Resolver<ResolversTypes['HomeSubscription'], ParentType, ContextType>;
+  subscription?: Resolver<Maybe<ResolversTypes['HomeItemSource']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HomeItemSourceResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeItemSource'] = ResolversParentTypes['HomeItemSource']> = {
+  icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['HomeItemSourceType'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6051,14 +6069,6 @@ export type HomeSectionResolvers<ContextType = ResolverContext, ParentType exten
   layout?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type HomeSubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeSubscription'] = ResolversParentTypes['HomeSubscription']> = {
-  icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -7653,9 +7663,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   HomeEdge?: HomeEdgeResolvers<ContextType>;
   HomeError?: HomeErrorResolvers<ContextType>;
   HomeItem?: HomeItemResolvers<ContextType>;
+  HomeItemSource?: HomeItemSourceResolvers<ContextType>;
   HomeResult?: HomeResultResolvers<ContextType>;
   HomeSection?: HomeSectionResolvers<ContextType>;
-  HomeSubscription?: HomeSubscriptionResolvers<ContextType>;
   HomeSuccess?: HomeSuccessResolvers<ContextType>;
   ImportFromIntegrationError?: ImportFromIntegrationErrorResolvers<ContextType>;
   ImportFromIntegrationResult?: ImportFromIntegrationResultResolvers<ContextType>;

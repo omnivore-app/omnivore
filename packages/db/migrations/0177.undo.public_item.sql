@@ -17,4 +17,6 @@ ALTER TABLE omnivore.library_item
     DROP COLUMN topic,
     DROP COLUMN score;
 
+DROP EXTENSION LTREE;
+
 COMMIT;

@@ -28,7 +28,7 @@ export const homeResolver = authorized<
   HomeError,
   QueryHomeArgs
 >(async (_, { first, after }, { uid, log }) => {
-  const limit = first || 10
+  const limit = first || 6
   const cursor = after ? parseInt(after) : undefined
 
   const sections = await getHomeSections(uid, limit, cursor)
