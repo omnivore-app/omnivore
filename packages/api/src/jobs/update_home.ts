@@ -209,7 +209,7 @@ const rankCandidates = async (
   return candidates
 }
 
-const redisKey = (userId: string) => `just-read-feed:${userId}`
+const redisKey = (userId: string) => `home:${userId}`
 const MAX_FEED_ITEMS = 500
 
 export const getHomeSections = async (
@@ -251,7 +251,7 @@ export const getHomeSections = async (
 const appendSectionsToHome = async (
   userId: string,
   sections: Array<Section>,
-  cursor = Date.now()
+  cursor?: number
 ) => {
   const redisClient = redisDataSource.redisClient
   if (!redisClient) {
@@ -263,11 +263,14 @@ const appendSectionsToHome = async (
   // store candidates in redis sorted set
   const pipeline = redisClient.pipeline()
 
-  const offset = sections.length + 86_400_000
-  cursor = cursor - offset
+  // sections expire in 24 hours
+  const ttl = 86_400_000
+
+  const batchSize = sections.length
+  const savedAt = cursor ? cursor - batchSize - ttl : Date.now()
 
   const scoreMembers = sections.flatMap((section, index) => [
-    cursor + index + 86_400_000, // sections expire in 24 hours
+    savedAt + index + ttl, // score for the section is the savedAt + index + ttl
     JSON.stringify(section),
   ])
 

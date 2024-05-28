@@ -56,6 +56,8 @@ export const homeResolver = authorized<
     }
   }
 
+  const endCursor = sections[sections.length - 1].score.toString()
+
   const edges = sections.map((section) => ({
     cursor: section.score.toString(),
     node: section.member,
@@ -64,8 +66,10 @@ export const homeResolver = authorized<
   return {
     edges,
     pageInfo: {
-      hasPreviousPage: true, // there is always a previous page for new items
-      hasNextPage: true, // there is always a next page for old items
+      startCursor: after,
+      endCursor,
+      hasPreviousPage: true, // there is always a previous page for newer items
+      hasNextPage: true, // there is always a next page for older items
     },
   }
 })
