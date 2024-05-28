@@ -267,7 +267,7 @@ const SubscriptionSourceHoverContent = (
     switch (sourceType) {
       case 'RSS':
       case 'NEWSLETTER':
-        return sourceType
+        return sourceType as SubscriptionType
       default:
         return undefined
     }
