@@ -21,6 +21,8 @@ import {
   Article,
   Highlight,
   HomeItem,
+  HomeItemSource,
+  HomeItemSourceType,
   Label,
   PageType,
   Recommendation,
@@ -29,6 +31,7 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
+import { Merge } from '../util'
 import {
   highlightDataToHighlight,
   isBase64Image,
@@ -665,8 +668,10 @@ export const functionResolvers = {
               canDelete: !libraryItem.deletedAt,
               canSave: false,
               dir: libraryItem.directionality,
-              subscription: null,
               previewContent: libraryItem.description,
+              subscription: libraryItem.subscription,
+              siteName: libraryItem.siteName,
+              siteIcon: libraryItem.siteIcon,
             } as HomeItem)
         )
         .concat(
@@ -688,29 +693,44 @@ export const functionResolvers = {
                 broadcastCount: publicItem.stats.broadcastCount,
                 likeCount: publicItem.stats.likeCount,
                 saveCount: publicItem.stats.saveCount,
-                subscription: publicItem.source,
+                source: publicItem.source,
               } as HomeItem)
           )
         )
     },
   },
   HomeItem: {
-    async subscription(
-      item: HomeItem,
+    async source(
+      item: Merge<
+        HomeItem,
+        { subscription?: string; siteName: string; siteIcon?: string }
+      >,
       _: unknown,
       ctx: WithDataSourcesContext
-    ) {
-      // if (item.subscription) {
-      //   return item.subscription
-      // }
-      // const subscription = await ctx.dataLoaders.subscriptions.load(item.id)
-      // if (!subscription) {
-      //   return {
-      //     name: item.siteName,
-      //     icon: item.siteIcon,
-      //     type: 'rss',
-      //   }
-      // }
+    ): Promise<HomeItemSource> {
+      if (item.source) {
+        return item.source
+      }
+
+      if (!item.subscription) {
+        return {
+          name: item.siteName,
+          icon: item.siteIcon,
+          type: HomeItemSourceType.Library,
+        }
+      }
+
+      const subscription = await ctx.dataLoaders.subscriptions.load(
+        item.subscription
+      )
+
+      return {
+        id: subscription.id,
+        url: subscription.url,
+        name: subscription.name,
+        icon: subscription.icon,
+        type: subscription.type as unknown as HomeItemSourceType,
+      }
     },
   },
   ...resultResolveTypeResolver('Login'),

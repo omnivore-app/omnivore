@@ -1172,7 +1172,7 @@ type HomeItem {
   previewContent: String
   saveCount: Int
   seen_at: Date
-  subscription: HomeItemSource
+  source: HomeItemSource
   thumbnail: String
   title: String!
   url: String!

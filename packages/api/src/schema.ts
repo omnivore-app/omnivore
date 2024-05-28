@@ -3130,7 +3130,7 @@ const schema = gql`
     dir: String
     seen_at: Date
     wordCount: Int
-    subscription: HomeItemSource
+    source: HomeItemSource
     canSave: Boolean
     canComment: Boolean
     canShare: Boolean

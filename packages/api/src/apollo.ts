@@ -40,6 +40,7 @@ import {
   countDailyServiceUsage,
   createServiceUsage,
 } from './services/service_usage'
+import { findSubscriptionsByNames } from './services/subscriptions'
 import { batchGetUploadFilesByIds } from './services/upload_file'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
@@ -116,6 +117,13 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
       uploadFiles: new DataLoader(batchGetUploadFilesByIds),
       libraryItems: new DataLoader(batchGetLibraryItems),
       publicItems: new DataLoader(batchGetPublicItems),
+      subscriptions: new DataLoader(async (names: readonly string[]) => {
+        if (!claims?.uid) {
+          throw new Error('No user id found in claims')
+        }
+
+        return findSubscriptionsByNames(claims?.uid || '', names as string[])
+      }),
     },
   }
 

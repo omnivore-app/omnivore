@@ -11,6 +11,7 @@ import { Label } from '../entity/label'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
 import { Recommendation } from '../entity/recommendation'
+import { Subscription } from '../entity/subscription'
 import { UploadFile } from '../entity/upload_file'
 import { HomeItem } from '../generated/graphql'
 import { PubsubClient } from '../pubsub'
@@ -56,6 +57,7 @@ export interface RequestContext {
     uploadFiles: DataLoader<string, UploadFile | undefined>
     libraryItems: DataLoader<string, LibraryItem>
     publicItems: DataLoader<string, PublicItem>
+    subscriptions: DataLoader<string, Subscription>
   }
 }
 
