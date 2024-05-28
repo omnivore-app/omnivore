@@ -160,7 +160,7 @@ export const batchGetLibraryItems = async (ids: readonly string[]) => {
     ],
   })
 
-  return ids.map((id) => items.find((item) => item.id === id) || null)
+  return ids.map((id) => items.find((item) => item.id === id) || undefined)
 }
 
 export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
