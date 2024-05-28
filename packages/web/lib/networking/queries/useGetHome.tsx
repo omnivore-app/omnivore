@@ -119,7 +119,7 @@ export function useGetHomeItems(): HomeItemResponse {
   `
 
   const variables = {
-    first: 3,
+    first: 20,
     after: null,
   }
 
