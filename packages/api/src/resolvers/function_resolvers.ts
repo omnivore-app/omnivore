@@ -639,12 +639,17 @@ export const functionResolvers = {
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
-      const libraryItemIds = section.items
+      const items = section.items
+      console.log('items', items)
+
+      const libraryItemIds = items
         .filter((item) => item.type === 'library_item')
         .map((item) => item.id)
+      console.log('libraryItemIds', libraryItemIds)
       const libraryItems = (
         await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
       ).filter((libraryItem) => !isError(libraryItem)) as Array<LibraryItem>
+      console.log('libraryItems', libraryItems)
 
       const publicItemIds = section.items
         .filter((item) => item.type === 'public_item')
@@ -653,10 +658,15 @@ export const functionResolvers = {
         await ctx.dataLoaders.publicItems.loadMany(publicItemIds)
       ).filter((publicItem) => !isError(publicItem)) as Array<PublicItem>
 
-      return libraryItems
-        .map(
-          (libraryItem) =>
-            ({
+      return items
+        .map((item) => {
+          console.log('item', item)
+          const libraryItem = libraryItems.find(
+            (libraryItem) => item.id === libraryItem.id
+          )
+          console.log('libraryItem', libraryItem)
+          if (libraryItem) {
+            return {
               id: libraryItem.id,
               title: libraryItem.title,
               author: libraryItem.author,
@@ -667,36 +677,44 @@ export const functionResolvers = {
               canArchive: !libraryItem.archivedAt,
               canDelete: !libraryItem.deletedAt,
               canSave: false,
+              canComment: false,
+              canShare: true,
               dir: libraryItem.directionality,
               previewContent: libraryItem.description,
               subscription: libraryItem.subscription,
               siteName: libraryItem.siteName,
               siteIcon: libraryItem.siteIcon,
-            } as HomeItem)
-        )
-        .concat(
-          publicItems.map(
-            (publicItem) =>
-              ({
-                id: publicItem.id,
-                title: publicItem.title,
-                author: publicItem.author,
-                dir: publicItem.dir,
-                previewContent: publicItem.previewContent,
-                thumbnail: publicItem.thumbnail,
-                wordCount: publicItem.wordCount,
-                date: publicItem.createdAt,
-                url: publicItem.url,
-                canArchive: false,
-                canDelete: false,
-                canSave: true,
-                broadcastCount: publicItem.stats.broadcastCount,
-                likeCount: publicItem.stats.likeCount,
-                saveCount: publicItem.stats.saveCount,
-                source: publicItem.source,
-              } as HomeItem)
+              slug: libraryItem.slug,
+            }
+          }
+
+          const publicItem = publicItems.find(
+            (publicItem) => item.id === publicItem.id
           )
-        )
+          if (publicItem) {
+            return {
+              id: publicItem.id,
+              title: publicItem.title,
+              author: publicItem.author,
+              dir: publicItem.dir,
+              previewContent: publicItem.previewContent,
+              thumbnail: publicItem.thumbnail,
+              wordCount: publicItem.wordCount,
+              date: publicItem.createdAt,
+              url: publicItem.url,
+              canArchive: false,
+              canDelete: false,
+              canSave: true,
+              canComment: true,
+              canShare: true,
+              broadcastCount: publicItem.stats.broadcastCount,
+              likeCount: publicItem.stats.likeCount,
+              saveCount: publicItem.stats.saveCount,
+              source: publicItem.source,
+            }
+          }
+        })
+        .filter((item) => !!item)
     },
   },
   HomeItem: {
@@ -723,6 +741,13 @@ export const functionResolvers = {
       const subscription = await ctx.dataLoaders.subscriptions.load(
         item.subscription
       )
+      if (!subscription) {
+        return {
+          name: item.siteName,
+          icon: item.siteIcon,
+          type: HomeItemSourceType.Library,
+        }
+      }
 
       return {
         id: subscription.id,

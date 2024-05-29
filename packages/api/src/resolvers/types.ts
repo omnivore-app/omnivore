@@ -55,9 +55,9 @@ export interface RequestContext {
     highlights: DataLoader<string, Highlight[]>
     recommendations: DataLoader<string, Recommendation[]>
     uploadFiles: DataLoader<string, UploadFile | undefined>
-    libraryItems: DataLoader<string, LibraryItem>
-    publicItems: DataLoader<string, PublicItem>
-    subscriptions: DataLoader<string, Subscription>
+    libraryItems: DataLoader<string, LibraryItem | undefined>
+    publicItems: DataLoader<string, PublicItem | undefined>
+    subscriptions: DataLoader<string, Subscription | undefined>
   }
 }
 

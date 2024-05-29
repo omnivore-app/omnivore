@@ -1172,6 +1172,7 @@ type HomeItem {
   previewContent: String
   saveCount: Int
   seen_at: Date
+  slug: String
   source: HomeItemSource
   thumbnail: String
   title: String!

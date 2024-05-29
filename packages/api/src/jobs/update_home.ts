@@ -311,7 +311,8 @@ const mixHomeItems = (rankedHomeItems: Array<Candidate>): Array<Section> => {
     const authorCount = batch.filter((i) => i.author === item.author).length
     const siteCount = batch.filter((i) => i.siteName === item.siteName).length
     const subscriptionCount = batch.filter(
-      (i) => i.subscription?.name === item.subscription?.name
+      (i) =>
+        item.subscription && i.subscription?.name === item.subscription.name
     ).length
 
     return (

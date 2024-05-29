@@ -3126,6 +3126,7 @@ const schema = gql`
     likeCount: Int
     broadcastCount: Int
     date: Date!
+    slug: String
     author: String
     dir: String
     seen_at: Date

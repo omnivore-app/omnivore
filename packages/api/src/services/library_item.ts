@@ -141,7 +141,27 @@ interface Select {
 const readingProgressDataSource = new ReadingProgressDataSource()
 
 export const batchGetLibraryItems = async (ids: readonly string[]) => {
-  return findLibraryItemsByIds(ids as string[])
+  const items = await findLibraryItemsByIds(ids as string[], undefined, {
+    select: [
+      'id',
+      'title',
+      'author',
+      'thumbnail',
+      'wordCount',
+      'savedAt',
+      'originalUrl',
+      'directionality',
+      'description',
+      'subscription',
+      'siteName',
+      'siteIcon',
+      'archivedAt',
+      'deletedAt',
+      'slug',
+    ],
+  })
+
+  return ids.map((id) => items.find((item) => item.id === id) || undefined)
 }
 
 export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
