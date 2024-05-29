@@ -11,7 +11,7 @@ const schema = gql`
     maxLength: Int
     minLength: Int
     pattern: String
-  ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+  ) on INPUT_FIELD_DEFINITION
 
   # default error code
   enum ErrorCode {
@@ -3385,7 +3385,7 @@ const schema = gql`
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
     home(first: Int, after: String): HomeResult!
-    subscription(id: ID! @sanitize(minLength: 1)): SubscriptionResult!
+    subscription(id: ID!): SubscriptionResult!
   }
 
   schema {

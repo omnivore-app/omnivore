@@ -4,7 +4,7 @@ schema {
   subscription: SubscriptionRootType
 }
 
-directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddDiscoverFeedError {
   errorCodes: [AddDiscoverFeedErrorCode!]!

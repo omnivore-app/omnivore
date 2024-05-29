@@ -14,7 +14,7 @@ export class SanitizedString extends GraphQLScalarType {
   ) {
     super({
       // Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ as per graphql-js
-      name: `SanitizedString_${allowedTags}_${maxLength}_${pattern}`.replace(
+      name: `SanitizedString_${allowedTags}_${maxLength}_${minLength}_${pattern}`.replace(
         /\W/g,
         ''
       ),

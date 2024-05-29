@@ -30,7 +30,6 @@ import {
   SubscribeError,
   SubscribeErrorCode,
   SubscribeSuccess,
-  Subscription as SubscriptionReturnType,
   SubscriptionError,
   SubscriptionsError,
   SubscriptionsErrorCode,
@@ -500,6 +499,14 @@ export const subscriptionResolver = authorized<
   SubscriptionError,
   QuerySubscriptionArgs
 >(async (_, { id }, { uid, log }) => {
+  if (!id) {
+    log.error('Missing subscription id')
+
+    return {
+      errorCodes: [ErrorCode.BadRequest],
+    }
+  }
+
   const subscription = await findSubscriptionById(uid, id)
   if (!subscription) {
     log.error('Subscription not found', { id })
