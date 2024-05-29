@@ -9,7 +9,7 @@ import {
   RefreshHomeErrorCode,
   RefreshHomeSuccess,
 } from '../../generated/graphql'
-import { getHomeSections } from '../../jobs/update_home'
+import { deleteHome, getHomeSections } from '../../jobs/update_home'
 import { getJob } from '../../queue-processor'
 import { Merge } from '../../util'
 import { enqueueUpdateHomeJob, updateHomeJobId } from '../../utils/createTask'
@@ -83,6 +83,9 @@ export const refreshHomeResolver = authorized<
   RefreshHomeSuccess,
   RefreshHomeError
 >(async (_, __, { uid, log }) => {
+  await deleteHome(uid)
+  log.info('Home cache deleted')
+
   const existingJob = await getJob(updateHomeJobId(uid))
   if (existingJob) {
     log.info('Update home job already enqueued')

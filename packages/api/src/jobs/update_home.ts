@@ -235,6 +235,17 @@ export const getHomeSections = async (
   return sections
 }
 
+export const deleteHome = async (userId: string) => {
+  const redisClient = redisDataSource.redisClient
+  if (!redisClient) {
+    throw new Error('Redis client not available')
+  }
+
+  const key = redisKey(userId)
+
+  await redisClient.del(key)
+}
+
 const appendSectionsToHome = async (
   userId: string,
   sections: Array<Section>,
