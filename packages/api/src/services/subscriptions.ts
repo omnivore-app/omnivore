@@ -235,3 +235,12 @@ export const findSubscriptionsByNames = async (
     { user: { id: userId }, url: In(names) },
   ])
 }
+
+export const findSubscriptionById = async (
+  userId: string,
+  id: string
+): Promise<Subscription | null> =>
+  getRepository(Subscription).findOneBy({
+    id,
+    user: { id: userId },
+  })

@@ -10,6 +10,7 @@ import {
 } from '../../entity/subscription'
 import { env } from '../../env'
 import {
+  ErrorCode,
   FeedEdge,
   FeedsError,
   FeedsErrorCode,
@@ -19,6 +20,7 @@ import {
   MutationUpdateSubscriptionArgs,
   QueryFeedsArgs,
   QueryScanFeedsArgs,
+  QuerySubscriptionArgs,
   QuerySubscriptionsArgs,
   ScanFeedsError,
   ScanFeedsErrorCode,
@@ -28,9 +30,11 @@ import {
   SubscribeError,
   SubscribeErrorCode,
   SubscribeSuccess,
+  SubscriptionError,
   SubscriptionsError,
   SubscriptionsErrorCode,
   SubscriptionsSuccess,
+  SubscriptionSuccess,
   UnsubscribeError,
   UnsubscribeErrorCode,
   UnsubscribeSuccess,
@@ -41,7 +45,7 @@ import {
 import { getRepository } from '../../repository'
 import { feedRepository } from '../../repository/feed'
 import { validateUrl } from '../../services/create_page_save_request'
-import { unsubscribe } from '../../services/subscriptions'
+import { findSubscriptionById, unsubscribe } from '../../services/subscriptions'
 import { updateSubscription } from '../../services/update_subscription'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -487,5 +491,32 @@ export const scanFeedsResolver = authorized<
     return {
       errorCodes: [ScanFeedsErrorCode.BadRequest],
     }
+  }
+})
+
+export const subscriptionResolver = authorized<
+  Merge<SubscriptionSuccess, { subscription: Subscription }>,
+  SubscriptionError,
+  QuerySubscriptionArgs
+>(async (_, { id }, { uid, log }) => {
+  if (!id) {
+    log.error('Missing subscription id')
+
+    return {
+      errorCodes: [ErrorCode.BadRequest],
+    }
+  }
+
+  const subscription = await findSubscriptionById(uid, id)
+  if (!subscription) {
+    log.error('Subscription not found', { id })
+
+    return {
+      errorCodes: [ErrorCode.NotFound],
+    }
+  }
+
+  return {
+    subscription,
   }
 })

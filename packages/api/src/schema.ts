@@ -13,6 +13,14 @@ const schema = gql`
     pattern: String
   ) on INPUT_FIELD_DEFINITION
 
+  # default error code
+  enum ErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    FORBIDDEN
+  }
+
   enum SortOrder {
     ASCENDING
     DESCENDING
@@ -3172,6 +3180,16 @@ const schema = gql`
     hello: String # for testing only
   }
 
+  type SubscriptionSuccess {
+    subscription: Subscription!
+  }
+
+  type SubscriptionError {
+    errorCodes: [ErrorCode!]!
+  }
+
+  union SubscriptionResult = SubscriptionSuccess | SubscriptionError
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3368,6 +3386,7 @@ const schema = gql`
     discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
     home(first: Int, after: String): HomeResult!
+    subscription(id: ID!): SubscriptionResult!
   }
 
   schema {

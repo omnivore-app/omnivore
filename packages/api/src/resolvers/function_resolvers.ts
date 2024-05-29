@@ -166,6 +166,7 @@ import {
   replyToEmailResolver,
 } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
+import { subscriptionResolver } from './subscriptions'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
 
@@ -368,6 +369,7 @@ export const functionResolvers = {
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
     home: homeResolver,
+    subscription: subscriptionResolver,
   },
   User: {
     async intercomHash(
@@ -858,4 +860,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('ExportToIntegration'),
   ...resultResolveTypeResolver('ReplyToEmail'),
   ...resultResolveTypeResolver('Home'),
+  ...resultResolveTypeResolver('Subscription'),
 }

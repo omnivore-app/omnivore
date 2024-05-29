@@ -908,6 +908,13 @@ export type EmptyTrashSuccess = {
   success?: Maybe<Scalars['Boolean']>;
 };
 
+export enum ErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Forbidden = 'FORBIDDEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
 export type ExportToIntegrationError = {
   __typename?: 'ExportToIntegrationError';
   errorCodes: Array<ExportToIntegrationErrorCode>;
@@ -2244,6 +2251,7 @@ export type Query = {
   scanFeeds: ScanFeedsResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
+  subscription: SubscriptionResult;
   subscriptions: SubscriptionsResult;
   typeaheadSearch: TypeaheadSearchResult;
   updatesSince: UpdatesSinceResult;
@@ -2308,6 +2316,11 @@ export type QuerySearchArgs = {
   format?: InputMaybe<Scalars['String']>;
   includeContent?: InputMaybe<Scalars['Boolean']>;
   query?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QuerySubscriptionArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -3300,6 +3313,13 @@ export type Subscription = {
   url?: Maybe<Scalars['String']>;
 };
 
+export type SubscriptionError = {
+  __typename?: 'SubscriptionError';
+  errorCodes: Array<ErrorCode>;
+};
+
+export type SubscriptionResult = SubscriptionError | SubscriptionSuccess;
+
 export type SubscriptionRootType = {
   __typename?: 'SubscriptionRootType';
   hello?: Maybe<Scalars['String']>;
@@ -3310,6 +3330,11 @@ export enum SubscriptionStatus {
   Deleted = 'DELETED',
   Unsubscribed = 'UNSUBSCRIBED'
 }
+
+export type SubscriptionSuccess = {
+  __typename?: 'SubscriptionSuccess';
+  subscription: Subscription;
+};
 
 export enum SubscriptionType {
   Newsletter = 'NEWSLETTER',
@@ -4197,6 +4222,7 @@ export type ResolversTypes = {
   EmptyTrashErrorCode: EmptyTrashErrorCode;
   EmptyTrashResult: ResolversTypes['EmptyTrashError'] | ResolversTypes['EmptyTrashSuccess'];
   EmptyTrashSuccess: ResolverTypeWrapper<EmptyTrashSuccess>;
+  ErrorCode: ErrorCode;
   ExportToIntegrationError: ResolverTypeWrapper<ExportToIntegrationError>;
   ExportToIntegrationErrorCode: ExportToIntegrationErrorCode;
   ExportToIntegrationResult: ResolversTypes['ExportToIntegrationError'] | ResolversTypes['ExportToIntegrationSuccess'];
@@ -4516,8 +4542,11 @@ export type ResolversTypes = {
   SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
   SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<Subscription>;
+  SubscriptionError: ResolverTypeWrapper<SubscriptionError>;
+  SubscriptionResult: ResolversTypes['SubscriptionError'] | ResolversTypes['SubscriptionSuccess'];
   SubscriptionRootType: ResolverTypeWrapper<{}>;
   SubscriptionStatus: SubscriptionStatus;
+  SubscriptionSuccess: ResolverTypeWrapper<SubscriptionSuccess>;
   SubscriptionType: SubscriptionType;
   SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
   SubscriptionsErrorCode: SubscriptionsErrorCode;
@@ -5018,7 +5047,10 @@ export type ResolversParentTypes = {
   SubscribeResult: ResolversParentTypes['SubscribeError'] | ResolversParentTypes['SubscribeSuccess'];
   SubscribeSuccess: SubscribeSuccess;
   Subscription: Subscription;
+  SubscriptionError: SubscriptionError;
+  SubscriptionResult: ResolversParentTypes['SubscriptionError'] | ResolversParentTypes['SubscriptionSuccess'];
   SubscriptionRootType: {};
+  SubscriptionSuccess: SubscriptionSuccess;
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
@@ -6490,6 +6522,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   scanFeeds?: Resolver<ResolversTypes['ScanFeedsResult'], ParentType, ContextType, RequireFields<QueryScanFeedsArgs, 'input'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
+  subscription?: Resolver<ResolversTypes['SubscriptionResult'], ParentType, ContextType, RequireFields<QuerySubscriptionArgs, 'id'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
   typeaheadSearch?: Resolver<ResolversTypes['TypeaheadSearchResult'], ParentType, ContextType, RequireFields<QueryTypeaheadSearchArgs, 'query'>>;
   updatesSince?: Resolver<ResolversTypes['UpdatesSinceResult'], ParentType, ContextType, RequireFields<QueryUpdatesSinceArgs, 'since'>>;
@@ -7089,8 +7122,22 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SubscriptionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionError'] = ResolversParentTypes['SubscriptionError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionResult'] = ResolversParentTypes['SubscriptionResult']> = {
+  __resolveType: TypeResolveFn<'SubscriptionError' | 'SubscriptionSuccess', ParentType, ContextType>;
+};
+
 export type SubscriptionRootTypeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionRootType'] = ResolversParentTypes['SubscriptionRootType']> = {
   hello?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "hello", ParentType, ContextType>;
+};
+
+export type SubscriptionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionSuccess'] = ResolversParentTypes['SubscriptionSuccess']> = {
+  subscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SubscriptionsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsError'] = ResolversParentTypes['SubscriptionsError']> = {
@@ -7824,7 +7871,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscribeResult?: SubscribeResultResolvers<ContextType>;
   SubscribeSuccess?: SubscribeSuccessResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  SubscriptionError?: SubscriptionErrorResolvers<ContextType>;
+  SubscriptionResult?: SubscriptionResultResolvers<ContextType>;
   SubscriptionRootType?: SubscriptionRootTypeResolvers<ContextType>;
+  SubscriptionSuccess?: SubscriptionSuccessResolvers<ContextType>;
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;

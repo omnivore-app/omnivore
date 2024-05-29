@@ -815,6 +815,13 @@ type EmptyTrashSuccess {
   success: Boolean
 }
 
+enum ErrorCode {
+  BAD_REQUEST
+  FORBIDDEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
 type ExportToIntegrationError {
   errorCodes: [ExportToIntegrationErrorCode!]!
 }
@@ -1723,6 +1730,7 @@ type Query {
   scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
+  subscription(id: ID!): SubscriptionResult!
   subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
   updatesSince(after: String, first: Int, folder: String, since: Date!, sort: SortParams): UpdatesSinceResult!
@@ -2615,6 +2623,12 @@ type Subscription {
   url: String
 }
 
+type SubscriptionError {
+  errorCodes: [ErrorCode!]!
+}
+
+union SubscriptionResult = SubscriptionError | SubscriptionSuccess
+
 type SubscriptionRootType {
   hello: String
 }
@@ -2623,6 +2637,10 @@ enum SubscriptionStatus {
   ACTIVE
   DELETED
   UNSUBSCRIBED
+}
+
+type SubscriptionSuccess {
+  subscription: Subscription!
 }
 
 enum SubscriptionType {
