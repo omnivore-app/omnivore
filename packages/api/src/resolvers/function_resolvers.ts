@@ -60,7 +60,7 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
-import { homeResolver } from './home'
+import { homeResolver, refreshHomeResolver } from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -332,6 +332,7 @@ export const functionResolvers = {
     fetchContent: fetchContentResolver,
     exportToIntegration: exportToIntegrationResolver,
     replyToEmail: replyToEmailResolver,
+    refreshHome: refreshHomeResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -867,4 +868,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('ReplyToEmail'),
   ...resultResolveTypeResolver('Home'),
   ...resultResolveTypeResolver('Subscription'),
+  ...resultResolveTypeResolver('RefreshHome'),
 }

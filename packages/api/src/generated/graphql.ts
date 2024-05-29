@@ -279,6 +279,7 @@ export enum BulkActionType {
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
   MarkAsRead = 'MARK_AS_READ',
+  MarkAsSeen = 'MARK_AS_SEEN',
   MoveToFolder = 'MOVE_TO_FOLDER'
 }
 
@@ -1713,6 +1714,7 @@ export type Mutation = {
   optInFeature: OptInFeatureResult;
   recommend: RecommendResult;
   recommendHighlights: RecommendHighlightsResult;
+  refreshHome: RefreshHomeResult;
   replyToEmail: ReplyToEmailResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
@@ -2524,6 +2526,22 @@ export type RecommendingUser = {
   username: Scalars['String'];
 };
 
+export type RefreshHomeError = {
+  __typename?: 'RefreshHomeError';
+  errorCodes: Array<RefreshHomeErrorCode>;
+};
+
+export enum RefreshHomeErrorCode {
+  Pending = 'PENDING'
+}
+
+export type RefreshHomeResult = RefreshHomeError | RefreshHomeSuccess;
+
+export type RefreshHomeSuccess = {
+  __typename?: 'RefreshHomeSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Reminder = {
   __typename?: 'Reminder';
   archiveUntil: Scalars['Boolean'];
@@ -2874,6 +2892,7 @@ export type SearchItem = {
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
   score?: Maybe<Scalars['Float']>;
+  seenAt?: Maybe<Scalars['Date']>;
   shortId?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
@@ -4410,6 +4429,10 @@ export type ResolversTypes = {
   Recommendation: ResolverTypeWrapper<Recommendation>;
   RecommendationGroup: ResolverTypeWrapper<RecommendationGroup>;
   RecommendingUser: ResolverTypeWrapper<RecommendingUser>;
+  RefreshHomeError: ResolverTypeWrapper<RefreshHomeError>;
+  RefreshHomeErrorCode: RefreshHomeErrorCode;
+  RefreshHomeResult: ResolversTypes['RefreshHomeError'] | ResolversTypes['RefreshHomeSuccess'];
+  RefreshHomeSuccess: ResolverTypeWrapper<RefreshHomeSuccess>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
   ReminderErrorCode: ReminderErrorCode;
@@ -4946,6 +4969,9 @@ export type ResolversParentTypes = {
   Recommendation: Recommendation;
   RecommendationGroup: RecommendationGroup;
   RecommendingUser: RecommendingUser;
+  RefreshHomeError: RefreshHomeError;
+  RefreshHomeResult: ResolversParentTypes['RefreshHomeError'] | ResolversParentTypes['RefreshHomeSuccess'];
+  RefreshHomeSuccess: RefreshHomeSuccess;
   Reminder: Reminder;
   ReminderError: ReminderError;
   ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
@@ -6390,6 +6416,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
+  refreshHome?: Resolver<ResolversTypes['RefreshHomeResult'], ParentType, ContextType>;
   replyToEmail?: Resolver<ResolversTypes['ReplyToEmailResult'], ParentType, ContextType, RequireFields<MutationReplyToEmailArgs, 'recentEmailId' | 'reply'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
@@ -6662,6 +6689,20 @@ export type RecommendingUserResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type RefreshHomeErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RefreshHomeError'] = ResolversParentTypes['RefreshHomeError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RefreshHomeErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RefreshHomeResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RefreshHomeResult'] = ResolversParentTypes['RefreshHomeResult']> = {
+  __resolveType: TypeResolveFn<'RefreshHomeError' | 'RefreshHomeSuccess', ParentType, ContextType>;
+};
+
+export type RefreshHomeSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RefreshHomeSuccess'] = ResolversParentTypes['RefreshHomeSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ReminderResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Reminder'] = ResolversParentTypes['Reminder']> = {
   archiveUntil?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -6863,6 +6904,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   score?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  seenAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -7795,6 +7837,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   Recommendation?: RecommendationResolvers<ContextType>;
   RecommendationGroup?: RecommendationGroupResolvers<ContextType>;
   RecommendingUser?: RecommendingUserResolvers<ContextType>;
+  RefreshHomeError?: RefreshHomeErrorResolvers<ContextType>;
+  RefreshHomeResult?: RefreshHomeResultResolvers<ContextType>;
+  RefreshHomeSuccess?: RefreshHomeSuccessResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;
   ReminderResult?: ReminderResultResolvers<ContextType>;
