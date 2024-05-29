@@ -27,12 +27,22 @@ import {
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
+import { refreshHomeMutation } from '../../lib/networking/mutations/refreshHome'
 
 export default function DebugHome(): JSX.Element {
   const homeData = useGetHomeItems()
-  console.log('home sections: ', homeData.sections)
+  console.log('home sections: ', homeData.errorMessage)
   useApplyLocalTheme()
+
+  const refreshHome = useCallback(() => {
+    ;(async () => {
+      refreshHomeMutation()
+      if (homeData?.mutate) {
+        homeData.mutate()
+      }
+    })()
+  }, [])
 
   return (
     <VStack
@@ -56,6 +66,15 @@ export default function DebugHome(): JSX.Element {
           },
         }}
       >
+        <Button
+          style="ctaBlue"
+          onClick={(event) => {
+            refreshHome()
+            event.preventDefault()
+          }}
+        >
+          Refresh
+        </Button>
         {homeData.sections?.map((homeSection, idx) => {
           return (
             <VStack key={`homeSection-${idx}`} css={{ width: '100%' }}>
