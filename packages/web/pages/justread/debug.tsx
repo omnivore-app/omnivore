@@ -18,7 +18,6 @@ import {
   HomeItemSource,
   HomeItemSourceType,
   HomeSection,
-  stubHomeItems,
   useGetHomeItems,
 } from '../../lib/networking/queries/useGetHome'
 import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
