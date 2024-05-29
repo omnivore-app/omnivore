@@ -168,6 +168,9 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
 
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
 }
 
 apollo {
