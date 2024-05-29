@@ -1676,6 +1676,7 @@ const schema = gql`
     aiSummary: String
     directionality: DirectionalityType
     format: String
+    score: Float
   }
 
   type SearchItemEdge {
@@ -3145,6 +3146,7 @@ const schema = gql`
     canShare: Boolean
     canArchive: Boolean
     canDelete: Boolean
+    score: Float!
   }
 
   type HomeSection {

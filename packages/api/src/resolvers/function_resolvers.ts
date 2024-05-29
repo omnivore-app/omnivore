@@ -636,7 +636,11 @@ export const functionResolvers = {
   HomeSection: {
     async items(
       section: {
-        items: Array<{ id: string; type: 'library_item' | 'public_item' }>
+        items: Array<{
+          id: string
+          type: 'library_item' | 'public_item'
+          score: number
+        }>
       },
       _: unknown,
       ctx: WithDataSourcesContext
@@ -687,6 +691,7 @@ export const functionResolvers = {
               siteName: libraryItem.siteName,
               siteIcon: libraryItem.siteIcon,
               slug: libraryItem.slug,
+              score: item.score,
             }
           }
 
@@ -713,6 +718,7 @@ export const functionResolvers = {
               likeCount: publicItem.stats.likeCount,
               saveCount: publicItem.stats.saveCount,
               source: publicItem.source,
+              score: item.score,
             }
           }
         })

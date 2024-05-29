@@ -5,7 +5,7 @@ import { User } from '../entity/user'
 import { redisDataSource } from '../redis_data_source'
 import { findUnseenPublicItems } from '../services/home'
 import { searchLibraryItems } from '../services/library_item'
-import { Feature, getScores, ScoreApiResponse } from '../services/score'
+import { Feature, getScores } from '../services/score'
 import { findSubscriptionsByNames } from '../services/subscriptions'
 import { findActiveUser } from '../services/user'
 import { lanaugeToCode } from '../utils/helpers'
@@ -34,7 +34,7 @@ interface Candidate {
   siteIcon?: string
   siteName?: string
   folder?: string
-  score?: number
+  score: number
   publishedAt?: Date
   subscription?: {
     name: string
@@ -45,6 +45,7 @@ interface Candidate {
 interface Item {
   id: string
   type: string
+  score: number
 }
 
 interface Section {
@@ -71,7 +72,7 @@ const libraryItemToCandidate = (
   siteName: item.siteName || undefined,
   siteIcon: item.siteIcon || undefined,
   folder: item.folder,
-  score: item.score,
+  score: item.score || 0,
   publishedAt: item.publishedAt || undefined,
   subscription: subscriptions.find(
     (subscription) =>
@@ -100,6 +101,7 @@ const publicItemToCandidate = (item: PublicItem): Candidate => ({
     name: item.source.name,
     type: item.source.type,
   },
+  score: 0,
 })
 
 const selectCandidates = async (user: User): Promise<Array<Candidate>> => {
@@ -157,14 +159,7 @@ const rankCandidates = async (
   userId: string,
   candidates: Array<Candidate>
 ): Promise<Array<Candidate>> => {
-  if (candidates.length <= 10) {
-    // no need to rank if there are less than 10 candidates
-    return candidates
-  }
-
-  const unscoredCandidates = candidates.filter(
-    (item) => item.score === undefined
-  )
+  const unscoredCandidates = candidates.filter((item) => item.score === 0)
 
   const data = {
     user_id: userId,
@@ -190,21 +185,13 @@ const rankCandidates = async (
   }
 
   const newScores = await getScores(data)
-  const preCalculatedScores = candidates
-    .filter((item) => item.score !== undefined)
-    .reduce((acc, item) => {
-      acc[item.id] = item.score as number
-      return acc
-    }, {} as ScoreApiResponse)
-  const scores = { ...preCalculatedScores, ...newScores }
+  // update scores for candidates
+  candidates.forEach((item) => {
+    item.score = newScores[item.id] || 0
+  })
 
   // rank candidates by score in ascending order
-  candidates.sort((a, b) => {
-    const scoreA = scores[a.id] || 0
-    const scoreB = scores[b.id] || 0
-
-    return scoreA - scoreB
-  })
+  candidates.sort((a, b) => a.score - b.score)
 
   return candidates
 }
@@ -360,6 +347,7 @@ const mixHomeItems = (rankedHomeItems: Array<Candidate>): Array<Section> => {
       items: batch.slice(0, 5).map((item) => ({
         id: item.id,
         type: item.type,
+        score: item.score,
       })),
       layout: 'quick links',
     })
@@ -367,7 +355,7 @@ const mixHomeItems = (rankedHomeItems: Array<Candidate>): Array<Section> => {
     // create a section for each long item
     sections.push(
       ...batch.slice(5).map((item) => ({
-        items: [{ id: item.id, type: item.type }],
+        items: [{ id: item.id, type: item.type, score: item.score }],
         layout: 'long',
       }))
     )
@@ -390,6 +378,11 @@ export const updateHome = async (data: UpdateHomeJobData) => {
 
   const candidates = await selectCandidates(user)
   logger.info(`Found ${candidates.length} candidates`)
+
+  if (candidates.length <= 10) {
+    logger.info('Not enough candidates found')
+    return
+  }
 
   // TODO: integrity check on candidates
 

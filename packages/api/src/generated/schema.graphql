@@ -1178,6 +1178,7 @@ type HomeItem {
   likeCount: Int
   previewContent: String
   saveCount: Int
+  score: Float!
   seen_at: Date
   slug: String
   source: HomeItemSource
@@ -2214,6 +2215,7 @@ type SearchItem {
   readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
+  score: Float
   shortId: String
   siteIcon: String
   siteName: String

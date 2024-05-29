@@ -1309,6 +1309,7 @@ export type HomeItem = {
   likeCount?: Maybe<Scalars['Int']>;
   previewContent?: Maybe<Scalars['String']>;
   saveCount?: Maybe<Scalars['Int']>;
+  score: Scalars['Float'];
   seen_at?: Maybe<Scalars['Date']>;
   slug?: Maybe<Scalars['String']>;
   source?: Maybe<HomeItemSource>;
@@ -2872,6 +2873,7 @@ export type SearchItem = {
   readingProgressTopPercent?: Maybe<Scalars['Float']>;
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
+  score?: Maybe<Scalars['Float']>;
   shortId?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
@@ -6075,6 +6077,7 @@ export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends 
   likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   saveCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  score?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   slug?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   source?: Resolver<Maybe<ResolversTypes['HomeItemSource']>, ParentType, ContextType>;
@@ -6859,6 +6862,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readingProgressTopPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  score?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
