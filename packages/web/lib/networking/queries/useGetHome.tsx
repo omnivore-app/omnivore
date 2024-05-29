@@ -14,6 +14,7 @@ export type HomeItemResponse = {
   isValidating: boolean
   errorMessage?: string
   sections?: HomeSection[]
+  mutate?: () => void
 }
 
 export type HomeItem = {
@@ -129,7 +130,7 @@ export function useGetHomeItems(): HomeItemResponse {
     after: null,
   }
 
-  const { data, error, isValidating } = useSWR(
+  const { data, error, isValidating, mutate } = useSWR(
     [query, variables.first, variables.after],
     makeGqlFetcher(variables)
   )
@@ -157,6 +158,7 @@ export function useGetHomeItems(): HomeItemResponse {
   if (result && result.home && result.home.edges) {
     console.log('data', result.home)
     return {
+      mutate,
       error: false,
       isValidating,
       sections: result.home.edges.map((edge) => {
