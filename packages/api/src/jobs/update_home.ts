@@ -250,23 +250,25 @@ const appendSectionsToHome = async (
   // store candidates in redis sorted set
   const pipeline = redisClient.pipeline()
 
-  // sections expire in 24 hours
-  const ttl = 86_400_000
+  const now = Date.now()
 
   const batchSize = sections.length
-  const savedAt = cursor ? cursor - batchSize - ttl : Date.now()
+  const savedAt = cursor ? cursor - batchSize : now
 
   const scoreMembers = sections.flatMap((section, index) => [
-    savedAt + index + ttl, // score for the section is the savedAt + index + ttl
+    savedAt + index, // score for the section is the savedAt + index otherwise it will be the same for all sections
     JSON.stringify(section),
   ])
 
   // add section to the sorted set
   pipeline.zadd(key, ...scoreMembers)
 
-  // remove expired sections and keep only the top 500
+  // remove expired sections and sections expire in 24 hours
+  const ttl = 86_400_000
+  pipeline.zremrangebyscore(key, '-inf', Date.now() - ttl)
+
+  // keep only the top MAX_FEED_ITEMS items
   pipeline.zremrangebyrank(key, 0, -(MAX_FEED_ITEMS + 1))
-  pipeline.zremrangebyscore(key, '-inf', Date.now())
 
   logger.info('Adding home sections to redis')
   await pipeline.exec()

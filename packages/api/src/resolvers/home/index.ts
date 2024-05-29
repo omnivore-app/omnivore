@@ -29,7 +29,9 @@ export const homeResolver = authorized<
   QueryHomeArgs
 >(async (_, { first, after }, { uid, log }) => {
   const limit = first || 6
-  const cursor = after ? parseInt(after) : undefined
+  // cursor is the timestamp of the last item in the feed
+  // if cursor is not provided, it defaults to the current time
+  const cursor = after ? parseInt(after) : Date.now()
 
   const sections = await getHomeSections(uid, limit, cursor)
   log.info('Just read feed sections fetched')
