@@ -49,6 +49,21 @@ export const Button = styled('button', {
           background: `#0056D2`,
         },
       },
+      ctaSubtle: {
+        borderRadius: '5px',
+        px: '10px',
+        py: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+        cursor: 'pointer',
+        border: '0px solid $yellow3',
+        bg: 'gray',
+        color: 'white',
+        '&:hover': {
+          border: '0px solid #0056D2',
+          background: `#0056D2`,
+        },
+      },
       tldr: {
         gap: '10px',
         display: 'flex',
