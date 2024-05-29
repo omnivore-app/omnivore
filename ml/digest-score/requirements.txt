@@ -1,0 +1,8 @@
+psycopg2-binary
+pandas
+scikit-learn
+joblib
+google-cloud-storage
+flask
+pydantic
+sklearn2pmml
