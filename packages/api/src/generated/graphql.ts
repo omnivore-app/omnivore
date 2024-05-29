@@ -1302,6 +1302,7 @@ export type HomeItem = {
   likeCount?: Maybe<Scalars['Int']>;
   previewContent?: Maybe<Scalars['String']>;
   saveCount?: Maybe<Scalars['Int']>;
+  score: Scalars['Float'];
   seen_at?: Maybe<Scalars['Date']>;
   slug?: Maybe<Scalars['String']>;
   source?: Maybe<HomeItemSource>;
@@ -6043,6 +6044,7 @@ export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends 
   likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   saveCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  score?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   slug?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   source?: Resolver<Maybe<ResolversTypes['HomeItemSource']>, ParentType, ContextType>;
