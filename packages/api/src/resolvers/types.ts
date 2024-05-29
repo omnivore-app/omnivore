@@ -57,7 +57,7 @@ export interface RequestContext {
     uploadFiles: DataLoader<string, UploadFile | undefined>
     libraryItems: DataLoader<string, LibraryItem | undefined>
     publicItems: DataLoader<string, PublicItem | undefined>
-    subscriptions: DataLoader<string, Subscription>
+    subscriptions: DataLoader<string, Subscription | undefined>
   }
 }
 

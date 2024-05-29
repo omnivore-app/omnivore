@@ -640,13 +640,16 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext
     ) {
       const items = section.items
+      console.log('items', items)
 
       const libraryItemIds = items
         .filter((item) => item.type === 'library_item')
         .map((item) => item.id)
+      console.log('libraryItemIds', libraryItemIds)
       const libraryItems = (
         await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
       ).filter((libraryItem) => !isError(libraryItem)) as Array<LibraryItem>
+      console.log('libraryItems', libraryItems)
 
       const publicItemIds = section.items
         .filter((item) => item.type === 'public_item')
@@ -657,9 +660,11 @@ export const functionResolvers = {
 
       return items
         .map((item) => {
+          console.log('item', item)
           const libraryItem = libraryItems.find(
             (libraryItem) => item.id === libraryItem.id
           )
+          console.log('libraryItem', libraryItem)
           if (libraryItem) {
             return {
               id: libraryItem.id,
@@ -736,6 +741,13 @@ export const functionResolvers = {
       const subscription = await ctx.dataLoaders.subscriptions.load(
         item.subscription
       )
+      if (!subscription) {
+        return {
+          name: item.siteName,
+          icon: item.siteIcon,
+          type: HomeItemSourceType.Library,
+        }
+      }
 
       return {
         id: subscription.id,

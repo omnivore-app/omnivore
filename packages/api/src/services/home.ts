@@ -1,77 +1,18 @@
 import { PublicItem } from '../entity/public_item'
-import { HomeItem } from '../generated/graphql'
 import { authTrx } from '../repository'
-import { findLibraryItemsByIds } from './library_item'
 
 export const batchGetPublicItems = async (
   ids: readonly string[]
-): Promise<Array<PublicItem>> => {
-  return authTrx(async (tx) =>
-    tx
-      .getRepository(PublicItem)
-      .createQueryBuilder('public_item')
-      .where('public_item.id IN (:...ids)', { ids })
-      .getMany()
-  )
-}
-
-export const batchGetHomeItems = async (
-  ids: readonly string[]
-): Promise<Array<HomeItem>> => {
-  const libraryItems = await findLibraryItemsByIds(ids as string[])
-
+): Promise<Array<PublicItem | undefined>> => {
   const publicItems = await authTrx(async (tx) =>
     tx
       .getRepository(PublicItem)
       .createQueryBuilder('public_item')
-      .innerJoin(
-        'public_item_stats',
-        'stats',
-        'stats.public_item_id = public_item.id'
-      )
-      .innerJoin(
-        'public_item_source',
-        'source',
-        'source.id = public_item.source_id'
-      )
       .where('public_item.id IN (:...ids)', { ids })
       .getMany()
   )
 
-  return ids
-    .map((id) => {
-      const libraryItem = libraryItems.find((li) => li.id === id)
-      if (libraryItem) {
-        return {
-          ...libraryItem,
-          date: libraryItem.savedAt,
-          url: libraryItem.originalUrl,
-          canArchive: !libraryItem.archivedAt,
-          canDelete: !libraryItem.deletedAt,
-          canSave: false,
-          dir: libraryItem.directionality,
-          subscription: null,
-          previewContent: libraryItem.description,
-        } as HomeItem
-      } else {
-        const publicItem = publicItems.find((pi) => pi.id === id)
-        return publicItem
-          ? ({
-              ...publicItem,
-              date: publicItem.createdAt,
-              url: publicItem.url,
-              canArchive: false,
-              canDelete: false,
-              canSave: true,
-              broadcastCount: publicItem.stats.broadcastCount,
-              likeCount: publicItem.stats.likeCount,
-              saveCount: publicItem.stats.saveCount,
-              subscription: publicItem.source,
-            } as HomeItem)
-          : undefined
-      }
-    })
-    .filter((item) => item !== undefined) as Array<HomeItem>
+  return ids.map((id) => publicItems.find((pi) => pi.id === id))
 }
 
 export const findUnseenPublicItems = async (

@@ -40,7 +40,7 @@ import {
   countDailyServiceUsage,
   createServiceUsage,
 } from './services/service_usage'
-import { findSubscriptionsByNames } from './services/subscriptions'
+import { batchGetSubscriptionsByNames } from './services/subscriptions'
 import { batchGetUploadFilesByIds } from './services/upload_file'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
@@ -122,7 +122,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
           throw new Error('No user id found in claims')
         }
 
-        return findSubscriptionsByNames(claims?.uid || '', names as string[])
+        return batchGetSubscriptionsByNames(claims.uid, names as string[])
       }),
     },
   }
