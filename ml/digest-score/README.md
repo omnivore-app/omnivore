@@ -1,6 +1,6 @@
 # digest-score
 
-The digest-score is a combination of two scores: `interaction_score` which is how likely it is the user opens the library_item and `time_bonus_score` which is how fresh the article is. In the future we might remove the `time_bonus_score` and move that to the mixing step.
+The digest-score is the result of calculating the user's `interaction_score` which is how likely it is the user opens the library_item.
 
 ## Creating features
 
@@ -42,9 +42,8 @@ curl -d '{ "user_id": "2da52794-0dd2-11ef-9855-5f368b90f676", "items": { "134f88
 curl localhost:5000/users/2da52794-0dd2-11ef-9855-5f368b90f676/library_items/134f883e-efd8-11ee-ae98-532a6874855a/score
 {
   "score": {
-    "interaction_score": 1.0,
     "score": 0.8,
-    "time_bonus_score": 0.0
+    "interaction_score": 1.0,
   }
 }
 ```
