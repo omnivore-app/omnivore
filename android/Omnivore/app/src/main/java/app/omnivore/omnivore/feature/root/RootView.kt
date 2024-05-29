@@ -20,7 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -98,11 +98,10 @@ fun RootView(
                 startDestination = startDestination,
                 loginViewModel = loginViewModel
             )
-            DisposableEffect(hasAuthToken) {
+            LaunchedEffect(hasAuthToken) {
                 if (hasAuthToken) {
                     loginViewModel.registerUser()
                 }
-                onDispose {}
             }
         }
     }

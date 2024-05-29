@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 import com.google.android.gms.common.GoogleApiAvailability
-import kotlinx.coroutines.launch
 
 @Composable
 fun WelcomeScreen(viewModel: LoginViewModel) {
@@ -40,11 +39,10 @@ fun WelcomeScreen(viewModel: LoginViewModel) {
 @Composable
 fun WelcomeScreenContent(viewModel: LoginViewModel) {
     val registrationState: RegistrationState by viewModel.registrationStateLiveData.observeAsState(
-            RegistrationState.SocialLogin
-        )
+        RegistrationState.SocialLogin
+    )
 
     val snackBarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         verticalArrangement = Arrangement.SpaceAround,
@@ -101,19 +99,18 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
         Spacer(modifier = Modifier.weight(1.0F))
     }
 
-    if (viewModel.errorMessage != null) {
-        coroutineScope.launch {
-            val result = snackBarHostState.showSnackbar(
-                    viewModel.errorMessage!!,
-                    actionLabel = "Dismiss",
-                    duration = SnackbarDuration.Indefinite
-                )
-            when (result) {
-                SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
-                else -> {}
-            }
+    LaunchedEffect(viewModel.errorMessage) {
+        val result = snackBarHostState.showSnackbar(
+            viewModel.errorMessage!!,
+            actionLabel = "Dismiss",
+            duration = SnackbarDuration.Indefinite
+        )
+        when (result) {
+            SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
+            else -> {}
         }
-
+    }
+    if (viewModel.errorMessage != null) {
         SnackbarHost(hostState = snackBarHostState)
     }
 }
