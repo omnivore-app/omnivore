@@ -159,13 +159,10 @@ def load_global_features():
 
 
 def compute_score(user_id, item_features):
-  alpha = 0.2
   interaction_score = compute_interaction_score(user_id, item_features)
-  time_bonus_score = compute_time_bonus_score(item_features)
   return {
-    'score': (1 - alpha) * interaction_score + alpha * time_bonus_score,
+    'score': interaction_score,
     'interaction_score': interaction_score,
-    'time_bonus_score': time_bonus_score
   }
 
 
