@@ -1,3 +1,5 @@
+import { env } from '../env'
+
 export interface Feature {
   library_item_id?: string
   title: string
@@ -29,18 +31,12 @@ export type ScoreApiResponse = Record<string, ScoreBody> // item_id -> score
 export const getScores = async (
   data: ScoreApiRequestBody
 ): Promise<ScoreApiResponse> => {
-  const API_URL = 'http://digest-score/batch'
-  // const token = process.env.SCORE_API_TOKEN
-
-  // if (!token) {
-  //   throw new Error('No score API token found')
-  // }
+  const API_URL = env.score.apiUrl
 
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   })

@@ -119,6 +119,9 @@ export interface BackendEnv {
     clientSecret: string
     authUrl: string
   }
+  score: {
+    apiUrl: string
+  }
 }
 
 const nullableEnvVars = [
@@ -175,6 +178,7 @@ const nullableEnvVars = [
   'NOTION_CLIENT_ID',
   'NOTION_CLIENT_SECRET',
   'NOTION_AUTH_URL',
+  'SCORE_API_URL',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -329,6 +333,9 @@ export function getEnv(): BackendEnv {
     clientSecret: parse('NOTION_CLIENT_SECRET'),
     authUrl: parse('NOTION_AUTH_URL'),
   }
+  const score = {
+    apiUrl: parse('SCORE_API_URL') || 'http://digest-score/batch',
+  }
 
   return {
     pg,
@@ -352,6 +359,7 @@ export function getEnv(): BackendEnv {
     subscription,
     redis,
     notion,
+    score,
   }
 }
 

@@ -9,7 +9,7 @@ import { Feature, getScores } from '../services/score'
 import { findSubscriptionsByNames } from '../services/subscriptions'
 import { findActiveUser } from '../services/user'
 import { lanaugeToCode } from '../utils/helpers'
-import { logger } from '../utils/logger'
+import { logError, logger } from '../utils/logger'
 
 export const UPDATE_HOME_JOB = 'UPDATE_HOME_JOB'
 
@@ -159,6 +159,11 @@ const rankCandidates = async (
   userId: string,
   candidates: Array<Candidate>
 ): Promise<Array<Candidate>> => {
+  if (candidates.length <= 10) {
+    logger.info('Not enough candidates to rank')
+    return candidates
+  }
+
   const unscoredCandidates = candidates.filter((item) => item.score === 0)
 
   const data = {
@@ -381,38 +386,56 @@ export const updateHome = async (data: UpdateHomeJobData) => {
   const { userId, cursor } = data
   logger.info('Updating home for user', data)
 
-  const user = await findActiveUser(userId)
-  if (!user) {
-    logger.error(`User ${userId} not found`)
-    return
+  try {
+    const user = await findActiveUser(userId)
+    if (!user) {
+      logger.error(`User ${userId} not found`)
+      return
+    }
+
+    logger.info(`Updating home for user ${userId}`)
+
+    logger.profile('selecting')
+    const candidates = await selectCandidates(user)
+    logger.profile('selecting', {
+      level: 'info',
+      message: `Found ${candidates.length} candidates`,
+    })
+
+    if (candidates.length === 0) {
+      logger.info('No candidates found')
+      return
+    }
+
+    // TODO: integrity check on candidates
+
+    logger.profile('ranking')
+    const rankedCandidates = await rankCandidates(userId, candidates)
+    logger.profile('ranking', {
+      level: 'info',
+      message: `Ranked ${rankedCandidates.length} candidates`,
+    })
+
+    // TODO: filter candidates
+
+    logger.profile('mixing')
+    const rankedSections = mixHomeItems(rankedCandidates)
+    logger.profile('mixing', {
+      level: 'info',
+      message: `Created ${rankedSections.length} sections`,
+    })
+
+    logger.profile('saving')
+    await appendSectionsToHome(userId, rankedSections, cursor)
+    logger.profile('saving', {
+      level: 'info',
+      message: 'Sections appended to home',
+    })
+
+    logger.info('Home updated for user', { userId })
+  } catch (error) {
+    logError(error)
+
+    throw error
   }
-
-  logger.info(`Updating home for user ${userId}`)
-
-  const candidates = await selectCandidates(user)
-  logger.info(`Found ${candidates.length} candidates`)
-
-  if (candidates.length <= 10) {
-    logger.info('Not enough candidates found')
-    return
-  }
-
-  // TODO: integrity check on candidates
-
-  logger.info('Ranking candidates')
-  const rankedCandidates = await rankCandidates(userId, candidates)
-  if (rankedCandidates.length === 0) {
-    logger.info('No candidates found')
-    return
-  }
-
-  // TODO: filter candidates
-
-  logger.info('Mix home items to create sections')
-  const rankedSections = mixHomeItems(rankedCandidates)
-  logger.info(`Created ${rankedSections.length} sections`)
-
-  logger.info('Appending sections to home')
-  await appendSectionsToHome(userId, rankedSections, cursor)
-  logger.info('Home updated for user', { userId })
 }
