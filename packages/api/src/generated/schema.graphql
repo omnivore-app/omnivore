@@ -1551,6 +1551,7 @@ type Mutation {
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
+  refreshHome: RefreshHomeResult!
   replyToEmail(recentEmailId: ID!, reply: AllowedReply!): ReplyToEmailResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -1891,6 +1892,20 @@ type RecommendingUser {
   username: String!
 }
 
+type RefreshHomeError {
+  errorCodes: [RefreshHomeErrorCode!]!
+}
+
+enum RefreshHomeErrorCode {
+  PENDING
+}
+
+union RefreshHomeResult = RefreshHomeError | RefreshHomeSuccess
+
+type RefreshHomeSuccess {
+  success: Boolean!
+}
+
 type Reminder {
   archiveUntil: Boolean!
   id: ID!
@@ -2217,6 +2232,7 @@ type SearchItem {
   recommendations: [Recommendation!]
   savedAt: Date!
   score: Float
+  seenAt: Date
   shortId: String
   siteIcon: String
   siteName: String

@@ -1677,6 +1677,7 @@ const schema = gql`
     directionality: DirectionalityType
     format: String
     score: Float
+    seenAt: Date
   }
 
   type SearchItemEdge {
@@ -3193,6 +3194,20 @@ const schema = gql`
 
   union SubscriptionResult = SubscriptionSuccess | SubscriptionError
 
+  type RefreshHomeSuccess {
+    success: Boolean!
+  }
+
+  enum RefreshHomeErrorCode {
+    PENDING
+  }
+
+  type RefreshHomeError {
+    errorCodes: [RefreshHomeErrorCode!]!
+  }
+
+  union RefreshHomeResult = RefreshHomeSuccess | RefreshHomeError
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3318,6 +3333,7 @@ const schema = gql`
     ): DeleteDiscoverFeedResult!
     editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
     emptyTrash: EmptyTrashResult!
+    refreshHome: RefreshHomeResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

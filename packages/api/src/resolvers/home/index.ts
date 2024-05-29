@@ -5,6 +5,9 @@ import {
   HomeSection,
   HomeSuccess,
   QueryHomeArgs,
+  RefreshHomeError,
+  RefreshHomeErrorCode,
+  RefreshHomeSuccess,
 } from '../../generated/graphql'
 import { getHomeSections } from '../../jobs/update_home'
 import { getJob } from '../../queue-processor'
@@ -34,12 +37,12 @@ export const homeResolver = authorized<
   const cursor = after ? parseInt(after) : Date.now()
 
   const sections = await getHomeSections(uid, limit, cursor)
-  log.info('Just read feed sections fetched')
+  log.info('Home sections fetched')
 
   if (sections.length === 0) {
     const existingJob = await getJob(updateHomeJobId(uid))
     if (existingJob) {
-      log.info('Just read feed update job already enqueued')
+      log.info('Update job job already enqueued')
 
       return {
         errorCodes: [HomeErrorCode.Pending],
@@ -51,7 +54,7 @@ export const homeResolver = authorized<
       cursor,
     })
 
-    log.info('Just read feed update enqueued')
+    log.info('Update home job enqueued')
 
     return {
       errorCodes: [HomeErrorCode.Pending],
@@ -73,5 +76,29 @@ export const homeResolver = authorized<
       hasPreviousPage: true, // there is always a previous page for newer items
       hasNextPage: true, // there is always a next page for older items
     },
+  }
+})
+
+export const refreshHomeResolver = authorized<
+  RefreshHomeSuccess,
+  RefreshHomeError
+>(async (_, __, { uid, log }) => {
+  const existingJob = await getJob(updateHomeJobId(uid))
+  if (existingJob) {
+    log.info('Update home job already enqueued')
+
+    return {
+      errorCodes: [RefreshHomeErrorCode.Pending],
+    }
+  }
+
+  await enqueueUpdateHomeJob({
+    userId: uid,
+  })
+
+  log.info('Update home job enqueued')
+
+  return {
+    success: true,
   }
 })
