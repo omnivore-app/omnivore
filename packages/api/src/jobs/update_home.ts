@@ -159,6 +159,11 @@ const rankCandidates = async (
   userId: string,
   candidates: Array<Candidate>
 ): Promise<Array<Candidate>> => {
+  if (candidates.length <= 10) {
+    logger.info('Not enough candidates to rank')
+    return candidates
+  }
+
   const unscoredCandidates = candidates.filter((item) => item.score === 0)
 
   const data = {
@@ -396,8 +401,8 @@ export const updateHome = async (data: UpdateHomeJobData) => {
     message: `Found ${candidates.length} candidates`,
   })
 
-  if (candidates.length <= 10) {
-    logger.info('Not enough candidates found')
+  if (candidates.length === 0) {
+    logger.info('No candidates found')
     return
   }
 
@@ -405,10 +410,6 @@ export const updateHome = async (data: UpdateHomeJobData) => {
 
   logger.profile('ranking')
   const rankedCandidates = await rankCandidates(userId, candidates)
-  if (rankedCandidates.length === 0) {
-    logger.info('No candidates found')
-    return
-  }
   logger.profile('ranking', {
     level: 'info',
     message: `Ranked ${rankedCandidates.length} candidates`,
