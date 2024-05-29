@@ -2207,6 +2207,7 @@ type SearchItem {
   readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
+  score: Float
   shortId: String
   siteIcon: String
   siteName: String

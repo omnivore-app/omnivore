@@ -1668,6 +1668,7 @@ const schema = gql`
     aiSummary: String
     directionality: DirectionalityType
     format: String
+    score: Float
   }
 
   type SearchItemEdge {
