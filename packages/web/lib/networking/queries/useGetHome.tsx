@@ -21,6 +21,7 @@ export type HomeItem = {
   date: string
   title: string
   url: string
+  score: number
   source: HomeItemSource
 
   previewContent?: string
@@ -82,6 +83,7 @@ export function useGetHomeItems(): HomeItemResponse {
                 id
                 title
                 url
+                score
                 thumbnail
                 previewContent
                 saveCount
