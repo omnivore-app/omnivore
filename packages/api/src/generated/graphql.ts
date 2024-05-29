@@ -279,6 +279,7 @@ export enum BulkActionType {
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
   MarkAsRead = 'MARK_AS_READ',
+  MarkAsSeen = 'MARK_AS_SEEN',
   MoveToFolder = 'MOVE_TO_FOLDER'
 }
 

@@ -2322,6 +2322,51 @@ describe('Article API', () => {
         expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
+
+    context(
+      'when action is MarkAsSeen and query contains a list of item id',
+      () => {
+        const items: LibraryItem[] = []
+
+        before(async () => {
+          // Create some test items
+          for (let i = 0; i < 5; i++) {
+            const item = await createOrUpdateLibraryItem(
+              {
+                user,
+                title: 'test item',
+                slug: '',
+                originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
+              },
+              user.id
+            )
+
+            items.push(item)
+          }
+        })
+
+        after(async () => {
+          // Delete all items
+          await deleteLibraryItemsByUserId(user.id)
+        })
+
+        it('marks items as seen', async () => {
+          const query = `includes:${items.map((i) => i.id).join(',')}`
+
+          const res = await graphqlRequest(
+            bulkActionQuery(BulkActionType.MarkAsSeen, query),
+            authToken
+          ).expect(200)
+          expect(res.body.data.bulkAction.success).to.be.true
+
+          const response = await graphqlRequest(
+            searchQuery('is:seen'),
+            authToken
+          ).expect(200)
+          expect(response.body.data.search.pageInfo.totalCount).to.eql(5)
+        })
+      }
+    )
   })
 
   describe('SetFavoriteArticle API', () => {

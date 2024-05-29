@@ -2595,6 +2595,7 @@ const schema = gql`
     MARK_AS_READ
     ADD_LABELS
     MOVE_TO_FOLDER
+    MARK_AS_SEEN
   }
 
   union BulkActionResult = BulkActionSuccess | BulkActionError

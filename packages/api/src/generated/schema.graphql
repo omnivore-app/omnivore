@@ -241,6 +241,7 @@ enum BulkActionType {
   ARCHIVE
   DELETE
   MARK_AS_READ
+  MARK_AS_SEEN
   MOVE_TO_FOLDER
 }
 

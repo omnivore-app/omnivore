@@ -1304,6 +1304,11 @@ export const batchUpdateLibraryItems = async (
       }
 
       break
+    case BulkActionType.MarkAsSeen:
+      values = {
+        seenAt: now,
+      }
+      break
     default:
       throw new Error('Invalid bulk action')
   }
