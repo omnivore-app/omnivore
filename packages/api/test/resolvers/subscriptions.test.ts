@@ -20,7 +20,7 @@ import {
 import { deleteUser } from '../../src/services/user'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(sinonChai)
 
@@ -456,6 +456,56 @@ describe('Subscriptions API', () => {
         // clean up
         await deleteSubscription(res.body.data.subscribe.subscriptions[0].id)
       })
+    })
+  })
+
+  describe('Get Subscription', () => {
+    const query = `
+      query Subscription($id: ID!) {
+        subscription(id: $id) {
+          ... on SubscriptionSuccess {
+            subscription {
+              id
+              name
+            }
+          }
+          ... on SubscriptionError {
+            errorCodes
+          }
+        }
+      }
+    `
+    let existingSubscription: Subscription
+
+    before(async () => {
+      // create test newsletter subscriptions
+      const newsletterEmail = await createNewsletterEmail(user.id)
+      existingSubscription = await createSubscription(
+        user.id,
+        'sub_1',
+        newsletterEmail
+      )
+    })
+
+    after(async () => {
+      await deleteSubscription(existingSubscription.id)
+    })
+
+    it('returns the subscription', async () => {
+      const res = await graphqlRequest(query, authToken, {
+        id: existingSubscription.id,
+      }).expect(200)
+      expect(res.body.data.subscription.subscription).to.eql({
+        id: existingSubscription.id,
+        name: existingSubscription.name,
+      })
+    })
+
+    it('returns an error when the subscription does not exist', async () => {
+      const res = await graphqlRequest(query, authToken, {
+        id: generateFakeUuid(),
+      }).expect(200)
+      expect(res.body.data.subscription.errorCodes).to.eql(['NOT_FOUND'])
     })
   })
 })
