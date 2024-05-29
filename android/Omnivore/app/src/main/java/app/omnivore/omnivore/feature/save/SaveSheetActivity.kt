@@ -34,13 +34,9 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-// Not sure why we need this class, but directly opening SaveSheetActivity
-// causes the app to crash.
-class SaveSheetActivity : SaveSheetActivityBase()
-
 @AndroidEntryPoint
 @OptIn(ExperimentalMaterialApi::class)
-abstract class SaveSheetActivityBase : AppCompatActivity() {
+class SaveSheetActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
