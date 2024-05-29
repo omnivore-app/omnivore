@@ -389,8 +389,12 @@ export const updateHome = async (data: UpdateHomeJobData) => {
 
   logger.info(`Updating home for user ${userId}`)
 
+  logger.profile('selecting')
   const candidates = await selectCandidates(user)
-  logger.info(`Found ${candidates.length} candidates`)
+  logger.profile('selecting', {
+    level: 'info',
+    message: `Found ${candidates.length} candidates`,
+  })
 
   if (candidates.length <= 10) {
     logger.info('Not enough candidates found')
@@ -399,20 +403,32 @@ export const updateHome = async (data: UpdateHomeJobData) => {
 
   // TODO: integrity check on candidates
 
-  logger.info('Ranking candidates')
+  logger.profile('ranking')
   const rankedCandidates = await rankCandidates(userId, candidates)
   if (rankedCandidates.length === 0) {
     logger.info('No candidates found')
     return
   }
+  logger.profile('ranking', {
+    level: 'info',
+    message: `Ranked ${rankedCandidates.length} candidates`,
+  })
 
   // TODO: filter candidates
 
-  logger.info('Mix home items to create sections')
+  logger.profile('mixing')
   const rankedSections = mixHomeItems(rankedCandidates)
-  logger.info(`Created ${rankedSections.length} sections`)
+  logger.profile('mixing', {
+    level: 'info',
+    message: `Created ${rankedSections.length} sections`,
+  })
 
-  logger.info('Appending sections to home')
+  logger.profile('saving')
   await appendSectionsToHome(userId, rankedSections, cursor)
+  logger.profile('saving', {
+    level: 'info',
+    message: 'Sections appended to home',
+  })
+
   logger.info('Home updated for user', { userId })
 }
