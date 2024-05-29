@@ -65,7 +65,7 @@ export const scoreLibraryItem = async (
   })
 
   logger.info('Scores', scores)
-  const score = scores[libraryItem.id]
+  const score = scores[libraryItem.id]['score']
   if (!score) {
     logger.error('Failed to score library item', data)
     throw new Error('Failed to score library item')

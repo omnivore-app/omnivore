@@ -20,7 +20,11 @@ export interface ScoreApiRequestBody {
   items: Record<string, Feature> // item_id -> feature
 }
 
-export type ScoreApiResponse = Record<string, number> // item_id -> score
+export type ScoreBody = {
+  score: number
+}
+
+export type ScoreApiResponse = Record<string, ScoreBody> // item_id -> score
 
 export const getScores = async (
   data: ScoreApiRequestBody
