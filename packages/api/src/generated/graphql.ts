@@ -1303,7 +1303,7 @@ export type HomeItem = {
   previewContent?: Maybe<Scalars['String']>;
   saveCount?: Maybe<Scalars['Int']>;
   seen_at?: Maybe<Scalars['Date']>;
-  slug: Scalars['String'];
+  slug?: Maybe<Scalars['String']>;
   source?: Maybe<HomeItemSource>;
   thumbnail?: Maybe<Scalars['String']>;
   title: Scalars['String'];
@@ -6044,7 +6044,7 @@ export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends 
   previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   saveCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   seen_at?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   source?: Resolver<Maybe<ResolversTypes['HomeItemSource']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
