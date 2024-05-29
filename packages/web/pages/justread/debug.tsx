@@ -89,7 +89,7 @@ export default function DebugHome(): JSX.Element {
                     <SpanBox>
                       {' '}
                       - Title:{' '}
-                      <a href={'/me/${homeItem.slug}'}>{homeItem.title}</a>
+                      <a href={`/me/${homeItem.slug}`}>{homeItem.title}</a>
                     </SpanBox>
                     <SpanBox> - Score: {homeItem.score}</SpanBox>
                     <SpanBox> - Word count: {homeItem.wordCount}</SpanBox>

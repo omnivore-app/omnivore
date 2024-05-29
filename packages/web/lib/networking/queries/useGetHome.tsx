@@ -22,6 +22,7 @@ export type HomeItem = {
   date: string
   title: string
   url: string
+  slug: string
   score: number
   source: HomeItemSource
 
@@ -84,6 +85,7 @@ export function useGetHomeItems(): HomeItemResponse {
                 id
                 title
                 url
+                slug
                 score
                 thumbnail
                 previewContent
