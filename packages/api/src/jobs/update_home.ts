@@ -191,7 +191,7 @@ const rankCandidates = async (
 
   const newScores = await getScores(data)
   // update scores for candidates
-  candidates.forEach((item) => {
+  unscoredCandidates.forEach((item) => {
     item.score = newScores[item.id]['score'] || 0
   })
 
