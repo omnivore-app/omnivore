@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.feature.library
 
 import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -151,6 +152,7 @@ fun SearchView(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     val context = LocalContext.current
@@ -169,8 +171,9 @@ fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
             .fillMaxSize()
 
     ) {
-        items(searchedCardsData) { cardData ->
+        items(searchedCardsData, key = { it.savedItemId } ) { cardData ->
             TypeaheadSearchCard(
+                modifier = Modifier.animateItemPlacement(),
                 cardData = cardData,
                 onClickHandler = {
                     // val activityClass = if (cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java

@@ -1,12 +1,11 @@
 package app.omnivore.omnivore.feature.library
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,8 +57,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -80,7 +77,6 @@ import app.omnivore.omnivore.navigation.TopLevelDestination
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.util.jar.Manifest
 
 @Composable
 internal fun LibraryView(
@@ -91,12 +87,11 @@ internal fun LibraryView(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    viewModel.snackbarMessage?.let {
-        coroutineScope.launch {
+    LaunchedEffect(viewModel.snackbarMessage) {
+        viewModel.snackbarMessage?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearSnackbarMessage()
         }
@@ -135,7 +130,8 @@ internal fun LibraryView(
         }
 
         LibraryBottomSheetState.EDIT -> {
-            EditBottomSheet(editInfoViewModel,
+            EditBottomSheet(
+                editInfoViewModel,
                 deleteCurrentItem = { viewModel.currentItem.value = null },
                 { viewModel.refresh() },
                 viewModel.currentSavedItemUnderEdit()
@@ -318,13 +314,15 @@ fun EditBottomSheet(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun LibraryViewContent(
     itemsFilter: SavedItemFilter,
     activeLabels: List<SavedItemLabel>,
     sortFilter: SavedItemSortFilter,
-    updateSavedItemFilter:(SavedItemFilter) -> Unit,
+    updateSavedItemFilter: (SavedItemFilter) -> Unit,
     updateSavedItemSortFilter: (SavedItemSortFilter) -> Unit,
     setBottomSheetState: (LibraryBottomSheetState) -> Unit,
     updateAppliedLabels: (List<SavedItemLabel>) -> Unit,
@@ -415,6 +413,7 @@ fun LibraryViewContent(
                         true
                     })
                     SwipeToDismiss(
+                        modifier = Modifier.animateItemPlacement(),
                         state = swipeState,
                         directions = setOf(
                             DismissDirection.StartToEnd, DismissDirection.EndToStart
@@ -535,7 +534,7 @@ fun InfiniteListHandler(
 
     LaunchedEffect(loadMore) {
         snapshotFlow { loadMore.value }.distinctUntilChanged().collect {
-                onLoadMore()
-            }
+            onLoadMore()
+        }
     }
 }
