@@ -58,6 +58,7 @@ export default function Home(): JSX.Element {
       >
         {homeData.sections?.map((homeSection, idx) => {
           switch (homeSection.layout) {
+            case 'just added':
             case 'long':
               return (
                 <LongHomeSection
