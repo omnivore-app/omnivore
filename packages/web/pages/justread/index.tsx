@@ -487,6 +487,7 @@ const SourceInfo = (props: HomeItemViewProps) => {
       case 'RSS':
         return <SubscriptionSourceHoverContent source={source} />
     }
+    return <></>
   }
   return (
     <HoverCard.Root>
