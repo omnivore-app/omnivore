@@ -27,7 +27,7 @@ export class HomeFeedback {
   user!: User
 
   @Column('text', { nullable: true })
-  subscription!: string | null
+  subscription?: string | null
 
   @Column('text', { nullable: true })
   author?: string | null
