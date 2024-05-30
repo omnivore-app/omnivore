@@ -589,6 +589,16 @@ type DeleteHighlightSuccess {
   highlight: Highlight!
 }
 
+type DeleteHomeFeedbackError {
+  errorCodes: [ErrorCode!]!
+}
+
+union DeleteHomeFeedbackResult = DeleteHomeFeedbackError | DeleteHomeFeedbackSuccess
+
+type DeleteHomeFeedbackSuccess {
+  success: Boolean!
+}
+
 type DeleteIntegrationError {
   errorCodes: [DeleteIntegrationErrorCode!]!
 }
@@ -1570,6 +1580,7 @@ type Mutation {
   deleteDiscoverFeed(input: DeleteDiscoverFeedInput!): DeleteDiscoverFeedResult!
   deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
+  deleteHomeFeedback(id: ID!): DeleteHomeFeedbackResult!
   deleteIntegration(id: ID!): DeleteIntegrationResult!
   deleteLabel(id: ID!): DeleteLabelResult!
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!

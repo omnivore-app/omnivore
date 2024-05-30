@@ -3,6 +3,7 @@ import { User } from '../../src/entity/user'
 import { createTestUser } from '../db'
 import {
   createHomeFeedback,
+  deleteHomeFeedback,
   findHomeFeedbackByUserId,
 } from '../../src/services/home_feedback'
 import { HomeFeedbackType } from '../../src/entity/home_feedback'
@@ -11,15 +12,13 @@ import { deleteUser } from '../../src/services/user'
 describe('homeFeedback', () => {
   let user: User
 
-  before(async () => {
-    user = await createTestUser('fakeUser')
-  })
-
-  after(async () => {
-    await deleteUser(user.id)
-  })
-
   context('create and list home feedback', () => {
+    before(async () => {
+      user = await createTestUser('fakeUser')
+    })
+    after(async () => {
+      await deleteUser(user.id)
+    })
     it('adds feedback for the user', async () => {
       const newItem = await createHomeFeedback(user.id, {
         site: 'omnivore.app',
@@ -107,6 +106,30 @@ describe('homeFeedback', () => {
       expect(items.length).to.eq(2)
       expect(items[0].author).to.eq('THE_AUTHOR_2')
       expect(items[1].author).to.eq('THE_AUTHOR_3')
+    })
+  })
+  context('delete feedback', () => {
+    before(async () => {
+      user = await createTestUser('fakeUser')
+    })
+    after(async () => {
+      await deleteUser(user.id)
+    })
+    it('deletes the item if it exists', async () => {
+      const feedback = await createHomeFeedback(user.id, {
+        site: undefined,
+        author: 'THE_AUTHOR_1',
+        subscription: undefined,
+        feedbackType: HomeFeedbackType.More,
+      })
+
+      let items = await findHomeFeedbackByUserId(user.id)
+      expect(items.length).to.eq(1)
+
+      await deleteHomeFeedback(user.id, feedback.id)
+
+      items = await findHomeFeedbackByUserId(user.id)
+      expect(items.length).to.eq(0)
     })
   })
 })

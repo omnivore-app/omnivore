@@ -2,9 +2,12 @@ import { DatabaseError } from 'pg'
 import { QueryFailedError } from 'typeorm'
 import { env } from '../../env'
 import {
+  DeleteHomeFeedbackError,
+  DeleteHomeFeedbackSuccess,
   ErrorCode,
   HomeFeedbackError,
   HomeFeedbackSuccess,
+  MutationDeleteHomeFeedbackArgs,
   MutationSendHomeFeedbackArgs,
   SendHomeFeedbackError,
   SendHomeFeedbackSuccess,
@@ -13,6 +16,7 @@ import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/gql-utils'
 import {
   createHomeFeedback,
+  deleteHomeFeedback,
   findHomeFeedbackByUserId,
 } from '../../services/home_feedback'
 
@@ -88,6 +92,33 @@ export const homeFeedbackResolver = authorized<
         uid,
       },
     })
+    return {
+      errorCodes: [ErrorCode.BadRequest],
+    }
+  }
+})
+
+export const deleteHomeFeedbackResolver = authorized<
+  DeleteHomeFeedbackSuccess,
+  DeleteHomeFeedbackError,
+  MutationDeleteHomeFeedbackArgs
+>(async (_parent, { id }, { uid, log }) => {
+  analytics.capture({
+    distinctId: uid,
+    event: 'delete_home_feedback',
+    properties: {
+      env: env.server.apiEnv,
+    },
+  })
+
+  try {
+    await deleteHomeFeedback(uid, id)
+    return {
+      success: true,
+    }
+  } catch (e) {
+    log.error(e)
+
     return {
       errorCodes: [ErrorCode.BadRequest],
     }

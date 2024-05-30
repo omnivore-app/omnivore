@@ -655,6 +655,18 @@ export type DeleteHighlightSuccess = {
   highlight: Highlight;
 };
 
+export type DeleteHomeFeedbackError = {
+  __typename?: 'DeleteHomeFeedbackError';
+  errorCodes: Array<ErrorCode>;
+};
+
+export type DeleteHomeFeedbackResult = DeleteHomeFeedbackError | DeleteHomeFeedbackSuccess;
+
+export type DeleteHomeFeedbackSuccess = {
+  __typename?: 'DeleteHomeFeedbackSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type DeleteIntegrationError = {
   __typename?: 'DeleteIntegrationError';
   errorCodes: Array<DeleteIntegrationErrorCode>;
@@ -1738,6 +1750,7 @@ export type Mutation = {
   deleteDiscoverFeed: DeleteDiscoverFeedResult;
   deleteFilter: DeleteFilterResult;
   deleteHighlight: DeleteHighlightResult;
+  deleteHomeFeedback: DeleteHomeFeedbackResult;
   deleteIntegration: DeleteIntegrationResult;
   deleteLabel: DeleteLabelResult;
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
@@ -1871,6 +1884,11 @@ export type MutationDeleteFilterArgs = {
 
 export type MutationDeleteHighlightArgs = {
   highlightId: Scalars['ID'];
+};
+
+
+export type MutationDeleteHomeFeedbackArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -4271,6 +4289,9 @@ export type ResolversTypes = {
   DeleteHighlightReplySuccess: ResolverTypeWrapper<DeleteHighlightReplySuccess>;
   DeleteHighlightResult: ResolversTypes['DeleteHighlightError'] | ResolversTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: ResolverTypeWrapper<DeleteHighlightSuccess>;
+  DeleteHomeFeedbackError: ResolverTypeWrapper<DeleteHomeFeedbackError>;
+  DeleteHomeFeedbackResult: ResolversTypes['DeleteHomeFeedbackError'] | ResolversTypes['DeleteHomeFeedbackSuccess'];
+  DeleteHomeFeedbackSuccess: ResolverTypeWrapper<DeleteHomeFeedbackSuccess>;
   DeleteIntegrationError: ResolverTypeWrapper<DeleteIntegrationError>;
   DeleteIntegrationErrorCode: DeleteIntegrationErrorCode;
   DeleteIntegrationResult: ResolversTypes['DeleteIntegrationError'] | ResolversTypes['DeleteIntegrationSuccess'];
@@ -4877,6 +4898,9 @@ export type ResolversParentTypes = {
   DeleteHighlightReplySuccess: DeleteHighlightReplySuccess;
   DeleteHighlightResult: ResolversParentTypes['DeleteHighlightError'] | ResolversParentTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: DeleteHighlightSuccess;
+  DeleteHomeFeedbackError: DeleteHomeFeedbackError;
+  DeleteHomeFeedbackResult: ResolversParentTypes['DeleteHomeFeedbackError'] | ResolversParentTypes['DeleteHomeFeedbackSuccess'];
+  DeleteHomeFeedbackSuccess: DeleteHomeFeedbackSuccess;
   DeleteIntegrationError: DeleteIntegrationError;
   DeleteIntegrationResult: ResolversParentTypes['DeleteIntegrationError'] | ResolversParentTypes['DeleteIntegrationSuccess'];
   DeleteIntegrationSuccess: DeleteIntegrationSuccess;
@@ -5691,6 +5715,20 @@ export type DeleteHighlightResultResolvers<ContextType = ResolverContext, Parent
 
 export type DeleteHighlightSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightSuccess'] = ResolversParentTypes['DeleteHighlightSuccess']> = {
   highlight?: Resolver<ResolversTypes['Highlight'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteHomeFeedbackErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHomeFeedbackError'] = ResolversParentTypes['DeleteHomeFeedbackError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteHomeFeedbackResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHomeFeedbackResult'] = ResolversParentTypes['DeleteHomeFeedbackResult']> = {
+  __resolveType: TypeResolveFn<'DeleteHomeFeedbackError' | 'DeleteHomeFeedbackSuccess', ParentType, ContextType>;
+};
+
+export type DeleteHomeFeedbackSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHomeFeedbackSuccess'] = ResolversParentTypes['DeleteHomeFeedbackSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6534,6 +6572,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteDiscoverFeed?: Resolver<ResolversTypes['DeleteDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverFeedArgs, 'input'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
+  deleteHomeFeedback?: Resolver<ResolversTypes['DeleteHomeFeedbackResult'], ParentType, ContextType, RequireFields<MutationDeleteHomeFeedbackArgs, 'id'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
@@ -7828,6 +7867,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteHighlightReplySuccess?: DeleteHighlightReplySuccessResolvers<ContextType>;
   DeleteHighlightResult?: DeleteHighlightResultResolvers<ContextType>;
   DeleteHighlightSuccess?: DeleteHighlightSuccessResolvers<ContextType>;
+  DeleteHomeFeedbackError?: DeleteHomeFeedbackErrorResolvers<ContextType>;
+  DeleteHomeFeedbackResult?: DeleteHomeFeedbackResultResolvers<ContextType>;
+  DeleteHomeFeedbackSuccess?: DeleteHomeFeedbackSuccessResolvers<ContextType>;
   DeleteIntegrationError?: DeleteIntegrationErrorResolvers<ContextType>;
   DeleteIntegrationResult?: DeleteIntegrationResultResolvers<ContextType>;
   DeleteIntegrationSuccess?: DeleteIntegrationSuccessResolvers<ContextType>;
