@@ -367,9 +367,9 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(`/me/${props.homeItem.slug}`)
         } else {
-          router.push(props.homeItem.url)
+          router.push(`/me/${props.homeItem.slug}`)
         }
       }}
     >
