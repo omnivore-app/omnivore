@@ -144,8 +144,7 @@ class SaveSheetActivity : AppCompatActivity() {
         val syncWorkerRequest = OneTimeWorkRequestBuilder<LibrarySyncWorker>()
             .setConstraints(constraints)
             .addTag(url)
-            // delay to make sure the url title and content are fetched
-            .setInitialDelay(10.seconds.toJavaDuration())
+            .setInitialDelay(5.seconds.toJavaDuration())
             .build()
 
         beginWith(saveWorkerRequest)
