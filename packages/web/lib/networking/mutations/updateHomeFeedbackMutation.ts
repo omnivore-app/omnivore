@@ -6,7 +6,7 @@ export type SendHomeFeedbackType = 'MORE' | 'LESS'
 export type SendHomeFeedbackInput = {
   site?: string
   author?: string
-  subscriptionId?: string
+  subscription?: string
   feedbackType: SendHomeFeedbackType
 }
 
