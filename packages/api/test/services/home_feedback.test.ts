@@ -72,5 +72,41 @@ describe('homeFeedback', () => {
         2
       )
     })
+    it('handles offset and limit', async () => {
+      // Create a new user to clear data
+      await deleteUser(user.id)
+      user = await createTestUser('fakeUser')
+
+      await createHomeFeedback(user.id, {
+        site: undefined,
+        author: 'THE_AUTHOR_1',
+        subscription: undefined,
+        feedbackType: HomeFeedbackType.More,
+      })
+      await createHomeFeedback(user.id, {
+        site: undefined,
+        author: 'THE_AUTHOR_2',
+        subscription: undefined,
+        feedbackType: HomeFeedbackType.Less,
+      })
+      await createHomeFeedback(user.id, {
+        site: undefined,
+        author: 'THE_AUTHOR_3',
+        subscription: undefined,
+        feedbackType: HomeFeedbackType.Less,
+      })
+      await createHomeFeedback(user.id, {
+        site: undefined,
+        author: 'THE_AUTHOR_4',
+        subscription: undefined,
+        feedbackType: HomeFeedbackType.Less,
+      })
+
+      const items = await findHomeFeedbackByUserId(user.id, 1, 2)
+
+      expect(items.length).to.eq(2)
+      expect(items[0].author).to.eq('THE_AUTHOR_2')
+      expect(items[1].author).to.eq('THE_AUTHOR_3')
+    })
   })
 })

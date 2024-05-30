@@ -4,13 +4,9 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
-  UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
-import { Subscription } from './subscription'
 
 export enum HomeFeedbackType {
   More = 'MORE',

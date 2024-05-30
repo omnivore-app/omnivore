@@ -1767,7 +1767,7 @@ type Query {
   hello: String
   hiddenHomeSection: HiddenHomeSectionResult!
   home(after: String, first: Int): HomeResult!
-  homeFeedback: HomeFeedbackResult!
+  homeFeedback(input: HomeFeedbackFilterInput): HomeFeedbackResult!
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
   labels: LabelsResult!

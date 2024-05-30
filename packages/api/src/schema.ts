@@ -3208,7 +3208,6 @@ const schema = gql`
 
   union RefreshHomeResult = RefreshHomeSuccess | RefreshHomeError
 
-<<<<<<< HEAD
   union HiddenHomeSectionResult =
       HiddenHomeSectionSuccess
     | HiddenHomeSectionError
@@ -3227,7 +3226,6 @@ const schema = gql`
     PENDING
   }
 
-=======
   enum HomeFeedbackType {
     MORE
     LESS
@@ -3272,7 +3270,6 @@ const schema = gql`
 
   union HomeFeedbackResult = HomeFeedbackSuccess | HomeFeedbackError
 
->>>>>>> 682effd79 (Add thumbsup/down feedback buttons for the home feed)
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3473,10 +3470,14 @@ const schema = gql`
     home(first: Int, after: String): HomeResult!
     subscription(id: ID!): SubscriptionResult!
 <<<<<<< HEAD
+<<<<<<< HEAD
     hiddenHomeSection: HiddenHomeSectionResult!
 =======
     homeFeedback: HomeFeedbackResult!
 >>>>>>> 682effd79 (Add thumbsup/down feedback buttons for the home feed)
+=======
+    homeFeedback(input: HomeFeedbackFilterInput): HomeFeedbackResult!
+>>>>>>> b31ccc71c (Add pagination, delete permission on home_feedback)
   }
 
   schema {

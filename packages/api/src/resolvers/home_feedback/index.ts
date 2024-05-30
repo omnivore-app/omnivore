@@ -3,7 +3,6 @@ import { QueryFailedError } from 'typeorm'
 import { env } from '../../env'
 import {
   ErrorCode,
-  HomeFeedback,
   HomeFeedbackError,
   HomeFeedbackSuccess,
   MutationSendHomeFeedbackArgs,
@@ -12,11 +11,6 @@ import {
 } from '../../generated/graphql'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/gql-utils'
-import {
-  HomeFeedback as HomeFeedbackModel,
-  HomeFeedbackType,
-  HomeFeedbackType as HomeFeedbackTypeModel,
-} from '../../entity/home_feedback'
 import {
   createHomeFeedback,
   findHomeFeedbackByUserId,
@@ -33,6 +27,7 @@ export const sendHomeFeedbackResolver = authorized<
     event: 'send_home_feedback',
     properties: {
       feedback: input.feedbackType,
+      env: env.server.apiEnv,
     },
   })
 
@@ -68,7 +63,10 @@ export const sendHomeFeedbackResolver = authorized<
 export const homeFeedbackResolver = authorized<
   HomeFeedbackSuccess,
   HomeFeedbackError
->(async (_parent, _args, { claims: { uid }, log }) => {
+>(async (_parent, { input }, { claims: { uid }, log }) => {
+  const offset = input.offset ?? 0
+  const limit = Math.min(input.limit ?? 50, 50)
+
   try {
     log.info('homeFeedbackResolver', {
       labels: {
@@ -78,7 +76,7 @@ export const homeFeedbackResolver = authorized<
       },
     })
 
-    const feedbacks = await findHomeFeedbackByUserId(uid)
+    const feedbacks = await findHomeFeedbackByUserId(uid, offset, limit)
     log.info('home feedbacks', feedbacks)
 
     return {

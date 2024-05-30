@@ -23,7 +23,8 @@ CREATE POLICY home_feedback_policy on omnivore.home_feedback
     USING (user_id = omnivore.get_current_user_id())
     WITH CHECK (user_id = omnivore.get_current_user_id());
 
-GRANT SELECT, INSERT ON omnivore.home_feedback TO omnivore_user;
+GRANT SELECT, INSERT, DELETE ON omnivore.home_feedback TO omnivore_user;
 
+CREATE INDEX idx_user_id ON omnivore.home_feedback (user_id);
 
 COMMIT;

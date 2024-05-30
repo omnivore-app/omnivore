@@ -8,12 +8,20 @@ import { DatabaseError } from 'pg'
 const PG_UNIQUE_CONSTRAINT_VIOLATION = '23505'
 
 export const findHomeFeedbackByUserId = async (
-  userId: string
+  userId: string,
+  offset: number = 0,
+  limit: number = 50
 ): Promise<HomeFeedback[]> => {
+  console.log('using offset: ', offset)
   return authTrx(
     (t) =>
-      t.getRepository(HomeFeedback).findBy({
-        user: { id: userId },
+      t.getRepository(HomeFeedback).find({
+        where: {
+          user: { id: userId },
+        },
+        take: limit,
+        skip: offset,
+        order: { createdAt: 'ASC' },
       }),
     undefined,
     userId
