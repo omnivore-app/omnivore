@@ -38,20 +38,17 @@ export const sendHomeFeedbackResolver = authorized<
     }
   }
   try {
-    console.log('will update with these values: ', input.feedbackType)
     await createHomeFeedback(uid, {
       site: site ?? undefined,
       author: author ?? undefined,
       subscription: subscription ?? undefined,
       feedbackType: input.feedbackType,
     })
-    console.log('returning success')
     return {
       __typename: 'SendHomeFeedbackSuccess',
       message: 'Settings updated.',
     }
   } catch (e) {
-    console.log('caught error', e)
     log.error(e)
 
     return {
