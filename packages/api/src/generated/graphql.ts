@@ -1324,7 +1324,7 @@ export type HomeItemSource = {
   __typename?: 'HomeItemSource';
   icon?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['ID']>;
-  name: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
   type: HomeItemSourceType;
   url?: Maybe<Scalars['String']>;
 };
@@ -6117,7 +6117,7 @@ export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends 
 export type HomeItemSourceResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeItemSource'] = ResolversParentTypes['HomeItemSource']> = {
   icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['HomeItemSourceType'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

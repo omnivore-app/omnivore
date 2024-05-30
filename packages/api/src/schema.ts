@@ -3121,7 +3121,7 @@ const schema = gql`
 
   type HomeItemSource {
     id: ID
-    name: String!
+    name: String
     url: String
     icon: String
     type: HomeItemSourceType!
