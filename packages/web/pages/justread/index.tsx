@@ -1,18 +1,17 @@
+import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
+import { useRouter } from 'next/router'
+import { useMemo } from 'react'
+import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
 import { CommentActionIcon } from '../../components/elements/icons/home/CommentActionIcon'
 import { RemoveActionIcon } from '../../components/elements/icons/home/RemoveActionIcon'
 import { ShareActionIcon } from '../../components/elements/icons/home/ShareActionIcon'
+import Pagination from '../../components/elements/Pagination'
+import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
+import { theme } from '../../components/tokens/stitches.config'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
-import {
-  HStack,
-  SpanBox,
-  VStack,
-} from './../../components/elements/LayoutPrimitives'
-
-import * as HoverCard from '@radix-ui/react-hover-card'
-import { Button } from '../../components/elements/Button'
 import {
   HomeItem,
   HomeItemSource,
@@ -20,14 +19,15 @@ import {
   HomeSection,
   useGetHomeItems,
 } from '../../lib/networking/queries/useGetHome'
-import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
-import { theme } from '../../components/tokens/stitches.config'
-import { useRouter } from 'next/router'
 import {
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useMemo } from 'react'
+import {
+  HStack,
+  SpanBox,
+  VStack,
+} from './../../components/elements/LayoutPrimitives'
 
 export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
@@ -59,9 +59,22 @@ export default function Home(): JSX.Element {
         {homeData.sections?.map((homeSection, idx) => {
           switch (homeSection.layout) {
             case 'just added':
+              return (
+                <JustReadHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
             case 'long':
               return (
                 <LongHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
+            case 'quick links':
+              return (
+                <QuickLinksHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
                 />
@@ -77,13 +90,92 @@ type HomeSectionProps = {
   homeSection: HomeSection
 }
 
+const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
+  return (
+    <VStack
+      distribution="start"
+      css={{
+        width: '100%',
+        gap: '20px',
+      }}
+    >
+      <SpanBox
+        css={{
+          fontFamily: '$inter',
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '$readerText',
+        }}
+      >
+        {props.homeSection.title}
+      </SpanBox>
+
+      {props.homeSection.items.map((homeItem) => {
+        return <JustReadItemView key={homeItem.id} homeItem={homeItem} />
+      })}
+    </VStack>
+  )
+}
+
 const LongHomeSection = (props: HomeSectionProps): JSX.Element => {
   return (
-    <SpanBox css={{ width: '100%' }}>
-      {props.homeSection.items.map((homeItem) => {
-        return <HomeItemView key={homeItem.id} homeItem={homeItem} />
-      })}
-    </SpanBox>
+    <VStack
+      distribution="start"
+      css={{
+        width: '100%',
+        gap: '20px',
+      }}
+    >
+      <SpanBox
+        css={{
+          fontFamily: '$inter',
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '$readerText',
+        }}
+      >
+        {props.homeSection.title}
+      </SpanBox>
+
+      <Pagination
+        items={props.homeSection.items}
+        itemsPerPage={10}
+        render={(homeItem) => (
+          <LongHomeItemView key={homeItem.id} homeItem={homeItem} />
+        )}
+      />
+    </VStack>
+  )
+}
+
+const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
+  return (
+    <VStack
+      distribution="start"
+      css={{
+        width: '100%',
+        gap: '20px',
+      }}
+    >
+      <SpanBox
+        css={{
+          fontFamily: '$inter',
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '$readerText',
+        }}
+      >
+        {props.homeSection.title}
+      </SpanBox>
+
+      <Pagination
+        items={props.homeSection.items}
+        itemsPerPage={15}
+        render={(homeItem) => (
+          <QuickLinkHomeItemView key={homeItem.id} homeItem={homeItem} />
+        )}
+      />
+    </VStack>
   )
 }
 
@@ -130,7 +222,59 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const HomeItemView = (props: HomeItemViewProps): JSX.Element => {
+const JustReadItemView = (props: HomeItemViewProps): JSX.Element => {
+  const router = useRouter()
+
+  return (
+    <VStack
+      css={{
+        width: '100%',
+        padding: '20px',
+        borderRadius: '5px',
+        '&:hover': {
+          bg: '$thBackground',
+          borderRadius: '0px',
+        },
+      }}
+      onClick={(event) => {
+        if (event.metaKey || event.ctrlKey) {
+          window.open(props.homeItem.url, '_blank')
+        } else {
+          router.push(props.homeItem.url)
+        }
+      }}
+    >
+      <HStack css={{ width: '100%', gap: '5px' }}>
+        <VStack css={{ gap: '15px' }}>
+          <HStack
+            distribution="start"
+            alignment="center"
+            css={{ gap: '5px', lineHeight: '1' }}
+          >
+            <SourceInfo homeItem={props.homeItem} />
+            <TimeAgo homeItem={props.homeItem} />
+          </HStack>
+          <Title homeItem={props.homeItem} />
+        </VStack>
+        <SpanBox css={{ ml: 'auto' }}>
+          {props.homeItem.thumbnail && (
+            <CoverImage
+              css={{
+                mt: '6px',
+                width: '120px',
+                height: '70px',
+                borderRadius: '4px',
+              }}
+              src={props.homeItem.thumbnail}
+            ></CoverImage>
+          )}
+        </SpanBox>
+      </HStack>
+    </VStack>
+  )
+}
+
+const LongHomeItemView = (props: HomeItemViewProps): JSX.Element => {
   const router = useRouter()
 
   return (
@@ -200,6 +344,39 @@ const HomeItemView = (props: HomeItemViewProps): JSX.Element => {
           <RemoveActionIcon />
         </Button>
       </HStack>
+    </VStack>
+  )
+}
+
+const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
+  const router = useRouter()
+
+  return (
+    <VStack
+      css={{
+        width: '100%',
+        padding: '10px',
+        borderRadius: '5px',
+        '&:hover': {
+          bg: '$thBackground',
+          borderRadius: '0px',
+        },
+      }}
+      onClick={(event) => {
+        if (event.metaKey || event.ctrlKey) {
+          window.open(props.homeItem.url, '_blank')
+        } else {
+          router.push(props.homeItem.url)
+        }
+      }}
+    >
+      <TimeAgo homeItem={props.homeItem} />
+      <Title homeItem={props.homeItem} />
+      <SpanBox
+        css={{ fontFamily: '$inter', fontSize: '13px', lineHeight: '23px' }}
+      >
+        {props.homeItem.previewContent}
+      </SpanBox>
     </VStack>
   )
 }

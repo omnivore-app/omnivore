@@ -319,8 +319,8 @@ const appendSectionsToHome = async (
   const ttl = 86_400_000
   pipeline.zremrangebyscore(key, '-inf', Date.now() - ttl)
 
-  // keep only the top MAX_FEED_ITEMS items
-  pipeline.zremrangebyrank(key, 0, -(MAX_FEED_ITEMS + 1))
+  // keep only the new sections and remove the oldest ones
+  pipeline.zremrangebyrank(key, 0, -(sections.length + 1))
 
   logger.info('Adding home sections to redis')
   await pipeline.exec()
