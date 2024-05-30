@@ -8,6 +8,7 @@ import androidx.room.Update
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemQueryConstants
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.core.database.entities.TypeaheadCardData
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,6 +19,9 @@ interface SavedItemDao {
 
     @Query("SELECT * FROM savedItem WHERE savedItemId = :itemID")
     suspend fun findById(itemID: String): SavedItem?
+
+    @Query("SELECT savedItemId, slug, title, isArchived FROM saveditem WHERE title LIKE '%' || :query || '%'")
+    suspend fun getTypeaheadData(query: String): List<TypeaheadCardData>
 
     @Query("SELECT * FROM savedItem WHERE serverSyncStatus != 0")
     fun getUnSynced(): List<SavedItem>

@@ -20,6 +20,7 @@ import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.core.database.entities.TypeaheadCardData
 import app.omnivore.omnivore.core.database.entities.highlightChangeToHighlight
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.ReadingProgressParams
@@ -47,8 +48,10 @@ import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LibraryRepositoryImpl @Inject constructor(
@@ -91,6 +94,12 @@ class LibraryRepositoryImpl @Inject constructor(
                 savedItem = savedItem, labels = syncResult.labels, highlights = syncResult.highlights
             )
             savedItemWithLabelsAndHighlightsDao.insertAll(listOf(item))
+        }
+    }
+
+    override suspend fun getTypeaheadData(query: String): List<TypeaheadCardData> {
+        return withContext(Dispatchers.IO) {
+            savedItemDao.getTypeaheadData(query)
         }
     }
 
