@@ -37,6 +37,7 @@ import {
 } from '../../lib/networking/mutations/updateHomeFeedbackMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Toaster } from 'react-hot-toast'
+import { useGetSubscriptionQuery } from '../../lib/networking/queries/useGetSubscription'
 
 export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
@@ -453,17 +454,29 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const SiteIconSmall = styled('img', {
-  width: '16px',
-  height: '16px',
-  borderRadius: '100px',
-})
-
-const SiteIconLarge = styled('img', {
-  width: '25px',
-  height: '25px',
-  borderRadius: '100px',
-})
+const SiteIcon = (props: {
+  src: string
+  alt: string
+  size: 'large' | 'small'
+}) => {
+  const [isError, setIsError] = useState(false)
+  return (
+    <>
+      {!isError && (
+        <img
+          src={props.src}
+          alt={props.alt}
+          style={{
+            display: isError ? 'none' : 'block',
+            width: props.size == 'large' ? '25px' : '16px',
+            height: props.size == 'large' ? '25px' : '16px',
+          }}
+          onError={() => setIsError(true)}
+        />
+      )}
+    </>
+  )
+}
 
 const SourceInfo = (props: HomeItemViewProps) => (
   <HoverCard.Root>
@@ -474,15 +487,15 @@ const SourceInfo = (props: HomeItemViewProps) => (
         css={{ gap: '5px', cursor: 'pointer' }}
       >
         {props.homeItem.source.icon && (
-          <SiteIconSmall
+          <SiteIcon
             src={props.homeItem.source.icon}
             alt={props.homeItem.source.name}
+            size="small"
           />
         )}
         <HStack
           css={{
             lineHeight: '1',
-            pb: '3px',
             fontFamily: '$inter',
             fontWeight: '500',
             fontSize: '13px',
@@ -521,15 +534,16 @@ const SubscriptionSourceHoverContent = (
         return undefined
     }
   }
-  const { subscriptions, isValidating } = useGetSubscriptionsQuery(
-    mapSourceType(props.source.type)
+  console.log('source id: ', props.source)
+  const { subscription, isValidating } = useGetSubscriptionQuery(
+    props.source.id
   )
-  const subscription = useMemo(() => {
-    if (props.source.id && subscriptions) {
-      return subscriptions.find((sub) => sub.id == props.source.id)
-    }
-    return undefined
-  }, [subscriptions])
+  // const subscription = useMemo(() => {
+  //   if (props.source.id && subscriptions) {
+  //     return subscriptions.find((sub) => sub.id == props.source.id)
+  //   }
+  //   return undefined
+  // }, [subscriptions])
 
   const sendHomeFeedback = useCallback(
     async (feedbackType: SendHomeFeedbackType) => {
@@ -580,7 +594,11 @@ const SubscriptionSourceHoverContent = (
         css={{ width: '100%', gap: '10px' }}
       >
         {props.source.icon && (
-          <SiteIconLarge src={props.source.icon} alt={props.source.name} />
+          <SiteIcon
+            src={props.source.icon}
+            alt={props.source.name}
+            size="large"
+          />
         )}
         <SpanBox
           css={{
