@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS omnivore.home_feedback (
     site TEXT,
     author TEXT,
     subscription TEXT,
-    feedback_type omnivore.feedback_type_enum,
+    feedback_type omnivore.feedback_type_enum NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, subscription, feedback_type),
     UNIQUE (user_id, author, feedback_type),
