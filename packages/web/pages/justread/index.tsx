@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
@@ -29,6 +29,14 @@ import {
   SpanBox,
   VStack,
 } from './../../components/elements/LayoutPrimitives'
+import { ThumbsDown, ThumbsUp } from 'phosphor-react'
+import {
+  SendHomeFeedbackType,
+  SendHomeFeedbackInput,
+  sendHomeFeedbackMutation,
+} from '../../lib/networking/mutations/updateHomeFeedbackMutation'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { Toaster } from 'react-hot-toast'
 
 export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
@@ -46,6 +54,7 @@ export default function Home(): JSX.Element {
         minHeight: '100vh',
       }}
     >
+      <Toaster />
       <VStack
         distribution="start"
         css={{
@@ -522,6 +531,37 @@ const SubscriptionSourceHoverContent = (
     return undefined
   }, [subscriptions])
 
+  const sendHomeFeedback = useCallback(
+    (feedbackType: SendHomeFeedbackType) => {
+      ;(async () => {
+        let hasData = false
+        const feedback: SendHomeFeedbackInput = {
+          feedbackType,
+        }
+        switch (props.source.type) {
+          case 'LIBRARY':
+            //   has
+            feedback.site = 'foobar'
+          case 'RSS':
+          case 'NEWSLETTER':
+            hasData = true
+            feedback.subscriptionId = subscription?.id
+        }
+        if (hasData) {
+          const result = await sendHomeFeedbackMutation(feedback)
+          if (result) {
+            showSuccessToast('Feedback sent')
+          } else {
+            showErrorToast('Error sending feedback')
+          }
+        } else {
+          showErrorToast('Error sending feedback')
+        }
+      })()
+    },
+    [subscription]
+  )
+
   return (
     <VStack
       alignment="start"
@@ -570,6 +610,30 @@ const SubscriptionSourceHoverContent = (
       >
         {subscription ? <>{subscription.description}</> : <></>}
       </SpanBox>
+      {/* {subscription && ( */}
+      <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
+        <Button
+          style="plainIcon"
+          onClick={(event) => {
+            sendHomeFeedback('MORE')
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+        >
+          <ThumbsUp weight="fill" />
+        </Button>
+        <Button
+          style="plainIcon"
+          onClick={(event) => {
+            sendHomeFeedback('MORE')
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+        >
+          <ThumbsDown weight="fill" />
+        </Button>
+      </HStack>
+      {/* )} */}
     </VStack>
   )
 }

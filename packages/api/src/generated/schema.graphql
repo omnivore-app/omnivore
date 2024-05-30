@@ -1181,6 +1181,33 @@ enum HomeErrorCode {
   UNAUTHORIZED
 }
 
+type HomeFeedback {
+  author: String
+  feedbackType: HomeFeedbackType!
+  site: String
+  subscription: String
+}
+
+type HomeFeedbackError {
+  errorCodes: [ErrorCode!]!
+}
+
+input HomeFeedbackFilterInput {
+  limit: Int!
+  offset: Int!
+}
+
+union HomeFeedbackResult = HomeFeedbackError | HomeFeedbackSuccess
+
+type HomeFeedbackSuccess {
+  items: [HomeFeedback!]!
+}
+
+enum HomeFeedbackType {
+  LESS
+  MORE
+}
+
 type HomeItem {
   author: String
   broadcastCount: Int
@@ -1577,6 +1604,7 @@ type Mutation {
   saveFilter(input: SaveFilterInput!): SaveFilterResult!
   savePage(input: SavePageInput!): SaveResult!
   saveUrl(input: SaveUrlInput!): SaveResult!
+  sendHomeFeedback(input: SendHomeFeedbackInput!): SendHomeFeedbackResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
   setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
@@ -1739,6 +1767,7 @@ type Query {
   hello: String
   hiddenHomeSection: HiddenHomeSectionResult!
   home(after: String, first: Int): HomeResult!
+  homeFeedback: HomeFeedbackResult!
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
   labels: LabelsResult!
@@ -2275,6 +2304,23 @@ union SearchResult = SearchError | SearchSuccess
 type SearchSuccess {
   edges: [SearchItemEdge!]!
   pageInfo: PageInfo!
+}
+
+type SendHomeFeedbackError {
+  errorCodes: [ErrorCode!]!
+}
+
+input SendHomeFeedbackInput {
+  author: String
+  feedbackType: HomeFeedbackType!
+  site: String
+  subscription: String
+}
+
+union SendHomeFeedbackResult = SendHomeFeedbackError | SendHomeFeedbackSuccess
+
+type SendHomeFeedbackSuccess {
+  message: String!
 }
 
 type SendInstallInstructionsError {

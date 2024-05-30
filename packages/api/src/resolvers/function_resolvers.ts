@@ -101,6 +101,7 @@ import {
   // getUserFeedArticlesResolver,
   getUserPersonalizationResolver,
   getUserResolver,
+  homeFeedbackResolver,
   googleLoginResolver,
   googleSignupResolver,
   groupsResolver,
@@ -163,6 +164,7 @@ import {
   validateUsernameResolver,
   webhookResolver,
   webhooksResolver,
+  sendHomeFeedbackResolver,
 } from './index'
 import {
   markEmailAsItemResolver,
@@ -337,6 +339,7 @@ export const functionResolvers = {
     exportToIntegration: exportToIntegrationResolver,
     replyToEmail: replyToEmailResolver,
     refreshHome: refreshHomeResolver,
+    sendHomeFeedback: sendHomeFeedbackResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -376,6 +379,7 @@ export const functionResolvers = {
     home: homeResolver,
     subscription: subscriptionResolver,
     hiddenHomeSection: hiddenHomeSectionResolver,
+    homeFeedback: homeFeedbackResolver,
   },
   User: {
     async intercomHash(
