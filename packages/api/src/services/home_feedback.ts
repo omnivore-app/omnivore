@@ -9,8 +9,8 @@ const PG_UNIQUE_CONSTRAINT_VIOLATION = '23505'
 
 export const findHomeFeedbackByUserId = async (
   userId: string,
-  offset: number = 0,
-  limit: number = 50
+  offset = 0,
+  limit = 50
 ): Promise<HomeFeedback[]> => {
   console.log('using offset: ', offset)
   return authTrx(
