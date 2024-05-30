@@ -532,32 +532,30 @@ const SubscriptionSourceHoverContent = (
   }, [subscriptions])
 
   const sendHomeFeedback = useCallback(
-    (feedbackType: SendHomeFeedbackType) => {
-      ;(async () => {
-        let hasData = false
-        const feedback: SendHomeFeedbackInput = {
-          feedbackType,
-        }
-        switch (props.source.type) {
-          case 'LIBRARY':
-            //   has
-            feedback.site = 'foobar'
-          case 'RSS':
-          case 'NEWSLETTER':
-            hasData = true
-            feedback.subscriptionId = subscription?.id
-        }
-        if (hasData) {
-          const result = await sendHomeFeedbackMutation(feedback)
-          if (result) {
-            showSuccessToast('Feedback sent')
-          } else {
-            showErrorToast('Error sending feedback')
-          }
+    async (feedbackType: SendHomeFeedbackType) => {
+      let hasData = false
+      const feedback: SendHomeFeedbackInput = {
+        feedbackType,
+      }
+      switch (props.source.type) {
+        case 'LIBRARY':
+          //   has
+          feedback.site = 'foobar'
+        case 'RSS':
+        case 'NEWSLETTER':
+          hasData = true
+          feedback.subscriptionId = subscription?.id
+      }
+      if (hasData) {
+        const result = await sendHomeFeedbackMutation(feedback)
+        if (result) {
+          showSuccessToast('Feedback sent')
         } else {
           showErrorToast('Error sending feedback')
         }
-      })()
+      } else {
+        showErrorToast('Error sending feedback')
+      }
     },
     [subscription]
   )
