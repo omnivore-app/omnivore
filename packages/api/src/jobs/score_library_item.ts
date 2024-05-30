@@ -83,8 +83,11 @@ export const scoreLibraryItem = async (
   )
   logger.info('Library item scored', data)
 
-  await enqueueUpdateHomeJob({
-    userId,
-    cursor: Date.now(),
-  })
+  try {
+    await enqueueUpdateHomeJob({
+      userId,
+    })
+  } catch (error) {
+    logger.error('Failed to enqueue update home job', error)
+  }
 }
