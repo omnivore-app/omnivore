@@ -106,7 +106,7 @@ const publicItemToCandidate = (item: PublicItem): Candidate => ({
 
 const getJustAddedCandidates = async (
   userId: string,
-  limit = 100
+  limit = 5 // limit to 5 just added candidates
 ): Promise<Array<Candidate>> => {
   const libraryItems = await searchLibraryItems(
     {
