@@ -9,6 +9,7 @@ import {
   HomeFeedbackSuccess,
   MutationDeleteHomeFeedbackArgs,
   MutationSendHomeFeedbackArgs,
+  QueryHomeFeedbackArgs,
   SendHomeFeedbackError,
   SendHomeFeedbackSuccess,
 } from '../../generated/graphql'
@@ -63,10 +64,11 @@ export const sendHomeFeedbackResolver = authorized<
 
 export const homeFeedbackResolver = authorized<
   HomeFeedbackSuccess,
-  HomeFeedbackError
+  HomeFeedbackError,
+  QueryHomeFeedbackArgs
 >(async (_parent, { input }, { claims: { uid }, log }) => {
-  const offset = input.offset ?? 0
-  const limit = Math.min(input.limit ?? 50, 50)
+  const offset = input?.offset ?? 0
+  const limit = Math.min(input?.limit ?? 50, 50)
 
   try {
     log.info('homeFeedbackResolver', {
