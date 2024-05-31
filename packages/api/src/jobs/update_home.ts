@@ -202,11 +202,9 @@ const rankCandidates = async (
     return candidates
   }
 
-  const unscoredCandidates = candidates.filter((item) => item.score === 0)
-
   const data = {
     user_id: userId,
-    items: unscoredCandidates.reduce((acc, item) => {
+    items: candidates.reduce((acc, item) => {
       acc[item.id] = {
         library_item_id: item.id,
         title: item.title,
@@ -227,14 +225,14 @@ const rankCandidates = async (
     }, {} as Record<string, Feature>),
   }
 
-  const newScores = await getScores(data)
+  const scores = await getScores(data)
   // update scores for candidates
-  unscoredCandidates.forEach((item) => {
-    item.score = newScores[item.id]['score'] || 0
+  candidates.forEach((item) => {
+    item.score = scores[item.id]['score'] || 0
   })
 
-  // rank candidates by score in ascending order
-  candidates.sort((a, b) => a.score - b.score)
+  // rank candidates by score in descending order
+  candidates.sort((a, b) => b.score - a.score)
 
   return candidates
 }
