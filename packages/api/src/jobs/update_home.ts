@@ -112,7 +112,8 @@ const getJustAddedCandidates = async (
     {
       size: limit,
       includeContent: false,
-      query: `in:inbox saved:last24hrs -is:seen`,
+      useFolders: true, // only show items in inbox folder
+      query: `in:inbox saved:"this week" -is:seen`,
     },
     userId
   )
@@ -147,7 +148,7 @@ const selectCandidates = async (
     {
       size: limit,
       includeContent: false,
-      query: `in:inbox -saved:last24hrs -is:seen`,
+      query: `in:inbox -is:seen`,
     },
     userId
   )
@@ -418,7 +419,7 @@ const mixHomeItems = (
 
   sections.push({
     items: batches.long.flat().map(candidateToItem),
-    layout: 'long',
+    layout: 'for you',
   })
 
   sections.push({

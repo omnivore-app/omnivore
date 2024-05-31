@@ -641,8 +641,8 @@ export const functionResolvers = {
       switch (section.layout) {
         case 'just added':
           return 'Just Added'
-        case 'long':
-          return 'Long Reads'
+        case 'for you':
+          return 'For You'
         case 'quick links':
           return 'Quick Links'
         default:

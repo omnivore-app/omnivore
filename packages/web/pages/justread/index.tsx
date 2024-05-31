@@ -65,9 +65,9 @@ export default function Home(): JSX.Element {
                   homeSection={homeSection}
                 />
               )
-            case 'long':
+            case 'for you':
               return (
-                <LongHomeSection
+                <ForYouHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
                 />
@@ -117,7 +117,7 @@ const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
   )
 }
 
-const LongHomeSection = (props: HomeSectionProps): JSX.Element => {
+const ForYouHomeSection = (props: HomeSectionProps): JSX.Element => {
   return (
     <VStack
       distribution="start"
