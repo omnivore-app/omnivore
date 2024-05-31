@@ -1107,6 +1107,22 @@ type GroupsSuccess {
   groups: [RecommendationGroup!]!
 }
 
+type HiddenHomeSectionError {
+  errorCodes: [HiddenHomeSectionErrorCode!]!
+}
+
+enum HiddenHomeSectionErrorCode {
+  BAD_REQUEST
+  PENDING
+  UNAUTHORIZED
+}
+
+union HiddenHomeSectionResult = HiddenHomeSectionError | HiddenHomeSectionSuccess
+
+type HiddenHomeSectionSuccess {
+  section: HomeSection
+}
+
 type Highlight {
   annotation: String
   color: String
@@ -1721,6 +1737,7 @@ type Query {
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
+  hiddenHomeSection: HiddenHomeSectionResult!
   home(after: String, first: Int): HomeResult!
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!

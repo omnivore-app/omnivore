@@ -3208,6 +3208,24 @@ const schema = gql`
 
   union RefreshHomeResult = RefreshHomeSuccess | RefreshHomeError
 
+  union HiddenHomeSectionResult =
+      HiddenHomeSectionSuccess
+    | HiddenHomeSectionError
+
+  type HiddenHomeSectionSuccess {
+    section: HomeSection
+  }
+
+  type HiddenHomeSectionError {
+    errorCodes: [HiddenHomeSectionErrorCode!]!
+  }
+
+  enum HiddenHomeSectionErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    PENDING
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3406,6 +3424,7 @@ const schema = gql`
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
     home(first: Int, after: String): HomeResult!
     subscription(id: ID!): SubscriptionResult!
+    hiddenHomeSection: HiddenHomeSectionResult!
   }
 
   schema {

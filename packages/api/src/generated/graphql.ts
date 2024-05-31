@@ -1232,6 +1232,24 @@ export type GroupsSuccess = {
   groups: Array<RecommendationGroup>;
 };
 
+export type HiddenHomeSectionError = {
+  __typename?: 'HiddenHomeSectionError';
+  errorCodes: Array<HiddenHomeSectionErrorCode>;
+};
+
+export enum HiddenHomeSectionErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Pending = 'PENDING',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type HiddenHomeSectionResult = HiddenHomeSectionError | HiddenHomeSectionSuccess;
+
+export type HiddenHomeSectionSuccess = {
+  __typename?: 'HiddenHomeSectionSuccess';
+  section?: Maybe<HomeSection>;
+};
+
 export type Highlight = {
   __typename?: 'Highlight';
   annotation?: Maybe<Scalars['String']>;
@@ -2242,6 +2260,7 @@ export type Query = {
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
+  hiddenHomeSection: HiddenHomeSectionResult;
   home: HomeResult;
   integration: IntegrationResult;
   integrations: IntegrationsResult;
@@ -4307,6 +4326,10 @@ export type ResolversTypes = {
   GroupsErrorCode: GroupsErrorCode;
   GroupsResult: ResolversTypes['GroupsError'] | ResolversTypes['GroupsSuccess'];
   GroupsSuccess: ResolverTypeWrapper<GroupsSuccess>;
+  HiddenHomeSectionError: ResolverTypeWrapper<HiddenHomeSectionError>;
+  HiddenHomeSectionErrorCode: HiddenHomeSectionErrorCode;
+  HiddenHomeSectionResult: ResolversTypes['HiddenHomeSectionError'] | ResolversTypes['HiddenHomeSectionSuccess'];
+  HiddenHomeSectionSuccess: ResolverTypeWrapper<HiddenHomeSectionSuccess>;
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
@@ -4873,6 +4896,9 @@ export type ResolversParentTypes = {
   GroupsError: GroupsError;
   GroupsResult: ResolversParentTypes['GroupsError'] | ResolversParentTypes['GroupsSuccess'];
   GroupsSuccess: GroupsSuccess;
+  HiddenHomeSectionError: HiddenHomeSectionError;
+  HiddenHomeSectionResult: ResolversParentTypes['HiddenHomeSectionError'] | ResolversParentTypes['HiddenHomeSectionSuccess'];
+  HiddenHomeSectionSuccess: HiddenHomeSectionSuccess;
   Highlight: Highlight;
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
@@ -6038,6 +6064,20 @@ export type GroupsSuccessResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type HiddenHomeSectionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HiddenHomeSectionError'] = ResolversParentTypes['HiddenHomeSectionError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['HiddenHomeSectionErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HiddenHomeSectionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HiddenHomeSectionResult'] = ResolversParentTypes['HiddenHomeSectionResult']> = {
+  __resolveType: TypeResolveFn<'HiddenHomeSectionError' | 'HiddenHomeSectionSuccess', ParentType, ContextType>;
+};
+
+export type HiddenHomeSectionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HiddenHomeSectionSuccess'] = ResolversParentTypes['HiddenHomeSectionSuccess']> = {
+  section?: Resolver<Maybe<ResolversTypes['HomeSection']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type HighlightResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Highlight'] = ResolversParentTypes['Highlight']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6540,6 +6580,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hiddenHomeSection?: Resolver<ResolversTypes['HiddenHomeSectionResult'], ParentType, ContextType>;
   home?: Resolver<ResolversTypes['HomeResult'], ParentType, ContextType, Partial<QueryHomeArgs>>;
   integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'name'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
@@ -7752,6 +7793,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   GroupsError?: GroupsErrorResolvers<ContextType>;
   GroupsResult?: GroupsResultResolvers<ContextType>;
   GroupsSuccess?: GroupsSuccessResolvers<ContextType>;
+  HiddenHomeSectionError?: HiddenHomeSectionErrorResolvers<ContextType>;
+  HiddenHomeSectionResult?: HiddenHomeSectionResultResolvers<ContextType>;
+  HiddenHomeSectionSuccess?: HiddenHomeSectionSuccessResolvers<ContextType>;
   Highlight?: HighlightResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;
