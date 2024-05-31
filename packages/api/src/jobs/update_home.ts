@@ -140,6 +140,7 @@ const getJustAddedCandidates = async (
 
 const selectCandidates = async (
   user: User,
+  excludes: Array<string> = [],
   limit = 100
 ): Promise<Array<Candidate>> => {
   const userId = user.id
@@ -148,7 +149,7 @@ const selectCandidates = async (
     {
       size: limit,
       includeContent: false,
-      query: `in:inbox -is:seen`,
+      query: `in:inbox -is:seen -includes:${excludes.join(',')}`,
     },
     userId
   )
@@ -239,7 +240,6 @@ const rankCandidates = async (
 }
 
 const redisKey = (userId: string) => `home:${userId}`
-const MAX_FEED_ITEMS = 500
 
 export const getHomeSections = async (
   userId: string,
@@ -451,7 +451,10 @@ export const updateHome = async (data: UpdateHomeJobData) => {
     })
 
     logger.profile('selecting')
-    const candidates = await selectCandidates(user)
+    const candidates = await selectCandidates(
+      user,
+      justAddedCandidates.map((c) => c.id)
+    )
     logger.profile('selecting', {
       level: 'info',
       message: `Found ${candidates.length} candidates`,
