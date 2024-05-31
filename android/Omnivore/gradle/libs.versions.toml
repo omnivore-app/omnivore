@@ -31,6 +31,8 @@ posthog = "2.0.3"
 pspdfkit = "8.9.1"
 retrofit = "2.11.0"
 room = "2.6.1"
+workManager = "2.9.0"
+hiltWork = "1.2.0"
 
 [libraries]
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanistFlowLayout" }
@@ -81,6 +83,9 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 android-hilt = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager"}
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork"}
+hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

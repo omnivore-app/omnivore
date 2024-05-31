@@ -7,6 +7,7 @@ import app.omnivore.omnivore.core.data.model.LibraryQuery
 import app.omnivore.omnivore.core.database.entities.HighlightChange
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.core.database.entities.TypeaheadCardData
 import kotlinx.coroutines.flow.Flow
 
 interface LibraryRepository  {
@@ -46,4 +47,6 @@ interface LibraryRepository  {
     suspend fun syncHighlightChange(highlightChange: HighlightChange): Boolean
 
     suspend fun sync(context: Context, since: String, cursor: String?, limit: Int = 20): SavedItemSyncResult
+
+    suspend fun getTypeaheadData(query: String): List<TypeaheadCardData>
 }
