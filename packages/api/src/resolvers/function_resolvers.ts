@@ -639,11 +639,11 @@ export const functionResolvers = {
       if (section.title) return section.title
 
       switch (section.layout) {
-        case 'just added':
+        case 'just_added':
           return 'Just Added'
-        case 'for you':
-          return 'For You'
-        case 'quick links':
+        case 'top_picks':
+          return 'Top Picks'
+        case 'quick_links':
           return 'Quick Links'
         default:
           return ''

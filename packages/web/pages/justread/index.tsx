@@ -58,21 +58,21 @@ export default function Home(): JSX.Element {
       >
         {homeData.sections?.map((homeSection, idx) => {
           switch (homeSection.layout) {
-            case 'just added':
+            case 'just_added':
               return (
                 <JustReadHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
                 />
               )
-            case 'for you':
+            case 'top_picks':
               return (
-                <ForYouHomeSection
+                <TopPicksHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
                 />
               )
-            case 'quick links':
+            case 'quick_links':
               return (
                 <QuickLinksHomeSection
                   key={`section-${idx}`}
@@ -117,7 +117,7 @@ const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
   )
 }
 
-const ForYouHomeSection = (props: HomeSectionProps): JSX.Element => {
+const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
   return (
     <VStack
       distribution="start"

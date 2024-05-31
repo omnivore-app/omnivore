@@ -113,7 +113,7 @@ const getJustAddedCandidates = async (
       size: limit,
       includeContent: false,
       useFolders: true, // only show items in inbox folder
-      query: `in:inbox saved:"this week" -is:seen`,
+      query: `in:inbox saved:"this week"`,
     },
     userId
   )
@@ -414,17 +414,17 @@ const mixHomeItems = (
   const sections = []
   sections.push({
     items: batches.short.flat().map(candidateToItem),
-    layout: 'quick links',
+    layout: 'quick_links',
   })
 
   sections.push({
     items: batches.long.flat().map(candidateToItem),
-    layout: 'for you',
+    layout: 'top_picks',
   })
 
   sections.push({
     items: justAddedCandidates.map(candidateToItem),
-    layout: 'just added',
+    layout: 'just_added',
   })
 
   return sections
