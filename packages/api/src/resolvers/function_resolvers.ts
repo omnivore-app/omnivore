@@ -635,6 +635,20 @@ export const functionResolvers = {
     },
   },
   HomeSection: {
+    title: (section: { title?: string; layout: string }) => {
+      if (section.title) return section.title
+
+      switch (section.layout) {
+        case 'just_added':
+          return 'Just Added'
+        case 'top_picks':
+          return 'Top Picks'
+        case 'quick_links':
+          return 'Quick Links'
+        default:
+          return ''
+      }
+    },
     async items(
       section: {
         items: Array<{

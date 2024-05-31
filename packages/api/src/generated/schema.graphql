@@ -1192,7 +1192,7 @@ type HomeItem {
 type HomeItemSource {
   icon: String
   id: ID
-  name: String!
+  name: String
   type: HomeItemSourceType!
   url: String
 }

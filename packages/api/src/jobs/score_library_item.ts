@@ -3,6 +3,7 @@ import {
   updateLibraryItem,
 } from '../services/library_item'
 import { Feature, getScores } from '../services/score'
+import { enqueueUpdateHomeJob } from '../utils/createTask'
 import { lanaugeToCode } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
@@ -81,4 +82,12 @@ export const scoreLibraryItem = async (
     true
   )
   logger.info('Library item scored', data)
+
+  try {
+    await enqueueUpdateHomeJob({
+      userId,
+    })
+  } catch (error) {
+    logger.error('Failed to enqueue update home job', error)
+  }
 }
