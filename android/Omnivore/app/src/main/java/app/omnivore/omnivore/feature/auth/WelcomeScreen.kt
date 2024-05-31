@@ -27,8 +27,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 fun WelcomeScreen(viewModel: LoginViewModel) {
     OmnivoreTheme(darkTheme = false) {
         Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color(0xFFFCEBA8)
+            modifier = Modifier.fillMaxSize()
         ) {
             WelcomeScreenContent(viewModel = viewModel)
         }
@@ -44,74 +43,80 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    Column(
-        verticalArrangement = Arrangement.SpaceAround,
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(50.dp))
-        Image(
-            painter = painterResource(id = R.drawable.ic_omnivore_name_logo),
-            contentDescription = "Omnivore Icon with Name"
-        )
-        Spacer(modifier = Modifier.height(50.dp))
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+        containerColor = Color(0xFFFCEBA8)
+    ) { paddingValues ->
+        Column(
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(paddingValues)
+        ) {
+            Spacer(modifier = Modifier.height(50.dp))
+            Image(
+                painter = painterResource(id = R.drawable.ic_omnivore_name_logo),
+                contentDescription = "Omnivore Icon with Name"
+            )
+            Spacer(modifier = Modifier.height(50.dp))
 
-        when (registrationState) {
-            RegistrationState.EmailSignIn -> {
-                EmailLoginView(viewModel = viewModel)
+            when (registrationState) {
+                RegistrationState.EmailSignIn -> {
+                    EmailLoginView(viewModel = viewModel)
+                }
+
+                RegistrationState.EmailSignUp -> {
+                    EmailSignUpView(viewModel = viewModel)
+                }
+
+                RegistrationState.SelfHosted -> {
+                    SelfHostedView(viewModel = viewModel)
+                }
+
+                RegistrationState.SocialLogin -> {
+                    Text(
+                        text = stringResource(id = R.string.welcome_title),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+
+                    Text(
+                        text = stringResource(id = R.string.welcome_subtitle),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+
+                    MoreInfoButton()
+
+                    Spacer(modifier = Modifier.height(50.dp))
+
+                    AuthProviderView(viewModel = viewModel)
+                }
+
+                RegistrationState.PendingUser -> {
+                    CreateUserProfileView(viewModel = viewModel)
+                }
             }
 
-            RegistrationState.EmailSignUp -> {
-                EmailSignUpView(viewModel = viewModel)
-            }
-
-            RegistrationState.SelfHosted -> {
-                SelfHostedView(viewModel = viewModel)
-            }
-
-            RegistrationState.SocialLogin -> {
-                Text(
-                    text = stringResource(id = R.string.welcome_title),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.headlineLarge
-                )
-
-                Text(
-                    text = stringResource(id = R.string.welcome_subtitle),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleSmall
-                )
-
-                MoreInfoButton()
-
-                Spacer(modifier = Modifier.height(50.dp))
-
-                AuthProviderView(viewModel = viewModel)
-            }
-
-            RegistrationState.PendingUser -> {
-                CreateUserProfileView(viewModel = viewModel)
-            }
+            Spacer(modifier = Modifier.weight(1.0F))
         }
-
-        Spacer(modifier = Modifier.weight(1.0F))
     }
 
     LaunchedEffect(viewModel.errorMessage) {
-        val result = snackBarHostState.showSnackbar(
-            viewModel.errorMessage!!,
-            actionLabel = "Dismiss",
-            duration = SnackbarDuration.Indefinite
-        )
-        when (result) {
-            SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
-            else -> {}
+        viewModel.errorMessage?.let { message ->
+            val result = snackBarHostState.showSnackbar(
+                message,
+                actionLabel = "Dismiss",
+                duration = SnackbarDuration.Indefinite
+            )
+            when (result) {
+                SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
+                else -> {}
+            }
         }
-    }
-    if (viewModel.errorMessage != null) {
-        SnackbarHost(hostState = snackBarHostState)
     }
 }
 
