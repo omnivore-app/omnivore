@@ -28,7 +28,6 @@ import app.omnivore.omnivore.core.database.dao.SavedItemDao
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
-import app.omnivore.omnivore.core.datastore.followingTabActive
 import app.omnivore.omnivore.core.datastore.preferredTheme
 import app.omnivore.omnivore.core.datastore.preferredWebFontFamily
 import app.omnivore.omnivore.core.datastore.preferredWebFontSize
@@ -52,10 +51,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -109,7 +110,7 @@ class WebReaderViewModel @Inject constructor(
     val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
     var currentLink: Uri? = null
-    val bottomSheetStateLiveData = MutableLiveData(BottomSheetState.NONE)
+    val bottomSheetStateFlow = MutableStateFlow(BottomSheetState.NONE)
 
     var hasTappedExistingHighlight = false
     var lastTapCoordinates: TapCoordinates? = null
@@ -137,12 +138,12 @@ class WebReaderViewModel @Inject constructor(
         onScrollChange(maxToolbarHeightPx)
     }
 
-    fun setBottomSheet(state: BottomSheetState) {
-        bottomSheetStateLiveData.postValue(state)
+    fun setBottomSheet(state: BottomSheetState) = viewModelScope.launch {
+        bottomSheetStateFlow.update { state }
     }
 
-    fun resetBottomSheet() {
-        bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+    fun resetBottomSheet() = viewModelScope.launch {
+        bottomSheetStateFlow.update { BottomSheetState.NONE }
     }
 
     fun showOpenLinkSheet(context: Context, uri: Uri) {
@@ -151,7 +152,9 @@ class WebReaderViewModel @Inject constructor(
                 openLink(context, uri)
             } else {
                 currentLink = uri
-                bottomSheetStateLiveData.postValue(BottomSheetState.LINK)
+                viewModelScope.launch {
+                    bottomSheetStateFlow.update { BottomSheetState.LINK }
+                }
             }
         }
     }
@@ -172,7 +175,9 @@ class WebReaderViewModel @Inject constructor(
         currentLink?.let {
             openLink(context, it)
         }
-        bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+        viewModelScope.launch {
+            bottomSheetStateFlow.update { BottomSheetState.NONE }
+        }
     }
 
     private fun openLink(context: Context, uri: Uri) {
@@ -180,20 +185,18 @@ class WebReaderViewModel @Inject constructor(
         startActivity(context, browserIntent, null)
     }
 
-    fun saveCurrentLink(context: Context) {
+    fun saveCurrentLink(context: Context) = viewModelScope.launch {
         currentLink?.let {
-            viewModelScope.launch {
-                val success = networker.saveUrl(it)
-                Toast.makeText(
-                    context,
-                    if (success)
-                        context.getString(R.string.web_reader_view_model_save_link_success) else
-                        context.getString(R.string.web_reader_view_model_save_link_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            val success = networker.saveUrl(it)
+            Toast.makeText(
+                context,
+                if (success)
+                    context.getString(R.string.web_reader_view_model_save_link_success) else
+                    context.getString(R.string.web_reader_view_model_save_link_error),
+                Toast.LENGTH_SHORT
+            ).show()
         }
-        bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+        bottomSheetStateFlow.update { BottomSheetState.NONE }
     }
 
     fun copyCurrentLink(context: Context) {
@@ -211,7 +214,7 @@ class WebReaderViewModel @Inject constructor(
                 ).show()
             }
         }
-        bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
+        bottomSheetStateFlow.update { BottomSheetState.NONE }
     }
 
     fun onScrollChange(delta: Float) {
@@ -266,7 +269,8 @@ class WebReaderViewModel @Inject constructor(
 
     private suspend fun loadItemFromDB(slug: String) {
         withContext(Dispatchers.IO) {
-            val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+            val persistedItem =
+                dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
             val savedItemId = persistedItem?.savedItem?.savedItemId
             if (savedItemId != null) {
                 val htmlContent = loadLibraryItemContent(applicationContext, savedItemId)
@@ -342,11 +346,11 @@ class WebReaderViewModel @Inject constructor(
             }
 
             SavedItemAction.EditLabels -> {
-                bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
+                bottomSheetStateFlow.update { BottomSheetState.LABELS }
             }
 
             SavedItemAction.EditInfo -> {
-                bottomSheetStateLiveData.postValue(BottomSheetState.EDIT_INFO)
+                bottomSheetStateFlow.update { BottomSheetState.EDIT_INFO }
             }
 
             SavedItemAction.MarkRead -> {
@@ -411,7 +415,7 @@ class WebReaderViewModel @Inject constructor(
                         .fromJson(jsonString, AnnotationWebViewMessage::class.java)
                         .annotation ?: ""
                     annotation = annotationStr
-                    bottomSheetStateLiveData.postValue(BottomSheetState.HIGHLIGHTNOTE)
+                    bottomSheetStateFlow.update { BottomSheetState.HIGHLIGHTNOTE }
                 }
             }
 
@@ -436,7 +440,7 @@ class WebReaderViewModel @Inject constructor(
         javascriptDispatchQueue = mutableListOf()
     }
 
-    fun saveAnnotation(annotation: String) {
+    fun saveAnnotation(annotation: String) = viewModelScope.launch {
         val jsonAnnotation = Gson().toJson(annotation)
         val script =
             "var event = new Event('saveAnnotation');event.annotation = $jsonAnnotation;document.dispatchEvent(event);"
@@ -447,7 +451,7 @@ class WebReaderViewModel @Inject constructor(
         cancelAnnotationEdit()
     }
 
-    fun cancelAnnotation() {
+    fun cancelAnnotation() = viewModelScope.launch {
         val script = "var event = new Event('dismissHighlight');document.dispatchEvent(event);"
 
         enqueueScript(script)
@@ -612,9 +616,7 @@ class WebReaderViewModel @Inject constructor(
                 // Send labels to webview
                 val script =
                     "var event = new Event('updateLabels');event.labels = ${Gson().toJson(labels)};document.dispatchEvent(event);"
-                CoroutineScope(Dispatchers.Main).launch {
-                    enqueueScript(script)
-                }
+                enqueueScript(script)
             }
         }
     }

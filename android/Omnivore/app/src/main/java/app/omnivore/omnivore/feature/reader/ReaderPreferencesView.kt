@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AssistChip
@@ -23,9 +23,10 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,22 +50,26 @@ fun ReaderPreferencesView(
     webReaderViewModel: WebReaderViewModel
 ) {
     val isDark = isSystemInDarkTheme()
-    val currentWebPreferences = webReaderViewModel.storedWebPreferences(isDark)
+    val currentWebPreferences by remember {
+        derivedStateOf {
+            webReaderViewModel.storedWebPreferences(isDark)
+        }
+    }
     val isFontListExpanded = remember { mutableStateOf(false) }
-    val highContrastTextSwitchState =
+    var highContrastTextSwitchState by
         remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
 
-    val justifyTextSwitchState =
+    var justifyTextSwitchState by
         remember { mutableStateOf(currentWebPreferences.prefersJustifyText) }
 
-    val selectedWebFontName =
+    var selectedWebFontName by
         remember { mutableStateOf(currentWebPreferences.fontFamily.displayText) }
 
-    var fontSizeSliderValue by remember { mutableStateOf(currentWebPreferences.textFontSize.toFloat()) }
-    var marginSliderValue by remember { mutableStateOf(currentWebPreferences.maxWidthPercentage.toFloat()) }
-    var lineSpacingSliderValue by remember { mutableStateOf(currentWebPreferences.lineHeight.toFloat()) }
+    var fontSizeSliderValue by remember { mutableFloatStateOf(currentWebPreferences.textFontSize.toFloat()) }
+    var marginSliderValue by remember { mutableFloatStateOf(currentWebPreferences.maxWidthPercentage.toFloat()) }
+    var lineSpacingSliderValue by remember { mutableFloatStateOf(currentWebPreferences.lineHeight.toFloat()) }
 
-    val themeState = remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
+    var themeState by remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
 
 
     val volumeForScrollState by webReaderViewModel.volumeRockerForScrollState.collectAsStateWithLifecycle()
@@ -99,7 +104,7 @@ fun ReaderPreferencesView(
                             onClick = { isFontListExpanded.value = true },
                             label = {
                                 Text(
-                                    selectedWebFontName.value,
+                                    selectedWebFontName,
                                     color = Color(red = 137, green = 137, blue = 137)
                                 )
                             },
@@ -129,7 +134,7 @@ fun ReaderPreferencesView(
                                         },
                                         onClick = {
                                             webReaderViewModel.applyWebFont(it)
-                                            selectedWebFontName.value = it.displayText
+                                            selectedWebFontName = it.displayText
                                             isFontListExpanded.value = false
                                         },
                                     )
@@ -211,13 +216,13 @@ fun ReaderPreferencesView(
                             color = Color(red = 137, green = 137, blue = 137)
                         )
                     )
-                    Checkbox(checked = themeState.value == "System", onCheckedChange = {
+                    Checkbox(checked = themeState == "System", onCheckedChange = {
                         if (it) {
-                            themeState.value = "System"
+                            themeState = "System"
                             webReaderViewModel.updateStoredThemePreference("System")
                         } else {
                             val newThemeKey = if (isDark) "Black" else "Light"
-                            themeState.value = newThemeKey
+                            themeState = newThemeKey
                             webReaderViewModel.updateStoredThemePreference(newThemeKey)
                         }
                     })
@@ -228,10 +233,10 @@ fun ReaderPreferencesView(
                 ) {
                     for (theme in Themes.entries) {
                         if (theme.themeKey != "System") {
-                            val isSelected = theme.themeKey == themeState.value
+                            val isSelected = theme.themeKey == themeState
                             Button(
                                 onClick = {
-                                    themeState.value = theme.themeKey
+                                    themeState = theme.themeKey
                                     webReaderViewModel.updateStoredThemePreference(theme.themeKey)
                                 },
                                 shape = CircleShape,
@@ -257,18 +262,18 @@ fun ReaderPreferencesView(
             // TODO : Use state flow
             SwitchPreferenceWidget(
                 title = stringResource(R.string.reader_preferences_view_high_constrast_text),
-                checked = highContrastTextSwitchState.value,
+                checked = highContrastTextSwitchState,
                 onCheckedChanged = {
-                    highContrastTextSwitchState.value = it
+                    highContrastTextSwitchState = it
                     webReaderViewModel.updateHighContrastTextPreference(it)
                 },
             )
             // TODO : Use state flow
             SwitchPreferenceWidget(
                 title = stringResource(R.string.reader_preferences_view_justify_text),
-                checked = justifyTextSwitchState.value,
+                checked = justifyTextSwitchState,
                 onCheckedChanged = {
-                    justifyTextSwitchState.value = it
+                    justifyTextSwitchState = it
                     webReaderViewModel.updateJustifyText(it)
                 },
             )
