@@ -36,7 +36,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -88,7 +87,8 @@ class WebReaderLoadingContainerActivity : ComponentActivity() {
                         .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
                         .imePadding()
                 ) {
-                    if (viewModel.hasFetchError.value == true) {
+                    val hasFetchError by viewModel.hasFetchError.collectAsStateWithLifecycle()
+                    if (hasFetchError) {
                         Text(stringResource(R.string.web_reader_loading_container_error_msg))
                     } else {
                         WebReaderLoadingContainer(
