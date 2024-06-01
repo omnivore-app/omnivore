@@ -8,10 +8,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.analytics.EventTracker
@@ -51,6 +48,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -101,13 +99,13 @@ class WebReaderViewModel @Inject constructor(
     var javascriptDispatchQueue: MutableList<String> = mutableListOf()
     var maxToolbarHeightPx = 0.0f
 
-    val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
+    val webReaderParamsFlow = MutableStateFlow<WebReaderParams?>(null)
     var annotation: String? = null
-    val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
-    val shouldPopViewLiveData = MutableLiveData(false)
-    val hasFetchError = MutableLiveData(false)
-    val currentToolbarHeightLiveData = MutableLiveData(0.0f)
-    val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
+    val javascriptActionLoopUUIDFlow = MutableStateFlow(lastJavascriptActionLoopUUID)
+    val shouldPopViewFlow = MutableStateFlow(false)
+    val hasFetchError = MutableStateFlow(false)
+    val currentToolbarHeightFlow = MutableStateFlow(0.0f)
+    val savedItemLabelsFlow = dataService.db.savedItemLabelDao().getSavedItemLabelsFlow()
 
     var currentLink: Uri? = null
     val bottomSheetStateFlow = MutableStateFlow(BottomSheetState.NONE)
@@ -117,12 +115,12 @@ class WebReaderViewModel @Inject constructor(
     private var isLoading = false
     private var slug: String? = null
 
-    private val showHighlightColorPalette = MutableLiveData(false)
-    val highlightColor = MutableLiveData(HighlightColor())
+    private val showHighlightColorPalette = MutableStateFlow(false)
+    val highlightColor = MutableStateFlow(HighlightColor())
 
     fun loadItem(slug: String?, requestID: String?) {
         this.slug = slug
-        if (isLoading || webReaderParamsLiveData.value != null) {
+        if (isLoading || webReaderParamsFlow.value != null) {
             return
         }
         isLoading = true
@@ -147,7 +145,7 @@ class WebReaderViewModel @Inject constructor(
     }
 
     fun showOpenLinkSheet(context: Context, uri: Uri) {
-        webReaderParamsLiveData.value?.let {
+        webReaderParamsFlow.value?.let {
             if (it.item.pageURLString == uri.toString()) {
                 openLink(context, uri)
             } else {
@@ -160,7 +158,7 @@ class WebReaderViewModel @Inject constructor(
     }
 
     fun showShareLinkSheet(context: Context) {
-        webReaderParamsLiveData.value?.let {
+        webReaderParamsFlow.value?.let {
             val sendIntent = Intent(Intent.ACTION_SEND)
 
             sendIntent.setType("text/plain")
@@ -218,8 +216,8 @@ class WebReaderViewModel @Inject constructor(
     }
 
     fun onScrollChange(delta: Float) {
-        val newHeight = (currentToolbarHeightLiveData.value ?: 0.0f) + delta
-        currentToolbarHeightLiveData.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
+        val newHeight = (currentToolbarHeightFlow.value) + delta
+        currentToolbarHeightFlow.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
     }
 
     private suspend fun loadItemUsingSlug(slug: String) {
@@ -237,7 +235,7 @@ class WebReaderViewModel @Inject constructor(
                     .putValue("originalArticleURL", webReaderParams.item.pageURLString)
                     .putValue("loaded_from", "network")
             )
-            webReaderParamsLiveData.postValue(webReaderParams)
+            webReaderParamsFlow.update { webReaderParams }
             isLoading = false
         }
     }
@@ -256,14 +254,14 @@ class WebReaderViewModel @Inject constructor(
                     .putValue("originalArticleURL", webReaderParams.item.pageURLString)
                     .putValue("loaded_from", "request_id")
             )
-            webReaderParamsLiveData.postValue(webReaderParams)
+            webReaderParamsFlow.update {  (webReaderParams) }
             isLoading = false
         } else if (requestCount < 7) {
             // delay then try again
             delay(2000L)
             loadItemUsingRequestID(requestID = requestID, requestCount = requestCount + 1)
         } else {
-            hasFetchError.postValue(true)
+            hasFetchError.update { true }
         }
     }
 
@@ -298,7 +296,7 @@ class WebReaderViewModel @Inject constructor(
                             .putValue("originalArticleURL", webReaderParams.item.pageURLString)
                             .putValue("loaded_from", "db")
                     )
-                    webReaderParamsLiveData.postValue(webReaderParams)
+                    webReaderParamsFlow.update { webReaderParams }
                 }
             }
             isLoading = false
@@ -363,22 +361,18 @@ class WebReaderViewModel @Inject constructor(
         }
     }
 
-    private fun popToLibraryView() {
-        CoroutineScope(Dispatchers.Main).launch {
-            shouldPopViewLiveData.postValue(true)
-        }
+    private fun popToLibraryView() = viewModelScope.launch {
+            shouldPopViewFlow.update { true }
     }
 
 
-    fun showHighlightColorPalette() {
-        CoroutineScope(Dispatchers.Main).launch {
-            showHighlightColorPalette.postValue(true)
-        }
+    fun showHighlightColorPalette() = viewModelScope.launch {
+            showHighlightColorPalette.update { true }
     }
 
     fun hideHighlightColorPalette() {
         CoroutineScope(Dispatchers.Main).launch {
-            showHighlightColorPalette.postValue(false)
+            showHighlightColorPalette.update { false }
         }
     }
 
@@ -387,7 +381,7 @@ class WebReaderViewModel @Inject constructor(
         when (actionID) {
             "createHighlight" -> {
                 viewModelScope.launch {
-                    dataService.createWebHighlight(jsonString, highlightColor.value?.name)
+                    dataService.createWebHighlight(jsonString, highlightColor.value.name)
                 }
             }
 
@@ -436,7 +430,7 @@ class WebReaderViewModel @Inject constructor(
     }
 
     fun resetJavascriptDispatchQueue() {
-        lastJavascriptActionLoopUUID = javascriptActionLoopUUIDLiveData.value ?: UUID.randomUUID()
+        lastJavascriptActionLoopUUID = javascriptActionLoopUUIDFlow.value
         javascriptDispatchQueue = mutableListOf()
     }
 
@@ -465,13 +459,12 @@ class WebReaderViewModel @Inject constructor(
 
     private fun enqueueScript(javascript: String) {
         javascriptDispatchQueue.add(javascript)
-        javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
+        javascriptActionLoopUUIDFlow.value = UUID.randomUUID()
     }
 
-    val currentThemeKey: LiveData<String> = datastoreRepository
+    val currentThemeKey: Flow<String> = datastoreRepository
         .themeKeyFlow
         .distinctUntilChanged()
-        .asLiveData()
 
     fun storedWebPreferences(isDarkMode: Boolean): WebPreferences = runBlocking {
         val storedFontSize = datastoreRepository.getInt(preferredWebFontSize)
@@ -627,7 +620,7 @@ class WebReaderViewModel @Inject constructor(
                 loadItemFromDB(it)
             }
 
-            webReaderParamsLiveData.value?.item?.title?.let {
+            webReaderParamsFlow.value?.item?.title?.let {
                 updateItemTitleInWebView(it)
             }
         }

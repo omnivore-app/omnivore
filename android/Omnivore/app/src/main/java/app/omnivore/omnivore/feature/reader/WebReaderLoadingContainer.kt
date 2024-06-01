@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
@@ -132,7 +133,9 @@ fun WebReaderLoadingContainer(
     labelsViewModel: LabelsViewModel,
     editInfoViewModel: EditInfoViewModel
 ) {
-    val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+    val currentThemeKey = webReaderViewModel.currentThemeKey.collectAsStateWithLifecycle(
+        "System"
+    )
     val currentTheme by remember {
         derivedStateOf {
             Themes.entries.find { it.themeKey == currentThemeKey.value }
@@ -143,12 +146,12 @@ fun WebReaderLoadingContainer(
         BottomSheetState.NONE
     )
 
-    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(
+    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsFlow.collectAsStateWithLifecycle(
         null
     )
-    val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
+    val shouldPopView: Boolean by webReaderViewModel.shouldPopViewFlow.collectAsStateWithLifecycle(false)
 
-    val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsLiveData.observeAsState(
+    val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsFlow.collectAsStateWithLifecycle(
         listOf()
     )
 
@@ -371,16 +374,16 @@ fun ReaderTopAppBar(
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     val isDarkMode = isSystemInDarkTheme()
-    val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
+    val currentThemeKey = webReaderViewModel.currentThemeKey.collectAsStateWithLifecycle("System")
     val currentTheme by remember {
         derivedStateOf {
             Themes.entries.find { it.themeKey == currentThemeKey.value }
         }
     }
-    val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(
+    val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightFlow.collectAsStateWithLifecycle(
         0.0f
     )
-    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(
+    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsFlow.collectAsStateWithLifecycle(
         null
     )
     var isMenuExpanded by remember { mutableStateOf(false) }

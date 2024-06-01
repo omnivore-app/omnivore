@@ -19,7 +19,6 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,7 +37,7 @@ fun WebReader(
     currentTheme: Themes?,
     modifier: Modifier = Modifier
 ) {
-    val javascriptActionLoopUUID: UUID by webReaderViewModel.javascriptActionLoopUUIDLiveData.observeAsState(
+    val javascriptActionLoopUUID: UUID by webReaderViewModel.javascriptActionLoopUUIDFlow.collectAsStateWithLifecycle(
             UUID.randomUUID()
         )
     val isDarkMode = isSystemInDarkTheme()
