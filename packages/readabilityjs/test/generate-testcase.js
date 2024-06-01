@@ -196,7 +196,7 @@ async function fetchSource(url, callbackFn) {
           }
         })()
       }),
-      page.waitForTimeout(5000), //5 second timeout
+      new Promise((resolve) => setTimeout(resolve, 5000)),
     ])
 
     // get document body with all hidden elements removed
