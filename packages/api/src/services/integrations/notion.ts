@@ -72,7 +72,7 @@ interface NotionPage {
         start: string
       }
     }
-    'Last Updated'?: {
+    'Last Updated': {
       date: {
         start: string
       }
@@ -238,13 +238,13 @@ export class NotionClient implements IntegrationClient {
               },
             }
           : undefined,
-        'Last Updated': item.updatedAt
-          ? {
-              date: {
-                start: item.updatedAt as string,
-              },
-            }
-          : undefined,
+        'Last Updated': {
+          date: {
+            start: item.updatedAt
+              ? (item.updatedAt as string)
+              : new Date().toISOString(),
+          },
+        },
         Tags: item.labels
           ? {
               multi_select: item.labels.map((label) => ({
