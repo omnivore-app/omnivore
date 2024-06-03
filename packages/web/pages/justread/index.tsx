@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
@@ -16,14 +16,10 @@ import { useGetHiddenHomeSection } from '../../lib/networking/queries/useGetHidd
 import {
   HomeItem,
   HomeItemSource,
-  HomeItemSourceType,
   HomeSection,
   useGetHomeItems,
 } from '../../lib/networking/queries/useGetHome'
-import {
-  SubscriptionType,
-  useGetSubscriptionsQuery,
-} from '../../lib/networking/queries/useGetSubscriptionsQuery'
+import { useGetSubscriptionQuery } from '../../lib/networking/queries/useGetSubscriptionQuery'
 import {
   HStack,
   SpanBox,
@@ -487,41 +483,87 @@ const SourceInfo = (props: HomeItemViewProps) => (
     </HoverCard.Trigger>
     <HoverCard.Portal>
       <HoverCard.Content sideOffset={5}>
-        <SubscriptionSourceHoverContent source={props.homeItem.source} />
+        {props.homeItem.source.id ? (
+          <SubscriptionSourceHoverContent
+            subscriptionId={props.homeItem.source.id}
+          />
+        ) : (
+          <SourceHoverContent source={props.homeItem.source} />
+        )}
         <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
       </HoverCard.Content>
     </HoverCard.Portal>
   </HoverCard.Root>
 )
 
+type SubscriptionSourceHoverContentProps = {
+  subscriptionId: string
+}
+
 type SourceHoverContentProps = {
   source: HomeItemSource
 }
 
 const SubscriptionSourceHoverContent = (
+  props: SubscriptionSourceHoverContentProps
+): JSX.Element => {
+  const { subscription } = useGetSubscriptionQuery(props.subscriptionId)
+
+  return (
+    <VStack
+      alignment="start"
+      distribution="start"
+      css={{
+        width: '380px',
+        height: '200px',
+        bg: '$thBackground2',
+        borderRadius: '10px',
+        padding: '15px',
+        gap: '10px',
+        boxShadow: theme.shadows.cardBoxShadow.toString(),
+      }}
+    >
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ width: '100%', gap: '10px' }}
+      >
+        {subscription?.icon && (
+          <SiteIconLarge src={subscription.icon} alt={subscription.name} />
+        )}
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontWeight: '500',
+            fontSize: '14px',
+          }}
+        >
+          {subscription?.name}
+        </SpanBox>
+        <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
+          {subscription?.status == 'ACTIVE' && (
+            <Button style="ctaSubtle" css={{ fontSize: '12px' }}>
+              + Unsubscribe
+            </Button>
+          )}
+        </SpanBox>
+      </HStack>
+      <SpanBox
+        css={{
+          fontFamily: '$inter',
+          fontSize: '13px',
+          color: '$thTextSubtle4',
+        }}
+      >
+        {subscription?.description}
+      </SpanBox>
+    </VStack>
+  )
+}
+
+const SourceHoverContent = (
   props: SourceHoverContentProps
 ): JSX.Element => {
-  const mapSourceType = (
-    sourceType: HomeItemSourceType
-  ): SubscriptionType | undefined => {
-    switch (sourceType) {
-      case 'RSS':
-      case 'NEWSLETTER':
-        return sourceType as SubscriptionType
-      default:
-        return undefined
-    }
-  }
-  const { subscriptions, isValidating } = useGetSubscriptionsQuery(
-    mapSourceType(props.source.type)
-  )
-  const subscription = useMemo(() => {
-    if (props.source.id && subscriptions) {
-      return subscriptions.find((sub) => sub.id == props.source.id)
-    }
-    return undefined
-  }, [subscriptions])
-
   return (
     <VStack
       alignment="start"
@@ -553,23 +595,7 @@ const SubscriptionSourceHoverContent = (
         >
           {props.source.name}
         </SpanBox>
-        <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
-          {subscription && subscription.status == 'ACTIVE' && (
-            <Button style="ctaSubtle" css={{ fontSize: '12px' }}>
-              + Unsubscribe
-            </Button>
-          )}
-        </SpanBox>
       </HStack>
-      <SpanBox
-        css={{
-          fontFamily: '$inter',
-          fontSize: '13px',
-          color: '$thTextSubtle4',
-        }}
-      >
-        {subscription ? <>{subscription.description}</> : <></>}
-      </SpanBox>
     </VStack>
   )
 }
