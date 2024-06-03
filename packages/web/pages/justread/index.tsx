@@ -58,7 +58,9 @@ export default function Home(): JSX.Element {
         .map((section) => section.items.map((item) => item.id))
         .flat()
 
-      markItemsAsSeen(seenItemIds)
+      if (seenItemIds.length > 0) {
+        markItemsAsSeen(seenItemIds)
+      }
     }
   })
 
