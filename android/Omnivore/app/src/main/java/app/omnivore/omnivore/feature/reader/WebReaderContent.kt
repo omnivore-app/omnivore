@@ -56,7 +56,7 @@ data class WebReaderContent(
 
 
     val textFontSize = preferences.textFontSize
-    val highlightCssFilePath = "highlight${if (preferences.themeKey == "Dark") "-dark" else ""}.css"
+    val highlightCssFilePath = "highlight${if (preferences.themeKey == "Dark" || preferences.themeKey == "Black") "-dark" else ""}.css"
 
     Log.d("theme", "current theme is: ${preferences.themeKey}")
 

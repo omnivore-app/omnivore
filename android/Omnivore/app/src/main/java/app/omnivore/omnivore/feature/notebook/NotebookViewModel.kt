@@ -11,22 +11,21 @@ import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighli
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotebookViewModel @Inject constructor(
     private val networker: Networker,
     private val dataService: DataService,
-): ViewModel() {
+) : ViewModel() {
     var highlightUnderEdit: Highlight? = null
 
     fun getLibraryItemById(savedItemId: String): LiveData<SavedItemWithLabelsAndHighlights> {
         return dataService.db.savedItemDao().getLibraryItemById(savedItemId)
     }
 
-    suspend fun addArticleNote(savedItemId: String, note: String) {
-        withContext(Dispatchers.IO) {
+    fun addArticleNote(savedItemId: String, note: String) = viewModelScope.launch(Dispatchers.IO) {
             val savedItem = dataService.db.savedItemDao().getById(savedItemId)
             savedItem?.let { item ->
                 val noteHighlight = item.highlights.firstOrNull { it.type == "NOTE" }
@@ -34,24 +33,26 @@ class NotebookViewModel @Inject constructor(
                     dataService.db.highlightDao()
                         .updateNote(highlightId = noteHighlight.highlightId, note = note)
 
-                    networker.updateHighlight(input = UpdateHighlightInput(
-                        highlightId = noteHighlight.highlightId,
-                        annotation = Optional.presentIfNotNull(note),
-                    ))
+                    networker.updateHighlight(
+                        input = UpdateHighlightInput(
+                            highlightId = noteHighlight.highlightId,
+                            annotation = Optional.presentIfNotNull(note),
+                        )
+                    )
                 } ?: run {
                     dataService.createNoteHighlight(savedItemId, note)
                 }
             }
         }
-    }
 
-    suspend fun updateHighlightNote(highlightId: String, note: String?) {
-        withContext(Dispatchers.IO) {
+    fun updateHighlightNote(highlightId: String, note: String?) =
+        viewModelScope.launch(Dispatchers.IO) {
             dataService.db.highlightDao().updateNote(highlightId, note ?: "")
-            networker.updateHighlight(input = UpdateHighlightInput(
-                highlightId = highlightId,
-                annotation = Optional.presentIfNotNull(note),
-            ))
+            networker.updateHighlight(
+                input = UpdateHighlightInput(
+                    highlightId = highlightId,
+                    annotation = Optional.presentIfNotNull(note),
+                )
+            )
         }
-    }
 }
