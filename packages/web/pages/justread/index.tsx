@@ -30,6 +30,8 @@ import {
   VStack,
 } from './../../components/elements/LayoutPrimitives'
 
+const itemUrl = (item: HomeItem) => `/me/${item.slug}`
+
 export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
   console.log('home sections: ', homeData.sections)
@@ -323,9 +325,9 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(itemUrl(props.homeItem), '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(itemUrl(props.homeItem))
         }
       }}
     >
@@ -358,9 +360,9 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(itemUrl(props.homeItem), '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(itemUrl(props.homeItem))
         }
       }}
     >
@@ -432,9 +434,9 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(itemUrl(props.homeItem), '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(itemUrl(props.homeItem))
         }
       }}
     >
