@@ -55,6 +55,7 @@ export default function Home(): JSX.Element {
 
     if (homeData.sections) {
       const seenItemIds = homeData.sections
+        .filter((section) => section.layout !== 'hidden')
         .map((section) => section.items.map((item) => item.id))
         .flat()
 
