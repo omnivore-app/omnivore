@@ -166,10 +166,10 @@ const selectCandidates = async (
     subscriptionNames
   )
 
-  // map library items to candidates and limit to 70
-  const privateCandidates: Array<Candidate> = libraryItems
-    .map((item) => libraryItemToCandidate(item, subscriptions))
-    .slice(0, 70)
+  // map library items to candidates
+  const privateCandidates: Array<Candidate> = libraryItems.map((item) =>
+    libraryItemToCandidate(item, subscriptions)
+  )
   const privateCandidatesSize = privateCandidates.length
 
   logger.info(`Found ${privateCandidatesSize} private candidates`)
@@ -241,7 +241,7 @@ const redisKey = (userId: string) => `home:${userId}`
 
 export const getHomeSections = async (
   userId: string,
-  limit: number,
+  limit = 100,
   maxScore?: number
 ): Promise<Array<{ member: Section; score: number }>> => {
   const redisClient = redisDataSource.redisClient
@@ -311,12 +311,11 @@ const appendSectionsToHome = async (
     JSON.stringify(section),
   ])
 
+  // sections expire in 24 hours
+  pipeline.expire(key, 24 * 60 * 60)
+
   // add section to the sorted set
   pipeline.zadd(key, ...scoreMembers)
-
-  // remove expired sections and sections expire in 24 hours
-  const ttl = 86_400_000
-  pipeline.zremrangebyscore(key, '-inf', Date.now() - ttl)
 
   // keep only the new sections and remove the oldest ones
   pipeline.zremrangebyrank(key, 0, -(sections.length + 1))
@@ -379,15 +378,15 @@ const mixHomeItems = (
     }
   }
 
+  const topCandidates = rankedHomeItems.slice(0, 50)
+
   // find the median word count
-  const wordCounts = rankedHomeItems.map((item) => item.wordCount)
-  wordCounts.sort((a, b) => a - b)
-  const medianWordCount = wordCounts[Math.floor(wordCounts.length / 2)]
+  const wordCountThreshold = 500
   // separate items into two groups based on word count
   const shortItems: Array<Candidate> = []
   const longItems: Array<Candidate> = []
-  for (const item of rankedHomeItems) {
-    if (item.wordCount < medianWordCount) {
+  for (const item of topCandidates) {
+    if (item.wordCount < wordCountThreshold) {
       shortItems.push(item)
     } else {
       longItems.push(item)
@@ -410,6 +409,13 @@ const mixHomeItems = (
 
   // convert batches to sections
   const sections = []
+  const hiddenCandidates = rankedHomeItems.slice(50)
+
+  sections.push({
+    items: hiddenCandidates.map(candidateToItem),
+    layout: 'hidden',
+  })
+
   sections.push({
     items: batches.short.flat().map(candidateToItem),
     layout: 'quick_links',
@@ -472,17 +478,15 @@ export const updateHome = async (data: UpdateHomeJobData) => {
       message: `Ranked ${rankedCandidates.length} candidates`,
     })
 
-    // TODO: filter candidates
-
     logger.profile('mixing')
-    const rankedSections = mixHomeItems(justAddedCandidates, rankedCandidates)
+    const sections = mixHomeItems(justAddedCandidates, rankedCandidates)
     logger.profile('mixing', {
       level: 'info',
-      message: `Created ${rankedSections.length} sections`,
+      message: `Created ${sections.length} sections`,
     })
 
     logger.profile('saving')
-    await appendSectionsToHome(userId, rankedSections, cursor)
+    await appendSectionsToHome(userId, sections, cursor)
     logger.profile('saving', {
       level: 'info',
       message: 'Sections appended to home',

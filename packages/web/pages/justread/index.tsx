@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
@@ -12,6 +12,7 @@ import Pagination from '../../components/elements/Pagination'
 import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
 import { theme } from '../../components/tokens/stitches.config'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
+import { useGetHiddenHomeSection } from '../../lib/networking/queries/useGetHiddenHomeSection'
 import {
   HomeItem,
   HomeItemSource,
@@ -60,7 +61,7 @@ export default function Home(): JSX.Element {
           switch (homeSection.layout) {
             case 'just_added':
               return (
-                <JustReadHomeSection
+                <JustAddedHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
                 />
@@ -79,6 +80,15 @@ export default function Home(): JSX.Element {
                   homeSection={homeSection}
                 />
               )
+            case 'hidden':
+              return (
+                <HiddenHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
+            default:
+              return <></>
           }
         })}
       </VStack>
@@ -90,7 +100,7 @@ type HomeSectionProps = {
   homeSection: HomeSection
 }
 
-const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
+const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
   return (
     <VStack
       distribution="start"
@@ -111,7 +121,7 @@ const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
       </SpanBox>
 
       {props.homeSection.items.map((homeItem) => {
-        return <JustReadItemView key={homeItem.id} homeItem={homeItem} />
+        return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
       })}
     </VStack>
   )
@@ -139,9 +149,9 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
 
       <Pagination
         items={props.homeSection.items}
-        itemsPerPage={10}
+        itemsPerPage={4}
         render={(homeItem) => (
-          <LongHomeItemView key={homeItem.id} homeItem={homeItem} />
+          <TopicPickHomeItemView key={homeItem.id} homeItem={homeItem} />
         )}
       />
     </VStack>
@@ -170,11 +180,86 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
 
       <Pagination
         items={props.homeSection.items}
-        itemsPerPage={15}
+        itemsPerPage={8}
         render={(homeItem) => (
           <QuickLinkHomeItemView key={homeItem.id} homeItem={homeItem} />
         )}
       />
+    </VStack>
+  )
+}
+
+const HiddenHomeSection = (props: HomeSectionProps): JSX.Element => {
+  const [isHidden, setIsHidden] = useState(true)
+  return (
+    <VStack
+      distribution="start"
+      css={{
+        width: '100%',
+        gap: '20px',
+        marginBottom: '40px',
+      }}
+    >
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{
+          gap: '10px',
+          cursor: 'pointer',
+        }}
+        onClick={() => setIsHidden(!isHidden)}
+      >
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '$readerText',
+          }}
+        >
+          {props.homeSection.title}
+        </SpanBox>
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontSize: '13px',
+            color: '$readerFont',
+          }}
+        >
+          {isHidden ? 'Show' : 'Hide'}
+        </SpanBox>
+      </HStack>
+
+      {isHidden ? <></> : <HiddenHomeSectionView />}
+    </VStack>
+  )
+}
+
+const HiddenHomeSectionView = (): JSX.Element => {
+  const hiddenSectionData = useGetHiddenHomeSection()
+
+  if (hiddenSectionData.error) {
+    return <SpanBox>Error loading hidden section</SpanBox>
+  }
+
+  if (hiddenSectionData.isValidating) {
+    return <SpanBox>Loading...</SpanBox>
+  }
+
+  if (!hiddenSectionData.section) {
+    return <SpanBox>No hidden section data</SpanBox>
+  }
+
+  return (
+    <VStack
+      distribution="start"
+      css={{
+        width: '100%',
+      }}
+    >
+      {hiddenSectionData.section.items.map((homeItem) => {
+        return <QuickLinkHomeItemView key={homeItem.id} homeItem={homeItem} />
+      })}
     </VStack>
   )
 }
@@ -222,14 +307,14 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const JustReadItemView = (props: HomeItemViewProps): JSX.Element => {
+const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   const router = useRouter()
 
   return (
     <VStack
       css={{
         width: '100%',
-        padding: '20px',
+        padding: '5px',
         borderRadius: '5px',
         '&:hover': {
           bg: '$thBackground',
@@ -244,37 +329,20 @@ const JustReadItemView = (props: HomeItemViewProps): JSX.Element => {
         }
       }}
     >
-      <HStack css={{ width: '100%', gap: '5px' }}>
-        <VStack css={{ gap: '15px' }}>
-          <HStack
-            distribution="start"
-            alignment="center"
-            css={{ gap: '5px', lineHeight: '1' }}
-          >
-            <SourceInfo homeItem={props.homeItem} />
-            <TimeAgo homeItem={props.homeItem} />
-          </HStack>
-          <Title homeItem={props.homeItem} />
-        </VStack>
-        <SpanBox css={{ ml: 'auto' }}>
-          {props.homeItem.thumbnail && (
-            <CoverImage
-              css={{
-                mt: '6px',
-                width: '120px',
-                height: '70px',
-                borderRadius: '4px',
-              }}
-              src={props.homeItem.thumbnail}
-            ></CoverImage>
-          )}
-        </SpanBox>
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ gap: '5px', lineHeight: '1' }}
+      >
+        <SourceInfo homeItem={props.homeItem} />
+        <TimeAgo homeItem={props.homeItem} />
       </HStack>
+      <Title homeItem={props.homeItem} />
     </VStack>
   )
 }
 
-const LongHomeItemView = (props: HomeItemViewProps): JSX.Element => {
+const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
   const router = useRouter()
 
   return (
@@ -372,11 +440,6 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
     >
       <TimeAgo homeItem={props.homeItem} />
       <Title homeItem={props.homeItem} />
-      <SpanBox
-        css={{ fontFamily: '$inter', fontSize: '13px', lineHeight: '23px' }}
-      >
-        {props.homeItem.previewContent}
-      </SpanBox>
     </VStack>
   )
 }

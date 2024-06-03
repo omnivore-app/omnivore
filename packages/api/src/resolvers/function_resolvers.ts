@@ -60,7 +60,11 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
-import { homeResolver, refreshHomeResolver } from './home'
+import {
+  hiddenHomeSectionResolver,
+  homeResolver,
+  refreshHomeResolver,
+} from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -371,6 +375,7 @@ export const functionResolvers = {
     integration: integrationResolver,
     home: homeResolver,
     subscription: subscriptionResolver,
+    hiddenHomeSection: hiddenHomeSectionResolver,
   },
   User: {
     async intercomHash(
@@ -645,6 +650,8 @@ export const functionResolvers = {
           return 'Top Picks'
         case 'quick_links':
           return 'Quick Links'
+        case 'hidden':
+          return 'Hidden Gems'
         default:
           return ''
       }
@@ -878,4 +885,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Home'),
   ...resultResolveTypeResolver('Subscription'),
   ...resultResolveTypeResolver('RefreshHome'),
+  ...resultResolveTypeResolver('HiddenHomeSection'),
 }

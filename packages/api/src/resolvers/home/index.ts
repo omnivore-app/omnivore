@@ -1,4 +1,6 @@
 import {
+  HiddenHomeSectionError,
+  HiddenHomeSectionSuccess,
   HomeError,
   HomeErrorCode,
   HomeItem,
@@ -63,10 +65,16 @@ export const homeResolver = authorized<
 
   const endCursor = sections[sections.length - 1].score.toString()
 
-  const edges = sections.map((section) => ({
-    cursor: section.score.toString(),
-    node: section.member,
-  }))
+  const edges = sections.map((section) => {
+    if (section.member.layout === 'hidden') {
+      section.member.items = []
+    }
+
+    return {
+      cursor: section.score.toString(),
+      node: section.member,
+    }
+  })
 
   return {
     edges,
@@ -103,5 +111,33 @@ export const refreshHomeResolver = authorized<
 
   return {
     success: true,
+  }
+})
+
+type PartialHiddenHomeSectionSuccess = Merge<
+  HiddenHomeSectionSuccess,
+  {
+    section?: PartialHomeSection
+  }
+>
+export const hiddenHomeSectionResolver = authorized<
+  PartialHiddenHomeSectionSuccess,
+  HiddenHomeSectionError
+>(async (_, __, { uid, log }) => {
+  const sections = await getHomeSections(uid)
+  log.info('Home sections fetched')
+
+  if (sections.length === 0) {
+    return {
+      errorCodes: [HomeErrorCode.Pending],
+    }
+  }
+
+  const hiddenSection = sections.find(
+    (section) => section.member.layout === 'hidden'
+  )
+
+  return {
+    section: hiddenSection?.member,
   }
 })
