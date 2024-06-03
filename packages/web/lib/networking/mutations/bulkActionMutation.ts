@@ -6,6 +6,7 @@ export enum BulkAction {
   DELETE = 'DELETE',
   ADD_LABELS = 'ADD_LABELS',
   MARK_AS_READ = 'MARK_AS_READ',
+  MARK_AS_SEEN = 'MARK_AS_SEEN',
 }
 
 type BulkActionResponseData = {
@@ -20,7 +21,7 @@ type BulkActionResponse = {
 export async function bulkActionMutation(
   action: BulkAction,
   query: string,
-  expectedCount: number,
+  expectedCount?: number,
   labelIds?: string[]
 ): Promise<boolean> {
   const mutation = gql`

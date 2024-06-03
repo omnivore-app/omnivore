@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
@@ -12,6 +12,10 @@ import Pagination from '../../components/elements/Pagination'
 import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
 import { theme } from '../../components/tokens/stitches.config'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
+import {
+  BulkAction,
+  bulkActionMutation,
+} from '../../lib/networking/mutations/bulkActionMutation'
 import { useGetHiddenHomeSection } from '../../lib/networking/queries/useGetHiddenHomeSection'
 import {
   HomeItem,
@@ -34,6 +38,29 @@ export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
   console.log('home sections: ', homeData.sections)
   useApplyLocalTheme()
+
+  useEffect(() => {
+    const markItemsAsSeen = async (seenItemIds: string[]) => {
+      try {
+        console.log('marking as seen', seenItemIds)
+        await bulkActionMutation(
+          BulkAction.MARK_AS_SEEN,
+          `includes:${seenItemIds.join(',')}`
+        )
+        console.log('marked as seen')
+      } catch (error) {
+        console.error('Error marking items as seen', error)
+      }
+    }
+
+    if (homeData.sections) {
+      const seenItemIds = homeData.sections
+        .map((section) => section.items.map((item) => item.id))
+        .flat()
+
+      markItemsAsSeen(seenItemIds)
+    }
+  })
 
   return (
     <VStack
