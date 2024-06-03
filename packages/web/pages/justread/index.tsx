@@ -61,7 +61,7 @@ export default function Home(): JSX.Element {
           switch (homeSection.layout) {
             case 'just_added':
               return (
-                <JustReadHomeSection
+                <JustAddedHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
                 />
@@ -100,7 +100,7 @@ type HomeSectionProps = {
   homeSection: HomeSection
 }
 
-const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
+const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
   return (
     <VStack
       distribution="start"
@@ -121,7 +121,7 @@ const JustReadHomeSection = (props: HomeSectionProps): JSX.Element => {
       </SpanBox>
 
       {props.homeSection.items.map((homeItem) => {
-        return <JustReadItemView key={homeItem.id} homeItem={homeItem} />
+        return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
       })}
     </VStack>
   )
@@ -307,14 +307,14 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const JustReadItemView = (props: HomeItemViewProps): JSX.Element => {
+const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   const router = useRouter()
 
   return (
     <VStack
       css={{
         width: '100%',
-        padding: '10px',
+        padding: '5px',
         borderRadius: '5px',
         '&:hover': {
           bg: '$thBackground',
