@@ -3482,15 +3482,8 @@ const schema = gql`
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
     home(first: Int, after: String): HomeResult!
     subscription(id: ID!): SubscriptionResult!
-<<<<<<< HEAD
-<<<<<<< HEAD
     hiddenHomeSection: HiddenHomeSectionResult!
-=======
-    homeFeedback: HomeFeedbackResult!
->>>>>>> 682effd79 (Add thumbsup/down feedback buttons for the home feed)
-=======
     homeFeedback(input: HomeFeedbackFilterInput): HomeFeedbackResult!
->>>>>>> b31ccc71c (Add pagination, delete permission on home_feedback)
   }
 
   schema {
