@@ -3226,6 +3226,62 @@ const schema = gql`
     PENDING
   }
 
+  enum HomeFeedbackType {
+    MORE
+    LESS
+  }
+
+  input SendHomeFeedbackInput {
+    site: String
+    author: String
+    subscription: String
+    feedbackType: HomeFeedbackType!
+  }
+
+  type SendHomeFeedbackSuccess {
+    message: String!
+  }
+
+  type SendHomeFeedbackError {
+    errorCodes: [ErrorCode!]!
+  }
+
+  union SendHomeFeedbackResult = SendHomeFeedbackSuccess | SendHomeFeedbackError
+
+  input HomeFeedbackFilterInput {
+    limit: Int!
+    offset: Int!
+  }
+
+  type HomeFeedback {
+    site: String
+    author: String
+    subscription: String
+    feedbackType: HomeFeedbackType!
+  }
+
+  type HomeFeedbackSuccess {
+    items: [HomeFeedback!]!
+  }
+
+  type HomeFeedbackError {
+    errorCodes: [ErrorCode!]!
+  }
+
+  union HomeFeedbackResult = HomeFeedbackSuccess | HomeFeedbackError
+
+  type DeleteHomeFeedbackSuccess {
+    success: Boolean!
+  }
+
+  type DeleteHomeFeedbackError {
+    errorCodes: [ErrorCode!]!
+  }
+
+  union DeleteHomeFeedbackResult =
+      DeleteHomeFeedbackSuccess
+    | DeleteHomeFeedbackError
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3352,6 +3408,8 @@ const schema = gql`
     editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
     emptyTrash: EmptyTrashResult!
     refreshHome: RefreshHomeResult!
+    sendHomeFeedback(input: SendHomeFeedbackInput!): SendHomeFeedbackResult!
+    deleteHomeFeedback(id: ID!): DeleteHomeFeedbackResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -3425,6 +3483,7 @@ const schema = gql`
     home(first: Int, after: String): HomeResult!
     subscription(id: ID!): SubscriptionResult!
     hiddenHomeSection: HiddenHomeSectionResult!
+    homeFeedback(input: HomeFeedbackFilterInput): HomeFeedbackResult!
   }
 
   schema {

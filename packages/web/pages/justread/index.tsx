@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
@@ -29,6 +29,15 @@ import {
   SpanBox,
   VStack,
 } from './../../components/elements/LayoutPrimitives'
+import { ThumbsDown, ThumbsUp } from 'phosphor-react'
+import {
+  SendHomeFeedbackType,
+  SendHomeFeedbackInput,
+  sendHomeFeedbackMutation,
+} from '../../lib/networking/mutations/updateHomeFeedbackMutation'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { Toaster } from 'react-hot-toast'
+import { useGetSubscriptionQuery } from '../../lib/networking/queries/useGetSubscription'
 
 export default function Home(): JSX.Element {
   const homeData = useGetHomeItems()
@@ -46,6 +55,7 @@ export default function Home(): JSX.Element {
         minHeight: '100vh',
       }}
     >
+      <Toaster />
       <VStack
         distribution="start"
         css={{
@@ -358,9 +368,9 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(`/me/${props.homeItem.slug}`)
         } else {
-          router.push(props.homeItem.url)
+          router.push(`/me/${props.homeItem.slug}`)
         }
       }}
     >
@@ -444,55 +454,79 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const SiteIconSmall = styled('img', {
-  width: '16px',
-  height: '16px',
-  borderRadius: '100px',
-})
-
-const SiteIconLarge = styled('img', {
-  width: '25px',
-  height: '25px',
-  borderRadius: '100px',
-})
-
-const SourceInfo = (props: HomeItemViewProps) => (
-  <HoverCard.Root>
-    <HoverCard.Trigger asChild>
-      <HStack
-        distribution="start"
-        alignment="center"
-        css={{ gap: '5px', cursor: 'pointer' }}
-      >
-        {props.homeItem.source.icon && (
-          <SiteIconSmall
-            src={props.homeItem.source.icon}
-            alt={props.homeItem.source.name}
-          />
-        )}
-        <HStack
-          css={{
-            lineHeight: '1',
-            pb: '3px',
-            fontFamily: '$inter',
-            fontWeight: '500',
-            fontSize: '13px',
-            color: '$readerFont',
-            textDecoration: 'underline',
+const SiteIcon = (props: {
+  src: string
+  alt: string
+  size: 'large' | 'small'
+}) => {
+  const [isError, setIsError] = useState(false)
+  return (
+    <>
+      {!isError && (
+        <img
+          src={props.src}
+          alt={props.alt}
+          style={{
+            display: isError ? 'none' : 'block',
+            width: props.size == 'large' ? '25px' : '16px',
+            height: props.size == 'large' ? '25px' : '16px',
           }}
+          onError={() => setIsError(true)}
+        />
+      )}
+    </>
+  )
+}
+
+const SourceInfo = (props: HomeItemViewProps) => {
+  const renderSource = (source: HomeItemSource): JSX.Element => {
+    switch (props.homeItem.source.type) {
+      case 'LIBRARY':
+        return <SiteSourceHoverContent source={source} />
+      case 'NEWSLETTER':
+      case 'RSS':
+        return <SubscriptionSourceHoverContent source={source} />
+    }
+    return <></>
+  }
+  return (
+    <HoverCard.Root>
+      <HoverCard.Trigger asChild>
+        <HStack
+          distribution="start"
+          alignment="center"
+          css={{ gap: '5px', cursor: 'pointer' }}
         >
-          {props.homeItem.source.name}
+          {props.homeItem.source.icon && (
+            <SiteIcon
+              src={props.homeItem.source.icon}
+              alt={props.homeItem.source.name}
+              size="small"
+            />
+          )}
+          <HStack
+            css={{
+              lineHeight: '1',
+              fontFamily: '$inter',
+              fontWeight: '500',
+              fontSize: '13px',
+              color: '$readerFont',
+              textDecoration: 'underline',
+            }}
+          >
+            {props.homeItem.source.name}
+          </HStack>
         </HStack>
-      </HStack>
-    </HoverCard.Trigger>
-    <HoverCard.Portal>
-      <HoverCard.Content sideOffset={5}>
-        <SubscriptionSourceHoverContent source={props.homeItem.source} />
-        <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
-      </HoverCard.Content>
-    </HoverCard.Portal>
-  </HoverCard.Root>
-)
+      </HoverCard.Trigger>
+      <HoverCard.Portal>
+        <HoverCard.Content sideOffset={5}>
+          {renderSource(props.homeItem.source)}
+          <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
+        </HoverCard.Content>
+      </HoverCard.Portal>
+    </HoverCard.Root>
+  )
+}
 
 type SourceHoverContentProps = {
   source: HomeItemSource
@@ -501,26 +535,26 @@ type SourceHoverContentProps = {
 const SubscriptionSourceHoverContent = (
   props: SourceHoverContentProps
 ): JSX.Element => {
-  const mapSourceType = (
-    sourceType: HomeItemSourceType
-  ): SubscriptionType | undefined => {
-    switch (sourceType) {
-      case 'RSS':
-      case 'NEWSLETTER':
-        return sourceType as SubscriptionType
-      default:
-        return undefined
-    }
-  }
-  const { subscriptions, isValidating } = useGetSubscriptionsQuery(
-    mapSourceType(props.source.type)
+  const { subscription } = useGetSubscriptionQuery(props.source.id)
+
+  const sendHomeFeedback = useCallback(
+    async (feedbackType: SendHomeFeedbackType) => {
+      if (subscription) {
+        const result = await sendHomeFeedbackMutation({
+          feedbackType,
+          subscription: subscription.name,
+        })
+        if (result) {
+          showSuccessToast('Feedback sent')
+        } else {
+          showErrorToast('Error sending feedback')
+        }
+      } else {
+        showErrorToast('Error sending feedback')
+      }
+    },
+    [subscription]
   )
-  const subscription = useMemo(() => {
-    if (props.source.id && subscriptions) {
-      return subscriptions.find((sub) => sub.id == props.source.id)
-    }
-    return undefined
-  }, [subscriptions])
 
   return (
     <VStack
@@ -542,7 +576,11 @@ const SubscriptionSourceHoverContent = (
         css={{ width: '100%', gap: '10px' }}
       >
         {props.source.icon && (
-          <SiteIconLarge src={props.source.icon} alt={props.source.name} />
+          <SiteIcon
+            src={props.source.icon}
+            alt={props.source.name}
+            size="large"
+          />
         )}
         <SpanBox
           css={{
@@ -570,6 +608,107 @@ const SubscriptionSourceHoverContent = (
       >
         {subscription ? <>{subscription.description}</> : <></>}
       </SpanBox>
+      {subscription && <FeedbackView sendFeedback={sendHomeFeedback} />}
     </VStack>
+  )
+}
+
+const SiteSourceHoverContent = (
+  props: SourceHoverContentProps
+): JSX.Element => {
+  const sendHomeFeedback = useCallback(
+    async (feedbackType: SendHomeFeedbackType) => {
+      const feedback: SendHomeFeedbackInput = {
+        feedbackType,
+      }
+      feedback.site = props.source.name
+      const result = await sendHomeFeedbackMutation(feedback)
+      if (result) {
+        showSuccessToast('Feedback sent')
+      } else {
+        showErrorToast('Error sending feedback')
+      }
+    },
+    [props]
+  )
+
+  return (
+    <VStack
+      alignment="start"
+      distribution="start"
+      css={{
+        width: '240px',
+        height: '100px',
+        bg: '$thBackground2',
+        borderRadius: '10px',
+        padding: '15px',
+        gap: '10px',
+        boxShadow: theme.shadows.cardBoxShadow.toString(),
+      }}
+    >
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ width: '100%', gap: '10px' }}
+      >
+        {props.source.icon && (
+          <SiteIcon
+            src={props.source.icon}
+            alt={props.source.name}
+            size="large"
+          />
+        )}
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontWeight: '500',
+            fontSize: '14px',
+          }}
+        >
+          {props.source.name}
+        </SpanBox>
+      </HStack>
+      {/* <SpanBox
+        css={{
+          fontFamily: '$inter',
+          fontSize: '13px',
+          color: '$thTextSubtle4',
+        }}
+      >
+        {subscription ? <>{subscription.description}</> : <></>}
+      </SpanBox> */}
+      <FeedbackView sendFeedback={sendHomeFeedback} />
+    </VStack>
+  )
+}
+
+type FeedbackViewProps = {
+  sendFeedback: (type: SendHomeFeedbackType) => void
+}
+
+const FeedbackView = (props: FeedbackViewProps): JSX.Element => {
+  return (
+    <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
+      <Button
+        style="plainIcon"
+        onClick={(event) => {
+          props.sendFeedback('MORE')
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        <ThumbsUp weight="fill" />
+      </Button>
+      <Button
+        style="plainIcon"
+        onClick={(event) => {
+          props.sendFeedback('LESS')
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        <ThumbsDown weight="fill" />
+      </Button>
+    </HStack>
   )
 }

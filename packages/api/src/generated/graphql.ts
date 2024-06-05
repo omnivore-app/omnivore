@@ -655,6 +655,18 @@ export type DeleteHighlightSuccess = {
   highlight: Highlight;
 };
 
+export type DeleteHomeFeedbackError = {
+  __typename?: 'DeleteHomeFeedbackError';
+  errorCodes: Array<ErrorCode>;
+};
+
+export type DeleteHomeFeedbackResult = DeleteHomeFeedbackError | DeleteHomeFeedbackSuccess;
+
+export type DeleteHomeFeedbackSuccess = {
+  __typename?: 'DeleteHomeFeedbackSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type DeleteIntegrationError = {
   __typename?: 'DeleteIntegrationError';
   errorCodes: Array<DeleteIntegrationErrorCode>;
@@ -1313,6 +1325,36 @@ export enum HomeErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
+export type HomeFeedback = {
+  __typename?: 'HomeFeedback';
+  author?: Maybe<Scalars['String']>;
+  feedbackType: HomeFeedbackType;
+  site?: Maybe<Scalars['String']>;
+  subscription?: Maybe<Scalars['String']>;
+};
+
+export type HomeFeedbackError = {
+  __typename?: 'HomeFeedbackError';
+  errorCodes: Array<ErrorCode>;
+};
+
+export type HomeFeedbackFilterInput = {
+  limit: Scalars['Int'];
+  offset: Scalars['Int'];
+};
+
+export type HomeFeedbackResult = HomeFeedbackError | HomeFeedbackSuccess;
+
+export type HomeFeedbackSuccess = {
+  __typename?: 'HomeFeedbackSuccess';
+  items: Array<HomeFeedback>;
+};
+
+export enum HomeFeedbackType {
+  Less = 'LESS',
+  More = 'MORE'
+}
+
 export type HomeItem = {
   __typename?: 'HomeItem';
   author?: Maybe<Scalars['String']>;
@@ -1708,6 +1750,7 @@ export type Mutation = {
   deleteDiscoverFeed: DeleteDiscoverFeedResult;
   deleteFilter: DeleteFilterResult;
   deleteHighlight: DeleteHighlightResult;
+  deleteHomeFeedback: DeleteHomeFeedbackResult;
   deleteIntegration: DeleteIntegrationResult;
   deleteLabel: DeleteLabelResult;
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
@@ -1742,6 +1785,7 @@ export type Mutation = {
   saveFilter: SaveFilterResult;
   savePage: SaveResult;
   saveUrl: SaveResult;
+  sendHomeFeedback: SendHomeFeedbackResult;
   setBookmarkArticle: SetBookmarkArticleResult;
   setDeviceToken: SetDeviceTokenResult;
   setFavoriteArticle: SetFavoriteArticleResult;
@@ -1840,6 +1884,11 @@ export type MutationDeleteFilterArgs = {
 
 export type MutationDeleteHighlightArgs = {
   highlightId: Scalars['ID'];
+};
+
+
+export type MutationDeleteHomeFeedbackArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -1997,6 +2046,11 @@ export type MutationSavePageArgs = {
 
 export type MutationSaveUrlArgs = {
   input: SaveUrlInput;
+};
+
+
+export type MutationSendHomeFeedbackArgs = {
+  input: SendHomeFeedbackInput;
 };
 
 
@@ -2262,6 +2316,7 @@ export type Query = {
   hello?: Maybe<Scalars['String']>;
   hiddenHomeSection: HiddenHomeSectionResult;
   home: HomeResult;
+  homeFeedback: HomeFeedbackResult;
   integration: IntegrationResult;
   integrations: IntegrationsResult;
   labels: LabelsResult;
@@ -2314,6 +2369,11 @@ export type QueryGetDiscoverFeedArticlesArgs = {
 export type QueryHomeArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryHomeFeedbackArgs = {
+  input?: InputMaybe<HomeFeedbackFilterInput>;
 };
 
 
@@ -2939,6 +2999,25 @@ export type SearchSuccess = {
   __typename?: 'SearchSuccess';
   edges: Array<SearchItemEdge>;
   pageInfo: PageInfo;
+};
+
+export type SendHomeFeedbackError = {
+  __typename?: 'SendHomeFeedbackError';
+  errorCodes: Array<ErrorCode>;
+};
+
+export type SendHomeFeedbackInput = {
+  author?: InputMaybe<Scalars['String']>;
+  feedbackType: HomeFeedbackType;
+  site?: InputMaybe<Scalars['String']>;
+  subscription?: InputMaybe<Scalars['String']>;
+};
+
+export type SendHomeFeedbackResult = SendHomeFeedbackError | SendHomeFeedbackSuccess;
+
+export type SendHomeFeedbackSuccess = {
+  __typename?: 'SendHomeFeedbackSuccess';
+  message: Scalars['String'];
 };
 
 export type SendInstallInstructionsError = {
@@ -4210,6 +4289,9 @@ export type ResolversTypes = {
   DeleteHighlightReplySuccess: ResolverTypeWrapper<DeleteHighlightReplySuccess>;
   DeleteHighlightResult: ResolversTypes['DeleteHighlightError'] | ResolversTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: ResolverTypeWrapper<DeleteHighlightSuccess>;
+  DeleteHomeFeedbackError: ResolverTypeWrapper<DeleteHomeFeedbackError>;
+  DeleteHomeFeedbackResult: ResolversTypes['DeleteHomeFeedbackError'] | ResolversTypes['DeleteHomeFeedbackSuccess'];
+  DeleteHomeFeedbackSuccess: ResolverTypeWrapper<DeleteHomeFeedbackSuccess>;
   DeleteIntegrationError: ResolverTypeWrapper<DeleteIntegrationError>;
   DeleteIntegrationErrorCode: DeleteIntegrationErrorCode;
   DeleteIntegrationResult: ResolversTypes['DeleteIntegrationError'] | ResolversTypes['DeleteIntegrationSuccess'];
@@ -4337,6 +4419,12 @@ export type ResolversTypes = {
   HomeEdge: ResolverTypeWrapper<HomeEdge>;
   HomeError: ResolverTypeWrapper<HomeError>;
   HomeErrorCode: HomeErrorCode;
+  HomeFeedback: ResolverTypeWrapper<HomeFeedback>;
+  HomeFeedbackError: ResolverTypeWrapper<HomeFeedbackError>;
+  HomeFeedbackFilterInput: HomeFeedbackFilterInput;
+  HomeFeedbackResult: ResolversTypes['HomeFeedbackError'] | ResolversTypes['HomeFeedbackSuccess'];
+  HomeFeedbackSuccess: ResolverTypeWrapper<HomeFeedbackSuccess>;
+  HomeFeedbackType: HomeFeedbackType;
   HomeItem: ResolverTypeWrapper<HomeItem>;
   HomeItemSource: ResolverTypeWrapper<HomeItemSource>;
   HomeItemSourceType: HomeItemSourceType;
@@ -4515,6 +4603,10 @@ export type ResolversTypes = {
   SearchItemEdge: ResolverTypeWrapper<SearchItemEdge>;
   SearchResult: ResolversTypes['SearchError'] | ResolversTypes['SearchSuccess'];
   SearchSuccess: ResolverTypeWrapper<SearchSuccess>;
+  SendHomeFeedbackError: ResolverTypeWrapper<SendHomeFeedbackError>;
+  SendHomeFeedbackInput: SendHomeFeedbackInput;
+  SendHomeFeedbackResult: ResolversTypes['SendHomeFeedbackError'] | ResolversTypes['SendHomeFeedbackSuccess'];
+  SendHomeFeedbackSuccess: ResolverTypeWrapper<SendHomeFeedbackSuccess>;
   SendInstallInstructionsError: ResolverTypeWrapper<SendInstallInstructionsError>;
   SendInstallInstructionsErrorCode: SendInstallInstructionsErrorCode;
   SendInstallInstructionsResult: ResolversTypes['SendInstallInstructionsError'] | ResolversTypes['SendInstallInstructionsSuccess'];
@@ -4806,6 +4898,9 @@ export type ResolversParentTypes = {
   DeleteHighlightReplySuccess: DeleteHighlightReplySuccess;
   DeleteHighlightResult: ResolversParentTypes['DeleteHighlightError'] | ResolversParentTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: DeleteHighlightSuccess;
+  DeleteHomeFeedbackError: DeleteHomeFeedbackError;
+  DeleteHomeFeedbackResult: ResolversParentTypes['DeleteHomeFeedbackError'] | ResolversParentTypes['DeleteHomeFeedbackSuccess'];
+  DeleteHomeFeedbackSuccess: DeleteHomeFeedbackSuccess;
   DeleteIntegrationError: DeleteIntegrationError;
   DeleteIntegrationResult: ResolversParentTypes['DeleteIntegrationError'] | ResolversParentTypes['DeleteIntegrationSuccess'];
   DeleteIntegrationSuccess: DeleteIntegrationSuccess;
@@ -4904,6 +4999,11 @@ export type ResolversParentTypes = {
   HighlightStats: HighlightStats;
   HomeEdge: HomeEdge;
   HomeError: HomeError;
+  HomeFeedback: HomeFeedback;
+  HomeFeedbackError: HomeFeedbackError;
+  HomeFeedbackFilterInput: HomeFeedbackFilterInput;
+  HomeFeedbackResult: ResolversParentTypes['HomeFeedbackError'] | ResolversParentTypes['HomeFeedbackSuccess'];
+  HomeFeedbackSuccess: HomeFeedbackSuccess;
   HomeItem: HomeItem;
   HomeItemSource: HomeItemSource;
   HomeResult: ResolversParentTypes['HomeError'] | ResolversParentTypes['HomeSuccess'];
@@ -5043,6 +5143,10 @@ export type ResolversParentTypes = {
   SearchItemEdge: SearchItemEdge;
   SearchResult: ResolversParentTypes['SearchError'] | ResolversParentTypes['SearchSuccess'];
   SearchSuccess: SearchSuccess;
+  SendHomeFeedbackError: SendHomeFeedbackError;
+  SendHomeFeedbackInput: SendHomeFeedbackInput;
+  SendHomeFeedbackResult: ResolversParentTypes['SendHomeFeedbackError'] | ResolversParentTypes['SendHomeFeedbackSuccess'];
+  SendHomeFeedbackSuccess: SendHomeFeedbackSuccess;
   SendInstallInstructionsError: SendInstallInstructionsError;
   SendInstallInstructionsResult: ResolversParentTypes['SendInstallInstructionsError'] | ResolversParentTypes['SendInstallInstructionsSuccess'];
   SendInstallInstructionsSuccess: SendInstallInstructionsSuccess;
@@ -5614,6 +5718,20 @@ export type DeleteHighlightSuccessResolvers<ContextType = ResolverContext, Paren
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeleteHomeFeedbackErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHomeFeedbackError'] = ResolversParentTypes['DeleteHomeFeedbackError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteHomeFeedbackResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHomeFeedbackResult'] = ResolversParentTypes['DeleteHomeFeedbackResult']> = {
+  __resolveType: TypeResolveFn<'DeleteHomeFeedbackError' | 'DeleteHomeFeedbackSuccess', ParentType, ContextType>;
+};
+
+export type DeleteHomeFeedbackSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHomeFeedbackSuccess'] = ResolversParentTypes['DeleteHomeFeedbackSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteIntegrationError'] = ResolversParentTypes['DeleteIntegrationError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteIntegrationErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6129,6 +6247,28 @@ export type HomeErrorResolvers<ContextType = ResolverContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type HomeFeedbackResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeFeedback'] = ResolversParentTypes['HomeFeedback']> = {
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  feedbackType?: Resolver<ResolversTypes['HomeFeedbackType'], ParentType, ContextType>;
+  site?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HomeFeedbackErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeFeedbackError'] = ResolversParentTypes['HomeFeedbackError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HomeFeedbackResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeFeedbackResult'] = ResolversParentTypes['HomeFeedbackResult']> = {
+  __resolveType: TypeResolveFn<'HomeFeedbackError' | 'HomeFeedbackSuccess', ParentType, ContextType>;
+};
+
+export type HomeFeedbackSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeFeedbackSuccess'] = ResolversParentTypes['HomeFeedbackSuccess']> = {
+  items?: Resolver<Array<ResolversTypes['HomeFeedback']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HomeItem'] = ResolversParentTypes['HomeItem']> = {
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   broadcastCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -6432,6 +6572,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteDiscoverFeed?: Resolver<ResolversTypes['DeleteDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverFeedArgs, 'input'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
+  deleteHomeFeedback?: Resolver<ResolversTypes['DeleteHomeFeedbackResult'], ParentType, ContextType, RequireFields<MutationDeleteHomeFeedbackArgs, 'id'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
@@ -6466,6 +6607,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   saveFilter?: Resolver<ResolversTypes['SaveFilterResult'], ParentType, ContextType, RequireFields<MutationSaveFilterArgs, 'input'>>;
   savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
   saveUrl?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveUrlArgs, 'input'>>;
+  sendHomeFeedback?: Resolver<ResolversTypes['SendHomeFeedbackResult'], ParentType, ContextType, RequireFields<MutationSendHomeFeedbackArgs, 'input'>>;
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
   setFavoriteArticle?: Resolver<ResolversTypes['SetFavoriteArticleResult'], ParentType, ContextType, RequireFields<MutationSetFavoriteArticleArgs, 'id'>>;
@@ -6582,6 +6724,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hiddenHomeSection?: Resolver<ResolversTypes['HiddenHomeSectionResult'], ParentType, ContextType>;
   home?: Resolver<ResolversTypes['HomeResult'], ParentType, ContextType, Partial<QueryHomeArgs>>;
+  homeFeedback?: Resolver<ResolversTypes['HomeFeedbackResult'], ParentType, ContextType, Partial<QueryHomeFeedbackArgs>>;
   integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'name'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
@@ -6975,6 +7118,20 @@ export type SearchResultResolvers<ContextType = ResolverContext, ParentType exte
 export type SearchSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchSuccess'] = ResolversParentTypes['SearchSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['SearchItemEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SendHomeFeedbackErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendHomeFeedbackError'] = ResolversParentTypes['SendHomeFeedbackError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SendHomeFeedbackResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendHomeFeedbackResult'] = ResolversParentTypes['SendHomeFeedbackResult']> = {
+  __resolveType: TypeResolveFn<'SendHomeFeedbackError' | 'SendHomeFeedbackSuccess', ParentType, ContextType>;
+};
+
+export type SendHomeFeedbackSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendHomeFeedbackSuccess'] = ResolversParentTypes['SendHomeFeedbackSuccess']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -7710,6 +7867,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteHighlightReplySuccess?: DeleteHighlightReplySuccessResolvers<ContextType>;
   DeleteHighlightResult?: DeleteHighlightResultResolvers<ContextType>;
   DeleteHighlightSuccess?: DeleteHighlightSuccessResolvers<ContextType>;
+  DeleteHomeFeedbackError?: DeleteHomeFeedbackErrorResolvers<ContextType>;
+  DeleteHomeFeedbackResult?: DeleteHomeFeedbackResultResolvers<ContextType>;
+  DeleteHomeFeedbackSuccess?: DeleteHomeFeedbackSuccessResolvers<ContextType>;
   DeleteIntegrationError?: DeleteIntegrationErrorResolvers<ContextType>;
   DeleteIntegrationResult?: DeleteIntegrationResultResolvers<ContextType>;
   DeleteIntegrationSuccess?: DeleteIntegrationSuccessResolvers<ContextType>;
@@ -7801,6 +7961,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   HighlightStats?: HighlightStatsResolvers<ContextType>;
   HomeEdge?: HomeEdgeResolvers<ContextType>;
   HomeError?: HomeErrorResolvers<ContextType>;
+  HomeFeedback?: HomeFeedbackResolvers<ContextType>;
+  HomeFeedbackError?: HomeFeedbackErrorResolvers<ContextType>;
+  HomeFeedbackResult?: HomeFeedbackResultResolvers<ContextType>;
+  HomeFeedbackSuccess?: HomeFeedbackSuccessResolvers<ContextType>;
   HomeItem?: HomeItemResolvers<ContextType>;
   HomeItemSource?: HomeItemSourceResolvers<ContextType>;
   HomeResult?: HomeResultResolvers<ContextType>;
@@ -7920,6 +8084,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;
   SearchResult?: SearchResultResolvers<ContextType>;
   SearchSuccess?: SearchSuccessResolvers<ContextType>;
+  SendHomeFeedbackError?: SendHomeFeedbackErrorResolvers<ContextType>;
+  SendHomeFeedbackResult?: SendHomeFeedbackResultResolvers<ContextType>;
+  SendHomeFeedbackSuccess?: SendHomeFeedbackSuccessResolvers<ContextType>;
   SendInstallInstructionsError?: SendInstallInstructionsErrorResolvers<ContextType>;
   SendInstallInstructionsResult?: SendInstallInstructionsResultResolvers<ContextType>;
   SendInstallInstructionsSuccess?: SendInstallInstructionsSuccessResolvers<ContextType>;
