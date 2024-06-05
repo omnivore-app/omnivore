@@ -3101,18 +3101,18 @@ Readability.prototype = {
     this._postProcessContent(articleContent);
 
     // If we haven't found an excerpt in the article's metadata, use the article's
-    // first long paragraph (more than 200 characters) as the excerpt. This is used for displaying a preview of
+    // first meaningful paragraph (more than 50 characters) as the excerpt. This is used for displaying a preview of
     // the article's content.
     if (!metadata.excerpt) {
       var paragraphs = articleContent.getElementsByTagName("p");
-      paragraphs.forEach((p) => {
+      for (const p of paragraphs) {
         const text = p.textContent.trim();
 
-        if (text.length > 200) {
-          metadata.excerpt = text
-          return
+        if (text.length > 50) {
+          metadata.excerpt = text;
+          break;
         }
-      });
+      };
     }
     if (!metadata.siteName) {
       // Fallback to hostname

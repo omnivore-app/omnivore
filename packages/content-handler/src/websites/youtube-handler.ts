@@ -80,7 +80,7 @@ export class YoutubeHandler extends ContentHandler {
       <meta property="og:image" content="${thumbnail}" />
       <meta property="og:image:secure_url" content="${thumbnail}" />
       <meta property="og:title" content="${escapedTitle}" />
-      <meta property="og:description" content="" />
+      <meta property="og:description" content="${escapedTitle}" />
       <meta property="og:article:author" content="${authorName}" />
       <meta property="og:site_name" content="YouTube" />
       <meta property="og:type" content="video" />
