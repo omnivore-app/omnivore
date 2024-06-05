@@ -724,36 +724,36 @@ const SubscriptionSourceHoverContent = (
 //   )
 // }
 
-type FeedbackViewProps = {
-  sendFeedback: (type: SendHomeFeedbackType) => void
-}
+// type FeedbackViewProps = {
+//   sendFeedback: (type: SendHomeFeedbackType) => void
+// }
 
-const FeedbackView = (props: FeedbackViewProps): JSX.Element => {
-  return (
-    <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
-      <Button
-        style="plainIcon"
-        onClick={(event) => {
-          props.sendFeedback('MORE')
-          event.preventDefault()
-          event.stopPropagation()
-        }}
-      >
-        <ThumbsUp weight="fill" />
-      </Button>
-      <Button
-        style="plainIcon"
-        onClick={(event) => {
-          props.sendFeedback('LESS')
-          event.preventDefault()
-          event.stopPropagation()
-        }}
-      >
-        <ThumbsDown weight="fill" />
-      </Button>
-    </HStack>
-  )
-}
+// const FeedbackView = (props: FeedbackViewProps): JSX.Element => {
+//   return (
+//     <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
+//       <Button
+//         style="plainIcon"
+//         onClick={(event) => {
+//           props.sendFeedback('MORE')
+//           event.preventDefault()
+//           event.stopPropagation()
+//         }}
+//       >
+//         <ThumbsUp weight="fill" />
+//       </Button>
+//       <Button
+//         style="plainIcon"
+//         onClick={(event) => {
+//           props.sendFeedback('LESS')
+//           event.preventDefault()
+//           event.stopPropagation()
+//         }}
+//       >
+//         <ThumbsDown weight="fill" />
+//       </Button>
+//     </HStack>
+//   )
+// }
 
 type HeaderProps = {
   toggleMenu: () => void
