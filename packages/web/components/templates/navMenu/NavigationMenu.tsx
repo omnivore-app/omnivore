@@ -45,7 +45,7 @@ type LibraryFilterMenuProps = {
   setShowFilterMenu: (show: boolean) => void
 }
 
-export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
+export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
   const [labels, setLabels] = usePersistedState<Label[]>({
     key: 'menu-labels',
     isSessionStorage: false,
