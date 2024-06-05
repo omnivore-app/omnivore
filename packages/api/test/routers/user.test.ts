@@ -5,7 +5,7 @@ import { StatusType } from '../../src/entity/user'
 import {
   createUsers,
   deleteUsers,
-  findUsersById,
+  findUsersByIds,
 } from '../../src/services/user'
 import { request } from '../util'
 
@@ -58,7 +58,7 @@ describe('User Service Router', () => {
         .send(data)
         .expect(200)
 
-      const deletedUsers = await findUsersById(toDeleteUserIds)
+      const deletedUsers = await findUsersByIds(toDeleteUserIds)
       expect(deletedUsers.length).to.equal(0)
     })
   })

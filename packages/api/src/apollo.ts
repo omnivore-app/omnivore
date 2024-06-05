@@ -42,6 +42,7 @@ import {
 } from './services/service_usage'
 import { batchGetSubscriptionsByNames } from './services/subscriptions'
 import { batchGetUploadFilesByIds } from './services/upload_file'
+import { findUsersByIds } from './services/user'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
@@ -124,6 +125,9 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 
         return batchGetSubscriptionsByNames(claims.uid, names as string[])
       }),
+      users: new DataLoader(async (ids: readonly string[]) =>
+        findUsersByIds(ids as string[])
+      ),
     },
   }
 

@@ -1,5 +1,5 @@
 import { diff_match_patch } from 'diff-match-patch'
-import { DeepPartial, In } from 'typeorm'
+import { DeepPartial, In, LessThan } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -255,6 +255,23 @@ export const findHighlightsByLibraryItemId = async (
           user: true,
           labels: true,
         },
+      }),
+    undefined,
+    userId
+  )
+}
+
+export const searchHighlights = async (
+  userId: string,
+  limit: number,
+  offset?: number
+) => {
+  return authTrx(
+    async (tx) =>
+      tx.withRepository(highlightRepository).find({
+        where: { user: { id: userId } },
+        take: limit,
+        skip: offset,
       }),
     undefined,
     userId

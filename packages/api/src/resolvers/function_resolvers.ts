@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
 import { isError } from 'lodash'
-import { Highlight as HighlightEntity } from '../entity/highlight'
+import { Highlight } from '../entity/highlight'
 import { LibraryItem } from '../entity/library_item'
 import {
   EXISTING_NEWSLETTER_FOLDER,
@@ -16,10 +16,10 @@ import {
   DEFAULT_SUBSCRIPTION_FOLDER,
   Subscription,
 } from '../entity/subscription'
+import { User as UserEntity } from '../entity/user'
 import { env } from '../env'
 import {
   Article,
-  Highlight,
   HomeItem,
   HomeItemSource,
   HomeItemSourceType,
@@ -33,7 +33,6 @@ import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
 import { Merge } from '../util'
 import {
-  highlightDataToHighlight,
   isBase64Image,
   recommandationDataToRecommendation,
   validatedDate,
@@ -60,6 +59,7 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
+import { highlightsResolver } from './highlight'
 import {
   hiddenHomeSectionResolver,
   homeResolver,
@@ -376,6 +376,7 @@ export const functionResolvers = {
     home: homeResolver,
     subscription: subscriptionResolver,
     hiddenHomeSection: hiddenHomeSectionResolver,
+    highlights: highlightsResolver,
   },
   User: {
     async intercomHash(
@@ -414,6 +415,16 @@ export const functionResolvers = {
 
       return findUserFeatures(ctx.claims.uid)
     },
+    picture: (user: UserEntity) => user.profile.pictureUrl,
+    // not implemented yet
+    friendsCount: () => 0,
+    followersCount: () => 0,
+    isFullUser: () => true,
+    viewerIsFollowing: () => false,
+    sharedArticles: () => [],
+    sharedArticlesCount: () => 0,
+    sharedHighlightsCount: () => 0,
+    sharedNotesCount: () => 0,
   },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
@@ -465,16 +476,12 @@ export const functionResolvers = {
     ...readingProgressHandlers,
   },
   Highlight: {
-    // async reactions(
-    //   highlight: { id: string; reactions?: Reaction[] },
-    //   _: unknown,
-    //   ctx: WithDataSourcesContext
-    // ) {
-    //   const { reactions, id } = highlight
-    //   if (reactions) return reactions
-
-    //   return await ctx.models.reaction.batchGetFromHighlight(id)
-    // },
+    reactions: () => [],
+    replies: () => [],
+    type: (highlight: Highlight) => highlight.highlightType,
+    async user(highlight: Highlight, __: unknown, ctx: WithDataSourcesContext) {
+      return ctx.dataLoaders.users.load(highlight.userId)
+    },
     createdByMe(
       highlight: { user: { id: string } },
       __: unknown,
@@ -483,15 +490,6 @@ export const functionResolvers = {
       return highlight.user.id === ctx.uid
     },
   },
-  // Reaction: {
-  //   async user(
-  //     reaction: { userId: string },
-  //     __: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     return userDataToUser(await ctx.models.user.get(reaction.userId))
-  //   },
-  // },
   SearchItem: {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       if (
@@ -570,7 +568,7 @@ export const functionResolvers = {
       if (item.highlights) return item.highlights
 
       const highlights = await ctx.dataLoaders.highlights.load(item.id)
-      return highlights.map(highlightDataToHighlight)
+      return highlights
     },
     ...readingProgressHandlers,
     async content(
@@ -585,7 +583,7 @@ export const functionResolvers = {
     ) {
       // convert html to the requested format if requested
       if (item.format && item.format !== ArticleFormat.Html && item.content) {
-        let highlights: HighlightEntity[] = []
+        let highlights: Highlight[] = []
         // load highlights if needed
         if (
           item.format === ArticleFormat.HighlightedMarkdown &&
@@ -886,4 +884,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Subscription'),
   ...resultResolveTypeResolver('RefreshHome'),
   ...resultResolveTypeResolver('HiddenHomeSection'),
+  ...resultResolveTypeResolver('Highlights'),
 }

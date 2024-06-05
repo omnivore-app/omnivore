@@ -60,7 +60,7 @@ export const findActiveUser = async (id: string): Promise<User | null> => {
   return userRepository.findOneBy({ id, status: StatusType.Active })
 }
 
-export const findUsersById = async (ids: string[]): Promise<User[]> => {
+export const findUsersByIds = async (ids: string[]): Promise<User[]> => {
   return userRepository.findBy({ id: In(ids) })
 }
 
