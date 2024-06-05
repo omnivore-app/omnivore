@@ -61,8 +61,10 @@ export default function Home(): JSX.Element {
       />
       {showLeftMenu && (
         <NavigationMenu
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           setShowAddLinkModal={() => {}}
           searchTerm={''}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           applySearchQuery={(searchQuery: string) => {}}
           showFilterMenu={showLeftMenu}
           setShowFilterMenu={(show) => {
