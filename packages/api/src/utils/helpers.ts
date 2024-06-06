@@ -7,30 +7,11 @@ import path from 'path'
 import _ from 'underscore'
 import slugify from 'voca/slugify'
 import wordsCounter from 'word-counting'
-import { Highlight as HighlightData } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { Recommendation as RecommendationData } from '../entity/recommendation'
-import { RegistrationType, User } from '../entity/user'
-import {
-  Article,
-  ArticleSavingRequest,
-  ArticleSavingRequestStatus,
-  ContentReader,
-  CreateArticleError,
-  CreateArticleSuccess,
-  DirectionalityType,
-  FeedArticle,
-  Highlight,
-  PageType,
-  Profile,
-  Recommendation,
-  SearchItem,
-} from '../generated/graphql'
+import { CreateArticleError } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
-import { ArticleFormat } from '../resolvers'
 import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
-import { Merge } from '../util'
 import { logger } from './logger'
 
 interface InputObject {
@@ -101,55 +82,6 @@ export const findDelimiter = (
   return delimiter || defaultDelimiter
 }
 
-// FIXME: Remove this Date stub after nullable types will be fixed
-export const userDataToUser = (
-  user: Merge<
-    User,
-    {
-      isFriend?: boolean
-      followersCount?: number
-      friendsCount?: number
-      sharedArticlesCount?: number
-      sharedHighlightsCount?: number
-      sharedNotesCount?: number
-      viewerIsFollowing?: boolean
-    }
-  >
-): {
-  id: string
-  name: string
-  source: RegistrationType
-  email?: string | null
-  phone?: string | null
-  picture?: string | null
-  googleId?: string | null
-  createdAt: Date
-  isFriend?: boolean | null
-  isFullUser: boolean
-  viewerIsFollowing?: boolean | null
-  sourceUserId: string
-  friendsCount?: number
-  followersCount?: number
-  sharedArticles: FeedArticle[]
-  sharedArticlesCount?: number
-  sharedHighlightsCount?: number
-  sharedNotesCount?: number
-  profile: Profile
-} => ({
-  ...user,
-  source: user.source as RegistrationType,
-  createdAt: user.createdAt,
-  friendsCount: user.friendsCount || 0,
-  followersCount: user.followersCount || 0,
-  isFullUser: true,
-  viewerIsFollowing: user.viewerIsFollowing || user.isFriend || false,
-  picture: user.profile.pictureUrl,
-  sharedArticles: [],
-  sharedArticlesCount: user.sharedArticlesCount || 0,
-  sharedHighlightsCount: user.sharedHighlightsCount || 0,
-  sharedNotesCount: user.sharedNotesCount || 0,
-})
-
 export const generateSlug = (title: string): string => {
   return slugify(title).substring(0, 64) + '-' + Date.now().toString(16)
 }
@@ -161,7 +93,7 @@ export const errorHandler = async (
   userId: string,
   pageId?: string | null,
   pubsub = createPubSubClient()
-): Promise<CreateArticleError | CreateArticleSuccess> => {
+): Promise<CreateArticleError> => {
   if (!pageId) return result
 
   await updateLibraryItem(
@@ -175,86 +107,6 @@ export const errorHandler = async (
 
   return result
 }
-
-export const highlightDataToHighlight = (
-  highlight: HighlightData
-): Highlight => ({
-  ...highlight,
-  createdByMe: false,
-  reactions: [],
-  replies: [],
-  type: highlight.highlightType,
-  user: userDataToUser(highlight.user),
-})
-
-export const recommandationDataToRecommendation = (
-  recommendation: RecommendationData
-): Recommendation => ({
-  ...recommendation,
-  user: {
-    userId: recommendation.recommender.id,
-    username: recommendation.recommender.profile.username,
-    profileImageURL: recommendation.recommender.profile.pictureUrl,
-    name: recommendation.recommender.name,
-  },
-  name: recommendation.group.name,
-  recommendedAt: recommendation.createdAt,
-})
-
-export const libraryItemToArticleSavingRequest = (
-  user: User,
-  item: LibraryItem
-): ArticleSavingRequest => ({
-  ...item,
-  user: userDataToUser(user),
-  status: item.state as unknown as ArticleSavingRequestStatus,
-  url: item.originalUrl,
-  userId: user.id,
-})
-
-export const libraryItemToArticle = (item: LibraryItem): Article => ({
-  ...item,
-  url: item.originalUrl,
-  state: item.state as unknown as ArticleSavingRequestStatus,
-  content: item.readableContent,
-  hash: item.textContentHash || '',
-  isArchived: !!item.archivedAt,
-  recommendations: item.recommendations?.map(
-    recommandationDataToRecommendation
-  ),
-  image: item.thumbnail,
-  contentReader: item.contentReader as unknown as ContentReader,
-  readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
-  readingProgressPercent: item.readingProgressBottomPercent,
-  highlights: item.highlights?.map(highlightDataToHighlight) || [],
-  uploadFileId: item.uploadFile?.id,
-  pageType: item.itemType as unknown as PageType,
-  wordsCount: item.wordCount,
-  directionality: item.directionality as unknown as DirectionalityType,
-})
-
-export const libraryItemToSearchItem = (
-  item: LibraryItem,
-  format?: ArticleFormat
-): SearchItem => ({
-  ...item,
-  url: item.originalUrl,
-  state: item.state as unknown as ArticleSavingRequestStatus,
-  content: item.readableContent,
-  isArchived: !!item.archivedAt,
-  pageType: item.itemType as unknown as PageType,
-  readingProgressPercent: item.readingProgressBottomPercent,
-  contentReader: item.contentReader as unknown as ContentReader,
-  readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
-  recommendations: item.recommendations?.map(
-    recommandationDataToRecommendation
-  ),
-  image: item.thumbnail,
-  highlights: item.highlights?.map(highlightDataToHighlight),
-  wordsCount: item.wordCount,
-  directionality: item.directionality as unknown as DirectionalityType,
-  format,
-})
 
 export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {
   return (

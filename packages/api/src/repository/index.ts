@@ -12,6 +12,26 @@ import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
 
+export enum SortOrder {
+  ASCENDING = 'ASC',
+  DESCENDING = 'DESC',
+}
+
+export interface Sort {
+  by: string
+  order?: SortOrder
+  nulls?: 'NULLS FIRST' | 'NULLS LAST'
+}
+
+export interface Select {
+  column: string
+  alias?: string
+}
+
+export const paramtersToObject = (parameters: ObjectLiteral[]) => {
+  return parameters.reduce((a, b) => ({ ...a, ...b }), {})
+}
+
 export const getColumns = <T extends ObjectLiteral>(
   repository: Repository<T>
 ): (keyof T)[] => {

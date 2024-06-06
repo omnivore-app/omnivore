@@ -39,6 +39,23 @@ export const batchGetLabelsFromLibraryItemIds = async (
   )
 }
 
+export const batchGetLabelsFromHighlightIds = async (
+  highlightIds: readonly string[]
+): Promise<Label[][]> => {
+  const labels = await authTrx(async (tx) =>
+    tx.getRepository(EntityLabel).find({
+      where: { highlightId: In(highlightIds as string[]) },
+      relations: ['label'],
+    })
+  )
+
+  return highlightIds.map((highlightId) =>
+    labels
+      .filter((label) => label.highlightId === highlightId)
+      .map((label) => label.label)
+  )
+}
+
 export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
   userId: string

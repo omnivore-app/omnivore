@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { DeepPartial } from 'typeorm'
 import {
-  Highlight as HighlightData,
+  Highlight as HighlightEntity,
   HighlightType,
   RepresentationType,
 } from '../../entity/highlight'
@@ -16,6 +16,10 @@ import {
   DeleteHighlightError,
   DeleteHighlightErrorCode,
   DeleteHighlightSuccess,
+  HighlightEdge,
+  HighlightsError,
+  HighlightsErrorCode,
+  HighlightsSuccess,
   MergeHighlightError,
   MergeHighlightErrorCode,
   MergeHighlightSuccess,
@@ -23,6 +27,7 @@ import {
   MutationDeleteHighlightArgs,
   MutationMergeHighlightArgs,
   MutationUpdateHighlightArgs,
+  QueryHighlightsArgs,
   UpdateHighlightError,
   UpdateHighlightErrorCode,
   UpdateHighlightSuccess,
@@ -32,14 +37,15 @@ import {
   createHighlight,
   deleteHighlightById,
   mergeHighlights,
+  searchHighlights,
   updateHighlight,
 } from '../../services/highlights'
+import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/gql-utils'
-import { highlightDataToHighlight } from '../../utils/helpers'
 
 export const createHighlightResolver = authorized<
-  CreateHighlightSuccess,
+  Merge<CreateHighlightSuccess, { highlight: HighlightEntity }>,
   CreateHighlightError,
   MutationCreateHighlightArgs
 >(async (_, { input }, { log, pubsub, uid }) => {
@@ -68,7 +74,7 @@ export const createHighlightResolver = authorized<
       },
     })
 
-    return { highlight: highlightDataToHighlight(newHighlight) }
+    return { highlight: newHighlight }
   } catch (err) {
     log.error('Error creating highlight', err)
     return {
@@ -78,7 +84,7 @@ export const createHighlightResolver = authorized<
 })
 
 export const mergeHighlightResolver = authorized<
-  MergeHighlightSuccess,
+  Merge<MergeHighlightSuccess, { highlight: HighlightEntity }>,
   MergeHighlightError,
   MutationMergeHighlightArgs
 >(async (_, { input }, { authTrx, log, pubsub, uid }) => {
@@ -123,7 +129,7 @@ export const mergeHighlightResolver = authorized<
     const color =
       newHighlightInput.color || mergedColors[mergedColors.length - 1]
 
-    const highlight: DeepPartial<HighlightData> = {
+    const highlight: DeepPartial<HighlightEntity> = {
       ...newHighlightInput,
       annotation:
         mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
@@ -154,7 +160,7 @@ export const mergeHighlightResolver = authorized<
     })
 
     return {
-      highlight: highlightDataToHighlight(newHighlight),
+      highlight: newHighlight,
       overlapHighlightIdList: input.overlapHighlightIdList,
     }
   } catch (e) {
@@ -166,7 +172,7 @@ export const mergeHighlightResolver = authorized<
 })
 
 export const updateHighlightResolver = authorized<
-  UpdateHighlightSuccess,
+  Merge<UpdateHighlightSuccess, { highlight: HighlightEntity }>,
   UpdateHighlightError,
   MutationUpdateHighlightArgs
 >(async (_, { input }, { pubsub, uid, log }) => {
@@ -183,7 +189,7 @@ export const updateHighlightResolver = authorized<
       pubsub
     )
 
-    return { highlight: highlightDataToHighlight(updatedHighlight) }
+    return { highlight: updatedHighlight }
   } catch (error) {
     log.error('updateHighlightResolver error', error)
     return {
@@ -193,7 +199,7 @@ export const updateHighlightResolver = authorized<
 })
 
 export const deleteHighlightResolver = authorized<
-  DeleteHighlightSuccess,
+  Merge<DeleteHighlightSuccess, { highlight: HighlightEntity }>,
   DeleteHighlightError,
   MutationDeleteHighlightArgs
 >(async (_, { highlightId }, { log }) => {
@@ -206,7 +212,7 @@ export const deleteHighlightResolver = authorized<
       }
     }
 
-    return { highlight: highlightDataToHighlight(deletedHighlight) }
+    return { highlight: deletedHighlight }
   } catch (error) {
     log.error('deleteHighlightResolver error', error)
     return {
@@ -215,53 +221,63 @@ export const deleteHighlightResolver = authorized<
   }
 })
 
-// export const setShareHighlightResolver = authorized<
-//   SetShareHighlightSuccess,
-//   SetShareHighlightError,
-//   MutationSetShareHighlightArgs
-// >(async (_, { input: { id, share } }, { pubsub, claims, log }) => {
-//   const highlight = await getHighlightById(id)
+type PartialHighlightEdge = Merge<
+  HighlightEdge,
+  {
+    node: HighlightEntity
+  }
+>
+type PartialHighlightsSuccess = Merge<
+  HighlightsSuccess,
+  {
+    edges: PartialHighlightEdge[]
+  }
+>
+export const highlightsResolver = authorized<
+  PartialHighlightsSuccess,
+  HighlightsError,
+  QueryHighlightsArgs
+>(async (_, { after, first, query }, { uid, log }) => {
+  const limit = first || 10
+  const offset = parseInt(after || '0')
+  if (
+    isNaN(offset) ||
+    offset < 0 ||
+    limit > 50 ||
+    (query?.length && query.length > 1000)
+  ) {
+    log.error('Invalid args', { after, first, query })
 
-//   if (!highlight?.id) {
-//     return {
-//       errorCodes: [SetShareHighlightErrorCode.NotFound],
-//     }
-//   }
+    return {
+      errorCodes: [HighlightsErrorCode.BadRequest],
+    }
+  }
 
-//   if (highlight.userId !== claims.uid) {
-//     return {
-//       errorCodes: [SetShareHighlightErrorCode.Forbidden],
-//     }
-//   }
+  const highlights = await searchHighlights(
+    uid,
+    query || undefined,
+    limit + 1,
+    offset
+  )
 
-//   const sharedAt = share ? new Date() : null
+  const hasNextPage = highlights.length > limit
+  if (hasNextPage) {
+    highlights.pop()
+  }
+  const endCursor = String(offset + highlights.length)
 
-//   log.info(`${share ? 'S' : 'Uns'}haring a highlight`, {
-//     highlight,
-//     labels: {
-//       source: 'resolver',
-//       resolver: 'setShareHighlightResolver',
-//       userId: highlight.userId,
-//     },
-//   })
+  const edges = highlights.map((highlight) => ({
+    cursor: endCursor,
+    node: highlight,
+  }))
 
-//   const updatedHighlight: HighlightData = {
-//     ...highlight,
-//     sharedAt,
-//     updatedAt: new Date(),
-//   }
-
-//   const updated = await updateHighlight(updatedHighlight, {
-//     pubsub,
-//     uid: claims.uid,
-//     refresh: true,
-//   })
-
-//   if (!updated) {
-//     return {
-//       errorCodes: [SetShareHighlightErrorCode.NotFound],
-//     }
-//   }
-
-//   return { highlight: highlightDataToHighlight(updatedHighlight) }
-// })
+  return {
+    edges,
+    pageInfo: {
+      startCursor: String(offset),
+      endCursor,
+      hasPreviousPage: offset > 0,
+      hasNextPage,
+    },
+  }
+})

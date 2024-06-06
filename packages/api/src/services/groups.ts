@@ -6,9 +6,8 @@ import { Invite } from '../entity/groups/invite'
 import { RuleActionType } from '../entity/rule'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
-import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
 import { getRepository } from '../repository'
-import { userDataToUser } from '../utils/helpers'
+import { PartialRecommendationGroup } from '../resolvers'
 import { findOrCreateLabels } from './labels'
 import { createRule } from './rules'
 
@@ -70,22 +69,21 @@ export const createGroup = async (input: {
 
 export const getRecommendationGroups = async (
   user: User
-): Promise<RecommendationGroup[]> => {
+): Promise<Array<PartialRecommendationGroup>> => {
   const groupMembers = await getRepository(GroupMembership).find({
     where: { user: { id: user.id } },
     relations: ['invite', 'group.members.user.profile'],
   })
 
   return groupMembers.map((gm) => {
-    const admins: GraphqlUser[] = []
-    const members: GraphqlUser[] = []
+    const admins: Array<User> = []
+    const members: Array<User> = []
     // Return all members
     gm.group.members.forEach((m) => {
-      const user = userDataToUser(m.user)
       if (m.isAdmin) {
-        admins.push(user)
+        admins.push(m.user)
       }
-      members.push(user)
+      members.push(m.user)
     })
 
     const canSeeMembers = gm.group.onlyAdminCanSeeMembers ? gm.isAdmin : true
@@ -113,7 +111,7 @@ export const getInviteUrl = (invite: Invite) => {
 export const joinGroup = async (
   user: User,
   inviteCode: string
-): Promise<RecommendationGroup> => {
+): Promise<PartialRecommendationGroup> => {
   const invite = await appDataSource.transaction<Invite>(async (t) => {
     // Check if the invite exists
     const invite = await t
@@ -147,15 +145,14 @@ export const joinGroup = async (
     where: { id: invite.group.id },
     relations: ['members', 'members.user.profile'],
   })
-  const admins: GraphqlUser[] = []
-  const members: GraphqlUser[] = []
+  const admins: Array<User> = []
+  const members: Array<User> = []
   // Return all members
   group.members.forEach((m) => {
-    const user = userDataToUser(m.user)
     if (m.isAdmin) {
-      admins.push(user)
+      admins.push(m.user)
     }
-    members.push(user)
+    members.push(m.user)
   })
 
   return {

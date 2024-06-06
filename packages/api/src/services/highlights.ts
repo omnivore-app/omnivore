@@ -205,19 +205,26 @@ export const updateHighlight = async (
   return updatedHighlight
 }
 
-export const deleteHighlightById = async (highlightId: string) => {
-  const deletedHighlight = await authTrx(async (tx) => {
-    const highlightRepo = tx.withRepository(highlightRepository)
-    const highlight = await highlightRepo.findOneOrFail({
-      where: { id: highlightId },
-      relations: {
-        user: true,
-      },
-    })
+export const deleteHighlightById = async (
+  highlightId: string,
+  userId?: string
+) => {
+  const deletedHighlight = await authTrx(
+    async (tx) => {
+      const highlightRepo = tx.withRepository(highlightRepository)
+      const highlight = await highlightRepo.findOneOrFail({
+        where: { id: highlightId },
+        relations: {
+          user: true,
+        },
+      })
 
-    await highlightRepo.delete(highlightId)
-    return highlight
-  })
+      await highlightRepo.delete(highlightId)
+      return highlight
+    },
+    undefined,
+    userId
+  )
 
   await enqueueUpdateHighlight({
     libraryItemId: deletedHighlight.libraryItemId,
@@ -225,6 +232,17 @@ export const deleteHighlightById = async (highlightId: string) => {
   })
 
   return deletedHighlight
+}
+
+export const deleteHighlightsByIds = async (
+  userId: string,
+  highlightIds: string[]
+) => {
+  await authTrx(
+    async (tx) => tx.getRepository(Highlight).delete(highlightIds),
+    undefined,
+    userId
+  )
 }
 
 export const findHighlightById = async (
@@ -256,6 +274,49 @@ export const findHighlightsByLibraryItemId = async (
           labels: true,
         },
       }),
+    undefined,
+    userId
+  )
+}
+
+export const searchHighlights = async (
+  userId: string,
+  query?: string,
+  limit?: number,
+  offset?: number
+): Promise<Array<Highlight>> => {
+  return authTrx(
+    async (tx) => {
+      const queryBuilder = tx
+        .getRepository(Highlight)
+        .createQueryBuilder('highlight')
+        .andWhere('highlight.userId = :userId', { userId })
+        .orderBy('highlight.updatedAt', 'DESC')
+        .take(limit)
+        .skip(offset)
+
+      if (query) {
+        // parse query and search by it
+        const labelRegex = /label:"([^"]+)"/g
+        const labels = Array.from(query.matchAll(labelRegex)).map(
+          (match) => match[1]
+        )
+
+        labels.forEach((label, index) => {
+          const alias = `label_${index}`
+          queryBuilder.innerJoin(
+            'highlight.labels',
+            alias,
+            `LOWER(${alias}.name) = LOWER(:${alias})`,
+            {
+              [alias]: label,
+            }
+          )
+        })
+      }
+
+      return queryBuilder.getMany()
+    },
     undefined,
     userId
   )

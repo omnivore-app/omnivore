@@ -1,20 +1,16 @@
 import * as privateIpLib from 'private-ip'
-import { LibraryItemState } from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import {
-  ArticleSavingRequest,
   ArticleSavingRequestStatus,
   CreateArticleSavingRequestErrorCode,
   CreateLabelInput,
   PageType,
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
+import { Merge } from '../util'
 import { enqueueParseRequest } from '../utils/createTask'
-import {
-  cleanUrl,
-  generateSlug,
-  libraryItemToArticleSavingRequest,
-} from '../utils/helpers'
+import { cleanUrl, generateSlug } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { countBySavedAt, createOrUpdateLibraryItem } from './library_item'
 
@@ -88,11 +84,12 @@ export const createPageSaveRequest = async ({
   publishedAt,
   folder,
   subscription,
-}: PageSaveRequest): Promise<ArticleSavingRequest> => {
+}: PageSaveRequest): Promise<LibraryItem> => {
   try {
     validateUrl(url)
   } catch (error) {
-    logger.info('invalid url', { url, error })
+    logger.error('invalid url', { url, error })
+
     return Promise.reject({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
@@ -140,5 +137,5 @@ export const createPageSaveRequest = async ({
     rssFeedUrl: subscription,
   })
 
-  return libraryItemToArticleSavingRequest(user, libraryItem)
+  return libraryItem
 }

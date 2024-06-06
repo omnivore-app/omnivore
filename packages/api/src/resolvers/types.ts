@@ -13,6 +13,7 @@ import { PublicItem } from '../entity/public_item'
 import { Recommendation } from '../entity/recommendation'
 import { Subscription } from '../entity/subscription'
 import { UploadFile } from '../entity/upload_file'
+import { User } from '../entity/user'
 import { HomeItem } from '../generated/graphql'
 import { PubsubClient } from '../pubsub'
 
@@ -58,6 +59,8 @@ export interface RequestContext {
     libraryItems: DataLoader<string, LibraryItem | undefined>
     publicItems: DataLoader<string, PublicItem | undefined>
     subscriptions: DataLoader<string, Subscription | undefined>
+    users: DataLoader<string, User | undefined>
+    highlightLabels: DataLoader<string, Label[]>
   }
 }
 

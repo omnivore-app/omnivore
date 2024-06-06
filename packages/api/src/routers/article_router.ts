@@ -49,22 +49,23 @@ export function articleRouter() {
       return res.status(400).send('Bad Request')
     }
 
-    const result = await createPageSaveRequest({ user, url })
-
     if (isSiteBlockedForParse(url)) {
       return res
         .status(400)
         .send({ errorCode: CreateArticleErrorCode.NotAllowedToParse })
     }
 
-    if (result.errorCode) {
-      return res.status(400).send({ errorCode: result.errorCode })
-    }
+    try {
+      const result = await createPageSaveRequest({ user, url })
 
-    return res.send({
-      articleSavingRequestId: result.id,
-      url: result.url,
-    })
+      return res.send({
+        articleSavingRequestId: result.id,
+        url: result.originalUrl,
+      })
+    } catch (error) {
+      logger.error('Error saving article:', error)
+      return res.status(500).send({ errorCode: 'INTERNAL_ERROR' })
+    }
   })
 
   router.get(

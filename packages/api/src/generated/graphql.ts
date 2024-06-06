@@ -1261,6 +1261,7 @@ export type Highlight = {
   html?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   labels?: Maybe<Array<Label>>;
+  libraryItem: Article;
   patch?: Maybe<Scalars['String']>;
   prefix?: Maybe<Scalars['String']>;
   quote?: Maybe<Scalars['String']>;
@@ -1273,6 +1274,12 @@ export type Highlight = {
   type: HighlightType;
   updatedAt?: Maybe<Scalars['Date']>;
   user: User;
+};
+
+export type HighlightEdge = {
+  __typename?: 'HighlightEdge';
+  cursor: Scalars['String'];
+  node: Highlight;
 };
 
 export type HighlightReply = {
@@ -1295,6 +1302,23 @@ export enum HighlightType {
   Note = 'NOTE',
   Redaction = 'REDACTION'
 }
+
+export type HighlightsError = {
+  __typename?: 'HighlightsError';
+  errorCodes: Array<HighlightsErrorCode>;
+};
+
+export enum HighlightsErrorCode {
+  BadRequest = 'BAD_REQUEST'
+}
+
+export type HighlightsResult = HighlightsError | HighlightsSuccess;
+
+export type HighlightsSuccess = {
+  __typename?: 'HighlightsSuccess';
+  edges: Array<HighlightEdge>;
+  pageInfo: PageInfo;
+};
 
 export type HomeEdge = {
   __typename?: 'HomeEdge';
@@ -2261,6 +2285,7 @@ export type Query = {
   groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
   hiddenHomeSection: HiddenHomeSectionResult;
+  highlights: HighlightsResult;
   home: HomeResult;
   integration: IntegrationResult;
   integrations: IntegrationsResult;
@@ -2308,6 +2333,13 @@ export type QueryGetDiscoverFeedArticlesArgs = {
   discoverTopicId: Scalars['String'];
   feedId?: InputMaybe<Scalars['ID']>;
   first?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryHighlightsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  query?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -4331,9 +4363,14 @@ export type ResolversTypes = {
   HiddenHomeSectionResult: ResolversTypes['HiddenHomeSectionError'] | ResolversTypes['HiddenHomeSectionSuccess'];
   HiddenHomeSectionSuccess: ResolverTypeWrapper<HiddenHomeSectionSuccess>;
   Highlight: ResolverTypeWrapper<Highlight>;
+  HighlightEdge: ResolverTypeWrapper<HighlightEdge>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
   HighlightType: HighlightType;
+  HighlightsError: ResolverTypeWrapper<HighlightsError>;
+  HighlightsErrorCode: HighlightsErrorCode;
+  HighlightsResult: ResolversTypes['HighlightsError'] | ResolversTypes['HighlightsSuccess'];
+  HighlightsSuccess: ResolverTypeWrapper<HighlightsSuccess>;
   HomeEdge: ResolverTypeWrapper<HomeEdge>;
   HomeError: ResolverTypeWrapper<HomeError>;
   HomeErrorCode: HomeErrorCode;
@@ -4900,8 +4937,12 @@ export type ResolversParentTypes = {
   HiddenHomeSectionResult: ResolversParentTypes['HiddenHomeSectionError'] | ResolversParentTypes['HiddenHomeSectionSuccess'];
   HiddenHomeSectionSuccess: HiddenHomeSectionSuccess;
   Highlight: Highlight;
+  HighlightEdge: HighlightEdge;
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
+  HighlightsError: HighlightsError;
+  HighlightsResult: ResolversParentTypes['HighlightsError'] | ResolversParentTypes['HighlightsSuccess'];
+  HighlightsSuccess: HighlightsSuccess;
   HomeEdge: HomeEdge;
   HomeError: HomeError;
   HomeItem: HomeItem;
@@ -6088,6 +6129,7 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
+  libraryItem?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   patch?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6103,6 +6145,12 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type HighlightEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightEdge'] = ResolversParentTypes['HighlightEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Highlight'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type HighlightReplyResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightReply'] = ResolversParentTypes['HighlightReply']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   highlight?: Resolver<ResolversTypes['Highlight'], ParentType, ContextType>;
@@ -6115,6 +6163,21 @@ export type HighlightReplyResolvers<ContextType = ResolverContext, ParentType ex
 
 export type HighlightStatsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightStats'] = ResolversParentTypes['HighlightStats']> = {
   highlightCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HighlightsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightsError'] = ResolversParentTypes['HighlightsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['HighlightsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HighlightsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightsResult'] = ResolversParentTypes['HighlightsResult']> = {
+  __resolveType: TypeResolveFn<'HighlightsError' | 'HighlightsSuccess', ParentType, ContextType>;
+};
+
+export type HighlightsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightsSuccess'] = ResolversParentTypes['HighlightsSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['HighlightEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6581,6 +6644,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hiddenHomeSection?: Resolver<ResolversTypes['HiddenHomeSectionResult'], ParentType, ContextType>;
+  highlights?: Resolver<ResolversTypes['HighlightsResult'], ParentType, ContextType, Partial<QueryHighlightsArgs>>;
   home?: Resolver<ResolversTypes['HomeResult'], ParentType, ContextType, Partial<QueryHomeArgs>>;
   integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'name'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
@@ -7797,8 +7861,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   HiddenHomeSectionResult?: HiddenHomeSectionResultResolvers<ContextType>;
   HiddenHomeSectionSuccess?: HiddenHomeSectionSuccessResolvers<ContextType>;
   Highlight?: HighlightResolvers<ContextType>;
+  HighlightEdge?: HighlightEdgeResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;
+  HighlightsError?: HighlightsErrorResolvers<ContextType>;
+  HighlightsResult?: HighlightsResultResolvers<ContextType>;
+  HighlightsSuccess?: HighlightsSuccessResolvers<ContextType>;
   HomeEdge?: HomeEdgeResolvers<ContextType>;
   HomeError?: HomeErrorResolvers<ContextType>;
   HomeItem?: HomeItemResolvers<ContextType>;

@@ -1133,6 +1133,7 @@ type Highlight {
   html: String
   id: ID!
   labels: [Label!]
+  libraryItem: Article!
   patch: String
   prefix: String
   quote: String
@@ -1145,6 +1146,11 @@ type Highlight {
   type: HighlightType!
   updatedAt: Date
   user: User!
+}
+
+type HighlightEdge {
+  cursor: String!
+  node: Highlight!
 }
 
 type HighlightReply {
@@ -1164,6 +1170,21 @@ enum HighlightType {
   HIGHLIGHT
   NOTE
   REDACTION
+}
+
+type HighlightsError {
+  errorCodes: [HighlightsErrorCode!]!
+}
+
+enum HighlightsErrorCode {
+  BAD_REQUEST
+}
+
+union HighlightsResult = HighlightsError | HighlightsSuccess
+
+type HighlightsSuccess {
+  edges: [HighlightEdge!]!
+  pageInfo: PageInfo!
 }
 
 type HomeEdge {
@@ -1738,6 +1759,7 @@ type Query {
   groups: GroupsResult!
   hello: String
   hiddenHomeSection: HiddenHomeSectionResult!
+  highlights(after: String, first: Int, query: String): HighlightsResult!
   home(after: String, first: Int): HomeResult!
   integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!

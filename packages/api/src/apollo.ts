@@ -33,7 +33,10 @@ import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
 import { batchGetPublicItems } from './services/home'
-import { batchGetLabelsFromLibraryItemIds } from './services/labels'
+import {
+  batchGetLabelsFromHighlightIds,
+  batchGetLabelsFromLibraryItemIds,
+} from './services/labels'
 import { batchGetLibraryItems } from './services/library_item'
 import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
@@ -42,6 +45,7 @@ import {
 } from './services/service_usage'
 import { batchGetSubscriptionsByNames } from './services/subscriptions'
 import { batchGetUploadFilesByIds } from './services/upload_file'
+import { findUsersByIds } from './services/user'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
@@ -124,6 +128,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 
         return batchGetSubscriptionsByNames(claims.uid, names as string[])
       }),
+      users: new DataLoader(async (ids: readonly string[]) =>
+        findUsersByIds(ids as string[])
+      ),
+      highlightLabels: new DataLoader(batchGetLabelsFromHighlightIds),
     },
   }
 

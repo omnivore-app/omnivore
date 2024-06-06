@@ -3,13 +3,20 @@ import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
+import { Highlight } from '../../src/entity/highlight'
 import { User } from '../../src/entity/user'
+import { HighlightEdge } from '../../src/generated/graphql'
 import {
   createHighlight,
   deleteHighlightById,
+  deleteHighlightsByIds,
   findHighlightById,
 } from '../../src/services/highlights'
-import { createLabel, saveLabelsInHighlight } from '../../src/services/labels'
+import {
+  createLabel,
+  deleteLabels,
+  saveLabelsInHighlight,
+} from '../../src/services/labels'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
 import {
@@ -165,8 +172,14 @@ describe('Highlights API', () => {
   })
 
   context('createHighlightMutation', () => {
+    let highlightId: string
+
+    afterEach(async () => {
+      await deleteHighlightById(highlightId, user.id)
+    })
+
     it('does not fail', async () => {
-      const highlightId = generateFakeUuid()
+      highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id'
       const highlightPositionPercent = 35.0
       const highlightPositionAnchorIndex = 15
@@ -194,31 +207,29 @@ describe('Highlights API', () => {
 
     context('when highlight position is null', () => {
       it('sets highlight position = 0', async () => {
-        const newHighlightId = generateFakeUuid()
+        highlightId = generateFakeUuid()
         const newShortHighlightId = '_short_id_5'
         const query = createHighlightQuery(
           itemId,
-          newHighlightId,
+          highlightId,
           newShortHighlightId
         )
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(
           res.body.data.createHighlight.highlight.highlightPositionPercent
         ).to.eq(0)
-
-        await deleteHighlightById(newHighlightId)
       })
     })
 
     context('when the annotation has HTML reserved characters', () => {
       it('unescapes the annotation and creates', async () => {
-        const newHighlightId = generateFakeUuid()
+        highlightId = generateFakeUuid()
         const newShortHighlightId = '_short_id_4'
         const highlightPositionPercent = 50.0
         const highlightPositionAnchorIndex = 25
         const query = createHighlightQuery(
           itemId,
-          newHighlightId,
+          highlightId,
           newShortHighlightId,
           highlightPositionPercent,
           highlightPositionAnchorIndex,
@@ -244,7 +255,7 @@ describe('Highlights API', () => {
     })
 
     afterEach(async () => {
-      await deleteHighlightById(highlightId)
+      await deleteHighlightById(highlightId, user.id)
     })
 
     it('should not fail', async () => {
@@ -318,6 +329,10 @@ describe('Highlights API', () => {
       highlightId = highlight.id
     })
 
+    after(async () => {
+      await deleteHighlightById(highlightId, user.id)
+    })
+
     it('updates the quote when the quote is in HTML format when the annotation has HTML reserved characters', async () => {
       const quote = '> This is a test'
       const query = updateHighlightQuery({ highlightId, quote })
@@ -342,6 +357,123 @@ describe('Highlights API', () => {
       expect(res.body.data.updateHighlight.highlight.annotation).to.eql(
         annotation
       )
+    })
+  })
+
+  describe('Get highlights API', () => {
+    const query = `
+      query Highlights ($first: Int, $after: String, $query: String) {
+        highlights (first: $first, after: $after, query: $query) {
+          ... on HighlightsSuccess {
+            edges {
+              node {
+                id
+                user {
+                  id
+                  name
+                }
+                labels {
+                  id
+                  name
+                  color
+                }
+                libraryItem {
+                  id
+                  title
+                }
+              }
+              cursor
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+          ... on HighlightsError {
+            errorCodes
+          }
+        }
+      }
+    `
+    let existingHighlights: Highlight[]
+
+    before(async () => {
+      // create test library item
+      const item = await createTestLibraryItem(user.id)
+
+      // create test highlights
+      const highlight1 = await createHighlight(
+        {
+          libraryItem: { id: item.id },
+          shortId: generateFakeShortId(),
+          user: { id: user.id },
+        },
+        itemId,
+        user.id
+      )
+      const highlight2 = await createHighlight(
+        {
+          libraryItem: { id: item.id },
+          shortId: generateFakeShortId(),
+          user: { id: user.id },
+        },
+        itemId,
+        user.id
+      )
+      existingHighlights = [highlight1, highlight2]
+    })
+
+    after(async () => {
+      await deleteHighlightsByIds(
+        user.id,
+        existingHighlights.map((h) => h.id)
+      )
+    })
+
+    it('returns highlights in descending order', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+      const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
+      expect(highlights).to.have.lengthOf(existingHighlights.length)
+      expect(highlights[0].node.id).to.eq(existingHighlights[1].id)
+      expect(highlights[1].node.id).to.eq(existingHighlights[0].id)
+      expect(highlights[0].node.user.id).to.eq(user.id)
+      expect(highlights[1].node.libraryItem.id).to.eq(
+        existingHighlights[0].libraryItemId
+      )
+    })
+
+    it('returns highlights with pagination', async () => {
+      const res = await graphqlRequest(query, authToken, {
+        first: 1,
+      }).expect(200)
+
+      const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
+      expect(highlights).to.have.lengthOf(1)
+    })
+
+    it('returns highlights with labels', async () => {
+      // create labels
+      const labelName = 'test_label'
+      const label = await createLabel(labelName, '#ff0000', user.id)
+      const labelName1 = 'test_label_1'
+      const label1 = await createLabel(labelName1, '#ff0001', user.id)
+
+      // save labels in highlights
+      await saveLabelsInHighlight(
+        [label, label1],
+        existingHighlights[0].id,
+        user.id
+      )
+
+      const res = await graphqlRequest(query, authToken, {
+        query: `label:"${labelName}" label:"${labelName1}"`,
+      }).expect(200)
+      const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
+      expect(highlights).to.have.lengthOf(1)
+      expect(highlights[0].node.labels?.[0].name).to.eq(labelName)
+      expect(highlights[0].node.labels?.[1].name).to.eq(labelName1)
+
+      await deleteLabels([label.id, label1.id], user.id)
     })
   })
 })
