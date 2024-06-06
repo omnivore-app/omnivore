@@ -459,16 +459,19 @@ describe('Highlights API', () => {
       const label1 = await createLabel(labelName1, '#ff0001', user.id)
 
       // save labels in highlights
-      await saveLabelsInHighlight([label], existingHighlights[0].id, user.id)
-      await saveLabelsInHighlight([label1], existingHighlights[1].id, user.id)
+      await saveLabelsInHighlight(
+        [label, label1],
+        existingHighlights[0].id,
+        user.id
+      )
 
       const res = await graphqlRequest(query, authToken, {
         query: `label:"${labelName}" label:"${labelName1}"`,
       }).expect(200)
       const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
-      expect(highlights).to.have.lengthOf(2)
-      expect(highlights[1].node.labels?.[0].name).to.eq(labelName)
-      expect(highlights[0].node.labels?.[0].name).to.eq(labelName1)
+      expect(highlights).to.have.lengthOf(1)
+      expect(highlights[0].node.labels?.[0].name).to.eq(labelName)
+      expect(highlights[0].node.labels?.[1].name).to.eq(labelName1)
 
       await deleteLabels([label.id, label1.id], user.id)
     })
