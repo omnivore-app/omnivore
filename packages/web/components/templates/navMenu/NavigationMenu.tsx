@@ -105,9 +105,9 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
           left: '0px',
           top: '0px',
           position: 'fixed',
-          bg: '$thLeftMenuBackground',
           height: '100%',
           width: LIBRARY_LEFT_MENU_WIDTH,
+          bg: '$thLeftMenuBackground',
           overflowY: 'auto',
           overflowX: 'hidden',
           '&::-webkit-scrollbar': {
@@ -200,7 +200,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         gap: '5px',
         width: '100%',
         borderBottom: '1px solid $thBorderColor',
-        px: '15px',
+        px: '0px',
         pb: '25px',
       }}
       alignment="start"
@@ -215,17 +215,17 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
       />
       <NavButton
         {...props}
-        text="Subscriptions"
-        section="subscriptions"
-        isSelected={props.section == 'subscriptions'}
-        icon={<FollowingIcon color="#F59932" />}
-      />
-      <NavButton
-        {...props}
         text="Library"
         section="library"
         isSelected={props.section == 'library'}
         icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
+      />
+      <NavButton
+        {...props}
+        text="Subscriptions"
+        section="subscriptions"
+        isSelected={props.section == 'subscriptions'}
+        icon={<FollowingIcon color="#F59932" />}
       />
       <NavButton
         {...props}
@@ -303,7 +303,7 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
         m: '0px',
         gap: '8px',
         width: '100%',
-        px: '15px',
+        px: '0px',
         pb: '25px',
       }}
       alignment="start"
@@ -815,6 +815,7 @@ function NavButton(props: NavButtonProps): JSX.Element {
         width: '100%',
         maxWidth: '100%',
         height: '34px',
+        px: '15px',
 
         backgroundColor: props.isSelected
           ? '$thLibrarySelectionColor'

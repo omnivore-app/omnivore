@@ -6,9 +6,9 @@ import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShor
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
 import { FunnelSimple, X } from 'phosphor-react'
-import { LayoutType, LibraryMode } from './HomeFeedContainer'
+import { LayoutType, LibraryMode } from '../homeFeed/HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from '../homeFeed/HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
@@ -16,7 +16,10 @@ import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { userHasFeature } from '../../../lib/featureFlag'
-import { MultiSelectControls, CheckBoxButton } from './MultiSelectControls'
+import {
+  MultiSelectControls,
+  CheckBoxButton,
+} from '../homeFeed/MultiSelectControls'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -31,9 +34,6 @@ export type LibraryHeaderProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
-
-  mode: LibraryMode
-  setMode: (set: LibraryMode) => void
 
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
@@ -63,7 +63,7 @@ export const headerControlWidths = (
   }
 }
 
-export function LegacyLibraryHeader(props: LibraryHeaderProps): JSX.Element {
+export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   const [small, setSmall] = useState(false)
 
   useEffect(() => {
@@ -84,12 +84,10 @@ export function LegacyLibraryHeader(props: LibraryHeaderProps): JSX.Element {
         alignment="start"
         distribution="start"
         css={{
-          top: '0',
-          right: '0',
-          zIndex: 5,
+          width: '100%',
           px: '70px',
           bg: '$thLibraryBackground',
-          position: 'fixed',
+          //          position: 'sticky',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
           transition: 'height 0.5s',
@@ -118,8 +116,8 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       distribution="start"
       css={{
         gap: '10px',
+        width: '100%',
         height: '100%',
-        ...headerControlWidths(props.layout, props.multiSelectMode),
       }}
     >
       {props.multiSelectMode !== 'off' ? (

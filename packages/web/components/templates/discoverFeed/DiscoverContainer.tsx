@@ -2,7 +2,7 @@ import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
 import { DiscoverHeader } from './DiscoverHeader/DiscoverHeader'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from 'react'
 import { DiscoverItemFeed } from './DiscoverFeed/DiscoverFeed'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import toast from 'react-hot-toast'
@@ -10,13 +10,13 @@ import { Button } from '../../elements/Button'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import {
   saveDiscoverArticleMutation,
-  SaveDiscoverArticleOutput
-} from "../../../lib/networking/mutations/saveDiscoverArticle"
-import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
-import { useFetchMore } from "../../../lib/hooks/useFetchMoreScroll"
-import { AddLinkModal } from "../homeFeed/AddLinkModal"
-import { useGetDiscoverFeedItems } from "../../../lib/networking/queries/useGetDiscoverFeedItems"
-import { useGetDiscoverFeeds } from "../../../lib/networking/queries/useGetDiscoverFeeds"
+  SaveDiscoverArticleOutput,
+} from '../../../lib/networking/mutations/saveDiscoverArticle'
+import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
+import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
+import { AddLinkModal } from '../AddLinkModal'
+import { useGetDiscoverFeedItems } from '../../../lib/networking/queries/useGetDiscoverFeedItems'
+import { useGetDiscoverFeeds } from '../../../lib/networking/queries/useGetDiscoverFeeds'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -27,8 +27,8 @@ export function DiscoverContainer(): JSX.Element {
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [layoutType, setLayoutType] = useState<LayoutType>('GRID_LAYOUT')
-  const [showAddLinkModal, setShowAddLinkModal] = useState(false);
-  const {feeds, revalidate, isValidating} = useGetDiscoverFeeds()
+  const [showAddLinkModal, setShowAddLinkModal] = useState(false)
+  const { feeds, revalidate, isValidating } = useGetDiscoverFeeds()
   const topics = [
     {
       title: 'Popular',
@@ -73,8 +73,16 @@ export function DiscoverContainer(): JSX.Element {
     },
   ]
 
-  const [selectedFeed, setSelectedFeed] = useState("All Feeds");
-  const { discoverItems, setTopic, activeTopic, isLoading, hasMore, setPage, page } = useGetDiscoverFeedItems(topics[1], selectedFeed)
+  const [selectedFeed, setSelectedFeed] = useState('All Feeds')
+  const {
+    discoverItems,
+    setTopic,
+    activeTopic,
+    isLoading,
+    hasMore,
+    setPage,
+    page,
+  } = useGetDiscoverFeedItems(topics[1], selectedFeed)
   const handleFetchMore = useCallback(() => {
     if (isLoading || !hasMore) {
       return
@@ -88,7 +96,11 @@ export function DiscoverContainer(): JSX.Element {
     timezone: string,
     locale: string
   ): Promise<SaveDiscoverArticleOutput | undefined> => {
-    const result = await saveDiscoverArticleMutation({discoverArticleId, timezone, locale})
+    const result = await saveDiscoverArticleMutation({
+      discoverArticleId,
+      timezone,
+      locale,
+    })
     if (result?.saveDiscoverArticle) {
       toast(
         () => (
@@ -160,8 +172,8 @@ export function DiscoverContainer(): JSX.Element {
   }, [])
 
   const setTopicAndReturnToTop = (topic: TopicTabData) => {
-    window.scroll(0,0);
-    setTopic(topic);
+    window.scroll(0, 0)
+    setTopic(topic)
   }
 
   return (
@@ -204,12 +216,12 @@ export function DiscoverContainer(): JSX.Element {
           items={discoverItems ?? []}
           viewer={viewer.viewerData?.me}
         />
-        { showAddLinkModal &&
+        {showAddLinkModal && (
           <AddLinkModal
             handleLinkSubmission={handleLinkSave}
             onOpenChange={() => setShowAddLinkModal(false)}
           />
-        }
+        )}
       </HStack>
     </VStack>
   )

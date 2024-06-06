@@ -31,14 +31,11 @@ import { StyledText } from '../../elements/StyledText'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { AddLinkModal } from '../AddLinkModal'
-import { EditLibraryItemModal } from './EditItemModals'
-import { EmptyLibrary } from './EmptyLibrary'
-import { HighlightItemsLayout } from './HighlightsLayout'
-import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
-import { LibraryLegacyMenu } from '../navMenu/LibraryLegacyMenu'
-import { LegacyLibraryHeader, MultiSelectMode } from './LibraryHeader'
+import { EditLibraryItemModal } from '../homeFeed/EditItemModals'
+import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
+import { LegacyLibraryHeader, MultiSelectMode } from '../homeFeed/LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -51,13 +48,12 @@ import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
-import { PinnedButtons } from './PinnedButtons'
+import { PinnedButtons } from '../homeFeed/PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
-import { FetchItemsError } from './FetchItemsError'
-import { TLDRLayout } from './TLDRLayout'
+import { FetchItemsError } from '../homeFeed/FetchItemsError'
+import { LibraryHeader } from './LibraryHeader'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
-export type LibraryMode = 'reads' | 'highlights' | 'tldr'
 
 const fetchSearchResults = async (query: string, cb: any) => {
   if (!query.startsWith('#')) return
@@ -77,12 +73,11 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
 // the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
 const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
-export function HomeFeedContainer(): JSX.Element {
+export function LibraryContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
-  const [mode, setMode] = useState<LibraryMode>('reads')
 
   const defaultQuery = {
     limit: 10,
@@ -141,43 +136,6 @@ export function HomeFeedContainer(): JSX.Element {
       )
     } else setSearchResults([])
   }, [queryValue])
-
-  useEffect(() => {
-    console.log('ueryInputs.searchQuery', queryInputs.searchQuery)
-    if (
-      queryInputs.searchQuery &&
-      queryInputs.searchQuery?.indexOf('mode:highlights') > -1
-    ) {
-      setMode('highlights')
-    } else if (
-      queryInputs.searchQuery &&
-      queryInputs.searchQuery?.indexOf('mode:tldr') > -1
-    ) {
-      setMode('tldr')
-    } else {
-      setMode('reads')
-    }
-    setMultiSelectMode('off')
-  }, [queryInputs])
-
-  useEffect(() => {
-    if (!router.isReady) return
-    const q = router.query['q']
-    let qs = 'in:inbox' // Default to in:inbox search term.
-    if (q && typeof q === 'string') {
-      qs = q
-    }
-
-    if (qs !== (queryInputs.searchQuery || '')) {
-      setQueryInputs({ ...queryInputs, searchQuery: qs })
-      performActionOnItem('refresh', undefined as unknown as any)
-    }
-    const mode = router.query['mode']
-
-    // intentionally not watching queryInputs and performActionOnItem
-    // here to prevent infinite looping
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setMode, setQueryInputs, router.isReady, router.query])
 
   const hasMore = useMemo(() => {
     if (!itemsPages) {
@@ -826,8 +784,6 @@ export function HomeFeedContainer(): JSX.Element {
       performMultiSelectAction={performMultiSelectAction}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
-      mode={mode}
-      setMode={setMode}
       handleLinkSubmission={handleLinkSubmission}
       applySearchQuery={(searchQuery: string) => {
         setQueryInputs({
@@ -911,9 +867,6 @@ export type HomeFeedContentProps = {
   linkToUnsubscribe: LibraryItem | undefined
   setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
 
-  mode: LibraryMode
-  setMode: (set: LibraryMode) => void
-
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
@@ -942,10 +895,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     key: 'libraryLayout',
     initialValue: 'LIST_LAYOUT',
   })
-  const [navMenuStyle] = usePersistedState<'legacy' | 'shortcuts'>({
-    key: 'library-nav-menu-style',
-    initialValue: 'legacy',
-  })
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -954,8 +903,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     },
     [layout, setLayout]
   )
-
-  const [showFilterMenu, setShowFilterMenu] = useState(false)
 
   const showItems = useMemo(() => {
     if (props.fetchItemsError) {
@@ -971,53 +918,31 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     <VStack
       css={{
         height: '100%',
-        width: !showItems || props.mode == 'highlights' ? '100%' : 'unset',
+        px: '20px',
+        py: '20px',
+        width: !showItems ? '100%' : 'unset',
       }}
+      distribution="start"
+      alignment="start"
     >
-      {props.mode != 'highlights' && (
-        <LegacyLibraryHeader
-          layout={layout}
-          viewer={viewerData?.me}
-          updateLayout={updateLayout}
-          searchTerm={props.searchTerm}
-          applySearchQuery={(searchQuery: string) => {
-            props.applySearchQuery(searchQuery)
-          }}
-          mode={props.mode}
-          setMode={props.setMode}
-          showFilterMenu={showFilterMenu}
-          setShowFilterMenu={setShowFilterMenu}
-          multiSelectMode={props.multiSelectMode}
-          setMultiSelectMode={props.setMultiSelectMode}
-          numItemsSelected={props.numItemsSelected}
-          performMultiSelectAction={props.performMultiSelectAction}
-        />
-      )}
+      <LibraryHeader
+        layout={layout}
+        viewer={viewerData?.me}
+        updateLayout={updateLayout}
+        showFilterMenu={true}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        setShowFilterMenu={() => {}}
+        searchTerm={props.searchTerm}
+        applySearchQuery={(searchQuery: string) => {
+          props.applySearchQuery(searchQuery)
+        }}
+        multiSelectMode={props.multiSelectMode}
+        setMultiSelectMode={props.setMultiSelectMode}
+        numItemsSelected={props.numItemsSelected}
+        performMultiSelectAction={props.performMultiSelectAction}
+      />
 
       <HStack css={{ width: '100%', height: '100%' }}>
-        {navMenuStyle == 'shortcuts' && (
-          <LibraryFilterMenu
-            setShowAddLinkModal={props.setShowAddLinkModal}
-            searchTerm={props.searchTerm}
-            applySearchQuery={(searchQuery: string) => {
-              props.applySearchQuery(searchQuery)
-            }}
-            showFilterMenu={showFilterMenu}
-            setShowFilterMenu={setShowFilterMenu}
-          />
-        )}
-        {navMenuStyle == 'legacy' && (
-          <LibraryLegacyMenu
-            setShowAddLinkModal={props.setShowAddLinkModal}
-            searchTerm={props.searchTerm}
-            applySearchQuery={(searchQuery: string) => {
-              props.applySearchQuery(searchQuery)
-            }}
-            showFilterMenu={showFilterMenu}
-            setShowFilterMenu={setShowFilterMenu}
-          />
-        )}
-
         {!showItems && props.fetchItemsError && <FetchItemsError />}
         {!showItems && !props.fetchItemsError && props.items.length <= 0 && (
           <EmptyLibrary
@@ -1028,27 +953,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           />
         )}
 
-        {showItems && props.mode == 'highlights' && (
-          <HighlightItemsLayout
-            gridContainerRef={props.gridContainerRef}
-            items={props.items}
-            viewer={viewerData?.me}
-            showFilterMenu={showFilterMenu}
-            setShowFilterMenu={setShowFilterMenu}
-          />
-        )}
-
-        {showItems && props.mode == 'reads' && (
+        {showItems && (
           <LibraryItemsLayout
             viewer={viewerData?.me}
             layout={layout}
             isChecked={props.itemIsChecked}
             {...props}
           />
-        )}
-
-        {showItems && props.mode == 'tldr' && (
-          <TLDRLayout viewer={viewerData?.me} layout={layout} {...props} />
         )}
 
         {props.showAddLinkModal && (
@@ -1104,7 +1015,8 @@ export function LibraryItemsLayout(
         distribution="start"
         css={{
           height: '100%',
-          minHeight: '100vh',
+          width: '100%',
+          paddingX: '40px',
         }}
       >
         <Toaster />
@@ -1258,7 +1170,6 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
     <Box
       ref={props.gridContainerRef}
       css={{
-        py: '$3',
         display: 'grid',
         width: '100%',
         gridAutoRows: 'auto',
@@ -1269,30 +1180,35 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         paddingTop: '0',
         paddingBottom: '0px',
         overflow: 'visible',
-        '@media (max-width: 930px)': {
-          gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
-        },
-        '@xlgDown': {
-          borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
-        },
-        '@smDown': {
-          border: 'unset',
-          width: props.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-          margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-          borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
-        },
-        '@media (min-width: 930px)': {
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
-        },
-        '@media (min-width: 1280px)': {
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-        },
-        '@media (min-width: 1600px)': {
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
-        },
+        px: '70px',
+        gridTemplateColumns:
+          props.layout == 'LIST_LAYOUT'
+            ? 'none'
+            : `repeat( auto-fit, minmax(300px, 1fr) )`,
+        // '@media (max-width: 930px)': {
+        //   gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
+        // },
+        // '@xlgDown': {
+        //   borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
+        // },
+        // '@smDown': {
+        //   border: 'unset',
+        //   width: props.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+        //   margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+        //   borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
+        // },
+        // '@media (min-width: 930px)': {
+        //   gridTemplateColumns:
+        //     props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
+        // },
+        // '@media (min-width: 1280px)': {
+        //   gridTemplateColumns:
+        //     props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+        // },
+        // '@media (min-width: 1600px)': {
+        //   gridTemplateColumns:
+        //     props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
+        // },
       }}
     >
       {props.items.map((linkedItem) => (

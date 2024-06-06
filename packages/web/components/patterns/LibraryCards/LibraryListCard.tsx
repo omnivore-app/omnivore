@@ -68,19 +68,19 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         borderStyle: 'none',
         borderBottom: 'none',
         borderRadius: '6px',
-        width: '100vw',
-        '@media (min-width: 768px)': {
-          width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
-        },
-        '@media (min-width: 930px)': {
-          width: '580px',
-        },
-        '@media (min-width: 1280px)': {
-          width: '890px',
-        },
-        '@media (min-width: 1600px)': {
-          width: '1200px',
-        },
+        width: '100%',
+        // '@media (min-width: 768px)': {
+        //   width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
+        // },
+        // '@media (min-width: 930px)': {
+        //   width: '580px',
+        // },
+        // '@media (min-width: 1280px)': {
+        //   width: '890px',
+        // },
+        // '@media (min-width: 1600px)': {
+        //   width: '1200px',
+        // },
         '@media (max-width: 930px)': {
           borderRadius: '0px',
         },

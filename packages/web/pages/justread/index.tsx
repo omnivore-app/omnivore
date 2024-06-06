@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'

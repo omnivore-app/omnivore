@@ -1,5 +1,5 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
-import { Box, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -19,6 +19,10 @@ import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { Button } from '../elements/Button'
 import { List } from 'phosphor-react'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { Allotment } from 'allotment'
+import 'allotment/dist/style.css'
+import { LibrarySideBar } from './library/LibrarySideBar'
+import NoSsr from './NoSsr'
 
 export type NavigationSection =
   | 'justread'
@@ -29,6 +33,7 @@ export type NavigationSection =
 
 type NavigationLayoutProps = {
   children: ReactNode
+  rightPane?: ReactNode
   section: NavigationSection
   pageMetaDataProps?: PageMetaDataProps
 }
@@ -41,7 +46,8 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
-  const [showLeftMenu, setShowLeftMenu] = usePersistedState<boolean>({
+
+  const [showNavMenu, setShowNavMenu] = usePersistedState<boolean>({
     key: 'nav-show-menu',
     isSessionStorage: false,
     initialValue: true,
@@ -109,51 +115,37 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   }, [showLogout])
 
   return (
-    <>
+    <HStack css={{ width: '100vw', height: '100vh' }}>
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <Box
-        css={{
-          height: '100%',
-          width: '100vw',
-          bg: '$thBackground2',
+      <Header
+        toggleMenu={() => {
+          setShowNavMenu(!showNavMenu)
         }}
-      >
-        <Header
-          toggleMenu={() => {
-            setShowLeftMenu(!showLeftMenu)
-          }}
+      />
+      <NavigationMenu
+        section={props.section}
+        setShowAddLinkModal={() => {}}
+        searchTerm=""
+        applySearchQuery={() => {}}
+        showFilterMenu={showNavMenu}
+        setShowFilterMenu={setShowNavMenu}
+      />
+      {props.children}
+      {showLogoutConfirmation ? (
+        <ConfirmationModal
+          message={'Are you sure you want to log out?'}
+          onAccept={logout}
+          onOpenChange={() => setShowLogoutConfirmation(false)}
         />
-        {showLeftMenu && (
-          <NavigationMenu
-            section={props.section}
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            setShowAddLinkModal={() => {}}
-            searchTerm={''}
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            applySearchQuery={(searchQuery: string) => {}}
-            showFilterMenu={showLeftMenu}
-            setShowFilterMenu={(show) => {
-              setShowLeftMenu(show)
-            }}
-          />
-        )}
-        {props.children}
-        {showLogoutConfirmation ? (
-          <ConfirmationModal
-            message={'Are you sure you want to log out?'}
-            onAccept={logout}
-            onOpenChange={() => setShowLogoutConfirmation(false)}
-          />
-        ) : null}
-        {showKeyboardCommandsModal ? (
-          <KeyboardShortcutListModal
-            onOpenChange={() => setShowKeyboardCommandsModal(false)}
-          />
-        ) : null}
-      </Box>
-    </>
+      ) : null}
+      {showKeyboardCommandsModal ? (
+        <KeyboardShortcutListModal
+          onOpenChange={() => setShowKeyboardCommandsModal(false)}
+        />
+      ) : null}
+    </HStack>
   )
 }
 
