@@ -1,5 +1,5 @@
 import { diff_match_patch } from 'diff-match-patch'
-import { DeepPartial, In, LessThan } from 'typeorm'
+import { DeepPartial, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -205,19 +205,26 @@ export const updateHighlight = async (
   return updatedHighlight
 }
 
-export const deleteHighlightById = async (highlightId: string) => {
-  const deletedHighlight = await authTrx(async (tx) => {
-    const highlightRepo = tx.withRepository(highlightRepository)
-    const highlight = await highlightRepo.findOneOrFail({
-      where: { id: highlightId },
-      relations: {
-        user: true,
-      },
-    })
+export const deleteHighlightById = async (
+  highlightId: string,
+  userId?: string
+) => {
+  const deletedHighlight = await authTrx(
+    async (tx) => {
+      const highlightRepo = tx.withRepository(highlightRepository)
+      const highlight = await highlightRepo.findOneOrFail({
+        where: { id: highlightId },
+        relations: {
+          user: true,
+        },
+      })
 
-    await highlightRepo.delete(highlightId)
-    return highlight
-  })
+      await highlightRepo.delete(highlightId)
+      return highlight
+    },
+    undefined,
+    userId
+  )
 
   await enqueueUpdateHighlight({
     libraryItemId: deletedHighlight.libraryItemId,
@@ -225,6 +232,17 @@ export const deleteHighlightById = async (highlightId: string) => {
   })
 
   return deletedHighlight
+}
+
+export const deleteHighlightsByIds = async (
+  userId: string,
+  highlightIds: string[]
+) => {
+  await authTrx(
+    async (tx) => tx.getRepository(Highlight).delete(highlightIds),
+    undefined,
+    userId
+  )
 }
 
 export const findHighlightById = async (

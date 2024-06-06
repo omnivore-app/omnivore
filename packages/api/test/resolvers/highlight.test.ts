@@ -9,10 +9,10 @@ import { HighlightEdge } from '../../src/generated/graphql'
 import {
   createHighlight,
   deleteHighlightById,
+  deleteHighlightsByIds,
   findHighlightById,
 } from '../../src/services/highlights'
 import { createLabel, saveLabelsInHighlight } from '../../src/services/labels'
-import { deleteLibraryItemsByUserId } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
 import {
@@ -168,8 +168,14 @@ describe('Highlights API', () => {
   })
 
   context('createHighlightMutation', () => {
+    let highlightId: string
+
+    afterEach(async () => {
+      await deleteHighlightById(highlightId, user.id)
+    })
+
     it('does not fail', async () => {
-      const highlightId = generateFakeUuid()
+      highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id'
       const highlightPositionPercent = 35.0
       const highlightPositionAnchorIndex = 15
@@ -197,31 +203,29 @@ describe('Highlights API', () => {
 
     context('when highlight position is null', () => {
       it('sets highlight position = 0', async () => {
-        const newHighlightId = generateFakeUuid()
+        highlightId = generateFakeUuid()
         const newShortHighlightId = '_short_id_5'
         const query = createHighlightQuery(
           itemId,
-          newHighlightId,
+          highlightId,
           newShortHighlightId
         )
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(
           res.body.data.createHighlight.highlight.highlightPositionPercent
         ).to.eq(0)
-
-        await deleteHighlightById(newHighlightId)
       })
     })
 
     context('when the annotation has HTML reserved characters', () => {
       it('unescapes the annotation and creates', async () => {
-        const newHighlightId = generateFakeUuid()
+        highlightId = generateFakeUuid()
         const newShortHighlightId = '_short_id_4'
         const highlightPositionPercent = 50.0
         const highlightPositionAnchorIndex = 25
         const query = createHighlightQuery(
           itemId,
-          newHighlightId,
+          highlightId,
           newShortHighlightId,
           highlightPositionPercent,
           highlightPositionAnchorIndex,
@@ -247,7 +251,7 @@ describe('Highlights API', () => {
     })
 
     afterEach(async () => {
-      await deleteHighlightById(highlightId)
+      await deleteHighlightById(highlightId, user.id)
     })
 
     it('should not fail', async () => {
@@ -319,6 +323,10 @@ describe('Highlights API', () => {
         user.id
       )
       highlightId = highlight.id
+    })
+
+    after(async () => {
+      await deleteHighlightById(highlightId, user.id)
     })
 
     it('updates the quote when the quote is in HTML format when the annotation has HTML reserved characters', async () => {
@@ -402,7 +410,10 @@ describe('Highlights API', () => {
     })
 
     after(async () => {
-      await deleteLibraryItemsByUserId(user.id)
+      await deleteHighlightsByIds(
+        user.id,
+        existingHighlights.map((h) => h.id)
+      )
     })
 
     it('returns highlights', async () => {
