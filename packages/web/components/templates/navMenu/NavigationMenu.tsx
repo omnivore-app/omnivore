@@ -32,10 +32,13 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { useRouter } from 'next/router'
 import { DiscoverIcon } from '../../elements/icons/DiscoverIcon'
 import { escapeQuotes } from '../../../utils/helper'
+import { NavigationSection } from '../NavigationLayout'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
 type LibraryFilterMenuProps = {
+  section: NavigationSection
+
   setShowAddLinkModal: (show: boolean) => void
 
   searchTerm: string | undefined
@@ -206,32 +209,30 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
       <NavButton
         {...props}
         text="Home"
-        filterTerm="in:library OR in:following use:folders"
+        section="justread"
+        isSelected={props.section == 'home'}
         icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
       />
       <NavButton
         {...props}
-        text="Following"
-        filterTerm="in:following use:folders"
+        text="Subscriptions"
+        section="subscriptions"
+        isSelected={props.section == 'subscriptions'}
         icon={<FollowingIcon color="#F59932" />}
       />
       <NavButton
         {...props}
         text="Library"
-        filterTerm="in:library use:folders"
+        section="library"
+        isSelected={props.section == 'library'}
         icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
       />
       <NavButton
         {...props}
         text="Highlights"
-        filterTerm="in:all has:highlights mode:highlights"
+        section="highlights"
+        isSelected={props.section == 'highlights'}
         icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
-      />
-      <NavRedirectButton
-        {...props}
-        text="Discover"
-        redirectLocation={'/discover'}
-        icon={<DiscoverIcon color={theme.colors.discover.toString()} />}
       />
     </VStack>
   )
@@ -731,11 +732,8 @@ type NavButtonProps = {
   text: string
   icon: ReactNode
 
-  filterTerm: string
-  searchTerm: string | undefined
-
-  applySearchQuery: (searchTerm: string) => void
-  setShowFilterMenu: (show: boolean) => void
+  isSelected: boolean
+  section: NavigationSection
 }
 
 type NavButtonRedirectProps = {
@@ -803,15 +801,7 @@ function NavRedirectButton(props: NavButtonRedirectProps): JSX.Element {
 }
 
 function NavButton(props: NavButtonProps): JSX.Element {
-  const isInboxFilter = (filter: string) => {
-    return filter === '' || filter === 'in:inbox'
-  }
-  const selected = useMemo(() => {
-    if (isInboxFilter(props.filterTerm) && !props.searchTerm) {
-      return true
-    }
-    return props.searchTerm === props.filterTerm
-  }, [props.searchTerm, props.filterTerm])
+  const router = useRouter()
 
   return (
     <HStack
@@ -826,11 +816,13 @@ function NavButton(props: NavButtonProps): JSX.Element {
         maxWidth: '100%',
         height: '34px',
 
-        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
+        backgroundColor: props.isSelected
+          ? '$thLibrarySelectionColor'
+          : 'unset',
         fontSize: '15px',
         fontWeight: 'regular',
         fontFamily: '$display',
-        color: selected
+        color: props.isSelected
           ? '$thLibraryMenuSecondary'
           : '$thLibraryMenuUnselected',
         verticalAlign: 'middle',
@@ -840,21 +832,19 @@ function NavButton(props: NavButtonProps): JSX.Element {
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         '&:hover': {
-          backgroundColor: selected
+          backgroundColor: props.isSelected
             ? '$thLibrarySelectionColor'
             : '$thBackground4',
         },
         '&:active': {
-          backgroundColor: selected
+          backgroundColor: props.isSelected
             ? '$thLibrarySelectionColor'
             : '$thBackground4',
         },
       }}
       title={props.text}
       onClick={(e) => {
-        props.applySearchQuery(props.filterTerm)
-        props.setShowFilterMenu(false)
-        e.preventDefault()
+        router.push(`/` + props.section)
       }}
     >
       {props.icon}

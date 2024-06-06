@@ -30,97 +30,77 @@ import {
   SpanBox,
   VStack,
 } from './../../components/elements/LayoutPrimitives'
-import { List, ThumbsDown, ThumbsUp } from 'phosphor-react'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Toaster } from 'react-hot-toast'
-import { DEFAULT_HEADER_HEIGHT } from '../../components/templates/homeFeed/HeaderSpacer'
-import { NavigationMenu } from '../../components/templates/navMenu/NavigationMenu'
+import { NavigationLayout } from '../../components/templates/NavigationLayout'
 
 export default function Home(): JSX.Element {
-  const [showLeftMenu, setShowLeftMenu] = useState(false)
   const homeData = useGetHomeItems()
   useApplyLocalTheme()
 
   return (
-    <VStack
-      distribution="start"
-      alignment="center"
-      css={{
-        width: '100%',
-        bg: '$readerBg',
-        pt: '45px',
-        minHeight: '100vh',
-      }}
-    >
-      <Toaster />
-      <Header
-        toggleMenu={() => {
-          setShowLeftMenu(!showLeftMenu)
-        }}
-      />
-      {showLeftMenu && (
-        <NavigationMenu
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          setShowAddLinkModal={() => {}}
-          searchTerm={''}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          applySearchQuery={(searchQuery: string) => {}}
-          showFilterMenu={showLeftMenu}
-          setShowFilterMenu={(show) => {
-            setShowLeftMenu(show)
-          }}
-        />
-      )}
+    <NavigationLayout section="justread">
       <VStack
         distribution="start"
+        alignment="center"
         css={{
-          width: '646px',
-          gap: '40px',
+          width: '100%',
+          bg: '$readerBg',
+          pt: '45px',
           minHeight: '100vh',
-          '@mdDown': {
-            width: '100%',
-          },
         }}
       >
-        {homeData.sections?.map((homeSection, idx) => {
-          if (homeSection.items.length < 1) {
-            return <></>
-          }
-          switch (homeSection.layout) {
-            case 'just_added':
-              return (
-                <JustAddedHomeSection
-                  key={`section-${idx}`}
-                  homeSection={homeSection}
-                />
-              )
-            case 'top_picks':
-              return (
-                <TopPicksHomeSection
-                  key={`section-${idx}`}
-                  homeSection={homeSection}
-                />
-              )
-            case 'quick_links':
-              return (
-                <QuickLinksHomeSection
-                  key={`section-${idx}`}
-                  homeSection={homeSection}
-                />
-              )
-            case 'hidden':
-              return (
-                <HiddenHomeSection
-                  key={`section-${idx}`}
-                  homeSection={homeSection}
-                />
-              )
-            default:
+        <Toaster />
+        <VStack
+          distribution="start"
+          css={{
+            width: '646px',
+            gap: '40px',
+            minHeight: '100vh',
+            '@mdDown': {
+              width: '100%',
+            },
+          }}
+        >
+          {homeData.sections?.map((homeSection, idx) => {
+            if (homeSection.items.length < 1) {
               return <></>
-          }
-        })}
+            }
+            switch (homeSection.layout) {
+              case 'just_added':
+                return (
+                  <JustAddedHomeSection
+                    key={`section-${idx}`}
+                    homeSection={homeSection}
+                  />
+                )
+              case 'top_picks':
+                return (
+                  <TopPicksHomeSection
+                    key={`section-${idx}`}
+                    homeSection={homeSection}
+                  />
+                )
+              case 'quick_links':
+                return (
+                  <QuickLinksHomeSection
+                    key={`section-${idx}`}
+                    homeSection={homeSection}
+                  />
+                )
+              case 'hidden':
+                return (
+                  <HiddenHomeSection
+                    key={`section-${idx}`}
+                    homeSection={homeSection}
+                  />
+                )
+              default:
+                return <></>
+            }
+          })}
+        </VStack>
       </VStack>
-    </VStack>
+    </NavigationLayout>
   )
 }
 
@@ -753,44 +733,3 @@ const SubscriptionSourceHoverContent = (
 //     </HStack>
 //   )
 // }
-
-type HeaderProps = {
-  toggleMenu: () => void
-}
-
-const Header = (props: HeaderProps): JSX.Element => {
-  const small = false
-
-  return (
-    <VStack
-      alignment="start"
-      distribution="start"
-      css={{
-        zIndex: 5,
-        position: 'fixed',
-        left: '15px',
-        top: '15px',
-        height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
-        transition: 'height 0.5s',
-        '@lgDown': { px: '20px' },
-        '@mdDown': {
-          px: '10px',
-          left: '0px',
-          right: '0',
-        },
-      }}
-    >
-      <VStack alignment="center" distribution="center">
-        <Button
-          style="plainIcon"
-          onClick={(event) => {
-            props.toggleMenu()
-            event.preventDefault()
-          }}
-        >
-          <List size="25" color={theme.colors.readerTextSubtle.toString()} />
-        </Button>
-      </VStack>
-    </VStack>
-  )
-}
