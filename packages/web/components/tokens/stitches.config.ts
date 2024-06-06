@@ -292,7 +292,7 @@ const darkThemeSpec = {
     error: '#FA5E4A',
 
     // Reader Colors
-    readerBg: '#303030',
+    readerBg: '#2A2A2A',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',

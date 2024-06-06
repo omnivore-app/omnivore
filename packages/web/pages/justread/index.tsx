@@ -423,7 +423,7 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
 
         borderRadius: '5px',
         '&:hover': {
-          bg: '#3D3D3D',
+          bg: '#323232',
           borderRadius: '0px',
         },
       }}
