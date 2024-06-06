@@ -3,13 +3,16 @@ import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
+import { Highlight } from '../../src/entity/highlight'
 import { User } from '../../src/entity/user'
+import { HighlightEdge } from '../../src/generated/graphql'
 import {
   createHighlight,
   deleteHighlightById,
   findHighlightById,
 } from '../../src/services/highlights'
 import { createLabel, saveLabelsInHighlight } from '../../src/services/labels'
+import { deleteLibraryItemsByUserId } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
 import {
@@ -342,6 +345,72 @@ describe('Highlights API', () => {
       expect(res.body.data.updateHighlight.highlight.annotation).to.eql(
         annotation
       )
+    })
+  })
+
+  describe('Get highlights API', () => {
+    const query = `
+      query Highlights ($first: Int, $after: String) {
+        highlights (first: $first, after: $after) {
+          ... on HighlightsSuccess {
+            edges {
+              node {
+                id
+                user {
+                  id
+                }
+              }
+              cursor
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+          ... on HighlightsError {
+            errorCodes
+          }
+        }
+      }
+    `
+    let existingHighlights: Highlight[]
+
+    before(async () => {
+      // create test library item
+      const item = await createTestLibraryItem(user.id)
+
+      // create test highlights
+      const highlight1 = await createHighlight(
+        {
+          libraryItem: { id: item.id },
+          shortId: generateFakeShortId(),
+          user: { id: user.id },
+        },
+        itemId,
+        user.id
+      )
+      const highlight2 = await createHighlight(
+        {
+          libraryItem: { id: item.id },
+          shortId: generateFakeShortId(),
+          user: { id: user.id },
+        },
+        itemId,
+        user.id
+      )
+      existingHighlights = [highlight1, highlight2]
+    })
+
+    after(async () => {
+      await deleteLibraryItemsByUserId(user.id)
+    })
+
+    it('returns highlights', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+      const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
+      expect(highlights).to.have.lengthOf(existingHighlights.length)
+      expect(highlights[0].node.id).to.eq(existingHighlights[1].id)
+      expect(highlights[1].node.id).to.eq(existingHighlights[0].id)
     })
   })
 })

@@ -270,6 +270,9 @@ export const searchHighlights = async (
     async (tx) =>
       tx.withRepository(highlightRepository).find({
         where: { user: { id: userId } },
+        order: {
+          updatedAt: 'DESC',
+        },
         take: limit,
         skip: offset,
       }),

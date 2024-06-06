@@ -240,7 +240,7 @@ export const highlightsResolver = authorized<
 >(async (_, { after, first }, { uid, log }) => {
   const limit = first || 10
   const offset = parseInt(after || '0')
-  if (isNaN(offset) || offset < 0) {
+  if (isNaN(offset) || offset < 0 || limit > 50) {
     log.error('Invalid after', { after })
 
     return {
