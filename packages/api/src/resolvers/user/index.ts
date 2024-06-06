@@ -33,7 +33,6 @@ import {
   UpdateUserProfileErrorCode,
   UpdateUserProfileSuccess,
   UpdateUserSuccess,
-  User,
   UserErrorCode,
   UserResult,
   UsersError,
@@ -43,13 +42,13 @@ import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendAccountChangeEmail } from '../../services/send_emails'
 import { softDeleteUser } from '../../services/user'
-import { userDataToUser } from '../../utils/helpers'
+import { Merge } from '../../util'
+import { authorized } from '../../utils/gql-utils'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
-import { authorized } from '../../utils/gql-utils'
 
 export const updateUserResolver = authorized<
-  UpdateUserSuccess,
+  Merge<UpdateUserSuccess, { user: UserEntity }>,
   UpdateUserError,
   MutationUpdateUserArgs
 >(async (_, { input: { name, bio } }, { uid, authTrx }) => {
@@ -83,11 +82,11 @@ export const updateUserResolver = authorized<
     })
   )
 
-  return { user: userDataToUser(updatedUser) }
+  return { user: updatedUser }
 })
 
 export const updateUserProfileResolver = authorized<
-  UpdateUserProfileSuccess,
+  Merge<UpdateUserProfileSuccess, { user: UserEntity }>,
   UpdateUserProfileError,
   MutationUpdateUserProfileArgs
 >(async (_, { input: { userId, username, pictureUrl } }, { uid, authTrx }) => {
@@ -140,11 +139,11 @@ export const updateUserProfileResolver = authorized<
     })
   )
 
-  return { user: userDataToUser(updatedUser) }
+  return { user: updatedUser }
 })
 
 export const googleLoginResolver: ResolverFn<
-  LoginResult,
+  Merge<LoginResult, { me?: UserEntity }>,
   unknown,
   WithDataSourcesContext,
   MutationGoogleLoginArgs
@@ -167,7 +166,7 @@ export const googleLoginResolver: ResolverFn<
 
   // set auth cookie in response header
   await setAuth({ uid: user.id })
-  return { me: userDataToUser(user) }
+  return { me: user }
 }
 
 export const validateUsernameResolver: ResolverFn<
@@ -190,7 +189,7 @@ export const validateUsernameResolver: ResolverFn<
 }
 
 export const googleSignupResolver: ResolverFn<
-  GoogleSignupResult,
+  Merge<GoogleSignupResult, { me?: UserEntity }>,
   Record<string, unknown>,
   WithDataSourcesContext,
   MutationGoogleSignupArgs
@@ -205,7 +204,7 @@ export const googleSignupResolver: ResolverFn<
   }
 
   try {
-    const [user, profile] = await createUser({
+    const [user] = await createUser({
       email,
       sourceUserId,
       provider: 'GOOGLE',
@@ -218,7 +217,7 @@ export const googleSignupResolver: ResolverFn<
 
     await setAuth({ uid: user.id })
     return {
-      me: userDataToUser({ ...user, profile: { ...profile, private: false } }),
+      me: user,
     }
   } catch (err) {
     log.info('error signing up with google', err)
@@ -245,7 +244,7 @@ export const logOutResolver: ResolverFn<
 }
 
 export const getMeUserResolver: ResolverFn<
-  User | undefined,
+  UserEntity | undefined,
   unknown,
   WithDataSourcesContext,
   unknown
@@ -260,14 +259,14 @@ export const getMeUserResolver: ResolverFn<
       return undefined
     }
 
-    return userDataToUser(user)
+    return user
   } catch (error) {
     return undefined
   }
 }
 
 export const getUserResolver: ResolverFn<
-  UserResult,
+  Merge<UserResult, { user?: UserEntity }>,
   unknown,
   WithDataSourcesContext,
   QueryUserArgs
@@ -294,16 +293,17 @@ export const getUserResolver: ResolverFn<
     return { errorCodes: [UserErrorCode.UserNotFound] }
   }
 
-  return { user: userDataToUser(userRecord) }
+  return { user: userRecord }
 }
 
-export const getAllUsersResolver = authorized<UsersSuccess, UsersError>(
-  async (_obj, _params) => {
-    const users = await userRepository.findTopUsers()
-    const result = { users: users.map((userData) => userDataToUser(userData)) }
-    return result
-  }
-)
+export const getAllUsersResolver = authorized<
+  Merge<UsersSuccess, { users: Array<UserEntity> }>,
+  UsersError
+>(async (_obj, _params) => {
+  const users = await userRepository.findTopUsers()
+  const result = { users }
+  return result
+})
 
 type ErrorWithCode = {
   errorCode: string

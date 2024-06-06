@@ -5,7 +5,12 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import {
+  ContentReaderType,
+  LibraryItem,
+  LibraryItemState,
+} from '../../entity/library_item'
+import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   ArticleError,
@@ -43,6 +48,7 @@ import {
   SaveArticleReadingProgressSuccess,
   SearchError,
   SearchErrorCode,
+  SearchItemEdge,
   SearchSuccess,
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
@@ -87,6 +93,7 @@ import {
   setFileUploadComplete,
 } from '../../services/upload_file'
 import { traceAs } from '../../tracing'
+import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import { enqueueBulkAction } from '../../utils/createTask'
@@ -96,10 +103,7 @@ import {
   errorHandler,
   generateSlug,
   isParsingTimeout,
-  libraryItemToArticle,
-  libraryItemToSearchItem,
   titleForFilePath,
-  userDataToUser,
 } from '../../utils/helpers'
 import {
   getDistillerResult,
@@ -126,7 +130,10 @@ const FORCE_PUPPETEER_URLS = [
 const UNPARSEABLE_CONTENT = '<p>We were unable to parse this page.</p>'
 
 export const createArticleResolver = authorized<
-  CreateArticleSuccess,
+  Merge<
+    CreateArticleSuccess,
+    { user: User; createdArticle: Partial<LibraryItem> }
+  >,
   CreateArticleError,
   MutationCreateArticleArgs
 >(
@@ -160,8 +167,8 @@ export const createArticleResolver = authorized<
       },
     })
 
-    const userData = await userRepository.findById(uid)
-    if (!userData) {
+    const user = await userRepository.findById(uid)
+    if (!user) {
       return errorHandler(
         {
           errorCodes: [CreateArticleErrorCode.Unauthorized],
@@ -171,7 +178,6 @@ export const createArticleResolver = authorized<
         pubsub
       )
     }
-    const user = userDataToUser(userData)
 
     try {
       if (isSiteBlockedForParse(url)) {
@@ -203,25 +209,22 @@ export const createArticleResolver = authorized<
       let domContent = null
       let itemType = PageType.Unknown
 
-      const DUMMY_RESPONSE: CreateArticleSuccess = {
+      const DUMMY_RESPONSE = {
         user,
         created: false,
         createdArticle: {
           id: '',
           slug: '',
           createdAt: new Date(),
-          originalHtml: domContent,
-          content: '',
+          originalContent: domContent,
+          readableContent: '',
           description: '',
           title: '',
-          pageType: itemType,
-          contentReader: ContentReader.Web,
+          itemType,
+          contentReader: ContentReaderType.WEB,
           author: '',
-          url,
-          hash: '',
-          isArchived: false,
-          readingProgressAnchorIndex: 0,
-          readingProgressPercent: 0,
+          originalUrl: url,
+          textContentHash: '',
           highlights: [],
           savedAt: savedAt || new Date(),
           updatedAt: new Date(),
@@ -257,7 +260,7 @@ export const createArticleResolver = authorized<
         FORCE_PUPPETEER_URLS.some((regex) => regex.test(url))
       ) {
         await createPageSaveRequest({
-          user: userData,
+          user: user,
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
@@ -282,7 +285,7 @@ export const createArticleResolver = authorized<
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
         await createPageSaveRequest({
-          user: userData,
+          user,
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
@@ -353,7 +356,7 @@ export const createArticleResolver = authorized<
       return {
         user,
         created: true,
-        createdArticle: libraryItemToArticle(libraryItemToReturn),
+        createdArticle: libraryItemToReturn,
       }
     } catch (error) {
       log.error('Error creating article', error)
@@ -370,7 +373,7 @@ export const createArticleResolver = authorized<
 )
 
 export const getArticleResolver = authorized<
-  ArticleSuccess,
+  Merge<ArticleSuccess, { article: LibraryItem }>,
   ArticleError,
   QueryArticleArgs
 >(async (_obj, { slug, format }, { authTrx, uid, log }, info) => {
@@ -439,7 +442,7 @@ export const getArticleResolver = authorized<
     }
 
     return {
-      article: libraryItemToArticle(libraryItem),
+      article: libraryItem,
     }
   } catch (error) {
     log.error(error)
@@ -447,88 +450,8 @@ export const getArticleResolver = authorized<
   }
 })
 
-// type PaginatedPartialArticles = {
-//   edges: { cursor: string; node: PartialArticle }[]
-//   pageInfo: PageInfo
-// }
-
-// export type SetShareArticleSuccessPartial = Merge<
-//   SetShareArticleSuccess,
-//   {
-//     updatedFeedArticle?: Omit<
-//       FeedArticle,
-//       | 'sharedBy'
-//       | 'article'
-//       | 'highlightsCount'
-//       | 'annotationsCount'
-//       | 'reactions'
-//     >
-//     updatedFeedArticleId?: string
-//     updatedArticle: PartialArticle
-//   }
-// >
-
-// export const setShareArticleResolver = authorized<
-//   SetShareArticleSuccessPartial,
-//   SetShareArticleError,
-//   MutationSetShareArticleArgs
-// >(
-//   async (
-//     _,
-//     { input: { articleID, share, sharedComment, sharedWithHighlights } },
-//     { models, authTrx, claims: { uid }, log }
-//   ) => {
-//     const article = await models.article.get(articleID)
-//     if (!article) {
-//       return { errorCodes: [SetShareArticleErrorCode.NotFound] }
-//     }
-
-//     const sharedAt = share ? new Date() : null
-
-//     log.info(`${share ? 'S' : 'Uns'}haring an article`, {
-//       article: Object.assign({}, article, {
-//         content: undefined,
-//         originalHtml: undefined,
-//         sharedAt,
-//       }),
-//       labels: {
-//         source: 'resolver',
-//         resolver: 'setShareArticleResolver',
-//         articleId: article.id,
-//         distinctId: uid,
-//       },
-//     })
-
-//     const result = await authTrx((tx) =>
-//       models.userArticle.updateByArticleId(
-//         uid,
-//         articleID,
-//         { sharedAt, sharedComment, sharedWithHighlights },
-//         tx
-//       )
-//     )
-
-//     if (!result) {
-//       return { errorCodes: [SetShareArticleErrorCode.NotFound] }
-//     }
-
-//     // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
-//     const updatedArticle = {
-//       ...result,
-//       ...article,
-//       postedByViewer: !!sharedAt,
-//     }
-//     const updatedFeedArticle = sharedAt ? { ...result, sharedAt } : undefined
-//     return {
-//       updatedFeedArticleId: result.id,
-//       updatedFeedArticle,
-//       updatedArticle,
-//     }
-//   }
-// )
-
 export const setBookmarkArticleResolver = authorized<
-  SetBookmarkArticleSuccess,
+  Merge<SetBookmarkArticleSuccess, { bookmarkedArticle: LibraryItem }>,
   SetBookmarkArticleError,
   MutationSetBookmarkArticleArgs
 >(async (_, { input: { articleID } }, { uid, log, pubsub }) => {
@@ -556,12 +479,12 @@ export const setBookmarkArticleResolver = authorized<
   })
   // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
   return {
-    bookmarkedArticle: libraryItemToArticle(deletedLibraryItem),
+    bookmarkedArticle: deletedLibraryItem,
   }
 })
 
 export const saveArticleReadingProgressResolver = authorized<
-  SaveArticleReadingProgressSuccess,
+  Merge<SaveArticleReadingProgressSuccess, { updatedArticle: LibraryItem }>,
   SaveArticleReadingProgressError,
   MutationSaveArticleReadingProgressArgs
 >(
@@ -661,13 +584,15 @@ export const saveArticleReadingProgressResolver = authorized<
     }
 
     return {
-      updatedArticle: libraryItemToArticle(updatedItem),
+      updatedArticle: updatedItem,
     }
   }
 )
 
+export type PartialLibraryItem = Merge<LibraryItem, { format?: string }>
+type PartialSearchItemEdge = Merge<SearchItemEdge, { node: PartialLibraryItem }>
 export const searchResolver = authorized<
-  SearchSuccess,
+  Merge<SearchSuccess, { edges: Array<PartialSearchItemEdge> }>,
   SearchError,
   QuerySearchArgs
 >(async (_obj, params, { uid }) => {
@@ -704,7 +629,10 @@ export const searchResolver = authorized<
 
   return {
     edges: libraryItems.map((item) => ({
-      node: libraryItemToSearchItem(item, params.format as ArticleFormat),
+      node: {
+        ...item,
+        format: params.format || undefined,
+      },
       cursor: endCursor,
     })),
     pageInfo: {
@@ -738,7 +666,7 @@ export const typeaheadSearchResolver = authorized<
 })
 
 export const updatesSinceResolver = authorized<
-  UpdatesSinceSuccess,
+  Merge<UpdatesSinceSuccess, { edges: Array<PartialSearchItemEdge> }>,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
 >(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
@@ -781,7 +709,7 @@ export const updatesSinceResolver = authorized<
   const edges = libraryItems.map((item) => {
     const updateReason = getUpdateReason(item, startDate)
     return {
-      node: libraryItemToSearchItem(item),
+      node: item,
       cursor: endCursor,
       itemID: item.id,
       updateReason,

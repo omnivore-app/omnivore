@@ -1,15 +1,15 @@
-import { LibraryItemState } from '../../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import {
   MutationUpdatePageArgs,
   UpdatePageError,
   UpdatePageSuccess,
 } from '../../generated/graphql'
 import { updateLibraryItem } from '../../services/library_item'
-import { libraryItemToArticle } from '../../utils/helpers'
+import { Merge } from '../../util'
 import { authorized } from '../../utils/gql-utils'
 
 export const updatePageResolver = authorized<
-  UpdatePageSuccess,
+  Merge<UpdatePageSuccess, { updatedPage: LibraryItem }>,
   UpdatePageError,
   MutationUpdatePageArgs
 >(async (_, { input }, { uid }) => {
@@ -29,6 +29,6 @@ export const updatePageResolver = authorized<
     uid
   )
   return {
-    updatedPage: libraryItemToArticle(updatedPage),
+    updatedPage: updatedPage,
   }
 })

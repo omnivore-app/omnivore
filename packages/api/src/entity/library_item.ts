@@ -46,6 +46,9 @@ export class LibraryItem {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
+  @Column('uuid')
+  userId!: string
+
   @Column('enum', {
     enum: LibraryItemState,
     default: LibraryItemState.Succeeded,
