@@ -33,7 +33,10 @@ import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { batchGetHighlightsFromLibraryItemIds } from './services/highlights'
 import { batchGetPublicItems } from './services/home'
-import { batchGetLabelsFromLibraryItemIds } from './services/labels'
+import {
+  batchGetLabelsFromHighlightIds,
+  batchGetLabelsFromLibraryItemIds,
+} from './services/labels'
 import { batchGetLibraryItems } from './services/library_item'
 import { batchGetRecommendationsFromLibraryItemIds } from './services/recommendation'
 import {
@@ -128,6 +131,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
       users: new DataLoader(async (ids: readonly string[]) =>
         findUsersByIds(ids as string[])
       ),
+      highlightLabels: new DataLoader(batchGetLabelsFromHighlightIds),
     },
   }
 

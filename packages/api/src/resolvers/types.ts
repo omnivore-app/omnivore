@@ -60,6 +60,7 @@ export interface RequestContext {
     publicItems: DataLoader<string, PublicItem | undefined>
     subscriptions: DataLoader<string, Subscription | undefined>
     users: DataLoader<string, User | undefined>
+    highlightLabels: DataLoader<string, Label[]>
   }
 }
 

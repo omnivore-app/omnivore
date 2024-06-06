@@ -463,7 +463,7 @@ describe('Highlights API', () => {
       await saveLabelsInHighlight([label1], existingHighlights[1].id, user.id)
 
       const res = await graphqlRequest(query, authToken, {
-        query: `label:${labelName},${labelName1}`,
+        query: `label:"${labelName}" label:"${labelName1}"`,
       }).expect(200)
       const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
       expect(highlights).to.have.lengthOf(2)

@@ -475,6 +475,15 @@ export const functionResolvers = {
 
       return ctx.dataLoaders.libraryItems.load(highlight.libraryItemId)
     },
+    labels: async (
+      highlight: Highlight,
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) => {
+      return (
+        highlight.labels || ctx.dataLoaders.highlightLabels.load(highlight.id)
+      )
+    },
   },
   SearchItem: {
     async url(item: LibraryItem, _: unknown, ctx: WithDataSourcesContext) {
