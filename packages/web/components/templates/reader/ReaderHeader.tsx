@@ -144,7 +144,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
             color={theme.colors.thHighContrast.toString()}
           />
         </Button>
-        <PrimaryDropdown showThemeSection={false}>
+        <PrimaryDropdown showThemeSection={false} showFullThemeSection={false}>
           <CircleUtilityMenuIcon
             size={25}
             color={theme.colors.thHighContrast.toString()}
