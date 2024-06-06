@@ -1,45 +1,60 @@
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Button } from './Button'
 import { HStack, VStack } from './LayoutPrimitives'
 
 type PaginationProps<T> = {
   items: T[]
   itemsPerPage: number
+  loadMoreButtonText?: string
   render: (item: T) => React.ReactNode
 }
 
 const Pagination = <T,>({
   items,
   itemsPerPage,
+  loadMoreButtonText,
   render,
 }: PaginationProps<T>) => {
   const [currentPage, setCurrentPage] = useState(1)
   const maxPage = Math.ceil(items.length / itemsPerPage)
 
-  function createChangePageHandler(page: number) {
-    return function handlePageChange() {
-      setCurrentPage(page)
-    }
-  }
+  const incrementCurrentPage = useCallback(() => {
+    setCurrentPage(currentPage + 1)
+  }, [currentPage, setCurrentPage])
 
-  const itemsToShow = items.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
+  const itemsToShow = useMemo(() => {
+    const count = currentPage * itemsPerPage
+    return items.slice(0, count)
+  }, [items, currentPage, itemsPerPage])
 
   return (
-    <VStack>
+    <VStack css={{ width: '100%' }}>
       {itemsToShow.map(render)}
-      <HStack>
-        {Array.from({ length: maxPage }, (_, i) => i + 1).map((pageNum) => (
+      <HStack
+        alignment="center"
+        distribution="center"
+        css={{ p: '30px', width: '100%' }}
+      >
+        {currentPage < maxPage && (
           <Button
-            key={pageNum}
-            onClick={createChangePageHandler(pageNum)}
-            disabled={pageNum === currentPage}
+            onClick={(event) => {
+              incrementCurrentPage()
+              event.preventDefault()
+            }}
+            style="homeAction"
+            css={{
+              fontFamily: '$inter',
+              fontSize: '15px',
+              fontWeight: '500',
+              color: '$thTextSubtle4',
+              bg: '#3D3D3D',
+              py: '10px',
+              px: '25px',
+            }}
           >
-            {pageNum}
+            {loadMoreButtonText ?? 'Load More'}
           </Button>
-        ))}
+        )}
       </HStack>
     </VStack>
   )

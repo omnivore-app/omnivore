@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
@@ -25,14 +25,20 @@ import {
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import {
+  Box,
   HStack,
   SpanBox,
   VStack,
 } from './../../components/elements/LayoutPrimitives'
+import { List, ThumbsDown, ThumbsUp } from 'phosphor-react'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { Toaster } from 'react-hot-toast'
+import { DEFAULT_HEADER_HEIGHT } from '../../components/templates/homeFeed/HeaderSpacer'
+import { NavigationMenu } from '../../components/templates/navMenu/NavigationMenu'
 
 export default function Home(): JSX.Element {
+  const [showLeftMenu, setShowLeftMenu] = useState(false)
   const homeData = useGetHomeItems()
-  console.log('home sections: ', homeData.sections)
   useApplyLocalTheme()
 
   return (
@@ -46,6 +52,25 @@ export default function Home(): JSX.Element {
         minHeight: '100vh',
       }}
     >
+      <Toaster />
+      <Header
+        toggleMenu={() => {
+          setShowLeftMenu(!showLeftMenu)
+        }}
+      />
+      {showLeftMenu && (
+        <NavigationMenu
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          setShowAddLinkModal={() => {}}
+          searchTerm={''}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          applySearchQuery={(searchQuery: string) => {}}
+          showFilterMenu={showLeftMenu}
+          setShowFilterMenu={(show) => {
+            setShowLeftMenu(show)
+          }}
+        />
+      )}
       <VStack
         distribution="start"
         css={{
@@ -58,6 +83,9 @@ export default function Home(): JSX.Element {
         }}
       >
         {homeData.sections?.map((homeSection, idx) => {
+          if (homeSection.items.length < 1) {
+            return <></>
+          }
           switch (homeSection.layout) {
             case 'just_added':
               return (
@@ -150,6 +178,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
       <Pagination
         items={props.homeSection.items}
         itemsPerPage={4}
+        loadMoreButtonText="Load more Top Picks"
         render={(homeItem) => (
           <TopicPickHomeItemView key={homeItem.id} homeItem={homeItem} />
         )}
@@ -165,14 +194,23 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       css={{
         width: '100%',
         gap: '20px',
+        bg: '#3D3D3D',
+        py: '30px',
+        px: '20px',
+        borderRadius: '5px',
       }}
     >
       <SpanBox
         css={{
           fontFamily: '$inter',
-          fontSize: '16px',
+          fontSize: '12px',
           fontWeight: '600',
-          color: '$readerText',
+          textTransform: 'uppercase',
+          color: '$ctaBlue',
+          bg: '#007AFF10',
+          px: '10px',
+          py: '5px',
+          borderRadius: '5px',
         }}
       >
         {props.homeSection.title}
@@ -279,9 +317,9 @@ const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
       alignment="center"
       css={{
         fontSize: '12px',
-        fontWeight: 'normal',
+        fontWeight: 'medium',
         fontFamily: '$inter',
-        color: '$readerContrast',
+        color: '$readerTextSubtle',
       }}
     >
       {timeAgo(props.homeItem.date)}
@@ -300,10 +338,41 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
         fontWeight: '600',
         fontFamily: '$inter',
         color: '$readerText',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        wordBreak: 'break-word',
+        display: '-webkit-box',
+        '-webkit-line-clamp': '3',
+        '-webkit-box-orient': 'vertical',
       }}
     >
       {props.homeItem.title}
     </HStack>
+  )
+}
+
+type PreviewContentProps = {
+  previewContent?: string
+  maxLines?: string
+}
+
+const PreviewContent = (props: PreviewContentProps): JSX.Element => {
+  return (
+    <SpanBox
+      css={{
+        fontFamily: '$inter',
+        fontSize: '14px',
+        lineHeight: '28px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        wordBreak: 'break-word',
+        display: '-webkit-box',
+        '-webkit-line-clamp': props.maxLines ?? '3',
+        '-webkit-box-orient': 'vertical',
+      }}
+    >
+      {props.previewContent ?? ''}
+    </SpanBox>
   )
 }
 
@@ -349,10 +418,12 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
     <VStack
       css={{
         width: '100%',
-        padding: '20px',
+        p: '0px',
+        pt: '35px',
+
         borderRadius: '5px',
         '&:hover': {
-          bg: '$thBackground',
+          bg: '#3D3D3D',
           borderRadius: '0px',
         },
       }}
@@ -363,8 +434,9 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
           router.push(props.homeItem.url)
         }
       }}
+      alignment="start"
     >
-      <HStack css={{ width: '100%', gap: '5px' }}>
+      <HStack css={{ width: '100%', gap: '5px', px: '20px' }}>
         <VStack css={{ gap: '15px' }}>
           <HStack
             distribution="start"
@@ -390,28 +462,30 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
           )}
         </SpanBox>
       </HStack>
-      <SpanBox
-        css={{ fontFamily: '$inter', fontSize: '13px', lineHeight: '23px' }}
-      >
-        {props.homeItem.previewContent}
+      <SpanBox css={{ px: '20px' }}>
+        <PreviewContent
+          previewContent={props.homeItem.previewContent}
+          maxLines="6"
+        />
       </SpanBox>
-      <HStack css={{ gap: '6px', mt: '20px' }}>
-        <Button style="ghost">
+      <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
+        <Button style="homeAction">
           <AddToLibraryActionIcon />
         </Button>
-        <Button style="ghost">
+        <Button style="homeAction">
           <CommentActionIcon />
         </Button>
-        <Button style="ghost">
+        <Button style="homeAction">
           <ShareActionIcon />
         </Button>
-        <Button style="ghost">
+        <Button style="homeAction">
           <ArchiveActionIcon />
         </Button>
-        <Button style="ghost">
+        <Button style="homeAction">
           <RemoveActionIcon />
         </Button>
       </HStack>
+      <Box css={{ mt: '15px', width: '100%', height: '1px', bg: '#3D3D3D' }} />
     </VStack>
   )
 }
@@ -423,11 +497,13 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
     <VStack
       css={{
         width: '100%',
-        padding: '10px',
+        px: '10px',
+        py: '10px',
+        gap: '2px',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$thBackground',
-          borderRadius: '0px',
+          bg: '$readerBg',
+          cursor: 'pointer',
         },
       }}
       onClick={(event) => {
@@ -440,6 +516,10 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
     >
       <TimeAgo homeItem={props.homeItem} />
       <Title homeItem={props.homeItem} />
+      <PreviewContent
+        previewContent={props.homeItem.previewContent}
+        maxLines="2"
+      />
     </VStack>
   )
 }
@@ -570,6 +650,147 @@ const SubscriptionSourceHoverContent = (
       >
         {subscription ? <>{subscription.description}</> : <></>}
       </SpanBox>
+    </VStack>
+  )
+}
+
+// const SiteSourceHoverContent = (
+//   props: SourceHoverContentProps
+// ): JSX.Element => {
+//   const sendHomeFeedback = useCallback(
+//     async (feedbackType: SendHomeFeedbackType) => {
+//       const feedback: SendHomeFeedbackInput = {
+//         feedbackType,
+//       }
+//       feedback.site = props.source.name
+//       const result = await sendHomeFeedbackMutation(feedback)
+//       if (result) {
+//         showSuccessToast('Feedback sent')
+//       } else {
+//         showErrorToast('Error sending feedback')
+//       }
+//     },
+//     [props]
+//   )
+
+//   return (
+//     <VStack
+//       alignment="start"
+//       distribution="start"
+//       css={{
+//         width: '240px',
+//         height: '100px',
+//         bg: '$thBackground2',
+//         borderRadius: '10px',
+//         padding: '15px',
+//         gap: '10px',
+//         boxShadow: theme.shadows.cardBoxShadow.toString(),
+//       }}
+//     >
+//       <HStack
+//         distribution="start"
+//         alignment="center"
+//         css={{ width: '100%', gap: '10px' }}
+//       >
+//         {props.source.icon && (
+//           <SiteIcon
+//             src={props.source.icon}
+//             alt={props.source.name}
+//             size="large"
+//           />
+//         )}
+//         <SpanBox
+//           css={{
+//             fontFamily: '$inter',
+//             fontWeight: '500',
+//             fontSize: '14px',
+//           }}
+//         >
+//           {props.source.name}
+//         </SpanBox>
+//       </HStack>
+//       {/* <SpanBox
+//         css={{
+//           fontFamily: '$inter',
+//           fontSize: '13px',
+//           color: '$thTextSubtle4',
+//         }}
+//       >
+//         {subscription ? <>{subscription.description}</> : <></>}
+//       </SpanBox> */}
+//       <FeedbackView sendFeedback={sendHomeFeedback} />
+//     </VStack>
+//   )
+// }
+
+// type FeedbackViewProps = {
+//   sendFeedback: (type: SendHomeFeedbackType) => void
+// }
+
+// const FeedbackView = (props: FeedbackViewProps): JSX.Element => {
+//   return (
+//     <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
+//       <Button
+//         style="plainIcon"
+//         onClick={(event) => {
+//           props.sendFeedback('MORE')
+//           event.preventDefault()
+//           event.stopPropagation()
+//         }}
+//       >
+//         <ThumbsUp weight="fill" />
+//       </Button>
+//       <Button
+//         style="plainIcon"
+//         onClick={(event) => {
+//           props.sendFeedback('LESS')
+//           event.preventDefault()
+//           event.stopPropagation()
+//         }}
+//       >
+//         <ThumbsDown weight="fill" />
+//       </Button>
+//     </HStack>
+//   )
+// }
+
+type HeaderProps = {
+  toggleMenu: () => void
+}
+
+const Header = (props: HeaderProps): JSX.Element => {
+  const small = false
+
+  return (
+    <VStack
+      alignment="start"
+      distribution="start"
+      css={{
+        zIndex: 5,
+        position: 'fixed',
+        left: '15px',
+        top: '15px',
+        height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
+        transition: 'height 0.5s',
+        '@lgDown': { px: '20px' },
+        '@mdDown': {
+          px: '10px',
+          left: '0px',
+          right: '0',
+        },
+      }}
+    >
+      <VStack alignment="center" distribution="center">
+        <Button
+          style="plainIcon"
+          onClick={(event) => {
+            props.toggleMenu()
+            event.preventDefault()
+          }}
+        >
+          <List size="25" color={theme.colors.readerTextSubtle.toString()} />
+        </Button>
+      </VStack>
     </VStack>
   )
 }

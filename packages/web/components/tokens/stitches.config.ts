@@ -157,6 +157,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerTableHeader: '#FFFFFF',
         readerMargin: 'white',
         readerTextSubtle: '#898989',
+        readerHoverBg: '#1E1E1E',
 
         // Avatar Fallback color
         avatarBg: '#FFEA9F',
@@ -296,6 +297,8 @@ const darkThemeSpec = {
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
     readerMargin: '#2A2A2A',
+    readerHoverBg: '#1E1E1E',
+    readerTextSubtle: '#EDEDED',
 
     avatarBg: '#7B5C3E',
     avatarFont: '#D9D9D9',

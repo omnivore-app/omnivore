@@ -428,6 +428,16 @@ export const Button = styled('button', {
           opacity: 0.8,
         },
       },
+      homeAction: {
+        display: 'flex',
+        color: 'transparent',
+        border: 'none',
+        bg: 'transparent',
+        cursor: 'pointer',
+        p: '5px',
+        borderRadius: '5px',
+        '&:hover': { bg: '$readerHoverBg', opacity: '1' },
+      },
       themeSwitch: {
         p: '0px',
         m: '0px',

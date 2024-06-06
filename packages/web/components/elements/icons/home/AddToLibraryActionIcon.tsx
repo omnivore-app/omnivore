@@ -11,16 +11,15 @@ export class AddToLibraryActionIcon extends React.Component<IconProps> {
 
     return (
       <svg
-        width="50"
-        height="32"
-        viewBox="0 0 50 32"
+        width="19"
+        height="19"
+        viewBox="0 0 19 19"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <rect width="50" height="32" rx="4" fill={backgroundColor} />
         <g>
           <path
-            d="M30 11.8333V23.5L25 20.1667L20 23.5V11.8333C20 10.9493 20.3512 10.1014 20.9763 9.47631C21.6014 8.85119 22.4493 8.5 23.3333 8.5H26.6667C27.5507 8.5 28.3986 8.85119 29.0237 9.47631C29.6488 10.1014 30 10.9493 30 11.8333Z"
+            d="M14.25 5.54167V16.625L9.5 13.4583L4.75 16.625V5.54167C4.75 4.70181 5.08363 3.89636 5.6775 3.3025C6.27136 2.70863 7.07681 2.375 7.91667 2.375H11.0833C11.9232 2.375 12.7286 2.70863 13.3225 3.3025C13.9164 3.89636 14.25 4.70181 14.25 5.54167Z"
             stroke={strokeColor}
             strokeWidth="1.25"
             strokeLinecap="round"
