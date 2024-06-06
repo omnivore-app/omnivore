@@ -16,10 +16,12 @@ import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
 import { useCurrentTheme } from '../../lib/hooks/useCurrentTheme'
+import { ThemeSelector } from './article/ReaderSettingsControl'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
   showThemeSection: boolean
+  showFullThemeSection: boolean
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
@@ -192,7 +194,8 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         </VStack>
       </HStack>
       <DropdownSeparator />
-      {props.showThemeSection && <ThemeSection {...props} />}
+      {props.showThemeSection && <LegacyMenuThemeSection {...props} />}
+      {props.showFullThemeSection && <ThemeSection {...props} />}
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}
         title="Install"
@@ -261,7 +264,21 @@ export const StyledToggleButton = styled('button', {
   },
 })
 
-function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
+const ThemeSection = (props: PrimaryDropdownProps): JSX.Element => {
+  const { currentTheme, setCurrentTheme, currentThemeIsDark } =
+    useCurrentTheme()
+
+  return (
+    <>
+      <VStack css={{ width: '100%' }}>
+        <ThemeSelector />
+      </VStack>
+      <DropdownSeparator />
+    </>
+  )
+}
+
+function LegacyMenuThemeSection(props: PrimaryDropdownProps): JSX.Element {
   const { currentTheme, setCurrentTheme, currentThemeIsDark } =
     useCurrentTheme()
 

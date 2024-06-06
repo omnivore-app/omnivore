@@ -30,7 +30,7 @@ import {
   SpanBox,
   VStack,
 } from './../../components/elements/LayoutPrimitives'
-import { Hamburger, List, ThumbsDown, ThumbsUp } from 'phosphor-react'
+import { List, ThumbsDown, ThumbsUp } from 'phosphor-react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Toaster } from 'react-hot-toast'
 import { DEFAULT_HEADER_HEIGHT } from '../../components/templates/homeFeed/HeaderSpacer'
@@ -47,8 +47,7 @@ export default function Home(): JSX.Element {
       alignment="center"
       css={{
         width: '100%',
-        // bg: '$readerBg',
-        bg: '#2A2A2A',
+        bg: '$readerBg',
         pt: '45px',
         minHeight: '100vh',
       }}
@@ -338,7 +337,7 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
         lineHeight: '20px',
         fontWeight: '600',
         fontFamily: '$inter',
-        color: 'white',
+        color: '$readerText',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',

@@ -169,7 +169,7 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
         </Box>
         <LibraryNav {...props} />
         <Shortcuts {...props} />
-        <NavMenuFooter {...props} />
+        <NavMenuFooter {...props} showFullThemeSection={true} />
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
