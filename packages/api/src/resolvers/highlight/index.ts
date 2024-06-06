@@ -237,25 +237,34 @@ export const highlightsResolver = authorized<
   PartialHighlightsSuccess,
   HighlightsError,
   QueryHighlightsArgs
->(async (_, { after, first }, { uid, log }) => {
+>(async (_, { after, first, query }, { uid, log }) => {
   const limit = first || 10
   const offset = parseInt(after || '0')
-  if (isNaN(offset) || offset < 0 || limit > 50) {
-    log.error('Invalid after', { after })
+  if (
+    isNaN(offset) ||
+    offset < 0 ||
+    limit > 50 ||
+    (query?.length && query.length > 1000)
+  ) {
+    log.error('Invalid args', { after, first, query })
 
     return {
       errorCodes: [HighlightsErrorCode.BadRequest],
     }
   }
 
-  const highlights = await searchHighlights(uid, limit + 1, offset)
+  const highlights = await searchHighlights(
+    uid,
+    query || undefined,
+    limit + 1,
+    offset
+  )
 
-  const start = offset
   const hasNextPage = highlights.length > limit
   if (hasNextPage) {
     highlights.pop()
   }
-  const endCursor = String(start + highlights.length)
+  const endCursor = String(offset + highlights.length)
 
   const edges = highlights.map((highlight) => ({
     cursor: endCursor,
@@ -265,9 +274,9 @@ export const highlightsResolver = authorized<
   return {
     edges,
     pageInfo: {
-      startCursor: String(start),
+      startCursor: String(offset),
       endCursor,
-      hasPreviousPage: start > 0,
+      hasPreviousPage: offset > 0,
       hasNextPage,
     },
   }

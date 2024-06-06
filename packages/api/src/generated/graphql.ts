@@ -1261,6 +1261,7 @@ export type Highlight = {
   html?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   labels?: Maybe<Array<Label>>;
+  libraryItem: Article;
   patch?: Maybe<Scalars['String']>;
   prefix?: Maybe<Scalars['String']>;
   quote?: Maybe<Scalars['String']>;
@@ -6128,6 +6129,7 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
+  libraryItem?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   patch?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

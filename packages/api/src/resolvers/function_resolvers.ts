@@ -6,7 +6,6 @@
 import { createHmac } from 'crypto'
 import { isError } from 'lodash'
 import { Highlight } from '../entity/highlight'
-import { Label } from '../entity/label'
 import { LibraryItem } from '../entity/library_item'
 import {
   EXISTING_NEWSLETTER_FOLDER,
@@ -71,14 +70,12 @@ import {
   createHighlightResolver,
   createLabelResolver,
   createNewsletterEmailResolver,
-  // createReminderResolver,
   deleteAccountResolver,
   deleteFilterResolver,
   deleteHighlightResolver,
   deleteIntegrationResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
-  // deleteReminderResolver,
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
@@ -88,11 +85,7 @@ import {
   generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
-  // getFollowersResolver,
-  // getFollowingResolver,
   getMeUserResolver,
-  // getSharedArticleResolver,
-  // getUserFeedArticlesResolver,
   getUserPersonalizationResolver,
   getUserResolver,
   googleLoginResolver,
@@ -112,7 +105,6 @@ import {
   newsletterEmailsResolver,
   recommendHighlightsResolver,
   recommendResolver,
-  // reminderResolver,
   reportItemResolver,
   revokeApiKeyResolver,
   rulesResolver,
@@ -127,14 +119,11 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFavoriteArticleResolver,
-  // setFollowResolver,
   setIntegrationResolver,
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
   setRuleResolver,
-  // setShareArticleResolver,
-  // setShareHighlightResolver,
   setUserPersonalizationResolver,
   setWebhookResolver,
   subscribeResolver,
@@ -145,10 +134,7 @@ import {
   updateHighlightResolver,
   updateLabelResolver,
   updateNewsletterEmailResolver,
-  // updateLinkShareInfoResolver,
   updatePageResolver,
-  // updateReminderResolver,
-  // updateSharedCommentResolver,
   updatesSinceResolver,
   updateSubscriptionResolver,
   updateUserProfileResolver,
@@ -259,30 +245,20 @@ export const functionResolvers = {
     updateUserProfile: updateUserProfileResolver,
     createArticle: createArticleResolver,
     createHighlight: createHighlightResolver,
-    // createReaction: createReactionResolver,
-    // deleteReaction: deleteReactionResolver,
     mergeHighlight: mergeHighlightResolver,
     updateHighlight: updateHighlightResolver,
     deleteHighlight: deleteHighlightResolver,
     uploadFileRequest: uploadFileRequestResolver,
-    // setShareArticle: setShareArticleResolver,
-    // updateSharedComment: updateSharedCommentResolver,
-    // setFollow: setFollowResolver,
     setBookmarkArticle: setBookmarkArticleResolver,
     setUserPersonalization: setUserPersonalizationResolver,
     createArticleSavingRequest: createArticleSavingRequestResolver,
-    // setShareHighlight: setShareHighlightResolver,
     reportItem: reportItemResolver,
-    // updateLinkShareInfo: updateLinkShareInfoResolver,
     setLinkArchived: setLinkArchivedResolver,
     createNewsletterEmail: createNewsletterEmailResolver,
     deleteNewsletterEmail: deleteNewsletterEmailResolver,
     saveUrl: saveUrlResolver,
     savePage: savePageResolver,
     saveFile: saveFileResolver,
-    // createReminder: createReminderResolver,
-    // updateReminder: updateReminderResolver,
-    // deleteReminder: deleteReminderResolver,
     setDeviceToken: setDeviceTokenResolver,
     createLabel: createLabelResolver,
     updateLabel: updateLabelResolver,
@@ -340,14 +316,9 @@ export const functionResolvers = {
     users: getAllUsersResolver,
     validateUsername: validateUsernameResolver,
     article: getArticleResolver,
-    // sharedArticle: getSharedArticleResolver,
-    // feedArticles: getUserFeedArticlesResolver,
-    // getFollowers: getFollowersResolver,
-    // getFollowing: getFollowingResolver,
     getUserPersonalization: getUserPersonalizationResolver,
     articleSavingRequest: articleSavingRequestResolver,
     newsletterEmails: newsletterEmailsResolver,
-    // reminder: reminderResolver,
     labels: labelsResolver,
     search: searchResolver,
     subscriptions: subscriptionsResolver,
@@ -373,11 +344,7 @@ export const functionResolvers = {
     highlights: highlightsResolver,
   },
   User: {
-    async intercomHash(
-      user: User,
-      __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
-    ) {
+    async intercomHash(user: User) {
       if (env.intercom.secretKey) {
         const userIdentifier = user.id.toString()
 
@@ -445,8 +412,8 @@ export const functionResolvers = {
     hasContent(article: LibraryItem) {
       return !!article.originalContent && !!article.readableContent
     },
-    publishedAt(article: { publishedAt: Date }) {
-      return validatedDate(article.publishedAt)
+    publishedAt(article: LibraryItem) {
+      return validatedDate(article.publishedAt || undefined)
     },
     image(article: LibraryItem): string | undefined {
       if (article.thumbnail) {
@@ -471,6 +438,15 @@ export const functionResolvers = {
 
       return ctx.dataLoaders.labels.load(article.id)
     },
+    async highlights(
+      article: LibraryItem,
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (article.highlights) return article.highlights
+
+      return ctx.dataLoaders.highlights.load(article.id)
+    },
     content: (item: LibraryItem) => item.readableContent,
     hash: (item: LibraryItem) => item.textContentHash || '',
     isArchived: (item: LibraryItem) => !!item.archivedAt,
@@ -486,11 +462,18 @@ export const functionResolvers = {
       return ctx.dataLoaders.users.load(highlight.userId)
     },
     createdByMe(
-      highlight: { user: { id: string } },
+      highlight: Highlight,
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return highlight.user.id === ctx.uid
+      return highlight.userId === ctx.uid
+    },
+    libraryItem(highlight: Highlight, _: unknown, ctx: WithDataSourcesContext) {
+      if (highlight.libraryItem) {
+        return highlight.libraryItem
+      }
+
+      return ctx.dataLoaders.libraryItems.load(highlight.libraryItemId)
     },
   },
   SearchItem: {
@@ -526,30 +509,19 @@ export const functionResolvers = {
 
       return item.siteIcon
     },
-    async labels(
-      item: { id: string; labels?: Label[] },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async labels(item: LibraryItem, _: unknown, ctx: WithDataSourcesContext) {
       if (item.labels) return item.labels
 
-      const labels = await ctx.dataLoaders.labels.load(item.id)
-      return labels
+      return ctx.dataLoaders.labels.load(item.id)
     },
     async recommendations(
-      item: {
-        id: string
-        recommendations?: Recommendation[]
-      },
+      item: LibraryItem,
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.recommendations) return item.recommendations
 
-      const recommendations = await ctx.dataLoaders.recommendations.load(
-        item.id
-      )
-      return recommendations
+      return ctx.dataLoaders.recommendations.load(item.id)
     },
     async aiSummary(
       item: LibraryItem,
@@ -565,19 +537,14 @@ export const functionResolvers = {
       )?.summary
     },
     async highlights(
-      item: {
-        id: string
-        highlights?: Highlight[]
-      },
+      item: LibraryItem,
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.highlights) return item.highlights
 
-      const highlights = await ctx.dataLoaders.highlights.load(item.id)
-      return highlights
+      return ctx.dataLoaders.highlights.load(item.id)
     },
-    ...readingProgressHandlers,
     async content(
       item: PartialLibraryItem,
       _: unknown,
@@ -615,6 +582,7 @@ export const functionResolvers = {
     },
     isArchived: (item: LibraryItem) => !!item.archivedAt,
     pageType: (item: LibraryItem) => item.itemType,
+    ...readingProgressHandlers,
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
@@ -811,31 +779,21 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateUser'),
   ...resultResolveTypeResolver('UpdateUserProfile'),
   ...resultResolveTypeResolver('Article'),
-  // ...resultResolveTypeResolver('SharedArticle'),
   ...resultResolveTypeResolver('Articles'),
   ...resultResolveTypeResolver('User'),
   ...resultResolveTypeResolver('Users'),
   ...resultResolveTypeResolver('SaveArticleReadingProgress'),
-  // ...resultResolveTypeResolver('FeedArticles'),
   ...resultResolveTypeResolver('CreateArticle'),
   ...resultResolveTypeResolver('CreateHighlight'),
-  // ...resultResolveTypeResolver('CreateReaction'),
-  // ...resultResolveTypeResolver('DeleteReaction'),
   ...resultResolveTypeResolver('MergeHighlight'),
   ...resultResolveTypeResolver('UpdateHighlight'),
   ...resultResolveTypeResolver('DeleteHighlight'),
   ...resultResolveTypeResolver('UploadFileRequest'),
-  // ...resultResolveTypeResolver('SetShareArticle'),
-  // ...resultResolveTypeResolver('UpdateSharedComment'),
   ...resultResolveTypeResolver('SetBookmarkArticle'),
-  // ...resultResolveTypeResolver('SetFollow'),
-  // ...resultResolveTypeResolver('GetFollowers'),
-  // ...resultResolveTypeResolver('GetFollowing'),
   ...resultResolveTypeResolver('GetUserPersonalization'),
   ...resultResolveTypeResolver('SetUserPersonalization'),
   ...resultResolveTypeResolver('ArticleSavingRequest'),
   ...resultResolveTypeResolver('CreateArticleSavingRequest'),
-  // ...resultResolveTypeResolver('SetShareHighlight'),
   ...resultResolveTypeResolver('ArchiveLink'),
   ...resultResolveTypeResolver('CreateNewsletterEmail'),
   ...resultResolveTypeResolver('NewsletterEmails'),

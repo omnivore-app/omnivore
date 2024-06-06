@@ -281,9 +281,10 @@ export const findHighlightsByLibraryItemId = async (
 
 export const searchHighlights = async (
   userId: string,
-  limit: number,
+  query?: string,
+  limit?: number,
   offset?: number
-) => {
+): Promise<Array<Highlight>> => {
   return authTrx(
     async (tx) =>
       tx.withRepository(highlightRepository).find({

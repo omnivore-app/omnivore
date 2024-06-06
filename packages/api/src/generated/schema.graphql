@@ -1133,6 +1133,7 @@ type Highlight {
   html: String
   id: ID!
   labels: [Label!]
+  libraryItem: Article!
   patch: String
   prefix: String
   quote: String

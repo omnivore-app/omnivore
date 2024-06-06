@@ -751,6 +751,7 @@ const schema = gql`
     html: String
     color: String
     representation: RepresentationType!
+    libraryItem: Article!
   }
 
   input CreateHighlightInput {
