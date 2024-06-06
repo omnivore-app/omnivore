@@ -18,7 +18,15 @@ import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  paramtersToObject,
+  queryBuilderToRawSql,
+  Select,
+  Sort,
+  SortOrder,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
 import { enqueueBulkUploadContentJob } from '../utils/createTask'
@@ -122,22 +130,6 @@ export enum SortBy {
   WORDS_COUNT = 'wordscount',
 }
 
-export enum SortOrder {
-  ASCENDING = 'ASC',
-  DESCENDING = 'DESC',
-}
-
-export interface Sort {
-  by: string
-  order?: SortOrder
-  nulls?: 'NULLS FIRST' | 'NULLS LAST'
-}
-
-interface Select {
-  column: string
-  alias?: string
-}
-
 const readingProgressDataSource = new ReadingProgressDataSource()
 
 export const batchGetLibraryItems = async (ids: readonly string[]) => {
@@ -195,10 +187,6 @@ const handleNoCase = (value: string) => {
   }
 
   throw new Error(`Unexpected keyword: ${value}`)
-}
-
-const paramtersToObject = (parameters: ObjectLiteral[]) => {
-  return parameters.reduce((a, b) => ({ ...a, ...b }), {})
 }
 
 export const sortParamsToSort = (

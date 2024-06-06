@@ -12,7 +12,11 @@ import {
   deleteHighlightsByIds,
   findHighlightById,
 } from '../../src/services/highlights'
-import { createLabel, saveLabelsInHighlight } from '../../src/services/labels'
+import {
+  createLabel,
+  deleteLabels,
+  saveLabelsInHighlight,
+} from '../../src/services/labels'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
 import {
@@ -358,14 +362,24 @@ describe('Highlights API', () => {
 
   describe('Get highlights API', () => {
     const query = `
-      query Highlights ($first: Int, $after: String) {
-        highlights (first: $first, after: $after) {
+      query Highlights ($first: Int, $after: String, $query: String) {
+        highlights (first: $first, after: $after, query: $query) {
           ... on HighlightsSuccess {
             edges {
               node {
                 id
                 user {
                   id
+                  name
+                }
+                labels {
+                  id
+                  name
+                  color
+                }
+                libraryItem {
+                  id
+                  title
                 }
               }
               cursor
@@ -416,12 +430,47 @@ describe('Highlights API', () => {
       )
     })
 
-    it('returns highlights', async () => {
+    it('returns highlights in descending order', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
       const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
       expect(highlights).to.have.lengthOf(existingHighlights.length)
       expect(highlights[0].node.id).to.eq(existingHighlights[1].id)
       expect(highlights[1].node.id).to.eq(existingHighlights[0].id)
+      expect(highlights[0].node.user.id).to.eq(user.id)
+      expect(highlights[1].node.libraryItem.id).to.eq(
+        existingHighlights[0].libraryItemId
+      )
+    })
+
+    it('returns highlights with pagination', async () => {
+      const res = await graphqlRequest(query, authToken, {
+        first: 1,
+      }).expect(200)
+
+      const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
+      expect(highlights).to.have.lengthOf(1)
+    })
+
+    it('returns highlights with labels', async () => {
+      // create labels
+      const labelName = 'test_label'
+      const label = await createLabel(labelName, '#ff0000', user.id)
+      const labelName1 = 'test_label_1'
+      const label1 = await createLabel(labelName1, '#ff0001', user.id)
+
+      // save labels in highlights
+      await saveLabelsInHighlight([label], existingHighlights[0].id, user.id)
+      await saveLabelsInHighlight([label1], existingHighlights[1].id, user.id)
+
+      const res = await graphqlRequest(query, authToken, {
+        query: `label:${labelName},${labelName1}`,
+      }).expect(200)
+      const highlights = res.body.data.highlights.edges as Array<HighlightEdge>
+      expect(highlights).to.have.lengthOf(2)
+      expect(highlights[1].node.labels?.[0].name).to.eq(labelName)
+      expect(highlights[0].node.labels?.[0].name).to.eq(labelName1)
+
+      await deleteLabels([label.id, label1.id], user.id)
     })
   })
 })

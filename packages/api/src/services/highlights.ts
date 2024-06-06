@@ -1,16 +1,18 @@
+import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { diff_match_patch } from 'diff-match-patch'
-import { DeepPartial, In } from 'typeorm'
+import { DeepPartial, In, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { homePageURL } from '../env'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
-import { authTrx } from '../repository'
+import { authTrx, paramtersToObject } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 import { Merge } from '../util'
 import { enqueueUpdateHighlight } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
+import { parseSearchQuery } from '../utils/search'
 import { ItemEvent } from './library_item'
 
 const columnsToDelete = ['user', 'sharedAt', 'libraryItem'] as const
@@ -279,6 +281,149 @@ export const findHighlightsByLibraryItemId = async (
   )
 }
 
+export const buildQueryString = (
+  searchQuery: LiqeQuery,
+  parameters: ObjectLiteral[] = []
+) => {
+  const escapeQueryWithParameters = (
+    query: string,
+    parameter: ObjectLiteral
+  ) => {
+    parameters.push(parameter)
+    return query
+  }
+
+  const serializeImplicitField = (
+    expression: ExpressionToken
+  ): string | null => {
+    if (expression.type !== 'LiteralExpression') {
+      throw new Error('Expected a literal expression')
+    }
+
+    // not implemented yet
+    return null
+  }
+
+  const serializeTagExpression = (ast: LiqeQuery): string | null => {
+    if (ast.type !== 'Tag') {
+      throw new Error('Expected a tag expression')
+    }
+
+    const { field, expression } = ast
+
+    if (field.type === 'ImplicitField') {
+      return serializeImplicitField(expression)
+    } else {
+      if (expression.type !== 'LiteralExpression') {
+        // ignore empty values
+        return null
+      }
+
+      const value = expression.value?.toString()
+      if (!value) {
+        // ignore empty values
+        return null
+      }
+
+      switch (field.name.toLowerCase()) {
+        case 'label': {
+          const labels = value.toLowerCase().split(',')
+          return (
+            labels
+              .map((label) => {
+                const param = `label_${parameters.length}`
+
+                const hasWildcard = label.includes('*')
+                if (hasWildcard) {
+                  return escapeQueryWithParameters(
+                    `label.name ILIKE :${param}`,
+                    {
+                      [param]: label.replace(/\*/g, '%'),
+                    }
+                  )
+                }
+
+                return escapeQueryWithParameters(
+                  `LOWER(label.name) = :${param}`,
+                  {
+                    [param]: label.toLowerCase(),
+                  }
+                )
+              })
+              .join(' OR ')
+              // wrap in brackets to avoid precedence issues
+              .replace(/^(.*)$/, '($1)')
+          )
+        }
+        default:
+          // treat unknown fields as implicit fields
+          return serializeImplicitField({
+            ...expression,
+            value: `${field.name}:${value}`,
+          })
+      }
+    }
+  }
+
+  const serialize = (ast: LiqeQuery): string | null => {
+    if (ast.type === 'Tag') {
+      return serializeTagExpression(ast)
+    }
+
+    if (ast.type === 'LogicalExpression') {
+      let operator = ''
+      if (ast.operator.operator === 'AND') {
+        operator = 'AND'
+      } else if (ast.operator.operator === 'OR') {
+        operator = 'OR'
+      } else {
+        throw new Error('Unexpected operator')
+      }
+
+      const left = serialize(ast.left)
+      const right = serialize(ast.right)
+
+      if (!left && !right) {
+        return null
+      }
+
+      if (!left) {
+        return right
+      }
+
+      if (!right) {
+        return left
+      }
+
+      return `${left} ${operator} ${right}`
+    }
+
+    if (ast.type === 'UnaryOperator') {
+      const serialized = serialize(ast.operand)
+
+      if (!serialized) {
+        return null
+      }
+
+      return `NOT ${serialized}`
+    }
+
+    if (ast.type === 'ParenthesizedExpression') {
+      const serialized = serialize(ast.expression)
+
+      if (!serialized) {
+        return null
+      }
+
+      return `(${serialized})`
+    }
+
+    return null
+  }
+
+  return serialize(searchQuery)
+}
+
 export const searchHighlights = async (
   userId: string,
   query?: string,
@@ -286,15 +431,37 @@ export const searchHighlights = async (
   offset?: number
 ): Promise<Array<Highlight>> => {
   return authTrx(
-    async (tx) =>
-      tx.withRepository(highlightRepository).find({
-        where: { user: { id: userId } },
-        order: {
-          updatedAt: 'DESC',
-        },
-        take: limit,
-        skip: offset,
-      }),
+    async (tx) => {
+      // TODO: parse query and search by it
+      const queryBuilder = tx
+        .getRepository(Highlight)
+        .createQueryBuilder('highlight')
+
+      queryBuilder
+        .andWhere('highlight.userId = :userId', { userId })
+        .orderBy('highlight.updatedAt', 'DESC')
+        .take(limit)
+        .skip(offset)
+
+      if (query) {
+        const parameters: ObjectLiteral[] = []
+
+        const searchQuery = parseSearchQuery(query)
+
+        // build query string and save parameters
+        const queryString = buildQueryString(searchQuery, parameters)
+
+        if (queryString) {
+          // add where clause from query string
+          queryBuilder
+            .innerJoinAndSelect('highlight.labels', 'label')
+            .andWhere(`(${queryString})`)
+            .setParameters(paramtersToObject(parameters))
+        }
+      }
+
+      return queryBuilder.getMany()
+    },
     undefined,
     userId
   )
