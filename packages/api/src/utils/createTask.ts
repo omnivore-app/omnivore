@@ -29,6 +29,7 @@ import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
+import { GENERATE_PREVIEW_CONTENT_JOB } from '../jobs/generate_preview_content'
 import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
 import {
   ExportItemJobData,
@@ -110,6 +111,7 @@ export const getJobPriority = (jobName: string): number => {
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
+    case GENERATE_PREVIEW_CONTENT_JOB:
       return 100
 
     default:
@@ -1022,6 +1024,31 @@ export const enqueueScoreJob = async (data: ScoreLibraryItemJobData) => {
     priority: getJobPriority(SCORE_LIBRARY_ITEM_JOB),
     attempts: 3,
   })
+}
+
+export const enqueueGeneratePreviewContentJob = async (
+  libraryItemId: string,
+  userId: string
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(
+    GENERATE_PREVIEW_CONTENT_JOB,
+    {
+      libraryItemId,
+      userId,
+    },
+    {
+      jobId: `${GENERATE_PREVIEW_CONTENT_JOB}_${libraryItemId}_${JOB_VERSION}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+      priority: getJobPriority(GENERATE_PREVIEW_CONTENT_JOB),
+      attempts: 3,
+    }
+  )
 }
 
 export default createHttpTaskWithToken

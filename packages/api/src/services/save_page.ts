@@ -16,7 +16,10 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { Merge } from '../util'
-import { enqueueThumbnailJob } from '../utils/createTask'
+import {
+  enqueueGeneratePreviewContentJob,
+  enqueueThumbnailJob,
+} from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
@@ -174,6 +177,16 @@ export const savePage = async (
     }
   }
 
+  const excerpt = parseResult.parsedContent?.excerpt
+  // generate preview content if excerpt is less than 180 characters
+  if (!excerpt || excerpt.length < 180) {
+    try {
+      await enqueueGeneratePreviewContentJob(clientRequestId, user.id)
+    } catch (e) {
+      logger.error('Failed to enqueue generate preview job', e)
+    }
+  }
+
   if (parseResult.highlightData) {
     const highlight: DeepPartial<Highlight> = {
       ...parseResult.highlightData,
@@ -255,6 +268,7 @@ export const parsedContentToLibraryItem = ({
     originalContent: originalHtml,
     readableContent: parsedContent?.content || '',
     description: parsedContent?.excerpt,
+    previewContent: parsedContent?.excerpt,
     title:
       title ||
       parsedContent?.title ||

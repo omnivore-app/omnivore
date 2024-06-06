@@ -686,7 +686,8 @@ export const functionResolvers = {
               canComment: false,
               canShare: true,
               dir: libraryItem.directionality,
-              previewContent: libraryItem.description,
+              previewContent:
+                libraryItem.previewContent || libraryItem.description,
               subscription: libraryItem.subscription,
               siteName: libraryItem.siteName,
               siteIcon: libraryItem.siteIcon,
