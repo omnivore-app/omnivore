@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, DotsThree, List, MagnifyingGlass, X } from 'phosphor-react'
+import { Circle, DotsThree, MagnifyingGlass, X } from 'phosphor-react'
 import {
   Subscription,
   SubscriptionType,
@@ -122,9 +122,9 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <Box
           css={{
             width: '100%',
-            px: '15px',
+            px: '25px',
             pb: '17px',
-            pt: '15px',
+            pt: '4.5px',
             lineHeight: '1',
             '@mdDown': {
               pb: '0px',
@@ -133,19 +133,8 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             },
           }}
         >
-          <SpanBox css={{ mr: 'auto', '@mdDown': { display: 'none' } }}>
-            <Button
-              style="plainIcon"
-              onClick={(event) => {
-                props.setShowFilterMenu(false)
-                event.preventDefault()
-              }}
-            >
-              <List
-                size="25"
-                color={theme.colors.readerTextSubtle.toString()}
-              />
-            </Button>
+          <SpanBox css={{ '@mdDown': { display: 'none' } }}>
+            <LogoBox />
           </SpanBox>
 
           <Button
