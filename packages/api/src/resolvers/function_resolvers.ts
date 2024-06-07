@@ -766,6 +766,9 @@ export const functionResolvers = {
         type: subscription.type as unknown as HomeItemSourceType,
       }
     },
+    thumbnail(item: HomeItem) {
+      return item.thumbnail && createImageProxyUrl(item.thumbnail, 320, 320)
+    },
   },
   ArticleSavingRequest: {
     status: (item: LibraryItem) => item.state,
