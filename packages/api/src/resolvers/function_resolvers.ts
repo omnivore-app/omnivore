@@ -765,7 +765,7 @@ export const functionResolvers = {
         type: subscription.type as unknown as HomeItemSourceType,
       }
     },
-    image(item: HomeItem) {
+    thumbnail(item: HomeItem) {
       return item.thumbnail && createImageProxyUrl(item.thumbnail, 320, 320)
     },
   },
