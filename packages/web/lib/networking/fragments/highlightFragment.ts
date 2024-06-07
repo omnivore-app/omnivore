@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request'
+import { LibraryItemNode } from '../queries/useGetLibraryItemsQuery'
 import { Label } from './labelFragment'
 
 export const highlightFragment = gql`
@@ -45,6 +46,7 @@ export type Highlight = {
   color?: string
   highlightPositionPercent?: number
   highlightPositionAnchorIndex?: number
+  libraryItem?: LibraryItemNode
 }
 
 export type User = {
