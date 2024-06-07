@@ -17,10 +17,6 @@ import {
 } from '../generated/graphql'
 import { Merge } from '../util'
 import {
-  enqueueGeneratePreviewContentJob,
-  enqueueThumbnailJob,
-} from '../utils/createTask'
-import {
   cleanUrl,
   generateSlug,
   stringToHash,
@@ -165,27 +161,6 @@ export const savePage = async (
     input.labels,
     input.rssFeedUrl
   )
-
-  // we don't want to create thumbnail for imported pages and pages that already have thumbnail
-  if (!isImported && !parseResult.parsedContent?.previewImage) {
-    try {
-      // create a task to update thumbnail and pre-cache all images
-      const job = await enqueueThumbnailJob(user.id, clientRequestId)
-      logger.info('Created thumbnail job', { job })
-    } catch (e) {
-      logger.error('Failed to enqueue thumbnail job', e)
-    }
-  }
-
-  const excerpt = parseResult.parsedContent?.excerpt
-  // generate preview content if excerpt is less than 180 characters
-  if (!excerpt || excerpt.length < 180) {
-    try {
-      await enqueueGeneratePreviewContentJob(clientRequestId, user.id)
-    } catch (e) {
-      logger.error('Failed to enqueue generate preview job', e)
-    }
-  }
 
   if (parseResult.highlightData) {
     const highlight: DeepPartial<Highlight> = {

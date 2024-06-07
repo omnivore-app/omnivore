@@ -23,9 +23,16 @@ export const generatePreviewContent = async (
     return
   }
 
-  const libraryItem = await findLibraryItemById(libraryItemId, userId)
+  const libraryItem = await findLibraryItemById(libraryItemId, userId, {
+    select: ['id', 'readableContent', 'previewContent'],
+  })
   if (!libraryItem) {
     logger.error(`Library item not found: ${libraryItemId}`)
+    return
+  }
+
+  if (libraryItem.previewContent && libraryItem.previewContent.length >= 180) {
+    logger.info(`Preview content already exists: ${libraryItemId}`)
     return
   }
 
@@ -39,13 +46,22 @@ export const generatePreviewContent = async (
   logger.info(`Generating preview for library item: ${libraryItemId}`)
   // the preview content should be within 600 characters
   const document = parseHTML(content).document
-  const previewContent = document.documentElement.textContent?.slice(0, 600)
+  const previewContent = document.documentElement.textContent
+    ?.trim()
+    ?.replace(/\s+/g, ' ')
+    ?.replace(/\n/g, ' ')
+    ?.slice(0, 600)
   if (!previewContent) {
     logger.error(
       `Failed to generate preview for library item: ${libraryItemId}`
     )
     return
   }
+
+  logger.info('Generated preview for library item', {
+    libraryItemId,
+    previewContent,
+  })
 
   await updateLibraryItem(
     libraryItemId,

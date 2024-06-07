@@ -22,7 +22,7 @@ interface ImageSize {
 export const THUMBNAIL_JOB = 'find-thumbnail'
 
 const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
-  logger.info('fetching image', url)
+  logger.info('fetching image', { url })
   try {
     // get image file by url
     return await axios.get(url, {

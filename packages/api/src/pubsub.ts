@@ -4,8 +4,10 @@ import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
+  enqueueGeneratePreviewContentJob,
   enqueueProcessYouTubeVideo,
   enqueueScoreJob,
+  enqueueThumbnailJob,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
 import { logger } from './utils/logger'
@@ -80,6 +82,42 @@ export const createPubSubClient = (): PubsubClient => {
           userId,
           libraryItemId: data.id,
         })
+
+        const hasThumbnail = (
+          data: any
+        ): data is { thumbnail: string | null } => {
+          return 'thumbnail' in data
+        }
+
+        // we don't want to create thumbnail for imported pages and pages that already have thumbnail
+        if (!hasThumbnail(data) || !data.thumbnail) {
+          try {
+            // create a task to update thumbnail and pre-cache all images
+            const job = await enqueueThumbnailJob(userId, data.id)
+            logger.info('Thumbnail job created', { id: job?.id })
+          } catch (e) {
+            logger.error('Failed to enqueue thumbnail job', e)
+          }
+        }
+
+        const hasPreviewContent = (
+          data: any
+        ): data is { previewContent: string | null } => {
+          return 'previewContent' in data
+        }
+
+        // generate preview content if it is less than 180 characters
+        if (
+          !hasPreviewContent(data) ||
+          (data.previewContent && data.previewContent.length < 180)
+        ) {
+          try {
+            const job = await enqueueGeneratePreviewContentJob(data.id, userId)
+            logger.info('Generate preview job created', { id: job?.id })
+          } catch (e) {
+            logger.error('Failed to enqueue generate preview job', e)
+          }
+        }
       }
     },
     entityUpdated: async <T extends EntityEvent>(
