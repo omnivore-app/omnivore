@@ -32,6 +32,10 @@ import {
 import { sendEmailJob, SEND_EMAIL_JOB } from './jobs/email/send_email'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import {
+  generatePreviewContent,
+  GENERATE_PREVIEW_CONTENT_JOB,
+} from './jobs/generate_preview_content'
+import {
   exportAllItems,
   EXPORT_ALL_ITEMS_JOB_NAME,
 } from './jobs/integration/export_all_items'
@@ -194,6 +198,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return updateHome(job.data)
         case SCORE_LIBRARY_ITEM_JOB:
           return scoreLibraryItem(job.data)
+        case GENERATE_PREVIEW_CONTENT_JOB:
+          return generatePreviewContent(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

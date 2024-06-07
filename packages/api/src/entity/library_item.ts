@@ -219,4 +219,7 @@ export class LibraryItem {
 
   @Column('float')
   score?: number
+
+  @Column('text')
+  previewContent?: string
 }

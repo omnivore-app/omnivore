@@ -3,7 +3,6 @@ import {
   LibraryItem,
   LibraryItemState,
 } from '../entity/library_item'
-import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
@@ -12,7 +11,6 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
-import { logger } from '../utils/logger'
 import {
   FAKE_URL_PREFIX,
   fetchFavicon,
@@ -142,16 +140,6 @@ export const saveEmail = async (
   )
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)
-
-  if (!newLibraryItem.thumbnail) {
-    // create a task to update thumbnail and pre-cache all images
-    try {
-      const job = await enqueueThumbnailJob(input.userId, newLibraryItem.id)
-      logger.info('Created thumbnail job', { taskId: job })
-    } catch (e) {
-      logger.error('Failed to create thumbnail job', e)
-    }
-  }
 
   return newLibraryItem
 }

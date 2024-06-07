@@ -150,6 +150,7 @@ export const batchGetLibraryItems = async (ids: readonly string[]) => {
       'archivedAt',
       'deletedAt',
       'slug',
+      'previewContent',
     ],
   })
 
