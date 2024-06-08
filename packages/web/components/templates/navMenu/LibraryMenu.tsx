@@ -210,10 +210,10 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         filterTerm="in:library use:folders"
         icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
       />
-      <NavButton
+      <NavRedirectButton
         {...props}
         text="Highlights"
-        filterTerm="in:all has:highlights mode:highlights"
+        redirectLocation={'/highlights'}
         icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
       />
       <NavRedirectButton

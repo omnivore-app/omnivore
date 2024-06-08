@@ -290,6 +290,11 @@ export const searchHighlights = async (
       const queryBuilder = tx
         .getRepository(Highlight)
         .createQueryBuilder('highlight')
+        .innerJoin(
+          'highlight.libraryItem',
+          'libraryItem',
+          'highlight.libraryItemId = libraryItem.id AND libraryItem.deletedAt IS NULL'
+        )
         .andWhere('highlight.userId = :userId', { userId })
         .orderBy('highlight.updatedAt', 'DESC')
         .take(limit)

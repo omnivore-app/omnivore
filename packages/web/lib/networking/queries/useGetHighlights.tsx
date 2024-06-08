@@ -5,11 +5,10 @@ import { gqlFetcher } from '../networkHelpers'
 import { PageInfo } from './useGetLibraryItemsQuery'
 
 interface HighlightsResponse {
-  highlightsData?: Array<HighlightsData>
-  highlightsError?: unknown
+  data?: Array<HighlightsData>
+  error?: unknown
   isLoading: boolean
   isValidating: boolean
-  error: boolean
   size: number
   setSize: (
     size: number | ((_size: number) => number)
@@ -19,7 +18,6 @@ interface HighlightsResponse {
 
 interface HighlightsVariables {
   first?: number
-  after?: string
   query?: string
 }
 
@@ -46,6 +44,11 @@ export const useGetHighlights = (
           edges {
             node {
               ...HighlightFields
+              libraryItem {
+                id
+                title
+                author
+              }
             }
             cursor
           }
@@ -67,12 +70,13 @@ export const useGetHighlights = (
   const getKey = (pageIndex: number, previousPageData: any) => {
     if (previousPageData && !previousPageData.highlights.edges) return null
 
-    if (pageIndex === 0) return `${query}_${variables.first}_${variables.query}`
+    if (pageIndex === 0) return '0'
 
-    return `${query}_${previousPageData.highlights.pageInfo.endCursor}_${variables.first}_${variables.query}`
+    return previousPageData.highlights.pageInfo.endCursor
   }
 
-  const fetcher = async () => gqlFetcher(query, variables, true)
+  const fetcher = async (cursor: string | null) =>
+    gqlFetcher(query, { ...variables, after: cursor }, true)
 
   const { data, error, isValidating, mutate, size, setSize } = useSWRInfinite(
     getKey,
@@ -99,10 +103,9 @@ export const useGetHighlights = (
 
   return {
     isValidating,
-    highlightsData: responsePages || undefined,
-    highlightsError: responseError,
+    data: responsePages || undefined,
+    error: responseError,
     isLoading: !error && !data,
-    error: !!error,
     size,
     setSize,
     mutate,
