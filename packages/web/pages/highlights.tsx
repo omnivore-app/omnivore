@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { LabelChip } from '../components/elements/LabelChip'
 import { Box, HStack, VStack } from '../components/elements/LayoutPrimitives'
+import { HighlightViewNote } from '../components/patterns/HighlightNotes'
 import { EmptyHighlights } from '../components/templates/homeFeed/EmptyHighlights'
 import { LibraryFilterMenu } from '../components/templates/navMenu/LibraryMenu'
 import { useApplyLocalTheme } from '../lib/hooks/useApplyLocalTheme'
@@ -88,8 +89,29 @@ export default function HighlightsPage(): JSX.Element {
   )
 }
 
-interface HighlightCardProps {
+type HighlightCardProps = {
   highlight: Highlight
+}
+
+type HighlightAnnotationProps = HighlightCardProps
+
+function HighlightAnnotation({ highlight }: HighlightAnnotationProps): JSX.Element {
+  const [noteMode, setNoteMode] = useState<'edit' | 'preview'>('preview')
+  const [annotation, setAnnotation] = useState(highlight.annotation)
+
+  return (
+    <HighlightViewNote
+      targetId={highlight.id}
+      text={annotation}
+      placeHolder="Add notes to this highlight..."
+      highlight={highlight}
+      mode={noteMode}
+      setEditMode={setNoteMode}
+      updateHighlight={(highlight) => {
+        setAnnotation(highlight.annotation)
+      }}
+    />
+  )
 }
 
 function HighlightCard(props: HighlightCardProps): JSX.Element {
@@ -122,6 +144,7 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
             {props.highlight.quote}
           </ReactMarkdown>
         )}
+        <HighlightAnnotation highlight={props.highlight} />
         {props.highlight.labels && (
           <HStack
             css={{
