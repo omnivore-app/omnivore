@@ -48,6 +48,7 @@ export const useGetHighlights = (
                 id
                 title
                 author
+                slug
               }
             }
             cursor
