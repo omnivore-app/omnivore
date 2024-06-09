@@ -17,6 +17,7 @@ import { Box, HStack, VStack } from '../components/elements/LayoutPrimitives'
 import { ConfirmationModal } from '../components/patterns/ConfirmationModal'
 import { HighlightHoverActions } from '../components/patterns/HighlightHoverActions'
 import { HighlightViewNote } from '../components/patterns/HighlightNotes'
+import { timeAgo } from '../components/patterns/LibraryCards/LibraryCardStyles'
 import { SetHighlightLabelsModalPresenter } from '../components/templates/article/SetLabelsModalPresenter'
 import { EmptyHighlights } from '../components/templates/homeFeed/EmptyHighlights'
 import { LibraryFilterMenu } from '../components/templates/navMenu/LibraryMenu'
@@ -246,6 +247,16 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
           borderRadius: '2px',
         }}
       />
+      <Box
+        css={{
+          color: '$thText',
+          fontSize: '11px',
+          marginTop: '10px',
+          fontWeight: 300,
+        }}
+      >
+        {timeAgo(props.highlight.updatedAt)}
+      </Box>
       {props.highlight.quote && (
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {props.highlight.quote}
