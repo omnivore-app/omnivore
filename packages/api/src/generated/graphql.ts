@@ -649,7 +649,6 @@ export type DeleteFolderPolicyError = {
 };
 
 export enum DeleteFolderPolicyErrorCode {
-  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
 

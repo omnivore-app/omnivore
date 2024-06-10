@@ -584,7 +584,6 @@ type DeleteFolderPolicyError {
 }
 
 enum DeleteFolderPolicyErrorCode {
-  BAD_REQUEST
   UNAUTHORIZED
 }
 

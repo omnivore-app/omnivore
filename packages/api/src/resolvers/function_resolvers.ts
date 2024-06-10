@@ -54,6 +54,7 @@ import {
 import { optInFeatureResolver } from './features'
 import {
   createFolderPolicyResolver,
+  deleteFolderPolicyResolver,
   folderPoliciesResolver,
   updateFolderPolicyResolver,
 } from './folder_policy'
@@ -314,6 +315,7 @@ export const functionResolvers = {
     refreshHome: refreshHomeResolver,
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
+    deleteFolderPolicy: deleteFolderPolicyResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -891,4 +893,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('FolderPolicies'),
   ...resultResolveTypeResolver('CreateFolderPolicy'),
   ...resultResolveTypeResolver('UpdateFolderPolicy'),
+  ...resultResolveTypeResolver('DeleteFolderPolicy'),
 }

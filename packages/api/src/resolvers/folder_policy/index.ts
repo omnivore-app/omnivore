@@ -3,9 +3,12 @@ import {
   CreateFolderPolicyError,
   CreateFolderPolicyErrorCode,
   CreateFolderPolicySuccess,
+  DeleteFolderPolicyError,
+  DeleteFolderPolicySuccess,
   FolderPoliciesError,
   FolderPoliciesSuccess,
   MutationCreateFolderPolicyArgs,
+  MutationDeleteFolderPolicyArgs,
   MutationUpdateFolderPolicyArgs,
   UpdateFolderPolicyError,
   UpdateFolderPolicyErrorCode,
@@ -13,6 +16,7 @@ import {
 } from '../../generated/graphql'
 import {
   createFolderPolicy,
+  deleteFolderPolicy,
   findFolderPoliciesByUserId,
   findFolderPolicyById,
   updateFolderPolicy,
@@ -22,7 +26,7 @@ import { authorized } from '../../utils/gql-utils'
 
 type PartialFolderPoliciesSuccess = Merge<
   FolderPoliciesSuccess,
-  { policies: FolderPolicy[] }
+  { policies: Array<FolderPolicy> }
 >
 export const folderPoliciesResolver = authorized<
   PartialFolderPoliciesSuccess,
@@ -39,10 +43,12 @@ export const createFolderPolicyResolver = authorized<
   Merge<CreateFolderPolicySuccess, { policy: FolderPolicy }>,
   CreateFolderPolicyError,
   MutationCreateFolderPolicyArgs
->(async (_, { input }, { uid }) => {
+>(async (_, { input }, { uid, log }) => {
   const { folder, action, afterDays, minimumItems } = input
 
   if (afterDays < 0 || (minimumItems && minimumItems < 0)) {
+    log.error('Invalid values')
+
     return {
       errorCodes: [CreateFolderPolicyErrorCode.BadRequest],
     }
@@ -65,16 +71,20 @@ export const updateFolderPolicyResolver = authorized<
   Merge<UpdateFolderPolicySuccess, { policy: FolderPolicy }>,
   UpdateFolderPolicyError,
   MutationUpdateFolderPolicyArgs
->(async (_, { input }, { uid }) => {
+>(async (_, { input }, { log, uid }) => {
   const { id, action, afterDays, minimumItems } = input
 
   if (!action && !afterDays && !minimumItems) {
+    log.error('No fields to update')
+
     return {
       errorCodes: [UpdateFolderPolicyErrorCode.BadRequest],
     }
   }
 
   if ((afterDays && afterDays < 0) || (minimumItems && minimumItems < 0)) {
+    log.error('Invalid values')
+
     return {
       errorCodes: [UpdateFolderPolicyErrorCode.BadRequest],
     }
@@ -87,6 +97,8 @@ export const updateFolderPolicyResolver = authorized<
   })
 
   if (!result.affected) {
+    log.error('Policy not found')
+
     return {
       errorCodes: [UpdateFolderPolicyErrorCode.Unauthorized],
     }
@@ -94,6 +106,8 @@ export const updateFolderPolicyResolver = authorized<
 
   const policy = await findFolderPolicyById(uid, id)
   if (!policy) {
+    log.error('Policy not found')
+
     return {
       errorCodes: [UpdateFolderPolicyErrorCode.Unauthorized],
     }
@@ -101,5 +115,17 @@ export const updateFolderPolicyResolver = authorized<
 
   return {
     policy,
+  }
+})
+
+export const deleteFolderPolicyResolver = authorized<
+  DeleteFolderPolicySuccess,
+  DeleteFolderPolicyError,
+  MutationDeleteFolderPolicyArgs
+>(async (_, { id }, { uid }) => {
+  const result = await deleteFolderPolicy(uid, id)
+
+  return {
+    success: !!result.affected,
   }
 })

@@ -3315,7 +3315,6 @@ const schema = gql`
 
   enum DeleteFolderPolicyErrorCode {
     UNAUTHORIZED
-    BAD_REQUEST
   }
 
   union UpdateFolderPolicyResult =

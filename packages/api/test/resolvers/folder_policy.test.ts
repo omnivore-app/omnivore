@@ -4,7 +4,10 @@ import {
   FolderPolicyAction,
 } from '../../src/entity/folder_policy'
 import { User } from '../../src/entity/user'
-import { FolderPolicy } from '../../src/generated/graphql'
+import {
+  DeleteFolderPolicySuccess,
+  FolderPolicy,
+} from '../../src/generated/graphql'
 import {
   createFolderPolicy,
   deleteFolderPolicy,
@@ -48,10 +51,17 @@ describe('Folder Policy API', () => {
       }
     `
 
-    it('should return a list of folder policy of the user', async () => {
+    it('should return a list of folder policy of the user in ascending order', async () => {
       const existingPolicy = await createFolderPolicy({
         userId: loginUser.id,
-        folder: 'test-folder',
+        folder: 'inbox',
+        action: FolderPolicyAction.ARCHIVE,
+        afterDays: 30,
+        minimumItems: 10,
+      })
+      const existingPolicy1 = await createFolderPolicy({
+        userId: loginUser.id,
+        folder: 'following',
         action: FolderPolicyAction.ARCHIVE,
         afterDays: 30,
         minimumItems: 10,
@@ -59,9 +69,11 @@ describe('Folder Policy API', () => {
 
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      const policies = res.body.data.folderPolicies.policies as any[]
-      expect(policies).to.have.lengthOf(1)
-      expect(policies[0].id).to.equal(existingPolicy.id)
+      const policies = res.body.data.folderPolicies
+        .policies as Array<FolderPolicy>
+      expect(policies).to.have.lengthOf(2)
+      expect(policies[0].id).to.equal(existingPolicy1.id)
+      expect(policies[1].id).to.equal(existingPolicy.id)
 
       await deleteFolderPolicy(loginUser.id, existingPolicy.id)
     })
@@ -164,6 +176,43 @@ describe('Folder Policy API', () => {
       const policy = await findFolderPolicyById(loginUser.id, updatedPolicy.id)
       expect(policy).to.exist
       expect(policy?.action).to.equal(input.action)
+    })
+  })
+
+  describe('Delete Folder Policy', () => {
+    let existingPolicy: FolderPolicyEntity
+
+    before(async () => {
+      existingPolicy = await createFolderPolicy({
+        userId: loginUser.id,
+        folder: 'test-folder',
+        action: FolderPolicyAction.ARCHIVE,
+        afterDays: 30,
+        minimumItems: 10,
+      })
+    })
+
+    const mutation = `
+      mutation DeleteFolderPolicy($id: ID!) {
+        deleteFolderPolicy(id: $id) {
+          ... on DeleteFolderPolicySuccess {
+            success
+          }
+          ... on DeleteFolderPolicyError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    it('should delete a folder policy', async () => {
+      const res = await graphqlRequest(mutation, authToken, {
+        id: existingPolicy.id,
+      }).expect(200)
+
+      const result = res.body.data
+        .deleteFolderPolicy as DeleteFolderPolicySuccess
+      expect(result.success).to.be.true
     })
   })
 })
