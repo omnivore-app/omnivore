@@ -29,6 +29,8 @@ import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
+import { EXPIRE_FOLDER_JOB_NAME } from '../jobs/folder/expire'
+import { EXPIRE_ALL_FOLDERS_JOB_NAME } from '../jobs/folder/expire_all'
 import { GENERATE_PREVIEW_CONTENT_JOB } from '../jobs/generate_preview_content'
 import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
 import {
@@ -114,6 +116,8 @@ export const getJobPriority = (jobName: string): number => {
     case THUMBNAIL_JOB:
     case GENERATE_PREVIEW_CONTENT_JOB:
     case PRUNE_TRASH_JOB:
+    case EXPIRE_ALL_FOLDERS_JOB_NAME:
+    case EXPIRE_FOLDER_JOB_NAME:
       return 100
 
     default:
@@ -1067,6 +1071,47 @@ export const enqueuePruneTrashJob = async (numDays: number) => {
       removeOnComplete: true,
       removeOnFail: true,
       priority: getJobPriority(PRUNE_TRASH_JOB),
+      attempts: 3,
+    }
+  )
+}
+
+export const enqueueExpireAllFoldersJob = async () => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(
+    EXPIRE_ALL_FOLDERS_JOB_NAME,
+    {},
+    {
+      jobId: `${EXPIRE_ALL_FOLDERS_JOB_NAME}_${JOB_VERSION}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+      priority: getJobPriority(EXPIRE_ALL_FOLDERS_JOB_NAME),
+      attempts: 1,
+    }
+  )
+}
+
+export const enqueueExpireFolderJob = async (
+  userId: string,
+  folderPolicyId: string
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(
+    EXPIRE_FOLDER_JOB_NAME,
+    { userId, folderPolicyId },
+    {
+      jobId: `${EXPIRE_FOLDER_JOB_NAME}_${folderPolicyId}_${JOB_VERSION}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+      priority: getJobPriority(EXPIRE_FOLDER_JOB_NAME),
       attempts: 3,
     }
   )

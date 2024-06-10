@@ -55,14 +55,14 @@ describe('Folder Policy API', () => {
       const existingPolicy = await createFolderPolicy({
         userId: loginUser.id,
         folder: 'inbox',
-        action: FolderPolicyAction.ARCHIVE,
+        action: FolderPolicyAction.Archive,
         afterDays: 30,
         minimumItems: 10,
       })
       const existingPolicy1 = await createFolderPolicy({
         userId: loginUser.id,
         folder: 'following',
-        action: FolderPolicyAction.ARCHIVE,
+        action: FolderPolicyAction.Archive,
         afterDays: 30,
         minimumItems: 10,
       })
@@ -102,7 +102,7 @@ describe('Folder Policy API', () => {
     it('should create a folder policy', async () => {
       const input = {
         folder: 'test-folder',
-        action: FolderPolicyAction.ARCHIVE,
+        action: FolderPolicyAction.Archive,
         afterDays: 30,
         minimumItems: 10,
       }
@@ -129,7 +129,7 @@ describe('Folder Policy API', () => {
       existingPolicy = await createFolderPolicy({
         userId: loginUser.id,
         folder: 'test-folder',
-        action: FolderPolicyAction.ARCHIVE,
+        action: FolderPolicyAction.Archive,
         afterDays: 30,
         minimumItems: 10,
       })
@@ -161,7 +161,7 @@ describe('Folder Policy API', () => {
     it('should update a folder policy', async () => {
       const input = {
         id: existingPolicy.id,
-        action: FolderPolicyAction.DELETE,
+        action: FolderPolicyAction.Delete,
         afterDays: 30,
         minimumItems: 10,
       }
@@ -186,7 +186,7 @@ describe('Folder Policy API', () => {
       existingPolicy = await createFolderPolicy({
         userId: loginUser.id,
         folder: 'test-folder',
-        action: FolderPolicyAction.ARCHIVE,
+        action: FolderPolicyAction.Archive,
         afterDays: 30,
         minimumItems: 10,
       })

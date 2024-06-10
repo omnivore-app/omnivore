@@ -10,8 +10,8 @@ import {
 import { User } from './user'
 
 export enum FolderPolicyAction {
-  DELETE = 'DELETE',
-  ARCHIVE = 'ARCHIVE',
+  Delete = 'DELETE',
+  Archive = 'ARCHIVE',
 }
 
 @Entity({ name: 'folder_policy' })
