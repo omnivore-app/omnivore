@@ -7,7 +7,7 @@ import {
   State,
 } from '../fragments/articleFragment'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
-import { ScopedMutator } from 'swr/dist/types'
+import { ScopedMutator } from 'swr/dist/_internal'
 import { Label, labelFragment } from '../fragments/labelFragment'
 import {
   LibraryItems,
@@ -116,7 +116,8 @@ export function useGetArticleQuery({
 
   const { data, error, mutate } = useSWR(
     slug ? [query, username, slug, includeFriendsHighlights] : null,
-    makeGqlFetcher(variables)
+    makeGqlFetcher(query, variables),
+    {}
   )
 
   let resultData: ArticleData | undefined = data as ArticleData

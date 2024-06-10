@@ -134,7 +134,8 @@ export function useGetHomeItems(): HomeItemResponse {
 
   const { data, error, isValidating, mutate } = useSWR(
     [query, variables.first, variables.after],
-    makeGqlFetcher(variables)
+    makeGqlFetcher(query, variables),
+    {}
   )
 
   if (error) {

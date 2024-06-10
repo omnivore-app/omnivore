@@ -54,6 +54,8 @@ export function gqlFetcher(
     credentials: 'include',
     mode: 'cors',
   })
+  graphQLClient.request(query, variables, requestHeaders()).then((result) => {})
+
   return graphQLClient.request(query, variables, requestHeaders())
 }
 
@@ -64,7 +66,6 @@ export function apiFetcher(path: string): Promise<unknown> {
     credentials: 'include',
     mode: 'cors',
   }).then((result) => {
-    console.log('api fetcher result: ', result)
     return result.json()
   })
 }
@@ -96,9 +97,10 @@ export function makePublicGqlFetcher(
 // Partially apply gql variables to the request
 // This avoids using an object for the swr cache key
 export function makeGqlFetcher(
+  gql: string,
   variables?: unknown
 ): (query: string) => Promise<unknown> {
-  return (query: string) => gqlFetcher(query, variables, true)
+  return (query: string) => gqlFetcher(gql, variables, true)
 }
 
 export function ssrFetcher(
