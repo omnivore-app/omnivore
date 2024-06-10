@@ -30,7 +30,7 @@ import { DragIcon } from '../../components/elements/icons/DragIcon'
 import { CoverImage } from '../../components/elements/CoverImage'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { CheckSquare, Square } from 'phosphor-react'
+import { CheckSquare, Square } from '@phosphor-icons/react'
 import { Button } from '../../components/elements/Button'
 import { styled } from '@stitches/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
@@ -463,17 +463,6 @@ const AvailableItemButton = (props: AvailableItemButtonProps): JSX.Element => {
       <SpanBox css={{}}>{props.shortcut.name}</SpanBox>
     </CheckboxButton>
   )
-}
-
-export type Shortcut = {
-  type: 'search' | 'label' | 'newsletter' | 'feed'
-
-  id: string
-  name: string
-  filter: string
-
-  icon?: string
-  label?: Label
 }
 
 const SelectedItems = (props: ListProps): JSX.Element => {

@@ -8,7 +8,7 @@ import {
   Td,
 } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
-import { PencilSimple, Plus, Trash } from 'phosphor-react'
+import { PencilSimple, Plus, Trash } from '@phosphor-icons/react'
 import { Box, SpanBox, VStack } from './LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
 import { StyledText } from './StyledText'

@@ -1,6 +1,6 @@
 import { HStack, SpanBox, VStack } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
-import { NewspaperClipping } from 'phosphor-react'
+import { NewspaperClipping } from '@phosphor-icons/react'
 import { theme } from '../tokens/stitches.config'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'

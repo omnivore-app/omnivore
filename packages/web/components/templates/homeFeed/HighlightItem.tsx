@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { DotsThreeVertical } from 'phosphor-react'
+import { DotsThreeVertical } from '@phosphor-icons/react'
 import { useCallback } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
@@ -108,7 +108,8 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         <DropdownSeparator />
         <Link
           href={`/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`}
-          legacyBehavior>
+          legacyBehavior
+        >
           <StyledLinkItem
             onClick={(event) => {
               console.log('event.ctrlKey: ', event.ctrlKey, event.metaKey)
@@ -129,7 +130,7 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         </Link>
       </Dropdown>
     </VStack>
-  );
+  )
 }
 
 const sortHighlights = (highlights: Highlight[]) => {

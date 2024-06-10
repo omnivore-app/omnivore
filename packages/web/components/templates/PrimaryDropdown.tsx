@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Moon, Sun } from 'phosphor-react'
+import { Moon, Sun } from '@phosphor-icons/react'
 import { ReactNode, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { Avatar } from '../elements/Avatar'

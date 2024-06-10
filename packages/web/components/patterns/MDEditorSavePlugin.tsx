@@ -1,6 +1,6 @@
 /* eslint-disable functional/no-class */
 
-import { FloppyDisk } from 'phosphor-react'
+import { FloppyDisk } from '@phosphor-icons/react'
 import { PluginComponent } from 'react-markdown-editor-lite'
 import { Button } from '../elements/Button'
 

@@ -24,7 +24,7 @@ import {
   autoUpdate,
 } from '@floating-ui/react'
 import { CardMenu } from '../CardMenu'
-import { DotsThree } from 'phosphor-react'
+import { DotsThree } from '@phosphor-icons/react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { CoverImage } from '../../elements/CoverImage'
 import { ProgressBar } from '../../elements/ProgressBar'

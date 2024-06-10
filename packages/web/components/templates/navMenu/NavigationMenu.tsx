@@ -1,40 +1,72 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, DotsThree, List, MagnifyingGlass, X } from 'phosphor-react'
+import {
+  DotsThree,
+  List,
+  X,
+  Folder,
+  FolderOpen,
+  Tag,
+} from '@phosphor-icons/react'
 import {
   Subscription,
-  SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
-import { useRegisterActions } from 'kbar'
-import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
 import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
-import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
-import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 import { NavMenuFooter } from './Footer'
 import { FollowingIcon } from '../../elements/icons/FollowingIcon'
 import { HomeIcon } from '../../elements/icons/HomeIcon'
 import { LibraryIcon } from '../../elements/icons/LibraryIcon'
 import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
 import { CoverImage } from '../../elements/CoverImage'
-import { Shortcut } from '../../../pages/settings/shortcuts'
-import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
 import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { useRouter } from 'next/router'
-import { DiscoverIcon } from '../../elements/icons/DiscoverIcon'
-import { escapeQuotes } from '../../../utils/helper'
 import { NavigationSection } from '../NavigationLayout'
+import { NodeApi, SimpleTree, Tree, TreeApi } from 'react-arborist'
+import { ListMagnifyingGlass } from '@phosphor-icons/react'
+import React from 'react'
+import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
+import { fetchEndpoint } from '../../../lib/appConfig'
+import { requestHeaders } from '../../../lib/networking/networkHelpers'
+import { v4 as uuidv4 } from 'uuid'
+import { showErrorToast } from '../../../lib/toastHelpers'
+import { OpenMap } from 'react-arborist/dist/module/state/open-slice'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
+
+export type ShortcutType = 'search' | 'label' | 'newsletter' | 'feed' | 'folder'
+
+export type Shortcut = {
+  type: ShortcutType
+
+  id: string
+  name: string
+  section: string
+  filter: string
+
+  icon?: string
+  label?: Label
+
+  join?: string
+}
 
 type LibraryFilterMenuProps = {
   section: NavigationSection
@@ -210,7 +242,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         {...props}
         text="Home"
         section="justread"
-        isSelected={props.section == 'home'}
+        isSelected={props.section == 'justread'}
         icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
       />
       <NavButton
@@ -239,63 +271,27 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
 }
 
 const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
-  const router = useRouter()
-  const [shortcuts] = usePersistedState<Shortcut[]>({
-    key: 'library-shortcuts',
-    isSessionStorage: false,
-    initialValue: [],
-  })
+  const treeRef = useRef<TreeApi<Shortcut> | undefined>(undefined)
+  const { trigger: resetShortcutsTrigger } = useSWRMutation(
+    '/api/shortcuts',
+    resetShortcuts
+  )
 
-  // const shortcuts: Shortcut[] = [
-  //   {
-  //     id: '12asdfasdf',
-  //     name: 'Omnivore Blog',
-  //     icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'subscription:"Money Talk"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfsdfgdsfg',
-  //     name: 'Follow the Money | Arne & Harr',
-  //     filter: 'subscription:"Money Talk"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
-  //     name: 'Andrew Kenneson from Center for the Study of Partisanship and Ideology',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'newsletter',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
-  //     name: 'Robert的博客',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfasdfasf',
-  //     name: 'Oldest First',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'search',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfgasdfg',
-  //     name: 'Hockey',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'label',
-  //     label: {
-  //       id: 'sdfsdfsdf',
-  //       name: 'Hockey',
-  //       color: '#E98B8B',
-  //       createdAt: new Date(),
-  //     },
-  //   },
-  // ]
-  //
+  const createNewFolder = useCallback(async () => {
+    if (treeRef.current) {
+      const result = await treeRef.current.create({
+        type: 'internal',
+        index: 0,
+      })
+      console.log('create leaf: ', result)
+    }
+  }, [treeRef])
+
+  const resetShortcutsToDefault = useCallback(async () => {
+    resetShortcutsTrigger(null, {
+      revalidate: true,
+    })
+  }, [])
 
   return (
     <VStack
@@ -320,79 +316,454 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
             fontSize: '14px',
             lineHeight: '125%',
             color: '$thLibraryMenuPrimary',
-            pl: '10px',
-            // mt: '20px',
             mb: '10px',
+            px: '15px',
           }}
         >
           SHORTCUTS
         </StyledText>
-        <SpanBox css={{ display: 'flex', ml: 'auto' }}>
+        <SpanBox css={{ display: 'flex', ml: 'auto', mt: '5px', mr: '15px' }}>
           <Dropdown
             side="bottom"
             triggerElement={<DotsThree size={20} />}
             css={{ ml: 'auto' }}
           >
             <DropdownOption
-              onSelect={() => {
-                router.push(`/settings/shortcuts`)
-              }}
-              title="Edit shortcuts"
+              onSelect={resetShortcutsToDefault}
+              title="Reset to default"
+            />
+            <DropdownOption
+              onSelect={createNewFolder}
+              title="Create new folder"
             />
           </Dropdown>
         </SpanBox>
       </HStack>
-      {shortcuts.map((shortcut) => {
-        const selected = props.searchTerm === shortcut.filter
-        return (
-          <Box
-            key={`shortcut-${shortcut.id}`}
-            css={{
-              display: 'flex',
-              width: '100%',
-              maxWidth: '100%',
-              height: '32px',
-
-              backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
-              color: selected
-                ? '$thLibraryMenuSecondary'
-                : '$thLibraryMenuUnselected',
-              verticalAlign: 'middle',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              '&:hover': {
-                backgroundColor: selected
-                  ? '$thLibrarySelectionColor'
-                  : '$thBackground4',
-              },
-              '&:active': {
-                backgroundColor: selected
-                  ? '$thLibrarySelectionColor'
-                  : '$thBackground4',
-              },
-            }}
-            title={shortcut.name}
-            onClick={(e) => {
-              props.applySearchQuery(shortcut.filter)
-              props.setShowFilterMenu(false)
-              e.preventDefault()
-            }}
-          >
-            {(shortcut.type == 'feed' || shortcut.type == 'newsletter') && (
-              <FeedOrNewsletterShortcut shortcut={shortcut} />
-            )}
-            {shortcut.type == 'search' && (
-              <SearchShortcut shortcut={shortcut} />
-            )}
-            {shortcut.type == 'label' && <LabelShortcut shortcut={shortcut} />}
-          </Box>
-        )
-      })}
+      <Box
+        css={{
+          '[role="treeitem"]': {
+            outline: 'none',
+          },
+          '[role="treeitem"]:focus': {
+            outline: 'none',
+          },
+        }}
+      >
+        <ShortcutsTree treeRef={treeRef} />
+      </Box>
     </VStack>
   )
+}
+
+type ShortcutsTreeProps = {
+  treeRef: React.MutableRefObject<TreeApi<Shortcut> | undefined>
+}
+
+async function getShortcuts(path: string): Promise<Shortcut[]> {
+  const url = new URL(path, fetchEndpoint)
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: requestHeaders(),
+      credentials: 'include',
+      mode: 'cors',
+    })
+    const payload = await response.json()
+    if ('shortcuts' in payload) {
+      return payload['shortcuts'] as Shortcut[]
+    }
+    return []
+  } catch (err) {
+    console.log('error getting shortcuts: ', err)
+    throw err
+  }
+}
+
+async function setShortcuts(
+  path: string,
+  { arg }: { arg: { shortcuts: Shortcut[] } }
+): Promise<Shortcut[]> {
+  const url = new URL(path, fetchEndpoint)
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...requestHeaders(),
+      },
+      credentials: 'include',
+      mode: 'cors',
+      body: JSON.stringify(arg),
+    })
+    const payload = await response.json()
+    if (!('shortcuts' in payload)) {
+      throw new Error('Error syncing shortcuts')
+    }
+    return payload['shortcuts'] as Shortcut[]
+  } catch (err) {
+    showErrorToast('Error syncing shortcut changes.')
+  }
+  return arg.shortcuts
+}
+
+async function resetShortcuts(path: string): Promise<Shortcut[]> {
+  const url = new URL(path, fetchEndpoint)
+  try {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...requestHeaders(),
+      },
+      credentials: 'include',
+      mode: 'cors',
+    })
+    const payload = await response.json()
+    if (!('shortcuts' in payload)) {
+      throw new Error('Error syncing shortcuts')
+    }
+    return payload['shortcuts'] as Shortcut[]
+  } catch (err) {
+    showErrorToast('Error syncing shortcut changes.')
+  }
+  return []
+}
+
+const cachedShortcutsData = (): Shortcut[] | undefined => {
+  if (typeof localStorage !== 'undefined') {
+    const str = localStorage.getItem('/api/shortcuts')
+    if (str) {
+      return JSON.parse(str) as Shortcut[]
+    }
+  }
+  return undefined
+}
+
+const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
+  const router = useRouter()
+
+  const { isValidating, data } = useSWR('/api/shortcuts', getShortcuts, {
+    fallbackData: cachedShortcutsData(),
+    onSuccess(data) {
+      localStorage.setItem('/api/shortcuts', JSON.stringify(data))
+    },
+  })
+  const { trigger, isMutating } = useSWRMutation('/api/shortcuts', setShortcuts)
+  const [folderOpenState, setFolderOpenState] = usePersistedState<
+    Record<string, boolean>
+  >({
+    key: 'nav-menu-open-state',
+    isSessionStorage: false,
+    initialValue: {},
+  })
+  const tree = useMemo(() => {
+    const result = new SimpleTree<Shortcut>((data ?? []) as Shortcut[])
+    return result
+  }, [data])
+
+  const syncTreeData = (data: Shortcut[]) => {
+    trigger(
+      { shortcuts: data },
+      {
+        optimisticData: data,
+        rollbackOnError: true,
+        populateCache: (updatedShortcuts) => {
+          return updatedShortcuts
+        },
+        revalidate: false,
+      }
+    )
+  }
+
+  const onMove = useCallback(
+    (args: { dragIds: string[]; parentId: null | string; index: number }) => {
+      for (const id of args.dragIds) {
+        tree?.move({ id, parentId: args.parentId, index: args.index })
+      }
+      syncTreeData(tree.data)
+    },
+    [tree, data]
+  )
+
+  const onCreate = useCallback(
+    (args: { parentId: string | null; index: number; type: string }) => {
+      const data = { id: uuidv4(), name: '', type: 'folder' } as any
+      if (args.type === 'internal') {
+        data.children = []
+      }
+      tree.create({ parentId: args.parentId, index: args.index, data })
+      syncTreeData(tree.data)
+      return data
+    },
+    [tree, data]
+  )
+
+  const onDelete = useCallback(
+    (args: { ids: string[] }) => {
+      args.ids.forEach((id) => tree.drop({ id }))
+      syncTreeData(tree.data)
+    },
+    [tree, data]
+  )
+
+  const onRename = useCallback(
+    (args: { name: string; id: string }) => {
+      tree.update({ id: args.id, changes: { name: args.name } as any })
+      syncTreeData(tree.data)
+    },
+    [tree, data]
+  )
+
+  const onToggle = useCallback(
+    (id: string) => {
+      if (id && props.treeRef.current) {
+        const isOpen = props.treeRef.current?.isOpen(id)
+        const newItem: OpenMap = {}
+        newItem[id] = isOpen
+        setFolderOpenState({ ...folderOpenState, ...newItem })
+      }
+    },
+    [props, folderOpenState, setFolderOpenState]
+  )
+
+  const onActivate = useCallback(
+    (node: NodeApi<Shortcut>) => {
+      console.log('onActivate: ', node)
+      if (node.data.type == 'folder') {
+        const join = node.data.join
+        if (join == 'or') {
+          const query = node.children
+            ?.map((child) => {
+              return `(${child.data.filter})`
+            })
+            .join(' OR ')
+          console.log('query: ', query)
+        }
+      } else if (node.data.section != null && node.data.filter != null) {
+        router.push(`/${node.data.section}?q=${node.data.filter}`)
+      }
+    },
+    [tree, router]
+  )
+
+  return (
+    <>
+      {!isValidating && (
+        <Tree
+          ref={props.treeRef}
+          data={data as Shortcut[]}
+          onCreate={onCreate}
+          onMove={onMove}
+          onDelete={onDelete}
+          onRename={onRename}
+          onToggle={onToggle}
+          onActivate={onActivate}
+          rowHeight={36}
+          initialOpenState={folderOpenState}
+          width={275}
+        >
+          {NodeRenderer}
+        </Tree>
+      )}
+    </>
+  )
+}
+
+function NodeRenderer(args: {
+  style: CSSProperties
+  node: NodeApi<Shortcut>
+  tree: TreeApi<Shortcut>
+  dragHandle?: (el: HTMLDivElement | null) => void
+  preview?: boolean
+}) {
+  const isSelected = false
+  const [menuVisible, setMenuVisible] = useState(false)
+  const [menuOpened, setMenuOpened] = useState(false)
+
+  const router = useRouter()
+
+  return (
+    <HStack
+      ref={args.dragHandle}
+      alignment="center"
+      distribution="start"
+      css={{
+        pl: `${15 + args.node.level * 15}px`,
+        mb: '2px',
+        gap: '10px',
+        display: 'flex',
+        width: '100%',
+        maxWidth: '100%',
+        height: '34px',
+
+        backgroundColor: isSelected ? '$thLibrarySelectionColor' : 'unset',
+        fontSize: '15px',
+        fontWeight: 'regular',
+        fontFamily: '$display',
+        color: isSelected
+          ? '$thLibraryMenuSecondary'
+          : '$thLibraryMenuUnselected',
+        verticalAlign: 'middle',
+        borderRadius: '3px',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        '&:hover': {
+          backgroundColor: isSelected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
+        },
+        '&:active': {
+          outline: 'unset',
+          backgroundColor: isSelected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
+        },
+        '&:hover [role="hover-menu"]': {
+          opacity: '1',
+        },
+      }}
+      onMouseEnter={() => {
+        setMenuVisible(true)
+      }}
+      onMouseLeave={() => {
+        setMenuVisible(false)
+      }}
+      title={args.node.data.name}
+      onClick={(e) => {
+        //  router.push(`/` + props.section)
+      }}
+    >
+      <HStack
+        css={{
+          width: '100%',
+          height: '100%',
+        }}
+        distribution="start"
+        alignment="center"
+      >
+        <NodeItemContents node={args.node} />
+        <SpanBox
+          role="hover-menu"
+          css={{
+            display: 'flex',
+            ml: 'auto',
+            mr: '15px',
+            opacity: menuVisible || menuOpened ? '1' : '0',
+          }}
+        >
+          <Dropdown
+            side="bottom"
+            triggerElement={<DotsThree size={20} />}
+            css={{ ml: 'auto' }}
+            onOpenChange={(open) => {
+              setMenuOpened(open)
+            }}
+          >
+            <DropdownOption
+              onSelect={() => {
+                args.tree.delete(args.node)
+              }}
+              title="Remove"
+            />
+            {/* {args.node.data.type == 'folder' && (
+              <DropdownOption
+                onSelect={() => {
+                  args.node.data.join = 'or'
+                }}
+                title="Folder query: OR"
+              />
+            )} */}
+          </Dropdown>
+        </SpanBox>
+      </HStack>
+    </HStack>
+  )
+}
+
+type NodeItemContentsProps = {
+  node: NodeApi<Shortcut>
+}
+
+const NodeItemContents = (props: NodeItemContentsProps): JSX.Element => {
+  if (props.node.isEditing) {
+    return (
+      <input
+        autoFocus
+        type="text"
+        defaultValue={props.node.data.name}
+        onFocus={(e) => e.currentTarget.select()}
+        onBlur={() => props.node.reset()}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            props.node.reset()
+          }
+          if (e.key === 'Enter') {
+            // props.node.data = {
+            //   id: 'new-folder',
+            //   type: 'folder',
+            //   name: e.currentTarget.value,
+            // }
+            props.node.submit(e.currentTarget.value)
+            props.node.activate()
+          }
+        }}
+      />
+    )
+  }
+  if (props.node.isLeaf) {
+    const shortcut = props.node.data
+    if (shortcut) {
+      switch (shortcut.type) {
+        case 'feed':
+        case 'newsletter':
+          return (
+            <SpanBox>
+              <FeedOrNewsletterShortcut shortcut={shortcut} />
+            </SpanBox>
+          )
+        case 'label':
+          return (
+            <Box>
+              <LabelShortcut shortcut={shortcut} />
+            </Box>
+          )
+        case 'search':
+          return (
+            <Box>
+              <SearchShortcut shortcut={shortcut} />
+            </Box>
+          )
+      }
+    }
+  } else {
+    return (
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ gap: '10px', width: '100%' }}
+        onClick={(event) => {
+          props.node.toggle()
+          event.preventDefault()
+        }}
+      >
+        {props.node.isClosed ? (
+          <Folder
+            size={20}
+            color={theme.colors.thLibraryMenuPrimary.toString()}
+          />
+        ) : (
+          <FolderOpen
+            size={20}
+            color={theme.colors.thLibraryMenuPrimary.toString()}
+          />
+        )}
+        {props.node.data.name}
+      </HStack>
+    )
+  }
+  return <></>
 }
 
 type ShortcutItemProps = {
@@ -435,7 +806,7 @@ const SearchShortcut = (props: ShortcutItemProps): JSX.Element => {
     <HStack
       alignment="center"
       distribution="start"
-      css={{ pl: '10px', width: '100%', gap: '10px' }}
+      css={{ pl: '10px', width: '100%', gap: '7px' }}
       key={`search-${props.shortcut.id}`}
     >
       <HStack
@@ -443,7 +814,7 @@ const SearchShortcut = (props: ShortcutItemProps): JSX.Element => {
         alignment="center"
         css={{ minWidth: '20px' }}
       >
-        <MagnifyingGlass size={18} />
+        <ListMagnifyingGlass size={17} />
       </HStack>
       <StyledText style="settingsItem">{props.shortcut.name}</StyledText>
     </HStack>
@@ -451,280 +822,26 @@ const SearchShortcut = (props: ShortcutItemProps): JSX.Element => {
 }
 
 const LabelShortcut = (props: ShortcutItemProps): JSX.Element => {
+  // <OutlinedLabelChip
+  //   text={props.shortcut.name}
+  //   color={props.shortcut.label?.color ?? 'gray'}
+  // />
   return (
     <HStack
       alignment="center"
       distribution="start"
-      css={{ pl: '5px', width: '100%' }}
+      css={{ width: '100%', gap: '7px' }}
       key={`search-${props.shortcut.id}`}
     >
-      <OutlinedLabelChip
-        text={props.shortcut.name}
+      <Tag
+        size={15}
         color={props.shortcut.label?.color ?? 'gray'}
+        weight="fill"
       />
+      <StyledText style="settingsItem" css={{ pb: '1px' }}>
+        {props.shortcut.name}
+      </StyledText>
     </HStack>
-  )
-}
-
-function SavedSearches(
-  props: LibraryFilterMenuProps & { savedSearches: SavedSearch[] | undefined }
-): JSX.Element {
-  const sortedSearches = useMemo(() => {
-    return props.savedSearches
-      ?.filter((it) => it.visible)
-      ?.sort(
-        (left: SavedSearch, right: SavedSearch) =>
-          left.position - right.position
-      )
-  }, [props.savedSearches])
-
-  useRegisterActions(
-    (sortedSearches ?? []).map((item, idx) => {
-      const key = String(idx + 1)
-      return {
-        id: `saved_search_${key}`,
-        name: item.name,
-        shortcut: [key],
-        section: 'Saved Searches',
-        keywords: '?' + item.name,
-        perform: () => {
-          props.applySearchQuery(item.filter)
-        },
-      }
-    }),
-    [props.savedSearches]
-  )
-
-  const [collapsed, setCollapsed] = usePersistedState<boolean>({
-    key: `--saved-searches-collapsed`,
-    initialValue: false,
-  })
-
-  return (
-    <MenuPanel
-      title="SHORTCUTS"
-      collapsed={collapsed}
-      setCollapsed={setCollapsed}
-    >
-      {!collapsed &&
-        sortedSearches &&
-        sortedSearches?.map((item) => (
-          <FilterButton
-            key={item.name}
-            text={item.name}
-            filterTerm={item.filter}
-            {...props}
-          />
-        ))}
-      {!collapsed && sortedSearches !== undefined && (
-        <EditButton
-          title="Edit Saved Searches"
-          destination="/settings/saved-searches"
-        />
-      )}
-
-      <Box css={{ height: '10px' }}></Box>
-    </MenuPanel>
-  )
-}
-
-function Subscriptions(
-  props: LibraryFilterMenuProps & { subscriptions: Subscription[] | undefined }
-): JSX.Element {
-  const [collapsed, setCollapsed] = usePersistedState<boolean>({
-    key: `--subscriptions-collapsed`,
-    initialValue: false,
-  })
-
-  const sortedSubscriptions = useMemo(() => {
-    if (!props.subscriptions) {
-      return []
-    }
-    return props.subscriptions
-      .filter((s) => s.status == 'ACTIVE')
-      .sort((a, b) => a.name.localeCompare(b.name))
-  }, [props.subscriptions])
-
-  useRegisterActions(
-    (sortedSubscriptions ?? []).map((subscription, idx) => {
-      const key = String(idx + 1)
-      const name = subscription.name
-      return {
-        id: `subscription_${key}`,
-        section: 'Subscriptions',
-        name: name,
-        keywords: '*' + name,
-        perform: () => {
-          props.applySearchQuery(`subscription:\"${escapeQuotes(name)}\"`)
-        },
-      }
-    }),
-    [sortedSubscriptions]
-  )
-
-  return (
-    <MenuPanel
-      title="Subscriptions"
-      collapsed={collapsed}
-      setCollapsed={setCollapsed}
-    >
-      {!collapsed ? (
-        <>
-          <FilterButton
-            filterTerm="in:inbox has:subscriptions"
-            text="All"
-            {...props}
-          />
-          <FilterButton
-            filterTerm={`in:inbox label:RSS`}
-            text="Feeds"
-            {...props}
-          />
-          <FilterButton
-            filterTerm={`in:inbox label:Newsletter`}
-            text="Newsletters"
-            {...props}
-          />
-          {(sortedSubscriptions ?? []).map((item) => {
-            switch (item.type) {
-              case SubscriptionType.NEWSLETTER:
-                return (
-                  <FilterButton
-                    key={item.id}
-                    filterTerm={`in:inbox subscription:\"${escapeQuotes(
-                      item.name
-                    )}\"`}
-                    text={item.name}
-                    {...props}
-                  />
-                )
-              case SubscriptionType.RSS:
-                return (
-                  <FilterButton
-                    key={item.id}
-                    filterTerm={`in:inbox rss:\"${item.url}\"`}
-                    text={item.name}
-                    {...props}
-                  />
-                )
-            }
-          })}
-          <EditButton
-            title="Edit Subscriptions"
-            destination="/settings/subscriptions"
-          />
-        </>
-      ) : (
-        <SpanBox css={{ mb: '10px' }} />
-      )}
-    </MenuPanel>
-  )
-}
-
-function Labels(
-  props: LibraryFilterMenuProps & { labels: Label[] }
-): JSX.Element {
-  const [collapsed, setCollapsed] = usePersistedState<boolean>({
-    key: `--labels-collapsed`,
-    initialValue: false,
-  })
-
-  const sortedLabels = useMemo(() => {
-    return props.labels.sort((left: Label, right: Label) =>
-      left.name.localeCompare(right.name)
-    )
-  }, [props.labels])
-
-  return (
-    <MenuPanel
-      title="Labels"
-      editTitle="Edit Labels"
-      hideBottomBorder={true}
-      collapsed={collapsed}
-      setCollapsed={setCollapsed}
-    >
-      {!collapsed && (
-        <>
-          {sortedLabels.map((item) => {
-            return <LabelButton key={item.id} label={item} {...props} />
-          })}
-          <EditButton title="Edit Labels" destination="/settings/labels" />
-        </>
-      )}
-    </MenuPanel>
-  )
-}
-
-type MenuPanelProps = {
-  title: string
-  children: ReactNode
-  editFunc?: () => void
-  editTitle?: string
-  hideBottomBorder?: boolean
-  collapsed: boolean
-  setCollapsed: (collapsed: boolean) => void
-}
-
-function MenuPanel(props: MenuPanelProps): JSX.Element {
-  return (
-    <VStack
-      css={{
-        m: '0px',
-        width: '100%',
-        borderBottom: props.hideBottomBorder
-          ? '1px solid transparent'
-          : '1px solid $thBorderColor',
-        px: '15px',
-      }}
-      alignment="start"
-      distribution="start"
-    >
-      <HStack css={{ width: '100%' }} distribution="start" alignment="center">
-        <StyledText
-          css={{
-            fontFamily: '$display',
-            fontSize: '14px',
-            lineHeight: '125%',
-            color: '$thLibraryMenuPrimary',
-            pl: '10px',
-            mt: '20px',
-            mb: '10px',
-          }}
-        >
-          {props.title}
-        </StyledText>
-        <SpanBox
-          css={{
-            display: 'flex',
-            height: '100%',
-            mt: '10px',
-            marginLeft: 'auto',
-            verticalAlign: 'middle',
-          }}
-        >
-          <Button
-            style="articleActionIcon"
-            onClick={(event) => {
-              props.setCollapsed(!props.collapsed)
-              event.preventDefault()
-            }}
-          >
-            {props.collapsed ? (
-              <ToggleCaretRightIcon
-                size={15}
-                color={theme.colors.thLibraryMenuPrimary.toString()}
-              />
-            ) : (
-              <ToggleCaretDownIcon
-                size={15}
-                color={theme.colors.thLibraryMenuPrimary.toString()}
-              />
-            )}
-          </Button>
-        </SpanBox>
-      </HStack>
-      {props.children}
-    </VStack>
   )
 }
 
@@ -734,70 +851,6 @@ type NavButtonProps = {
 
   isSelected: boolean
   section: NavigationSection
-}
-
-type NavButtonRedirectProps = {
-  text: string
-  icon: ReactNode
-
-  redirectLocation: string
-}
-
-function NavRedirectButton(props: NavButtonRedirectProps): JSX.Element {
-  const [selected, setSelected] = useState(false)
-  const router = useRouter()
-
-  useEffect(() => {
-    setSelected(window.location.pathname.includes(props.redirectLocation))
-  }, [])
-
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{
-        pl: '10px',
-        mb: '2px',
-        gap: '10px',
-        display: 'flex',
-        width: '100%',
-        maxWidth: '100%',
-        height: '34px',
-
-        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
-        fontSize: '15px',
-        fontWeight: 'regular',
-        fontFamily: '$display',
-        color: selected
-          ? '$thLibraryMenuSecondary'
-          : '$thLibraryMenuUnselected',
-        verticalAlign: 'middle',
-        borderRadius: '3px',
-        cursor: 'pointer',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        '&:hover': {
-          backgroundColor: selected
-            ? '$thLibrarySelectionColor'
-            : '$thBackground4',
-        },
-        '&:active': {
-          backgroundColor: selected
-            ? '$thLibrarySelectionColor'
-            : '$thBackground4',
-        },
-      }}
-      title={props.text}
-      onClick={(e) => {
-        router.push(props.redirectLocation)
-        e.preventDefault()
-      }}
-    >
-      {props.icon}
-      {props.text}
-    </HStack>
-  )
 }
 
 function NavButton(props: NavButtonProps): JSX.Element {
@@ -920,106 +973,6 @@ function FilterButton(props: FilterButtonProps): JSX.Element {
     >
       {props.text}
     </Box>
-  )
-}
-
-type LabelButtonProps = {
-  label: Label
-  searchTerm: string | undefined
-  applySearchQuery: (searchTerm: string) => void
-}
-
-function LabelButton(props: LabelButtonProps): JSX.Element {
-  const labelId = `checkbox-label-${props.label.id}`
-  const checkboxRef = useRef<HTMLInputElement | null>(null)
-  const state = useMemo(() => {
-    const term = props.searchTerm ?? ''
-    if (term.indexOf(`label:\"${escapeQuotes(props.label.name)}\"`) >= 0) {
-      return 'on'
-    }
-    return 'off'
-  }, [props.searchTerm, props.label])
-
-  return (
-    <HStack
-      css={{
-        pl: '10px',
-        pt: '2px', // TODO: hack to middle align
-        width: '100%',
-        height: '30px',
-
-        fontSize: '14px',
-        fontWeight: 'regular',
-        fontFamily: '$display',
-        color:
-          state == 'on'
-            ? '$thLibraryMenuSecondary'
-            : '$thLibraryMenuUnselected',
-
-        verticalAlign: 'middle',
-        borderRadius: '3px',
-        cursor: 'pointer',
-
-        m: '0px',
-        '&:hover': {
-          backgroundColor: '$thBackground4',
-        },
-      }}
-      title={props.label.name}
-      alignment="center"
-      distribution="start"
-    >
-      <label
-        style={{
-          cursor: 'pointer',
-          width: '100%',
-          maxWidth: '170px',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-        onClick={() => {
-          const query = props.searchTerm?.replace(/label:\"(.*)\"/, '') ?? ''
-          if (checkboxRef.current?.checked) {
-            props.applySearchQuery(query.trim())
-          } else {
-            props.applySearchQuery(
-              `${query.trim()} label:\"${escapeQuotes(props.label.name)}\"`
-            )
-          }
-        }}
-      >
-        <Circle size={9} color={props.label.color} weight="fill" />
-        <SpanBox css={{ pl: '10px' }}>{props.label.name}</SpanBox>
-      </label>
-      <SpanBox
-        css={{
-          ml: 'auto',
-        }}
-      >
-        <input
-          id={labelId}
-          ref={checkboxRef}
-          type="checkbox"
-          checked={state === 'on'}
-          onChange={(e) => {
-            const escapedLabelName = escapeQuotes(props.label.name)
-            if (e.target.checked) {
-              props.applySearchQuery(
-                `${props.searchTerm ?? ''} label:\"${escapedLabelName}\"`
-              )
-            } else {
-              const query =
-                props.searchTerm?.replace(
-                  `label:\"${escapedLabelName}\"`,
-                  ''
-                ) ?? ''
-              props.applySearchQuery(query)
-            }
-          }}
-        />
-      </SpanBox>
-    </HStack>
   )
 }
 

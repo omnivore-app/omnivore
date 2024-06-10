@@ -23,8 +23,11 @@ import {
   siteName,
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { CheckCircle, Circle } from 'phosphor-react'
-import { DiscoverItemCardProps, DiscoverItemSubCardProps } from "./DiscoverItemCard"
+import { CheckCircle, Circle } from '@phosphor-icons/react'
+import {
+  DiscoverItemCardProps,
+  DiscoverItemSubCardProps,
+} from './DiscoverItemCard'
 import { DiscoverItemMetadata } from './DiscoverItemMetadata'
 import { DiscoverHoverActions } from './DiscoverHoverActions'
 
@@ -103,13 +106,17 @@ export function DiscoverItemListCard(
           />
         </Box>
       )}
-      <DiscoverListCardContent {...props} savedId={props.savedId} isHovered={isOpen} />
+      <DiscoverListCardContent
+        {...props}
+        savedId={props.savedId}
+        isHovered={isOpen}
+      />
     </VStack>
   )
 }
 
 export function DiscoverListCardContent(
-  props: DiscoverItemCardProps & { savedId?: string; savedUrl? : string }
+  props: DiscoverItemCardProps & { savedId?: string; savedUrl?: string }
 ): JSX.Element {
   const originText = siteName(props.item.url, props.item.url)
   const [displayFallback, setDisplayFallback] = useState(
@@ -123,7 +130,14 @@ export function DiscoverListCardContent(
   }
 
   return (
-    <HStack css={{ gap: '15px', width: '100%', cursor: props.savedId ? 'pointer' : 'default' }} onClick={goToUrl} >
+    <HStack
+      css={{
+        gap: '15px',
+        width: '100%',
+        cursor: props.savedId ? 'pointer' : 'default',
+      }}
+      onClick={goToUrl}
+    >
       <Box css={{ position: 'relative', width: '55px' }}>
         <HStack
           css={{

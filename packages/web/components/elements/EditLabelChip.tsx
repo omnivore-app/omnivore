@@ -1,6 +1,6 @@
 import { Button } from './Button'
 import { SpanBox, HStack } from './LayoutPrimitives'
-import { Circle, X } from 'phosphor-react'
+import { Circle, X } from '@phosphor-icons/react'
 import { isDarkTheme } from '../../lib/themeUpdater'
 import { theme } from '../tokens/stitches.config'
 

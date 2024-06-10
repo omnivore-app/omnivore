@@ -17,12 +17,10 @@ import { ThemeId, theme } from '../tokens/stitches.config'
 import { NavigationMenu } from './navMenu/NavigationMenu'
 import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { Button } from '../elements/Button'
-import { List } from 'phosphor-react'
+import { List } from '@phosphor-icons/react'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { Allotment } from 'allotment'
 import 'allotment/dist/style.css'
 import { LibrarySideBar } from './library/LibrarySideBar'
-import NoSsr from './NoSsr'
 
 export type NavigationSection =
   | 'justread'
@@ -126,8 +124,10 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       />
       <NavigationMenu
         section={props.section}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         setShowAddLinkModal={() => {}}
         searchTerm=""
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         applySearchQuery={() => {}}
         showFilterMenu={showNavMenu}
         setShowFilterMenu={setShowNavMenu}

@@ -1,4 +1,4 @@
-import { Pencil, Trash } from 'phosphor-react'
+import { Pencil, Trash } from '@phosphor-icons/react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../elements/Button'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'

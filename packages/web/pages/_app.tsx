@@ -23,6 +23,7 @@ import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
+import { SWRConfig } from 'swr'
 
 TopBarProgress.config({
   barColors: {

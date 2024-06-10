@@ -1,5 +1,5 @@
 import { SpanBox, HStack } from './LayoutPrimitives'
-import { Circle, X } from 'phosphor-react'
+import { Circle, X } from '@phosphor-icons/react'
 
 type LabelChipProps = {
   text: string

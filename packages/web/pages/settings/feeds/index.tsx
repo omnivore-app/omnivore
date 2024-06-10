@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
+import { FloppyDisk, Pencil, XCircle } from '@phosphor-icons/react'
 import { useMemo, useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
 import {

@@ -12,7 +12,7 @@ export type RequestContext = {
   }
 }
 
-function requestHeaders(): Record<string, string> {
+export function requestHeaders(): Record<string, string> {
   const authToken = window?.localStorage.getItem('authToken') || undefined
   const pendingAuthToken =
     window?.localStorage.getItem('pendingUserAuth') || undefined
@@ -64,14 +64,19 @@ export function apiFetcher(path: string): Promise<unknown> {
     credentials: 'include',
     mode: 'cors',
   }).then((result) => {
+    console.log('api fetcher result: ', result)
     return result.json()
   })
 }
 
-export function apiPoster(path: string, body: any): Promise<Response> {
+export function apiPoster(
+  path: string,
+  body: any,
+  method = 'POST'
+): Promise<Response> {
   const url = new URL(path, fetchEndpoint)
   return fetch(url.toString(), {
-    method: 'POST',
+    method: method,
     credentials: 'include',
     mode: 'cors',
     headers: {

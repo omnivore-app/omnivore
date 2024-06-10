@@ -47,6 +47,7 @@ import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiLimiter, authLimiter } from './utils/rate_limit'
+import { shortcutsRouter } from './routers/shortcuts_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -94,6 +95,7 @@ export const createApp = (): Express => {
   app.use('/api/mobile-auth', authLimiter, mobileAuthRouter())
   app.use('/api/page', pageRouter())
   app.use('/api/user', userRouter())
+  app.use('/api/shortcuts', shortcutsRouter())
   app.use('/api/article', articleRouter())
   app.use('/api/ai-summary', aiSummariesRouter())
   app.use('/api/explain', explainRouter())

@@ -1,4 +1,4 @@
-import { DotsThree, DotsThreeVertical } from 'phosphor-react'
+import { DotsThree, DotsThreeVertical } from '@phosphor-icons/react'
 
 type Orientation = 'horizontal' | 'vertical'
 
@@ -10,8 +10,8 @@ type MoreOptionsIconProps = {
 
 export function MoreOptionsIcon(props: MoreOptionsIconProps): JSX.Element {
   return props.orientation == 'horizontal' ? (
-      <DotsThree size={props.size} color={props.strokeColor}/>
-    ) : (
-      <DotsThreeVertical size={props.size} color={props.strokeColor}/>
-    )
+    <DotsThree size={props.size} color={props.strokeColor} />
+  ) : (
+    <DotsThreeVertical size={props.size} color={props.strokeColor} />
+  )
 }

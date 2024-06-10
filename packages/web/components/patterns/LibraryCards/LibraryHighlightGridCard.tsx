@@ -1,6 +1,6 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { useCallback, useMemo, useState } from 'react'
-import { CaretDown, CaretUp } from 'phosphor-react'
+import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
@@ -197,7 +197,9 @@ export function LibraryHighlightGridCard(
                 event.preventDefault()
               }}
             >
-              {`View ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`}
+              {`View ${highlightCount} highlight${
+                highlightCount > 1 ? 's' : ''
+              }`}
               <CaretDown
                 size={10}
                 weight="bold"

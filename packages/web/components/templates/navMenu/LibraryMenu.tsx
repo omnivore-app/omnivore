@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, DotsThree, MagnifyingGlass, X } from 'phosphor-react'
+import { Circle, DotsThree, MagnifyingGlass, X } from '@phosphor-icons/react'
 import {
   Subscription,
   SubscriptionType,

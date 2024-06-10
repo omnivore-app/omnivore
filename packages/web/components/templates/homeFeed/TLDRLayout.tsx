@@ -12,7 +12,7 @@ import { BrowserIcon } from '../../elements/icons/BrowserIcon'
 import { styled } from '@stitches/react'
 import { siteName } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { theme } from '../../tokens/stitches.config'
-import { DotsThree } from 'phosphor-react'
+import { DotsThree } from '@phosphor-icons/react'
 import { useState } from 'react'
 
 type TLDRLayoutProps = {

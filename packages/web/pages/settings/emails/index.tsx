@@ -2,7 +2,7 @@ import { Button } from '../../../components/elements/Button'
 import { useGetNewsletterEmailsQuery } from '../../../lib/networking/queries/useGetNewsletterEmailsQuery'
 import { createNewsletterEmailMutation } from '../../../lib/networking/mutations/createNewsletterEmailMutation'
 import { deleteNewsletterEmailMutation } from '../../../lib/networking/mutations/deleteNewsletterEmailMutation'
-import { Copy } from 'phosphor-react'
+import { Copy } from '@phosphor-icons/react'
 import { theme, styled } from '../../../components/tokens/stitches.config'
 import {
   Box,
@@ -80,8 +80,9 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } =
     useGetNewsletterEmailsQuery()
-  const [confirmDeleteEmailId, setConfirmDeleteEmailId] =
-    useState<undefined | string>(undefined)
+  const [confirmDeleteEmailId, setConfirmDeleteEmailId] = useState<
+    undefined | string
+  >(undefined)
 
   applyStoredTheme()
 

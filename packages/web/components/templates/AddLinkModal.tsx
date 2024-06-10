@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import * as Progress from '@radix-ui/react-progress'
-import { File, Info } from 'phosphor-react'
+import { File, Info } from '@phosphor-icons/react'
 import { locale, timeZone } from '../../lib/dateFormatting'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Button } from '../elements/Button'

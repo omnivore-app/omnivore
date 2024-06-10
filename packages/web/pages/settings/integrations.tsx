@@ -1,19 +1,19 @@
 import { styled } from '@stitches/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { DownloadSimple, Link, Spinner } from 'phosphor-react'
+import { DownloadSimple, Link, Spinner } from '@phosphor-icons/react'
 import { useCallback, useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
   Dropdown,
-  DropdownOption
+  DropdownOption,
 } from '../../components/elements/DropdownElements'
 import {
   Box,
   HStack,
   SpanBox,
-  VStack
+  VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
