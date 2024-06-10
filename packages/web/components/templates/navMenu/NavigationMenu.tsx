@@ -241,8 +241,8 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
       <NavButton
         {...props}
         text="Home"
-        section="justread"
-        isSelected={props.section == 'justread'}
+        section="home"
+        isSelected={props.section == 'home'}
         icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
       />
       <NavButton
@@ -385,7 +385,7 @@ async function setShortcuts(
 ): Promise<Shortcut[]> {
   const url = new URL(path, fetchEndpoint)
   try {
-    const response = await fetch(url, {
+    const response = await fetch(url.toString(), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ async function setShortcuts(
 async function resetShortcuts(path: string): Promise<Shortcut[]> {
   const url = new URL(path, fetchEndpoint)
   try {
-    const response = await fetch(url, {
+    const response = await fetch(url.toString(), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

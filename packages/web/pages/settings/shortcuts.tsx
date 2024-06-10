@@ -35,6 +35,7 @@ import { Button } from '../../components/elements/Button'
 import { styled } from '@stitches/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { escapeQuotes } from '../../utils/helper'
+import { Shortcut } from '../../components/templates/navMenu/NavigationMenu'
 type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
 const SHORTCUTS_KEY = 'library-shortcuts'
@@ -318,6 +319,7 @@ const AvailableItems = (props: ListProps): JSX.Element => {
                 id: search.id,
                 name: search.name,
                 type: 'label',
+                section: 'library',
                 filter: search.filter,
               }
               props.dispatchList({
@@ -364,6 +366,7 @@ const AvailableItems = (props: ListProps): JSX.Element => {
                 id: label.id,
                 type: 'label',
                 label: label,
+                section: 'library',
                 name: label.name,
                 filter: `label:\"${escapeQuotes(label.name)}\"`,
               }
@@ -408,6 +411,7 @@ const AvailableItems = (props: ListProps): JSX.Element => {
             onClick={(event) => {
               const item: Shortcut = {
                 id: subscription.id,
+                section: 'subscriptions',
                 name: subscription.name,
                 icon: subscription.icon,
                 type:

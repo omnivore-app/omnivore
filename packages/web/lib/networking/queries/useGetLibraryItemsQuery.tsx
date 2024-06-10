@@ -256,7 +256,7 @@ export function useGetLibraryItemsQuery({
         pageIndex === 0 ? undefined : previousResult.search.pageInfo.endCursor,
       ]
     },
-    (_query, _l, _s, _sq, cursor) => {
+    (_query: string, _l: string, _s: string, _sq: string, cursor: string) => {
       return gqlFetcher(query, { ...variables, after: cursor }, true)
     },
     { revalidateFirstPage: false }

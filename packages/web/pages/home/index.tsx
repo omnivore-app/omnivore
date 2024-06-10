@@ -38,7 +38,7 @@ export default function Home(): JSX.Element {
   useApplyLocalTheme()
 
   return (
-    <NavigationLayout section="justread">
+    <NavigationLayout section="home">
       <VStack
         distribution="start"
         alignment="center"

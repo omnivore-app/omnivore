@@ -23,7 +23,6 @@ import 'allotment/dist/style.css'
 import { LibrarySideBar } from './library/LibrarySideBar'
 
 export type NavigationSection =
-  | 'justread'
   | 'home'
   | 'library'
   | 'subscriptions'

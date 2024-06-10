@@ -15,9 +15,9 @@ export function LibraryItemsContainer(): JSX.Element {
       <Allotment.Pane minSize={200}>
         <LibraryContainer />
       </Allotment.Pane>
-      <Allotment.Pane snap maxSize={230}>
+      {/* <Allotment.Pane snap maxSize={230}>
         <LibrarySideBar />
-      </Allotment.Pane>
+      </Allotment.Pane> */}
     </Allotment>
   )
 }

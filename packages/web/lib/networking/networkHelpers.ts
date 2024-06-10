@@ -88,9 +88,10 @@ export function apiPoster(
 }
 
 export function makePublicGqlFetcher(
+  gql: string,
   variables?: unknown
 ): (query: string) => Promise<unknown> {
-  return (query: string) => gqlFetcher(query, variables, false)
+  return (query: string) => gqlFetcher(gql, variables, false)
 }
 
 // Partially apply gql variables to the request
