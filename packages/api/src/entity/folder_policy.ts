@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
 
@@ -36,9 +38,15 @@ export class FolderPolicy {
   @Column('int')
   minimumItems!: number
 
-  @Column('timestamptz')
+  @CreateDateColumn({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt!: Date
 
-  @Column('timestamptz')
+  @UpdateDateColumn({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date
 }
