@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
 import { isError } from 'lodash'
+import { FolderPolicy } from '../entity/folder_policy'
 import { Highlight } from '../entity/highlight'
 import { LibraryItem } from '../entity/library_item'
 import {
@@ -52,6 +53,7 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
+import { folderPoliciesResolver } from './folder_policy'
 import { highlightsResolver } from './highlight'
 import {
   hiddenHomeSectionResolver,
@@ -342,6 +344,7 @@ export const functionResolvers = {
     subscription: subscriptionResolver,
     hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
+    folderPolicies: folderPoliciesResolver,
   },
   User: {
     async intercomHash(user: User) {
@@ -880,4 +883,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('RefreshHome'),
   ...resultResolveTypeResolver('HiddenHomeSection'),
   ...resultResolveTypeResolver('Highlights'),
+  ...resultResolveTypeResolver('FolderPolicies'),
 }

@@ -7,6 +7,11 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
+export enum FolderPolicyAction {
+  DELETE = 'DELETE',
+  ARCHIVE = 'ARCHIVE',
+}
+
 @Entity({ name: 'folder_policy' })
 export class FolderPolicy {
   @PrimaryGeneratedColumn('uuid')
@@ -22,8 +27,8 @@ export class FolderPolicy {
   @Column('text')
   folder!: string
 
-  @Column('text')
-  action!: string
+  @Column('enum', { enum: FolderPolicyAction })
+  action!: FolderPolicyAction
 
   @Column('int')
   afterDays!: number

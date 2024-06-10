@@ -60,3 +60,11 @@ export const generateFakeUuid = () => {
 export const generateFakeShortId = () => {
   return nanoid(8)
 }
+
+export const loginAndGetAuthToken = async (email: string) => {
+  const res = await request
+    .post('/local/debug/fake-user-login')
+    .send({ fakeEmail: email })
+
+  return res.body.authToken as string
+}

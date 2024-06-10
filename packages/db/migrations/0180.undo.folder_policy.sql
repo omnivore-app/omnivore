@@ -6,4 +6,6 @@ BEGIN;
 
 DROP TABLE omnivore.folder_policy;
 
+DROP TYPE folder_action;
+
 COMMIT;
