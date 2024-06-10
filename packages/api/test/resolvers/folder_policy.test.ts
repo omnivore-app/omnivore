@@ -1,5 +1,8 @@
 import { expect } from 'chai'
-import { FolderPolicyAction } from '../../src/entity/folder_policy'
+import {
+  FolderPolicy as FolderPolicyEntity,
+  FolderPolicyAction,
+} from '../../src/entity/folder_policy'
 import { User } from '../../src/entity/user'
 import { FolderPolicy } from '../../src/generated/graphql'
 import {
@@ -60,7 +63,7 @@ describe('Folder Policy API', () => {
       expect(policies).to.have.lengthOf(1)
       expect(policies[0].id).to.equal(existingPolicy.id)
 
-      await deleteFolderPolicy(existingPolicy.id)
+      await deleteFolderPolicy(loginUser.id, existingPolicy.id)
     })
   })
 
@@ -99,11 +102,68 @@ describe('Folder Policy API', () => {
       const createdPolicy = res.body.data.createFolderPolicy
         .policy as FolderPolicy
 
-      const policy = await findFolderPolicyById(createdPolicy.id)
+      const policy = await findFolderPolicyById(loginUser.id, createdPolicy.id)
       expect(policy).to.exist
       expect(policy?.folder).to.equal(input.folder)
 
-      await deleteFolderPolicy(createdPolicy.id)
+      await deleteFolderPolicy(loginUser.id, createdPolicy.id)
+    })
+  })
+
+  describe('Update Folder Policy', () => {
+    let existingPolicy: FolderPolicyEntity
+
+    before(async () => {
+      existingPolicy = await createFolderPolicy({
+        userId: loginUser.id,
+        folder: 'test-folder',
+        action: FolderPolicyAction.ARCHIVE,
+        afterDays: 30,
+        minimumItems: 10,
+      })
+    })
+
+    after(async () => {
+      await deleteFolderPolicy(loginUser.id, existingPolicy.id)
+    })
+
+    const mutation = `
+      mutation UpdateFolderPolicy($input: UpdateFolderPolicyInput!) {
+        updateFolderPolicy(input: $input) {
+          ... on UpdateFolderPolicySuccess {
+            policy {
+              id
+              folder
+              action
+              createdAt
+              updatedAt
+            }
+          }
+          ... on UpdateFolderPolicyError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    it('should update a folder policy', async () => {
+      const input = {
+        id: existingPolicy.id,
+        action: FolderPolicyAction.DELETE,
+        afterDays: 30,
+        minimumItems: 10,
+      }
+
+      const res = await graphqlRequest(mutation, authToken, { input }).expect(
+        200
+      )
+
+      const updatedPolicy = res.body.data.updateFolderPolicy
+        .policy as FolderPolicy
+
+      const policy = await findFolderPolicyById(loginUser.id, updatedPolicy.id)
+      expect(policy).to.exist
+      expect(policy?.action).to.equal(input.action)
     })
   })
 })

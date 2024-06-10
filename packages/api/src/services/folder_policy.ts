@@ -19,20 +19,33 @@ export const findFolderPoliciesByUserId = async (userId: string) => {
 }
 
 export const updateFolderPolicy = async (
-  id: string,
+  userId: string,
+  folderPolicyId: string,
   update: Partial<FolderPolicy>
 ) => {
-  return getRepository(FolderPolicy).update(id, update)
+  return getRepository(FolderPolicy).update(
+    { id: folderPolicyId, userId },
+    update
+  )
 }
 
-export const deleteFolderPolicy = async (id: string) => {
-  return getRepository(FolderPolicy).delete(id)
+export const deleteFolderPolicy = async (
+  userId: string,
+  folderPolicyId: string
+) => {
+  return getRepository(FolderPolicy).delete({
+    id: folderPolicyId,
+    userId,
+  })
 }
 
 export const findFolderPolicies = async () => {
   return getRepository(FolderPolicy).find()
 }
 
-export const findFolderPolicyById = async (id: string) => {
-  return getRepository(FolderPolicy).findOneBy({ id })
+export const findFolderPolicyById = async (
+  userId: string,
+  folderPolicyId: string
+) => {
+  return getRepository(FolderPolicy).findOneBy({ id: folderPolicyId, userId })
 }
