@@ -54,7 +54,6 @@ export function gqlFetcher(
     credentials: 'include',
     mode: 'cors',
   })
-  graphQLClient.request(query, variables, requestHeaders()).then((result) => {})
 
   return graphQLClient.request(query, variables, requestHeaders())
 }
