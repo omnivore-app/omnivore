@@ -244,7 +244,6 @@ export function useGetLibraryItemsQuery({
     (pageIndex, previousPageData) => {
       const key = [query, limit, sortDescending, searchQuery, undefined]
       const previousResult = previousPageData as LibraryItemsData
-
       if (pageIndex === 0) {
         return key
       }
@@ -256,8 +255,9 @@ export function useGetLibraryItemsQuery({
         pageIndex === 0 ? undefined : previousResult.search.pageInfo.endCursor,
       ]
     },
-    (_query: string, _l: string, _s: string, _sq: string, cursor: string) => {
-      return gqlFetcher(query, { ...variables, after: cursor }, true)
+    (args: any[]) => {
+      const pageIndex = args[4] as number
+      return gqlFetcher(query, { ...variables, after: pageIndex }, true)
     },
     { revalidateFirstPage: false }
   )
