@@ -235,9 +235,6 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
         bg: '$thBackground2',
         borderRadius: '8px',
         cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: '$thBackground3',
-        },
       }}
     >
       <Box

@@ -40,14 +40,16 @@ const InternalOrExternalLink = (props: InternalOrExternalLinkProps) => {
       }}
     >
       {!isExternal ? (
-        <Link href={props.link} legacyBehavior>{props.children}</Link>
+        <Link href={props.link} legacyBehavior>
+          {props.children}
+        </Link>
       ) : (
         <a href={props.link} target="_blank" rel="noreferrer">
           {props.children}
         </a>
       )}
     </SpanBox>
-  );
+  )
 }
 
 export const SuggestionBox = (props: SuggestionBoxProps) => {
@@ -59,7 +61,7 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
         flexDirection: props.size == 'large' ? 'column' : 'row',
         width: 'fit-content',
         borderRadius: '5px',
-        background: props.background ?? '$thBackground3',
+        background: props.background ?? 'unset',
         fontSize: '15px',
         fontFamily: '$inter',
         fontWeight: '500',

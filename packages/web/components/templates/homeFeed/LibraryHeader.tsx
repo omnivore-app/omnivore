@@ -88,7 +88,6 @@ export function LegacyLibraryHeader(props: LibraryHeaderProps): JSX.Element {
           right: '0',
           zIndex: 5,
           px: '70px',
-          bg: '$thLibraryBackground',
           position: 'fixed',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,

@@ -86,8 +86,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
         css={{
           width: '100%',
           px: '70px',
-          bg: '$thLibraryBackground',
-          //          position: 'sticky',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
           transition: 'height 0.5s',

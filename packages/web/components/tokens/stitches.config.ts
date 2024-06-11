@@ -181,6 +181,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackgroundActive: '#FFEA9F',
         thBackgroundContrast: '#FFFFFF',
         thLeftMenuBackground: '#FCFCFC',
+        thNavMenuFooter: '#DFDFDF',
         thLibraryBackground: '#FFFFFF',
         thLibrarySearchbox: '#FCFCFC',
         thLibraryMenuPrimary: '#3D3D3D',
@@ -324,6 +325,7 @@ const darkThemeSpec = {
     thBackgroundActive: '#3D3D3D',
     thBackgroundContrast: '#000000',
     thLeftMenuBackground: '#343434',
+    thNavMenuFooter: '#515151',
     thLibraryBackground: '#2A2A2A',
     thLibrarySearchbox: '#3D3D3D',
     thLibraryMenuPrimary: '#EBEBEB',
@@ -397,11 +399,21 @@ const sepiaThemeSpec = {
     colorScheme: 'light',
   },
   colors: {
-    readerBg: '#FBF0D9',
+    readerBg: '#FDF6E3',
     readerFont: '#5F4B32',
     readerMargin: '#F3F3F3',
     readerFontHighContrast: '#0A0806',
     readerTableHeader: '#FFFFFF',
+
+    thLeftMenuBackground: '#EEE8D5',
+    thNavMenuFooter: '#DDD6C1',
+
+    thLibrarySelectionColor: '#DDD6C1',
+    thBorderColor: '#DDD6C1',
+
+    thBackground: '#FDF6E3',
+
+    thLibraryMultiselectHover: '#EEE8D5',
   },
 }
 
@@ -412,6 +424,16 @@ const apolloThemeSpec = {
     readerMargin: '#474747',
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
+
+    thLeftMenuBackground: '#3D3D3D',
+    thNavMenuFooter: '#515151',
+
+    thLibrarySelectionColor: '#515151',
+    thBorderColor: '#6A6968',
+
+    thBackground: '#474747',
+    thBackground2: '#515151',
+    thLibraryMultiselectHover: '#EEE8D5',
   },
 }
 

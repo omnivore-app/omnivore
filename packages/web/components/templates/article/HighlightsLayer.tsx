@@ -80,13 +80,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
-  const [focusedHighlight, setFocusedHighlight] =
-    useState<Highlight | undefined>(undefined)
+  const [focusedHighlight, setFocusedHighlight] = useState<
+    Highlight | undefined
+  >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
 
   const [
     confirmDeleteHighlightWithNoteId,
@@ -363,13 +365,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           // highlight, so the app can display a native menu
           const rect = (target as Element).getBoundingClientRect()
 
-          window?.webkit?.messageHandlers.viewerAction?.postMessage({
-            actionID: 'showMenu',
-            rectX: rect.x,
-            rectY: rect.y,
-            rectWidth: rect.width,
-            rectHeight: rect.height,
-          })
+          if (window?.webkit?.messageHandlers) {
+            window?.webkit?.messageHandlers.viewerAction?.postMessage({
+              actionID: 'showMenu',
+              rectX: rect.x,
+              rectY: rect.y,
+              rectWidth: rect.width,
+              rectHeight: rect.height,
+            })
+          }
 
           window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
             'existingHighlightTap',
@@ -394,7 +398,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         const highlight = highlights.find(($0) => $0.id === id)
         setFocusedHighlight(highlight)
         setLabelsTarget(highlight)
-      } else {
+      } else if (window?.webkit?.messageHandlers) {
         window?.webkit?.messageHandlers.viewerAction?.postMessage({
           actionID: 'pageTapped',
         })
