@@ -74,28 +74,66 @@ export default function Highlights(): JSX.Element {
         path: '/highlights',
       }}
     >
-      <VStack
-        css={{
-          maxWidth: '70%',
-          padding: '20px',
-          margin: '30px 50px 0 0',
-        }}
-      >
-        {highlights.map((highlight) => {
-          return (
-            viewer.viewerData?.me && (
-              <HighlightCard
-                key={highlight.id}
-                highlight={highlight}
-                viewer={viewer.viewerData.me}
-                router={router}
-                mutate={mutate}
-              />
-            )
-          )
-        })}
-      </VStack>
+      <HighlightsList />
     </NavigationLayout>
+  )
+}
+
+export function HighlightsList(): JSX.Element {
+  const router = useRouter()
+  const viewer = useGetViewerQuery()
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+  const [_, setShowAddLinkModal] = useState(false)
+
+  const { isLoading, setSize, size, data, mutate } = useGetHighlights({
+    first: PAGE_SIZE,
+  })
+
+  const hasMore = useMemo(() => {
+    if (!data) {
+      return false
+    }
+    return data[data.length - 1].highlights.pageInfo.hasNextPage
+  }, [data])
+
+  const handleFetchMore = useCallback(() => {
+    if (isLoading || !hasMore) {
+      return
+    }
+    setSize(size + 1)
+  }, [isLoading, hasMore, setSize, size])
+
+  useFetchMore(handleFetchMore)
+
+  const highlights = useMemo(() => {
+    if (!data) {
+      return []
+    }
+    return data.flatMap((res) => res.highlights.edges.map((edge) => edge.node))
+  }, [data])
+
+  return (
+    <VStack
+      css={{
+        maxWidth: '70%',
+        padding: '20px',
+        margin: '30px 50px 0 0',
+      }}
+    >
+      {highlights.map((highlight) => {
+        return (
+          viewer.viewerData?.me && (
+            <HighlightCard
+              key={highlight.id}
+              highlight={highlight}
+              viewer={viewer.viewerData.me}
+              router={router}
+              mutate={mutate}
+            />
+          )
+        )
+      })}
+    </VStack>
   )
 }
 

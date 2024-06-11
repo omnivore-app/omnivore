@@ -1,7 +1,8 @@
 import { NavigationLayout } from '../../components/templates/NavigationLayout'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { HomeFeedContainer } from '../../components/templates/homeFeed/HomeFeedContainer'
-import { VStack } from '../../components/elements/LayoutPrimitives'
+import { Box, VStack } from '../../components/elements/LayoutPrimitives'
+import { LibraryContainer } from '../../components/templates/library/LibraryContainer'
 
 export default function Subscriptions(): JSX.Element {
   return (
@@ -12,18 +13,9 @@ export default function Subscriptions(): JSX.Element {
         path: '/subscriptions',
       }}
     >
-      <VStack
-        alignment="start"
-        distribution="center"
-        css={{
-          px: '70px',
-          backgroundColor: '$thLibraryBackground',
-          '@lgDown': { px: '20px' },
-          '@mdDown': { px: '10px' },
-        }}
-      >
-        <div>Subscriptions will go here</div>
-      </VStack>
+      <Box css={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+        <LibraryContainer />
+      </Box>
     </NavigationLayout>
   )
 }
