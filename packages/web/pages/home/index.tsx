@@ -122,12 +122,11 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontFamily: '$inter',
           fontSize: '16px',
           fontWeight: '600',
-          color: '$readerText',
+          color: '$homeTextTitle',
         }}
       >
         {props.homeSection.title}
       </SpanBox>
-
       {props.homeSection.items.map((homeItem) => {
         return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
       })}
@@ -149,7 +148,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontFamily: '$inter',
           fontSize: '16px',
           fontWeight: '600',
-          color: '$readerText',
+          color: '$homeTextTitle',
         }}
       >
         {props.homeSection.title}
@@ -232,7 +231,7 @@ const HiddenHomeSection = (props: HomeSectionProps): JSX.Element => {
             fontFamily: '$inter',
             fontSize: '16px',
             fontWeight: '600',
-            color: '$readerText',
+            color: '$homeTextTitle',
           }}
         >
           {props.homeSection.title}
@@ -299,7 +298,7 @@ const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
         fontSize: '12px',
         fontWeight: 'medium',
         fontFamily: '$inter',
-        color: '$readerTextSubtle',
+        color: '$homeTextSubtle',
       }}
     >
       {timeAgo(props.homeItem.date)}
@@ -317,7 +316,7 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
         lineHeight: '20px',
         fontWeight: '600',
         fontFamily: '$inter',
-        color: '$readerText',
+        color: '$homeTextTitle',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
@@ -366,7 +365,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         padding: '5px',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$thBackground',
+          bg: '$homeCardHover',
           borderRadius: '0px',
         },
       }}
@@ -403,7 +402,7 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
 
         borderRadius: '5px',
         '&:hover': {
-          bg: '#323232',
+          bg: '$homeCardHover',
           borderRadius: '0px',
         },
       }}
@@ -450,22 +449,26 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       </SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         <Button style="homeAction">
-          <AddToLibraryActionIcon />
+          <AddToLibraryActionIcon
+            color={theme.colors.homeActionIcons.toString()}
+          />
         </Button>
         <Button style="homeAction">
-          <CommentActionIcon />
+          <CommentActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
         <Button style="homeAction">
-          <ShareActionIcon />
+          <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
         <Button style="homeAction">
-          <ArchiveActionIcon />
+          <ArchiveActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
         <Button style="homeAction">
-          <RemoveActionIcon />
+          <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
       </HStack>
-      <Box css={{ mt: '15px', width: '100%', height: '1px', bg: '#3D3D3D' }} />
+      <Box
+        css={{ mt: '15px', width: '100%', height: '1px', bg: '$homeDivider' }}
+      />
     </VStack>
   )
 }
@@ -537,7 +540,7 @@ const SourceInfo = (props: HomeItemViewProps) => (
             fontFamily: '$inter',
             fontWeight: '500',
             fontSize: '13px',
-            color: '$readerFont',
+            color: '$homeTextSource',
             textDecoration: 'underline',
           }}
         >
@@ -625,7 +628,7 @@ const SubscriptionSourceHoverContent = (
         css={{
           fontFamily: '$inter',
           fontSize: '13px',
-          color: '$thTextSubtle4',
+          color: '$homeTextBody',
         }}
       >
         {subscription ? <>{subscription.description}</> : <></>}

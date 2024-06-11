@@ -151,7 +151,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         searchActiveOutline: 'rgb(255, 210, 52)',
 
         // Reader Colors
-        readerBg: 'white',
+        readerBg: '#FAFAFA',
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
         readerTableHeader: '#FFFFFF',
@@ -180,7 +180,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#FFEA9F',
         thBackgroundContrast: '#FFFFFF',
-        thLeftMenuBackground: '#FCFCFC',
+        thLeftMenuBackground: '#F2F2F2',
         thNavMenuFooter: '#DFDFDF',
         thLibraryBackground: '#FFFFFF',
         thLibrarySearchbox: '#FCFCFC',
@@ -229,6 +229,14 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         thHighContrast: '#3D3D3D',
         thHighlightBar: '#D9D9D9',
+
+        homeCardHover: '#FFFFFF',
+        homeTextTitle: '#2A2A2A',
+        homeTextSource: '#3D3D3D',
+        homeTextBody: '#3D3D3D',
+        homeTextSubtle: '#898989',
+        homeActionIcons: '#898989',
+        homeDivider: '#D9D9D9',
 
         thLibraryAISummaryBorder: '#6A6968',
         thLibraryAISummaryBackground: '#343434',
@@ -331,7 +339,7 @@ const darkThemeSpec = {
     thLibraryMenuPrimary: '#EBEBEB',
     thLibraryMenuSecondary: '#EBEBEB',
     thLibraryMenuUnselected: 'white',
-    thLibrarySelectionColor: '#6A6968',
+    thLibrarySelectionColor: '#DFDFDF',
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
     thLibraryMultiselectHover: '#6A6968',
@@ -376,6 +384,14 @@ const darkThemeSpec = {
 
     thHighlightBar: '#6A6968',
 
+    homeCardHover: '#323232',
+    homeTextTitle: '#FFFFFF',
+    homeTextSource: '#D9D9D9',
+    homeTextBody: '#D9D9D9',
+    homeTextSubtle: '#898989',
+    homeActionIcons: '#898989',
+    homeDivider: '#3D3D3D',
+
     thLibraryAISummaryBorder: '#6A6968',
     thLibraryAISummaryBackground: '#343434',
 
@@ -391,6 +407,29 @@ const darkThemeSpec = {
 const blackThemeSpec = {
   colors: {
     readerBg: 'black',
+  },
+}
+
+const apolloThemeSpec = {
+  colors: {
+    readerBg: '#6A6968',
+    readerFont: '#F3F3F3',
+    readerMargin: '#474747',
+    readerFontHighContrast: 'white',
+    readerTableHeader: '#FFFFFF',
+
+    thLeftMenuBackground: '#3D3D3D',
+    thNavMenuFooter: '#515151',
+
+    thLibrarySelectionColor: '#515151',
+    thBorderColor: '#6A6968',
+
+    homeCardHover: '#525252',
+    homeDivider: '#6A6968',
+
+    thBackground: '#474747',
+    thBackground2: '#515151',
+    thLibraryMultiselectHover: '#EEE8D5',
   },
 }
 
@@ -413,26 +452,9 @@ const sepiaThemeSpec = {
 
     thBackground: '#FDF6E3',
 
-    thLibraryMultiselectHover: '#EEE8D5',
-  },
-}
+    homeCardHover: '#EEE8D5',
+    homeDivider: '#DDD6C1',
 
-const apolloThemeSpec = {
-  colors: {
-    readerBg: '#6A6968',
-    readerFont: '#F3F3F3',
-    readerMargin: '#474747',
-    readerFontHighContrast: 'white',
-    readerTableHeader: '#FFFFFF',
-
-    thLeftMenuBackground: '#3D3D3D',
-    thNavMenuFooter: '#515151',
-
-    thLibrarySelectionColor: '#515151',
-    thBorderColor: '#6A6968',
-
-    thBackground: '#474747',
-    thBackground2: '#515151',
     thLibraryMultiselectHover: '#EEE8D5',
   },
 }

@@ -30,6 +30,7 @@ import {
 import { highlightColor } from '../../lib/themeUpdater'
 
 import { HighlightViewNote } from '../../components/patterns/HighlightNotes'
+import { theme } from '../../components/tokens/stitches.config'
 
 const PAGE_SIZE = 10
 

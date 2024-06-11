@@ -7,7 +7,6 @@ import React from 'react'
 export class AddToLibraryActionIcon extends React.Component<IconProps> {
   render() {
     const strokeColor = (this.props.color || '#D9D9D9').toString()
-    const backgroundColor = (this.props.color || '#3D3D3D').toString()
 
     return (
       <svg
