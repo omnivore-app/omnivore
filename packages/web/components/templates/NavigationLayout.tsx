@@ -121,16 +121,18 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
           setShowNavMenu(!showNavMenu)
         }}
       />
-      <NavigationMenu
-        section={props.section}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        setShowAddLinkModal={() => {}}
-        searchTerm=""
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        applySearchQuery={() => {}}
-        showFilterMenu={showNavMenu}
-        setShowFilterMenu={setShowNavMenu}
-      />
+      {showNavMenu && (
+        <NavigationMenu
+          section={props.section}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          setShowAddLinkModal={() => {}}
+          searchTerm=""
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          applySearchQuery={() => {}}
+          showFilterMenu={showNavMenu}
+          setShowFilterMenu={setShowNavMenu}
+        />
+      )}
       {props.children}
       {showLogoutConfirmation ? (
         <ConfirmationModal
