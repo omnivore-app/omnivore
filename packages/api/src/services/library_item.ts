@@ -1392,6 +1392,30 @@ export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
   return authTrx(async (t) => t.query(sql))
 }
 
+export const batchDeleteAllTrash = async () => {
+  const sql = `
+    DO $$
+    DECLARE
+        user_record RECORD;
+        user_cursor CURSOR FOR SELECT id FROM omnivore.user WHERE status = 'ACTIVE';  -- Adjust the condition as needed
+    BEGIN
+        OPEN user_cursor;
+
+        LOOP
+            FETCH NEXT FROM user_cursor INTO user_record;
+            EXIT WHEN NOT FOUND;
+
+            DELETE FROM omnivore.library_item WHERE user_id = user_record.id AND state = 'DELETED' AND deleted_at < '2023-01-01';
+
+            RETURN NEXT;
+        END LOOP;
+
+        CLOSE user_cursor;
+    END $$;`
+
+  return authTrx(async (t) => t.query(sql))
+}
+
 export const findLibraryItemIdsByLabelId = async (
   labelId: string,
   userId: string
