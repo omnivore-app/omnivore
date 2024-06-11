@@ -15,7 +15,7 @@
 
     <!-- Apple Auth -->
     <string name="apple_auth_text">使用 Apple 继续</string>
-    <string name="apple_auth_loading">正在登入...</string>
+    <string name="apple_auth_loading">正在登录...</string>
 
     <!-- Create User Profile -->
     <string name="create_user_profile_title">创建您的个人资料</string>
@@ -30,10 +30,10 @@
 
     <!-- Email Login -->
     <string name="email_login_loading">载入中...</string>
-    <string name="email_login_action_back">返回社交登入页面</string>
-    <string name="email_login_action_no_account">还没有帐户？</string>
+    <string name="email_login_action_back">返回社交登录页面</string>
+    <string name="email_login_action_no_account">还没有账号？</string>
     <string name="email_login_action_forgot_password">忘记密码？</string>
-    <string name="email_login_action_login">登入</string>
+    <string name="email_login_action_login">登录</string>
     <string name="email_login_field_placeholder_email">user@email.com</string>
     <string name="email_login_field_label_email">电子邮件</string>
     <string name="email_login_field_placeholder_password">密码</string>
@@ -45,8 +45,8 @@
     <string name="email_signup_check_status">检查状态</string>
     <string name="email_signup_action_use_different_email">使用不同的电子邮件？</string>
     <string name="email_signup_loading">载入中...</string>
-    <string name="email_signup_action_back">返回社交登入页面</string>
-    <string name="email_signup_action_already_have_account">已经有帐户？</string>
+    <string name="email_signup_action_back">返回社交登录页面</string>
+    <string name="email_signup_action_already_have_account">已经有账号？</string>
     <string name="email_signup_action_sign_up">注册</string>
     <string name="email_signup_field_placeholder_email">user@email.com</string>
     <string name="email_signup_field_label_email">电子邮件</string>
@@ -60,7 +60,7 @@
 
     <!-- Google Auth -->
     <string name="google_auth_text">使用 Google 继续</string>
-    <string name="google_auth_loading">正在登入...</string>
+    <string name="google_auth_loading">正在登录...</string>
 
     <!-- LoginViewModel -->
     <string name="login_view_model_self_hosting_settings_updated">私有化部署设定已更新。</string>
@@ -70,7 +70,7 @@
     <string name="login_view_model_username_not_available_error_msg">此使用者名称不可用。</string>
     <string name="login_view_model_connection_error_msg">抱歉，我们无法连线到服务器。</string>
     <string name="login_view_model_something_went_wrong_error_msg">出了些问题。请检查您的电子邮件/密码，然后再试一次。</string>
-    <string name="login_view_model_something_went_wrong_two_error_msg">出了些问题。请检查您的登入资讯，然后再试一次。</string>
+    <string name="login_view_model_something_went_wrong_two_error_msg">出了些问题。请检查您的登录密码，然后再试一次。</string>
     <string name="login_view_model_google_auth_error_msg">无法使用 Google 进行身份验证。</string>
     <string name="login_view_model_missing_auth_token_error_msg">找不到身份验证权杖。</string>
 
@@ -136,13 +136,13 @@
     <string name="highlights_list_action_copy">复制</string>
     <string name="highlights_list_snackbar_msg">高亮已复制</string>
     <string name="highlights_list_action_add_note">新增注释...</string>
-    <string name="highlights_list_error_msg_no_highlights">您尚未在此页面新增任何高亮。</string>
+    <string name="highlights_list_error_msg_no_highlights">您尚未在此页面添加任何高亮显示。</string>
 
     <!-- ReaderPreferencesView -->
     <string name="reader_preferences_font">字体</string>
     <string name="reader_preferences_view_font_size">字型大小：</string>
     <string name="reader_preferences_view_margin">边距</string>
-    <string name="reader_preferences_view_line_spacing">行距</string>
+    <string name="reader_preferences_view_line_spacing">行间距</string>
     <string name="reader_preferences_view_theme">主题：</string>
     <string name="reader_preferences_view_auto">自动</string>
     <string name="reader_preferences_view_high_constrast_text">高对比文字</string>
@@ -182,19 +182,19 @@
     <!-- SavedItemContextMenu -->
     <string name="saved_item_context_menu_action_edit_info">编辑信息</string>
     <string name="saved_item_context_menu_action_edit_labels">编辑标签</string>
-    <string name="saved_item_context_menu_action_archive">封存</string>
-    <string name="saved_item_context_menu_action_unarchive">取消封存</string>
+    <string name="saved_item_context_menu_action_archive">存档</string>
+    <string name="saved_item_context_menu_action_unarchive">取消存档</string>
     <string name="saved_item_context_menu_action_share_original">分享原始内容</string>
     <string name="saved_item_context_menu_action_remove_item">移除项目</string>
 
     <!-- LogoutDialog -->
-    <string name="logout_dialog_title">登出</string>
-    <string name="logout_dialog_confirm_msg">您确定要登出吗？</string>
+    <string name="logout_dialog_title">退出</string>
+    <string name="logout_dialog_confirm_msg">您确定要退出吗？</string>
     <string name="logout_dialog_action_confirm">确认</string>
     <string name="logout_dialog_action_cancel">取消</string>
 
     <!-- ManageAccount -->
-    <string name="manage_account_title">管理帐户</string>
+    <string name="manage_account_title">管理账号</string>
     <string name="manage_account_action_reset_data_cache">重设数据缓存</string>
 
     <!-- PolicyWebView -->
@@ -206,8 +206,8 @@
     <string name="about_feedback">反馈</string>
     <string name="about_privacy_policy">隐私策略</string>
     <string name="about_terms_and_conditions">条款和条件</string>
-    <string name="profile_manage_account">管理帐户</string>
-    <string name="about_logout">登出</string>
+    <string name="profile_manage_account">管理账号</string>
+    <string name="about_logout">退出</string>
 
     <!-- stock filters -->
     <string name="library_filter_inbox">收集箱</string>
@@ -217,7 +217,7 @@
     <string name="library_filter_recommended">推荐</string>
     <string name="library_filter_all">所有内容</string>
     <string name="library_filter_archived">已归档</string>
-    <string name="library_filter_highlighted">已高亮</string>
+    <string name="library_filter_highlighted">已高亮显示</string>
     <string name="library_filter_files">文档</string>
 
     <!-- stock sorts -->
@@ -234,7 +234,7 @@
     <string name="edit_info_sheet_text_field_label_title">标题</string>
     <string name="edit_info_sheet_text_field_label_author">作者</string>
     <string name="edit_info_sheet_text_field_label_description">说明</string>
-    <string name="edit_info_sheet_action_save">节省</string>
+    <string name="edit_info_sheet_action_save">保存</string>
     <string name="edit_info_sheet_action_cancel">取消</string>
     <string name="edit_info_sheet_error">编辑文章时出错</string>
     <string name="edit_info_sheet_success">文章信息更新成功</string>
