@@ -116,7 +116,7 @@ export function HomeFeedContainer(): JSX.Element {
     performActionOnItem,
     mutate,
     error: fetchItemsError,
-  } = useGetLibraryItemsQuery(queryInputs)
+  } = useGetLibraryItemsQuery('inbox', queryInputs)
 
   useEffect(() => {
     const handleRevalidate = () => {

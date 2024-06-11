@@ -1,16 +1,16 @@
 import { NavigationLayout } from '../../components/templates/NavigationLayout'
 import { LibraryContainer } from '../../components/templates/library/LibraryContainer'
 
-export default function Subscriptions(): JSX.Element {
+export default function Archive(): JSX.Element {
   return (
     <NavigationLayout
-      section="subscriptions"
+      section="archive"
       pageMetaDataProps={{
-        title: 'Subscriptions',
-        path: '/subscriptions',
+        title: 'Archive',
+        path: '/archive',
       }}
     >
-      <LibraryContainer folder="following" />
+      <LibraryContainer folder="archive" />
     </NavigationLayout>
   )
 }

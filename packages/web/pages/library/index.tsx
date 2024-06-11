@@ -1,5 +1,4 @@
 import { NavigationLayout } from '../../components/templates/NavigationLayout'
-import { Box } from '../../components/elements/LayoutPrimitives'
 import { LibraryContainer } from '../../components/templates/library/LibraryContainer'
 
 export default function Library(): JSX.Element {
@@ -11,7 +10,7 @@ export default function Library(): JSX.Element {
         path: '/library',
       }}
     >
-      <LibraryContainer />
+      <LibraryContainer folder="inbox" />
     </NavigationLayout>
   )
 }

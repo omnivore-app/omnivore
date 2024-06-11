@@ -27,6 +27,8 @@ export type NavigationSection =
   | 'library'
   | 'subscriptions'
   | 'highlights'
+  | 'archive'
+  | 'trash'
 
 type NavigationLayoutProps = {
   children: ReactNode

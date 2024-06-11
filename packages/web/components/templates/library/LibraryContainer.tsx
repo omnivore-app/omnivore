@@ -73,7 +73,11 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
 // the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
 const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
-export function LibraryContainer(): JSX.Element {
+type LibraryContainerProps = {
+  folder: string
+}
+
+export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
@@ -81,6 +85,7 @@ export function LibraryContainer(): JSX.Element {
 
   const defaultQuery = {
     limit: 10,
+    folder: props.folder,
     sortDescending: true,
     searchQuery: undefined,
   }
@@ -111,7 +116,7 @@ export function LibraryContainer(): JSX.Element {
     performActionOnItem,
     mutate,
     error: fetchItemsError,
-  } = useGetLibraryItemsQuery(queryInputs)
+  } = useGetLibraryItemsQuery(props.folder, queryInputs)
 
   useEffect(() => {
     const handleRevalidate = () => {
@@ -920,7 +925,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         height: '100%',
         px: '20px',
         py: '20px',
-        width: !showItems ? '100%' : 'unset',
+        width: '100%',
       }}
       distribution="start"
       alignment="start"
@@ -1181,34 +1186,13 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         paddingBottom: '0px',
         overflow: 'visible',
         px: '70px',
+        '@lgDown': {
+          px: '10px',
+        },
         gridTemplateColumns:
           props.layout == 'LIST_LAYOUT'
             ? 'none'
             : `repeat( auto-fit, minmax(300px, 1fr) )`,
-        // '@media (max-width: 930px)': {
-        //   gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
-        // },
-        // '@xlgDown': {
-        //   borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
-        // },
-        // '@smDown': {
-        //   border: 'unset',
-        //   width: props.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-        //   margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-        //   borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
-        // },
-        // '@media (min-width: 930px)': {
-        //   gridTemplateColumns:
-        //     props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
-        // },
-        // '@media (min-width: 1280px)': {
-        //   gridTemplateColumns:
-        //     props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-        // },
-        // '@media (min-width: 1600px)': {
-        //   gridTemplateColumns:
-        //     props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
-        // },
       }}
     >
       {props.items.map((linkedItem) => (

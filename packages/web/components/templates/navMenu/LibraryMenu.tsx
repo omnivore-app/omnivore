@@ -46,55 +46,6 @@ type LibraryFilterMenuProps = {
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
-  const [labels, setLabels] = usePersistedState<Label[]>({
-    key: 'menu-labels',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const [savedSearches, setSavedSearches] = usePersistedState<SavedSearch[]>({
-    key: 'menu-searches',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const [subscriptions, setSubscriptions] = usePersistedState<Subscription[]>({
-    key: 'menu-subscriptions',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const labelsResponse = useGetLabelsQuery()
-  const searchesResponse = useGetSavedSearchQuery()
-  const subscriptionsResponse = useGetSubscriptionsQuery()
-
-  useEffect(() => {
-    if (
-      !labelsResponse.error &&
-      !labelsResponse.isLoading &&
-      labelsResponse.labels
-    ) {
-      setLabels(labelsResponse.labels)
-    }
-  }, [setLabels, labelsResponse])
-
-  useEffect(() => {
-    if (
-      !subscriptionsResponse.error &&
-      !subscriptionsResponse.isLoading &&
-      subscriptionsResponse.subscriptions
-    ) {
-      setSubscriptions(subscriptionsResponse.subscriptions)
-    }
-  }, [setSubscriptions, subscriptionsResponse])
-
-  useEffect(() => {
-    if (
-      !searchesResponse.error &&
-      !searchesResponse.isLoading &&
-      searchesResponse.savedSearches
-    ) {
-      setSavedSearches(searchesResponse.savedSearches)
-    }
-  }, [setSavedSearches, searchesResponse])
-
   return (
     <>
       <Box

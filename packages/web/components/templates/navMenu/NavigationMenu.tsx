@@ -17,17 +17,13 @@ import {
   Folder,
   FolderOpen,
   Tag,
+  ArrowDown,
+  CaretDown,
+  CaretUp,
 } from '@phosphor-icons/react'
-import {
-  Subscription,
-  useGetSubscriptionsQuery,
-} from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
-import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
 import Link from 'next/link'
 import { NavMenuFooter } from './Footer'
 import { FollowingIcon } from '../../elements/icons/FollowingIcon'
@@ -49,6 +45,10 @@ import { requestHeaders } from '../../../lib/networking/networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { OpenMap } from 'react-arborist/dist/module/state/open-slice'
+import { ToggleCaretLeftIcon } from '../../elements/icons/ToggleCaretLeftIcon'
+import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { ArchiveActionIcon } from '../../elements/icons/home/ArchiveActionIcon'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -81,55 +81,6 @@ type LibraryFilterMenuProps = {
 }
 
 export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
-  const [labels, setLabels] = usePersistedState<Label[]>({
-    key: 'menu-labels',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const [savedSearches, setSavedSearches] = usePersistedState<SavedSearch[]>({
-    key: 'menu-searches',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const [subscriptions, setSubscriptions] = usePersistedState<Subscription[]>({
-    key: 'menu-subscriptions',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const labelsResponse = useGetLabelsQuery()
-  const searchesResponse = useGetSavedSearchQuery()
-  const subscriptionsResponse = useGetSubscriptionsQuery()
-
-  useEffect(() => {
-    if (
-      !labelsResponse.error &&
-      !labelsResponse.isLoading &&
-      labelsResponse.labels
-    ) {
-      setLabels(labelsResponse.labels)
-    }
-  }, [setLabels, labelsResponse])
-
-  useEffect(() => {
-    if (
-      !subscriptionsResponse.error &&
-      !subscriptionsResponse.isLoading &&
-      subscriptionsResponse.subscriptions
-    ) {
-      setSubscriptions(subscriptionsResponse.subscriptions)
-    }
-  }, [setSubscriptions, subscriptionsResponse])
-
-  useEffect(() => {
-    if (
-      !searchesResponse.error &&
-      !searchesResponse.isLoading &&
-      searchesResponse.savedSearches
-    ) {
-      setSavedSearches(searchesResponse.savedSearches)
-    }
-  }, [setSavedSearches, searchesResponse])
-
   return (
     <>
       <Box
@@ -224,6 +175,12 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
 }
 
 const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
+  const [moreFoldersOpenState, setMoreFoldersOpenState] =
+    usePersistedState<boolean>({
+      key: 'nav-menu-more-folders-open',
+      isSessionStorage: false,
+      initialValue: false,
+    })
   return (
     <VStack
       css={{
@@ -266,6 +223,48 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         isSelected={props.section == 'highlights'}
         icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
       />
+      <Button
+        style="articleActionIcon"
+        css={{
+          display: 'flex',
+          ml: '15px',
+          width: '100%',
+          '&:hover': {
+            backgroundColor: '$thBackground4',
+          },
+        }}
+        onClick={(event) => {
+          setMoreFoldersOpenState(!moreFoldersOpenState)
+          event.preventDefault()
+        }}
+      >
+        <HStack css={{ gap: '20px' }}>
+          {moreFoldersOpenState ? (
+            <CaretUp size={12} />
+          ) : (
+            <CaretDown size={12} />
+          )}
+          <SpanBox>More</SpanBox>
+        </HStack>
+      </Button>
+      {moreFoldersOpenState && (
+        <SpanBox css={{ width: '100%' }}>
+          <NavButton
+            {...props}
+            text="Archive"
+            section="archive"
+            isSelected={props.section == 'archive'}
+            icon={<ArchiveActionIcon color="#F59932" />}
+          />
+          <NavButton
+            {...props}
+            text="Trash"
+            section="trash"
+            isSelected={props.section == 'trash'}
+            icon={<TrashIcon color={theme.colors.highlight.toString()} />}
+          />
+        </SpanBox>
+      )}
     </VStack>
   )
 }
