@@ -11,9 +11,7 @@ export default function Library(): JSX.Element {
         path: '/library',
       }}
     >
-      <Box css={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-        <LibraryContainer />
-      </Box>
+      <LibraryContainer />
     </NavigationLayout>
   )
 }

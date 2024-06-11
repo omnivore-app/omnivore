@@ -13,9 +13,7 @@ export default function Subscriptions(): JSX.Element {
         path: '/subscriptions',
       }}
     >
-      <Box css={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-        <LibraryContainer />
-      </Box>
+      <LibraryContainer />
     </NavigationLayout>
   )
 }
