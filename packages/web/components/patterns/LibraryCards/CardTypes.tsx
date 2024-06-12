@@ -31,4 +31,6 @@ export type LinkedItemCardProps = {
 
   isHovered?: boolean
   isLoading?: boolean
+
+  legacyLayout?: boolean
 }

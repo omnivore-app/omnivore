@@ -1331,6 +1331,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         >
           {props.viewer && (
             <LinkedItemCard
+              legacyLayout={true}
               layout={props.layout}
               item={linkedItem.node}
               isLoading={linkedItem.isLoading}
