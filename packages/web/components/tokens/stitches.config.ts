@@ -157,7 +157,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerTableHeader: '#FFFFFF',
         readerMargin: 'white',
         readerTextSubtle: '#898989',
-        readerHoverBg: '#1E1E1E',
 
         // Avatar Fallback color
         avatarBg: '#FFEA9F',
@@ -236,6 +235,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         homeTextBody: '#3D3D3D',
         homeTextSubtle: '#898989',
         homeActionIcons: '#898989',
+        homeActionHoverBg: '#DFDFDF',
         homeDivider: '#D9D9D9',
 
         thLibraryAISummaryBorder: '#6A6968',
@@ -306,7 +306,6 @@ const darkThemeSpec = {
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
     readerMargin: '#2A2A2A',
-    readerHoverBg: '#1E1E1E',
     readerTextSubtle: '#EDEDED',
 
     avatarBg: '#7B5C3E',
@@ -390,6 +389,7 @@ const darkThemeSpec = {
     homeTextBody: '#D9D9D9',
     homeTextSubtle: '#898989',
     homeActionIcons: '#898989',
+    homeActionHoverBg: '#515151',
     homeDivider: '#3D3D3D',
 
     thLibraryAISummaryBorder: '#6A6968',
@@ -427,6 +427,7 @@ const apolloThemeSpec = {
 
     homeCardHover: '#525252',
     homeDivider: '#6A6968',
+    homeActionHoverBg: '#515151',
 
     thBackground: '#474747',
     thBackground2: '#515151',
@@ -456,6 +457,7 @@ const sepiaThemeSpec = {
 
     homeCardHover: '#EEE8D5',
     homeDivider: '#DDD6C1',
+    homeActionHoverBg: '#DDD6C1',
 
     thLibraryMultiselectHover: '#EEE8D5',
   },

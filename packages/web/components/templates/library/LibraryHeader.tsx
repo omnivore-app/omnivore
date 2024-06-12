@@ -133,7 +133,7 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
         <SpanBox
           css={{
             display: 'none',
-            '@mdDown': { display: 'flex' },
+            '@lgDown': { display: 'flex' },
           }}
         >
           <MenuHeaderButton {...props} />

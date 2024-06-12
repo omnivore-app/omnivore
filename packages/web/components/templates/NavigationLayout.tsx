@@ -1,10 +1,10 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
-import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { NextRouter, useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { setupAnalytics } from '../../lib/analytics'
@@ -19,8 +19,6 @@ import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import 'allotment/dist/style.css'
-import { LibrarySideBar } from './library/LibrarySideBar'
 
 export type NavigationSection =
   | 'home'
@@ -122,11 +120,19 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <Header
-        toggleMenu={() => {
-          setShowNavMenu(!showNavMenu)
+      <SpanBox
+        css={{
+          '@lgDown': {
+            display: 'none',
+          },
         }}
-      />
+      >
+        <Header
+          toggleMenu={() => {
+            setShowNavMenu(!showNavMenu)
+          }}
+        />
+      </SpanBox>
       {showNavMenu && (
         <NavigationMenu
           section={props.section}

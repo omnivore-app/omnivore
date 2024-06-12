@@ -26,10 +26,17 @@ import {
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
+import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 
 export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
+  const { viewerData } = useGetViewerQuery()
+
   useApplyLocalTheme()
+
+  const viewerUsername = useMemo(() => {
+    return viewerData?.me?.profile.username
+  }, [viewerData])
 
   return (
     <VStack
@@ -47,7 +54,7 @@ export function HomeContainer(): JSX.Element {
         distribution="start"
         css={{
           width: '646px',
-          gap: '40px',
+          gap: '50px',
           minHeight: '100vh',
           '@mdDown': {
             width: '100%',
@@ -64,6 +71,7 @@ export function HomeContainer(): JSX.Element {
                 <JustAddedHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             case 'top_picks':
@@ -71,6 +79,7 @@ export function HomeContainer(): JSX.Element {
                 <TopPicksHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             case 'quick_links':
@@ -78,6 +87,7 @@ export function HomeContainer(): JSX.Element {
                 <QuickLinksHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             case 'hidden':
@@ -85,6 +95,7 @@ export function HomeContainer(): JSX.Element {
                 <HiddenHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             default:
@@ -98,9 +109,11 @@ export function HomeContainer(): JSX.Element {
 
 type HomeSectionProps = {
   homeSection: HomeSection
+  viewerUsername: string | undefined
 }
 
 const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
+  const router = useRouter()
   return (
     <VStack
       distribution="start"
@@ -109,19 +122,64 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
         gap: '20px',
       }}
     >
-      <SpanBox
-        css={{
-          fontFamily: '$inter',
-          fontSize: '16px',
-          fontWeight: '600',
-          color: '$homeTextTitle',
-        }}
+      <HStack
+        css={{ width: '100%', lineHeight: '1' }}
+        distribution="start"
+        alignment="start"
       >
-        {props.homeSection.title}
-      </SpanBox>
-      {props.homeSection.items.map((homeItem) => {
-        return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
-      })}
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '$homeTextTitle',
+          }}
+        >
+          {props.homeSection.title}
+        </SpanBox>
+        <SpanBox
+          css={{
+            ml: 'auto',
+            fontFamily: '$inter',
+            fontSize: '13px',
+            fontWeight: '400',
+            color: '$homeTextTitle',
+          }}
+        >
+          <Button
+            style="link"
+            onClick={(event) => {
+              router.push('/l/library')
+              event.preventDefault()
+            }}
+            css={{
+              '&:hover': {
+                textDecoration: 'underline',
+              },
+            }}
+          >
+            View All
+          </Button>
+        </SpanBox>
+      </HStack>
+      <HStack
+        css={{
+          width: '100%',
+          lineHeight: '1',
+          overflow: 'scroll',
+          gap: '25px',
+          scrollbarWidth: 'none',
+          '::-webkit-scrollbar': {
+            display: 'none',
+          },
+        }}
+        distribution="start"
+        alignment="start"
+      >
+        {props.homeSection.items.map((homeItem) => {
+          return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
+        })}
+      </HStack>
     </VStack>
   )
 }
@@ -165,7 +223,7 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       css={{
         width: '100%',
         gap: '20px',
-        bg: '#3D3D3D',
+        bg: '$thNavMenuFooter',
         py: '30px',
         px: '20px',
         borderRadius: '5px',
@@ -279,6 +337,7 @@ const CoverImage = styled('img', {
 
 type HomeItemViewProps = {
   homeItem: HomeItem
+  viewerUsername?: string | undefined
 }
 
 const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
@@ -301,12 +360,41 @@ const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
 const Title = (props: HomeItemViewProps): JSX.Element => {
   return (
     <HStack
+      className="title-text"
       distribution="start"
       alignment="center"
       css={{
         fontSize: '16px',
         lineHeight: '20px',
         fontWeight: '600',
+        fontFamily: '$inter',
+        color: '$homeTextTitle',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        wordBreak: 'break-word',
+        display: '-webkit-box',
+        '-webkit-line-clamp': '3',
+        '-webkit-box-orient': 'vertical',
+        '&:title-text': {
+          transition: 'text-decoration 0.3s ease',
+        },
+      }}
+    >
+      {props.homeItem.title}
+    </HStack>
+  )
+}
+
+const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
+  return (
+    <HStack
+      className="title-text"
+      distribution="start"
+      alignment="center"
+      css={{
+        fontSize: '13px',
+        lineHeight: '26px',
+        fontWeight: '500',
         fontFamily: '$inter',
         color: '$homeTextTitle',
         overflow: 'hidden',
@@ -353,31 +441,41 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   return (
     <VStack
       css={{
-        width: '100%',
-        padding: '5px',
+        minWidth: '377px',
+        gap: '5px',
+        padding: '12px',
+        cursor: 'pointer',
+        bg: '$homeCardHover',
         borderRadius: '5px',
         '&:hover': {
           bg: '$homeCardHover',
           borderRadius: '0px',
         },
+        '&:hover .title-text': {
+          textDecoration: 'underline',
+        },
       }}
       onClick={(event) => {
+        const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(path, '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(path)
         }
       }}
     >
       <HStack
         distribution="start"
         alignment="center"
-        css={{ gap: '5px', lineHeight: '1' }}
+        css={{ width: '100%', gap: '5px', lineHeight: '1' }}
       >
-        <SourceInfo homeItem={props.homeItem} />
-        <TimeAgo homeItem={props.homeItem} />
+        <SourceInfo homeItem={props.homeItem} subtle={true} />
+        <SpanBox css={{ ml: 'auto' }}>
+          <TimeAgo homeItem={props.homeItem} />
+        </SpanBox>
       </HStack>
-      <Title homeItem={props.homeItem} />
+
+      <TitleSmall homeItem={props.homeItem} />
     </VStack>
   )
 }
@@ -391,18 +489,22 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         width: '100%',
         p: '0px',
         pt: '35px',
-
+        cursor: 'pointer',
         borderRadius: '5px',
         '&:hover': {
           bg: '$homeCardHover',
           borderRadius: '0px',
         },
+        '&:hover .title-text': {
+          textDecoration: 'underline',
+        },
       }}
       onClick={(event) => {
+        const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(path, '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(path)
         }
       }}
       alignment="start"
@@ -482,10 +584,11 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         },
       }}
       onClick={(event) => {
+        const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(path, '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(path)
         }
       }}
     >
@@ -511,13 +614,17 @@ const SiteIconLarge = styled('img', {
   borderRadius: '100px',
 })
 
-const SourceInfo = (props: HomeItemViewProps) => (
+type SourceInfoProps = {
+  subtle?: boolean
+}
+
+const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
   <HoverCard.Root>
     <HoverCard.Trigger asChild>
       <HStack
         distribution="start"
         alignment="center"
-        css={{ gap: '5px', cursor: 'pointer' }}
+        css={{ gap: '8px', cursor: 'pointer' }}
       >
         {props.homeItem.source.icon && (
           <SiteIconSmall
@@ -528,11 +635,10 @@ const SourceInfo = (props: HomeItemViewProps) => (
         <HStack
           css={{
             lineHeight: '1',
-            pb: '3px',
             fontFamily: '$inter',
             fontWeight: '500',
-            fontSize: '13px',
-            color: '$homeTextSource',
+            fontSize: props.subtle ? '12px' : '13px',
+            color: props.subtle ? '$homeTextSubtle' : '$homeTextSource',
             textDecoration: 'underline',
           }}
         >

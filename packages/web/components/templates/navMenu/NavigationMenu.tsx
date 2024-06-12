@@ -39,6 +39,7 @@ import { NavMoreButtonUpIcon } from '../../elements/icons/NavMoreButtonUp'
 import { ShortcutFolderClosed } from '../../elements/icons/ShortcutFolderClosed'
 import { TrashSectionIcon } from '../../elements/icons/TrashSectionIcon'
 import { ShortcutFolderOpen } from '../../elements/icons/ShortcutFolderOpen'
+import useResizeObserver from 'use-resize-observer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -356,6 +357,8 @@ const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
       </HStack>
       <Box
         css={{
+          width: '100%',
+          height: '100%',
           '[role="treeitem"]': {
             outline: 'none',
           },
@@ -456,6 +459,7 @@ const cachedShortcutsData = (): Shortcut[] | undefined => {
 
 const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
   const router = useRouter()
+  const { ref, width, height } = useResizeObserver()
 
   const { isValidating, data } = useSWR('/api/shortcuts', getShortcuts, {
     fallbackData: cachedShortcutsData(),
@@ -562,7 +566,7 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
   )
 
   return (
-    <>
+    <div ref={ref}>
       {!isValidating && (
         <Tree
           ref={props.treeRef}
@@ -575,12 +579,13 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
           onActivate={onActivate}
           rowHeight={36}
           initialOpenState={folderOpenState}
-          width={275}
+          width={width}
+          height={640}
         >
           {NodeRenderer}
         </Tree>
       )}
-    </>
+    </div>
   )
 }
 

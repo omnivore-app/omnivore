@@ -628,7 +628,7 @@ export const functionResolvers = {
 
       switch (section.layout) {
         case 'just_added':
-          return 'Just Added'
+          return 'Recently Added'
         case 'top_picks':
           return 'Top Picks'
         case 'quick_links':
