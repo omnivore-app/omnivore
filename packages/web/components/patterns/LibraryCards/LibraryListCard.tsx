@@ -100,6 +100,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           props.setIsChecked(props.item.id, !props.isChecked)
           return
         }
+        window.sessionStorage.setItem('nav-return', router.asPath)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

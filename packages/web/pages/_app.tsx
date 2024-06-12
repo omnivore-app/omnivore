@@ -42,7 +42,14 @@ const generateActions = (router: NextRouter) => {
       name: 'Go to Home (Library) ',
       shortcut: ['g', 'h'],
       keywords: 'go home',
-      perform: () => router?.push('/home'),
+      perform: () => {
+        const navReturn = window.sessionStorage.getItem('nav-return')
+        if (navReturn) {
+          router.push(navReturn)
+          return
+        }
+        router?.push('/home')
+      },
     },
     {
       id: 'lightTheme',
