@@ -436,7 +436,7 @@ export const Button = styled('button', {
         cursor: 'pointer',
         p: '5px',
         borderRadius: '5px',
-        '&:hover': { bg: '$readerHoverBg', opacity: '1' },
+        '&:hover': { bg: '$homeActionHoverBg', opacity: '1' },
       },
       menuAction: {
         display: 'flex',
