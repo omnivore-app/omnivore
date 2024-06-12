@@ -4,7 +4,7 @@ import { logger } from '../utils/logger'
 import { htmlToHighlightedMarkdown, htmlToMarkdown } from '../utils/parser'
 import { isFileExists, uploadToBucket } from '../utils/uploads'
 
-export const UPLOAD_CONTENT_JOB = 'UPLOAD_CONTENT_JOB'
+export const UPLOAD_CONTENT_JOB = 'upload-content'
 
 export type ContentFormat =
   | 'markdown'

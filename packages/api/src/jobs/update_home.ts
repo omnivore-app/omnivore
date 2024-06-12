@@ -13,7 +13,7 @@ import { findActiveUser } from '../services/user'
 import { lanaugeToCode } from '../utils/helpers'
 import { logError, logger } from '../utils/logger'
 
-export const UPDATE_HOME_JOB = 'UPDATE_HOME_JOB'
+export const UPDATE_HOME_JOB = 'update-home'
 
 export interface UpdateHomeJobData {
   userId: string
