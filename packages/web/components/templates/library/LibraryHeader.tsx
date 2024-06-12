@@ -87,7 +87,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           width: '100%',
           px: '70px',
           left: LIBRARY_LEFT_MENU_WIDTH,
-          height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
           transition: 'height 0.5s',
           '@lgDown': { px: '20px' },
           '@mdDown': {
@@ -99,10 +98,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
       >
         <LargeHeaderLayout {...props} />
       </VStack>
-
-      {/* This spacer is put in to push library content down 
-      below the fixed header height. */}
-      <HeaderSpacer />
     </>
   )
 }

@@ -114,7 +114,11 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   }, [showLogout])
 
   return (
-    <HStack css={{ width: '100vw', height: '100vh' }}>
+    <HStack
+      css={{ width: '100vw', height: '100vh' }}
+      distribution="start"
+      alignment="start"
+    >
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
