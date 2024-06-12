@@ -6,8 +6,8 @@ import {
   fetchCachedReadingPositionsAndMembers,
   reduceCachedReadingPositionMembers,
 } from '../services/cached_reading_position'
-import { logger } from '../utils/logger'
 import { updateLibraryItemReadingProgress } from '../services/library_item'
+import { logger } from '../utils/logger'
 
 export const SYNC_READ_POSITIONS_JOB_NAME = 'sync-read-positions'
 
@@ -86,6 +86,10 @@ export const syncReadPositionsJob = async (_data: any) => {
 
   const updates = getSyncUpdatesIterator(redis)
   for await (const value of updates) {
-    await syncReadPosition(value)
+    try {
+      await syncReadPosition(value)
+    } catch (error) {
+      logger.error('error syncing reading position', { error, value })
+    }
   }
 }

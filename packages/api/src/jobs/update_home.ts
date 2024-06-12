@@ -438,7 +438,7 @@ const mixHomeItems = (
 
 // use prometheus to monitor the latency of each step
 const latency = new client.Histogram({
-  name: 'update_home_latency',
+  name: 'omnivore_update_home_latency',
   help: 'Latency of update home job',
   labelNames: ['step'],
   buckets: [0.1, 0.5, 1, 2, 5, 10],
