@@ -4,6 +4,6 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.user_personalization ADD COLUMN shortcuts JSONB NULL;
+ALTER TABLE omnivore.user_personalization ADD COLUMN shortcuts JSONB DEFAULT NULL;
 
 COMMIT;
