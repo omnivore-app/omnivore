@@ -70,6 +70,7 @@ import {
 import { updateHome, UPDATE_HOME_JOB } from './jobs/update_home'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { uploadContentJob, UPLOAD_CONTENT_JOB } from './jobs/upload_content'
+import { getMetrics } from './prometheus'
 import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
@@ -258,10 +259,15 @@ const main = async () => {
     }
 
     let output = ''
-    const metrics: JobType[] = ['active', 'failed', 'completed', 'prioritized']
-    const counts = await queue.getJobCounts(...metrics)
+    const jobsTypes: JobType[] = [
+      'active',
+      'failed',
+      'completed',
+      'prioritized',
+    ]
+    const counts = await queue.getJobCounts(...jobsTypes)
 
-    metrics.forEach((metric, idx) => {
+    jobsTypes.forEach((metric, idx) => {
       output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
       output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
     })
@@ -298,7 +304,12 @@ const main = async () => {
       output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${0}\n`
     }
 
-    res.status(200).setHeader('Content-Type', 'text/plain').send(output)
+    const metrics = await getMetrics()
+
+    res
+      .status(200)
+      .setHeader('Content-Type', 'text/plain')
+      .send(output + metrics)
   })
 
   const server = app.listen(port, () => {
