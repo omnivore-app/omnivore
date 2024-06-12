@@ -227,6 +227,7 @@ export const createWorker = (connection: ConnectionOptions) =>
       connection,
       autorun: true, // start processing jobs immediately
       lockDuration: 60_000, // 1 minute
+      concurrency: 10,
     }
   )
 
