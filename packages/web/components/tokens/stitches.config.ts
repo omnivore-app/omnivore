@@ -339,7 +339,7 @@ const darkThemeSpec = {
     thLibraryMenuPrimary: '#EBEBEB',
     thLibraryMenuSecondary: '#EBEBEB',
     thLibraryMenuUnselected: 'white',
-    thLibrarySelectionColor: '#DFDFDF',
+    thLibrarySelectionColor: '#515151',
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
     thLibraryMultiselectHover: '#6A6968',
@@ -422,6 +422,7 @@ const apolloThemeSpec = {
     thNavMenuFooter: '#515151',
 
     thLibrarySelectionColor: '#515151',
+    thBackground4: '#51515166', // used on hover of nav menu items
     thBorderColor: '#6A6968',
 
     homeCardHover: '#525252',
@@ -448,6 +449,7 @@ const sepiaThemeSpec = {
     thNavMenuFooter: '#DDD6C1',
 
     thLibrarySelectionColor: '#DDD6C1',
+    thBackground4: '#DDD6C166', // used on hover of menu items
     thBorderColor: '#DDD6C1',
 
     thBackground: '#FDF6E3',

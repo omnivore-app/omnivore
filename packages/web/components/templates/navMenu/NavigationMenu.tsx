@@ -750,7 +750,6 @@ const NodeItemContents = (props: NodeItemContentsProps): JSX.Element => {
         {props.node.isClosed ? (
           <Folder
             size={20}
-            weight="fill"
             color={theme.colors.thLibraryMenuPrimary.toString()}
           />
         ) : (
