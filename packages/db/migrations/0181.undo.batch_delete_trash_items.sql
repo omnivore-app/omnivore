@@ -4,6 +4,6 @@
 
 BEGIN;
 
-DROP FUNCTION IF EXISTS batch_delete_trash_items();
+DROP PROCEDURE IF EXISTS batch_delete_trash_items();
 
 COMMIT;
