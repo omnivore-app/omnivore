@@ -40,8 +40,11 @@ export function useGetWebhookQuery(id: string): WebhookQueryResponse {
     }
   `
 
-  const { data, mutate, isValidating } = useSWR(query, makeGqlFetcher({ id }))
-  console.log('webhook data', data)
+  const { data, mutate, isValidating } = useSWR(
+    query,
+    makeGqlFetcher(query, { id }),
+    {}
+  )
 
   try {
     if (data) {

@@ -1,17 +1,17 @@
 import { useCallback, useRef, useState } from 'react'
 import * as Progress from '@radix-ui/react-progress'
-import { File, Info } from 'phosphor-react'
-import { locale, timeZone } from '../../../lib/dateFormatting'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { Button } from '../../elements/Button'
-import { FormInput } from '../../elements/FormElements'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { File, Info } from '@phosphor-icons/react'
+import { locale, timeZone } from '../../lib/dateFormatting'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { Button } from '../elements/Button'
+import { FormInput } from '../elements/FormElements'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import {
   ModalContent,
   ModalOverlay,
   ModalRoot,
-} from '../../elements/ModalPrimitives'
-import { CloseButton } from '../../elements/CloseButton'
+} from '../elements/ModalPrimitives'
+import { CloseButton } from '../elements/CloseButton'
 import { styled } from '@stitches/react'
 import Dropzone, {
   Accept,
@@ -20,17 +20,17 @@ import Dropzone, {
   FileRejection,
 } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
-import { validateCsvFile } from '../../../utils/csvValidator'
+import { validateCsvFile } from '../../utils/csvValidator'
 import {
   uploadImportFileRequestMutation,
   UploadImportFileType,
-} from '../../../lib/networking/mutations/uploadImportFileMutation'
-import { uploadFileRequestMutation } from '../../../lib/networking/mutations/uploadFileMutation'
+} from '../../lib/networking/mutations/uploadImportFileMutation'
+import { uploadFileRequestMutation } from '../../lib/networking/mutations/uploadFileMutation'
 import axios from 'axios'
-import { theme } from '../../tokens/stitches.config'
-import { formatMessage } from '../../../locales/en/messages'
-import { subscribeMutation } from '../../../lib/networking/mutations/subscribeMutation'
-import { SubscriptionType } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
+import { theme } from '../tokens/stitches.config'
+import { formatMessage } from '../../locales/en/messages'
+import { subscribeMutation } from '../../lib/networking/mutations/subscribeMutation'
+import { SubscriptionType } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 
 type TabName = 'link' | 'feed' | 'opml' | 'pdf' | 'import'
 

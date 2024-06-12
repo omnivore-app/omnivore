@@ -13,7 +13,7 @@ import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 import Link from 'next/link'
-import { CaretLeft } from 'phosphor-react'
+import { CaretLeft } from '@phosphor-icons/react'
 
 type SettingsLayoutProps = {
   title?: string

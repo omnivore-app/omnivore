@@ -17,7 +17,12 @@ import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { StyledText } from '../../components/elements/StyledText'
-import { ArrowClockwise, DotsThree, PencilSimple, Trash } from 'phosphor-react'
+import {
+  ArrowClockwise,
+  DotsThree,
+  PencilSimple,
+  Trash,
+} from '@phosphor-icons/react'
 import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'

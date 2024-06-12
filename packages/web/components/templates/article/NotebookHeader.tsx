@@ -1,6 +1,6 @@
 import { HStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
-import { Sidebar } from 'phosphor-react'
+import { Sidebar } from '@phosphor-icons/react'
 import { theme } from '../../tokens/stitches.config'
 import { Button } from '../../elements/Button'
 import { ExportIcon } from '../../elements/icons/ExportIcon'

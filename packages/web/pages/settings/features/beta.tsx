@@ -1,4 +1,4 @@
-import { Spinner } from 'phosphor-react'
+import { Spinner } from '@phosphor-icons/react'
 import { useCallback, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../../components/elements/Button'

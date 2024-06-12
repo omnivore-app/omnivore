@@ -1,16 +1,16 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo, useState } from 'react'
-import { Button } from '../../components/elements/Button'
-import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
-import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
-import { CommentActionIcon } from '../../components/elements/icons/home/CommentActionIcon'
-import { RemoveActionIcon } from '../../components/elements/icons/home/RemoveActionIcon'
-import { ShareActionIcon } from '../../components/elements/icons/home/ShareActionIcon'
-import Pagination from '../../components/elements/Pagination'
-import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
-import { theme } from '../../components/tokens/stitches.config'
+import { useMemo, useState } from 'react'
+import { Button } from '../elements/Button'
+import { AddToLibraryActionIcon } from '../elements/icons/home/AddToLibraryActionIcon'
+import { ArchiveActionIcon } from '../elements/icons/home/ArchiveActionIcon'
+import { CommentActionIcon } from '../elements/icons/home/CommentActionIcon'
+import { RemoveActionIcon } from '../elements/icons/home/RemoveActionIcon'
+import { ShareActionIcon } from '../elements/icons/home/ShareActionIcon'
+import Pagination from '../elements/Pagination'
+import { timeAgo } from '../patterns/LibraryCards/LibraryCardStyles'
+import { theme } from '../tokens/stitches.config'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { useGetHiddenHomeSection } from '../../lib/networking/queries/useGetHiddenHomeSection'
 import {
@@ -24,20 +24,10 @@ import {
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import {
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from './../../components/elements/LayoutPrimitives'
-import { List, ThumbsDown, ThumbsUp } from 'phosphor-react'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
-import { DEFAULT_HEADER_HEIGHT } from '../../components/templates/homeFeed/HeaderSpacer'
-import { NavigationMenu } from '../../components/templates/navMenu/NavigationMenu'
 
-export default function Home(): JSX.Element {
-  const [showLeftMenu, setShowLeftMenu] = useState(false)
+export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
   useApplyLocalTheme()
 
@@ -53,24 +43,6 @@ export default function Home(): JSX.Element {
       }}
     >
       <Toaster />
-      <Header
-        toggleMenu={() => {
-          setShowLeftMenu(!showLeftMenu)
-        }}
-      />
-      {showLeftMenu && (
-        <NavigationMenu
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          setShowAddLinkModal={() => {}}
-          searchTerm={''}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          applySearchQuery={(searchQuery: string) => {}}
-          showFilterMenu={showLeftMenu}
-          setShowFilterMenu={(show) => {
-            setShowLeftMenu(show)
-          }}
-        />
-      )}
       <VStack
         distribution="start"
         css={{
@@ -142,12 +114,11 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontFamily: '$inter',
           fontSize: '16px',
           fontWeight: '600',
-          color: '$readerText',
+          color: '$homeTextTitle',
         }}
       >
         {props.homeSection.title}
       </SpanBox>
-
       {props.homeSection.items.map((homeItem) => {
         return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
       })}
@@ -169,7 +140,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontFamily: '$inter',
           fontSize: '16px',
           fontWeight: '600',
-          color: '$readerText',
+          color: '$homeTextTitle',
         }}
       >
         {props.homeSection.title}
@@ -252,7 +223,7 @@ const HiddenHomeSection = (props: HomeSectionProps): JSX.Element => {
             fontFamily: '$inter',
             fontSize: '16px',
             fontWeight: '600',
-            color: '$readerText',
+            color: '$homeTextTitle',
           }}
         >
           {props.homeSection.title}
@@ -319,7 +290,7 @@ const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
         fontSize: '12px',
         fontWeight: 'medium',
         fontFamily: '$inter',
-        color: '$readerTextSubtle',
+        color: '$homeTextSubtle',
       }}
     >
       {timeAgo(props.homeItem.date)}
@@ -337,7 +308,7 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
         lineHeight: '20px',
         fontWeight: '600',
         fontFamily: '$inter',
-        color: '$readerText',
+        color: '$homeTextTitle',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
@@ -386,7 +357,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         padding: '5px',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$thBackground',
+          bg: '$homeCardHover',
           borderRadius: '0px',
         },
       }}
@@ -423,7 +394,7 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
 
         borderRadius: '5px',
         '&:hover': {
-          bg: '#323232',
+          bg: '$homeCardHover',
           borderRadius: '0px',
         },
       }}
@@ -470,22 +441,26 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       </SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         <Button style="homeAction">
-          <AddToLibraryActionIcon />
+          <AddToLibraryActionIcon
+            color={theme.colors.homeActionIcons.toString()}
+          />
         </Button>
         <Button style="homeAction">
-          <CommentActionIcon />
+          <CommentActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
         <Button style="homeAction">
-          <ShareActionIcon />
+          <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
         <Button style="homeAction">
-          <ArchiveActionIcon />
+          <ArchiveActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
         <Button style="homeAction">
-          <RemoveActionIcon />
+          <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
         </Button>
       </HStack>
-      <Box css={{ mt: '15px', width: '100%', height: '1px', bg: '#3D3D3D' }} />
+      <Box
+        css={{ mt: '15px', width: '100%', height: '1px', bg: '$homeDivider' }}
+      />
     </VStack>
   )
 }
@@ -557,7 +532,7 @@ const SourceInfo = (props: HomeItemViewProps) => (
             fontFamily: '$inter',
             fontWeight: '500',
             fontSize: '13px',
-            color: '$readerFont',
+            color: '$homeTextSource',
             textDecoration: 'underline',
           }}
         >
@@ -645,152 +620,11 @@ const SubscriptionSourceHoverContent = (
         css={{
           fontFamily: '$inter',
           fontSize: '13px',
-          color: '$thTextSubtle4',
+          color: '$homeTextBody',
         }}
       >
         {subscription ? <>{subscription.description}</> : <></>}
       </SpanBox>
-    </VStack>
-  )
-}
-
-// const SiteSourceHoverContent = (
-//   props: SourceHoverContentProps
-// ): JSX.Element => {
-//   const sendHomeFeedback = useCallback(
-//     async (feedbackType: SendHomeFeedbackType) => {
-//       const feedback: SendHomeFeedbackInput = {
-//         feedbackType,
-//       }
-//       feedback.site = props.source.name
-//       const result = await sendHomeFeedbackMutation(feedback)
-//       if (result) {
-//         showSuccessToast('Feedback sent')
-//       } else {
-//         showErrorToast('Error sending feedback')
-//       }
-//     },
-//     [props]
-//   )
-
-//   return (
-//     <VStack
-//       alignment="start"
-//       distribution="start"
-//       css={{
-//         width: '240px',
-//         height: '100px',
-//         bg: '$thBackground2',
-//         borderRadius: '10px',
-//         padding: '15px',
-//         gap: '10px',
-//         boxShadow: theme.shadows.cardBoxShadow.toString(),
-//       }}
-//     >
-//       <HStack
-//         distribution="start"
-//         alignment="center"
-//         css={{ width: '100%', gap: '10px' }}
-//       >
-//         {props.source.icon && (
-//           <SiteIcon
-//             src={props.source.icon}
-//             alt={props.source.name}
-//             size="large"
-//           />
-//         )}
-//         <SpanBox
-//           css={{
-//             fontFamily: '$inter',
-//             fontWeight: '500',
-//             fontSize: '14px',
-//           }}
-//         >
-//           {props.source.name}
-//         </SpanBox>
-//       </HStack>
-//       {/* <SpanBox
-//         css={{
-//           fontFamily: '$inter',
-//           fontSize: '13px',
-//           color: '$thTextSubtle4',
-//         }}
-//       >
-//         {subscription ? <>{subscription.description}</> : <></>}
-//       </SpanBox> */}
-//       <FeedbackView sendFeedback={sendHomeFeedback} />
-//     </VStack>
-//   )
-// }
-
-// type FeedbackViewProps = {
-//   sendFeedback: (type: SendHomeFeedbackType) => void
-// }
-
-// const FeedbackView = (props: FeedbackViewProps): JSX.Element => {
-//   return (
-//     <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
-//       <Button
-//         style="plainIcon"
-//         onClick={(event) => {
-//           props.sendFeedback('MORE')
-//           event.preventDefault()
-//           event.stopPropagation()
-//         }}
-//       >
-//         <ThumbsUp weight="fill" />
-//       </Button>
-//       <Button
-//         style="plainIcon"
-//         onClick={(event) => {
-//           props.sendFeedback('LESS')
-//           event.preventDefault()
-//           event.stopPropagation()
-//         }}
-//       >
-//         <ThumbsDown weight="fill" />
-//       </Button>
-//     </HStack>
-//   )
-// }
-
-type HeaderProps = {
-  toggleMenu: () => void
-}
-
-const Header = (props: HeaderProps): JSX.Element => {
-  const small = false
-
-  return (
-    <VStack
-      alignment="start"
-      distribution="start"
-      css={{
-        zIndex: 5,
-        position: 'fixed',
-        left: '15px',
-        top: '15px',
-        height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
-        transition: 'height 0.5s',
-        '@lgDown': { px: '20px' },
-        '@mdDown': {
-          px: '10px',
-          left: '0px',
-          right: '0',
-        },
-      }}
-    >
-      <VStack alignment="center" distribution="center">
-        <Button
-          style="plainIcon"
-          onClick={(event) => {
-            props.toggleMenu()
-            event.preventDefault()
-          }}
-        >
-          <List size="25" color={theme.colors.readerTextSubtle.toString()} />
-        </Button>
-      </VStack>
     </VStack>
   )
 }

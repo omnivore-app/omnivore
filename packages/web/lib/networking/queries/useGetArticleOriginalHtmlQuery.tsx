@@ -49,7 +49,8 @@ export function useGetArticleOriginalHtmlQuery({
 
   const { data } = useSWRImmutable(
     slug ? [query, username, slug] : null,
-    makeGqlFetcher(variables)
+    makeGqlFetcher(query, variables),
+    {}
   )
 
   const resultData: ArticleData | undefined = data as ArticleData

@@ -5,7 +5,7 @@ import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
-import { FunnelSimple, X } from 'phosphor-react'
+import { FunnelSimple, X } from '@phosphor-icons/react'
 import { LayoutType, LibraryMode } from './HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
@@ -63,7 +63,7 @@ export const headerControlWidths = (
   }
 }
 
-export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
+export function LegacyLibraryHeader(props: LibraryHeaderProps): JSX.Element {
   const [small, setSmall] = useState(false)
 
   useEffect(() => {
@@ -88,7 +88,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           right: '0',
           zIndex: 5,
           px: '70px',
-          bg: '$thLibraryBackground',
           position: 'fixed',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,

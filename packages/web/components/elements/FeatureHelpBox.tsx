@@ -3,7 +3,7 @@ import { theme } from '../tokens/stitches.config'
 import { Button } from './Button'
 import { CloseIcon } from './icons/CloseIcon'
 import { HelpfulSlothImage } from './images/HelpfulSlothImage'
-import { ArrowSquareOut } from 'phosphor-react'
+import { ArrowSquareOut } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 
 type FeatureHelpBoxProps = {

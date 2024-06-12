@@ -142,13 +142,11 @@ export const recommendationFragment = gql`
   }
 `
 
-export function useGetLibraryItemsQuery({
-  limit,
-  sortDescending,
-  searchQuery,
-  cursor,
-  includeContent = false,
-}: LibraryItemsQueryInput): LibraryItemsQueryResponse {
+export function useGetLibraryItemsQuery(
+  folder: string,
+  { limit, searchQuery, cursor, includeContent = false }: LibraryItemsQueryInput
+): LibraryItemsQueryResponse {
+  const fullQuery = (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
   const query = gql`
     query Search(
       $after: String
@@ -236,28 +234,27 @@ export function useGetLibraryItemsQuery({
   const variables = {
     after: cursor,
     first: limit,
-    query: searchQuery,
+    query: fullQuery,
     includeContent,
   }
 
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
     (pageIndex, previousPageData) => {
-      const key = [query, limit, sortDescending, searchQuery, undefined]
+      const key = [query, variables.first, variables.query, undefined]
       const previousResult = previousPageData as LibraryItemsData
-
       if (pageIndex === 0) {
         return key
       }
       return [
         query,
         limit,
-        sortDescending,
         searchQuery,
         pageIndex === 0 ? undefined : previousResult.search.pageInfo.endCursor,
       ]
     },
-    (_query, _l, _s, _sq, cursor) => {
-      return gqlFetcher(query, { ...variables, after: cursor }, true)
+    (args: any[]) => {
+      const pageIndex = args[4] as number
+      return gqlFetcher(query, { ...variables, after: pageIndex }, true)
     },
     { revalidateFirstPage: false }
   )

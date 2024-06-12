@@ -24,7 +24,8 @@ export function useValidateUsernameQuery({
   // Don't fetch if username is empty
   const { data, error, isValidating } = useSWR(
     username ? [query, username] : null,
-    makePublicGqlFetcher({ username })
+    makePublicGqlFetcher(query, { username }),
+    {}
   )
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

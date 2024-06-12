@@ -99,7 +99,7 @@ export default function Account(): JSX.Element {
     isUsernameValidationLoading,
   ])
 
-  const { itemsPages, isValidating } = useGetLibraryItemsQuery({
+  const { itemsPages, isValidating } = useGetLibraryItemsQuery('', {
     limit: 0,
     searchQuery: 'in:all',
     sortDescending: false,

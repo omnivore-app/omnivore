@@ -22,10 +22,13 @@ import {
   siteName,
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { DiscoverItemCardProps, DiscoverItemSubCardProps } from "./DiscoverItemCard"
+import {
+  DiscoverItemCardProps,
+  DiscoverItemSubCardProps,
+} from './DiscoverItemCard'
 import { DiscoverItemMetadata } from './DiscoverItemMetadata'
 import { DiscoverHoverActions } from './DiscoverHoverActions'
-import { CheckCircle, Circle } from 'phosphor-react'
+import { CheckCircle, Circle } from '@phosphor-icons/react'
 
 export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -100,7 +103,12 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
           />
         </Box>
       )}
-      <DiscoverGridCardContent {...props} savedId={props.savedId} savedUrl={props.savedUrl} isHovered={isHovered} />
+      <DiscoverGridCardContent
+        {...props}
+        savedId={props.savedId}
+        savedUrl={props.savedUrl}
+        isHovered={isHovered}
+      />
     </VStack>
   )
 }
@@ -122,7 +130,15 @@ const DiscoverGridCardContent = (
   }
 
   return (
-    <VStack css={{ p: '0px', m: '0px', width: '100%', cursor: props.savedId ? 'pointer' : 'default' }} onClick={goToUrl} >
+    <VStack
+      css={{
+        p: '0px',
+        m: '0px',
+        width: '100%',
+        cursor: props.savedId ? 'pointer' : 'default',
+      }}
+      onClick={goToUrl}
+    >
       <Box css={{ position: 'relative', width: '100%', height: '150px' }}>
         <>
           <HStack
@@ -161,7 +177,7 @@ const DiscoverGridCardContent = (
               height="150px"
               css={{
                 bg: '$thBackground',
-                cursor: props.savedId ? 'pointer' : 'default'
+                cursor: props.savedId ? 'pointer' : 'default',
               }}
               onError={(e) => {
                 setDisplayFallback(true)

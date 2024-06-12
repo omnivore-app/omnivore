@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Moon, Sun } from 'phosphor-react'
+import { Moon, Sun } from '@phosphor-icons/react'
 import { ReactNode, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { Avatar } from '../elements/Avatar'
@@ -20,8 +20,6 @@ import { ThemeSelector } from './article/ReaderSettingsControl'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
-  showThemeSection: boolean
-  showFullThemeSection: boolean
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
@@ -194,8 +192,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         </VStack>
       </HStack>
       <DropdownSeparator />
-      {props.showThemeSection && <LegacyMenuThemeSection {...props} />}
-      {props.showFullThemeSection && <ThemeSection {...props} />}
+      <ThemeSection {...props} />
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}
         title="Install"

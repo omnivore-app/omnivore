@@ -87,7 +87,7 @@ export function useGetArticleSavingStatus({
   `
   const key = id ? [query, id] : [query, url]
   // poll twice a second
-  const { data, error } = useSWR(key, makeGqlFetcher({ id, url }), {
+  const { data, error } = useSWR(key, makeGqlFetcher(query, { id, url }), {
     refreshInterval: 500,
   })
 

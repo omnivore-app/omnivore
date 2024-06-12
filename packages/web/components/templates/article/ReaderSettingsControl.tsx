@@ -8,7 +8,7 @@ import {
   CaretLeft,
   CaretRight,
   Check,
-} from 'phosphor-react'
+} from '@phosphor-icons/react'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'

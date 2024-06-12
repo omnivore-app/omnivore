@@ -15,7 +15,7 @@ import Dropzone from 'react-dropzone'
 
 import { SyncLoader } from 'react-spinners'
 import { theme } from '../../../components/tokens/stitches.config'
-import { Tray } from 'phosphor-react'
+import { Tray } from '@phosphor-icons/react'
 
 type UploadState = 'none' | 'uploading' | 'completed'
 
