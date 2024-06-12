@@ -146,7 +146,7 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
           filter:
             subscription.type == 'NEWSLETTER'
               ? `in:following subscription:"${subscription.name}"`
-              : `in:following rss:"${subscription.url}"`,
+              : `in:following rss:"${subscription.url ?? ''}"`,
         }
       }),
     },
