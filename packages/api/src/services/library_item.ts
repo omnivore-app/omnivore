@@ -1779,3 +1779,6 @@ export const downloadOriginalContent = async (
     })
   )
 }
+
+export const pruneTrash = async () =>
+  appDataSource.query(`CALL omnivore.batch_delete_trash_items();`)

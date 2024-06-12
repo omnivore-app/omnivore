@@ -41,6 +41,7 @@ import {
   PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
 } from '../jobs/process-youtube-video'
+import { PRUNE_TRASH_JOB } from '../jobs/prune_trash'
 import {
   queueRSSRefreshFeedJob,
   REFRESH_ALL_FEEDS_JOB_NAME,
@@ -112,6 +113,7 @@ export const getJobPriority = (jobName: string): number => {
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
     case GENERATE_PREVIEW_CONTENT_JOB:
+    case PRUNE_TRASH_JOB:
       return 100
 
     default:

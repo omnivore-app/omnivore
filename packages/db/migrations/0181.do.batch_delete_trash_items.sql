@@ -4,9 +4,7 @@
 
 BEGIN;
 
-CREATE OR REPLACE PROCEDURE batch_delete_trash_items(
-    minimum_items INT
-)
+CREATE OR REPLACE PROCEDURE omnivore.batch_delete_trash_items()
 RETURNS VOID AS $$
 DECLARE
     user_record RECORD;
@@ -24,25 +22,11 @@ BEGIN
         -- For Row Level Security
         PERFORM omnivore.set_claims(user_record.id, 'omnivore_user');
 
-        -- keep the minimum number of items in trash
         DELETE FROM omnivore.library_item
         WHERE
             user_id = user_record.id
             AND state = 'DELETED'
-            AND deleted_at < NOW() - INTERVAL '14 days'
-            AND id NOT IN (
-                SELECT
-                    id
-                FROM
-                    omnivore.library_item
-                WHERE
-                    user_id = user_record.id
-                    AND state = 'DELETED'
-                    AND deleted_at < NOW() - INTERVAL '14 days'
-                ORDER BY
-                    deleted_at DESC
-                LIMIT minimum_items
-            );
+            AND deleted_at < NOW() - INTERVAL '14 days';
 
         COMMIT;
     END LOOP;
