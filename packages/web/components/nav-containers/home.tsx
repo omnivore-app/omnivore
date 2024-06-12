@@ -26,11 +26,17 @@ import {
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
-import Link from 'next/link'
+import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 
 export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
+  const { viewerData } = useGetViewerQuery()
+
   useApplyLocalTheme()
+
+  const viewerUsername = useMemo(() => {
+    return viewerData?.me?.profile.username
+  }, [viewerData])
 
   return (
     <VStack
@@ -65,6 +71,7 @@ export function HomeContainer(): JSX.Element {
                 <JustAddedHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             case 'top_picks':
@@ -72,6 +79,7 @@ export function HomeContainer(): JSX.Element {
                 <TopPicksHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             case 'quick_links':
@@ -79,6 +87,7 @@ export function HomeContainer(): JSX.Element {
                 <QuickLinksHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             case 'hidden':
@@ -86,6 +95,7 @@ export function HomeContainer(): JSX.Element {
                 <HiddenHomeSection
                   key={`section-${idx}`}
                   homeSection={homeSection}
+                  viewerUsername={viewerUsername}
                 />
               )
             default:
@@ -99,9 +109,11 @@ export function HomeContainer(): JSX.Element {
 
 type HomeSectionProps = {
   homeSection: HomeSection
+  viewerUsername: string | undefined
 }
 
 const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
+  const router = useRouter()
   return (
     <VStack
       distribution="start"
@@ -137,7 +149,7 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
           <Button
             style="link"
             onClick={(event) => {
-              // router
+              router.push('/l/library')
               event.preventDefault()
             }}
             css={{
@@ -211,7 +223,7 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       css={{
         width: '100%',
         gap: '20px',
-        bg: '#3D3D3D',
+        bg: '$thNavMenuFooter',
         py: '30px',
         px: '20px',
         borderRadius: '5px',
@@ -325,6 +337,7 @@ const CoverImage = styled('img', {
 
 type HomeItemViewProps = {
   homeItem: HomeItem
+  viewerUsername?: string | undefined
 }
 
 const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
@@ -443,10 +456,11 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         },
       }}
       onClick={(event) => {
+        const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(path, '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(path)
         }
       }}
     >
@@ -486,10 +500,11 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         },
       }}
       onClick={(event) => {
+        const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(path, '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(path)
         }
       }}
       alignment="start"
@@ -569,10 +584,11 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         },
       }}
       onClick={(event) => {
+        const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
         if (event.metaKey || event.ctrlKey) {
-          window.open(props.homeItem.url, '_blank')
+          window.open(path, '_blank')
         } else {
-          router.push(props.homeItem.url)
+          router.push(path)
         }
       }}
     >
