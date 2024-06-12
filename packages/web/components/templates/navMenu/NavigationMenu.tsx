@@ -20,6 +20,7 @@ import {
   ArrowDown,
   CaretDown,
   CaretUp,
+  Archive,
 } from '@phosphor-icons/react'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
@@ -49,6 +50,11 @@ import { ToggleCaretLeftIcon } from '../../elements/icons/ToggleCaretLeftIcon'
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { ArchiveActionIcon } from '../../elements/icons/home/ArchiveActionIcon'
+import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
+import { ArchiveSectionIcon } from '../../elements/icons/ArchiveSectionIcon'
+import { NavMoreButtonDownIcon } from '../../elements/icons/NavMoreButtonDown'
+import { NavMoreButtonUpIcon } from '../../elements/icons/NavMoreButtonUp'
+import { ShortcutFolderClosed } from '../../elements/icons/ShortcutFolderClosed'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -227,9 +233,22 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         style="articleActionIcon"
         css={{
           display: 'flex',
-          ml: '15px',
           width: '100%',
+
+          gap: '10px',
+          maxWidth: '100%',
+          height: '34px',
+          px: '15px',
+
+          fontSize: '15px',
+          fontWeight: 'regular',
+          fontFamily: '$display',
+
+          color: '$thLibraryMenuUnselected',
+
           '&:hover': {
+            opacity: '1',
+            color: '$thLibraryMenuUnselected',
             backgroundColor: '$thBackground4',
           },
         }}
@@ -238,11 +257,19 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
           event.preventDefault()
         }}
       >
-        <HStack css={{ gap: '20px' }}>
+        <HStack
+          css={{ gap: '10px', width: '100%' }}
+          alignment="center"
+          distribution="start"
+        >
           {moreFoldersOpenState ? (
-            <CaretUp size={12} />
+            <NavMoreButtonUpIcon
+              color={theme.colors.thLibraryMenuPrimary.toString()}
+            />
           ) : (
-            <CaretDown size={12} />
+            <NavMoreButtonDownIcon
+              color={theme.colors.thLibraryMenuPrimary.toString()}
+            />
           )}
           <SpanBox>More</SpanBox>
         </HStack>
@@ -254,14 +281,20 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
             text="Archive"
             section="archive"
             isSelected={props.section == 'archive'}
-            icon={<ArchiveActionIcon color="#F59932" />}
+            icon={
+              <ArchiveSectionIcon
+                color={theme.colors.thLibraryMenuPrimary.toString()}
+              />
+            }
           />
           <NavButton
             {...props}
             text="Trash"
             section="trash"
             isSelected={props.section == 'trash'}
-            icon={<TrashIcon color={theme.colors.highlight.toString()} />}
+            icon={
+              <TrashIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+            }
           />
         </SpanBox>
       )}
@@ -748,8 +781,7 @@ const NodeItemContents = (props: NodeItemContentsProps): JSX.Element => {
         }}
       >
         {props.node.isClosed ? (
-          <Folder
-            size={20}
+          <ShortcutFolderClosed
             color={theme.colors.thLibraryMenuPrimary.toString()}
           />
         ) : (

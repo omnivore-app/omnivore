@@ -20,8 +20,6 @@ import { ThemeSelector } from './article/ReaderSettingsControl'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
-  showThemeSection: boolean
-  showFullThemeSection: boolean
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
@@ -194,8 +192,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         </VStack>
       </HStack>
       <DropdownSeparator />
-      {props.showThemeSection && <LegacyMenuThemeSection {...props} />}
-      {props.showFullThemeSection && <ThemeSection {...props} />}
+      <ThemeSection {...props} />
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-install')}
         title="Install"

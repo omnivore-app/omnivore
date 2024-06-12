@@ -29,10 +29,7 @@ export const NavMenuFooter = (props: NavMenuFooterProps): JSX.Element => {
         },
       }}
     >
-      <PrimaryDropdown
-        showThemeSection={!props.showFullThemeSection ?? true}
-        showFullThemeSection={props.showFullThemeSection ?? false}
-      />
+      <PrimaryDropdown />
       <SpanBox
         css={{
           marginLeft: 'auto',
