@@ -926,6 +926,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         px: '20px',
         py: '20px',
         width: '100%',
+        '@mdDown': {
+          px: '0px',
+        },
       }}
       distribution="start"
       alignment="start"
@@ -1188,6 +1191,10 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         px: '70px',
         '@lgDown': {
           px: '10px',
+        },
+        '@mdDown': {
+          px: '0px',
+          gap: '0px',
         },
         gridTemplateColumns:
           props.layout == 'LIST_LAYOUT'
