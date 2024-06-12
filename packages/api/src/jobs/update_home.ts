@@ -444,9 +444,9 @@ const latency = new client.Histogram({
   buckets: [0.1, 0.5, 1, 2, 5, 10],
 })
 
-registerMetric(latency)
-
 latency.observe(10)
+
+registerMetric(latency)
 
 export const updateHome = async (data: UpdateHomeJobData) => {
   const { userId, cursor } = data
