@@ -26,6 +26,7 @@ import {
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
+import Link from 'next/link'
 
 export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
@@ -47,7 +48,7 @@ export function HomeContainer(): JSX.Element {
         distribution="start"
         css={{
           width: '646px',
-          gap: '40px',
+          gap: '50px',
           minHeight: '100vh',
           '@mdDown': {
             width: '100%',
@@ -109,19 +110,64 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
         gap: '20px',
       }}
     >
-      <SpanBox
-        css={{
-          fontFamily: '$inter',
-          fontSize: '16px',
-          fontWeight: '600',
-          color: '$homeTextTitle',
-        }}
+      <HStack
+        css={{ width: '100%', lineHeight: '1' }}
+        distribution="start"
+        alignment="start"
       >
-        {props.homeSection.title}
-      </SpanBox>
-      {props.homeSection.items.map((homeItem) => {
-        return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
-      })}
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '$homeTextTitle',
+          }}
+        >
+          {props.homeSection.title}
+        </SpanBox>
+        <SpanBox
+          css={{
+            ml: 'auto',
+            fontFamily: '$inter',
+            fontSize: '13px',
+            fontWeight: '400',
+            color: '$homeTextTitle',
+          }}
+        >
+          <Button
+            style="link"
+            onClick={(event) => {
+              // router
+              event.preventDefault()
+            }}
+            css={{
+              '&:hover': {
+                textDecoration: 'underline',
+              },
+            }}
+          >
+            View All
+          </Button>
+        </SpanBox>
+      </HStack>
+      <HStack
+        css={{
+          width: '100%',
+          lineHeight: '1',
+          overflow: 'scroll',
+          gap: '25px',
+          scrollbarWidth: 'none',
+          '::-webkit-scrollbar': {
+            display: 'none',
+          },
+        }}
+        distribution="start"
+        alignment="start"
+      >
+        {props.homeSection.items.map((homeItem) => {
+          return <JustAddedItemView key={homeItem.id} homeItem={homeItem} />
+        })}
+      </HStack>
     </VStack>
   )
 }
@@ -301,12 +347,41 @@ const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
 const Title = (props: HomeItemViewProps): JSX.Element => {
   return (
     <HStack
+      className="title-text"
       distribution="start"
       alignment="center"
       css={{
         fontSize: '16px',
         lineHeight: '20px',
         fontWeight: '600',
+        fontFamily: '$inter',
+        color: '$homeTextTitle',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        wordBreak: 'break-word',
+        display: '-webkit-box',
+        '-webkit-line-clamp': '3',
+        '-webkit-box-orient': 'vertical',
+        '&:title-text': {
+          transition: 'text-decoration 0.3s ease',
+        },
+      }}
+    >
+      {props.homeItem.title}
+    </HStack>
+  )
+}
+
+const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
+  return (
+    <HStack
+      className="title-text"
+      distribution="start"
+      alignment="center"
+      css={{
+        fontSize: '13px',
+        lineHeight: '26px',
+        fontWeight: '500',
         fontFamily: '$inter',
         color: '$homeTextTitle',
         overflow: 'hidden',
@@ -353,12 +428,18 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   return (
     <VStack
       css={{
-        width: '100%',
-        padding: '5px',
+        minWidth: '377px',
+        gap: '5px',
+        padding: '12px',
+        cursor: 'pointer',
+        bg: '$homeCardHover',
         borderRadius: '5px',
         '&:hover': {
           bg: '$homeCardHover',
           borderRadius: '0px',
+        },
+        '&:hover .title-text': {
+          textDecoration: 'underline',
         },
       }}
       onClick={(event) => {
@@ -372,12 +453,15 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
       <HStack
         distribution="start"
         alignment="center"
-        css={{ gap: '5px', lineHeight: '1' }}
+        css={{ width: '100%', gap: '5px', lineHeight: '1' }}
       >
-        <SourceInfo homeItem={props.homeItem} />
-        <TimeAgo homeItem={props.homeItem} />
+        <SourceInfo homeItem={props.homeItem} subtle={true} />
+        <SpanBox css={{ ml: 'auto' }}>
+          <TimeAgo homeItem={props.homeItem} />
+        </SpanBox>
       </HStack>
-      <Title homeItem={props.homeItem} />
+
+      <TitleSmall homeItem={props.homeItem} />
     </VStack>
   )
 }
@@ -391,11 +475,14 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         width: '100%',
         p: '0px',
         pt: '35px',
-
+        cursor: 'pointer',
         borderRadius: '5px',
         '&:hover': {
           bg: '$homeCardHover',
           borderRadius: '0px',
+        },
+        '&:hover .title-text': {
+          textDecoration: 'underline',
         },
       }}
       onClick={(event) => {
@@ -511,13 +598,17 @@ const SiteIconLarge = styled('img', {
   borderRadius: '100px',
 })
 
-const SourceInfo = (props: HomeItemViewProps) => (
+type SourceInfoProps = {
+  subtle?: boolean
+}
+
+const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
   <HoverCard.Root>
     <HoverCard.Trigger asChild>
       <HStack
         distribution="start"
         alignment="center"
-        css={{ gap: '5px', cursor: 'pointer' }}
+        css={{ gap: '8px', cursor: 'pointer' }}
       >
         {props.homeItem.source.icon && (
           <SiteIconSmall
@@ -528,11 +619,10 @@ const SourceInfo = (props: HomeItemViewProps) => (
         <HStack
           css={{
             lineHeight: '1',
-            pb: '3px',
             fontFamily: '$inter',
             fontWeight: '500',
-            fontSize: '13px',
-            color: '$homeTextSource',
+            fontSize: props.subtle ? '12px' : '13px',
+            color: props.subtle ? '$homeTextSubtle' : '$homeTextSource',
             textDecoration: 'underline',
           }}
         >
