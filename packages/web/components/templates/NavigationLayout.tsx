@@ -128,11 +128,8 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
           section={props.section}
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           setShowAddLinkModal={() => {}}
-          searchTerm=""
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          applySearchQuery={() => {}}
-          showFilterMenu={showNavMenu}
-          setShowFilterMenu={setShowNavMenu}
+          showMenu={showNavMenu}
+          setShowMenu={setShowNavMenu}
         />
       )}
       {props.children}
@@ -185,6 +182,7 @@ const Header = (props: HeaderProps): JSX.Element => {
             props.toggleMenu()
             event.preventDefault()
           }}
+          css={{ height: 'unset' }}
         >
           <List size="25" color={theme.colors.readerTextSubtle.toString()} />
         </Button>

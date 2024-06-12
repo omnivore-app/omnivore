@@ -2,15 +2,15 @@ import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { useMemo, useState } from 'react'
-import { Button } from '../../components/elements/Button'
-import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
-import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
-import { CommentActionIcon } from '../../components/elements/icons/home/CommentActionIcon'
-import { RemoveActionIcon } from '../../components/elements/icons/home/RemoveActionIcon'
-import { ShareActionIcon } from '../../components/elements/icons/home/ShareActionIcon'
-import Pagination from '../../components/elements/Pagination'
-import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
-import { theme } from '../../components/tokens/stitches.config'
+import { Button } from '../elements/Button'
+import { AddToLibraryActionIcon } from '../elements/icons/home/AddToLibraryActionIcon'
+import { ArchiveActionIcon } from '../elements/icons/home/ArchiveActionIcon'
+import { CommentActionIcon } from '../elements/icons/home/CommentActionIcon'
+import { RemoveActionIcon } from '../elements/icons/home/RemoveActionIcon'
+import { ShareActionIcon } from '../elements/icons/home/ShareActionIcon'
+import Pagination from '../elements/Pagination'
+import { timeAgo } from '../patterns/LibraryCards/LibraryCardStyles'
+import { theme } from '../tokens/stitches.config'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { useGetHiddenHomeSection } from '../../lib/networking/queries/useGetHiddenHomeSection'
 import {
@@ -24,83 +24,75 @@ import {
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import {
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from './../../components/elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
-import { NavigationLayout } from '../../components/templates/NavigationLayout'
 
-export default function Home(): JSX.Element {
+export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
   useApplyLocalTheme()
 
   return (
-    <NavigationLayout section="home">
+    <VStack
+      distribution="start"
+      alignment="center"
+      css={{
+        width: '100%',
+        bg: '$readerBg',
+        pt: '45px',
+        minHeight: '100vh',
+      }}
+    >
+      <Toaster />
       <VStack
         distribution="start"
-        alignment="center"
         css={{
-          width: '100%',
-          bg: '$readerBg',
-          pt: '45px',
+          width: '646px',
+          gap: '40px',
           minHeight: '100vh',
+          '@mdDown': {
+            width: '100%',
+          },
         }}
       >
-        <Toaster />
-        <VStack
-          distribution="start"
-          css={{
-            width: '646px',
-            gap: '40px',
-            minHeight: '100vh',
-            '@mdDown': {
-              width: '100%',
-            },
-          }}
-        >
-          {homeData.sections?.map((homeSection, idx) => {
-            if (homeSection.items.length < 1) {
+        {homeData.sections?.map((homeSection, idx) => {
+          if (homeSection.items.length < 1) {
+            return <></>
+          }
+          switch (homeSection.layout) {
+            case 'just_added':
+              return (
+                <JustAddedHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
+            case 'top_picks':
+              return (
+                <TopPicksHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
+            case 'quick_links':
+              return (
+                <QuickLinksHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
+            case 'hidden':
+              return (
+                <HiddenHomeSection
+                  key={`section-${idx}`}
+                  homeSection={homeSection}
+                />
+              )
+            default:
               return <></>
-            }
-            switch (homeSection.layout) {
-              case 'just_added':
-                return (
-                  <JustAddedHomeSection
-                    key={`section-${idx}`}
-                    homeSection={homeSection}
-                  />
-                )
-              case 'top_picks':
-                return (
-                  <TopPicksHomeSection
-                    key={`section-${idx}`}
-                    homeSection={homeSection}
-                  />
-                )
-              case 'quick_links':
-                return (
-                  <QuickLinksHomeSection
-                    key={`section-${idx}`}
-                    homeSection={homeSection}
-                  />
-                )
-              case 'hidden':
-                return (
-                  <HiddenHomeSection
-                    key={`section-${idx}`}
-                    homeSection={homeSection}
-                  />
-                )
-              default:
-                return <></>
-            }
-          })}
-        </VStack>
+          }
+        })}
       </VStack>
-    </NavigationLayout>
+    </VStack>
   )
 }
 
@@ -636,103 +628,3 @@ const SubscriptionSourceHoverContent = (
     </VStack>
   )
 }
-
-// const SiteSourceHoverContent = (
-//   props: SourceHoverContentProps
-// ): JSX.Element => {
-//   const sendHomeFeedback = useCallback(
-//     async (feedbackType: SendHomeFeedbackType) => {
-//       const feedback: SendHomeFeedbackInput = {
-//         feedbackType,
-//       }
-//       feedback.site = props.source.name
-//       const result = await sendHomeFeedbackMutation(feedback)
-//       if (result) {
-//         showSuccessToast('Feedback sent')
-//       } else {
-//         showErrorToast('Error sending feedback')
-//       }
-//     },
-//     [props]
-//   )
-
-//   return (
-//     <VStack
-//       alignment="start"
-//       distribution="start"
-//       css={{
-//         width: '240px',
-//         height: '100px',
-//         bg: '$thBackground2',
-//         borderRadius: '10px',
-//         padding: '15px',
-//         gap: '10px',
-//         boxShadow: theme.shadows.cardBoxShadow.toString(),
-//       }}
-//     >
-//       <HStack
-//         distribution="start"
-//         alignment="center"
-//         css={{ width: '100%', gap: '10px' }}
-//       >
-//         {props.source.icon && (
-//           <SiteIcon
-//             src={props.source.icon}
-//             alt={props.source.name}
-//             size="large"
-//           />
-//         )}
-//         <SpanBox
-//           css={{
-//             fontFamily: '$inter',
-//             fontWeight: '500',
-//             fontSize: '14px',
-//           }}
-//         >
-//           {props.source.name}
-//         </SpanBox>
-//       </HStack>
-//       {/* <SpanBox
-//         css={{
-//           fontFamily: '$inter',
-//           fontSize: '13px',
-//           color: '$thTextSubtle4',
-//         }}
-//       >
-//         {subscription ? <>{subscription.description}</> : <></>}
-//       </SpanBox> */}
-//       <FeedbackView sendFeedback={sendHomeFeedback} />
-//     </VStack>
-//   )
-// }
-
-// type FeedbackViewProps = {
-//   sendFeedback: (type: SendHomeFeedbackType) => void
-// }
-
-// const FeedbackView = (props: FeedbackViewProps): JSX.Element => {
-//   return (
-//     <HStack css={{ ml: 'auto', mt: 'auto', gap: '5px' }}>
-//       <Button
-//         style="plainIcon"
-//         onClick={(event) => {
-//           props.sendFeedback('MORE')
-//           event.preventDefault()
-//           event.stopPropagation()
-//         }}
-//       >
-//         <ThumbsUp weight="fill" />
-//       </Button>
-//       <Button
-//         style="plainIcon"
-//         onClick={(event) => {
-//           props.sendFeedback('LESS')
-//           event.preventDefault()
-//           event.stopPropagation()
-//         }}
-//       >
-//         <ThumbsDown weight="fill" />
-//       </Button>
-//     </HStack>
-//   )
-// }

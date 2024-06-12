@@ -2,7 +2,6 @@ import {
   CSSProperties,
   ReactNode,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -10,22 +9,10 @@ import {
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import {
-  DotsThree,
-  List,
-  X,
-  Folder,
-  FolderOpen,
-  Tag,
-  ArrowDown,
-  CaretDown,
-  CaretUp,
-  Archive,
-} from '@phosphor-icons/react'
+import { DotsThree, List, X, Tag } from '@phosphor-icons/react'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import Link from 'next/link'
 import { NavMenuFooter } from './Footer'
 import { FollowingIcon } from '../../elements/icons/FollowingIcon'
 import { HomeIcon } from '../../elements/icons/HomeIcon'
@@ -46,15 +33,12 @@ import { requestHeaders } from '../../../lib/networking/networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { OpenMap } from 'react-arborist/dist/module/state/open-slice'
-import { ToggleCaretLeftIcon } from '../../elements/icons/ToggleCaretLeftIcon'
-import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
-import { TrashIcon } from '../../elements/icons/TrashIcon'
-import { ArchiveActionIcon } from '../../elements/icons/home/ArchiveActionIcon'
-import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { ArchiveSectionIcon } from '../../elements/icons/ArchiveSectionIcon'
 import { NavMoreButtonDownIcon } from '../../elements/icons/NavMoreButtonDown'
 import { NavMoreButtonUpIcon } from '../../elements/icons/NavMoreButtonUp'
 import { ShortcutFolderClosed } from '../../elements/icons/ShortcutFolderClosed'
+import { TrashSectionIcon } from '../../elements/icons/TrashSectionIcon'
+import { ShortcutFolderOpen } from '../../elements/icons/ShortcutFolderOpen'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -74,19 +58,16 @@ export type Shortcut = {
   join?: string
 }
 
-type LibraryFilterMenuProps = {
+type NavigationMenuProps = {
   section: NavigationSection
 
   setShowAddLinkModal: (show: boolean) => void
 
-  searchTerm: string | undefined
-  applySearchQuery: (searchTerm: string) => void
-
-  showFilterMenu: boolean
-  setShowFilterMenu: (show: boolean) => void
+  showMenu: boolean
+  setShowMenu: (show: boolean) => void
 }
 
-export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
+export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
   return (
     <>
       <Box
@@ -105,8 +86,8 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
           '@mdDown': {
             width: '100%',
             transition: 'top 100ms, visibility 100ms',
-            top: props.showFilterMenu ? '0' : '100%',
-            visibility: props.showFilterMenu ? 'visible' : 'hidden',
+            top: props.showMenu ? '0' : '100%',
+            visibility: props.showMenu ? 'visible' : 'hidden',
           },
           zIndex: 10,
         }}
@@ -129,7 +110,7 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
             <Button
               style="plainIcon"
               onClick={(event) => {
-                props.setShowFilterMenu(false)
+                props.setShowMenu(false)
                 event.preventDefault()
               }}
             >
@@ -152,7 +133,7 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
               },
             }}
             onClick={(event) => {
-              props.setShowFilterMenu(false)
+              props.setShowMenu(false)
               event.preventDefault()
             }}
           >
@@ -180,12 +161,12 @@ export function NavigationMenu(props: LibraryFilterMenuProps): JSX.Element {
   )
 }
 
-const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
-  const [moreFoldersOpenState, setMoreFoldersOpenState] =
+const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
+  const [moreFolderSectionOpen, setMoreFolderSectionOpen] =
     usePersistedState<boolean>({
-      key: 'nav-menu-more-folders-open',
+      key: 'nav-more-folder-open',
       isSessionStorage: false,
-      initialValue: false,
+      initialValue: true,
     })
   return (
     <VStack
@@ -253,7 +234,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
           },
         }}
         onClick={(event) => {
-          setMoreFoldersOpenState(!moreFoldersOpenState)
+          setMoreFolderSectionOpen(!moreFolderSectionOpen)
           event.preventDefault()
         }}
       >
@@ -262,7 +243,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
           alignment="center"
           distribution="start"
         >
-          {moreFoldersOpenState ? (
+          {moreFolderSectionOpen ? (
             <NavMoreButtonUpIcon
               color={theme.colors.thLibraryMenuPrimary.toString()}
             />
@@ -274,7 +255,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
           <SpanBox>More</SpanBox>
         </HStack>
       </Button>
-      {moreFoldersOpenState && (
+      {moreFolderSectionOpen && (
         <SpanBox css={{ width: '100%' }}>
           <NavButton
             {...props}
@@ -293,7 +274,9 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
             section="trash"
             isSelected={props.section == 'trash'}
             icon={
-              <TrashIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+              <TrashSectionIcon
+                color={theme.colors.thLibraryMenuPrimary.toString()}
+              />
             }
           />
         </SpanBox>
@@ -302,7 +285,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
   )
 }
 
-const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
+const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
   const treeRef = useRef<TreeApi<Shortcut> | undefined>(undefined)
   const { trigger: resetShortcutsTrigger } = useSWRMutation(
     '/api/shortcuts',
@@ -352,7 +335,7 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
             px: '15px',
           }}
         >
-          SHORTCUTS
+          Shortcuts
         </StyledText>
         <SpanBox css={{ display: 'flex', ml: 'auto', mt: '5px', mr: '15px' }}>
           <Dropdown
@@ -572,7 +555,7 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
           console.log('query: ', query)
         }
       } else if (node.data.section != null && node.data.filter != null) {
-        router.push(`/${node.data.section}?q=${node.data.filter}`)
+        router.push(`/l/${node.data.section}?q=${node.data.filter}`)
       }
     },
     [tree, router]
@@ -785,8 +768,7 @@ const NodeItemContents = (props: NodeItemContentsProps): JSX.Element => {
             color={theme.colors.thLibraryMenuPrimary.toString()}
           />
         ) : (
-          <FolderOpen
-            size={20}
+          <ShortcutFolderOpen
             color={theme.colors.thLibraryMenuPrimary.toString()}
           />
         )}
@@ -929,121 +911,11 @@ function NavButton(props: NavButtonProps): JSX.Element {
       }}
       title={props.text}
       onClick={(e) => {
-        router.push(`/` + props.section)
+        router.push(`/l/` + props.section)
       }}
     >
       {props.icon}
       {props.text}
     </HStack>
-  )
-}
-
-type FilterButtonProps = {
-  text: string
-
-  filterTerm: string
-  searchTerm: string | undefined
-
-  applySearchQuery: (searchTerm: string) => void
-
-  setShowFilterMenu: (show: boolean) => void
-}
-
-function FilterButton(props: FilterButtonProps): JSX.Element {
-  const isInboxFilter = (filter: string) => {
-    return filter === '' || filter === 'in:inbox'
-  }
-  const selected = useMemo(() => {
-    if (isInboxFilter(props.filterTerm) && !props.searchTerm) {
-      return true
-    }
-    return props.searchTerm === props.filterTerm
-  }, [props.searchTerm, props.filterTerm])
-
-  return (
-    <Box
-      css={{
-        pl: '10px',
-        mb: '2px',
-        display: 'flex',
-        width: '100%',
-        maxWidth: '100%',
-        height: '32px',
-
-        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
-        fontSize: '14px',
-        fontWeight: 'regular',
-        fontFamily: '$display',
-        color: selected
-          ? '$thLibraryMenuSecondary'
-          : '$thLibraryMenuUnselected',
-        verticalAlign: 'middle',
-        borderRadius: '3px',
-        cursor: 'pointer',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        alignItems: 'center',
-        '&:hover': {
-          backgroundColor: selected
-            ? '$thLibrarySelectionColor'
-            : '$thBackground4',
-        },
-        '&:active': {
-          backgroundColor: selected
-            ? '$thLibrarySelectionColor'
-            : '$thBackground4',
-        },
-      }}
-      title={props.text}
-      onClick={(e) => {
-        props.applySearchQuery(props.filterTerm)
-        props.setShowFilterMenu(false)
-        e.preventDefault()
-      }}
-    >
-      {props.text}
-    </Box>
-  )
-}
-
-type EditButtonProps = {
-  title: string
-  destination: string
-}
-
-function EditButton(props: EditButtonProps): JSX.Element {
-  return (
-    <Link href={props.destination} passHref legacyBehavior>
-      <SpanBox
-        css={{
-          ml: '10px',
-          mb: '10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '2px',
-          '&:hover': {
-            textDecoration: 'underline',
-          },
-
-          width: '100%',
-          maxWidth: '100%',
-          height: '32px',
-
-          fontSize: '14px',
-          fontWeight: 'regular',
-          fontFamily: '$display',
-          color: '$thLibraryMenuUnselected',
-          verticalAlign: 'middle',
-          borderRadius: '3px',
-          cursor: 'pointer',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {props.title}
-      </SpanBox>
-    </Link>
   )
 }

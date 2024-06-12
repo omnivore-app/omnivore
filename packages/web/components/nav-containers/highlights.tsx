@@ -1,5 +1,5 @@
-import { NavigationLayout } from '../../components/templates/NavigationLayout'
-import { Box, HStack, VStack } from '../../components/elements/LayoutPrimitives'
+import { NavigationLayout } from '../templates/NavigationLayout'
+import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { useFetchMore } from '../../lib/hooks/useFetchMoreScroll'
 import { useCallback, useMemo, useState } from 'react'
 import { useGetHighlights } from '../../lib/networking/queries/useGetHighlights'
@@ -9,16 +9,16 @@ import {
   UserBasicData,
   useGetViewerQuery,
 } from '../../lib/networking/queries/useGetViewerQuery'
-import { SetHighlightLabelsModalPresenter } from '../../components/templates/article/SetLabelsModalPresenter'
-import { TrashIcon } from '../../components/elements/icons/TrashIcon'
+import { SetHighlightLabelsModalPresenter } from '../templates/article/SetLabelsModalPresenter'
+import { TrashIcon } from '../elements/icons/TrashIcon'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { deleteHighlightMutation } from '../../lib/networking/mutations/deleteHighlightMutation'
-import { LabelChip } from '../../components/elements/LabelChip'
+import { LabelChip } from '../elements/LabelChip'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
-import { HighlightHoverActions } from '../../components/patterns/HighlightHoverActions'
+import { timeAgo } from '../patterns/LibraryCards/LibraryCardStyles'
+import { HighlightHoverActions } from '../patterns/HighlightHoverActions'
 import {
   autoUpdate,
   offset,
@@ -29,58 +29,12 @@ import {
 } from '@floating-ui/react'
 import { highlightColor } from '../../lib/themeUpdater'
 
-import { HighlightViewNote } from '../../components/patterns/HighlightNotes'
-import { theme } from '../../components/tokens/stitches.config'
+import { HighlightViewNote } from '../patterns/HighlightNotes'
+import { theme } from '../tokens/stitches.config'
 
 const PAGE_SIZE = 10
 
-export default function Highlights(): JSX.Element {
-  const router = useRouter()
-  const viewer = useGetViewerQuery()
-  const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [_, setShowAddLinkModal] = useState(false)
-
-  const { isLoading, setSize, size, data, mutate } = useGetHighlights({
-    first: PAGE_SIZE,
-  })
-
-  const hasMore = useMemo(() => {
-    if (!data) {
-      return false
-    }
-    return data[data.length - 1].highlights.pageInfo.hasNextPage
-  }, [data])
-
-  const handleFetchMore = useCallback(() => {
-    if (isLoading || !hasMore) {
-      return
-    }
-    setSize(size + 1)
-  }, [isLoading, hasMore, setSize, size])
-
-  useFetchMore(handleFetchMore)
-
-  const highlights = useMemo(() => {
-    if (!data) {
-      return []
-    }
-    return data.flatMap((res) => res.highlights.edges.map((edge) => edge.node))
-  }, [data])
-
-  return (
-    <NavigationLayout
-      section="highlights"
-      pageMetaDataProps={{
-        title: 'Highlights',
-        path: '/highlights',
-      }}
-    >
-      <HighlightsList />
-    </NavigationLayout>
-  )
-}
-
-export function HighlightsList(): JSX.Element {
+export function HighlightsContainer(): JSX.Element {
   const router = useRouter()
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
