@@ -166,7 +166,6 @@ const getCandidatesList = async (
   userId: string,
   selectedLibraryItemIds?: string[]
 ): Promise<LibraryItem[]> => {
-  console.time('getCandidatesList')
   // use the queries from the digest definitions to lookup preferences
   // There should be a list of multiple queries we use. For now we can
   // hardcode these queries:
@@ -221,8 +220,6 @@ const getCandidatesList = async (
     'dedupedCandidates: ',
     dedupedCandidates.map((item) => item.title)
   )
-
-  console.timeEnd('getCandidatesList')
 
   if (dedupedCandidates.length === 0) {
     logger.info('No new candidates found')
@@ -461,8 +458,6 @@ const generateSpeechFiles = (
   summariesInHtml: string[],
   options: SSMLOptions
 ): SpeechFile[] => {
-  console.time('generateSpeechFiles')
-
   const speechFiles = summariesInHtml.map((summary) => {
     const html = `
       <div id="readability-content">
@@ -475,8 +470,6 @@ const generateSpeechFiles = (
       options,
     })
   })
-
-  console.timeEnd('generateSpeechFiles')
 
   return speechFiles
 }
@@ -538,7 +531,6 @@ const uploadSummary = async (
   digest: Digest,
   summaries: RankedItem[]
 ) => {
-  console.time('uploadSummary')
   logger.info('uploading summaries to gcs')
 
   const filename = `digest/${userId}/${digest.id}.json`
@@ -560,7 +552,6 @@ const uploadSummary = async (
   )
 
   logger.info('uploaded summaries to gcs')
-  console.timeEnd('uploadSummary')
 }
 
 const sendPushNotification = async (userId: string, digest: Digest) => {
@@ -749,8 +740,6 @@ const sendToChannels = async (
 }
 
 export const createDigest = async (jobData: CreateDigestData) => {
-  console.time('createDigestJob')
-
   // generate a unique id for the digest if not provided for scheduled jobs
   const digestId = jobData.id ?? uuid()
 
@@ -804,9 +793,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       libraryItem: item,
       summary: '',
     }))
-    console.time('summarizeItems')
     const summaries = await summarizeItems(model, selections)
-    console.timeEnd('summarizeItems')
 
     const filteredSummaries = filterSummaries(summaries)
     const summariesInHtml = filteredSummaries.map((item) => {
@@ -862,8 +849,6 @@ export const createDigest = async (jobData: CreateDigestData) => {
 
     // send notifications when digest is created
     await sendToChannels(user, digest, config?.channels)
-
-    console.timeEnd('createDigestJob')
   } catch (error) {
     logger.error('createDigestJob error', error)
 
