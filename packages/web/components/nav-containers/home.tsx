@@ -476,6 +476,9 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         '&:hover .title-text': {
           textDecoration: 'underline',
         },
+        '@mdDown': {
+          minWidth: '282px',
+        },
       }}
       onClick={(event) => {
         const path = `/${props.viewerUsername ?? 'me'}/${props.homeItem.slug}`
