@@ -235,7 +235,7 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       css={{
         width: '100%',
         gap: '10px',
-        bg: '$thNavMenuFooter',
+        bg: '$homeCardHover',
         py: '20px',
         px: '20px',
         borderRadius: '5px',
@@ -245,10 +245,10 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
         css={{
           fontFamily: '$inter',
           fontSize: '12px',
-          fontWeight: '600',
+          fontWeight: '500',
           textTransform: 'uppercase',
           color: '$ctaBlue',
-          bg: '#007AFF10',
+          bg: '#007AFF20',
           px: '10px',
           py: '5px',
           borderRadius: '5px',
