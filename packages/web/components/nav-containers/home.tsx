@@ -123,7 +123,13 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
       }}
     >
       <HStack
-        css={{ width: '100%', lineHeight: '1' }}
+        css={{
+          width: '100%',
+          lineHeight: '1',
+          '@mdDown': {
+            px: '20px',
+          },
+        }}
         distribution="start"
         alignment="start"
       >
@@ -172,6 +178,9 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
           '::-webkit-scrollbar': {
             display: 'none',
           },
+          '@mdDown': {
+            px: '20px',
+          },
         }}
         distribution="start"
         alignment="start"
@@ -199,6 +208,9 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontSize: '16px',
           fontWeight: '600',
           color: '$homeTextTitle',
+          '@mdDown': {
+            px: '20px',
+          },
         }}
       >
         {props.homeSection.title}
@@ -222,9 +234,9 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       distribution="start"
       css={{
         width: '100%',
-        gap: '20px',
+        gap: '10px',
         bg: '$thNavMenuFooter',
-        py: '30px',
+        py: '20px',
         px: '20px',
         borderRadius: '5px',
       }}
@@ -449,7 +461,6 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         borderRadius: '5px',
         '&:hover': {
           bg: '$homeCardHover',
-          borderRadius: '0px',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -491,9 +502,11 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         pt: '35px',
         cursor: 'pointer',
         borderRadius: '5px',
+        '@mdDown': {
+          borderRadius: '0px',
+        },
         '&:hover': {
           bg: '$homeCardHover',
-          borderRadius: '0px',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -573,14 +586,17 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
   return (
     <VStack
       css={{
+        mt: '10px',
         width: '100%',
         px: '10px',
         py: '10px',
-        gap: '2px',
+        gap: '5px',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$readerBg',
           cursor: 'pointer',
+        },
+        '&:hover .title-text': {
+          textDecoration: 'underline',
         },
       }}
       onClick={(event) => {
@@ -592,7 +608,17 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         }
       }}
     >
-      <TimeAgo homeItem={props.homeItem} />
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ width: '100%', gap: '5px', lineHeight: '1' }}
+      >
+        <SourceInfo homeItem={props.homeItem} subtle={true} />
+
+        <SpanBox css={{ ml: 'auto' }}>
+          <TimeAgo homeItem={props.homeItem} />
+        </SpanBox>
+      </HStack>
       <Title homeItem={props.homeItem} />
       <PreviewContent
         previewContent={props.homeItem.previewContent}
