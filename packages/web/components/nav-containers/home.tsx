@@ -376,8 +376,8 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
       distribution="start"
       alignment="center"
       css={{
-        fontSize: '16px',
-        lineHeight: '20px',
+        fontSize: '18px',
+        lineHeight: '24px',
         fontWeight: '600',
         fontFamily: '$inter',
         color: '$homeTextTitle',
@@ -389,6 +389,10 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
         '-webkit-box-orient': 'vertical',
         '&:title-text': {
           transition: 'text-decoration 0.3s ease',
+        },
+        '@mdDown': {
+          fontSize: '16px',
+          lineHeight: '20px',
         },
       }}
     >
@@ -433,13 +437,16 @@ const PreviewContent = (props: PreviewContentProps): JSX.Element => {
       css={{
         fontFamily: '$inter',
         fontSize: '14px',
-        lineHeight: '28px',
+        lineHeight: '21px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
         display: '-webkit-box',
         '-webkit-line-clamp': props.maxLines ?? '3',
         '-webkit-box-orient': 'vertical',
+        '@mdDown': {
+          '-webkit-line-clamp': '3',
+        },
       }}
     >
       {props.previewContent ?? ''}
