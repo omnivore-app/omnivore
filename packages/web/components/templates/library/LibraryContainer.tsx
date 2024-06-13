@@ -1182,7 +1182,6 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         width: '100%',
         gridAutoRows: 'auto',
         borderRadius: '6px',
-        border: props.layout == 'LIST_LAYOUT' ? 'unset' : '1px solid black',
         gridGap: props.layout == 'LIST_LAYOUT' ? '10px' : '20px',
         marginTop: '10px',
         marginBottom: '0px',
@@ -1190,7 +1189,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         paddingBottom: '0px',
         overflow: 'visible',
         px: '70px',
-        '@lgDown': {
+        '@xlgDown': {
           px: '10px',
         },
         '@mdDown': {
@@ -1200,7 +1199,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         gridTemplateColumns:
           props.layout == 'LIST_LAYOUT'
             ? 'none'
-            : `repeat( auto-fit, minmax(300px, 1fr) )`,
+            : `repeat( auto-fit, minmax(280px, 1fr) )`,
       }}
     >
       {props.items.map((linkedItem) => (

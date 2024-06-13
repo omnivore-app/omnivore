@@ -105,7 +105,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         // cardBoxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
-        cardBoxShadow: '0px 4px 4px rgba(0, 0, 0, 0.10);',
+        cardBoxShadow: '0px 4px 4px rgba(0, 0, 0, 0.20);',
       },
       zIndices: {},
       transitions: {},
@@ -273,7 +273,7 @@ const darkThemeSpec = {
     colorScheme: 'dark',
   },
   shadows: {
-    cardBoxShadow: '0px 4px 8px rgba(0, 0, 0, 0.20);',
+    cardBoxShadow: '0px 4px 8px rgba(0, 0, 0, 0.35);',
   },
   colors: {
     grayBase: '#252525',
