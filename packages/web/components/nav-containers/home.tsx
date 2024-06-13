@@ -57,6 +57,7 @@ export function HomeContainer(): JSX.Element {
           gap: '50px',
           minHeight: '100vh',
           '@mdDown': {
+            gap: '40px',
             width: '100%',
           },
         }}
@@ -200,6 +201,9 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
       css={{
         width: '100%',
         gap: '20px',
+        '@mdDown': {
+          gap: '10px',
+        },
       }}
     >
       <SpanBox
@@ -510,6 +514,7 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         cursor: 'pointer',
         borderRadius: '5px',
         '@mdDown': {
+          pt: '15px',
           borderRadius: '0px',
         },
         '&:hover': {
