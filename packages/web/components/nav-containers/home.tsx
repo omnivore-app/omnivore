@@ -120,6 +120,7 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
       distribution="start"
       css={{
         width: '100%',
+        height: '100%',
         gap: '20px',
       }}
     >
@@ -172,8 +173,9 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
       <HStack
         css={{
           width: '100%',
+          height: '100%',
           lineHeight: '1',
-          overflow: 'scroll',
+          overflowX: 'scroll',
           gap: '25px',
           scrollbarWidth: 'none',
           '::-webkit-scrollbar': {
@@ -415,6 +417,7 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
       css={{
         fontSize: '14px',
         lineHeight: '21px',
+        minHeight: '42px', // always have two lines of space
         fontWeight: '500',
         fontFamily: '$inter',
         color: '$homeTextTitle',
