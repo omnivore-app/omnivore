@@ -1040,7 +1040,12 @@ export function LibraryItemsLayout(
             '@lgDown': {
               display: 'none',
             },
+            mt: '10px',
             mb: '10px',
+            px: '70px',
+            '@xlgDown': {
+              px: '10px',
+            },
           }}
         >
           <PinnedButtons
