@@ -47,6 +47,7 @@ export function HomeContainer(): JSX.Element {
         bg: '$readerBg',
         pt: '45px',
         minHeight: '100vh',
+        minWidth: '320px',
       }}
     >
       <Toaster />
@@ -120,6 +121,7 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
       distribution="start"
       css={{
         width: '100%',
+        height: '100%',
         gap: '20px',
       }}
     >
@@ -172,8 +174,9 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
       <HStack
         css={{
           width: '100%',
+          height: '100%',
           lineHeight: '1',
-          overflow: 'scroll',
+          overflowX: 'scroll',
           gap: '25px',
           scrollbarWidth: 'none',
           '::-webkit-scrollbar': {
@@ -366,6 +369,7 @@ const TimeAgo = (props: HomeItemViewProps): JSX.Element => {
         fontWeight: 'medium',
         fontFamily: '$inter',
         color: '$homeTextSubtle',
+        flexShrink: '0',
       }}
     >
       {timeAgo(props.homeItem.date)}
@@ -380,6 +384,7 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
       distribution="start"
       alignment="center"
       css={{
+        mb: '6px',
         fontSize: '18px',
         lineHeight: '24px',
         fontWeight: '600',
@@ -414,6 +419,7 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
       css={{
         fontSize: '14px',
         lineHeight: '21px',
+        minHeight: '42px', // always have two lines of space
         fontWeight: '500',
         fontFamily: '$inter',
         color: '$homeTextTitle',
@@ -495,7 +501,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         css={{ width: '100%', gap: '5px', lineHeight: '1' }}
       >
         <SourceInfo homeItem={props.homeItem} subtle={true} />
-        <SpanBox css={{ ml: 'auto' }}>
+        <SpanBox css={{ ml: 'auto', flexShrink: '0' }}>
           <TimeAgo homeItem={props.homeItem} />
         </SpanBox>
       </HStack>
@@ -513,7 +519,7 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       css={{
         width: '100%',
         p: '0px',
-        pt: '35px',
+        pt: '20px',
         cursor: 'pointer',
         borderRadius: '5px',
         '@mdDown': {
@@ -537,38 +543,37 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       alignment="start"
     >
-      <HStack css={{ width: '100%', gap: '5px', px: '20px' }}>
-        <VStack css={{ gap: '15px' }}>
-          <HStack
-            distribution="start"
-            alignment="center"
-            css={{ gap: '5px', lineHeight: '1' }}
-          >
-            <SourceInfo homeItem={props.homeItem} />
+      <Box css={{ width: '100%', gap: '10px', px: '20px' }}>
+        <HStack
+          distribution="start"
+          alignment="center"
+          css={{ gap: '5px', lineHeight: '1', mb: '10px' }}
+        >
+          <SourceInfo homeItem={props.homeItem} />
+          <SpanBox css={{ '@mdDown': { ml: 'auto' } }}>
             <TimeAgo homeItem={props.homeItem} />
-          </HStack>
-          <Title homeItem={props.homeItem} />
-        </VStack>
-        <SpanBox css={{ ml: 'auto' }}>
-          {props.homeItem.thumbnail && (
-            <CoverImage
-              css={{
-                mt: '6px',
-                width: '120px',
-                height: '70px',
-                borderRadius: '4px',
-              }}
-              src={props.homeItem.thumbnail}
-            ></CoverImage>
-          )}
-        </SpanBox>
-      </HStack>
-      <SpanBox css={{ px: '20px' }}>
+          </SpanBox>
+        </HStack>
+
+        {props.homeItem.thumbnail && (
+          <CoverImage
+            css={{
+              width: '120px',
+              height: '70px',
+              borderRadius: '4px',
+              marginLeft: '10px',
+              float: 'right',
+            }}
+            src={props.homeItem.thumbnail}
+          ></CoverImage>
+        )}
+        <Title homeItem={props.homeItem} />
         <PreviewContent
           previewContent={props.homeItem.previewContent}
           maxLines="6"
         />
-      </SpanBox>
+      </Box>
+      <SpanBox css={{ px: '20px' }}></SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         <Button style="homeAction">
           <AddToLibraryActionIcon
@@ -608,6 +613,7 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         gap: '5px',
         borderRadius: '5px',
         '&:hover': {
+          bg: '#007AFF10',
           cursor: 'pointer',
         },
         '&:hover .title-text': {
@@ -630,7 +636,7 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       >
         <SourceInfo homeItem={props.homeItem} subtle={true} />
 
-        <SpanBox css={{ ml: 'auto' }}>
+        <SpanBox css={{ ml: 'auto', flexShrink: '0' }}>
           <TimeAgo homeItem={props.homeItem} />
         </SpanBox>
       </HStack>
@@ -665,7 +671,14 @@ const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
       <HStack
         distribution="start"
         alignment="center"
-        css={{ gap: '8px', cursor: 'pointer' }}
+        css={{
+          gap: '8px',
+          cursor: 'pointer',
+          flex: '1',
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+        }}
       >
         {props.homeItem.source.icon && (
           <SiteIconSmall

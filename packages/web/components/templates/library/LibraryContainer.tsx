@@ -1040,7 +1040,12 @@ export function LibraryItemsLayout(
             '@lgDown': {
               display: 'none',
             },
+            mt: '10px',
             mb: '10px',
+            px: '70px',
+            '@xlgDown': {
+              px: '10px',
+            },
           }}
         >
           <PinnedButtons
@@ -1189,7 +1194,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         paddingBottom: '0px',
         overflow: 'visible',
         px: '70px',
-        '@lgDown': {
+        '@xlgDown': {
           px: '10px',
         },
         '@mdDown': {
@@ -1199,7 +1204,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         gridTemplateColumns:
           props.layout == 'LIST_LAYOUT'
             ? 'none'
-            : `repeat( auto-fit, minmax(300px, 1fr) )`,
+            : `repeat( auto-fit, minmax(280px, 1fr) )`,
       }}
     >
       {props.items.map((linkedItem) => (
@@ -1215,7 +1220,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               outline: 'none',
             },
             '&> div': {
-              bg: '$thLeftMenuBackground',
+              // bg: '$thLeftMenuBackground',
               // bg: '$thLibraryBackground',
             },
             '&:focus': {

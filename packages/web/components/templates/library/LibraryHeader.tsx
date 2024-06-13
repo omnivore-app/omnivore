@@ -88,7 +88,9 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           px: '70px',
           left: LIBRARY_LEFT_MENU_WIDTH,
           transition: 'height 0.5s',
-          '@lgDown': { px: '20px' },
+          '@xlgDown': {
+            px: '10px',
+          },
           '@mdDown': {
             px: '10px',
             left: '0px',
@@ -272,7 +274,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         height: '38px',
         width: '100%',
         maxWidth: '521px',
-        bg: '$thLibrarySearchbox',
+        bg: '$backgroundMedium',
         borderRadius: '6px',
         boxShadow: props.searchBoxFocused
           ? 'none'

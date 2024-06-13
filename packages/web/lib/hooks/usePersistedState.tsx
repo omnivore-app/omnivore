@@ -8,9 +8,10 @@ export function usePersistedState<T>({
   key: string
   initialValue: T
   isSessionStorage?: boolean
-}): [T, (x: T | ((prev: T) => T)) => void] {
+}): [T, (x: T | ((prev: T) => T)) => void, boolean] {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
+  const [isLoading, setIsLoading] = useState(true)
   const [storedValue, setStoredValue] = useState(initialValue)
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export function usePersistedState<T>({
       if (item) {
         setStoredValue(JSON.parse(item))
       }
+      setIsLoading(false)
     } catch (error) {
       // If error also return initialValue
       console.log(error)
@@ -56,5 +58,5 @@ export function usePersistedState<T>({
     }
   }
 
-  return [storedValue, setValue]
+  return [storedValue, setValue, isLoading]
 }

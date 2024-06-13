@@ -44,7 +44,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
 
-  const [showNavMenu, setShowNavMenu] = usePersistedState<boolean>({
+  const [showNavMenu, setShowNavMenu, isLoading] = usePersistedState<boolean>({
     key: 'nav-show-menu',
     isSessionStorage: false,
     initialValue: true,
@@ -111,6 +111,16 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
     }
   }, [showLogout])
 
+  if (isLoading) {
+    return (
+      <HStack
+        css={{ width: '100vw', height: '100vh' }}
+        distribution="start"
+        alignment="start"
+      ></HStack>
+    )
+  }
+
   return (
     <HStack
       css={{ width: '100vw', height: '100vh' }}
@@ -133,7 +143,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
           }}
         />
       </SpanBox>
-      {showNavMenu && (
+      {!isLoading && showNavMenu && (
         <NavigationMenu
           section={props.section}
           // eslint-disable-next-line @typescript-eslint/no-empty-function

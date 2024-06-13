@@ -85,10 +85,11 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            width: '100%',
             transition: 'top 100ms, visibility 100ms',
             top: props.showMenu ? '0' : '100%',
             visibility: props.showMenu ? 'visible' : 'hidden',
+            boxShadow:
+              'rgb(48, 54, 61) 0px 0px 0px 1px, rgba(1, 4, 9, 0.4) 0px 6px 12px -3px, rgba(1, 4, 9, 0.4) 0px 6px 18px 0px',
           },
           zIndex: 2,
         }}
@@ -102,12 +103,11 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
             lineHeight: '1',
             '@mdDown': {
               pb: '0px',
-              pt: '5px',
               px: '15px',
             },
           }}
         >
-          <SpanBox css={{ mr: 'auto', '@mdDown': { display: 'none' } }}>
+          <SpanBox css={{ mr: 'auto' }}>
             <Button
               style="plainIcon"
               onClick={(event) => {
@@ -121,25 +121,6 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
               />
             </Button>
           </SpanBox>
-
-          <Button
-            style="plainIcon"
-            css={{
-              display: 'none',
-              '@mdDown': {
-                display: 'flex',
-                ml: 'auto',
-                pt: '10px',
-                pb: '0px',
-              },
-            }}
-            onClick={(event) => {
-              props.setShowMenu(false)
-              event.preventDefault()
-            }}
-          >
-            <X size={30} />
-          </Button>
         </Box>
         <LibraryNav {...props} />
         <Shortcuts {...props} />
@@ -178,7 +159,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
         width: '100%',
         borderBottom: '1px solid $thBorderColor',
         px: '0px',
-        pb: '25px',
+        pb: '15px',
       }}
       alignment="start"
       distribution="start"
@@ -331,7 +312,7 @@ const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
             fontFamily: '$display',
             fontSize: '14px',
             lineHeight: '125%',
-            color: '$thLibraryMenuPrimary',
+            color: '$homeTextSubtle',
             mb: '10px',
             px: '15px',
           }}
