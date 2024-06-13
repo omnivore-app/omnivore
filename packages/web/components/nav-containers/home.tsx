@@ -1,7 +1,7 @@
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Button } from '../elements/Button'
 import { AddToLibraryActionIcon } from '../elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../elements/icons/home/ArchiveActionIcon'
@@ -198,6 +198,41 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
 }
 
 const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
+  const listReducer = (
+    state: HomeItem[],
+    action: {
+      type: string
+      itemId?: string
+      items?: HomeItem[]
+    }
+  ) => {
+    console.log('handling action: ', action)
+    switch (action.type) {
+      case 'RESET':
+        return action.items ?? []
+      case 'REMOVE_ITEM':
+        return state.filter((item) => item.id !== action.itemId)
+      default:
+        throw new Error()
+    }
+  }
+
+  const [items, dispatchList] = useReducer(listReducer, [])
+
+  function handleDelete(item: HomeItem) {
+    dispatchList({
+      type: 'REMOVE_ITEM',
+      itemId: item.id,
+    })
+  }
+
+  useEffect(() => {
+    dispatchList({
+      type: 'RESET',
+      items: props.homeSection.items,
+    })
+  }, [props])
+
   return (
     <VStack
       distribution="start"
@@ -224,11 +259,15 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
       </SpanBox>
 
       <Pagination
-        items={props.homeSection.items}
+        items={items}
         itemsPerPage={4}
         loadMoreButtonText="Load more Top Picks"
         render={(homeItem) => (
-          <TopicPickHomeItemView key={homeItem.id} homeItem={homeItem} />
+          <TopicPickHomeItemView
+            key={homeItem.id}
+            homeItem={homeItem}
+            dispatchList={dispatchList}
+          />
         )}
       />
     </VStack>
@@ -511,9 +550,14 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
-  const router = useRouter()
+type TopPickItemViewProps = {
+  dispatchList: (args: { type: string; itemId?: string }) => void
+}
 
+const TopicPickHomeItemView = (
+  props: HomeItemViewProps & TopPickItemViewProps
+): JSX.Element => {
+  const router = useRouter()
   return (
     <VStack
       css={{
@@ -575,23 +619,46 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       </Box>
       <SpanBox css={{ px: '20px' }}></SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
-        <Button style="homeAction">
-          <AddToLibraryActionIcon
-            color={theme.colors.homeActionIcons.toString()}
-          />
-        </Button>
-        <Button style="homeAction">
+        {props.homeItem.canSave && (
+          <Button style="homeAction">
+            <AddToLibraryActionIcon
+              color={theme.colors.homeActionIcons.toString()}
+            />
+          </Button>
+        )}
+        {/* <Button style="homeAction">
           <CommentActionIcon color={theme.colors.homeActionIcons.toString()} />
-        </Button>
-        <Button style="homeAction">
-          <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
-        </Button>
-        <Button style="homeAction">
-          <ArchiveActionIcon color={theme.colors.homeActionIcons.toString()} />
-        </Button>
-        <Button style="homeAction">
-          <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
-        </Button>
+        </Button> */}
+
+        {props.homeItem.canArchive && (
+          <Button
+            style="homeAction"
+            onClick={(event) => {
+              // archiveItem(props.homeItem)
+              console.log('archiving')
+              props.dispatchList({
+                type: 'REMOVE_ITEM',
+                itemId: props.homeItem.id,
+              })
+              event.preventDefault()
+              event.stopPropagation()
+            }}
+          >
+            <ArchiveActionIcon
+              color={theme.colors.homeActionIcons.toString()}
+            />
+          </Button>
+        )}
+        {props.homeItem.canDelete && (
+          <Button style="homeAction">
+            <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
+          </Button>
+        )}
+        {props.homeItem.canShare && (
+          <Button style="homeAction">
+            <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
+          </Button>
+        )}
       </HStack>
       <Box
         css={{ mt: '15px', width: '100%', height: '1px', bg: '$homeDivider' }}
