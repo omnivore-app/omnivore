@@ -685,7 +685,7 @@ const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
       </HStack>
     </HoverCard.Trigger>
     <HoverCard.Portal>
-      <HoverCard.Content sideOffset={5} style={{ zIndex: '5' }}>
+      <HoverCard.Content sideOffset={5} style={{ zIndex: 5 }}>
         <SubscriptionSourceHoverContent source={props.homeItem.source} />
         <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
       </HoverCard.Content>
