@@ -178,7 +178,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
         width: '100%',
         borderBottom: '1px solid $thBorderColor',
         px: '0px',
-        pb: '25px',
+        pb: '15px',
       }}
       alignment="start"
       distribution="start"
@@ -331,7 +331,7 @@ const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
             fontFamily: '$display',
             fontSize: '14px',
             lineHeight: '125%',
-            color: '$thLibraryMenuPrimary',
+            color: '$homeTextSubtle',
             mb: '10px',
             px: '15px',
           }}
