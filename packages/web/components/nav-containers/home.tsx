@@ -673,6 +673,7 @@ const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
         alignment="center"
         css={{
           gap: '8px',
+          height: '16px',
           cursor: 'pointer',
           flex: '1',
           overflow: 'hidden',
@@ -681,10 +682,7 @@ const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
         }}
       >
         {props.homeItem.source.icon && (
-          <SiteIconSmall
-            src={props.homeItem.source.icon}
-            alt={props.homeItem.source.name}
-          />
+          <SiteIconSmall src={props.homeItem.source.icon} />
         )}
         <HStack
           css={{
@@ -756,9 +754,7 @@ const SubscriptionSourceHoverContent = (
         alignment="center"
         css={{ width: '100%', gap: '10px' }}
       >
-        {props.source.icon && (
-          <SiteIconLarge src={props.source.icon} alt={props.source.name} />
-        )}
+        {props.source.icon && <SiteIconLarge src={props.source.icon} />}
         <SpanBox
           css={{
             fontFamily: '$inter',
