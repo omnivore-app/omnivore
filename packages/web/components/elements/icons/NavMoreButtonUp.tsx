@@ -19,7 +19,7 @@ export class NavMoreButtonUpIcon extends React.Component<IconProps> {
         <path
           d="M17.75 15.1836L12 9.43359L6.25 15.1836"
           stroke={color}
-          strokeWidth="1.75"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

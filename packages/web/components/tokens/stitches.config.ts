@@ -199,7 +199,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thHomeIcon: '#2A2A2A',
 
         thLabelChipForeground: '#2A2A2A',
-        thLabelChipBackground: '#F5F5F5',
+        thLabelChipBackground: '#EDEDED',
         thLabelChipSelectedBorder: 'black',
         thLabelChipUnselectedBorder: '#F5F5F5',
         thLabelOutlineChipBorder: '#D9D9D9',
@@ -354,7 +354,7 @@ const darkThemeSpec = {
     thHomeIcon: '#FFFFFF',
 
     thLabelChipForeground: '#EBEBEB',
-    thLabelChipBackground: '#2A2A2A',
+    thLabelChipBackground: '#343434',
     thLabelChipSelectedBorder: '#FFEA9F',
     thLabelChipUnselectedBorder: '#2A2A2A',
     thLabelOutlineChipBorder: '#6A696850',
@@ -438,6 +438,7 @@ const apolloThemeSpec = {
     backgroundMedium: '#525252',
 
     thLibraryMultiselectHover: '#EEE8D5',
+    thLabelChipBackground: '#6A6968',
   },
 }
 
@@ -456,6 +457,7 @@ const sepiaThemeSpec = {
     thNavMenuFooter: '#DDD6C1',
 
     thLibrarySelectionColor: '#DDD6C1',
+    thLabelChipBackground: '#EEE8D5',
     thBackground4: '#DDD6C166', // used on hover of menu items
     thBorderColor: '#DDD6C1',
 

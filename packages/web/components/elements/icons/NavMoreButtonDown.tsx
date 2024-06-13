@@ -20,7 +20,7 @@ export class NavMoreButtonDownIcon extends React.Component<IconProps> {
           <path
             d="M6.25 9.43359L12 15.1836L17.75 9.43359"
             stroke={color}
-            strokeWidth="1.75"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />

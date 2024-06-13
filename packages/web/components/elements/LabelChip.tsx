@@ -26,7 +26,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         color: '$thLabelChipForeground',
         borderColor: props.isSelected
           ? '$thLabelChipSelectedBorder'
-          : '$thLabelChipUnselectedBorder',
+          : '$thLabelChipBackground',
         backgroundColor: '$thLabelChipBackground',
       }}
     >

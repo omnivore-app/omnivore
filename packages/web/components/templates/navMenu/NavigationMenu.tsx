@@ -98,13 +98,9 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
           css={{
             width: '100%',
             px: '15px',
-            pb: '17px',
+            pb: '10px',
             pt: '15px',
             lineHeight: '1',
-            '@mdDown': {
-              pb: '0px',
-              px: '15px',
-            },
           }}
         >
           <SpanBox css={{ mr: 'auto' }}>
@@ -127,18 +123,6 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
         <NavMenuFooter {...props} showFullThemeSection={true} />
         <Box css={{ height: '250px ' }} />
       </Box>
-      {/* This spacer pushes library content to the right of 
-      the fixed left side menu. */}
-      <Box
-        css={{
-          minWidth: LIBRARY_LEFT_MENU_WIDTH,
-          height: '100%',
-          bg: '$thBackground',
-          '@mdDown': {
-            display: 'none',
-          },
-        }}
-      ></Box>
     </>
   )
 }
@@ -169,28 +153,36 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
         text="Home"
         section="home"
         isSelected={props.section == 'home'}
-        icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
+        icon={<HomeIcon color={theme.colors.thLibraryMenuPrimary.toString()} />}
       />
       <NavButton
         {...props}
         text="Library"
         section="library"
         isSelected={props.section == 'library'}
-        icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
+        icon={
+          <LibraryIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+        }
       />
       <NavButton
         {...props}
         text="Subscriptions"
         section="subscriptions"
         isSelected={props.section == 'subscriptions'}
-        icon={<FollowingIcon color="#F59932" />}
+        icon={
+          <FollowingIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+        }
       />
       <NavButton
         {...props}
         text="Highlights"
         section="highlights"
         isSelected={props.section == 'highlights'}
-        icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
+        icon={
+          <HighlightsIcon
+            color={theme.colors.thLibraryMenuPrimary.toString()}
+          />
+        }
       />
       <Button
         style="articleActionIcon"
