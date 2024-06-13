@@ -57,6 +57,7 @@ export function HomeContainer(): JSX.Element {
           gap: '50px',
           minHeight: '100vh',
           '@mdDown': {
+            gap: '40px',
             width: '100%',
           },
         }}
@@ -123,7 +124,13 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
       }}
     >
       <HStack
-        css={{ width: '100%', lineHeight: '1' }}
+        css={{
+          width: '100%',
+          lineHeight: '1',
+          '@mdDown': {
+            px: '20px',
+          },
+        }}
         distribution="start"
         alignment="start"
       >
@@ -172,6 +179,9 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
           '::-webkit-scrollbar': {
             display: 'none',
           },
+          '@mdDown': {
+            px: '20px',
+          },
         }}
         distribution="start"
         alignment="start"
@@ -191,6 +201,9 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
       css={{
         width: '100%',
         gap: '20px',
+        '@mdDown': {
+          gap: '10px',
+        },
       }}
     >
       <SpanBox
@@ -199,6 +212,9 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontSize: '16px',
           fontWeight: '600',
           color: '$homeTextTitle',
+          '@mdDown': {
+            px: '20px',
+          },
         }}
       >
         {props.homeSection.title}
@@ -222,9 +238,9 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       distribution="start"
       css={{
         width: '100%',
-        gap: '20px',
-        bg: '$thNavMenuFooter',
-        py: '30px',
+        gap: '10px',
+        bg: '$homeCardHover',
+        py: '20px',
         px: '20px',
         borderRadius: '5px',
       }}
@@ -233,10 +249,10 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
         css={{
           fontFamily: '$inter',
           fontSize: '12px',
-          fontWeight: '600',
+          fontWeight: '500',
           textTransform: 'uppercase',
           color: '$ctaBlue',
-          bg: '#007AFF10',
+          bg: '#007AFF20',
           px: '10px',
           py: '5px',
           borderRadius: '5px',
@@ -364,8 +380,8 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
       distribution="start"
       alignment="center"
       css={{
-        fontSize: '16px',
-        lineHeight: '20px',
+        fontSize: '18px',
+        lineHeight: '24px',
         fontWeight: '600',
         fontFamily: '$inter',
         color: '$homeTextTitle',
@@ -377,6 +393,10 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
         '-webkit-box-orient': 'vertical',
         '&:title-text': {
           transition: 'text-decoration 0.3s ease',
+        },
+        '@mdDown': {
+          fontSize: '16px',
+          lineHeight: '20px',
         },
       }}
     >
@@ -392,8 +412,8 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
       distribution="start"
       alignment="center"
       css={{
-        fontSize: '13px',
-        lineHeight: '26px',
+        fontSize: '14px',
+        lineHeight: '21px',
         fontWeight: '500',
         fontFamily: '$inter',
         color: '$homeTextTitle',
@@ -421,13 +441,16 @@ const PreviewContent = (props: PreviewContentProps): JSX.Element => {
       css={{
         fontFamily: '$inter',
         fontSize: '14px',
-        lineHeight: '28px',
+        lineHeight: '21px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
         display: '-webkit-box',
         '-webkit-line-clamp': props.maxLines ?? '3',
         '-webkit-box-orient': 'vertical',
+        '@mdDown': {
+          '-webkit-line-clamp': '3',
+        },
       }}
     >
       {props.previewContent ?? ''}
@@ -449,10 +472,12 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         borderRadius: '5px',
         '&:hover': {
           bg: '$homeCardHover',
-          borderRadius: '0px',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
+        },
+        '@mdDown': {
+          minWidth: '282px',
         },
       }}
       onClick={(event) => {
@@ -491,9 +516,12 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         pt: '35px',
         cursor: 'pointer',
         borderRadius: '5px',
+        '@mdDown': {
+          pt: '15px',
+          borderRadius: '0px',
+        },
         '&:hover': {
           bg: '$homeCardHover',
-          borderRadius: '0px',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -573,14 +601,17 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
   return (
     <VStack
       css={{
+        mt: '10px',
         width: '100%',
         px: '10px',
         py: '10px',
-        gap: '2px',
+        gap: '5px',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$readerBg',
           cursor: 'pointer',
+        },
+        '&:hover .title-text': {
+          textDecoration: 'underline',
         },
       }}
       onClick={(event) => {
@@ -592,7 +623,17 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         }
       }}
     >
-      <TimeAgo homeItem={props.homeItem} />
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ width: '100%', gap: '5px', lineHeight: '1' }}
+      >
+        <SourceInfo homeItem={props.homeItem} subtle={true} />
+
+        <SpanBox css={{ ml: 'auto' }}>
+          <TimeAgo homeItem={props.homeItem} />
+        </SpanBox>
+      </HStack>
       <Title homeItem={props.homeItem} />
       <PreviewContent
         previewContent={props.homeItem.previewContent}
@@ -647,7 +688,7 @@ const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
       </HStack>
     </HoverCard.Trigger>
     <HoverCard.Portal>
-      <HoverCard.Content sideOffset={5}>
+      <HoverCard.Content sideOffset={5} style={{ zIndex: 5 }}>
         <SubscriptionSourceHoverContent source={props.homeItem.source} />
         <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
       </HoverCard.Content>

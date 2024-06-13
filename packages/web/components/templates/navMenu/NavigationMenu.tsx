@@ -90,7 +90,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
             top: props.showMenu ? '0' : '100%',
             visibility: props.showMenu ? 'visible' : 'hidden',
           },
-          zIndex: 10,
+          zIndex: 2,
         }}
       >
         <Box
