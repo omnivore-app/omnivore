@@ -153,28 +153,36 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
         text="Home"
         section="home"
         isSelected={props.section == 'home'}
-        icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
+        icon={<HomeIcon color={theme.colors.thLibraryMenuPrimary.toString()} />}
       />
       <NavButton
         {...props}
         text="Library"
         section="library"
         isSelected={props.section == 'library'}
-        icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
+        icon={
+          <LibraryIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+        }
       />
       <NavButton
         {...props}
         text="Subscriptions"
         section="subscriptions"
         isSelected={props.section == 'subscriptions'}
-        icon={<FollowingIcon color="#F59932" />}
+        icon={
+          <FollowingIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+        }
       />
       <NavButton
         {...props}
         text="Highlights"
         section="highlights"
         isSelected={props.section == 'highlights'}
-        icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
+        icon={
+          <HighlightsIcon
+            color={theme.colors.thLibraryMenuPrimary.toString()}
+          />
+        }
       />
       <Button
         style="articleActionIcon"

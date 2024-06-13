@@ -19,6 +19,7 @@ import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { LIBRARY_LEFT_MENU_WIDTH } from './navMenu/LibraryLegacyMenu'
 
 export type NavigationSection =
   | 'home'
@@ -144,13 +145,20 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
         />
       </SpanBox>
       {!isLoading && showNavMenu && (
-        <NavigationMenu
-          section={props.section}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          setShowAddLinkModal={() => {}}
-          showMenu={showNavMenu}
-          setShowMenu={setShowNavMenu}
-        />
+        <>
+          <NavigationMenu
+            section={props.section}
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            setShowAddLinkModal={() => {}}
+            showMenu={showNavMenu}
+            setShowMenu={setShowNavMenu}
+          />
+          <SpanBox
+            css={{
+              width: LIBRARY_LEFT_MENU_WIDTH,
+            }}
+          ></SpanBox>
+        </>
       )}
       {props.children}
       {showLogoutConfirmation ? (
@@ -181,7 +189,7 @@ const Header = (props: HeaderProps): JSX.Element => {
       alignment="start"
       distribution="start"
       css={{
-        zIndex: 5,
+        zIndex: 2,
         position: 'fixed',
         left: '15px',
         top: '15px',

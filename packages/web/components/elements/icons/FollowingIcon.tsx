@@ -6,33 +6,32 @@ import React from 'react'
 
 export class FollowingIcon extends React.Component<IconProps> {
   render() {
-    const size = (this.props.size || 26).toString()
     const color = (this.props.color || '#2A2A2A').toString()
 
     return (
       <svg
-        width={size}
-        height={size}
-        viewBox="0 0 25 25"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <g>
           <path
-            d="M12.5 4.5L4.5 8.5L12.5 12.5L20.5 8.5L12.5 4.5Z"
+            d="M11.5361 4.14185L3.86945 7.97518L11.5361 11.8085L19.2028 7.97518L11.5361 4.14185Z"
             fill={color}
             stroke={color}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M4.5 12.5L12.5 16.5L20.5 12.5"
+            d="M3.86945 11.8086L11.5361 15.6419L19.2028 11.8086"
             stroke={color}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M4.5 16.5L12.5 20.5L20.5 16.5"
+            d="M3.86945 15.6418L11.5361 19.4752L19.2028 15.6418"
             stroke={color}
             strokeLinecap="round"
             strokeLinejoin="round"
