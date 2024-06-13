@@ -4,7 +4,9 @@
 
 BEGIN;
 
-CREATE OR REPLACE PROCEDURE omnivore.batch_delete_trash_items()
+CREATE OR REPLACE PROCEDURE omnivore.batch_delete_trash_items(
+    num_days INT
+)
 LANGUAGE plpgsql AS $$
 DECLARE
     user_record RECORD;
@@ -26,7 +28,7 @@ BEGIN
             WHERE
                 user_id = user_record.id
                 AND state = 'DELETED'
-                AND deleted_at < NOW() - INTERVAL '14 days';
+                AND deleted_at < NOW() - INTERVAL '1 day' * num_days;
 
             COMMIT;
         END;

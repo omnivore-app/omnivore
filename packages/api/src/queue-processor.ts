@@ -216,7 +216,7 @@ export const createWorker = (connection: ConnectionOptions) =>
           case GENERATE_PREVIEW_CONTENT_JOB:
             return generatePreviewContent(job.data)
           case PRUNE_TRASH_JOB:
-            return pruneTrashJob()
+            return pruneTrashJob(job.data)
           default:
             logger.warning(`[queue-processor] unhandled job: ${job.name}`)
         }
@@ -248,18 +248,6 @@ const setupCronJobs = async () => {
       priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
-      },
-    }
-  )
-
-  await queue.add(
-    PRUNE_TRASH_JOB,
-    {},
-    {
-      priority: getJobPriority(PRUNE_TRASH_JOB),
-      repeat: {
-        // daily at 3am
-        pattern: '0 3 * * *',
       },
     }
   )

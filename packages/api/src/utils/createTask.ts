@@ -1053,4 +1053,23 @@ export const enqueueGeneratePreviewContentJob = async (
   )
 }
 
+export const enqueuePruneTrashJob = async (numDays: number) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(
+    PRUNE_TRASH_JOB,
+    { numDays },
+    {
+      jobId: `${PRUNE_TRASH_JOB}_${numDays}_${JOB_VERSION}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+      priority: getJobPriority(PRUNE_TRASH_JOB),
+      attempts: 3,
+    }
+  )
+}
+
 export default createHttpTaskWithToken

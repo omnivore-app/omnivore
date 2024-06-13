@@ -1354,17 +1354,6 @@ export const deleteLibraryItemsByUserId = async (userId: string) => {
   )
 }
 
-export const deleteLibraryItemsByAdmin = async (
-  criteria: FindOptionsWhere<LibraryItem>
-) => {
-  return authTrx(
-    async (tx) => tx.withRepository(libraryItemRepository).delete(criteria),
-    undefined,
-    undefined,
-    'admin'
-  )
-}
-
 export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
   const batchSize = 1000
 
@@ -1779,6 +1768,3 @@ export const downloadOriginalContent = async (
     })
   )
 }
-
-export const pruneTrash = async () =>
-  appDataSource.query(`CALL omnivore.batch_delete_trash_items();`)
