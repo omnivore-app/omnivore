@@ -244,19 +244,21 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
         },
       }}
     >
-      <SpanBox
-        css={{
-          fontFamily: '$inter',
-          fontSize: '16px',
-          fontWeight: '600',
-          color: '$homeTextTitle',
-          '@mdDown': {
-            px: '20px',
-          },
-        }}
-      >
-        {props.homeSection.title}
-      </SpanBox>
+      {items.length > 0 && (
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '$homeTextTitle',
+            '@mdDown': {
+              px: '20px',
+            },
+          }}
+        >
+          {props.homeSection.title}
+        </SpanBox>
+      )}
 
       <Pagination
         items={items}
