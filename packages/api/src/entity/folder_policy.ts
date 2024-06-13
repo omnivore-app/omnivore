@@ -35,9 +35,6 @@ export class FolderPolicy {
   @Column('int')
   afterDays!: number
 
-  @Column('int')
-  minimumItems!: number
-
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',

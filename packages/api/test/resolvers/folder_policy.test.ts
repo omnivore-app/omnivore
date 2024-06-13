@@ -102,7 +102,6 @@ describe('Folder Policy API', () => {
         folder: 'test-folder',
         action: FolderPolicyAction.Archive,
         afterDays: 30,
-        minimumItems: 10,
       }
 
       const res = await graphqlRequest(mutation, authToken, { input }).expect(
@@ -160,7 +159,6 @@ describe('Folder Policy API', () => {
         id: existingPolicy.id,
         action: FolderPolicyAction.Delete,
         afterDays: 30,
-        minimumItems: 10,
       }
 
       const res = await graphqlRequest(mutation, authToken, { input }).expect(
