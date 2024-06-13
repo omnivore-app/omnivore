@@ -238,6 +238,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         homeActionHoverBg: '#DFDFDF',
         homeDivider: '#D9D9D9',
 
+        backgroundMedium: '#FFFFFF',
+
         thLibraryAISummaryBorder: '#6A6968',
         thLibraryAISummaryBackground: '#343434',
 
@@ -392,6 +394,8 @@ const darkThemeSpec = {
     homeActionHoverBg: '#515151',
     homeDivider: '#3D3D3D',
 
+    backgroundMedium: '#323232',
+
     thLibraryAISummaryBorder: '#6A6968',
     thLibraryAISummaryBackground: '#343434',
 
@@ -431,6 +435,8 @@ const apolloThemeSpec = {
 
     thBackground: '#474747',
     thBackground2: '#515151',
+    backgroundMedium: '#525252',
+
     thLibraryMultiselectHover: '#EEE8D5',
   },
 }
@@ -456,6 +462,7 @@ const sepiaThemeSpec = {
     thBackground: '#FDF6E3',
 
     homeCardHover: '#EEE8D5',
+    backgroundMedium: '#EEE8D5',
     homeDivider: '#DDD6C1',
     homeActionHoverBg: '#DDD6C1',
 

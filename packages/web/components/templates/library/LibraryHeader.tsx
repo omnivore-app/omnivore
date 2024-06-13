@@ -274,7 +274,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         height: '38px',
         width: '100%',
         maxWidth: '521px',
-        bg: '$thLibrarySearchbox',
+        bg: '$backgroundMedium',
         borderRadius: '6px',
         boxShadow: props.searchBoxFocused
           ? 'none'
