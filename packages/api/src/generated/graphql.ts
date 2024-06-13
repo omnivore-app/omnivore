@@ -363,7 +363,6 @@ export type CreateFolderPolicyInput = {
   action: FolderPolicyAction;
   afterDays: Scalars['Int'];
   folder: Scalars['String'];
-  minimumItems?: InputMaybe<Scalars['Int']>;
 };
 
 export type CreateFolderPolicyResult = CreateFolderPolicyError | CreateFolderPolicySuccess;
@@ -1145,7 +1144,6 @@ export type FolderPolicy = {
   createdAt: Scalars['Date'];
   folder: Scalars['String'];
   id: Scalars['ID'];
-  minimumItems: Scalars['Int'];
   updatedAt: Scalars['Date'];
 };
 
@@ -3661,7 +3659,6 @@ export type UpdateFolderPolicyInput = {
   action?: InputMaybe<FolderPolicyAction>;
   afterDays?: InputMaybe<Scalars['Int']>;
   id: Scalars['ID'];
-  minimumItems?: InputMaybe<Scalars['Int']>;
 };
 
 export type UpdateFolderPolicyResult = UpdateFolderPolicyError | UpdateFolderPolicySuccess;
@@ -6191,7 +6188,6 @@ export type FolderPolicyResolvers<ContextType = ResolverContext, ParentType exte
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  minimumItems?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

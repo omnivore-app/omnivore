@@ -44,9 +44,9 @@ export const createFolderPolicyResolver = authorized<
   CreateFolderPolicyError,
   MutationCreateFolderPolicyArgs
 >(async (_, { input }, { uid, log }) => {
-  const { folder, action, afterDays, minimumItems } = input
+  const { folder, action, afterDays } = input
 
-  if (afterDays < 0 || (minimumItems && minimumItems < 0)) {
+  if (afterDays < 0) {
     log.error('Invalid values')
 
     return {
@@ -59,7 +59,6 @@ export const createFolderPolicyResolver = authorized<
     folder,
     action: action as unknown as FolderPolicyAction,
     afterDays,
-    minimumItems: minimumItems ?? 0,
   })
 
   return {
@@ -72,9 +71,9 @@ export const updateFolderPolicyResolver = authorized<
   UpdateFolderPolicyError,
   MutationUpdateFolderPolicyArgs
 >(async (_, { input }, { log, uid }) => {
-  const { id, action, afterDays, minimumItems } = input
+  const { id, action, afterDays } = input
 
-  if (!action && !afterDays && !minimumItems) {
+  if (!action && !afterDays) {
     log.error('No fields to update')
 
     return {
@@ -82,7 +81,7 @@ export const updateFolderPolicyResolver = authorized<
     }
   }
 
-  if ((afterDays && afterDays < 0) || (minimumItems && minimumItems < 0)) {
+  if (afterDays && afterDays < 0) {
     log.error('Invalid values')
 
     return {
@@ -93,7 +92,6 @@ export const updateFolderPolicyResolver = authorized<
   const result = await updateFolderPolicy(uid, id, {
     action: action ? (action as unknown as FolderPolicyAction) : undefined,
     afterDays: afterDays ?? undefined,
-    minimumItems: minimumItems ?? undefined,
   })
 
   if (!result.affected) {

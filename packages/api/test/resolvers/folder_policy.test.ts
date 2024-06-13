@@ -57,14 +57,12 @@ describe('Folder Policy API', () => {
         folder: 'inbox',
         action: FolderPolicyAction.Archive,
         afterDays: 30,
-        minimumItems: 10,
       })
       const existingPolicy1 = await createFolderPolicy({
         userId: loginUser.id,
         folder: 'following',
         action: FolderPolicyAction.Archive,
         afterDays: 30,
-        minimumItems: 10,
       })
 
       const res = await graphqlRequest(query, authToken).expect(200)
@@ -131,7 +129,6 @@ describe('Folder Policy API', () => {
         folder: 'test-folder',
         action: FolderPolicyAction.Archive,
         afterDays: 30,
-        minimumItems: 10,
       })
     })
 
@@ -188,7 +185,6 @@ describe('Folder Policy API', () => {
         folder: 'test-folder',
         action: FolderPolicyAction.Archive,
         afterDays: 30,
-        minimumItems: 10,
       })
     })
 

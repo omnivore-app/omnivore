@@ -3252,7 +3252,6 @@ const schema = gql`
     folder: String!
     action: FolderPolicyAction!
     afterDays: Int!
-    minimumItems: Int!
     createdAt: Date!
     updatedAt: Date!
   }
@@ -3281,7 +3280,6 @@ const schema = gql`
     folder: String! @sanitize(minLength: 1, maxLength: 255)
     action: FolderPolicyAction!
     afterDays: Int!
-    minimumItems: Int
   }
 
   union CreateFolderPolicyResult =
@@ -3338,7 +3336,6 @@ const schema = gql`
     id: ID!
     action: FolderPolicyAction
     afterDays: Int
-    minimumItems: Int
   }
 
   # Mutations

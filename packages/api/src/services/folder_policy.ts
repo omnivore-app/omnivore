@@ -6,7 +6,6 @@ export const createFolderPolicy = async (folderPolicy: {
   folder: string
   action: FolderPolicyAction
   afterDays: number
-  minimumItems: number
 }) => {
   return getRepository(FolderPolicy).save(folderPolicy)
 }
@@ -37,10 +36,6 @@ export const deleteFolderPolicy = async (
     id: folderPolicyId,
     userId,
   })
-}
-
-export const findFolderPolicies = async () => {
-  return getRepository(FolderPolicy).find()
 }
 
 export const findFolderPolicyById = async (
