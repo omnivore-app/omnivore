@@ -24,9 +24,6 @@ export const NavMenuFooter = (props: NavMenuFooterProps): JSX.Element => {
         '&::-webkit-scrollbar': {
           display: 'none',
         },
-        '@mdDown': {
-          width: '100%',
-        },
       }}
     >
       <PrimaryDropdown />
