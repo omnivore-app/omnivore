@@ -408,8 +408,8 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
       distribution="start"
       alignment="center"
       css={{
-        fontSize: '13px',
-        lineHeight: '26px',
+        fontSize: '14px',
+        lineHeight: '21px',
         fontWeight: '500',
         fontFamily: '$inter',
         color: '$homeTextTitle',
@@ -680,7 +680,7 @@ const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
       </HStack>
     </HoverCard.Trigger>
     <HoverCard.Portal>
-      <HoverCard.Content sideOffset={5}>
+      <HoverCard.Content sideOffset={5} style={{ zIndex: '5' }}>
         <SubscriptionSourceHoverContent source={props.homeItem.source} />
         <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
       </HoverCard.Content>
