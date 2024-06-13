@@ -7,7 +7,7 @@ import { enqueueUpdateHomeJob } from '../utils/createTask'
 import { lanaugeToCode } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
-export const SCORE_LIBRARY_ITEM_JOB = 'SCORE_LIBRARY_ITEM_JOB'
+export const SCORE_LIBRARY_ITEM_JOB = 'score-library-item'
 
 export interface ScoreLibraryItemJobData {
   userId: string

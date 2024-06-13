@@ -50,6 +50,7 @@ import {
   PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
 } from './jobs/process-youtube-video'
+import { pruneTrashJob, PRUNE_TRASH_JOB } from './jobs/prune_trash'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
@@ -214,6 +215,8 @@ export const createWorker = (connection: ConnectionOptions) =>
             return scoreLibraryItem(job.data)
           case GENERATE_PREVIEW_CONTENT_JOB:
             return generatePreviewContent(job.data)
+          case PRUNE_TRASH_JOB:
+            return pruneTrashJob(job.data)
           default:
             logger.warning(`[queue-processor] unhandled job: ${job.name}`)
         }
@@ -227,6 +230,7 @@ export const createWorker = (connection: ConnectionOptions) =>
       connection,
       autorun: true, // start processing jobs immediately
       lockDuration: 60_000, // 1 minute
+      concurrency: 10,
     }
   )
 
