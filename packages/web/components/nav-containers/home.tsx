@@ -380,6 +380,7 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
       distribution="start"
       alignment="center"
       css={{
+        mb: '5px',
         fontSize: '18px',
         lineHeight: '24px',
         fontWeight: '600',
@@ -513,7 +514,7 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       css={{
         width: '100%',
         p: '0px',
-        pt: '35px',
+        pt: '20px',
         cursor: 'pointer',
         borderRadius: '5px',
         '@mdDown': {
@@ -537,38 +538,37 @@ const TopicPickHomeItemView = (props: HomeItemViewProps): JSX.Element => {
       }}
       alignment="start"
     >
-      <HStack css={{ width: '100%', gap: '5px', px: '20px' }}>
-        <VStack css={{ gap: '15px' }}>
-          <HStack
-            distribution="start"
-            alignment="center"
-            css={{ gap: '5px', lineHeight: '1' }}
-          >
-            <SourceInfo homeItem={props.homeItem} />
-            <TimeAgo homeItem={props.homeItem} />
-          </HStack>
-          <Title homeItem={props.homeItem} />
-        </VStack>
-        <SpanBox css={{ ml: 'auto' }}>
-          {props.homeItem.thumbnail && (
-            <CoverImage
-              css={{
-                mt: '6px',
-                width: '120px',
-                height: '70px',
-                borderRadius: '4px',
-              }}
-              src={props.homeItem.thumbnail}
-            ></CoverImage>
-          )}
-        </SpanBox>
-      </HStack>
-      <SpanBox css={{ px: '20px' }}>
+      <Box css={{ width: '100%', gap: '10px', px: '20px' }}>
+        <HStack
+          distribution="start"
+          alignment="center"
+          css={{ gap: '5px', lineHeight: '1', mb: '10px' }}
+        >
+          <SourceInfo homeItem={props.homeItem} />
+          <TimeAgo homeItem={props.homeItem} />
+        </HStack>
+
+        {props.homeItem.thumbnail && (
+          <CoverImage
+            css={{
+              width: '120px',
+              height: '70px',
+              borderRadius: '4px',
+              marginLeft: '10px',
+              float: 'right',
+            }}
+            src={props.homeItem.thumbnail}
+          ></CoverImage>
+        )}
+        <Title homeItem={props.homeItem} />
         <PreviewContent
           previewContent={props.homeItem.previewContent}
           maxLines="6"
         />
-      </SpanBox>
+
+        <SpanBox css={{ ml: 'auto' }}></SpanBox>
+      </Box>
+      <SpanBox css={{ px: '20px' }}></SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         <Button style="homeAction">
           <AddToLibraryActionIcon
