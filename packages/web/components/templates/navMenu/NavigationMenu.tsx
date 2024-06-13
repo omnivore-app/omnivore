@@ -98,13 +98,9 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
           css={{
             width: '100%',
             px: '15px',
-            pb: '17px',
+            pb: '10px',
             pt: '15px',
             lineHeight: '1',
-            '@mdDown': {
-              pb: '0px',
-              px: '15px',
-            },
           }}
         >
           <SpanBox css={{ mr: 'auto' }}>
@@ -127,18 +123,6 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
         <NavMenuFooter {...props} showFullThemeSection={true} />
         <Box css={{ height: '250px ' }} />
       </Box>
-      {/* This spacer pushes library content to the right of 
-      the fixed left side menu. */}
-      <Box
-        css={{
-          minWidth: LIBRARY_LEFT_MENU_WIDTH,
-          height: '100%',
-          bg: '$thBackground',
-          '@mdDown': {
-            display: 'none',
-          },
-        }}
-      ></Box>
     </>
   )
 }
