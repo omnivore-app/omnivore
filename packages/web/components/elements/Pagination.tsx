@@ -46,8 +46,8 @@ const Pagination = <T,>({
               fontFamily: '$inter',
               fontSize: '15px',
               fontWeight: '500',
-              color: '$thTextSubtle4',
-              bg: '#3D3D3D',
+              color: '$readerFont',
+              bg: '$thNavMenuFooter',
               py: '10px',
               px: '25px',
             }}
