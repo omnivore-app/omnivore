@@ -564,12 +564,10 @@ const TopicPickHomeItemView = (
     <VStack
       css={{
         width: '100%',
-        p: '0px',
-        pt: '20px',
+        pt: '15px',
         cursor: 'pointer',
         borderRadius: '5px',
         '@mdDown': {
-          pt: '15px',
           borderRadius: '0px',
         },
         '&:hover': {
