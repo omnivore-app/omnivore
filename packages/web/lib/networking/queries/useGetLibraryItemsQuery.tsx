@@ -253,7 +253,7 @@ export function useGetLibraryItemsQuery(
       ]
     },
     (args: any[]) => {
-      const pageIndex = args[4] as number
+      const pageIndex = args[3] as number
       return gqlFetcher(query, { ...variables, after: pageIndex }, true)
     },
     { revalidateFirstPage: false }
