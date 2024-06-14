@@ -97,7 +97,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
         <Box
           css={{
             width: '100%',
-            px: '15px',
+            px: '20px',
             pb: '10px',
             pt: '15px',
             lineHeight: '1',
@@ -193,7 +193,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
           gap: '10px',
           maxWidth: '100%',
           height: '34px',
-          px: '15px',
+          px: '20px',
 
           fontSize: '15px',
           fontWeight: 'regular',
@@ -581,7 +581,7 @@ function NodeRenderer(args: {
       alignment="center"
       distribution="start"
       css={{
-        pl: `${15 + args.node.level * 15}px`,
+        pl: `${20 + args.node.level * 15}px`,
         mb: '2px',
         gap: '10px',
         display: 'flex',
@@ -852,14 +852,13 @@ function NavButton(props: NavButtonProps): JSX.Element {
       alignment="center"
       distribution="start"
       css={{
-        pl: '10px',
         mb: '2px',
         gap: '10px',
         display: 'flex',
         width: '100%',
         maxWidth: '100%',
         height: '34px',
-        px: '15px',
+        px: '20px',
 
         backgroundColor: props.isSelected
           ? '$thLibrarySelectionColor'
