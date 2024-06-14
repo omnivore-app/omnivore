@@ -349,6 +349,29 @@ export type CreateArticleSuccess = {
   user: User;
 };
 
+export type CreateFolderPolicyError = {
+  __typename?: 'CreateFolderPolicyError';
+  errorCodes: Array<CreateFolderPolicyErrorCode>;
+};
+
+export enum CreateFolderPolicyErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type CreateFolderPolicyInput = {
+  action: FolderPolicyAction;
+  afterDays: Scalars['Int'];
+  folder: Scalars['String'];
+};
+
+export type CreateFolderPolicyResult = CreateFolderPolicyError | CreateFolderPolicySuccess;
+
+export type CreateFolderPolicySuccess = {
+  __typename?: 'CreateFolderPolicySuccess';
+  policy: FolderPolicy;
+};
+
 export type CreateGroupError = {
   __typename?: 'CreateGroupError';
   errorCodes: Array<CreateGroupErrorCode>;
@@ -617,6 +640,22 @@ export type DeleteFilterResult = DeleteFilterError | DeleteFilterSuccess;
 export type DeleteFilterSuccess = {
   __typename?: 'DeleteFilterSuccess';
   filter: Filter;
+};
+
+export type DeleteFolderPolicyError = {
+  __typename?: 'DeleteFolderPolicyError';
+  errorCodes: Array<DeleteFolderPolicyErrorCode>;
+};
+
+export enum DeleteFolderPolicyErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteFolderPolicyResult = DeleteFolderPolicyError | DeleteFolderPolicySuccess;
+
+export type DeleteFolderPolicySuccess = {
+  __typename?: 'DeleteFolderPolicySuccess';
+  success: Scalars['Boolean'];
 };
 
 export type DeleteHighlightError = {
@@ -1080,6 +1119,38 @@ export type FiltersSuccess = {
   __typename?: 'FiltersSuccess';
   filters: Array<Filter>;
 };
+
+export type FolderPoliciesError = {
+  __typename?: 'FolderPoliciesError';
+  errorCodes: Array<FolderPoliciesErrorCode>;
+};
+
+export enum FolderPoliciesErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FolderPoliciesResult = FolderPoliciesError | FolderPoliciesSuccess;
+
+export type FolderPoliciesSuccess = {
+  __typename?: 'FolderPoliciesSuccess';
+  policies: Array<FolderPolicy>;
+};
+
+export type FolderPolicy = {
+  __typename?: 'FolderPolicy';
+  action: FolderPolicyAction;
+  afterDays: Scalars['Int'];
+  createdAt: Scalars['Date'];
+  folder: Scalars['String'];
+  id: Scalars['ID'];
+  updatedAt: Scalars['Date'];
+};
+
+export enum FolderPolicyAction {
+  Archive = 'ARCHIVE',
+  Delete = 'DELETE'
+}
 
 export type GenerateApiKeyError = {
   __typename?: 'GenerateApiKeyError';
@@ -1723,6 +1794,7 @@ export type Mutation = {
   bulkAction: BulkActionResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
+  createFolderPolicy: CreateFolderPolicyResult;
   createGroup: CreateGroupResult;
   createHighlight: CreateHighlightResult;
   createLabel: CreateLabelResult;
@@ -1731,6 +1803,7 @@ export type Mutation = {
   deleteDiscoverArticle: DeleteDiscoverArticleResult;
   deleteDiscoverFeed: DeleteDiscoverFeedResult;
   deleteFilter: DeleteFilterResult;
+  deleteFolderPolicy: DeleteFolderPolicyResult;
   deleteHighlight: DeleteHighlightResult;
   deleteIntegration: DeleteIntegrationResult;
   deleteLabel: DeleteLabelResult;
@@ -1780,6 +1853,7 @@ export type Mutation = {
   unsubscribe: UnsubscribeResult;
   updateEmail: UpdateEmailResult;
   updateFilter: UpdateFilterResult;
+  updateFolderPolicy: UpdateFolderPolicyResult;
   updateHighlight: UpdateHighlightResult;
   updateLabel: UpdateLabelResult;
   updateNewsletterEmail: UpdateNewsletterEmailResult;
@@ -1822,6 +1896,11 @@ export type MutationCreateArticleSavingRequestArgs = {
 };
 
 
+export type MutationCreateFolderPolicyArgs = {
+  input: CreateFolderPolicyInput;
+};
+
+
 export type MutationCreateGroupArgs = {
   input: CreateGroupInput;
 };
@@ -1858,6 +1937,11 @@ export type MutationDeleteDiscoverFeedArgs = {
 
 
 export type MutationDeleteFilterArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteFolderPolicyArgs = {
   id: Scalars['ID'];
 };
 
@@ -2095,6 +2179,11 @@ export type MutationUpdateFilterArgs = {
 };
 
 
+export type MutationUpdateFolderPolicyArgs = {
+  input: UpdateFolderPolicyInput;
+};
+
+
 export type MutationUpdateHighlightArgs = {
   input: UpdateHighlightInput;
 };
@@ -2280,6 +2369,7 @@ export type Query = {
   discoverTopics: GetDiscoverTopicResults;
   feeds: FeedsResult;
   filters: FiltersResult;
+  folderPolicies: FolderPoliciesResult;
   getDiscoverFeedArticles: GetDiscoverFeedArticleResults;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
@@ -3555,6 +3645,29 @@ export type UpdateFilterSuccess = {
   filter: Filter;
 };
 
+export type UpdateFolderPolicyError = {
+  __typename?: 'UpdateFolderPolicyError';
+  errorCodes: Array<UpdateFolderPolicyErrorCode>;
+};
+
+export enum UpdateFolderPolicyErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateFolderPolicyInput = {
+  action?: InputMaybe<FolderPolicyAction>;
+  afterDays?: InputMaybe<Scalars['Int']>;
+  id: Scalars['ID'];
+};
+
+export type UpdateFolderPolicyResult = UpdateFolderPolicyError | UpdateFolderPolicySuccess;
+
+export type UpdateFolderPolicySuccess = {
+  __typename?: 'UpdateFolderPolicySuccess';
+  policy: FolderPolicy;
+};
+
 export type UpdateHighlightError = {
   __typename?: 'UpdateHighlightError';
   errorCodes: Array<UpdateHighlightErrorCode>;
@@ -4180,6 +4293,11 @@ export type ResolversTypes = {
   CreateArticleSavingRequestResult: ResolversTypes['CreateArticleSavingRequestError'] | ResolversTypes['CreateArticleSavingRequestSuccess'];
   CreateArticleSavingRequestSuccess: ResolverTypeWrapper<CreateArticleSavingRequestSuccess>;
   CreateArticleSuccess: ResolverTypeWrapper<CreateArticleSuccess>;
+  CreateFolderPolicyError: ResolverTypeWrapper<CreateFolderPolicyError>;
+  CreateFolderPolicyErrorCode: CreateFolderPolicyErrorCode;
+  CreateFolderPolicyInput: CreateFolderPolicyInput;
+  CreateFolderPolicyResult: ResolversTypes['CreateFolderPolicyError'] | ResolversTypes['CreateFolderPolicySuccess'];
+  CreateFolderPolicySuccess: ResolverTypeWrapper<CreateFolderPolicySuccess>;
   CreateGroupError: ResolverTypeWrapper<CreateGroupError>;
   CreateGroupErrorCode: CreateGroupErrorCode;
   CreateGroupInput: CreateGroupInput;
@@ -4234,6 +4352,10 @@ export type ResolversTypes = {
   DeleteFilterErrorCode: DeleteFilterErrorCode;
   DeleteFilterResult: ResolversTypes['DeleteFilterError'] | ResolversTypes['DeleteFilterSuccess'];
   DeleteFilterSuccess: ResolverTypeWrapper<DeleteFilterSuccess>;
+  DeleteFolderPolicyError: ResolverTypeWrapper<DeleteFolderPolicyError>;
+  DeleteFolderPolicyErrorCode: DeleteFolderPolicyErrorCode;
+  DeleteFolderPolicyResult: ResolversTypes['DeleteFolderPolicyError'] | ResolversTypes['DeleteFolderPolicySuccess'];
+  DeleteFolderPolicySuccess: ResolverTypeWrapper<DeleteFolderPolicySuccess>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
@@ -4324,6 +4446,12 @@ export type ResolversTypes = {
   FiltersResult: ResolversTypes['FiltersError'] | ResolversTypes['FiltersSuccess'];
   FiltersSuccess: ResolverTypeWrapper<FiltersSuccess>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  FolderPoliciesError: ResolverTypeWrapper<FolderPoliciesError>;
+  FolderPoliciesErrorCode: FolderPoliciesErrorCode;
+  FolderPoliciesResult: ResolversTypes['FolderPoliciesError'] | ResolversTypes['FolderPoliciesSuccess'];
+  FolderPoliciesSuccess: ResolverTypeWrapper<FolderPoliciesSuccess>;
+  FolderPolicy: ResolverTypeWrapper<FolderPolicy>;
+  FolderPolicyAction: FolderPolicyAction;
   GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
   GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
   GenerateApiKeyInput: GenerateApiKeyInput;
@@ -4659,6 +4787,11 @@ export type ResolversTypes = {
   UpdateFilterInput: UpdateFilterInput;
   UpdateFilterResult: ResolversTypes['UpdateFilterError'] | ResolversTypes['UpdateFilterSuccess'];
   UpdateFilterSuccess: ResolverTypeWrapper<UpdateFilterSuccess>;
+  UpdateFolderPolicyError: ResolverTypeWrapper<UpdateFolderPolicyError>;
+  UpdateFolderPolicyErrorCode: UpdateFolderPolicyErrorCode;
+  UpdateFolderPolicyInput: UpdateFolderPolicyInput;
+  UpdateFolderPolicyResult: ResolversTypes['UpdateFolderPolicyError'] | ResolversTypes['UpdateFolderPolicySuccess'];
+  UpdateFolderPolicySuccess: ResolverTypeWrapper<UpdateFolderPolicySuccess>;
   UpdateHighlightError: ResolverTypeWrapper<UpdateHighlightError>;
   UpdateHighlightErrorCode: UpdateHighlightErrorCode;
   UpdateHighlightInput: UpdateHighlightInput;
@@ -4794,6 +4927,10 @@ export type ResolversParentTypes = {
   CreateArticleSavingRequestResult: ResolversParentTypes['CreateArticleSavingRequestError'] | ResolversParentTypes['CreateArticleSavingRequestSuccess'];
   CreateArticleSavingRequestSuccess: CreateArticleSavingRequestSuccess;
   CreateArticleSuccess: CreateArticleSuccess;
+  CreateFolderPolicyError: CreateFolderPolicyError;
+  CreateFolderPolicyInput: CreateFolderPolicyInput;
+  CreateFolderPolicyResult: ResolversParentTypes['CreateFolderPolicyError'] | ResolversParentTypes['CreateFolderPolicySuccess'];
+  CreateFolderPolicySuccess: CreateFolderPolicySuccess;
   CreateGroupError: CreateGroupError;
   CreateGroupInput: CreateGroupInput;
   CreateGroupResult: ResolversParentTypes['CreateGroupError'] | ResolversParentTypes['CreateGroupSuccess'];
@@ -4837,6 +4974,9 @@ export type ResolversParentTypes = {
   DeleteFilterError: DeleteFilterError;
   DeleteFilterResult: ResolversParentTypes['DeleteFilterError'] | ResolversParentTypes['DeleteFilterSuccess'];
   DeleteFilterSuccess: DeleteFilterSuccess;
+  DeleteFolderPolicyError: DeleteFolderPolicyError;
+  DeleteFolderPolicyResult: ResolversParentTypes['DeleteFolderPolicyError'] | ResolversParentTypes['DeleteFolderPolicySuccess'];
+  DeleteFolderPolicySuccess: DeleteFolderPolicySuccess;
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
   DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
@@ -4906,6 +5046,10 @@ export type ResolversParentTypes = {
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
   FiltersSuccess: FiltersSuccess;
   Float: Scalars['Float'];
+  FolderPoliciesError: FolderPoliciesError;
+  FolderPoliciesResult: ResolversParentTypes['FolderPoliciesError'] | ResolversParentTypes['FolderPoliciesSuccess'];
+  FolderPoliciesSuccess: FolderPoliciesSuccess;
+  FolderPolicy: FolderPolicy;
   GenerateApiKeyError: GenerateApiKeyError;
   GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
@@ -5166,6 +5310,10 @@ export type ResolversParentTypes = {
   UpdateFilterInput: UpdateFilterInput;
   UpdateFilterResult: ResolversParentTypes['UpdateFilterError'] | ResolversParentTypes['UpdateFilterSuccess'];
   UpdateFilterSuccess: UpdateFilterSuccess;
+  UpdateFolderPolicyError: UpdateFolderPolicyError;
+  UpdateFolderPolicyInput: UpdateFolderPolicyInput;
+  UpdateFolderPolicyResult: ResolversParentTypes['UpdateFolderPolicyError'] | ResolversParentTypes['UpdateFolderPolicySuccess'];
+  UpdateFolderPolicySuccess: UpdateFolderPolicySuccess;
   UpdateHighlightError: UpdateHighlightError;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: UpdateHighlightReplyError;
@@ -5469,6 +5617,20 @@ export type CreateArticleSuccessResolvers<ContextType = ResolverContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CreateFolderPolicyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateFolderPolicyError'] = ResolversParentTypes['CreateFolderPolicyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['CreateFolderPolicyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateFolderPolicyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateFolderPolicyResult'] = ResolversParentTypes['CreateFolderPolicyResult']> = {
+  __resolveType: TypeResolveFn<'CreateFolderPolicyError' | 'CreateFolderPolicySuccess', ParentType, ContextType>;
+};
+
+export type CreateFolderPolicySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateFolderPolicySuccess'] = ResolversParentTypes['CreateFolderPolicySuccess']> = {
+  policy?: Resolver<ResolversTypes['FolderPolicy'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CreateGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateGroupError'] = ResolversParentTypes['CreateGroupError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['CreateGroupErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5624,6 +5786,20 @@ export type DeleteFilterResultResolvers<ContextType = ResolverContext, ParentTyp
 
 export type DeleteFilterSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFilterSuccess'] = ResolversParentTypes['DeleteFilterSuccess']> = {
   filter?: Resolver<ResolversTypes['Filter'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteFolderPolicyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFolderPolicyError'] = ResolversParentTypes['DeleteFolderPolicyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteFolderPolicyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteFolderPolicyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFolderPolicyResult'] = ResolversParentTypes['DeleteFolderPolicyResult']> = {
+  __resolveType: TypeResolveFn<'DeleteFolderPolicyError' | 'DeleteFolderPolicySuccess', ParentType, ContextType>;
+};
+
+export type DeleteFolderPolicySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFolderPolicySuccess'] = ResolversParentTypes['DeleteFolderPolicySuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5989,6 +6165,30 @@ export type FiltersResultResolvers<ContextType = ResolverContext, ParentType ext
 
 export type FiltersSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FiltersSuccess'] = ResolversParentTypes['FiltersSuccess']> = {
   filters?: Resolver<Array<ResolversTypes['Filter']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FolderPoliciesErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FolderPoliciesError'] = ResolversParentTypes['FolderPoliciesError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FolderPoliciesErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FolderPoliciesResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FolderPoliciesResult'] = ResolversParentTypes['FolderPoliciesResult']> = {
+  __resolveType: TypeResolveFn<'FolderPoliciesError' | 'FolderPoliciesSuccess', ParentType, ContextType>;
+};
+
+export type FolderPoliciesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FolderPoliciesSuccess'] = ResolversParentTypes['FolderPoliciesSuccess']> = {
+  policies?: Resolver<Array<ResolversTypes['FolderPolicy']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FolderPolicyResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FolderPolicy'] = ResolversParentTypes['FolderPolicy']> = {
+  action?: Resolver<ResolversTypes['FolderPolicyAction'], ParentType, ContextType>;
+  afterDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6486,6 +6686,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
+  createFolderPolicy?: Resolver<ResolversTypes['CreateFolderPolicyResult'], ParentType, ContextType, RequireFields<MutationCreateFolderPolicyArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
@@ -6494,6 +6695,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteDiscoverArticle?: Resolver<ResolversTypes['DeleteDiscoverArticleResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverArticleArgs, 'input'>>;
   deleteDiscoverFeed?: Resolver<ResolversTypes['DeleteDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverFeedArgs, 'input'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
+  deleteFolderPolicy?: Resolver<ResolversTypes['DeleteFolderPolicyResult'], ParentType, ContextType, RequireFields<MutationDeleteFolderPolicyArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
@@ -6543,6 +6745,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateEmail?: Resolver<ResolversTypes['UpdateEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateEmailArgs, 'input'>>;
   updateFilter?: Resolver<ResolversTypes['UpdateFilterResult'], ParentType, ContextType, RequireFields<MutationUpdateFilterArgs, 'input'>>;
+  updateFolderPolicy?: Resolver<ResolversTypes['UpdateFolderPolicyResult'], ParentType, ContextType, RequireFields<MutationUpdateFolderPolicyArgs, 'input'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
   updateNewsletterEmail?: Resolver<ResolversTypes['UpdateNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateNewsletterEmailArgs, 'input'>>;
@@ -6639,6 +6842,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   discoverTopics?: Resolver<ResolversTypes['GetDiscoverTopicResults'], ParentType, ContextType>;
   feeds?: Resolver<ResolversTypes['FeedsResult'], ParentType, ContextType, RequireFields<QueryFeedsArgs, 'input'>>;
   filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
+  folderPolicies?: Resolver<ResolversTypes['FolderPoliciesResult'], ParentType, ContextType>;
   getDiscoverFeedArticles?: Resolver<ResolversTypes['GetDiscoverFeedArticleResults'], ParentType, ContextType, RequireFields<QueryGetDiscoverFeedArticlesArgs, 'discoverTopicId'>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
@@ -7391,6 +7595,20 @@ export type UpdateFilterSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateFolderPolicyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateFolderPolicyError'] = ResolversParentTypes['UpdateFolderPolicyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateFolderPolicyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateFolderPolicyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateFolderPolicyResult'] = ResolversParentTypes['UpdateFolderPolicyResult']> = {
+  __resolveType: TypeResolveFn<'UpdateFolderPolicyError' | 'UpdateFolderPolicySuccess', ParentType, ContextType>;
+};
+
+export type UpdateFolderPolicySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateFolderPolicySuccess'] = ResolversParentTypes['UpdateFolderPolicySuccess']> = {
+  policy?: Resolver<ResolversTypes['FolderPolicy'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdateHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateHighlightError'] = ResolversParentTypes['UpdateHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdateHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -7734,6 +7952,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateArticleSavingRequestResult?: CreateArticleSavingRequestResultResolvers<ContextType>;
   CreateArticleSavingRequestSuccess?: CreateArticleSavingRequestSuccessResolvers<ContextType>;
   CreateArticleSuccess?: CreateArticleSuccessResolvers<ContextType>;
+  CreateFolderPolicyError?: CreateFolderPolicyErrorResolvers<ContextType>;
+  CreateFolderPolicyResult?: CreateFolderPolicyResultResolvers<ContextType>;
+  CreateFolderPolicySuccess?: CreateFolderPolicySuccessResolvers<ContextType>;
   CreateGroupError?: CreateGroupErrorResolvers<ContextType>;
   CreateGroupResult?: CreateGroupResultResolvers<ContextType>;
   CreateGroupSuccess?: CreateGroupSuccessResolvers<ContextType>;
@@ -7768,6 +7989,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteFilterError?: DeleteFilterErrorResolvers<ContextType>;
   DeleteFilterResult?: DeleteFilterResultResolvers<ContextType>;
   DeleteFilterSuccess?: DeleteFilterSuccessResolvers<ContextType>;
+  DeleteFolderPolicyError?: DeleteFolderPolicyErrorResolvers<ContextType>;
+  DeleteFolderPolicyResult?: DeleteFolderPolicyResultResolvers<ContextType>;
+  DeleteFolderPolicySuccess?: DeleteFolderPolicySuccessResolvers<ContextType>;
   DeleteHighlightError?: DeleteHighlightErrorResolvers<ContextType>;
   DeleteHighlightReplyError?: DeleteHighlightReplyErrorResolvers<ContextType>;
   DeleteHighlightReplyResult?: DeleteHighlightReplyResultResolvers<ContextType>;
@@ -7833,6 +8057,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;
   FiltersSuccess?: FiltersSuccessResolvers<ContextType>;
+  FolderPoliciesError?: FolderPoliciesErrorResolvers<ContextType>;
+  FolderPoliciesResult?: FolderPoliciesResultResolvers<ContextType>;
+  FolderPoliciesSuccess?: FolderPoliciesSuccessResolvers<ContextType>;
+  FolderPolicy?: FolderPolicyResolvers<ContextType>;
   GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
   GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
   GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
@@ -8054,6 +8282,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateFilterError?: UpdateFilterErrorResolvers<ContextType>;
   UpdateFilterResult?: UpdateFilterResultResolvers<ContextType>;
   UpdateFilterSuccess?: UpdateFilterSuccessResolvers<ContextType>;
+  UpdateFolderPolicyError?: UpdateFolderPolicyErrorResolvers<ContextType>;
+  UpdateFolderPolicyResult?: UpdateFolderPolicyResultResolvers<ContextType>;
+  UpdateFolderPolicySuccess?: UpdateFolderPolicySuccessResolvers<ContextType>;
   UpdateHighlightError?: UpdateHighlightErrorResolvers<ContextType>;
   UpdateHighlightReplyError?: UpdateHighlightReplyErrorResolvers<ContextType>;
   UpdateHighlightReplyResult?: UpdateHighlightReplyResultResolvers<ContextType>;

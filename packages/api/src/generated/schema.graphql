@@ -307,6 +307,27 @@ type CreateArticleSuccess {
   user: User!
 }
 
+type CreateFolderPolicyError {
+  errorCodes: [CreateFolderPolicyErrorCode!]!
+}
+
+enum CreateFolderPolicyErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input CreateFolderPolicyInput {
+  action: FolderPolicyAction!
+  afterDays: Int!
+  folder: String!
+}
+
+union CreateFolderPolicyResult = CreateFolderPolicyError | CreateFolderPolicySuccess
+
+type CreateFolderPolicySuccess {
+  policy: FolderPolicy!
+}
+
 type CreateGroupError {
   errorCodes: [CreateGroupErrorCode!]!
 }
@@ -555,6 +576,20 @@ union DeleteFilterResult = DeleteFilterError | DeleteFilterSuccess
 
 type DeleteFilterSuccess {
   filter: Filter!
+}
+
+type DeleteFolderPolicyError {
+  errorCodes: [DeleteFolderPolicyErrorCode!]!
+}
+
+enum DeleteFolderPolicyErrorCode {
+  UNAUTHORIZED
+}
+
+union DeleteFolderPolicyResult = DeleteFolderPolicyError | DeleteFolderPolicySuccess
+
+type DeleteFolderPolicySuccess {
+  success: Boolean!
 }
 
 type DeleteHighlightError {
@@ -970,6 +1005,35 @@ union FiltersResult = FiltersError | FiltersSuccess
 
 type FiltersSuccess {
   filters: [Filter!]!
+}
+
+type FolderPoliciesError {
+  errorCodes: [FolderPoliciesErrorCode!]!
+}
+
+enum FolderPoliciesErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FolderPoliciesResult = FolderPoliciesError | FolderPoliciesSuccess
+
+type FolderPoliciesSuccess {
+  policies: [FolderPolicy!]!
+}
+
+type FolderPolicy {
+  action: FolderPolicyAction!
+  afterDays: Int!
+  createdAt: Date!
+  folder: String!
+  id: ID!
+  updatedAt: Date!
+}
+
+enum FolderPolicyAction {
+  ARCHIVE
+  DELETE
 }
 
 type GenerateApiKeyError {
@@ -1555,6 +1619,7 @@ type Mutation {
   bulkAction(action: BulkActionType!, arguments: JSON, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
+  createFolderPolicy(input: CreateFolderPolicyInput!): CreateFolderPolicyResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
@@ -1563,6 +1628,7 @@ type Mutation {
   deleteDiscoverArticle(input: DeleteDiscoverArticleInput!): DeleteDiscoverArticleResult!
   deleteDiscoverFeed(input: DeleteDiscoverFeedInput!): DeleteDiscoverFeedResult!
   deleteFilter(id: ID!): DeleteFilterResult!
+  deleteFolderPolicy(id: ID!): DeleteFolderPolicyResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteIntegration(id: ID!): DeleteIntegrationResult!
   deleteLabel(id: ID!): DeleteLabelResult!
@@ -1612,6 +1678,7 @@ type Mutation {
   unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
   updateEmail(input: UpdateEmailInput!): UpdateEmailResult!
   updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
+  updateFolderPolicy(input: UpdateFolderPolicyInput!): UpdateFolderPolicyResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
   updateNewsletterEmail(input: UpdateNewsletterEmailInput!): UpdateNewsletterEmailResult!
@@ -1754,6 +1821,7 @@ type Query {
   discoverTopics: GetDiscoverTopicResults!
   feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
+  folderPolicies: FolderPoliciesResult!
   getDiscoverFeedArticles(after: String, discoverTopicId: String!, feedId: ID, first: Int): GetDiscoverFeedArticleResults!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
@@ -2833,6 +2901,27 @@ union UpdateFilterResult = UpdateFilterError | UpdateFilterSuccess
 
 type UpdateFilterSuccess {
   filter: Filter!
+}
+
+type UpdateFolderPolicyError {
+  errorCodes: [UpdateFolderPolicyErrorCode!]!
+}
+
+enum UpdateFolderPolicyErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input UpdateFolderPolicyInput {
+  action: FolderPolicyAction
+  afterDays: Int
+  id: ID!
+}
+
+union UpdateFolderPolicyResult = UpdateFolderPolicyError | UpdateFolderPolicySuccess
+
+type UpdateFolderPolicySuccess {
+  policy: FolderPolicy!
 }
 
 type UpdateHighlightError {

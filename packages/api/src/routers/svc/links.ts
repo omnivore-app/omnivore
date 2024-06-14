@@ -6,6 +6,7 @@ import { readPushSubscription } from '../../pubsub'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { enqueuePruneTrashJob } from '../../utils/createTask'
+import { enqueueExpireFoldersJob } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 
 interface CreateLinkRequestMessage {
@@ -87,6 +88,26 @@ export function linkServiceRouter() {
       return res.sendStatus(200)
     } catch (error) {
       logger.error('error prune items', error)
+
+      return res.sendStatus(500)
+    }
+  })
+
+  router.post('/expireFolders', async (req, res) => {
+    const { expired } = readPushSubscription(req)
+
+    if (expired) {
+      logger.info('discarding expired message')
+      return res.status(200).send('Expired')
+    }
+
+    try {
+      const job = await enqueueExpireFoldersJob()
+      logger.info('enqueue job', { id: job?.id })
+
+      return res.sendStatus(200)
+    } catch (error) {
+      logger.error('error expire folders', error)
 
       return res.sendStatus(500)
     }

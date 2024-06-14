@@ -31,6 +31,10 @@ import {
   SAVE_NEWSLETTER_JOB,
 } from './jobs/email/inbound_emails'
 import { sendEmailJob, SEND_EMAIL_JOB } from './jobs/email/send_email'
+import {
+  expireFoldersJob,
+  EXPIRE_FOLDERS_JOB_NAME,
+} from './jobs/expire_folders'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import {
   generatePreviewContent,
@@ -217,6 +221,8 @@ export const createWorker = (connection: ConnectionOptions) =>
             return generatePreviewContent(job.data)
           case PRUNE_TRASH_JOB:
             return pruneTrashJob(job.data)
+          case EXPIRE_FOLDERS_JOB_NAME:
+            return expireFoldersJob()
           default:
             logger.warning(`[queue-processor] unhandled job: ${job.name}`)
         }

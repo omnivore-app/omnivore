@@ -52,6 +52,12 @@ import {
   saveDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
+import {
+  createFolderPolicyResolver,
+  deleteFolderPolicyResolver,
+  folderPoliciesResolver,
+  updateFolderPolicyResolver,
+} from './folder_policy'
 import { highlightsResolver } from './highlight'
 import {
   hiddenHomeSectionResolver,
@@ -307,6 +313,9 @@ export const functionResolvers = {
     exportToIntegration: exportToIntegrationResolver,
     replyToEmail: replyToEmailResolver,
     refreshHome: refreshHomeResolver,
+    createFolderPolicy: createFolderPolicyResolver,
+    updateFolderPolicy: updateFolderPolicyResolver,
+    deleteFolderPolicy: deleteFolderPolicyResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -342,6 +351,7 @@ export const functionResolvers = {
     subscription: subscriptionResolver,
     hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
+    folderPolicies: folderPoliciesResolver,
   },
   User: {
     async intercomHash(user: User) {
@@ -882,4 +892,8 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('RefreshHome'),
   ...resultResolveTypeResolver('HiddenHomeSection'),
   ...resultResolveTypeResolver('Highlights'),
+  ...resultResolveTypeResolver('FolderPolicies'),
+  ...resultResolveTypeResolver('CreateFolderPolicy'),
+  ...resultResolveTypeResolver('UpdateFolderPolicy'),
+  ...resultResolveTypeResolver('DeleteFolderPolicy'),
 }

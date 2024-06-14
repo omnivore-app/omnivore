@@ -3247,6 +3247,97 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  type FolderPolicy {
+    id: ID!
+    folder: String!
+    action: FolderPolicyAction!
+    afterDays: Int!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  enum FolderPolicyAction {
+    ARCHIVE
+    DELETE
+  }
+
+  union FolderPoliciesResult = FolderPoliciesSuccess | FolderPoliciesError
+
+  type FolderPoliciesSuccess {
+    policies: [FolderPolicy!]!
+  }
+
+  type FolderPoliciesError {
+    errorCodes: [FolderPoliciesErrorCode!]!
+  }
+
+  enum FolderPoliciesErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input CreateFolderPolicyInput {
+    folder: String! @sanitize(minLength: 1, maxLength: 255)
+    action: FolderPolicyAction!
+    afterDays: Int!
+  }
+
+  union CreateFolderPolicyResult =
+      CreateFolderPolicySuccess
+    | CreateFolderPolicyError
+
+  type CreateFolderPolicySuccess {
+    policy: FolderPolicy!
+  }
+
+  type CreateFolderPolicyError {
+    errorCodes: [CreateFolderPolicyErrorCode!]!
+  }
+
+  enum CreateFolderPolicyErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union DeleteFolderPolicyResult =
+      DeleteFolderPolicySuccess
+    | DeleteFolderPolicyError
+
+  type DeleteFolderPolicySuccess {
+    success: Boolean!
+  }
+
+  type DeleteFolderPolicyError {
+    errorCodes: [DeleteFolderPolicyErrorCode!]!
+  }
+
+  enum DeleteFolderPolicyErrorCode {
+    UNAUTHORIZED
+  }
+
+  union UpdateFolderPolicyResult =
+      UpdateFolderPolicySuccess
+    | UpdateFolderPolicyError
+
+  type UpdateFolderPolicySuccess {
+    policy: FolderPolicy!
+  }
+
+  type UpdateFolderPolicyError {
+    errorCodes: [UpdateFolderPolicyErrorCode!]!
+  }
+
+  enum UpdateFolderPolicyErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input UpdateFolderPolicyInput {
+    id: ID!
+    action: FolderPolicyAction
+    afterDays: Int
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3373,6 +3464,13 @@ const schema = gql`
     editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
     emptyTrash: EmptyTrashResult!
     refreshHome: RefreshHomeResult!
+    createFolderPolicy(
+      input: CreateFolderPolicyInput!
+    ): CreateFolderPolicyResult!
+    updateFolderPolicy(
+      input: UpdateFolderPolicyInput!
+    ): UpdateFolderPolicyResult!
+    deleteFolderPolicy(id: ID!): DeleteFolderPolicyResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -3447,6 +3545,7 @@ const schema = gql`
     subscription(id: ID!): SubscriptionResult!
     hiddenHomeSection: HiddenHomeSectionResult!
     highlights(after: String, first: Int, query: String): HighlightsResult!
+    folderPolicies: FolderPoliciesResult!
   }
 
   schema {
