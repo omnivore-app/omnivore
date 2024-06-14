@@ -876,6 +876,7 @@ export const moveToFolderResolver = authorized<
     {
       folder,
       savedAt,
+      seenAt: new Date(),
     },
     uid,
     pubsub

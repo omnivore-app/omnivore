@@ -5,6 +5,8 @@ import {
   DeepPartial,
   EntityManager,
   FindOptionsWhere,
+  In,
+  IsNull,
   ObjectLiteral,
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
@@ -133,26 +135,34 @@ export enum SortBy {
 const readingProgressDataSource = new ReadingProgressDataSource()
 
 export const batchGetLibraryItems = async (ids: readonly string[]) => {
-  const items = await findLibraryItemsByIds(ids as string[], undefined, {
-    select: [
-      'id',
-      'title',
-      'author',
-      'thumbnail',
-      'wordCount',
-      'savedAt',
-      'originalUrl',
-      'directionality',
-      'description',
-      'subscription',
-      'siteName',
-      'siteIcon',
-      'archivedAt',
-      'deletedAt',
-      'slug',
-      'previewContent',
-    ],
-  })
+  const selectColumns: Array<keyof LibraryItem> = [
+    'id',
+    'title',
+    'author',
+    'thumbnail',
+    'wordCount',
+    'savedAt',
+    'originalUrl',
+    'directionality',
+    'description',
+    'subscription',
+    'siteName',
+    'siteIcon',
+    'archivedAt',
+    'deletedAt',
+    'slug',
+    'previewContent',
+  ]
+  const items = await authTrx(async (tx) =>
+    tx.getRepository(LibraryItem).find({
+      select: selectColumns,
+      where: {
+        id: In(ids as string[]),
+        state: LibraryItemState.Succeeded,
+        seenAt: IsNull(),
+      },
+    })
+  )
 
   return ids.map((id) => items.find((item) => item.id === id) || undefined)
 }
@@ -891,6 +901,7 @@ export const softDeleteLibraryItem = async (
       await itemRepo.update(id, {
         state: LibraryItemState.Deleted,
         deletedAt: new Date(),
+        seenAt: new Date(),
       })
 
       return itemRepo.findOneByOrFail({ id })

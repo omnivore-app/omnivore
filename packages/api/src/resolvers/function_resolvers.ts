@@ -657,7 +657,9 @@ export const functionResolvers = {
         .map((item) => item.id)
       const libraryItems = (
         await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
-      ).filter((libraryItem) => !isError(libraryItem)) as Array<LibraryItem>
+      ).filter(
+        (libraryItem) => !!libraryItem && !isError(libraryItem)
+      ) as Array<LibraryItem>
 
       const publicItemIds = section.items
         .filter((item) => item.type === 'public_item')
