@@ -19,6 +19,12 @@ import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { LIBRARY_LEFT_MENU_WIDTH } from './navMenu/LibraryLegacyMenu'
+import { AddLinkModal } from './AddLinkModal'
+import { saveUrlMutation } from '../../lib/networking/mutations/saveUrlMutation'
+import {
+  showErrorToast,
+  showSuccessToastWithAction,
+} from '../../lib/toastHelpers'
 
 export type NavigationSection =
   | 'home'
@@ -103,6 +109,25 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
     setShowLogoutConfirmation(true)
   }, [setShowLogoutConfirmation])
 
+  const [showAddLinkModal, setShowAddLinkModal] = useState(false)
+
+  const handleLinkAdded = useCallback(
+    async (link: string, timezone: string, locale: string) => {
+      const result = await saveUrlMutation(link, timezone, locale)
+      if (result) {
+        showSuccessToastWithAction('Link saved', 'Read now', async () => {
+          window.location.href = `/article?url=${encodeURIComponent(link)}`
+          return Promise.resolve()
+        })
+        // const id = result.url?.match(/[^/]+$/)?.[0] ?? ''
+        // performActionOnItem('refresh', undefined as unknown as any)
+      } else {
+        showErrorToast('Error saving link', { position: 'bottom-right' })
+      }
+    },
+    []
+  )
+
   useEffect(() => {
     document.addEventListener('logout', showLogout)
 
@@ -141,8 +166,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
         <>
           <NavigationMenu
             section={props.section}
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            setShowAddLinkModal={() => {}}
+            setShowAddLinkModal={setShowAddLinkModal}
             showMenu={showNavMenu}
           />
           <SpanBox
@@ -156,18 +180,24 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
         </>
       )}
       {props.children}
-      {showLogoutConfirmation ? (
+      {showLogoutConfirmation && (
         <ConfirmationModal
           message={'Are you sure you want to log out?'}
           onAccept={logout}
           onOpenChange={() => setShowLogoutConfirmation(false)}
         />
-      ) : null}
-      {showKeyboardCommandsModal ? (
+      )}
+      {showKeyboardCommandsModal && (
         <KeyboardShortcutListModal
           onOpenChange={() => setShowKeyboardCommandsModal(false)}
         />
-      ) : null}
+      )}
+      {showAddLinkModal && (
+        <AddLinkModal
+          onOpenChange={setShowAddLinkModal}
+          handleLinkSubmission={handleLinkAdded}
+        />
+      )}
     </HStack>
   )
 }
@@ -183,7 +213,7 @@ const Header = (props: HeaderProps): JSX.Element => {
       alignment="start"
       distribution="center"
       css={{
-        zIndex: 5,
+        zIndex: 10,
         position: props.menuOpen ? 'fixed' : 'absolute',
         left: '0px',
         top: '0px',

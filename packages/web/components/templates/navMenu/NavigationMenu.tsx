@@ -90,7 +90,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
             boxShadow:
               'rgb(48, 54, 61) 0px 0px 0px 1px, rgba(1, 4, 9, 0.4) 0px 6px 12px -3px, rgba(1, 4, 9, 0.4) 0px 6px 18px 0px',
           },
-          zIndex: 2,
+          zIndex: 5,
         }}
       >
         <Box css={{ width: '100%', height: '60px' }}></Box>
