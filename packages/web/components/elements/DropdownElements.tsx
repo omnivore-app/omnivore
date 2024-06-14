@@ -16,13 +16,12 @@ const StyledItem = styled(Item, {
   fontWeight: '400',
   py: '10px',
   px: '15px',
-  borderRadius: 3,
   cursor: 'default',
   color: '$utilityTextDefault',
 
   '&:focus': {
     outline: 'none',
-    backgroundColor: '$grayBgHover',
+    backgroundColor: '$thLeftMenuBackground',
   },
 })
 
@@ -32,7 +31,7 @@ const DropdownTrigger = styled(Trigger, {
   padding: 0,
   backgroundColor: 'transparent',
   '&:hover': {
-    opacity: 0.7,
+    opacity: 1.0,
   },
   '&:focus': {
     outline: 'none',
@@ -129,7 +128,7 @@ type DropdownProps = {
 export const DropdownSeparator = styled(Separator, {
   height: '1px',
   margin: 0,
-  backgroundColor: '$grayBorder',
+  backgroundColor: '$homeDivider',
 })
 
 type DropdownOptionProps = {

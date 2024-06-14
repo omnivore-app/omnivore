@@ -53,9 +53,10 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
         alignItems: 'center',
         borderRadius: '5px',
         height: '32px',
-        padding: '5px',
+        px: '10px',
+        py: '20px',
         '&:hover': {
-          bg: '$thLibraryMenuFooterHover',
+          bg: '$thLeftMenuBackground',
           opacity: '0.7px',
         },
       }}
@@ -130,7 +131,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
       triggerElement={
         props.children ?? <TriggerButton name={viewerData?.me?.name} />
       }
-      css={{ width: '240px', ml: '15px' }}
+      css={{ width: '240px', ml: '15px', bg: '$thNavMenuFooter' }}
     >
       <HStack
         alignment="center"
