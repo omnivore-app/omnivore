@@ -173,7 +173,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
 }
 
 type HeaderProps = {
-  menuOpen: booelean
+  menuOpen: boolean
   toggleMenu: () => void
 }
 
