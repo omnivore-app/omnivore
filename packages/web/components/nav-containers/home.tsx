@@ -63,7 +63,7 @@ export function HomeContainer(): JSX.Element {
       <VStack
         distribution="start"
         css={{
-          width: '646px',
+          width: '680px',
           gap: '50px',
           minHeight: '100vh',
           '@mdDown': {

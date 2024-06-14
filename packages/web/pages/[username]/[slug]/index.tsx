@@ -282,7 +282,7 @@ export default function Home(): JSX.Element {
           showErrorToast('Error deleting page', { position: 'bottom-right' })
         }
       })
-      router.push(`/home`)
+      goNextOrHome()
     }
   }, [article, cache, mutate, router])
 
