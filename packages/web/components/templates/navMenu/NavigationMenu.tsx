@@ -65,7 +65,6 @@ type NavigationMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
 
   showMenu: boolean
-  setShowMenu: (show: boolean) => void
 }
 
 export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
@@ -94,30 +93,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
           zIndex: 2,
         }}
       >
-        <Box
-          css={{
-            width: '100%',
-            px: '15px',
-            pb: '10px',
-            pt: '15px',
-            lineHeight: '1',
-          }}
-        >
-          <SpanBox css={{ mr: 'auto' }}>
-            <Button
-              style="plainIcon"
-              onClick={(event) => {
-                props.setShowMenu(false)
-                event.preventDefault()
-              }}
-            >
-              <List
-                size="25"
-                color={theme.colors.readerTextSubtle.toString()}
-              />
-            </Button>
-          </SpanBox>
-        </Box>
+        <Box css={{ width: '100%', height: '60px' }}></Box>
         <LibraryNav {...props} />
         <Shortcuts {...props} />
         <NavMenuFooter {...props} showFullThemeSection={true} />
@@ -193,7 +169,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
           gap: '10px',
           maxWidth: '100%',
           height: '34px',
-          px: '15px',
+          px: '20px',
 
           fontSize: '15px',
           fontWeight: 'regular',
@@ -581,7 +557,7 @@ function NodeRenderer(args: {
       alignment="center"
       distribution="start"
       css={{
-        pl: `${15 + args.node.level * 15}px`,
+        pl: `${20 + args.node.level * 15}px`,
         mb: '2px',
         gap: '10px',
         display: 'flex',
@@ -852,14 +828,13 @@ function NavButton(props: NavButtonProps): JSX.Element {
       alignment="center"
       distribution="start"
       css={{
-        pl: '10px',
         mb: '2px',
         gap: '10px',
         display: 'flex',
         width: '100%',
         maxWidth: '100%',
         height: '34px',
-        px: '15px',
+        px: '20px',
 
         backgroundColor: props.isSelected
           ? '$thLibrarySelectionColor'

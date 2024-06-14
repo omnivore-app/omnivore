@@ -88,13 +88,12 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           px: '70px',
           left: LIBRARY_LEFT_MENU_WIDTH,
           transition: 'height 0.5s',
-          '@xlgDown': {
-            px: '10px',
-          },
           '@mdDown': {
-            px: '10px',
             left: '0px',
             right: '0',
+          },
+          '@xlgDown': {
+            px: '40px',
           },
         }}
       >
@@ -131,17 +130,6 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
 
   return (
     <>
-      {!searchBoxFocused && (
-        <SpanBox
-          css={{
-            display: 'none',
-            '@lgDown': { display: 'flex' },
-          }}
-        >
-          <MenuHeaderButton {...props} />
-        </SpanBox>
-      )}
-
       <SearchBox
         {...props}
         searchBoxFocused={searchBoxFocused}
