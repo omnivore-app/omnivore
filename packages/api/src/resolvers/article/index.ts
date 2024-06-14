@@ -970,10 +970,10 @@ export const emptyTrashResolver = authorized<
   })
 
   await batchDelete({
-    state: LibraryItemState.Deleted,
     user: {
       id: uid,
     },
+    state: LibraryItemState.Deleted,
   })
 
   return {
