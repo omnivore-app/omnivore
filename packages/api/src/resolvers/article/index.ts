@@ -876,6 +876,7 @@ export const moveToFolderResolver = authorized<
     {
       folder,
       savedAt,
+      seenAt: new Date(),
     },
     uid,
     pubsub
@@ -969,10 +970,10 @@ export const emptyTrashResolver = authorized<
   })
 
   await batchDelete({
-    state: LibraryItemState.Deleted,
     user: {
       id: uid,
     },
+    state: LibraryItemState.Deleted,
   })
 
   return {
