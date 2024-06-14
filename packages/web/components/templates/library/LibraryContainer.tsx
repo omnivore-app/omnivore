@@ -927,7 +927,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         py: '20px',
         width: '100%',
         '@mdDown': {
-          px: '0px',
+          px: layout == 'GRID_LAYOUT' ? '20px' : '0px',
         },
       }}
       distribution="start"
@@ -1044,7 +1044,7 @@ export function LibraryItemsLayout(
             mb: '10px',
             px: '70px',
             '@xlgDown': {
-              px: '10px',
+              px: '0px',
             },
           }}
         >
@@ -1195,7 +1195,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         overflow: 'visible',
         px: '70px',
         '@xlgDown': {
-          px: '10px',
+          px: '0px',
         },
         '@mdDown': {
           px: '0px',

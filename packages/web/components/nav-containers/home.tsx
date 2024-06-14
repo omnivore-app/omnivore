@@ -29,6 +29,7 @@ import { Toaster } from 'react-hot-toast'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 
 export function HomeContainer(): JSX.Element {
+  const router = useRouter()
   const homeData = useGetHomeItems()
   const { viewerData } = useGetViewerQuery()
 
@@ -37,6 +38,10 @@ export function HomeContainer(): JSX.Element {
   const viewerUsername = useMemo(() => {
     return viewerData?.me?.profile.username
   }, [viewerData])
+
+  useEffect(() => {
+    window.sessionStorage.setItem('nav-return', router.asPath)
+  }, [router.asPath])
 
   return (
     <VStack
@@ -48,6 +53,10 @@ export function HomeContainer(): JSX.Element {
         pt: '45px',
         minHeight: '100vh',
         minWidth: '320px',
+        '@mdDown': {
+          pt: '0px',
+          mt: '80px',
+        },
       }}
     >
       <Toaster />
@@ -265,7 +274,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
         itemsPerPage={4}
         loadMoreButtonText="Load more Top Picks"
         render={(homeItem) => (
-          <TopicPickHomeItemView
+          <TopPicksItemView
             key={homeItem.id}
             homeItem={homeItem}
             dispatchList={dispatchList}
@@ -552,12 +561,12 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-type TopPickItemViewProps = {
+type TopPicksItemViewProps = {
   dispatchList: (args: { type: string; itemId?: string }) => void
 }
 
-const TopicPickHomeItemView = (
-  props: HomeItemViewProps & TopPickItemViewProps
+const TopPicksItemView = (
+  props: HomeItemViewProps & TopPicksItemViewProps
 ): JSX.Element => {
   const router = useRouter()
   return (

@@ -15,7 +15,6 @@ import { updateTheme } from '../../lib/themeUpdater'
 import { Priority, useRegisterActions } from 'kbar'
 import { ThemeId, theme } from '../tokens/stitches.config'
 import { NavigationMenu } from './navMenu/NavigationMenu'
-import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
@@ -131,19 +130,13 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <SpanBox
-        css={{
-          '@lgDown': {
-            display: 'none',
-          },
+
+      <Header
+        menuOpen={showNavMenu}
+        toggleMenu={() => {
+          setShowNavMenu(!showNavMenu)
         }}
-      >
-        <Header
-          toggleMenu={() => {
-            setShowNavMenu(!showNavMenu)
-          }}
-        />
-      </SpanBox>
+      />
       {!isLoading && showNavMenu && (
         <>
           <NavigationMenu
@@ -151,11 +144,13 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             setShowAddLinkModal={() => {}}
             showMenu={showNavMenu}
-            setShowMenu={setShowNavMenu}
           />
           <SpanBox
             css={{
               width: LIBRARY_LEFT_MENU_WIDTH,
+              '@mdDown': {
+                display: 'none',
+              },
             }}
           ></SpanBox>
         </>
@@ -178,43 +173,36 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
 }
 
 type HeaderProps = {
+  menuOpen: booelean
   toggleMenu: () => void
 }
 
 const Header = (props: HeaderProps): JSX.Element => {
-  const small = false
-
   return (
     <VStack
       alignment="start"
-      distribution="start"
+      distribution="center"
       css={{
-        zIndex: 2,
-        position: 'fixed',
-        left: '15px',
-        top: '15px',
-        height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
-        transition: 'height 0.5s',
-        '@lgDown': { px: '20px' },
-        '@mdDown': {
-          px: '10px',
-          left: '0px',
-          right: '0',
-        },
+        zIndex: 5,
+        position: props.menuOpen ? 'fixed' : 'absolute',
+        left: '0px',
+        top: '0px',
+        pl: '20px',
+        pt: '20px',
+
+        height: '58px',
       }}
     >
-      <VStack alignment="center" distribution="center">
-        <Button
-          style="plainIcon"
-          onClick={(event) => {
-            props.toggleMenu()
-            event.preventDefault()
-          }}
-          css={{ height: 'unset' }}
-        >
-          <List size="25" color={theme.colors.readerTextSubtle.toString()} />
-        </Button>
-      </VStack>
+      <Button
+        style="plainIcon"
+        onClick={(event) => {
+          props.toggleMenu()
+          event.preventDefault()
+        }}
+        css={{ height: 'unset', display: 'flex' }}
+      >
+        <List size="25" color={theme.colors.readerTextSubtle.toString()} />
+      </Button>
     </VStack>
   )
 }
