@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Engine",
       "state" : {
-        "revision" : "4f426bd0be4d2af852ca1e988760e392ba39cfd0",
-        "version" : "1.7.2"
+        "revision" : "ba7eb2015b6b85960bb2e1c708a22a6a7980981c",
+        "version" : "1.8.0"
       }
     },
     {
@@ -239,8 +239,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Transmission",
       "state" : {
-        "revision" : "affd81fb24e21655f22b3483f1f7db1fc4aded42",
-        "version" : "1.2.2"
+        "revision" : "9a80c3a19abb896d60330ec68925497ad965f145",
+        "version" : "1.3.0"
       }
     },
     {
@@ -248,8 +248,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Turbocharger",
       "state" : {
-        "revision" : "52f22b97dcefed06e274d66ccba0f659f8eefbd5",
-        "version" : "1.2.0"
+        "revision" : "9420e40f902021469ee7b4c5a0c7849f5bb26290",
+        "version" : "1.3.0"
       }
     },
     {
