@@ -150,6 +150,7 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
+import { postsResolver } from './posts'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -352,6 +353,7 @@ export const functionResolvers = {
     hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
     folderPolicies: folderPoliciesResolver,
+    posts: postsResolver,
   },
   User: {
     async intercomHash(user: User) {
@@ -777,6 +779,23 @@ export const functionResolvers = {
     name: (recommendation: Recommendation) => recommendation.group.name,
     recommendedAt: (recommendation: Recommendation) => recommendation.createdAt,
   },
+  Post: {
+    author(post: { userId: string }, _: unknown, ctx: WithDataSourcesContext) {
+      return ctx.dataLoaders.users.load(post.userId)
+    },
+    ownedByViewer(post: { userId: string }, ctx: WithDataSourcesContext) {
+      return post.userId === ctx.uid
+    },
+    libraryItems(
+      post: { libraryItemIds: string[] },
+      ctx: WithDataSourcesContext
+    ) {
+      return ctx.dataLoaders.libraryItems.loadMany(post.libraryItemIds)
+    },
+    highlights(post: { highlightIds: string[] }, ctx: WithDataSourcesContext) {
+      return ctx.dataLoaders.highlights.loadMany(post.highlightIds)
+    },
+  },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
   ...resultResolveTypeResolver('GoogleSignup'),
@@ -875,4 +894,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('CreateFolderPolicy'),
   ...resultResolveTypeResolver('UpdateFolderPolicy'),
   ...resultResolveTypeResolver('DeleteFolderPolicy'),
+  ...resultResolveTypeResolver('Posts'),
 }

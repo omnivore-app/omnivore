@@ -19,6 +19,24 @@ CREATE TABLE omnivore.post (
 
 CREATE INDEX post_user_id_idx ON omnivore.post(user_id);
 
-ALTER TABLE omnivore.user_profile ALTER COLUMN private SET DEFAULT true;
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.post TO omnivore_user;
+
+ALTER TABLE omnivore.post ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY read_post ON omnivore.post
+    FOR SELECT TO omnivore_user
+    USING (true);
+
+CREATE POLICY write_post ON omnivore.post
+    FOR INSERT TO omnivore_user
+    WITH CHECK (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY update_post ON omnivore.post
+    FOR UPDATE TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY delete_post ON omnivore.post
+    FOR DELETE TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
 
 COMMIT;
