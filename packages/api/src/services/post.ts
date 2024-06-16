@@ -1,5 +1,6 @@
+import { DeepPartial } from 'typeorm'
 import { Post } from '../entity/post'
-import { getRepository } from '../repository'
+import { authTrx, getRepository } from '../repository'
 
 export const findPostsByUserId = async (
   userId: string,
@@ -23,4 +24,15 @@ export const findPostsByUserId = async (
   })
 
   return posts
+}
+
+export const createPosts = async (
+  userId: string,
+  posts: Array<DeepPartial<Post>>
+) => {
+  return authTrx(
+    async (trx) => trx.getRepository(Post).save(posts),
+    undefined,
+    userId
+  )
 }
