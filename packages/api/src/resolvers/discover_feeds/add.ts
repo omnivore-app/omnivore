@@ -23,10 +23,6 @@ const parser = new XMLParser({
   ignorePiTags: false,
 })
 
-type DiscoverFeedRows = {
-  rows: DiscoverFeed[]
-}
-
 const extractAtomData = (
   url: string,
   feed: {
@@ -70,7 +66,7 @@ const handleExistingSubscription = async (
     [userId, feed.id]
   )
 
-  if (existingSubscription.rows > 1) {
+  if (existingSubscription.length > 0) {
     return {
       __typename: 'AddDiscoverFeedError',
       errorCodes: [AddDiscoverFeedErrorCode.Conflict],
@@ -162,10 +158,10 @@ export const addDiscoverFeedResolver = authorized<
     const existingFeed = (await appDataSource.query(
       'SELECT id from omnivore.discover_feed where link = $1',
       [url]
-    )) as DiscoverFeedRows
+    )) as DiscoverFeed[]
 
-    if (existingFeed.rows.length > 0) {
-      return await handleExistingSubscription(existingFeed.rows[0], uid)
+    if (existingFeed.length > 0) {
+      return await handleExistingSubscription(existingFeed[0], uid)
     }
 
     const result = await addNewSubscription(url, uid)

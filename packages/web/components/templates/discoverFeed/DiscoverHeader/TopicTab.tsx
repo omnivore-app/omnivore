@@ -31,8 +31,8 @@ const unselectedStyle = {
   fontSize: '12px',
   fontWeight: '500',
   whiteSpace: 'nowrap',
-  border: '1px solid $thLeftMenuBackground',
-  backgroundColor: '$thLeftMenuBackground',
+  border: '1px solid transparent',
+  backgroundColor: 'transparent',
   '&:hover': {
     bg: '$thBackground5',
     border: '1px solid $thBackground5',
@@ -49,33 +49,6 @@ export function TopicTab(props: TopicTabProps): JSX.Element {
       ? selectedStyle
       : unselectedStyle
   )
-
-  useEffect(() => {
-    const mutationObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          setStyle(
-            isDarkTheme()
-              ? props.selected
-                ? unselectedStyle
-                : selectedStyle
-              : props.selected
-              ? selectedStyle
-              : unselectedStyle
-          )
-        }
-      })
-    })
-
-    mutationObserver.observe(document.getElementsByTagName('html')[0], {
-      attributes: true,
-    })
-
-    return () => {
-      mutationObserver.disconnect()
-    }
-  }, [])
-
   return (
     <Button
       key={props.title}

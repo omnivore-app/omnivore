@@ -13,7 +13,6 @@ interface BackendEnv {
       max: number
     }
   }
-  apiKey: string
   openAiApiKey: string
   imageProxy: {
     url?: string
@@ -31,7 +30,7 @@ const envParser =
 
     if (throwOnUndefined) {
       throw new Error(
-        `Missing ${varName} with a non-empty value in process environment`
+        `Missing ${varName} with a non-empty value in process environment`,
       )
     }
 
@@ -55,7 +54,6 @@ export function getEnv(): BackendEnv {
 
   return {
     pg,
-    apiKey: parse('OMNIVORE_API_KEY')!,
     openAiApiKey: parse('OPENAI_API_KEY')!,
     imageProxy: {
       url: parse('IMAGE_PROXY_URL', false),
