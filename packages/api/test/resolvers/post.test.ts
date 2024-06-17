@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { User } from '../../src/entity/user'
-import { createPosts } from '../../src/services/post'
+import { updateUserProfileResolver } from '../../src/resolvers'
+import { createPosts, deletePosts } from '../../src/services/post'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { graphqlRequest, loginAndGetAuthToken } from '../util'
@@ -47,44 +48,9 @@ describe('Post Resolvers', () => {
       }
     `
 
-    it('should return an error if the args are invalid', async () => {
-      const response = await graphqlRequest(query, '', {
-        first: 100,
-        userId: loginUser.id,
-      })
+    let postIds: Array<string> = []
 
-      expect(response.body.data.posts.errorCodes).to.eql(['BAD_REQUEST'])
-    })
-
-    context('when the user is authenticated', () => {
-      before(async () => {
-        const posts = [
-          {
-            title: 'Post 1',
-            content: 'Content 1',
-            user: loginUser,
-          },
-          {
-            title: 'Post 2',
-            content: 'Content 2',
-            user: loginUser,
-          },
-        ]
-        await createPosts(loginUser.id, posts)
-      })
-
-      it('should return posts if the user is the owner', async () => {
-        const response = await graphqlRequest(query, authToken, {
-          first: 10,
-          userId: loginUser.id,
-        })
-
-        expect(response.body.data.posts.edges).to.be.an('array')
-        expect(response.body.data.posts.pageInfo).to.be.an('object')
-      })
-    })
-
-    it('should return posts if the user is not authenticated and the posts are public', async () => {
+    before(async () => {
       const posts = [
         {
           title: 'Post 1',
@@ -97,34 +63,64 @@ describe('Post Resolvers', () => {
           user: loginUser,
         },
       ]
-      await createPosts(loginUser.id, posts)
+      const newPosts = await createPosts(loginUser.id, posts)
 
-      const response = await graphqlRequest(query, '', {
-        first: 10,
-        userId: loginUser.id,
-      })
-
-      expect(response.body.data.posts.edges).to.be.an('array')
-      expect(response.body.data.posts.pageInfo).to.be.an('object')
+      postIds = newPosts.map((post) => post.id)
     })
 
-    it('should return empty array if the user is not authenticated and the posts are private', async () => {
-      const response = await graphqlRequest(query, '', {
-        first: 10,
-        userId: loginUser.id,
-      })
-
-      expect(response.body.data.posts.errorCodes).to.eql(['UNAUTHORIZED'])
+    after(async () => {
+      await deletePosts(loginUser.id, postIds)
     })
 
-    it('should return posts if the user is the owner', async () => {
-      const response = await graphqlRequest(query, authToken, {
-        first: 10,
+    it('should return an error if the args are invalid', async () => {
+      const response = await graphqlRequest(query, '', {
+        first: 100,
         userId: loginUser.id,
       })
 
-      expect(response.body.data.posts.edges).to.be.an('array')
-      expect(response.body.data.posts.pageInfo).to.be.an('object')
+      expect(response.body.data.posts.errorCodes).to.eql(['BAD_REQUEST'])
+    })
+
+    context('when the user is authenticated', () => {
+      it('should return posts', async () => {
+        const response = await graphqlRequest(query, authToken, {
+          first: 10,
+          userId: loginUser.id,
+        })
+
+        expect(response.body.data.posts.edges[0].node.id).to.eql(postIds[1])
+        expect(response.body.data.posts.edges[1].node.id).to.eql(postIds[0])
+        expect(response.body.data.posts.edges[0].node.ownedByViewer).to.be.true
+      })
+    })
+
+    context('when the user is not authenticated', () => {
+      context('when the posts are public', () => {
+        before(async () => {
+          await updateUserProfileResolver
+        it('should return posts', async () => {
+          const response = await graphqlRequest(query, '', {
+            first: 10,
+            userId: loginUser.id,
+          })
+
+          expect(response.body.data.posts.edges[0].node.id).to.eql(postIds[1])
+          expect(response.body.data.posts.edges[1].node.id).to.eql(postIds[0])
+          expect(response.body.data.posts.edges[0].node.ownedByViewer).to.be
+            .true
+        })
+      })
+
+      context('when the posts are private', () => {
+        it('should return empty array', async () => {
+          const response = await graphqlRequest(query, '', {
+            first: 10,
+            userId: loginUser.id,
+          })
+
+          expect(response.body.data.posts.errorCodes).to.eql(['UNAUTHORIZED'])
+        })
+      })
     })
   })
 })
