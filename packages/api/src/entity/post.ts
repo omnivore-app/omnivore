@@ -19,8 +19,8 @@ export class Post {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @Column('uuid', { array: true, nullable: true })
-  libraryItemIds?: string[] | null
+  @Column('uuid', { array: true })
+  libraryItemIds!: string[]
 
   @Column('uuid', { array: true, nullable: true })
   highlightIds?: string[] | null

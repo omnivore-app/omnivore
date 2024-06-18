@@ -466,7 +466,7 @@ enum CreatePostErrorCode {
 input CreatePostInput {
   content: String!
   highlightIds: [ID!]
-  libraryItemIds: [ID!]
+  libraryItemIds: [ID!]!
   thought: String
   thumbnail: String
   title: String!
@@ -1847,7 +1847,7 @@ type Post {
   createdAt: Date!
   highlights: [Highlight!]
   id: ID!
-  libraryItems: [Article!]
+  libraryItems: [Article!]!
   ownedByViewer: Boolean!
   thought: String
   thumbnail: String

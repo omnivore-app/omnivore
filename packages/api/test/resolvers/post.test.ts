@@ -1,5 +1,7 @@
 import { expect } from 'chai'
+import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
+import { deleteLibraryItemById } from '../../src/services/library_item'
 import {
   createPosts,
   deletePosts,
@@ -7,7 +9,7 @@ import {
 } from '../../src/services/post'
 import { findProfile, updateProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
-import { createTestUser } from '../db'
+import { createTestLibraryItem, createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, loginAndGetAuthToken } from '../util'
 
 describe('Post Resolvers', () => {
@@ -53,20 +55,27 @@ describe('Post Resolvers', () => {
     `
 
     let postIds: Array<string> = []
+    let libraryItem: LibraryItem
+    let libraryItem1: LibraryItem
 
     before(async () => {
+      libraryItem = await createTestLibraryItem(loginUser.id)
+      libraryItem1 = await createTestLibraryItem(loginUser.id)
+
       const posts = [
         {
           title: 'Post 1',
           content: 'Content 1',
           user: loginUser,
           createdAt: new Date('2021-01-01'),
+          libraryItemIds: [libraryItem.id],
         },
         {
           title: 'Post 2',
           content: 'Content 2',
           user: loginUser,
           createdAt: new Date('2021-01-02'),
+          libraryItemIds: [libraryItem1.id],
         },
       ]
       const newPosts = await createPosts(loginUser.id, posts)
@@ -76,6 +85,9 @@ describe('Post Resolvers', () => {
 
     after(async () => {
       await deletePosts(loginUser.id, postIds)
+
+      await deleteLibraryItemById(libraryItem.id, loginUser.id)
+      await deleteLibraryItemById(libraryItem1.id, loginUser.id)
     })
 
     it('should return an error if the args are invalid', async () => {
@@ -164,12 +176,16 @@ describe('Post Resolvers', () => {
     `
 
     let postId: string
+    let libraryItem: LibraryItem
 
     before(async () => {
+      libraryItem = await createTestLibraryItem(loginUser.id)
+
       const post = {
         title: 'Post',
         content: 'Content',
         user: loginUser,
+        libraryItemIds: [libraryItem.id],
       }
       const newPost = await createPosts(loginUser.id, [post])
 
@@ -178,6 +194,7 @@ describe('Post Resolvers', () => {
 
     after(async () => {
       await deletePosts(loginUser.id, [postId])
+      await deleteLibraryItemById(libraryItem.id, loginUser.id)
     })
 
     it('should return an error if the args are invalid', async () => {
@@ -266,10 +283,13 @@ describe('Post Resolvers', () => {
     `
 
     it('should create a post', async () => {
+      const libraryItem = await createTestLibraryItem(loginUser.id)
+
       const response = await graphqlRequest(mutation, authToken, {
         input: {
           title: 'Post',
           content: 'Content',
+          libraryItemIds: [libraryItem.id],
         },
       })
 
@@ -286,6 +306,7 @@ describe('Post Resolvers', () => {
       expect(profile?.private).to.be.false
 
       await deletePosts(loginUser.id, [postId])
+      await deleteLibraryItemById(libraryItem.id, loginUser.id)
     })
   })
 
@@ -308,12 +329,16 @@ describe('Post Resolvers', () => {
     `
 
     let postId: string
+    let libraryItem: LibraryItem
 
     before(async () => {
+      libraryItem = await createTestLibraryItem(loginUser.id)
+
       const post = {
         title: 'Post',
         content: 'Content',
         user: loginUser,
+        libraryItemIds: [libraryItem.id],
       }
       const newPost = await createPosts(loginUser.id, [post])
 
@@ -322,6 +347,7 @@ describe('Post Resolvers', () => {
 
     after(async () => {
       await deletePosts(loginUser.id, [postId])
+      await deleteLibraryItemById(libraryItem.id, loginUser.id)
     })
 
     it('should return an error if the args are invalid', async () => {
@@ -399,16 +425,25 @@ describe('Post Resolvers', () => {
     `
 
     let postId: string
+    let libraryItem: LibraryItem
 
     before(async () => {
+      libraryItem = await createTestLibraryItem(loginUser.id)
+
       const post = {
         title: 'Post',
         content: 'Content',
         user: loginUser,
+        libraryItemIds: [libraryItem.id],
       }
       const newPost = await createPosts(loginUser.id, [post])
 
       postId = newPost[0].id
+    })
+
+    after(async () => {
+      await deletePosts(loginUser.id, [postId])
+      await deleteLibraryItemById(libraryItem.id, loginUser.id)
     })
 
     it('should return an error if the args are invalid', async () => {

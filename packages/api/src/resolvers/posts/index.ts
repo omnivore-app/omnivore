@@ -125,8 +125,8 @@ export const createPostResolver = authorized<
     userId: uid,
     title,
     content,
+    libraryItemIds,
     highlightIds: highlightIds || undefined,
-    libraryItemIds: libraryItemIds || undefined,
     thought: thought || undefined,
     thumbnail: thumbnail || undefined,
   }
@@ -160,7 +160,7 @@ export const updatePostResolver = authorized<
     thumbnail,
   } = input
 
-  if (!id || title === null || content === null) {
+  if (!id || title === null || content === null || libraryItemIds === null) {
     log.error('Invalid args', { id })
 
     return {

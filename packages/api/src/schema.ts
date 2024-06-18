@@ -3347,7 +3347,7 @@ const schema = gql`
     ownedByViewer: Boolean!
     thumbnail: String
     thought: String
-    libraryItems: [Article!]
+    libraryItems: [Article!]!
     highlights: [Highlight!]
     createdAt: Date!
     updatedAt: Date!
@@ -3357,7 +3357,7 @@ const schema = gql`
     title: String! @sanitize(minLength: 1, maxLength: 255)
     content: String! @sanitize(minLength: 1)
     thumbnail: String
-    libraryItemIds: [ID!]
+    libraryItemIds: [ID!]!
     highlightIds: [ID!]
     thought: String
   }

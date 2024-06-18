@@ -7,7 +7,7 @@ BEGIN;
 CREATE TABLE omnivore.post (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     user_id UUID NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE,
-    library_item_ids UUID[],
+    library_item_ids UUID[] NOT NULL,
 	highlight_ids UUID[],
     title TEXT NOT NULL,
 	content TEXT NOT NULL, -- generated from template

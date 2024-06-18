@@ -521,7 +521,7 @@ export enum CreatePostErrorCode {
 export type CreatePostInput = {
   content: Scalars['String'];
   highlightIds?: InputMaybe<Array<Scalars['ID']>>;
-  libraryItemIds?: InputMaybe<Array<Scalars['ID']>>;
+  libraryItemIds: Array<Scalars['ID']>;
   thought?: InputMaybe<Scalars['String']>;
   thumbnail?: InputMaybe<Scalars['String']>;
   title: Scalars['String'];
@@ -2413,7 +2413,7 @@ export type Post = {
   createdAt: Scalars['Date'];
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
-  libraryItems?: Maybe<Array<Article>>;
+  libraryItems: Array<Article>;
   ownedByViewer: Scalars['Boolean'];
   thought?: Maybe<Scalars['String']>;
   thumbnail?: Maybe<Scalars['String']>;
@@ -7064,7 +7064,7 @@ export type PostResolvers<ContextType = ResolverContext, ParentType extends Reso
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  libraryItems?: Resolver<Maybe<Array<ResolversTypes['Article']>>, ParentType, ContextType>;
+  libraryItems?: Resolver<Array<ResolversTypes['Article']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   thought?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
