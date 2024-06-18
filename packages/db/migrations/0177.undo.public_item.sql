@@ -9,8 +9,6 @@ DROP TABLE omnivore.public_item_stats;
 DROP TABLE omnivore.public_item;
 DROP TABLE omnivore.public_item_source;
 
-DROP INDEX omnivore.library_item_topic_idx;
-
 ALTER TABLE omnivore.library_item 
     DROP COLUMN seen_at,
     DROP COLUMN digested_at,
