@@ -61,14 +61,9 @@ export const createPosts = async (
 }
 
 export const deletePosts = async (userId: string, postIds: string[]) => {
-  return authTrx(
-    async (trx) => {
-      await trx.getRepository(Post).delete(postIds)
-    },
-    {
-      uid: userId,
-    }
-  )
+  return authTrx(async (trx) => trx.getRepository(Post).delete(postIds), {
+    uid: userId,
+  })
 }
 
 export const findPublicPostById = async (id: string) => {

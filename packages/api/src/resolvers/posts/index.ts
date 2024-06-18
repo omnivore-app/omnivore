@@ -3,7 +3,11 @@ import {
   CreatePostError,
   CreatePostErrorCode,
   CreatePostSuccess,
+  DeletePostError,
+  DeletePostErrorCode,
+  DeletePostSuccess,
   MutationCreatePostArgs,
+  MutationDeletePostArgs,
   MutationUpdatePostArgs,
   PostEdge,
   PostErrorCode,
@@ -19,6 +23,7 @@ import {
 } from '../../generated/graphql'
 import {
   createPublicPost,
+  deletePosts,
   findPublicPostById,
   findPublicPostsByUserId,
   updatePost,
@@ -191,5 +196,33 @@ export const updatePostResolver = authorized<
 
   return {
     post,
+  }
+})
+
+export const deletePostResolver = authorized<
+  DeletePostSuccess,
+  DeletePostError,
+  MutationDeletePostArgs
+>(async (_, { id }, { uid, log }) => {
+  if (!id) {
+    log.error('Invalid args', { id })
+
+    return {
+      errorCodes: [DeletePostErrorCode.BadRequest],
+    }
+  }
+
+  const result = await deletePosts(uid, [id])
+
+  if (!result.affected) {
+    log.error('Failed to delete post', { id })
+
+    return {
+      errorCodes: [DeletePostErrorCode.Unauthorized],
+    }
+  }
+
+  return {
+    success: true,
   }
 })

@@ -383,4 +383,75 @@ describe('Post Resolvers', () => {
       expect(post?.title).to.eql('Updated Post')
     })
   })
+
+  describe('deletePostResolver', () => {
+    const mutation = `
+      mutation DeletePost($id: ID!) {
+        deletePost(id: $id) {
+          ... on DeletePostSuccess {
+            success
+          }
+          ... on DeletePostError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    let postId: string
+
+    before(async () => {
+      const post = {
+        title: 'Post',
+        content: 'Content',
+        user: loginUser,
+      }
+      const newPost = await createPosts(loginUser.id, [post])
+
+      postId = newPost[0].id
+    })
+
+    it('should return an error if the args are invalid', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        id: '',
+      })
+
+      expect(response.body.data.deletePost.errorCodes).to.eql(['BAD_REQUEST'])
+    })
+
+    it('should return an error if the post is not found', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        id: generateFakeUuid(),
+      })
+
+      expect(response.body.data.deletePost.errorCodes).to.eql(['UNAUTHORIZED'])
+    })
+
+    it('should return an error if the user is not the owner of the post', async () => {
+      const notOwner = await createTestUser('notOwner')
+      const notOwnerToken = await loginAndGetAuthToken(notOwner.email)
+
+      const response = await graphqlRequest(mutation, notOwnerToken, {
+        id: postId,
+      })
+
+      expect(response.body.data.deletePost.errorCodes).to.eql(['UNAUTHORIZED'])
+
+      const post = await findPublicPostById(postId)
+      expect(post).to.exist
+
+      await deleteUser(notOwner.id)
+    })
+
+    it('should delete the post', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        id: postId,
+      })
+
+      expect(response.body.data.deletePost.success).to.be.true
+
+      const post = await findPublicPostById(postId)
+      expect(post).to.not.exist
+    })
+  })
 })
