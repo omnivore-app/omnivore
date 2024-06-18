@@ -87,6 +87,4 @@ ALTER TABLE omnivore.library_item
     ADD COLUMN topic LTREE,
     ADD COLUMN score FLOAT;
 
-CREATE INDEX library_item_topic_idx ON omnivore.library_item USING GIST (topic);
-
 COMMIT;
