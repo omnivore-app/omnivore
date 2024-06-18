@@ -27,11 +27,9 @@ export const deleteIntegrations = async (
   userId: string,
   criteria: string[] | FindOptionsWhere<Integration>
 ) => {
-  return authTrx(
-    async (t) => t.getRepository(Integration).delete(criteria),
-    undefined,
-    userId
-  )
+  return authTrx(async (t) => t.getRepository(Integration).delete(criteria), {
+    uid: userId,
+  })
 }
 
 export const removeIntegration = async (
@@ -40,8 +38,9 @@ export const removeIntegration = async (
 ) => {
   return authTrx(
     async (t) => t.getRepository(Integration).remove(integration),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -55,8 +54,9 @@ export const findIntegration = async (
         ...where,
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -71,8 +71,9 @@ export const findIntegrationByName = async (name: string, userId: string) => {
         })
         .andWhere('LOWER(name) = LOWER(:name)', { name }) // case insensitive
         .getOne(),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -86,8 +87,9 @@ export const findIntegrations = async (
         ...where,
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -101,8 +103,9 @@ export const saveIntegration = async (
       const newIntegration = await repo.save(integration)
       return repo.findOneByOrFail({ id: newIntegration.id })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -113,7 +116,8 @@ export const updateIntegration = async (
 ) => {
   return authTrx(
     async (t) => t.getRepository(Integration).update(id, integration),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

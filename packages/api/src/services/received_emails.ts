@@ -23,8 +23,9 @@ export const saveReceivedEmail = async (
         user: { id: userId },
         replyTo,
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -38,16 +39,18 @@ export const updateReceivedEmail = async (
       t
         .getRepository(ReceivedEmail)
         .update({ id, user: { id: userId } }, { type }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
 export const deleteReceivedEmail = async (id: string, userId: string) => {
   return authTrx(
     (t) => t.getRepository(ReceivedEmail).delete({ id, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -55,7 +58,8 @@ export const findReceivedEmailById = async (id: string, userId: string) => {
   return authTrx(
     (t) =>
       t.getRepository(ReceivedEmail).findOneBy({ id, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

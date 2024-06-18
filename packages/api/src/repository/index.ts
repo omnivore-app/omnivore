@@ -1,4 +1,5 @@
 import * as httpContext from 'express-http-context2'
+import { DatabaseError } from 'pg'
 import {
   EntityManager,
   EntityTarget,
@@ -7,7 +8,6 @@ import {
   QueryFailedError,
   Repository,
 } from 'typeorm'
-import { DatabaseError } from 'pg'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
@@ -59,12 +59,19 @@ export const setClaims = async (
   ])
 }
 
+interface AuthTrxOptions {
+  entityManager?: EntityManager
+  uid?: string
+  userRole?: string
+}
+
 export const authTrx = async <T>(
   fn: (manager: EntityManager) => Promise<T>,
-  em = appDataSource.manager,
-  uid?: string,
-  userRole?: string
+  options: AuthTrxOptions = {}
 ): Promise<T> => {
+  const entityManage = options.entityManager || appDataSource.manager
+  let { uid, userRole } = options
+
   // if uid and dbRole are not passed in, then get them from the claims
   if (!uid && !userRole) {
     const claims: Claims | undefined = httpContext.get('claims')
@@ -72,7 +79,7 @@ export const authTrx = async <T>(
     userRole = claims?.userRole
   }
 
-  return em.transaction(async (tx) => {
+  return entityManage.transaction(async (tx) => {
     await setClaims(tx, uid, userRole)
     return fn(tx)
   })

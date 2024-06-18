@@ -24,8 +24,9 @@ describe('create user', () => {
       const user = await createTestUser('filter_user')
       const filters = await authTrx(
         (t) => t.getRepository(Filter).findBy({ user: { id: user.id } }),
-        undefined,
-        user.id
+        {
+          uid: user.id,
+        }
       )
 
       expect(filters).not.to.be.empty

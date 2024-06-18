@@ -2,13 +2,12 @@ import * as jwt from 'jsonwebtoken'
 import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
+import { LibraryItem } from '../entity/library_item'
+import { Subscription, SubscriptionStatus } from '../entity/subscription'
 import { env } from '../env'
+import { OptInFeatureErrorCode } from '../generated/graphql'
 import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
-import { OptInFeatureErrorCode } from '../generated/graphql'
-import { Subscription, SubscriptionStatus } from '../entity/subscription'
-import { libraryItemRepository } from '../repository/library_item'
-import { LibraryItem } from '../entity/library_item'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
@@ -182,8 +181,9 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
         where: { user: { id: uid }, status: SubscriptionStatus.Active },
       })
     },
-    undefined,
-    uid
+    {
+      uid,
+    }
   )
 
   const libraryItemsCount = await authTrx(
@@ -192,8 +192,9 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
         where: { user: { id: uid } },
       })
     },
-    undefined,
-    uid
+    {
+      uid,
+    }
   )
 
   return subscriptionsCount >= 2 && libraryItemsCount >= 10

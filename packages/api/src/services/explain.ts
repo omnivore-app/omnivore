@@ -1,9 +1,9 @@
-import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
+import { OpenAI } from '@langchain/openai'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { htmlToMarkdown } from '../utils/parser'
 import { OPENAI_MODEL } from '../utils/ai'
+import { htmlToMarkdown } from '../utils/parser'
 
 export const explainText = async (
   userId: string,
@@ -20,8 +20,9 @@ export const explainText = async (
   const libraryItem = await authTrx(
     async (tx) =>
       tx.withRepository(libraryItemRepository).findById(libraryItemId),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   if (!libraryItem) {

@@ -188,7 +188,9 @@ const validateInvite = async (
   const numMembers = await authTrx(
     (t) =>
       t.getRepository(GroupMembership).countBy({ invite: { id: invite.id } }),
-    entityManager
+    {
+      entityManager,
+    }
   )
   if (numMembers >= invite.maxMembers) {
     logger.info('rejecting invite, too many users', { invite, numMembers })

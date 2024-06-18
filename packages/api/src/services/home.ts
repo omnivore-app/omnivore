@@ -48,7 +48,8 @@ export const findUnseenPublicItems = async (
         .take(options.limit)
         .skip(options.offset)
         .getMany(),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
