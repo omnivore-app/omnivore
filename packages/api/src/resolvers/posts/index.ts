@@ -121,6 +121,14 @@ export const createPostResolver = authorized<
   const { title, content, highlightIds, libraryItemIds, thought, thumbnail } =
     input
 
+  if (libraryItemIds.length === 0) {
+    log.error('Invalid args', { libraryItemIds })
+
+    return {
+      errorCodes: [CreatePostErrorCode.BadRequest],
+    }
+  }
+
   const postToCreate = {
     userId: uid,
     title,

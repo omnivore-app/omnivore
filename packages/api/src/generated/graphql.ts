@@ -515,6 +515,7 @@ export type CreatePostError = {
 };
 
 export enum CreatePostErrorCode {
+  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
 
@@ -2408,12 +2409,12 @@ export type ParseResult = {
 
 export type Post = {
   __typename?: 'Post';
-  author: User;
+  author: Scalars['String'];
   content: Scalars['String'];
   createdAt: Scalars['Date'];
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
-  libraryItems: Array<Article>;
+  libraryItems?: Maybe<Array<Article>>;
   ownedByViewer: Scalars['Boolean'];
   thought?: Maybe<Scalars['String']>;
   thumbnail?: Maybe<Scalars['String']>;
@@ -7059,12 +7060,12 @@ export type PageInfoResolvers<ContextType = ResolverContext, ParentType extends 
 };
 
 export type PostResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
-  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  libraryItems?: Resolver<Array<ResolversTypes['Article']>, ParentType, ContextType>;
+  libraryItems?: Resolver<Maybe<Array<ResolversTypes['Article']>>, ParentType, ContextType>;
   ownedByViewer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   thought?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

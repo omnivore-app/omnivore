@@ -460,6 +460,7 @@ type CreatePostError {
 }
 
 enum CreatePostErrorCode {
+  BAD_REQUEST
   UNAUTHORIZED
 }
 
@@ -1842,12 +1843,12 @@ input ParseResult {
 }
 
 type Post {
-  author: User!
+  author: String!
   content: String!
   createdAt: Date!
   highlights: [Highlight!]
   id: ID!
-  libraryItems: [Article!]!
+  libraryItems: [Article!]
   ownedByViewer: Boolean!
   thought: String
   thumbnail: String

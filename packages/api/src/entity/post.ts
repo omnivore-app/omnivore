@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
 
@@ -37,9 +39,9 @@ export class Post {
   @Column('text', { nullable: true })
   thought?: string | null
 
-  @Column('timestamptz')
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date
 
-  @Column('timestamptz')
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date
 }

@@ -791,26 +791,32 @@ export const functionResolvers = {
     recommendedAt: (recommendation: Recommendation) => recommendation.createdAt,
   },
   Post: {
-    author(post: Post, _: never, ctx: ResolverContext) {
-      return ctx.dataLoaders.users.load(post.userId)
+    async author(post: Post, _: never, ctx: ResolverContext) {
+      const author = await ctx.dataLoaders.users.load(post.userId)
+      return author?.name
     },
     ownedByViewer(post: Post, _: never, ctx: ResolverContext) {
-      console.log('ownedByViewer: ctx.claims?.uid', ctx.claims?.uid)
       return post.userId === ctx.claims?.uid
     },
-    libraryItems(
+    async libraryItems(
       post: { libraryItemIds: string[] },
       _: never,
       ctx: ResolverContext
     ) {
-      return ctx.dataLoaders.libraryItems.loadMany(post.libraryItemIds)
+      const items = await ctx.dataLoaders.libraryItems.loadMany(
+        post.libraryItemIds
+      )
+      return items.filter((item) => !!item)
     },
-    highlights(
+    async highlights(
       post: { highlightIds: string[] },
       _: never,
       ctx: ResolverContext
     ) {
-      return ctx.dataLoaders.highlights.loadMany(post.highlightIds)
+      const highlights = await ctx.dataLoaders.highlights.loadMany(
+        post.highlightIds
+      )
+      return highlights.filter((highlight) => !!highlight)
     },
   },
   ...resultResolveTypeResolver('Login'),
