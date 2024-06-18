@@ -4,6 +4,7 @@ import {
   CreatePostErrorCode,
   CreatePostSuccess,
   MutationCreatePostArgs,
+  MutationUpdatePostArgs,
   PostEdge,
   PostErrorCode,
   PostResult,
@@ -12,12 +13,15 @@ import {
   QueryPostArgs,
   QueryPostsArgs,
   ResolverFn,
+  UpdatePostError,
+  UpdatePostErrorCode,
+  UpdatePostSuccess,
 } from '../../generated/graphql'
 import {
-  createPosts,
   createPublicPost,
   findPublicPostById,
   findPublicPostsByUserId,
+  updatePost,
 } from '../../services/post'
 import { Merge } from '../../util'
 import { authorized } from '../../utils/gql-utils'
@@ -128,6 +132,60 @@ export const createPostResolver = authorized<
 
     return {
       errorCodes: [CreatePostErrorCode.Unauthorized],
+    }
+  }
+
+  return {
+    post,
+  }
+})
+
+export const updatePostResolver = authorized<
+  Merge<UpdatePostSuccess, { post?: Post }>,
+  UpdatePostError,
+  MutationUpdatePostArgs
+>(async (_, { input }, { uid, log }) => {
+  const {
+    id,
+    title,
+    content,
+    highlightIds,
+    libraryItemIds,
+    thought,
+    thumbnail,
+  } = input
+
+  if (!id || title === null || content === null) {
+    log.error('Invalid args', { id })
+
+    return {
+      errorCodes: [UpdatePostErrorCode.BadRequest],
+    }
+  }
+
+  const result = await updatePost(uid, id, {
+    title,
+    content,
+    highlightIds,
+    libraryItemIds,
+    thought,
+    thumbnail,
+  })
+
+  if (!result.affected) {
+    log.error('Failed to update post', { id })
+
+    return {
+      errorCodes: [UpdatePostErrorCode.Unauthorized],
+    }
+  }
+
+  const post = await findPublicPostById(id)
+  if (!post) {
+    log.error('Post not found', { id })
+
+    return {
+      errorCodes: [UpdatePostErrorCode.Unauthorized],
     }
   }
 

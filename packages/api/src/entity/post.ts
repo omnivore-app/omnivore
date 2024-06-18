@@ -20,10 +20,10 @@ export class Post {
   user!: User
 
   @Column('uuid', { array: true, nullable: true })
-  libraryItemIds?: string[]
+  libraryItemIds?: string[] | null
 
   @Column('uuid', { array: true, nullable: true })
-  highlightIds?: string[]
+  highlightIds?: string[] | null
 
   @Column('text')
   title!: string
@@ -32,10 +32,10 @@ export class Post {
   content!: string
 
   @Column('text', { nullable: true })
-  thumbnail?: string
+  thumbnail?: string | null
 
   @Column('text', { nullable: true })
-  thought?: string
+  thought?: string | null
 
   @Column('timestamptz')
   createdAt!: Date

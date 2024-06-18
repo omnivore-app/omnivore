@@ -288,4 +288,99 @@ describe('Post Resolvers', () => {
       await deletePosts(loginUser.id, [postId])
     })
   })
+
+  describe('updatePostResolver', () => {
+    const mutation = `
+      mutation UpdatePost($input: UpdatePostInput!) {
+        updatePost(input: $input) {
+          ... on UpdatePostSuccess {
+            post {
+              id
+              title
+              content
+            }
+          }
+          ... on UpdatePostError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    let postId: string
+
+    before(async () => {
+      const post = {
+        title: 'Post',
+        content: 'Content',
+        user: loginUser,
+      }
+      const newPost = await createPosts(loginUser.id, [post])
+
+      postId = newPost[0].id
+    })
+
+    after(async () => {
+      await deletePosts(loginUser.id, [postId])
+    })
+
+    it('should return an error if the args are invalid', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        input: {
+          id: postId,
+          title: null,
+          content: null,
+        },
+      })
+
+      expect(response.body.data.updatePost.errorCodes).to.eql(['BAD_REQUEST'])
+    })
+
+    it('should return an error if the post is not found', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        input: {
+          id: generateFakeUuid(),
+          title: 'Post',
+          content: 'Content',
+        },
+      })
+
+      expect(response.body.data.updatePost.errorCodes).to.eql(['UNAUTHORIZED'])
+    })
+
+    it('should return an error if the user is not the owner of the post', async () => {
+      const notOwner = await createTestUser('notOwner')
+      const notOwnerToken = await loginAndGetAuthToken(notOwner.email)
+
+      const response = await graphqlRequest(mutation, notOwnerToken, {
+        input: {
+          id: postId,
+          title: 'Post',
+          content: 'Content',
+        },
+      })
+
+      expect(response.body.data.updatePost.errorCodes).to.eql(['UNAUTHORIZED'])
+
+      await deleteUser(notOwner.id)
+    })
+
+    it('should update the post', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        input: {
+          id: postId,
+          title: 'Updated Post',
+          content: 'Updated Content',
+        },
+      })
+
+      expect(response.body.data.updatePost.post.title).to.eql('Updated Post')
+      expect(response.body.data.updatePost.post.content).to.eql(
+        'Updated Content'
+      )
+
+      const post = await findPublicPostById(postId)
+      expect(post?.title).to.eql('Updated Post')
+    })
+  })
 })

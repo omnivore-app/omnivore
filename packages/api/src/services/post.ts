@@ -81,3 +81,13 @@ export const findPublicPostById = async (id: string) => {
     },
   })
 }
+
+export const updatePost = async (
+  userId: string,
+  postId: string,
+  post: Partial<Post>
+) => {
+  return authTrx(async (trx) => trx.getRepository(Post).update(postId, post), {
+    uid: userId,
+  })
+}
