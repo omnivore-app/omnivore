@@ -1,7 +1,11 @@
 import { expect } from 'chai'
 import { User } from '../../src/entity/user'
-import { createPosts, deletePosts } from '../../src/services/post'
-import { updateProfile } from '../../src/services/profile'
+import {
+  createPosts,
+  deletePosts,
+  findPublicPostById,
+} from '../../src/services/post'
+import { findProfile, updateProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, loginAndGetAuthToken } from '../util'
@@ -240,6 +244,48 @@ describe('Post Resolvers', () => {
           expect(response.body.data.post.errorCodes).to.eql(['NOT_FOUND'])
         })
       })
+    })
+  })
+
+  describe('createPostResolver', () => {
+    const mutation = `
+      mutation CreatePost($input: CreatePostInput!) {
+        createPost(input: $input) {
+          ... on CreatePostSuccess {
+            post {
+              id
+              title
+              content
+            }
+          }
+          ... on CreatePostError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    it('should create a post', async () => {
+      const response = await graphqlRequest(mutation, authToken, {
+        input: {
+          title: 'Post',
+          content: 'Content',
+        },
+      })
+
+      expect(response.body.data.createPost.post.title).to.eql('Post')
+      expect(response.body.data.createPost.post.content).to.eql('Content')
+
+      const postId = response.body.data.createPost.post.id as string
+
+      const post = await findPublicPostById(postId)
+      expect(post).to.exist
+      expect(post?.title).to.eql('Post')
+
+      const profile = await findProfile(loginUser)
+      expect(profile?.private).to.be.false
+
+      await deletePosts(loginUser.id, [postId])
     })
   })
 })

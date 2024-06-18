@@ -151,7 +151,7 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { postResolver, postsResolver } from './posts'
+import { createPostResolver, postResolver, postsResolver } from './posts'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -318,6 +318,7 @@ export const functionResolvers = {
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
     deleteFolderPolicy: deleteFolderPolicyResolver,
+    createPost: createPostResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -904,4 +905,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteFolderPolicy'),
   ...resultResolveTypeResolver('Posts'),
   ...resultResolveTypeResolver('Post'),
+  ...resultResolveTypeResolver('CreatePost'),
 }

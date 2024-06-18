@@ -1,5 +1,6 @@
 import { DeepPartial } from 'typeorm'
 import { Post } from '../entity/post'
+import { Profile } from '../entity/profile'
 import { authTrx, getRepository } from '../repository'
 
 export const findPublicPostsByUserId = async (
@@ -24,6 +25,30 @@ export const findPublicPostsByUserId = async (
   })
 
   return posts
+}
+
+export const createPublicPost = async (
+  userId: string,
+  post: DeepPartial<Post>
+) => {
+  return authTrx(
+    async (trx) => {
+      const newPost = await trx.getRepository(Post).save(post)
+
+      // Make user profile public when user creates a post
+      await trx.getRepository(Profile).update(
+        { user: { id: userId } },
+        {
+          private: false,
+        }
+      )
+
+      return newPost
+    },
+    {
+      uid: userId,
+    }
+  )
 }
 
 export const createPosts = async (

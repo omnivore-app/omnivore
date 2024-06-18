@@ -515,7 +515,6 @@ export type CreatePostError = {
 };
 
 export enum CreatePostErrorCode {
-  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
 

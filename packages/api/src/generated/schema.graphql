@@ -460,7 +460,6 @@ type CreatePostError {
 }
 
 enum CreatePostErrorCode {
-  BAD_REQUEST
   UNAUTHORIZED
 }
 

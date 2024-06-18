@@ -1,5 +1,9 @@
 import { Post } from '../../entity/post'
 import {
+  CreatePostError,
+  CreatePostErrorCode,
+  CreatePostSuccess,
+  MutationCreatePostArgs,
   PostEdge,
   PostErrorCode,
   PostResult,
@@ -10,10 +14,13 @@ import {
   ResolverFn,
 } from '../../generated/graphql'
 import {
+  createPosts,
+  createPublicPost,
   findPublicPostById,
   findPublicPostsByUserId,
 } from '../../services/post'
 import { Merge } from '../../util'
+import { authorized } from '../../utils/gql-utils'
 import { ResolverContext } from '../types'
 
 type PartialPostEdge = Merge<
@@ -97,3 +104,34 @@ export const postResolver: ResolverFn<
   }
 }
 
+export const createPostResolver = authorized<
+  Merge<CreatePostSuccess, { post: Post }>,
+  CreatePostError,
+  MutationCreatePostArgs
+>(async (_, { input }, { uid, log }) => {
+  const { title, content, highlightIds, libraryItemIds, thought, thumbnail } =
+    input
+
+  const postToCreate = {
+    userId: uid,
+    title,
+    content,
+    highlightIds: highlightIds || undefined,
+    libraryItemIds: libraryItemIds || undefined,
+    thought: thought || undefined,
+    thumbnail: thumbnail || undefined,
+  }
+
+  const post = await createPublicPost(uid, postToCreate)
+  if (!post) {
+    log.error('Failed to create post', { postToCreate })
+
+    return {
+      errorCodes: [CreatePostErrorCode.Unauthorized],
+    }
+  }
+
+  return {
+    post,
+  }
+})
