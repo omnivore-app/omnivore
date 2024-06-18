@@ -7,11 +7,10 @@ export const createWebhooks = async (
   userId?: string,
   entityManager?: EntityManager
 ) => {
-  return authTrx(
-    (tx) => tx.getRepository(Webhook).save(webhooks),
-    entityManager,
-    userId
-  )
+  return authTrx((tx) => tx.getRepository(Webhook).save(webhooks), {
+    entityManager: entityManager,
+    uid: userId,
+  })
 }
 
 export const createWebhook = async (
@@ -19,18 +18,18 @@ export const createWebhook = async (
   userId?: string,
   entityManager?: EntityManager
 ) => {
-  return authTrx(
-    (tx) => tx.getRepository(Webhook).save(webhook),
-    entityManager,
-    userId
-  )
+  return authTrx((tx) => tx.getRepository(Webhook).save(webhook), {
+    entityManager: entityManager,
+    uid: userId,
+  })
 }
 
 export const findWebhooks = async (userId: string) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).findBy({ user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -45,16 +44,18 @@ export const findWebhooksByEventType = async (
         enabled: true,
         eventTypes: ArrayContains([eventType]),
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
 export const findWebhookById = async (id: string, userId: string) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).findOneBy({ id, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -66,7 +67,8 @@ export const deleteWebhook = async (id: string, userId: string) => {
       await repo.delete(id)
       return webhook
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

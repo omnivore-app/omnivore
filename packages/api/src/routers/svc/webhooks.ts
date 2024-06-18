@@ -47,8 +47,9 @@ export function webhooksServiceRouter() {
             .andWhere(':eventType = ANY(event_types)', { eventType })
             .andWhere('enabled = true')
             .getMany(),
-        undefined,
-        userId
+        {
+          uid: userId,
+        }
       )
 
       if (webhooks.length <= 0) {

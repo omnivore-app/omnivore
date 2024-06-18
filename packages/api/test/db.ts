@@ -158,8 +158,9 @@ export const saveLabelsInLibraryItem = async (
         }))
       )
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   // update labels in library item
@@ -184,8 +185,9 @@ export const createHighlight = async (
         },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   const job = await enqueueUpdateHighlight({

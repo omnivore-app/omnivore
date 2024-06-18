@@ -1,13 +1,13 @@
-import { logger } from '../utils/logger'
-import { loadSummarizationChain } from 'langchain/chains'
 import { ChatOpenAI } from '@langchain/openai'
+import { loadSummarizationChain } from 'langchain/chains'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
-import { authTrx } from '../repository'
-import { libraryItemRepository } from '../repository/library_item'
-import { htmlToMarkdown } from '../utils/parser'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
+import { authTrx } from '../repository'
+import { libraryItemRepository } from '../repository/library_item'
 import { getAISummary } from '../services/ai-summaries'
+import { logger } from '../utils/logger'
+import { htmlToMarkdown } from '../utils/parser'
 
 export interface AISummarizeJobData {
   userId: string
@@ -24,8 +24,9 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
         tx
           .withRepository(libraryItemRepository)
           .findById(jobData.libraryItemId),
-      undefined,
-      jobData.userId
+      {
+        uid: jobData.userId,
+      }
     )
     if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
       logger.info(
@@ -84,8 +85,9 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
           summary: summary,
         })
       },
-      undefined,
-      jobData.userId
+      {
+        uid: jobData.userId,
+      }
     )
   } catch (err) {
     console.log('error creating summary: ', err)

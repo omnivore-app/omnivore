@@ -50,8 +50,9 @@ export const createHighlights = async (
   return authTrx(
     async (tx) =>
       tx.withRepository(highlightRepository).createAndSaves(highlights),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -73,8 +74,9 @@ export const createHighlight = async (
         },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   const data = deepDelete(newHighlight, columnsToDelete)
@@ -221,8 +223,9 @@ export const deleteHighlightById = async (
       await highlightRepo.delete(highlightId)
       return highlight
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   await enqueueUpdateHighlight({
@@ -239,8 +242,9 @@ export const deleteHighlightsByIds = async (
 ) => {
   await authTrx(
     async (tx) => tx.getRepository(Highlight).delete(highlightIds),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -255,8 +259,9 @@ export const findHighlightById = async (
         id: highlightId,
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -273,8 +278,9 @@ export const findHighlightsByLibraryItemId = async (
           labels: true,
         },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -321,7 +327,8 @@ export const searchHighlights = async (
 
       return queryBuilder.getMany()
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

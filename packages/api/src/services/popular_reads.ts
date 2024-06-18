@@ -15,8 +15,10 @@ export const addPopularRead = async (
       tx
         .withRepository(libraryItemRepository)
         .createByPopularRead(name, userId),
-    entityManager,
-    userId
+    {
+      entityManager,
+      uid: userId,
+    }
   )
 }
 
