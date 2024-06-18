@@ -2,7 +2,7 @@ import { DeepPartial } from 'typeorm'
 import { Post } from '../entity/post'
 import { authTrx, getRepository } from '../repository'
 
-export const findPostsByUserId = async (
+export const findPublicPostsByUserId = async (
   userId: string,
   limit: number,
   offset: number
@@ -30,11 +30,9 @@ export const createPosts = async (
   userId: string,
   posts: Array<DeepPartial<Post>>
 ) => {
-  return authTrx(
-    async (trx) => trx.getRepository(Post).save(posts),
-    undefined,
-    userId
-  )
+  return authTrx(async (trx) => trx.getRepository(Post).save(posts), {
+    uid: userId,
+  })
 }
 
 export const deletePosts = async (userId: string, postIds: string[]) => {
@@ -42,7 +40,8 @@ export const deletePosts = async (userId: string, postIds: string[]) => {
     async (trx) => {
       await trx.getRepository(Post).delete(postIds)
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

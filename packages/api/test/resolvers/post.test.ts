@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { User } from '../../src/entity/user'
-import { updateUserProfileResolver } from '../../src/resolvers'
 import { createPosts, deletePosts } from '../../src/services/post'
+import { updateProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { graphqlRequest, loginAndGetAuthToken } from '../util'
@@ -56,11 +56,13 @@ describe('Post Resolvers', () => {
           title: 'Post 1',
           content: 'Content 1',
           user: loginUser,
+          createdAt: new Date('2021-01-01'),
         },
         {
           title: 'Post 2',
           content: 'Content 2',
           user: loginUser,
+          createdAt: new Date('2021-01-02'),
         },
       ]
       const newPosts = await createPosts(loginUser.id, posts)
@@ -95,9 +97,15 @@ describe('Post Resolvers', () => {
     })
 
     context('when the user is not authenticated', () => {
-      context('when the posts are public', () => {
+      context('when user profile is public', () => {
         before(async () => {
-          await updateUserProfileResolver
+          await updateProfile(loginUser.id, { private: false })
+        })
+
+        after(async () => {
+          await updateProfile(loginUser.id, { private: true })
+        })
+
         it('should return posts', async () => {
           const response = await graphqlRequest(query, '', {
             first: 10,
@@ -107,18 +115,26 @@ describe('Post Resolvers', () => {
           expect(response.body.data.posts.edges[0].node.id).to.eql(postIds[1])
           expect(response.body.data.posts.edges[1].node.id).to.eql(postIds[0])
           expect(response.body.data.posts.edges[0].node.ownedByViewer).to.be
-            .true
+            .false
         })
       })
 
-      context('when the posts are private', () => {
+      context('when user profile is private', () => {
+        before(async () => {
+          await updateProfile(loginUser.id, { private: true })
+        })
+
+        after(async () => {
+          await updateProfile(loginUser.id, { private: false })
+        })
+
         it('should return empty array', async () => {
           const response = await graphqlRequest(query, '', {
             first: 10,
             userId: loginUser.id,
           })
 
-          expect(response.body.data.posts.errorCodes).to.eql(['UNAUTHORIZED'])
+          expect(response.body.data.posts.edges).to.be.empty
         })
       })
     })

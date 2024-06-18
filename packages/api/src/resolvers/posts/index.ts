@@ -6,7 +6,7 @@ import {
   QueryPostsArgs,
   ResolverFn,
 } from '../../generated/graphql'
-import { findPostsByUserId } from '../../services/post'
+import { findPublicPostsByUserId } from '../../services/post'
 import { Merge } from '../../util'
 import { ResolverContext } from '../types'
 
@@ -38,7 +38,8 @@ export const postsResolver: ResolverFn<
     }
   }
 
-  const posts = await findPostsByUserId(userId, limit + 1, offset)
+  const posts = await findPublicPostsByUserId(userId, limit + 1, offset)
+  console.log(posts)
 
   const hasNextPage = posts.length > limit
   if (hasNextPage) {
