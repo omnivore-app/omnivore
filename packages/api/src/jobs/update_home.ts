@@ -7,7 +7,7 @@ import { registerMetric } from '../prometheus'
 import { redisDataSource } from '../redis_data_source'
 import { findUnseenPublicItems } from '../services/home'
 import { searchLibraryItems } from '../services/library_item'
-import { Feature, getScores } from '../services/score'
+import { Feature, scoreClient } from '../services/score'
 import { findSubscriptionsByNames } from '../services/subscriptions'
 import { findActiveUser } from '../services/user'
 import { lanaugeToCode } from '../utils/helpers'
@@ -227,7 +227,7 @@ const rankCandidates = async (
     }, {} as Record<string, Feature>),
   }
 
-  const scores = await getScores(data)
+  const scores = await scoreClient.getScores(data)
   // update scores for candidates
   candidates.forEach((item) => {
     item.score = scores[item.id]['score'] || 0
