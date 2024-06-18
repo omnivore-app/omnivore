@@ -79,7 +79,7 @@ CREATE INDEX public_item_interaction_public_item_id_idx ON omnivore.public_item_
 CREATE TRIGGER update_public_item_interactions_modtime BEFORE UPDATE ON omnivore.public_item_interactions FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 GRANT SELECT, INSERT, UPDATE ON omnivore.public_item_interactions TO omnivore_user;
 
-CREATE EXTENSION LTREE;
+CREATE EXTENSION IF NOT EXISTS LTREE;
 
 ALTER TABLE omnivore.library_item 
     ADD COLUMN seen_at TIMESTAMPTZ,
