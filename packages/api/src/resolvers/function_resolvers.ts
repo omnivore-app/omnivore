@@ -151,7 +151,7 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { postsResolver } from './posts'
+import { postResolver, postsResolver } from './posts'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -355,6 +355,7 @@ export const functionResolvers = {
     highlights: highlightsResolver,
     folderPolicies: folderPoliciesResolver,
     posts: postsResolver,
+    post: postResolver,
   },
   User: {
     async intercomHash(user: User) {
@@ -902,4 +903,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateFolderPolicy'),
   ...resultResolveTypeResolver('DeleteFolderPolicy'),
   ...resultResolveTypeResolver('Posts'),
+  ...resultResolveTypeResolver('Post'),
 }

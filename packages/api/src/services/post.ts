@@ -45,3 +45,14 @@ export const deletePosts = async (userId: string, postIds: string[]) => {
     }
   )
 }
+
+export const findPublicPostById = async (id: string) => {
+  return getRepository(Post).findOneBy({
+    id,
+    user: {
+      profile: {
+        private: false,
+      },
+    },
+  })
+}

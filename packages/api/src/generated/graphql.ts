@@ -2435,6 +2435,7 @@ export type PostError = {
 
 export enum PostErrorCode {
   BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 

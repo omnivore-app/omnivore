@@ -4,7 +4,7 @@ import { createPosts, deletePosts } from '../../src/services/post'
 import { updateProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
-import { graphqlRequest, loginAndGetAuthToken } from '../util'
+import { generateFakeUuid, graphqlRequest, loginAndGetAuthToken } from '../util'
 
 describe('Post Resolvers', () => {
   let loginUser: User
@@ -135,6 +135,109 @@ describe('Post Resolvers', () => {
           })
 
           expect(response.body.data.posts.edges).to.be.empty
+        })
+      })
+    })
+  })
+
+  describe('postResolver', () => {
+    const query = `
+      query Post($id: ID!) {
+        post(id: $id) {
+          ... on PostSuccess {
+            post {
+              id
+              title
+              content
+              ownedByViewer
+            }
+          }
+          ... on PostError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    let postId: string
+
+    before(async () => {
+      const post = {
+        title: 'Post',
+        content: 'Content',
+        user: loginUser,
+      }
+      const newPost = await createPosts(loginUser.id, [post])
+
+      postId = newPost[0].id
+    })
+
+    after(async () => {
+      await deletePosts(loginUser.id, [postId])
+    })
+
+    it('should return an error if the args are invalid', async () => {
+      const response = await graphqlRequest(query, '', {
+        id: '',
+      })
+
+      expect(response.body.data.post.errorCodes).to.eql(['BAD_REQUEST'])
+    })
+
+    it('should return an error if the post is not found', async () => {
+      const response = await graphqlRequest(query, '', {
+        id: generateFakeUuid(),
+      })
+
+      expect(response.body.data.post.errorCodes).to.eql(['NOT_FOUND'])
+    })
+
+    context('when the user is authenticated', () => {
+      it('should return the post', async () => {
+        const response = await graphqlRequest(query, authToken, {
+          id: postId,
+        })
+
+        expect(response.body.data.post.post.id).to.eql(postId)
+        expect(response.body.data.post.post.ownedByViewer).to.be.true
+      })
+    })
+
+    context('when the user is not authenticated', () => {
+      context('when user profile is public', () => {
+        before(async () => {
+          await updateProfile(loginUser.id, { private: false })
+        })
+
+        after(async () => {
+          await updateProfile(loginUser.id, { private: true })
+        })
+
+        it('should return the post', async () => {
+          const response = await graphqlRequest(query, '', {
+            id: postId,
+          })
+
+          expect(response.body.data.post.post.id).to.eql(postId)
+          expect(response.body.data.post.post.ownedByViewer).to.be.false
+        })
+      })
+
+      context('when user profile is private', () => {
+        before(async () => {
+          await updateProfile(loginUser.id, { private: true })
+        })
+
+        after(async () => {
+          await updateProfile(loginUser.id, { private: false })
+        })
+
+        it('should return an error', async () => {
+          const response = await graphqlRequest(query, '', {
+            id: postId,
+          })
+
+          expect(response.body.data.post.errorCodes).to.eql(['NOT_FOUND'])
         })
       })
     })

@@ -1,12 +1,18 @@
 import { Post } from '../../entity/post'
 import {
   PostEdge,
+  PostErrorCode,
+  PostResult,
   PostsErrorCode,
   PostsResult,
+  QueryPostArgs,
   QueryPostsArgs,
   ResolverFn,
 } from '../../generated/graphql'
-import { findPublicPostsByUserId } from '../../services/post'
+import {
+  findPublicPostById,
+  findPublicPostsByUserId,
+} from '../../services/post'
 import { Merge } from '../../util'
 import { ResolverContext } from '../types'
 
@@ -39,7 +45,6 @@ export const postsResolver: ResolverFn<
   }
 
   const posts = await findPublicPostsByUserId(userId, limit + 1, offset)
-  console.log(posts)
 
   const hasNextPage = posts.length > limit
   if (hasNextPage) {
@@ -62,3 +67,33 @@ export const postsResolver: ResolverFn<
     },
   }
 }
+
+export const postResolver: ResolverFn<
+  Merge<PostResult, { post?: Post }>,
+  never,
+  ResolverContext,
+  QueryPostArgs
+> = async (_, { id }, { log }) => {
+  if (!id) {
+    log.error('Invalid args', { id })
+
+    return {
+      errorCodes: [PostErrorCode.BadRequest],
+    }
+  }
+
+  const post = await findPublicPostById(id)
+
+  if (!post) {
+    log.error('Post not found', { id })
+
+    return {
+      errorCodes: [PostErrorCode.NotFound],
+    }
+  }
+
+  return {
+    post,
+  }
+}
+

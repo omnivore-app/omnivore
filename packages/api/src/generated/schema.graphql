@@ -1867,6 +1867,7 @@ type PostError {
 
 enum PostErrorCode {
   BAD_REQUEST
+  NOT_FOUND
   UNAUTHORIZED
 }
 
