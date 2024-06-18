@@ -1,7 +1,4 @@
-import {
-  findLibraryItemById,
-  updateLibraryItem,
-} from '../services/library_item'
+import { findLibraryItemById } from '../services/library_item'
 import { Feature, getScores } from '../services/score'
 import { enqueueUpdateHomeJob } from '../utils/createTask'
 import { lanaugeToCode } from '../utils/helpers'
@@ -72,15 +69,15 @@ export const scoreLibraryItem = async (
     throw new Error('Failed to score library item')
   }
 
-  await updateLibraryItem(
-    libraryItem.id,
-    {
-      score,
-    },
-    userId,
-    undefined,
-    true
-  )
+  // await updateLibraryItem(
+  //   libraryItem.id,
+  //   {
+  //     score,
+  //   },
+  //   userId,
+  //   undefined,
+  //   true
+  // )
   logger.info('Library item scored', data)
 
   try {
