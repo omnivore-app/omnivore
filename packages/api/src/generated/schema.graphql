@@ -785,6 +785,7 @@ type DiscoverFeedArticle {
   author: String
   description: String!
   feed: String!
+  hidden: Boolean
   id: ID!
   image: String
   publishedDate: Date
@@ -1185,6 +1186,27 @@ union HiddenHomeSectionResult = HiddenHomeSectionError | HiddenHomeSectionSucces
 
 type HiddenHomeSectionSuccess {
   section: HomeSection
+}
+
+type HideDiscoverArticleError {
+  errorCodes: [HideDiscoverArticleErrorCode!]!
+}
+
+enum HideDiscoverArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input HideDiscoverArticleInput {
+  discoverArticleId: ID!
+  setHidden: Boolean!
+}
+
+union HideDiscoverArticleResult = HideDiscoverArticleError | HideDiscoverArticleSuccess
+
+type HideDiscoverArticleSuccess {
+  id: ID!
 }
 
 type Highlight {
@@ -1642,6 +1664,7 @@ type Mutation {
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
+  hideDiscoverArticle(input: HideDiscoverArticleInput!): HideDiscoverArticleResult!
   importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
   joinGroup(inviteCode: String!): JoinGroupResult!
   leaveGroup(groupId: ID!): LeaveGroupResult!
@@ -1822,7 +1845,7 @@ type Query {
   feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
   folderPolicies: FolderPoliciesResult!
-  getDiscoverFeedArticles(after: String, discoverTopicId: String!, feedId: ID, first: Int): GetDiscoverFeedArticleResults!
+  getDiscoverFeedArticles(after: String, discoverTopicId: String!, feedId: ID, first: Int, showHidden: Boolean): GetDiscoverFeedArticleResults!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String

@@ -2772,6 +2772,7 @@ const schema = gql`
     author: String
     savedLinkUrl: String
     savedId: String
+    hidden: Boolean
   }
 
   # Mutation: SaveDiscoverArticle
@@ -2818,6 +2819,29 @@ const schema = gql`
   }
 
   enum DeleteDiscoverArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  input HideDiscoverArticleInput {
+    discoverArticleId: ID!
+    setHidden: Boolean!
+  }
+
+  union HideDiscoverArticleResult =
+      HideDiscoverArticleSuccess
+    | HideDiscoverArticleError
+
+  type HideDiscoverArticleSuccess {
+    id: ID!
+  }
+
+  type HideDiscoverArticleError {
+    errorCodes: [HideDiscoverArticleErrorCode!]!
+  }
+
+  enum HideDiscoverArticleErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -3411,6 +3435,9 @@ const schema = gql`
     deleteDiscoverArticle(
       input: DeleteDiscoverArticleInput!
     ): DeleteDiscoverArticleResult!
+    hideDiscoverArticle(
+      input: HideDiscoverArticleInput!
+    ): HideDiscoverArticleResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -3510,6 +3537,7 @@ const schema = gql`
     getDiscoverFeedArticles(
       discoverTopicId: String!
       feedId: ID
+      showHidden: Boolean
       after: String
       first: Int
     ): GetDiscoverFeedArticleResults!
