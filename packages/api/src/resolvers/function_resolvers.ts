@@ -785,6 +785,11 @@ export const functionResolvers = {
   ArticleSavingRequest: {
     status: (item: LibraryItem) => item.state,
     url: (item: LibraryItem) => item.originalUrl,
+    async user(_item: LibraryItem, __: unknown, ctx: WithDataSourcesContext) {
+      if (ctx.claims?.uid) {
+        return ctx.dataLoaders.users.load(ctx.claims.uid)
+      }
+    },
   },
   Recommendation: {
     user: (recommendation: Recommendation) => {

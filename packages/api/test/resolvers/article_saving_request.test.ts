@@ -28,6 +28,13 @@ const articleSavingRequestQuery = ({
         articleSavingRequest {
           id
           status
+          user {
+            id
+            profile {
+              id
+              username
+            }
+          }
         }
       }
       ... on ArticleSavingRequestError {
@@ -136,6 +143,18 @@ describe('ArticleSavingRequest API', () => {
       expect(
         res.body.data.articleSavingRequest.articleSavingRequest.status
       ).to.eql(ArticleSavingRequestStatus.Processing)
+    })
+
+    it('returns the user profile info', async () => {
+      const res = await graphqlRequest(
+        articleSavingRequestQuery({ url }),
+        authToken
+      ).expect(200)
+
+      expect(
+        res.body.data.articleSavingRequest.articleSavingRequest.user.profile
+          .username
+      ).to.eql('fakeUser')
     })
 
     it('returns the article saving request by id', async () => {
