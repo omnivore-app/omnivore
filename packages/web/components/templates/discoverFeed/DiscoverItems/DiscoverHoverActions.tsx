@@ -4,10 +4,10 @@ import { Button } from '../../../elements/Button'
 import { theme } from '../../../tokens/stitches.config'
 import {
   BookmarkSimple,
-  Browsers,
+  Browsers, Eye, EyeSlash,
   MinusCircle,
-  PlusCircle,
-} from '@phosphor-icons/react'
+  PlusCircle
+} from "@phosphor-icons/react"
 import { timeZone, locale } from '../../../../lib/dateFormatting'
 import React from 'react'
 import { SaveDiscoverArticleOutput } from '../../../../lib/networking/mutations/saveDiscoverArticle'
@@ -29,7 +29,10 @@ type DiscoverHoverActionsProps = {
   setSavedUrl: (url: string) => void
   savedUrl?: string
 
+  hidden?: boolean
+
   deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>
+  hideDiscoverItem: (item: DiscoverFeedItem, setHidden: boolean) => Promise<void>
 }
 
 export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
@@ -39,7 +42,7 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
         overflow: 'clip',
 
         height: '33px',
-        width: '75px',
+        width: '112.5px',
         bg: '$thBackground',
         display: 'flex',
 
@@ -110,6 +113,7 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           )}
         </div>
       </Button>
+
       <Button
         title="Go to Original Article (O)"
         style="hoverActionIcon"
@@ -124,6 +128,24 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           size={21}
           color={theme.colors.thNotebookSubtle.toString()}
         />
+      </Button>
+      <Button
+        title={ props.hidden ? 'Article Item (H)' : 'Hide Article (H)' }
+        style="hoverActionIcon"
+        onClick={(event) => {
+          props.hideDiscoverItem(props.item, !props.hidden)
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        {
+          !props.item.hidden ?
+            <EyeSlash
+              size={21}
+              color={theme.colors.thNotebookSubtle.toString()}
+            /> :
+            <Eye size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        }
       </Button>
     </Box>
   )

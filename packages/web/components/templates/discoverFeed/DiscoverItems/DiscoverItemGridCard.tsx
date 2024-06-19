@@ -61,6 +61,7 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
         padding: '0px',
         width: '100%',
         height: '100%',
+        opacity: props.hidden ? 0.5 : 1,
         minHeight: '270px',
         background: 'white',
         borderRadius: '5px',
@@ -98,8 +99,10 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
             setSavedId={props.setSavedId}
             savedId={props.savedId}
             savedUrl={props.savedUrl}
+            hidden={props.hidden}
             setSavedUrl={props.setSavedUrl}
             deleteDiscoverItem={props.deleteDiscoverItem}
+            hideDiscoverItem={props.hideDiscoverItem}
           />
         </Box>
       )}

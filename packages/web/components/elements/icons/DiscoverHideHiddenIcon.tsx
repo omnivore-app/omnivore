@@ -4,9 +4,9 @@ import { SpanBox } from '../LayoutPrimitives'
 import { IconProps } from './IconProps'
 
 import React from 'react'
-import { Eye } from "@phosphor-icons/react"
+import { EyeClosed } from "@phosphor-icons/react"
 
-export class DiscoverShowAllIcon extends React.Component<IconProps> {
+export class DiscoverHideHiddenIcon extends React.Component<IconProps> {
   render() {
     return (
       <SpanBox
@@ -39,7 +39,7 @@ export class DiscoverShowAllIcon extends React.Component<IconProps> {
               stroke: 'var(--ring-color)',
             }}
           />
-            <Eye size={18} x={11} y={11} color={'var(--inner-color)'} />
+            <EyeClosed size={18} x={11} y={11} color={'var(--inner-color)'} />
         </svg>
       </SpanBox>
   )

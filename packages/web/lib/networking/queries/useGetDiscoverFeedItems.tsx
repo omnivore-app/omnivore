@@ -18,7 +18,8 @@ export type DiscoverFeedItem = {
   siteName?: string
   saves?: number
   savedId?: string // Has the user saved this? If so then we can get it from here. This will allow us to link back
-  savedLinkUrl?: string
+  savedLinkUrl?: string,
+  hidden?: boolean
 }
 
 type DiscoverItemResponse = {
@@ -36,7 +37,8 @@ type DiscoverItemResponse = {
 export function useGetDiscoverFeedItems(
   startingTopic: TopicTabData,
   selectedFeed = 'All Feeds',
-  limit = 10
+  limit = 10,
+  showHidden = true
 ): DiscoverItemResponse {
   const [activeTopic, setTopic] = useState(startingTopic)
   const [discoverItems, setDiscoverItems] = useState<DiscoverFeedItem[]>([])
@@ -51,7 +53,7 @@ export function useGetDiscoverFeedItems(
     query GetDiscoverFeedItems {
       getDiscoverFeedArticles(discoverTopicId: "${
         activeTopic.title
-      }", first: ${limit}, after: "${page * limit}" ${
+      }", showHidden: ${showHidden}, first: ${limit}, after: "${page * limit}" ${
       fixedSelectedFeed == 'All Feeds' ? '' : `feedId: "${fixedSelectedFeed}"`
     }) {
         ... on GetDiscoverFeedArticleSuccess {
@@ -68,6 +70,7 @@ export function useGetDiscoverFeedItems(
             author,
             savedId, 
             savedLinkUrl,
+            hidden
           }
           pageInfo {
             hasNextPage
@@ -98,7 +101,7 @@ export function useGetDiscoverFeedItems(
     } else {
       setPage(0)
     }
-  }, [activeTopic, selectedFeed])
+  }, [activeTopic, selectedFeed, showHidden])
 
   useEffect(() => {
     setIsLoading(true)
