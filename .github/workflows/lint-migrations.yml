@@ -1,14 +1,7 @@
 name: Lint Migrations
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'packages/db/migrations/**'
   pull_request:
-    branches:
-      - main
     paths:
       - 'packages/db/migrations/**'
 
@@ -16,7 +9,7 @@ jobs:
   lint_migrations:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: Find modified migrations
         run: |
           modified_migrations=$(git diff --diff-filter=d --name-only origin/$GITHUB_BASE_REF...origin/$GITHUB_HEAD_REF 'packages/db/migrations/*.do.*.sql')
