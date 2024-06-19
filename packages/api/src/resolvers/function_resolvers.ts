@@ -786,7 +786,9 @@ export const functionResolvers = {
     status: (item: LibraryItem) => item.state,
     url: (item: LibraryItem) => item.originalUrl,
     async user(_item: LibraryItem, __: unknown, ctx: WithDataSourcesContext) {
-      return ctx.dataLoaders.users.load(ctx.uid)
+      if (ctx.claims?.uid) {
+        return ctx.dataLoaders.users.load(ctx.claims.uid)
+      }
     },
   },
   Recommendation: {
