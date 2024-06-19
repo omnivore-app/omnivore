@@ -39,6 +39,7 @@ const getEnv = (): DBEnv => {
     database: database || 'omnivore',
     username,
     password,
+    options: process.env.PG_EXTRA_OPTIONS,
   }
 
   return config

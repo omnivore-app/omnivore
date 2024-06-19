@@ -96,21 +96,21 @@ jobs:
           PG_LOGGER: debug
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
           MQ_REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
-  # build-docker-images:
-  #   name: Build docker images
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Build the API docker image
-  #       run: 'docker build --file packages/api/Dockerfile .'
-  #     - name: Build the content-fetch docker image
-  #       run: 'docker build --file packages/content-fetch/Dockerfile .'
-  #     - name: Build the inbound-email-handler docker image
-  #       run: 'docker build --file packages/inbound-email-handler/Dockerfile .'
-  #     - name: Build the content-fetch cloud function docker image
-  #       run: 'docker build --file packages/content-fetch/Dockerfile-gcf .'
-  #     - name: Build the tts docker image
-  #       run: 'docker build --file packages/text-to-speech/Dockerfile .'
+  build-docker-images:
+    name: Build docker images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Build the API docker image
+        run: 'docker build --file packages/api/Dockerfile .'
+      - name: Build the content-fetch docker image
+        run: 'docker build --file packages/content-fetch/Dockerfile .'
+      - name: Build the inbound-email-handler docker image
+        run: 'docker build --file packages/inbound-email-handler/Dockerfile .'
+      - name: Build the content-fetch cloud function docker image
+        run: 'docker build --file packages/content-fetch/Dockerfile-gcf .'
+      - name: Build the tts docker image
+        run: 'docker build --file packages/text-to-speech/Dockerfile .'
