@@ -6,7 +6,7 @@
 import { createHmac } from 'crypto'
 import { isError } from 'lodash'
 import { Highlight } from '../entity/highlight'
-import { LibraryItem } from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
@@ -158,7 +158,7 @@ import {
 } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { subscriptionResolver } from './subscriptions'
-import { WithDataSourcesContext } from './types'
+import { ResolverContext } from './types'
 import { updateEmailResolver } from './user'
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -181,7 +181,7 @@ const readingProgressHandlers = {
   async readingProgressPercent(
     article: LibraryItem,
     _: unknown,
-    ctx: WithDataSourcesContext
+    ctx: ResolverContext
   ) {
     if (ctx.claims?.uid) {
       const readingProgress =
@@ -201,7 +201,7 @@ const readingProgressHandlers = {
   async readingProgressAnchorIndex(
     article: LibraryItem,
     _: unknown,
-    ctx: WithDataSourcesContext
+    ctx: ResolverContext
   ) {
     if (ctx.claims?.uid) {
       const readingProgress =
@@ -221,7 +221,7 @@ const readingProgressHandlers = {
   async readingProgressTopPercent(
     article: LibraryItem,
     _: unknown,
-    ctx: WithDataSourcesContext
+    ctx: ResolverContext
   ) {
     if (ctx.claims?.uid) {
       const readingProgress =
@@ -366,11 +366,7 @@ export const functionResolvers = {
       }
       return undefined
     },
-    async features(
-      _: User,
-      __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
-    ) {
+    async features(_: User, __: Record<string, unknown>, ctx: ResolverContext) {
       if (!ctx.claims?.uid) {
         return undefined
       }
@@ -380,7 +376,7 @@ export const functionResolvers = {
     async featureList(
       _: User,
       __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
+      ctx: ResolverContext
     ) {
       if (!ctx.claims?.uid) {
         return undefined
@@ -400,7 +396,7 @@ export const functionResolvers = {
     sharedNotesCount: () => 0,
   },
   Article: {
-    async url(article: LibraryItem, _: unknown, ctx: WithDataSourcesContext) {
+    async url(article: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (
         (article.itemType == PageType.File ||
           article.itemType == PageType.Book) &&
@@ -441,20 +437,12 @@ export const functionResolvers = {
         ? wordsCount(article.readableContent)
         : undefined
     },
-    async labels(
-      article: LibraryItem,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async labels(article: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (article.labels) return article.labels
 
       return ctx.dataLoaders.labels.load(article.id)
     },
-    async highlights(
-      article: LibraryItem,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async highlights(article: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (article.highlights) return article.highlights
 
       return ctx.dataLoaders.highlights.load(article.id)
@@ -470,35 +458,27 @@ export const functionResolvers = {
     reactions: () => [],
     replies: () => [],
     type: (highlight: Highlight) => highlight.highlightType,
-    async user(highlight: Highlight, __: unknown, ctx: WithDataSourcesContext) {
+    async user(highlight: Highlight, __: unknown, ctx: ResolverContext) {
       return ctx.dataLoaders.users.load(highlight.userId)
     },
-    createdByMe(
-      highlight: Highlight,
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      return highlight.userId === ctx.uid
+    createdByMe(highlight: Highlight, __: unknown, ctx: ResolverContext) {
+      return highlight.userId === ctx.claims?.uid
     },
-    libraryItem(highlight: Highlight, _: unknown, ctx: WithDataSourcesContext) {
+    libraryItem(highlight: Highlight, _: unknown, ctx: ResolverContext) {
       if (highlight.libraryItem) {
         return highlight.libraryItem
       }
 
       return ctx.dataLoaders.libraryItems.load(highlight.libraryItemId)
     },
-    labels: async (
-      highlight: Highlight,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) => {
+    labels: async (highlight: Highlight, _: unknown, ctx: ResolverContext) => {
       return (
         highlight.labels || ctx.dataLoaders.highlightLabels.load(highlight.id)
       )
     },
   },
   SearchItem: {
-    async url(item: LibraryItem, _: unknown, ctx: WithDataSourcesContext) {
+    async url(item: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (
         (item.itemType == PageType.File || item.itemType == PageType.Book) &&
         ctx.claims &&
@@ -530,47 +510,33 @@ export const functionResolvers = {
 
       return item.siteIcon
     },
-    async labels(item: LibraryItem, _: unknown, ctx: WithDataSourcesContext) {
+    async labels(item: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (item.labels) return item.labels
 
       return ctx.dataLoaders.labels.load(item.id)
     },
-    async recommendations(
-      item: LibraryItem,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async recommendations(item: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (item.recommendations) return item.recommendations
 
       return ctx.dataLoaders.recommendations.load(item.id)
     },
-    async aiSummary(
-      item: LibraryItem,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async aiSummary(item: LibraryItem, _: unknown, ctx: ResolverContext) {
+      if (!ctx.claims) return undefined
+
       return (
         await getAISummary({
-          userId: ctx.uid,
+          userId: ctx.claims.uid,
           libraryItemId: item.id,
           idx: 'latest',
         })
       )?.summary
     },
-    async highlights(
-      item: LibraryItem,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async highlights(item: LibraryItem, _: unknown, ctx: ResolverContext) {
       if (item.highlights) return item.highlights
 
       return ctx.dataLoaders.highlights.load(item.id)
     },
-    async content(
-      item: PartialLibraryItem,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async content(item: PartialLibraryItem, _: unknown, ctx: ResolverContext) {
       // convert html to the requested format if requested
       if (
         item.format &&
@@ -660,7 +626,7 @@ export const functionResolvers = {
         }>
       },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: ResolverContext
     ) {
       const items = section.items
 
@@ -670,7 +636,14 @@ export const functionResolvers = {
       const libraryItems = (
         await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
       ).filter(
-        (libraryItem) => !!libraryItem && !isError(libraryItem)
+        (libraryItem) =>
+          !!libraryItem &&
+          !isError(libraryItem) &&
+          [
+            LibraryItemState.Succeeded,
+            LibraryItemState.ContentNotFetched,
+          ].includes(libraryItem.state) &&
+          !libraryItem.seenAt
       ) as Array<LibraryItem>
 
       const publicItemIds = section.items
@@ -747,7 +720,7 @@ export const functionResolvers = {
         { subscription?: string; siteName: string; siteIcon?: string }
       >,
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: ResolverContext
     ): Promise<HomeItemSource> {
       if (item.source) {
         return item.source
@@ -787,6 +760,11 @@ export const functionResolvers = {
   ArticleSavingRequest: {
     status: (item: LibraryItem) => item.state,
     url: (item: LibraryItem) => item.originalUrl,
+    async user(_item: LibraryItem, __: unknown, ctx: ResolverContext) {
+      if (ctx.claims?.uid) {
+        return ctx.dataLoaders.users.load(ctx.claims.uid)
+      }
+    },
   },
   Recommendation: {
     user: (recommendation: Recommendation) => {

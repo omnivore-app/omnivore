@@ -1,8 +1,5 @@
-import {
-  findLibraryItemById,
-  updateLibraryItem,
-} from '../services/library_item'
-import { Feature, getScores } from '../services/score'
+import { findLibraryItemById } from '../services/library_item'
+import { Feature, scoreClient } from '../services/score'
 import { enqueueUpdateHomeJob } from '../utils/createTask'
 import { lanaugeToCode } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -60,7 +57,7 @@ export const scoreLibraryItem = async (
     } as Feature,
   }
 
-  const scores = await getScores({
+  const scores = await scoreClient.getScores({
     user_id: userId,
     items: itemFeatures,
   })
@@ -72,15 +69,15 @@ export const scoreLibraryItem = async (
     throw new Error('Failed to score library item')
   }
 
-  await updateLibraryItem(
-    libraryItem.id,
-    {
-      score,
-    },
-    userId,
-    undefined,
-    true
-  )
+  // await updateLibraryItem(
+  //   libraryItem.id,
+  //   {
+  //     score,
+  //   },
+  //   userId,
+  //   undefined,
+  //   true
+  // )
   logger.info('Library item scored', data)
 
   try {

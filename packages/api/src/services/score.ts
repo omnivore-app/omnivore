@@ -27,24 +27,46 @@ export type ScoreBody = {
 }
 
 export type ScoreApiResponse = Record<string, ScoreBody> // item_id -> score
+interface ScoreClient {
+  getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse>
+}
 
-export const getScores = async (
-  data: ScoreApiRequestBody
-): Promise<ScoreApiResponse> => {
-  const API_URL = env.score.apiUrl
+class StubScoreClientImpl implements ScoreClient {
+  async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
+    const stubScore = 1.0
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
+    const stubScores: ScoreApiResponse = {}
+    for (const itemId in data.items) {
+      stubScores[itemId] = { score: stubScore }
+    }
 
-  if (!response.ok) {
-    throw new Error(`Failed to score candidates: ${response.statusText}`)
+    return Promise.resolve(stubScores)
+  }
+}
+
+class ScoreClientImpl implements ScoreClient {
+  private apiUrl: string
+
+  constructor(apiUrl = env.score.apiUrl) {
+    this.apiUrl = apiUrl
   }
 
-  const scores = (await response.json()) as ScoreApiResponse
-  return scores
+  async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
+    const response = await fetch(this.apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to score candidates: ${response.statusText}`)
+    }
+
+    const scores = (await response.json()) as ScoreApiResponse
+    return scores
+  }
 }
+
+export const scoreClient = new StubScoreClientImpl()
