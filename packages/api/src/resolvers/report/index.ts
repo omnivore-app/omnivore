@@ -11,7 +11,7 @@ import {
   saveContentDisplayReport,
 } from '../../services/reports'
 import { analytics } from '../../utils/analytics'
-import { WithDataSourcesContext } from '../types'
+import { ResolverContext } from '../types'
 
 const SUCCESS_MESSAGE = `Your report has been submitted. Thank you.`
 const FAILURE_MESSAGE =
@@ -36,7 +36,7 @@ const isContentDisplayReport = (types: ReportType[]): boolean => {
 export const reportItemResolver: ResolverFn<
   ReportItemResult,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   MutationReportItemArgs
 > = async (_obj, args, ctx) => {
   const { sharedBy, reportTypes } = args.input

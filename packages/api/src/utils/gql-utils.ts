@@ -1,5 +1,5 @@
 import { ResolverFn } from '../generated/graphql'
-import { Claims, WithDataSourcesContext } from '../resolvers/types'
+import { Claims, ResolverContext } from '../resolvers/types'
 
 export function authorized<
   TSuccess,
@@ -12,10 +12,10 @@ export function authorized<
   resolver: ResolverFn<
     TSuccess | TError,
     TParent,
-    WithDataSourcesContext & { claims: Claims },
+    ResolverContext & { claims: Claims; uid: string },
     TArgs
   >
-): ResolverFn<TSuccess | TError, TParent, WithDataSourcesContext, TArgs> {
+): ResolverFn<TSuccess | TError, TParent, ResolverContext, TArgs> {
   return (parent, args, ctx, info) => {
     const { claims } = ctx
     if (claims?.uid) {
