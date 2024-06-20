@@ -214,6 +214,7 @@ export function DiscoverContainer(): JSX.Element {
           setShowFilterMenu={setShowFilterMenu}
         />
         <DiscoverItemFeed
+          visibility={discoverVisibility}
           layout={layoutType}
           activeTab={activeTopic}
           handleLinkSubmission={handleSaveDiscover}

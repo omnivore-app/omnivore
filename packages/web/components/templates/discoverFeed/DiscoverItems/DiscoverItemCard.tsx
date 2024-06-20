@@ -8,10 +8,12 @@ import { hideDiscoverArticleMutation } from "../../../../lib/networking/mutation
 import { showErrorToast, showSuccessToast } from "../../../../lib/toastHelpers"
 import { useState } from "react"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
+import { DiscoverVisibilityType } from "../DiscoverContainer"
 
 export type DiscoverItemCardProps = {
   item: DiscoverFeedItem
   layout: LayoutType
+  visibility: DiscoverVisibilityType
   viewer?: UserBasicData
   isHovered?: boolean
   handleLinkSubmission: (
@@ -34,7 +36,7 @@ export type DiscoverItemSubCardProps = DiscoverItemCardProps & {
 
 
 
-export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element {
+export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element | null {
   const [savedId, setSavedId] = useState(props.item.savedId)
   const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
   const [hidden, setArticleHidden] = useState(props.item.hidden)
@@ -61,6 +63,10 @@ export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element {
           showErrorToast('Unable to hide Article', { position: 'bottom-right' })
         }
       })
+  }
+
+  if (hidden && props.visibility == 'HIDE_HIDDEN') {
+    return null;
   }
 
   if (props.layout == 'LIST_LAYOUT') {

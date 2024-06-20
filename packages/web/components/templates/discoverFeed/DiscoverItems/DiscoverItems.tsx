@@ -4,10 +4,12 @@ import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { DiscoverItemCard } from './DiscoverItemCard'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
+import { DiscoverVisibilityType } from "../DiscoverContainer"
 
 type DiscoverItemsProps = {
   items: DiscoverFeedItem[]
   layout: LayoutType
+  visibility: DiscoverVisibilityType
   viewer?: UserBasicData
   handleLinkSubmission: (
     link: string,
@@ -60,8 +62,12 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
         },
       }}
     >
-      {props.items.map((linkedItem) => (
-        <Box
+      {props.items.map((linkedItem) => {
+        if (props.visibility == 'HIDE_HIDDEN' && linkedItem.hidden) {
+          return null
+        }
+
+        return (<Box
           id={linkedItem.id}
           tabIndex={0}
           key={linkedItem.id + linkedItem.image}
@@ -92,13 +98,14 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
           }}
         >
           <DiscoverItemCard
+            visibility={props.visibility}
             layout={props.layout}
             item={linkedItem}
             handleLinkSubmission={props.handleLinkSubmission}
             viewer={props.viewer}
           />
-        </Box>
-      ))}
+        </Box>)
+      })}
     </Box>
   )
 }
