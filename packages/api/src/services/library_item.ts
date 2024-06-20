@@ -6,7 +6,6 @@ import {
   EntityManager,
   FindOptionsWhere,
   In,
-  IsNull,
   ObjectLiteral,
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
@@ -135,31 +134,15 @@ export enum SortBy {
 const readingProgressDataSource = new ReadingProgressDataSource()
 
 export const batchGetLibraryItems = async (ids: readonly string[]) => {
-  const selectColumns: Array<keyof LibraryItem> = [
-    'id',
-    'title',
-    'author',
-    'thumbnail',
-    'wordCount',
-    'savedAt',
-    'originalUrl',
-    'directionality',
-    'description',
-    'subscription',
-    'siteName',
-    'siteIcon',
-    'archivedAt',
-    'deletedAt',
-    'slug',
-    'previewContent',
-  ]
+  // select all columns except content
+  const select = getColumns(libraryItemRepository).filter(
+    (select) => ['originalContent', 'readableContent'].indexOf(select) === -1
+  )
   const items = await authTrx(async (tx) =>
     tx.getRepository(LibraryItem).find({
-      select: selectColumns,
+      select,
       where: {
         id: In(ids as string[]),
-        state: LibraryItemState.Succeeded,
-        seenAt: IsNull(),
       },
     })
   )

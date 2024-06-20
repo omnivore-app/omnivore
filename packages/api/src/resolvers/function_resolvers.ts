@@ -6,7 +6,7 @@
 import { createHmac } from 'crypto'
 import { isError } from 'lodash'
 import { Highlight } from '../entity/highlight'
-import { LibraryItem } from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
@@ -634,7 +634,14 @@ export const functionResolvers = {
       const libraryItems = (
         await ctx.dataLoaders.libraryItems.loadMany(libraryItemIds)
       ).filter(
-        (libraryItem) => !!libraryItem && !isError(libraryItem)
+        (libraryItem) =>
+          !!libraryItem &&
+          !isError(libraryItem) &&
+          [
+            LibraryItemState.Succeeded,
+            LibraryItemState.ContentNotFetched,
+          ].includes(libraryItem.state) &&
+          !libraryItem.seenAt
       ) as Array<LibraryItem>
 
       const publicItemIds = section.items
