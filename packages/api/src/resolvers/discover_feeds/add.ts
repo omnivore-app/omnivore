@@ -15,6 +15,7 @@ import {
 } from '../../generated/graphql'
 import { authorized } from '../../utils/gql-utils'
 import { RSS_PARSER_CONFIG } from '../../utils/parser'
+import { EntityType } from '../../pubsub'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -167,8 +168,8 @@ export const addDiscoverFeedResolver = authorized<
     const result = await addNewSubscription(url, uid)
     if (result.__typename == 'AddDiscoverFeedSuccess') {
       await pubsub.entityCreated(
-        EntityType.RSS_FEED,
-        { feed: result.feed, libraryItemId: 'NA' },
+        EntityType.DISCOVER_FEED,
+        { id: result.feed.id, feed: result.feed },
         uid
       )
     }
