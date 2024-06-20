@@ -53,9 +53,8 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             style="plainIcon"
             css={{ display: 'flex', marginLeft: 'auto' }}
             onClick={(e) => {
-              props.setDiscoverVisibility(
-                props.discoverVisibility == 'HIDE_HIDDEN' ? 'SHOW_ALL' : 'HIDE_HIDDEN'
-              )
+              const visibility = props.discoverVisibility == 'HIDE_HIDDEN' ? 'SHOW_ALL' : 'HIDE_HIDDEN';
+              props.setDiscoverVisibility(visibility);
               e.preventDefault()
             }}
           >

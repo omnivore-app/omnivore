@@ -17,6 +17,7 @@ import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { AddLinkModal } from '../AddLinkModal'
 import { useGetDiscoverFeedItems } from '../../../lib/networking/queries/useGetDiscoverFeedItems'
 import { useGetDiscoverFeeds } from '../../../lib/networking/queries/useGetDiscoverFeeds'
+import { usePersistedState } from "../../../lib/hooks/usePersistedState"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type DiscoverVisibilityType = 'SHOW_ALL' | 'HIDE_HIDDEN'
@@ -27,8 +28,11 @@ export function DiscoverContainer(): JSX.Element {
   const router = useRouter()
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [layoutType, setLayoutType] = useState<LayoutType>('GRID_LAYOUT')
-  const [discoverVisibility, setDiscoverVisibility] = useState<DiscoverVisibilityType>('SHOW_ALL')
+  const [layoutType, setLayoutType] = usePersistedState<LayoutType>({
+    key: 'libraryLayout',
+    initialValue: 'GRID_LAYOUT',
+  })
+  const [discoverVisibility, setDiscoverVisibility] = usePersistedState<DiscoverVisibilityType>({ key: 'discoverVisibility', initialValue:'SHOW_ALL' })
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const { feeds, revalidate, isValidating } = useGetDiscoverFeeds()
   const topics = [

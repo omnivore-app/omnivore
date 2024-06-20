@@ -105,7 +105,7 @@ export function DiscoverItemListCard(
             hidden={props.hidden}
             setSavedUrl={props.setSavedUrl}
             deleteDiscoverItem={props.deleteDiscoverItem}
-            hideDiscoverItem={props.hideDiscoverItem}
+            hideDiscoverItem={props.setItemHidden}
           />
         </Box>
       )}
