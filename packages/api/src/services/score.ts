@@ -6,6 +6,12 @@ export interface Feature {
   has_thumbnail: boolean
   has_site_icon: boolean
   saved_at: Date
+  item_word_count: number
+  is_subscription: boolean
+  inbox_folder: boolean
+  is_newsletter: boolean
+  is_feed: boolean
+
   site?: string
   language?: string
   author?: string
@@ -15,6 +21,10 @@ export interface Feature {
   folder?: string
   published_at?: Date
   subscription?: string
+  subscription_auto_add_to_library?: boolean
+  subscription_fetch_content?: boolean
+  days_since_subscribed?: number
+  subscription_count?: number
 }
 
 export interface ScoreApiRequestBody {
