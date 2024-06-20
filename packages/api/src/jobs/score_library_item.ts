@@ -42,7 +42,7 @@ export const scoreLibraryItem = async (
     [libraryItem.id]: {
       library_item_id: libraryItem.id,
       title: libraryItem.title,
-      original_url_host: getHostFromUrl(libraryItem.originalUrl),
+      original_url: libraryItem.originalUrl,
       has_thumbnail: !!libraryItem.thumbnail,
       has_site_icon: !!libraryItem.siteIcon,
       saved_at: libraryItem.savedAt,
@@ -87,18 +87,5 @@ export const scoreLibraryItem = async (
     })
   } catch (error) {
     logger.error('Failed to enqueue update home job', error)
-  }
-}
-
-const getHostFromUrl = (input?: string): string | undefined => {
-  if (typeof input !== 'string') {
-    return undefined
-  }
-
-  try {
-    const url = new URL(input)
-    return url.host
-  } catch (error) {
-    return undefined
   }
 }
