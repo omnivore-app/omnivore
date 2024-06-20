@@ -165,14 +165,13 @@ export const addDiscoverFeedResolver = authorized<
     }
 
     const result = await addNewSubscription(url, uid)
-    // TODO: Add pubsub for new feed
-    // if (result.__typename == 'AddDiscoverFeedSuccess') {
-    //   await pubsub.entityCreated(
-    //     EntityType.RSS_FEED,
-    //     { feed: result.feed, libraryItemId: 'NA' },
-    //     uid
-    //   )
-    // }
+    if (result.__typename == 'AddDiscoverFeedSuccess') {
+      await pubsub.entityCreated(
+        EntityType.RSS_FEED,
+        { feed: result.feed, libraryItemId: 'NA' },
+        uid
+      )
+    }
 
     return result
   } catch (error) {
