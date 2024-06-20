@@ -83,10 +83,6 @@ def parquet_to_dataframe(file_path):
     df = table.to_pandas()
     return df
 
-def load_local_raw_library_items():
-  local_file_path = '/Users/jacksonh/Downloads/data_raw_library_items_2024-03-01.parquet'
-  df = parquet_to_dataframe(local_file_path)
-  return df
 
 def load_tables_from_pickle(pickle_file):
   with open(pickle_file, 'rb') as handle:
@@ -119,14 +115,6 @@ def load_feather_files(feature_directory):
     return dataframes
 
 
-# def save_tables_to_arrow_ipc(tables, output_file):
-#   with pa.OSFile(output_file, 'wb') as sink:
-#     with pa.ipc.new_stream(sink, tables[next(iter(tables))].schema) as writer:
-#       for name, table in tables.items():
-#         print("NAME:", name, "TABLE", table)
-#         writer.write_table(table)
-
-
 def save_tables_to_arrow_ipc_with_schemas(tables, output_file):
     with pa.OSFile(output_file, 'wb') as sink:
         with pa.ipc.new_stream(sink, pa.schema([])) as writer:
@@ -153,7 +141,6 @@ def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
 
 def generate_and_upload_user_history(execution_date, gcs_bucket_name):
   df = download_raw_library_items(execution_date, gcs_bucket_name)
-  # df = load_local_raw_library_items()
   with tempfile.TemporaryDirectory() as tmpdir:
     user_preferences = aggregate_user_preferences(df, tmpdir)
     dataframes = load_feather_files(tmpdir)

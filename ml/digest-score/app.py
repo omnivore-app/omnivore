@@ -90,13 +90,13 @@ def compute_interaction_score(user_id, item_features):
     'item_has_thumbnail': 1 if item_features.get('has_thumbnail') else 0,
     "item_has_site_icon": 1 if item_features.get('has_site_icon') else 0,
 
-    'item_word_count': item_features.get('words_count'), 
+    'item_word_count': item_features.get('words_count'),
     'is_subscription': 1 if item_features.get('is_subscription') else 0,
-    'is_newsletter': 1 if item_features.get('is_newsletter') else 0, 
+    'is_newsletter': 1 if item_features.get('is_newsletter') else 0,
     'is_feed': 1 if item_features.get('is_feed') else 0,
-    'days_since_subscribed': item_features.get('days_since_subscribed'), 
-    'subscription_count': item_features.get('subscription_count'), 
-    'subscription_auto_add_to_library': item_features.get('subscription_auto_add_to_library'), 
+    'days_since_subscribed': item_features.get('days_since_subscribed'),
+    'subscription_count': item_features.get('subscription_count'),
+    'subscription_auto_add_to_library': item_features.get('subscription_auto_add_to_library'),
     'subscription_fetch_content': item_features.get('subscription_fetch_content'),
 
     'has_author': 1 if item_features.get('author') else 0,
