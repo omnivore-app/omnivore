@@ -45,7 +45,7 @@ import { softDeleteUser } from '../../services/user'
 import { Merge } from '../../util'
 import { authorized } from '../../utils/gql-utils'
 import { validateUsername } from '../../utils/usernamePolicy'
-import { WithDataSourcesContext } from '../types'
+import { ResolverContext } from '../types'
 
 export const updateUserResolver = authorized<
   Merge<UpdateUserSuccess, { user: UserEntity }>,
@@ -145,7 +145,7 @@ export const updateUserProfileResolver = authorized<
 export const googleLoginResolver: ResolverFn<
   Merge<LoginResult, { me?: UserEntity }>,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   MutationGoogleLoginArgs
 > = async (_obj, { input }, { setAuth }) => {
   const { email, secret } = input
@@ -172,7 +172,7 @@ export const googleLoginResolver: ResolverFn<
 export const validateUsernameResolver: ResolverFn<
   boolean,
   Record<string, unknown>,
-  WithDataSourcesContext,
+  ResolverContext,
   QueryValidateUsernameArgs
 > = async (_obj, { username }) => {
   const lowerCasedUsername = username.toLowerCase()
@@ -191,7 +191,7 @@ export const validateUsernameResolver: ResolverFn<
 export const googleSignupResolver: ResolverFn<
   Merge<GoogleSignupResult, { me?: UserEntity }>,
   Record<string, unknown>,
-  WithDataSourcesContext,
+  ResolverContext,
   MutationGoogleSignupArgs
 > = async (_obj, { input }, { setAuth, log }) => {
   const { email, username, name, bio, sourceUserId, pictureUrl, secret } = input
@@ -231,7 +231,7 @@ export const googleSignupResolver: ResolverFn<
 export const logOutResolver: ResolverFn<
   LogOutResult,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   unknown
 > = (_, __, { clearAuth, log }) => {
   try {
@@ -246,7 +246,7 @@ export const logOutResolver: ResolverFn<
 export const getMeUserResolver: ResolverFn<
   UserEntity | undefined,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   unknown
 > = async (_obj, __, { claims }) => {
   try {
@@ -268,9 +268,9 @@ export const getMeUserResolver: ResolverFn<
 export const getUserResolver: ResolverFn<
   Merge<UserResult, { user?: UserEntity }>,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   QueryUserArgs
-> = async (_obj, { userId: id, username }, { uid }) => {
+> = async (_obj, { userId: id, username }) => {
   if (!(id || username)) {
     return { errorCodes: [UserErrorCode.BadRequest] }
   }
