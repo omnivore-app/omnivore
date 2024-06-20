@@ -26,7 +26,6 @@ export const batchGetHighlightsFromLibraryItemIds = async (
   const highlights = await authTrx(async (tx) =>
     tx.getRepository(Highlight).find({
       where: { libraryItem: { id: In(libraryItemIds as string[]) } },
-      relations: ['user'],
     })
   )
 
