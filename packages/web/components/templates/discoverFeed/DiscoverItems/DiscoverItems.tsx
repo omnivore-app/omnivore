@@ -5,6 +5,7 @@ import { DiscoverItemCard } from './DiscoverItemCard'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 import { DiscoverVisibilityType } from "../DiscoverContainer"
+import { useEffect, useState } from "react"
 
 type DiscoverItemsProps = {
   items: DiscoverFeedItem[]
@@ -19,6 +20,17 @@ type DiscoverItemsProps = {
 }
 
 export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
+  const [discoverItems, setDiscoveryItems] = useState(props.items);
+
+  const hideDiscoverItem = (item: DiscoverFeedItem) => {
+    const hiddenDiscoveryList = discoverItems.filter(it => it.id != item.id);
+    setDiscoveryItems(hiddenDiscoveryList);
+  }
+
+  useEffect(() => {
+    setDiscoveryItems(props.items)
+  }, [props.items])
+
   return (
     <Box
       id={"DiscoverItems"}
@@ -62,7 +74,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
         },
       }}
     >
-      {props.items.map((linkedItem) => {
+      {discoverItems.map((linkedItem) => {
         if (props.visibility == 'HIDE_HIDDEN' && linkedItem.hidden) {
           return null
         }
@@ -102,6 +114,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
             layout={props.layout}
             item={linkedItem}
             handleLinkSubmission={props.handleLinkSubmission}
+            hideDiscoverItem={hideDiscoverItem}
             viewer={props.viewer}
           />
         </Box>)

@@ -16,6 +16,7 @@ export type DiscoverItemCardProps = {
   visibility: DiscoverVisibilityType
   viewer?: UserBasicData
   isHovered?: boolean
+  hideDiscoverItem(item: DiscoverFeedItem): void
   handleLinkSubmission: (
     link: string,
     timezone: string,
@@ -25,7 +26,7 @@ export type DiscoverItemCardProps = {
 
 export type DiscoverItemSubCardProps = DiscoverItemCardProps & {
   deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>,
-  hideDiscoverItem: (item: DiscoverFeedItem, setHidden: boolean) => Promise<void>,
+  setItemHidden: (item: DiscoverFeedItem, setHidden: boolean) => Promise<void>,
   savedId?: string,
   setSavedId: (id: string | undefined) => void
   savedUrl?: string,
@@ -40,6 +41,7 @@ export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element | nu
   const [savedId, setSavedId] = useState(props.item.savedId)
   const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
   const [hidden, setArticleHidden] = useState(props.item.hidden)
+
   const deleteDiscoverItem = (item: DiscoverFeedItem) : Promise<void> => {
     return deleteDiscoverArticleMutation({ discoverArticleId: item.id })
       .then(it => {
@@ -53,12 +55,15 @@ export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element | nu
       })
   }
 
-  const hideDiscoverItem = (item: DiscoverFeedItem, setHidden: boolean) : Promise<void> => {
+  const setHiddenDiscoverItem = (item: DiscoverFeedItem, setHidden: boolean) : Promise<void> => {
     return hideDiscoverArticleMutation({ discoverArticleId: item.id, setHidden })
       .then(it => {
         if (it?.hideDiscoverArticle.id) {
           showSuccessToast(`Discover Article ${setHidden ? 'Hidden' : 'Unhidden'}`, { position: 'bottom-right' })
           setArticleHidden(setHidden)
+          if (props.visibility == 'HIDE_HIDDEN') {
+            props.hideDiscoverItem(item)
+          }
         } else {
           showErrorToast('Unable to hide Article', { position: 'bottom-right' })
         }
@@ -70,8 +75,8 @@ export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element | nu
   }
 
   if (props.layout == 'LIST_LAYOUT') {
-    return <DiscoverItemListCard {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoverItem, hideDiscoverItem, hidden, setArticleHidden}} />
+    return <DiscoverItemListCard {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoverItem, setItemHidden: setHiddenDiscoverItem, hidden, setArticleHidden}} />
   } else {
-    return <DiscoverGridCard  {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoverItem, hideDiscoverItem, hidden, setArticleHidden}} />
+    return <DiscoverGridCard  {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoverItem, setItemHidden: setHiddenDiscoverItem, hidden, setArticleHidden}} />
   }
 }
