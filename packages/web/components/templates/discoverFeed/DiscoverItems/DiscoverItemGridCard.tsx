@@ -102,7 +102,7 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
             hidden={props.hidden}
             setSavedUrl={props.setSavedUrl}
             deleteDiscoverItem={props.deleteDiscoverItem}
-            hideDiscoverItem={props.hideDiscoverItem}
+            hideDiscoverItem={props.setItemHidden}
           />
         </Box>
       )}
