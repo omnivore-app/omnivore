@@ -853,7 +853,7 @@ const SubscriptionSourceHoverContent = (
       <HStack
         distribution="start"
         alignment="center"
-        css={{ width: '100%', gap: '10px' }}
+        css={{ width: '100%', gap: '10px', height: '35px' }}
       >
         {props.source.icon && <SiteIconLarge src={props.source.icon} />}
         <SpanBox
@@ -868,7 +868,7 @@ const SubscriptionSourceHoverContent = (
         <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
           {subscription && subscription.status == 'ACTIVE' && (
             <Button style="ctaSubtle" css={{ fontSize: '12px' }}>
-              + Unsubscribe
+              Unsubscribe
             </Button>
           )}
         </SpanBox>
