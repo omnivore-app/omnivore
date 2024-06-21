@@ -27,6 +27,7 @@ import {
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
+import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 
 export function HomeContainer(): JSX.Element {
   const router = useRouter()
@@ -153,6 +154,12 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
             fontSize: '16px',
             fontWeight: '600',
             color: '$homeTextTitle',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            wordBreak: 'break-word',
+            display: '-webkit-box',
+            '-webkit-line-clamp': '2',
+            '-webkit-box-orient': 'vertical',
           }}
         >
           {props.homeSection.title}
@@ -571,6 +578,8 @@ const TopPicksItemView = (
   props: HomeItemViewProps & TopPicksItemViewProps
 ): JSX.Element => {
   const router = useRouter()
+  const { archiveItem, deleteItem, moveItem } = useLibraryItemActions()
+
   return (
     <VStack
       css={{
@@ -633,7 +642,7 @@ const TopPicksItemView = (
         {props.homeItem.canSave && (
           <Button
             style="homeAction"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
 
@@ -641,6 +650,12 @@ const TopPicksItemView = (
                 type: 'REMOVE_ITEM',
                 itemId: props.homeItem.id,
               })
+              if (!(await moveItem(props.homeItem.id))) {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
             }}
           >
             <AddToLibraryActionIcon
@@ -651,7 +666,7 @@ const TopPicksItemView = (
         {props.homeItem.canArchive && (
           <Button
             style="homeAction"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
 
@@ -659,6 +674,12 @@ const TopPicksItemView = (
                 type: 'REMOVE_ITEM',
                 itemId: props.homeItem.id,
               })
+              if (!(await archiveItem(props.homeItem.id))) {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
             }}
           >
             <ArchiveActionIcon
@@ -669,7 +690,7 @@ const TopPicksItemView = (
         {props.homeItem.canDelete && (
           <Button
             style="homeAction"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
 
@@ -677,6 +698,18 @@ const TopPicksItemView = (
                 type: 'REMOVE_ITEM',
                 itemId: props.homeItem.id,
               })
+              const undo = () => {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
+              if (!(await deleteItem(props.homeItem.id, undo))) {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
             }}
           >
             <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
