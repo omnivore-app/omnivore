@@ -273,7 +273,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
 
       <Pagination
         items={items}
-        itemsPerPage={4}
+        itemsPerPage={10}
         loadMoreButtonText="Load more Top Picks"
         render={(homeItem) => (
           <TopPicksItemView
