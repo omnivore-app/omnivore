@@ -5,11 +5,10 @@
 BEGIN;
 
 DROP POLICY user_admin_policy ON omnivore.user;
+DROP POLICY library_item_admin_policy ON omnivore.library_item;
 
 REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA omnivore from omnivore_admin;
 REVOKE ALL PRIVILEGES ON SCHEMA omnivore from omnivore_admin;
-
-DROP OWNED BY omnivore_admin;
 
 DROP ROLE omnivore_admin;
 
