@@ -469,7 +469,13 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
+type TitleSmallProps = {
+  maxLines?: string
+}
+
+const TitleSmall = (
+  props: HomeItemViewProps & TitleSmallProps
+): JSX.Element => {
   return (
     <HStack
       className="title-text"
@@ -486,7 +492,7 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
         display: '-webkit-box',
-        '-webkit-line-clamp': '3',
+        '-webkit-line-clamp': props.maxLines ?? '3',
         '-webkit-box-orient': 'vertical',
       }}
     >
@@ -565,7 +571,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         </SpanBox>
       </HStack>
 
-      <TitleSmall homeItem={props.homeItem} />
+      <TitleSmall homeItem={props.homeItem} maxLines="2" />
     </VStack>
   )
 }
