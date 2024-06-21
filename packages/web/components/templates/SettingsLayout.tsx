@@ -32,7 +32,7 @@ const ReturnButton = (): JSX.Element => {
         },
       }}
     >
-      <Link href="/home">
+      <Link href="/l/home">
         <HStack
           css={{
             pl: '20px',

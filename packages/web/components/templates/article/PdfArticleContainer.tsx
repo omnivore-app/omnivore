@@ -35,9 +35,8 @@ export default function PdfArticleContainer(
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
@@ -449,16 +448,16 @@ export default function PdfArticleContainer(
             document.dispatchEvent(new Event('openOriginalArticle'))
             break
           case 'u':
-            const navReturn = window.sessionStorage.getItem('nav-return')
+            const navReturn = window.localStorage.getItem('nav-return')
             if (navReturn) {
               window.location.assign(navReturn)
               return
             }
             const query = window.sessionStorage.getItem('q')
             if (query) {
-              window.location.assign(`/home?${query}`)
+              window.location.assign(`/l/home?${query}`)
             } else {
-              window.location.replace(`/home`)
+              window.location.replace(`/l/home`)
             }
             break
           case 'e':

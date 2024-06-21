@@ -9,7 +9,12 @@ export default function LandingPage(): JSX.Element {
   const { viewerData, isLoading } = useGetViewerQuery()
 
   if (!isLoading && router.isReady && viewerData?.me) {
-    router.push('/home')
+    const navReturn = window.localStorage.getItem('nav-return')
+    if (navReturn) {
+      router.push(navReturn)
+    } else {
+      router.push('/l/home')
+    }
     return <></>
   } else if (isLoading || !router.isReady) {
     return (
