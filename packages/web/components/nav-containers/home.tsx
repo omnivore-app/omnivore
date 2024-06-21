@@ -40,7 +40,7 @@ export function HomeContainer(): JSX.Element {
   }, [viewerData])
 
   useEffect(() => {
-    window.sessionStorage.setItem('nav-return', router.asPath)
+    window.localStorage.setItem('nav-return', router.asPath)
   }, [router.asPath])
 
   return (
@@ -74,7 +74,8 @@ export function HomeContainer(): JSX.Element {
       >
         {homeData.sections?.map((homeSection, idx) => {
           if (homeSection.items.length < 1) {
-            return <></>
+            console.log('empty home section: ', homeSection)
+            return <SpanBox key={`section-${idx}`}></SpanBox>
           }
           switch (homeSection.layout) {
             case 'just_added':
@@ -110,7 +111,8 @@ export function HomeContainer(): JSX.Element {
                 />
               )
             default:
-              return <></>
+              console.log('unknown home section: ', homeSection)
+              return <SpanBox key={`section-${idx}`}></SpanBox>
           }
         })}
       </VStack>
@@ -271,7 +273,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
 
       <Pagination
         items={items}
-        itemsPerPage={4}
+        itemsPerPage={10}
         loadMoreButtonText="Load more Top Picks"
         render={(homeItem) => (
           <TopPicksItemView
@@ -629,28 +631,34 @@ const TopPicksItemView = (
       <SpanBox css={{ px: '20px' }}></SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         {props.homeItem.canSave && (
-          <Button style="homeAction">
+          <Button
+            style="homeAction"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+
+              props.dispatchList({
+                type: 'REMOVE_ITEM',
+                itemId: props.homeItem.id,
+              })
+            }}
+          >
             <AddToLibraryActionIcon
               color={theme.colors.homeActionIcons.toString()}
             />
           </Button>
         )}
-        {/* <Button style="homeAction">
-          <CommentActionIcon color={theme.colors.homeActionIcons.toString()} />
-        </Button> */}
-
         {props.homeItem.canArchive && (
           <Button
             style="homeAction"
             onClick={(event) => {
-              // archiveItem(props.homeItem)
-              console.log('archiving')
+              event.preventDefault()
+              event.stopPropagation()
+
               props.dispatchList({
                 type: 'REMOVE_ITEM',
                 itemId: props.homeItem.id,
               })
-              event.preventDefault()
-              event.stopPropagation()
             }}
           >
             <ArchiveActionIcon
@@ -659,12 +667,29 @@ const TopPicksItemView = (
           </Button>
         )}
         {props.homeItem.canDelete && (
-          <Button style="homeAction">
+          <Button
+            style="homeAction"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+
+              props.dispatchList({
+                type: 'REMOVE_ITEM',
+                itemId: props.homeItem.id,
+              })
+            }}
+          >
             <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
           </Button>
         )}
         {props.homeItem.canShare && (
-          <Button style="homeAction">
+          <Button
+            style="homeAction"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+            }}
+          >
             <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
           </Button>
         )}
@@ -828,7 +853,7 @@ const SubscriptionSourceHoverContent = (
       <HStack
         distribution="start"
         alignment="center"
-        css={{ width: '100%', gap: '10px' }}
+        css={{ width: '100%', gap: '10px', height: '35px' }}
       >
         {props.source.icon && <SiteIconLarge src={props.source.icon} />}
         <SpanBox
@@ -843,7 +868,7 @@ const SubscriptionSourceHoverContent = (
         <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
           {subscription && subscription.status == 'ACTIVE' && (
             <Button style="ctaSubtle" css={{ fontSize: '12px' }}>
-              + Unsubscribe
+              Unsubscribe
             </Button>
           )}
         </SpanBox>

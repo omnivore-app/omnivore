@@ -202,7 +202,7 @@ export default function BulkPerformer(): JSX.Element {
             <VStack css={{ width: '100%' }} alignment="center">
               <Button
                 onClick={(e) => {
-                  window.location.href = '/home'
+                  window.location.href = '/l/home'
                   e.preventDefault()
                 }}
                 style="ctaDarkYellow"
