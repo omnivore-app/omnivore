@@ -10,7 +10,7 @@ REVOKE SELECT, INSERT, UPDATE, DELETE ON omnivore.library_item FROM omnivore_adm
 DROP POLICY user_admin_policy ON omnivore.user;
 REVOKE SELECT, INSERT, UPDATE, DELETE ON omnivore.user FROM omnivore_admin;
 
-DROP OWNED BY omnivore_admin;
+REVOKE USAGE ON SCHEMA omnivore FROM omnivore_admin;
 
 DROP ROLE omnivore_admin;
 
@@ -24,6 +24,11 @@ GRANT ALL PRIVILEGES ON SCHEMA omnivore TO omnivore_admin;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA omnivore TO omnivore_admin;
 
 CREATE POLICY user_admin_policy on omnivore.user
+    FOR ALL
+    TO omnivore_admin
+    USING (true);
+
+CREATE POLICY library_item_admin_policy on omnivore.library_item
     FOR ALL
     TO omnivore_admin
     USING (true);
