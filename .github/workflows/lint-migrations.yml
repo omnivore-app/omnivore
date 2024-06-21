@@ -19,4 +19,4 @@ jobs:
           echo "{FILE_NAMES}={$modified_migrations}" >> $GITHUB_OUTPUT
       - uses: sbdchd/squawk-action@v1
         with:
-          pattern: $FILE_NAMES
+          pattern: "$FILE_NAMES"
