@@ -24,3 +24,26 @@ export const appDataSource = new DataSource({
     idleTimeoutMillis: 10000, // 10 seconds
   },
 })
+
+if (env.pg.replication) {
+  appDataSource.setOptions({
+    replication: {
+      master: {
+        host: env.pg.host,
+        port: env.pg.port,
+        username: env.pg.userName,
+        password: env.pg.password,
+        database: env.pg.dbName,
+      },
+      slaves: [
+        {
+          host: env.pg.slave.host,
+          port: env.pg.slave.port,
+          username: env.pg.slave.userName,
+          password: env.pg.slave.password,
+          database: env.pg.slave.dbName,
+        },
+      ],
+    },
+  })
+}
