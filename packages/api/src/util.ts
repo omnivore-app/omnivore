@@ -19,6 +19,13 @@ export interface BackendEnv {
     pool: {
       max: number
     }
+    slave?: {
+      host: string
+      port: number
+      userName: string
+      password: string
+      dbName: string
+    }
   }
   server: {
     jwtSecret: string
@@ -218,6 +225,15 @@ export function getEnv(): BackendEnv {
     pool: {
       max: parseInt(parse('PG_POOL_MAX'), 10),
     },
+    slave: parse('PG_SLAVE_HOST')
+      ? {
+          host: parse('PG_SLAVE_HOST'),
+          port: parseInt(parse('PG_SLAVE_PORT'), 10),
+          userName: parse('PG_SLAVE_USER'),
+          password: parse('PG_SLAVE_PASSWORD'),
+          dbName: parse('PG_SLAVE_DB'),
+        }
+      : undefined,
   }
   const server = {
     jwtSecret: parse('JWT_SECRET'),
