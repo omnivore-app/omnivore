@@ -76,14 +76,10 @@ def load_and_sample_library_items_from_parquet(raw_file_path, sample_size):
 
 
 def merge_user_preference_data(sampled_raw_df, feature_dict):
-    # Start with the sampled raw DataFrame
     merged_df = sampled_raw_df
 
-    # Iterate through the files in the feature directory
     for key in feature_dict.keys():
         user_preference_df = feature_dict[key]
-            
-        # Determine the dimension to join on
         if 'author' in key:
             merge_keys = ['user_id', 'author']
         elif 'site' in key:
@@ -95,13 +91,8 @@ def merge_user_preference_data(sampled_raw_df, feature_dict):
         else:
             print("skipping feature: ", key)
             continue  # Skip files that don't match expected patterns
-            
-        # Merge with the current user preference DataFrame
         merged_df = pd.merge(merged_df, user_preference_df, on=merge_keys, how='left')
-
-        # Optionally, fill NaNs after each merge step to avoid growing NaNs
         merged_df = merged_df.fillna(0)
-            
     return merged_df
 
 def prepare_data(df):
@@ -119,7 +110,7 @@ def prepare_data(df):
     df['days_since_subscribed'] = df['days_since_subscribed'].fillna(0).astype(int)
 
     df['is_feed'] = df['subscription_type'].apply(lambda x: 1 if x == 'RSS' else 0)
-    df['is_newsletter'] = df['subscription_type'].apply(lambda x: 1 if x == 'NEWSLETTER' else 0)    
+    df['is_newsletter'] = df['subscription_type'].apply(lambda x: 1 if x == 'NEWSLETTER' else 0)
 
     df = df.dropna(subset=['user_clicked'])
 
