@@ -105,7 +105,7 @@
     "snake-case": "^4.0.0",
     "supertest": "^6.2.2",
     "ts-loader": "^9.3.0",
-    "typeorm": "^0.3.20",
+    "typeorm": "^0.3.4",
     "typeorm-naming-strategies": "^4.1.0",
     "underscore": "^1.13.6",
     "url-pattern": "^1.0.3",
