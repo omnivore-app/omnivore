@@ -416,7 +416,7 @@ const blackThemeSpec = {
 
 const apolloThemeSpec = {
   colors: {
-    readerBg: '#6A6968',
+    readerBg: '#474747',
     readerFont: '#F3F3F3',
     readerMargin: '#474747',
     readerFontHighContrast: 'white',
