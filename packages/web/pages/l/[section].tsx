@@ -4,10 +4,10 @@ import {
   NavigationLayout,
   NavigationSection,
 } from '../../components/templates/NavigationLayout'
-import { HomeContainer } from '../../components/nav-containers/home'
+import { HomeContainer } from '../../components/nav-containers/HomeContainer'
 import { LibraryContainer } from '../../components/templates/library/LibraryContainer'
 import { useMemo } from 'react'
-import { HighlightsContainer } from '../../components/nav-containers/highlights'
+import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
