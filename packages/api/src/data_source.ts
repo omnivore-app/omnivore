@@ -23,4 +23,26 @@ export const appDataSource = new DataSource({
     max: env.pg.pool.max,
     idleTimeoutMillis: 10000, // 10 seconds
   },
+  replication: env.pg.slave
+    ? {
+        // set the default destination for read queries as the master instance
+        defaultMode: 'master',
+        master: {
+          host: env.pg.host,
+          port: env.pg.port,
+          username: env.pg.userName,
+          password: env.pg.password,
+          database: env.pg.dbName,
+        },
+        slaves: [
+          {
+            host: env.pg.slave.host,
+            port: env.pg.slave.port,
+            username: env.pg.slave.userName,
+            password: env.pg.slave.password,
+            database: env.pg.slave.dbName,
+          },
+        ],
+      }
+    : undefined,
 })
