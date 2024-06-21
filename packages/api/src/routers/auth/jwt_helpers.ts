@@ -11,7 +11,7 @@ import {
 
 const signToken = promisify(jwt.sign)
 
-type MobileAuthPayload = {
+type AuthPayload = {
   authToken: string
   authCookieString: string
 }
@@ -27,9 +27,7 @@ export async function createWebAuthToken(
   }
 }
 
-export async function createMobileAuthPayload(
-  userId: string
-): Promise<MobileAuthPayload> {
+export async function createAuthPayload(userId: string): Promise<AuthPayload> {
   const authToken = await signToken({ uid: userId }, env.server.jwtSecret)
   const authCookieString = cookie.serialize('auth', authToken as string, {
     httpOnly: true,

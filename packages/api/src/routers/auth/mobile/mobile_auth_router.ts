@@ -10,7 +10,7 @@ import {
   createMobileSignUpResponse,
   createMobileEmailSignUpResponse,
 } from './sign_up'
-import { createMobileAccountCreationResponse } from './account_creation'
+import { createAccountCreationResponse } from '../../../services/account_creation'
 import { env } from '../../../env'
 import { corsConfig } from '../../../utils/corsConfig'
 import cors from 'cors'
@@ -51,7 +51,7 @@ export function mobileAuthRouter() {
 
   router.post('/create-account', async (req, res) => {
     const { pendingUserToken, userProfile } = req.body
-    const payload = await createMobileAccountCreationResponse(
+    const payload = await createAccountCreationResponse(
       pendingUserToken,
       userProfile
     )

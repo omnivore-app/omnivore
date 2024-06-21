@@ -14,7 +14,6 @@ import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { updateTheme } from '../../lib/themeUpdater'
 import { Priority, useRegisterActions } from 'kbar'
 import { ThemeId } from '../tokens/stitches.config'
-import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 
 type PrimaryLayoutProps = {
   children: ReactNode

@@ -14,6 +14,7 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { Loader } from '../../components/templates/SavingRequest'
 import { deleteAccountMutation } from '../../lib/networking/mutations/deleteAccountMutation'
 import Link from 'next/link'
+import { webBaseURL } from '../../lib/appConfig'
 
 export default function DeleteMyAccount(): JSX.Element {
   const router = useRouter()
@@ -31,6 +32,16 @@ export default function DeleteMyAccount(): JSX.Element {
 
     const result = await deleteAccountMutation(viewerId)
     if (result) {
+      localStorage.clear()
+      const logout = await fetch(`${webBaseURL}/api/client/logout`, {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
       showSuccessToast('Account deleted')
       setTimeout(() => {
         window.location.href = '/login'

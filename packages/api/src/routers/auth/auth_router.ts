@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import axios from 'axios'
 import cors from 'cors'
-import type { Request, Response } from 'express'
+import type { CookieOptions, Request, Response } from 'express'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
@@ -47,7 +47,9 @@ import {
   validateGoogleUser,
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
-import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import { createAccountCreationResponse } from '../../services/account_creation'
+import { libraryItemRepository } from '../../repository/library_item'
+import { Claims } from '../../resolvers/types'
 
 export interface SignupRequest {
   email: string
@@ -61,8 +63,10 @@ export interface SignupRequest {
 
 const signToken = promisify(jwt.sign)
 
-const cookieParams = {
+const cookieParams: CookieOptions = {
   httpOnly: true,
+  sameSite: 'strict',
+  secure: true,
   maxAge: 365 * 24 * 60 * 60 * 1000,
 }
 
@@ -122,23 +126,39 @@ export function authRouter() {
     hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req, res) => {
+      const WELCOME_TO_OMNIVORE_SLUG = 'welcome-to-omnivore'
       const { name, bio, username } = req.body
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const token = req.cookies?.pendingUserAuth as string | undefined
 
-      const payload = await createMobileAccountCreationResponse(token, {
+      const payload = await createAccountCreationResponse(token, {
         name,
         username,
         bio,
       })
+
+      let hasGettingStarted = false
+      if (payload.json.authToken) {
+        const { uid } = jwt.decode(payload.json.authToken) as Claims
+        hasGettingStarted =
+          uid != null &&
+          (await libraryItemRepository.count({
+            where: { user: { id: uid }, slug: WELCOME_TO_OMNIVORE_SLUG },
+          })) > 0
+      }
 
       if (payload.json.authToken) {
         res.cookie('auth', payload.json.authToken, cookieParams)
         res.clearCookie('pendingUserAuth')
       }
 
-      res.status(payload.statusCode).json({})
+      const redirect = hasGettingStarted
+        ? `/${username}/${WELCOME_TO_OMNIVORE_SLUG}`
+        : '/home'
+      res.status(payload.statusCode).json({
+        redirect: redirect,
+      })
     }
   )
 
