@@ -469,7 +469,13 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
+type TitleSmallProps = {
+  maxLines?: string
+}
+
+const TitleSmall = (
+  props: HomeItemViewProps & TitleSmallProps
+): JSX.Element => {
   return (
     <HStack
       className="title-text"
@@ -486,7 +492,7 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
         display: '-webkit-box',
-        '-webkit-line-clamp': '3',
+        '-webkit-line-clamp': props.maxLines ?? '3',
         '-webkit-box-orient': 'vertical',
       }}
     >
@@ -536,7 +542,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         bg: '$homeCardHover',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$homeCardHover',
+          bg: '#007AFF10',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -565,7 +571,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         </SpanBox>
       </HStack>
 
-      <TitleSmall homeItem={props.homeItem} />
+      <TitleSmall homeItem={props.homeItem} maxLines="2" />
     </VStack>
   )
 }
@@ -578,7 +584,8 @@ const TopPicksItemView = (
   props: HomeItemViewProps & TopPicksItemViewProps
 ): JSX.Element => {
   const router = useRouter()
-  const { archiveItem, deleteItem, moveItem } = useLibraryItemActions()
+  const { archiveItem, deleteItem, moveItem, shareItem } =
+    useLibraryItemActions()
 
   return (
     <VStack
@@ -718,9 +725,11 @@ const TopPicksItemView = (
         {props.homeItem.canShare && (
           <Button
             style="homeAction"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
+
+              await shareItem(props.homeItem.title, props.homeItem.url)
             }}
           >
             <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />

@@ -65,5 +65,27 @@ export default function useLibraryItemActions() {
     return !!result
   }, [])
 
-  return { archiveItem, deleteItem, moveItem }
+  const shareItem = useCallback(
+    async (title: string, originalArticleUrl: string | undefined) => {
+      if (!originalArticleUrl) {
+        showErrorToast('Article has no public URL to share', {
+          position: 'bottom-right',
+        })
+      } else if (navigator.share) {
+        navigator.share({
+          title: title + '\n',
+          text: title + '\n',
+          url: originalArticleUrl,
+        })
+      } else {
+        await navigator.clipboard.writeText(originalArticleUrl)
+        showSuccessToast('URL copied to clipboard', {
+          position: 'bottom-right',
+        })
+      }
+    },
+    []
+  )
+
+  return { archiveItem, deleteItem, moveItem, shareItem }
 }
