@@ -97,15 +97,15 @@ describe('ArticleSavingRequest API', () => {
       ).to.eql(ArticleSavingRequestStatus.Processing)
     })
 
-    it('returns an error if the url is invalid', async () => {
-      const res = await graphqlRequest(
-        createArticleSavingRequestMutation('invalid url'),
+    it('creates a library item in db', async () => {
+      const url = 'https://blog.omnivore.app/1'
+      await graphqlRequest(
+        createArticleSavingRequestMutation('https://blog.omnivore.app/1'),
         authToken
       ).expect(200)
 
-      expect(res.body.data.createArticleSavingRequest.errorCodes).to.eql([
-        CreateArticleSavingRequestErrorCode.BadData,
-      ])
+      const item = await findLibraryItemByUrl(url, user.id)
+      expect(item?.readableContent).to.eql('Your link is being saved...')
     })
 
     it('returns an error if the url is invalid', async () => {
