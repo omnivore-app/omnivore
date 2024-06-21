@@ -542,7 +542,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         bg: '$homeCardHover',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$homeCardHover',
+          bg: '#007AFF10',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -584,7 +584,8 @@ const TopPicksItemView = (
   props: HomeItemViewProps & TopPicksItemViewProps
 ): JSX.Element => {
   const router = useRouter()
-  const { archiveItem, deleteItem, moveItem } = useLibraryItemActions()
+  const { archiveItem, deleteItem, moveItem, shareItem } =
+    useLibraryItemActions()
 
   return (
     <VStack
@@ -724,9 +725,11 @@ const TopPicksItemView = (
         {props.homeItem.canShare && (
           <Button
             style="homeAction"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
+
+              await shareItem(props.homeItem.title, props.homeItem.url)
             }}
           >
             <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
