@@ -89,7 +89,7 @@ export default function Home(): JSX.Element {
     //     return
     //   }
     // }
-    const navReturn = window.sessionStorage.getItem('nav-return')
+    const navReturn = window.localStorage.getItem('nav-return')
     if (navReturn) {
       router.push(navReturn)
       return
@@ -303,7 +303,7 @@ export default function Home(): JSX.Element {
         name: 'Return to library',
         shortcut: ['u'],
         perform: () => {
-          const navReturn = window.sessionStorage.getItem('nav-return')
+          const navReturn = window.localStorage.getItem('nav-return')
           if (navReturn) {
             router.push(navReturn)
             return

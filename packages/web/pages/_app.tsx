@@ -43,12 +43,12 @@ const generateActions = (router: NextRouter) => {
       shortcut: ['g', 'h'],
       keywords: 'go home',
       perform: () => {
-        const navReturn = window.sessionStorage.getItem('nav-return')
+        const navReturn = window.localStorage.getItem('nav-return')
         if (navReturn) {
           router.push(navReturn)
           return
         }
-        router?.push('/home')
+        router?.push('/l/home')
       },
     },
     {

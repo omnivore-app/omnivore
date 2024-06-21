@@ -40,7 +40,7 @@ export function HomeContainer(): JSX.Element {
   }, [viewerData])
 
   useEffect(() => {
-    window.sessionStorage.setItem('nav-return', router.asPath)
+    window.localStorage.setItem('nav-return', router.asPath)
   }, [router.asPath])
 
   return (
