@@ -11,4 +11,6 @@ CREATE TABLE omnivore.test (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX test_name_idx ON omnivore.test (name);
+
 COMMIT;
