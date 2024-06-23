@@ -32,6 +32,7 @@ import app.omnivore.omnivore.core.datastore.preferredWebLineHeight
 import app.omnivore.omnivore.core.datastore.preferredWebMaxWidthPercentage
 import app.omnivore.omnivore.core.datastore.prefersJustifyText
 import app.omnivore.omnivore.core.datastore.prefersWebHighContrastText
+import app.omnivore.omnivore.core.datastore.rtlText
 import app.omnivore.omnivore.core.datastore.volumeForScroll
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.createNewLabel
@@ -131,6 +132,14 @@ class WebReaderViewModel @Inject constructor(
             requestID?.let { loadItemUsingRequestID(it) }
         }
     }
+
+    val rtlTextState: StateFlow<Boolean> = datastoreRepository.getBoolean(
+        rtlText
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false
+    )
 
     fun showNavBar() {
         onScrollChange(maxToolbarHeightPx)
@@ -578,6 +587,12 @@ class WebReaderViewModel @Inject constructor(
     fun setVolumeRockerForScrollState(value: Boolean) {
         viewModelScope.launch {
             datastoreRepository.putBoolean(volumeForScroll, value)
+        }
+    }
+
+    fun setRtlTextState(value: Boolean) {
+        viewModelScope.launch {
+            datastoreRepository.putBoolean(rtlText, value)
         }
     }
 

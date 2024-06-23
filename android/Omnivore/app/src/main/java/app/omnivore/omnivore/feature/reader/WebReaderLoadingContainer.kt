@@ -161,19 +161,21 @@ fun WebReaderLoadingContainer(
 
     val darkTheme = isSystemInDarkTheme()
 
+    val rtlTextState by webReaderViewModel.rtlTextState.collectAsStateWithLifecycle()
+
     val styledContent by remember {
         derivedStateOf {
             webReaderParams?.let {
                 val webReaderContent = WebReaderContent(
                     preferences = webReaderViewModel.storedWebPreferences(darkTheme),
+                    rtlText = rtlTextState,
                     item = it.item,
-                    articleContent = it.articleContent,
+                    articleContent = it.articleContent
                 )
                 webReaderContent.styledContent()
             }
         }
     }
-
 
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -217,7 +219,7 @@ fun WebReaderLoadingContainer(
             when (bottomSheetState) {
                 BottomSheetState.PREFERENCES -> {
                     BottomSheetUI {
-                        ReaderPreferencesView(webReaderViewModel)
+                        ReaderPreferencesSheet(webReaderViewModel)
                     }
                 }
 
