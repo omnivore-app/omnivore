@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.component.TextPreferenceWidget
-import app.omnivore.omnivore.feature.auth.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.LoginViewModel
 import app.omnivore.omnivore.navigation.Routes
 
 internal const val RELEASE_URL = "https://github.com/omnivore-app/omnivore/releases"
