@@ -268,4 +268,5 @@
     <string name="edit_info_sheet_action_cancel">Cancel</string>
     <string name="edit_info_sheet_error">Error while editing article!</string>
     <string name="edit_info_sheet_success">Article info successfully updated!</string>
+    <string name="forgot_password">Forgot Password?</string>
 </resources>

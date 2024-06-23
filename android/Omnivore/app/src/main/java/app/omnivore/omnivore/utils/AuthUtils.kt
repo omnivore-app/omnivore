@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.auth
+package app.omnivore.omnivore.utils
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier

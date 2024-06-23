@@ -1,11 +1,10 @@
-package app.omnivore.omnivore.feature.auth
+package app.omnivore.omnivore.feature.onboarding
 
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.BuildConfig
@@ -43,18 +42,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.regex.Pattern
 import javax.inject.Inject
-
-enum class RegistrationState {
-    SocialLogin, EmailSignIn, EmailSignUp, PendingUser, SelfHosted
-}
 
 data class PendingEmailUserCreds(
     val email: String, val password: String
@@ -73,8 +70,8 @@ class LoginViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
         private set
 
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> get() = _errorMessage.asStateFlow()
 
     var hasValidUsername by mutableStateOf(false)
         private set
@@ -91,8 +88,6 @@ class LoginViewModel @Inject constructor(
             started = SharingStarted.Lazily,
             initialValue = true
         )
-
-    val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
 
     val followingTabActiveState: StateFlow<Boolean> = datastoreRepository.getBoolean(
         followingTabActive
@@ -124,29 +119,11 @@ class LoginViewModel @Inject constructor(
                 Toast.LENGTH_SHORT
             ).show()
         }
-
-
     }
 
-    fun showSocialLogin() {
-        resetState()
-        registrationStateLiveData.value = RegistrationState.SocialLogin
-    }
-
-    fun showEmailSignIn() {
-        resetState()
-        registrationStateLiveData.value = RegistrationState.EmailSignIn
-    }
-
-    fun showEmailSignUp(pendingCreds: PendingEmailUserCreds? = null) {
+    private fun showEmailSignUp(pendingCreds: PendingEmailUserCreds? = null) {
         resetState()
         pendingEmailUserCreds = pendingCreds
-        registrationStateLiveData.value = RegistrationState.EmailSignUp
-    }
-
-    fun showSelfHostedSettings() {
-        resetState()
-        registrationStateLiveData.value = RegistrationState.SelfHosted
     }
 
     fun cancelNewUserSignUp() {
@@ -154,7 +131,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             datastoreRepository.clearValue(omnivorePendingUserToken)
         }
-        showSocialLogin()
+        resetState()
     }
 
     fun registerUser() {
@@ -166,10 +143,18 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun resetState() {
+    private fun setErrorMessage(message: String) {
+        _errorMessage.value = message
+    }
+
+    fun resetErrorMessage() {
+        _errorMessage.value = null
+    }
+
+    fun resetState() {
         validateUsernameJob = null
         isLoading = false
-        errorMessage = null
+        resetErrorMessage()
         hasValidUsername = false
         usernameValidationErrorMessage = null
         pendingEmailUserCreds = null
@@ -240,7 +225,7 @@ class LoginViewModel @Inject constructor(
                 RetrofitHelper.getInstance(networker).create(EmailLoginSubmit::class.java)
 
             isLoading = true
-            errorMessage = null
+            resetErrorMessage()
 
             val result = emailLogin.submitEmailLogin(
                 EmailLoginCredentials(email = email, password = password)
@@ -260,9 +245,7 @@ class LoginViewModel @Inject constructor(
             if (result.body()?.authToken != null) {
                 datastoreRepository.putString(omnivoreAuthToken, result.body()?.authToken!!)
             } else {
-                errorMessage = resourceProvider.getString(
-                    R.string.login_view_model_something_went_wrong_error_msg
-                )
+                setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_error_msg))
             }
 
             if (result.body()?.authCookieString != null) {
@@ -284,7 +267,7 @@ class LoginViewModel @Inject constructor(
                 RetrofitHelper.getInstance(networker).create(CreateEmailAccountSubmit::class.java)
 
             isLoading = true
-            errorMessage = null
+            resetErrorMessage()
 
             val params = EmailSignUpParams(
                 email = email, password = password, name = name, username = username
@@ -295,9 +278,7 @@ class LoginViewModel @Inject constructor(
             isLoading = false
 
             if (result.errorBody() != null) {
-                errorMessage = resourceProvider.getString(
-                    R.string.login_view_model_something_went_wrong_two_error_msg
-                )
+                setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_error_msg))
             } else {
                 pendingEmailUserCreds = PendingEmailUserCreds(email, password)
             }
@@ -314,7 +295,7 @@ class LoginViewModel @Inject constructor(
                 RetrofitHelper.getInstance(networker).create(CreateAccountSubmit::class.java)
 
             isLoading = true
-            errorMessage = null
+            resetErrorMessage()
 
             val pendingUserToken = getPendingAuthToken() ?: ""
 
@@ -330,9 +311,7 @@ class LoginViewModel @Inject constructor(
             if (result.body()?.authToken != null) {
                 datastoreRepository.putString(omnivoreAuthToken, result.body()?.authToken!!)
             } else {
-                errorMessage = resourceProvider.getString(
-                    R.string.login_view_model_something_went_wrong_error_msg
-                )
+                setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_error_msg))
             }
 
             if (result.body()?.authCookieString != null) {
@@ -358,12 +337,8 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun resetErrorMessage() {
-        errorMessage = null
-    }
-
     fun showGoogleErrorMessage() {
-        errorMessage = resourceProvider.getString(R.string.login_view_model_google_auth_error_msg)
+        setErrorMessage(resourceProvider.getString(R.string.login_view_model_google_auth_error_msg))
     }
 
     fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
@@ -372,9 +347,7 @@ class LoginViewModel @Inject constructor(
 
         // If token is missing then set the error message
         if (googleIdToken.isEmpty()) {
-            errorMessage = resourceProvider.getString(
-                R.string.login_view_model_missing_auth_token_error_msg
-            )
+            setErrorMessage(resourceProvider.getString(R.string.login_view_model_missing_auth_token_error_msg))
             return
         }
 
@@ -390,7 +363,7 @@ class LoginViewModel @Inject constructor(
                 RetrofitHelper.getInstance(networker).create(AuthProviderLoginSubmit::class.java)
 
             isLoading = true
-            errorMessage = null
+            resetErrorMessage()
 
             val result = login.submitAuthProviderLogin(params)
 
@@ -413,15 +386,11 @@ class LoginViewModel @Inject constructor(
 
                     418 -> {
                         // Show pending email state
-                        errorMessage = resourceProvider.getString(
-                            R.string.login_view_model_something_went_wrong_two_error_msg
-                        )
+                        setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_two_error_msg))
                     }
 
                     else -> {
-                        errorMessage = resourceProvider.getString(
-                            R.string.login_view_model_something_went_wrong_two_error_msg
-                        )
+                        setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_two_error_msg))
                     }
                 }
             }
@@ -430,7 +399,7 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun submitAuthProviderPayloadForPendingToken(params: SignInParams) {
         isLoading = true
-        errorMessage = null
+        resetErrorMessage()
 
         val request = RetrofitHelper.getInstance(networker).create(PendingUserSubmit::class.java)
         val result = request.submitPendingUser(params)
@@ -441,11 +410,9 @@ class LoginViewModel @Inject constructor(
             datastoreRepository.putString(
                 omnivorePendingUserToken, result.body()?.pendingUserToken!!
             )
-            registrationStateLiveData.value = RegistrationState.PendingUser
+            // TODO go to pending user
         } else {
-            errorMessage = resourceProvider.getString(
-                R.string.login_view_model_something_went_wrong_two_error_msg
-            )
+            setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_two_error_msg))
         }
     }
 }

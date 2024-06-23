@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -34,15 +33,13 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import app.omnivore.omnivore.core.designsystem.motion.materialSharedAxisXIn
-import app.omnivore.omnivore.core.designsystem.motion.materialSharedAxisXOut
-import app.omnivore.omnivore.feature.auth.LoginViewModel
-import app.omnivore.omnivore.feature.auth.WelcomeScreen
+import app.omnivore.omnivore.core.designsystem.theme.OmnivoreBrand
+import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingScreen
 import app.omnivore.omnivore.feature.following.FollowingScreen
 import app.omnivore.omnivore.feature.library.LibraryView
 import app.omnivore.omnivore.feature.library.SearchView
@@ -51,6 +48,7 @@ import app.omnivore.omnivore.feature.profile.about.AboutScreen
 import app.omnivore.omnivore.feature.profile.account.AccountScreen
 import app.omnivore.omnivore.feature.profile.filters.FiltersScreen
 import app.omnivore.omnivore.feature.web.WebViewScreen
+import app.omnivore.omnivore.navigation.OmnivoreNavHost
 import app.omnivore.omnivore.navigation.Routes
 import app.omnivore.omnivore.navigation.TopLevelDestination
 
@@ -81,7 +79,7 @@ fun RootView(
         }
     }) { padding ->
         Box(
-            modifier = if (!hasAuthToken) Modifier.background(Color(0xFFFCEBA8)) else Modifier
+            modifier = if (!hasAuthToken) Modifier.background(OmnivoreBrand) else Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .consumeWindowInsets(padding)
@@ -95,8 +93,7 @@ fun RootView(
             PrimaryNavigator(
                 navController = navController,
                 snackbarHostState = snackbarHostState,
-                startDestination = startDestination,
-                loginViewModel = loginViewModel
+                startDestination = startDestination
             )
             LaunchedEffect(hasAuthToken) {
                 if (hasAuthToken) {
@@ -107,33 +104,32 @@ fun RootView(
     }
 }
 
-private const val INITIAL_OFFSET_FACTOR = 0.10f
+
 
 @Composable
 fun PrimaryNavigator(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    startDestination: String,
-    loginViewModel: LoginViewModel
+    startDestination: String
 ) {
 
-    NavHost(navController = navController,
-        startDestination = startDestination,
-        enterTransition = { materialSharedAxisXIn(initialOffsetX = { (it * INITIAL_OFFSET_FACTOR).toInt() }) },
-        exitTransition = { materialSharedAxisXOut(targetOffsetX = { -(it * INITIAL_OFFSET_FACTOR).toInt() }) },
-        popEnterTransition = { materialSharedAxisXIn(initialOffsetX = { -(it * INITIAL_OFFSET_FACTOR).toInt() }) },
-        popExitTransition = { materialSharedAxisXOut(targetOffsetX = { (it * INITIAL_OFFSET_FACTOR).toInt() }) }) {
+    OmnivoreNavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
 
         composable(Routes.Welcome.route) {
-            WelcomeScreen(viewModel = loginViewModel)
+            OnboardingScreen(navController = navController)
         }
 
-        navigation(startDestination = Routes.Inbox.route,
+        navigation(
+            startDestination = Routes.Inbox.route,
             route = Routes.Home.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }) {
+            popExitTransition = { ExitTransition.None }
+        ) {
 
             composable(Routes.Inbox.route) {
                 LibraryView(navController = navController)
