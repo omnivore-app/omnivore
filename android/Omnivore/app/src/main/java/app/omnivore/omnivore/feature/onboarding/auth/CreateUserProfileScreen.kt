@@ -8,17 +8,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,34 +32,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 
 @Composable
-fun CreateUserProfileScreen(viewModel: LoginViewModel) {
+fun CreateUserScreen(
+    viewModel: OnboardingViewModel,
+    onboardingNavController: NavHostController
+) {
     var name by rememberSaveable { mutableStateOf("") }
     var username by rememberSaveable { mutableStateOf("") }
 
     Row(
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(bottom = 64.dp)
     ) {
         Spacer(modifier = Modifier.weight(1.0F))
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
                 text = stringResource(R.string.create_user_profile_title),
-                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            UserProfileFields(name = name,
+            UserProfileFields(
+                name = name,
                 username = username,
                 usernameValidationErrorMessage = viewModel.usernameValidationErrorMessage,
                 showUsernameAsAvailable = viewModel.hasValidUsername,
@@ -66,16 +73,21 @@ fun CreateUserProfileScreen(viewModel: LoginViewModel) {
                     username = it
                     viewModel.validateUsername(it)
                 },
-                onSubmit = { viewModel.submitProfile(username = username, name = name) })
+                onSubmit = { viewModel.submitProfile(username = username, name = name) },
+                isLoading = viewModel.isLoading
+            )
 
-            // TODO: add a activity indicator (maybe after a delay?)
-            if (viewModel.isLoading) {
-                Text(stringResource(R.string.create_user_profile_loading))
+            TextButton(
+                onClick = {
+                    viewModel.cancelNewUserSignUp()
+                    onboardingNavController.popBackStack()
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.create_user_profile_action_cancel),
+                    textDecoration = TextDecoration.Underline
+                )
             }
-
-            ClickableText(text = AnnotatedString(stringResource(R.string.create_user_profile_action_cancel)),
-                style = MaterialTheme.typography.titleMedium.plus(TextStyle(textDecoration = TextDecoration.Underline)),
-                onClick = { viewModel.cancelNewUserSignUp() })
         }
         Spacer(modifier = Modifier.weight(1.0F))
     }
@@ -89,7 +101,8 @@ fun UserProfileFields(
     showUsernameAsAvailable: Boolean,
     onNameChange: (String) -> Unit,
     onUsernameChange: (String) -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    isLoading: Boolean
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -97,48 +110,51 @@ fun UserProfileFields(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp),
-        verticalArrangement = Arrangement.spacedBy(25.dp),
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
             value = name,
+            onValueChange = onNameChange,
+            modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.create_user_profile_field_placeholder_name)) },
             label = { Text(stringResource(R.string.create_user_profile_field_label_name)) },
-            onValueChange = onNameChange,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextField(value = username,
-                placeholder = { Text(stringResource(R.string.create_user_profile_field_placeholder_username)) },
-                label = { Text(stringResource(R.string.create_user_profile_field_label_username)) },
-                onValueChange = onUsernameChange,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                trailingIcon = {
-                    if (showUsernameAsAvailable) {
-                        Icon(
-                            imageVector = Icons.Filled.CheckCircle, contentDescription = null
-                        )
-                    }
-                })
-
-            if (usernameValidationErrorMessage != null) {
-                Text(
-                    text = usernameValidationErrorMessage,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center
-                )
+        OutlinedTextField(
+            value = username,
+            onValueChange = onUsernameChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp),
+            placeholder = { Text(stringResource(R.string.create_user_profile_field_placeholder_username)) },
+            label = { Text(stringResource(R.string.create_user_profile_field_label_username)) },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            trailingIcon = {
+                if (showUsernameAsAvailable) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle, contentDescription = null
+                    )
+                }
+            },
+            isError = usernameValidationErrorMessage != null,
+            supportingText = {
+                if (usernameValidationErrorMessage != null) {
+                    Text(
+                        text = usernameValidationErrorMessage,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-        }
+        )
 
-        Button(
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 if (name.isNotBlank() && username.isNotBlank()) {
                     onSubmit()
@@ -158,6 +174,16 @@ fun UserProfileFields(
                 text = stringResource(R.string.create_user_profile_action_submit),
                 modifier = Modifier.padding(horizontal = 100.dp)
             )
+            if (isLoading) {
+                Spacer(modifier = Modifier.width(16.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .height(16.dp)
+                        .width(16.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }

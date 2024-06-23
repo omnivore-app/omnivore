@@ -30,12 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.utils.AppleConstants
 import java.net.URLEncoder
 
 @Composable
-fun AppleAuthButton(viewModel: LoginViewModel) {
+fun AppleAuthButton(viewModel: OnboardingViewModel) {
     val showDialog = remember { mutableStateOf(false) }
 
     OutlinedButton(

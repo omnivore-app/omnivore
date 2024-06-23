@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.feature.onboarding.auth
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,10 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,34 +36,30 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.component.DividerWithText
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
-import app.omnivore.omnivore.utils.AuthUtils.autofill
 import app.omnivore.omnivore.navigation.Routes
+import app.omnivore.omnivore.utils.AuthUtils.autofill
 import app.omnivore.omnivore.utils.FORGOT_PASSWORD_URL
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun EmailSignInScreen(
-    navController: NavHostController,
-    welcomeNavController: NavHostController
+    onboardingNavController: NavHostController,
+    viewModel: OnboardingViewModel
 ) {
     OmnivoreTheme(darkTheme = false) {
-        EmailSignInContent(navController, welcomeNavController)
+        EmailSignInContent(onboardingNavController, viewModel)
     }
 }
 
 @Composable
 fun EmailSignInContent(
-    navController: NavHostController,
-    welcomeNavController: NavHostController,
-    viewModel: LoginViewModel = hiltViewModel()
+    onboardingNavController: NavHostController,
+    viewModel: OnboardingViewModel
 ) {
-    val uriHandler = LocalUriHandler.current
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
@@ -84,7 +79,7 @@ fun EmailSignInContent(
                 onPasswordChange = { password = it },
                 onLoginClick = { viewModel.login(email, password) },
                 onCreateAccountClick = {
-                    welcomeNavController.navigate(Routes.EmailSignUp.route)
+                    onboardingNavController.navigate(Routes.EmailSignUp.route)
                     viewModel.resetState()
                 },
                 isLoading = viewModel.isLoading
@@ -162,7 +157,7 @@ fun LoginFields(
             }
         }
 
-        Button(
+        OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             enabled = email.isNotBlank() && password.isNotBlank(),
             onClick = {
@@ -197,12 +192,9 @@ fun LoginFields(
 
         DividerWithText(text = "or")
 
-        Button(
+        OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onCreateAccountClick() },
-            colors = ButtonDefaults.buttonColors(
-                contentColor = Color(0xFF3D3D3D), containerColor = Color(0xffffd234)
-            )
+            onClick = { onCreateAccountClick() }
         ) {
             Text(
                 text = "Create Account".uppercase()

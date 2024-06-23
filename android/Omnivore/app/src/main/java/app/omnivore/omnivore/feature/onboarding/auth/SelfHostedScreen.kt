@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -42,12 +41,12 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.component.DividerWithText
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.utils.SELF_HOSTING_URL
 
 @Composable
 fun SelfHostedScreen(
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     var apiServer by rememberSaveable { mutableStateOf("") }
     var webServer by rememberSaveable { mutableStateOf("") }
@@ -138,7 +137,7 @@ fun SelfHostedFields(
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
 
-        Button(
+        OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
             if (apiServer.isNotBlank() && webServer.isNotBlank()) {
