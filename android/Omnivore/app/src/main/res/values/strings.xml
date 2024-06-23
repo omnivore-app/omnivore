@@ -154,6 +154,7 @@
     <string name="reader_preferences_view_high_constrast_text">High Contrast Text</string>
     <string name="reader_preferences_view_justify_text">Justify Text</string>
     <string name="reader_preferences_view_volume_scroll">Use Volume Rocker to scroll</string>
+    <string name="reader_preferences_view_use_rtl">Right-to-left text</string>
 
     <!-- WebReaderLoadingContainer -->
     <string name="web_reader_loading_container_error_msg">We were unable to fetch your content.</string>
