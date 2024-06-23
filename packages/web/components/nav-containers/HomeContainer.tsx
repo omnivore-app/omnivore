@@ -27,6 +27,7 @@ import {
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
+import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 
 export function HomeContainer(): JSX.Element {
   const router = useRouter()
@@ -40,7 +41,7 @@ export function HomeContainer(): JSX.Element {
   }, [viewerData])
 
   useEffect(() => {
-    window.sessionStorage.setItem('nav-return', router.asPath)
+    window.localStorage.setItem('nav-return', router.asPath)
   }, [router.asPath])
 
   return (
@@ -74,7 +75,8 @@ export function HomeContainer(): JSX.Element {
       >
         {homeData.sections?.map((homeSection, idx) => {
           if (homeSection.items.length < 1) {
-            return <></>
+            console.log('empty home section: ', homeSection)
+            return <SpanBox key={`section-${idx}`}></SpanBox>
           }
           switch (homeSection.layout) {
             case 'just_added':
@@ -110,7 +112,8 @@ export function HomeContainer(): JSX.Element {
                 />
               )
             default:
-              return <></>
+              console.log('unknown home section: ', homeSection)
+              return <SpanBox key={`section-${idx}`}></SpanBox>
           }
         })}
       </VStack>
@@ -151,6 +154,12 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
             fontSize: '16px',
             fontWeight: '600',
             color: '$homeTextTitle',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            wordBreak: 'break-word',
+            display: '-webkit-box',
+            '-webkit-line-clamp': '2',
+            '-webkit-box-orient': 'vertical',
           }}
         >
           {props.homeSection.title}
@@ -271,7 +280,7 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
 
       <Pagination
         items={items}
-        itemsPerPage={4}
+        itemsPerPage={10}
         loadMoreButtonText="Load more Top Picks"
         render={(homeItem) => (
           <TopPicksItemView
@@ -460,7 +469,13 @@ const Title = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
+type TitleSmallProps = {
+  maxLines?: string
+}
+
+const TitleSmall = (
+  props: HomeItemViewProps & TitleSmallProps
+): JSX.Element => {
   return (
     <HStack
       className="title-text"
@@ -477,7 +492,7 @@ const TitleSmall = (props: HomeItemViewProps): JSX.Element => {
         textOverflow: 'ellipsis',
         wordBreak: 'break-word',
         display: '-webkit-box',
-        '-webkit-line-clamp': '3',
+        '-webkit-line-clamp': props.maxLines ?? '3',
         '-webkit-box-orient': 'vertical',
       }}
     >
@@ -527,7 +542,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         bg: '$homeCardHover',
         borderRadius: '5px',
         '&:hover': {
-          bg: '$homeCardHover',
+          bg: '#007AFF10',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -556,7 +571,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         </SpanBox>
       </HStack>
 
-      <TitleSmall homeItem={props.homeItem} />
+      <TitleSmall homeItem={props.homeItem} maxLines="2" />
     </VStack>
   )
 }
@@ -569,6 +584,9 @@ const TopPicksItemView = (
   props: HomeItemViewProps & TopPicksItemViewProps
 ): JSX.Element => {
   const router = useRouter()
+  const { archiveItem, deleteItem, moveItem, shareItem } =
+    useLibraryItemActions()
+
   return (
     <VStack
       css={{
@@ -629,28 +647,46 @@ const TopPicksItemView = (
       <SpanBox css={{ px: '20px' }}></SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         {props.homeItem.canSave && (
-          <Button style="homeAction">
+          <Button
+            style="homeAction"
+            onClick={async (event) => {
+              event.preventDefault()
+              event.stopPropagation()
+
+              props.dispatchList({
+                type: 'REMOVE_ITEM',
+                itemId: props.homeItem.id,
+              })
+              if (!(await moveItem(props.homeItem.id))) {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
+            }}
+          >
             <AddToLibraryActionIcon
               color={theme.colors.homeActionIcons.toString()}
             />
           </Button>
         )}
-        {/* <Button style="homeAction">
-          <CommentActionIcon color={theme.colors.homeActionIcons.toString()} />
-        </Button> */}
-
         {props.homeItem.canArchive && (
           <Button
             style="homeAction"
-            onClick={(event) => {
-              // archiveItem(props.homeItem)
-              console.log('archiving')
+            onClick={async (event) => {
+              event.preventDefault()
+              event.stopPropagation()
+
               props.dispatchList({
                 type: 'REMOVE_ITEM',
                 itemId: props.homeItem.id,
               })
-              event.preventDefault()
-              event.stopPropagation()
+              if (!(await archiveItem(props.homeItem.id))) {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
             }}
           >
             <ArchiveActionIcon
@@ -659,12 +695,43 @@ const TopPicksItemView = (
           </Button>
         )}
         {props.homeItem.canDelete && (
-          <Button style="homeAction">
+          <Button
+            style="homeAction"
+            onClick={async (event) => {
+              event.preventDefault()
+              event.stopPropagation()
+
+              props.dispatchList({
+                type: 'REMOVE_ITEM',
+                itemId: props.homeItem.id,
+              })
+              const undo = () => {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
+              if (!(await deleteItem(props.homeItem.id, undo))) {
+                props.dispatchList({
+                  type: 'REPLACE_ITEM',
+                  itemId: props.homeItem.id,
+                })
+              }
+            }}
+          >
             <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
           </Button>
         )}
         {props.homeItem.canShare && (
-          <Button style="homeAction">
+          <Button
+            style="homeAction"
+            onClick={async (event) => {
+              event.preventDefault()
+              event.stopPropagation()
+
+              await shareItem(props.homeItem.title, props.homeItem.url)
+            }}
+          >
             <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
           </Button>
         )}
@@ -828,7 +895,7 @@ const SubscriptionSourceHoverContent = (
       <HStack
         distribution="start"
         alignment="center"
-        css={{ width: '100%', gap: '10px' }}
+        css={{ width: '100%', gap: '10px', height: '35px' }}
       >
         {props.source.icon && <SiteIconLarge src={props.source.icon} />}
         <SpanBox
@@ -843,7 +910,7 @@ const SubscriptionSourceHoverContent = (
         <SpanBox css={{ ml: 'auto', minWidth: '100px' }}>
           {subscription && subscription.status == 'ACTIVE' && (
             <Button style="ctaSubtle" css={{ fontSize: '12px' }}>
-              + Unsubscribe
+              Unsubscribe
             </Button>
           )}
         </SpanBox>

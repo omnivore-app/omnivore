@@ -6,3 +6,5 @@ google-cloud-storage
 flask
 pydantic
 sklearn2pmml
+sqlalchemy 
+pyarrow

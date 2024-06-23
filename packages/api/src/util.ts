@@ -19,6 +19,14 @@ export interface BackendEnv {
     pool: {
       max: number
     }
+    replication: boolean
+    slave: {
+      host: string
+      port: number
+      userName: string
+      password: string
+      dbName: string
+    }
   }
   server: {
     jwtSecret: string
@@ -179,6 +187,12 @@ const nullableEnvVars = [
   'NOTION_CLIENT_SECRET',
   'NOTION_AUTH_URL',
   'SCORE_API_URL',
+  'PG_REPLICATION',
+  'PG_SLAVE_HOST',
+  'PG_SLAVE_PORT',
+  'PG_SLAVE_USER',
+  'PG_SLAVE_PASSWORD',
+  'PG_SLAVE_DB',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -217,6 +231,14 @@ export function getEnv(): BackendEnv {
     dbName: parse('PG_DB'),
     pool: {
       max: parseInt(parse('PG_POOL_MAX'), 10),
+    },
+    replication: parse('PG_REPLICATION') === 'true',
+    slave: {
+      host: parse('PG_SLAVE_HOST'),
+      port: parseInt(parse('PG_SLAVE_PORT'), 10),
+      userName: parse('PG_SLAVE_USER'),
+      password: parse('PG_SLAVE_PASSWORD'),
+      dbName: parse('PG_SLAVE_DB'),
     },
   }
   const server = {

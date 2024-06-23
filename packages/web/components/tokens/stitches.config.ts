@@ -416,7 +416,7 @@ const blackThemeSpec = {
 
 const apolloThemeSpec = {
   colors: {
-    readerBg: '#6A6968',
+    readerBg: '#474747',
     readerFont: '#F3F3F3',
     readerMargin: '#474747',
     readerFontHighContrast: 'white',
@@ -431,7 +431,7 @@ const apolloThemeSpec = {
 
     homeCardHover: '#525252',
     homeDivider: '#6A6968',
-    homeActionHoverBg: '#515151',
+    homeActionHoverBg: '#474747',
 
     thBackground: '#474747',
     thBackground2: '#515151',

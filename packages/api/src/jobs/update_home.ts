@@ -1,7 +1,7 @@
 import client from 'prom-client'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
-import { Subscription } from '../entity/subscription'
+import { Subscription, SubscriptionType } from '../entity/subscription'
 import { User } from '../entity/user'
 import { registerMetric } from '../prometheus'
 import { redisDataSource } from '../redis_data_source'
@@ -41,6 +41,9 @@ interface Candidate {
   subscription?: {
     name: string
     type: string
+    autoAddToLibrary?: boolean | null
+    createdAt: Date
+    fetchContent?: boolean | null
   }
 }
 
@@ -102,6 +105,7 @@ const publicItemToCandidate = (item: PublicItem): Candidate => ({
   subscription: {
     name: item.source.name,
     type: item.source.type,
+    createdAt: item.source.createdAt,
   },
   score: 0,
 })
@@ -222,6 +226,20 @@ const rankCandidates = async (
         word_count: item.wordCount,
         published_at: item.publishedAt,
         subscription: item.subscription?.name,
+        inbox_folder: item.folder === 'inbox',
+        is_feed: item.subscription?.type === SubscriptionType.Rss,
+        is_newsletter: item.subscription?.type === SubscriptionType.Newsletter,
+        is_subscription: !!item.subscription,
+        item_word_count: item.wordCount,
+        subscription_count: 0,
+        subscription_auto_add_to_library: item.subscription?.autoAddToLibrary,
+        subscription_fetch_content: item.subscription?.fetchContent,
+        days_since_subscribed: item.subscription
+          ? Math.floor(
+              (Date.now() - item.subscription.createdAt.getTime()) /
+                (1000 * 60 * 60 * 24)
+            )
+          : undefined,
       } as Feature
       return acc
     }, {} as Record<string, Feature>),
