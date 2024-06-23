@@ -38,7 +38,6 @@ import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.feature.components.LabelChip
 import app.omnivore.omnivore.feature.components.LabelChipColors
-import app.omnivore.omnivore.feature.library.SavedItemAction
 import app.omnivore.omnivore.feature.library.SavedItemViewModel
 import coil.compose.rememberAsyncImagePainter
 
@@ -48,10 +47,10 @@ fun SavedItemCard(
     selected: Boolean,
     savedItemViewModel: SavedItemViewModel,
     savedItem: SavedItemWithLabelsAndHighlights,
-    onClickHandler: () -> Unit,
-    actionHandler: (SavedItemAction) -> Unit
+    onClickHandler: () -> Unit
 ) {
     Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .combinedClickable(onClick = onClickHandler, onLongClick = {
                 savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem)
@@ -61,18 +60,17 @@ fun SavedItemCard(
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(16.dp)
                 .background(Color.Transparent)
 
         ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
                 modifier = Modifier
                     .weight(1f, fill = false)
-                    .padding(end = 20.dp)
                     .defaultMinSize(minHeight = 50.dp)
             ) {
                 ReadInfo(item = savedItem)
@@ -100,26 +98,27 @@ fun SavedItemCard(
                 painter = rememberAsyncImagePainter(savedItem.savedItem.imageURLString),
                 contentDescription = "Image associated with saved item",
                 modifier = Modifier
-                    .size(55.dp, 73.dp)
+                    .size(55.dp, 55.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .defaultMinSize(minWidth = 55.dp, minHeight = 73.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .defaultMinSize(minWidth = 55.dp, minHeight = 55.dp)
             )
         }
 
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            savedItem.labels.filter { !isFlairLabel(it) }
-                .sortedWith(compareBy { it.name.toLowerCase(Locale.current) }).forEach { label ->
-                    val chipColors = LabelChipColors.fromHex(label.color)
+        if (savedItem.labels.any { !isFlairLabel(it) }) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, bottom = 16.dp, end = 16.dp)
+            ) {
+                savedItem.labels.filter { !isFlairLabel(it) }
+                    .sortedWith(compareBy { it.name.toLowerCase(Locale.current) }).forEach { label ->
+                        val chipColors = LabelChipColors.fromHex(label.color)
 
-                    LabelChip(
-                        modifier = Modifier.clickable { }, name = label.name, colors = chipColors
-                    )
-                }
+                        LabelChip(
+                            modifier = Modifier.clickable { }, name = label.name, colors = chipColors
+                        )
+                    }
+            }
         }
 
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
