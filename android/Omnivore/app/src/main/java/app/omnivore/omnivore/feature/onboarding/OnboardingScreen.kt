@@ -45,12 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.theme.OmnivoreBrand
 import app.omnivore.omnivore.feature.onboarding.auth.AuthProviderScreen
+import app.omnivore.omnivore.feature.onboarding.auth.CreateUserScreen
+import app.omnivore.omnivore.feature.onboarding.auth.EmailConfirmationScreen
 import app.omnivore.omnivore.feature.onboarding.auth.EmailSignInScreen
 import app.omnivore.omnivore.feature.onboarding.auth.EmailSignUpScreen
 import app.omnivore.omnivore.feature.onboarding.auth.SelfHostedScreen
@@ -61,43 +62,57 @@ import app.omnivore.omnivore.navigation.Routes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
-    navController: NavHostController,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
 
     val activity = LocalContext.current as ComponentActivity
-    val welcomeNavController = rememberNavController()
+    val onboardingNavController = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val currentRoute by welcomeNavController.currentBackStackEntryFlow.collectAsState(
-        initial = welcomeNavController.currentBackStackEntry
+    val currentRoute by onboardingNavController.currentBackStackEntryFlow.collectAsState(
+        initial = onboardingNavController.currentBackStackEntry
     )
 
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+    val navigateToCreateUser by viewModel.navigateToCreateUser.collectAsStateWithLifecycle()
+    val pendingEmailUserCreds by viewModel.pendingEmailUserCreds.collectAsStateWithLifecycle()
 
-    OmnivoreTheme(darkTheme = false) {
-
-        LaunchedEffect(key1 = errorMessage) {
-            errorMessage?.let { message ->
-                val result = snackBarHostState.showSnackbar(
-                    message = message,
-                    actionLabel = "Dismiss",
-                    duration = SnackbarDuration.Indefinite
-                )
-                when (result) {
-                    SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
-                    else -> {}
-                }
+    LaunchedEffect(key1 = errorMessage) {
+        errorMessage?.let { message ->
+            val result = snackBarHostState.showSnackbar(
+                message = message,
+                actionLabel = "Dismiss",
+                duration = SnackbarDuration.Indefinite
+            )
+            when (result) {
+                SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
+                else -> {}
             }
         }
+    }
 
+    LaunchedEffect(navigateToCreateUser) {
+        if (navigateToCreateUser) {
+            onboardingNavController.navigate(Routes.CreateUser.route)
+            viewModel.onNavigateToCreateUserHandled()
+        }
+    }
+
+    LaunchedEffect(pendingEmailUserCreds) {
+        if (pendingEmailUserCreds != null) {
+            onboardingNavController.navigate(Routes.EmailConfirmation.route)
+            viewModel.onNavigateToEmailConfirmationHandled()
+        }
+    }
+
+    OmnivoreTheme(darkTheme = false) {
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = { },
                     navigationIcon = {
                         if (currentRoute?.destination?.route != Routes.AuthProvider.route) {
-                            IconButton(onClick = { welcomeNavController.popBackStack() }) {
+                            IconButton(onClick = { onboardingNavController.popBackStack() }) {
                                 Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                             }
                         }
@@ -126,26 +141,38 @@ fun OnboardingScreen(
                 }
                 item {
                     OmnivoreNavHost(
-                        navController = welcomeNavController,
+                        navController = onboardingNavController,
                         startDestination = Routes.AuthProvider.route
                     ) {
                         composable(Routes.AuthProvider.route) {
                             AuthProviderScreen(
-                                navController = navController,
-                                welcomeNavController = welcomeNavController
+                                welcomeNavController = onboardingNavController,
+                                viewModel = viewModel
                             )
                         }
                         composable(Routes.EmailSignIn.route) {
                             EmailSignInScreen(
-                                navController = navController,
-                                welcomeNavController = welcomeNavController
+                                onboardingNavController = onboardingNavController,
+                                viewModel = viewModel
                             )
                         }
                         composable(Routes.EmailSignUp.route) {
-                            EmailSignUpScreen()
+                            EmailSignUpScreen(viewModel = viewModel)
+                        }
+                        composable(Routes.EmailConfirmation.route) {
+                            EmailConfirmationScreen(
+                                viewModel = viewModel,
+                                onboardingNavController = onboardingNavController
+                            )
                         }
                         composable(Routes.SelfHosting.route){
-                            SelfHostedScreen()
+                            SelfHostedScreen(viewModel = viewModel)
+                        }
+                        composable(Routes.CreateUser.route){
+                            CreateUserScreen(
+                                viewModel = viewModel,
+                                onboardingNavController = onboardingNavController
+                            )
                         }
                     }
                 }

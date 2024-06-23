@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.feature.onboarding.auth
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,16 +9,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,67 +33,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.utils.AuthUtils.autofill
 
 @Composable
 fun EmailSignUpScreen(
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel
 ) {
-    if (viewModel.pendingEmailUserCreds != null) {
-        val email = viewModel.pendingEmailUserCreds?.email ?: ""
-        val password = viewModel.pendingEmailUserCreds?.password ?: ""
-
-        Row(
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Spacer(modifier = Modifier.weight(1.0F))
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.email_signup_verification_message, email),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Button(
-                    onClick = {
-                        viewModel.login(email, password)
-                    }, colors = ButtonDefaults.buttonColors(
-                        contentColor = Color(0xFF3D3D3D), containerColor = Color(0xffffd234)
-                    )
-                ) {
-                    Text(
-                        text = stringResource(R.string.email_signup_check_status),
-                        modifier = Modifier.padding(horizontal = 100.dp)
-                    )
-                }
-
-                ClickableText(
-                    text = AnnotatedString(stringResource(R.string.email_signup_action_use_different_email)),
-                    style = MaterialTheme.typography.titleMedium.plus(TextStyle(textDecoration = TextDecoration.Underline)),
-                    onClick = { viewModel.resetState() }
-                )
-            }
-        }
-    } else {
-        EmailSignUpForm(viewModel = viewModel)
-    }
+    EmailSignUpForm(viewModel = viewModel)
 }
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun EmailSignUpForm(viewModel: LoginViewModel) {
+fun EmailSignUpForm(
+    viewModel: OnboardingViewModel
+) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var name by rememberSaveable { mutableStateOf("") }
@@ -224,7 +180,7 @@ fun EmailSignUpFields(
             }
         )
 
-        Button(
+        OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 if (email.isNotBlank() && password.isNotBlank() && username.isNotBlank() && name.isNotBlank()) {

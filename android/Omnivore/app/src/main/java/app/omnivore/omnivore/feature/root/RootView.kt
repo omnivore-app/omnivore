@@ -38,7 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import app.omnivore.omnivore.core.designsystem.theme.OmnivoreBrand
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.feature.onboarding.OnboardingScreen
 import app.omnivore.omnivore.feature.following.FollowingScreen
 import app.omnivore.omnivore.feature.library.LibraryView
@@ -54,14 +54,14 @@ import app.omnivore.omnivore.navigation.TopLevelDestination
 
 @Composable
 fun RootView(
-    loginViewModel: LoginViewModel = hiltViewModel()
+    onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
 
-    val followingTabActive by loginViewModel.followingTabActiveState.collectAsStateWithLifecycle()
-    val hasAuthToken by loginViewModel.hasAuthTokenState.collectAsStateWithLifecycle()
+    val followingTabActive by onboardingViewModel.followingTabActiveState.collectAsStateWithLifecycle()
+    val hasAuthToken by onboardingViewModel.hasAuthTokenState.collectAsStateWithLifecycle()
 
     val destinations = if (followingTabActive) {
         TopLevelDestination.entries
@@ -69,7 +69,9 @@ fun RootView(
         TopLevelDestination.entries.filter { it.route != Routes.Following.route }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
         if (navController.currentBackStackEntryAsState().value?.destination?.route in TopLevelDestination.entries.map { it.route }) {
             OmnivoreBottomBar(
                 navController,
@@ -97,7 +99,7 @@ fun RootView(
             )
             LaunchedEffect(hasAuthToken) {
                 if (hasAuthToken) {
-                    loginViewModel.registerUser()
+                    onboardingViewModel.registerUser()
                 }
             }
         }
@@ -119,7 +121,7 @@ fun PrimaryNavigator(
     ) {
 
         composable(Routes.Welcome.route) {
-            OnboardingScreen(navController = navController)
+            OnboardingScreen()
         }
 
         navigation(
@@ -217,8 +219,3 @@ private fun OmnivoreBottomBar(
         }
     }
 }
-
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.name, true) ?: false
-    } ?: false

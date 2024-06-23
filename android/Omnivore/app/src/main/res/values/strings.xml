@@ -49,7 +49,7 @@
     <!-- Email Sign Up -->
     <string name="email_signup_verification_message">We\'ve sent a verification email to %1$s. Please verify your email and then tap the button below.</string>
     <string name="email_signup_check_status">Check Status</string>
-    <string name="email_signup_action_use_different_email">Use a different email?</string>
+    <string name="email_signup_action_use_different_email">Use a different email? Back</string>
     <string name="email_signup_loading">Loading...</string>
     <string name="email_signup_action_back">Return to Social Login</string>
     <string name="email_signup_action_already_have_account">Already have an account?</string>

@@ -21,10 +21,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.feature.onboarding.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.feature.onboarding.auth.provider.AppleAuthButton
 import app.omnivore.omnivore.feature.onboarding.auth.provider.GoogleAuthButton
 import app.omnivore.omnivore.navigation.Routes
@@ -32,9 +31,8 @@ import com.google.android.gms.common.GoogleApiAvailability
 
 @Composable
 fun AuthProviderScreen(
-    navController: NavHostController,
     welcomeNavController: NavHostController,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel
 ) {
     val isGoogleAuthAvailable: Boolean =
         GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LocalContext.current) == 0

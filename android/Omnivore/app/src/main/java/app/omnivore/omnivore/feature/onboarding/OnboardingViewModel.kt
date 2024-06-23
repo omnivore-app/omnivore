@@ -58,7 +58,7 @@ data class PendingEmailUserCreds(
 )
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class OnboardingViewModel @Inject constructor(
     private val datastoreRepository: DatastoreRepository,
     private val eventTracker: EventTracker,
     private val networker: Networker,
@@ -70,6 +70,9 @@ class LoginViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
         private set
 
+    private val _navigateToCreateUser = MutableStateFlow(false)
+    val navigateToCreateUser: StateFlow<Boolean> get() = _navigateToCreateUser.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> get() = _errorMessage.asStateFlow()
 
@@ -79,8 +82,8 @@ class LoginViewModel @Inject constructor(
     var usernameValidationErrorMessage by mutableStateOf<String?>(null)
         private set
 
-    var pendingEmailUserCreds by mutableStateOf<PendingEmailUserCreds?>(null)
-        private set
+    private val _pendingEmailUserCreds = MutableStateFlow<PendingEmailUserCreds?>(null)
+    val pendingEmailUserCreds: StateFlow<PendingEmailUserCreds?> get() = _pendingEmailUserCreds.asStateFlow()
 
     val hasAuthTokenState: StateFlow<Boolean> =
         datastoreRepository.hasAuthTokenFlow.distinctUntilChanged().stateIn(
@@ -109,6 +112,14 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun onNavigateToCreateUserHandled() {
+        _navigateToCreateUser.value = false
+    }
+
+    fun onNavigateToEmailConfirmationHandled() {
+        _pendingEmailUserCreds.value = null
+    }
+
     fun resetSelfHostingDetails(context: Context) {
         viewModelScope.launch {
             datastoreRepository.clearValue(omnivoreSelfHostedApiServer)
@@ -123,7 +134,7 @@ class LoginViewModel @Inject constructor(
 
     private fun showEmailSignUp(pendingCreds: PendingEmailUserCreds? = null) {
         resetState()
-        pendingEmailUserCreds = pendingCreds
+        setPendingEmailUserCreds(pendingCreds)
     }
 
     fun cancelNewUserSignUp() {
@@ -131,7 +142,6 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             datastoreRepository.clearValue(omnivorePendingUserToken)
         }
-        resetState()
     }
 
     fun registerUser() {
@@ -141,6 +151,14 @@ class LoginViewModel @Inject constructor(
                 eventTracker.registerUser(viewer.userID, viewer.intercomHash, BuildConfig.DEBUG)
             }
         }
+    }
+
+    private fun setPendingEmailUserCreds(pendingCreds: PendingEmailUserCreds? = null) {
+        _pendingEmailUserCreds.value = pendingCreds
+    }
+
+    private fun resetPendingEmailUserCreds() {
+        _pendingEmailUserCreds.value = null
     }
 
     private fun setErrorMessage(message: String) {
@@ -157,7 +175,7 @@ class LoginViewModel @Inject constructor(
         resetErrorMessage()
         hasValidUsername = false
         usernameValidationErrorMessage = null
-        pendingEmailUserCreds = null
+        resetPendingEmailUserCreds()
     }
 
     fun validateUsername(potentialUsername: String) {
@@ -280,7 +298,7 @@ class LoginViewModel @Inject constructor(
             if (result.errorBody() != null) {
                 setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_error_msg))
             } else {
-                pendingEmailUserCreds = PendingEmailUserCreds(email, password)
+                setPendingEmailUserCreds(PendingEmailUserCreds(email, password))
             }
         }
     }
@@ -410,7 +428,7 @@ class LoginViewModel @Inject constructor(
             datastoreRepository.putString(
                 omnivorePendingUserToken, result.body()?.pendingUserToken!!
             )
-            // TODO go to pending user
+            _navigateToCreateUser.value = true // TODO go to pending user
         } else {
             setErrorMessage(resourceProvider.getString(R.string.login_view_model_something_went_wrong_two_error_msg))
         }
