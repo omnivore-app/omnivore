@@ -57,6 +57,8 @@ export type Shortcut = {
   label?: Label
 
   join?: string
+
+  children?: Shortcut[]
 }
 
 type NavigationMenuProps = {
@@ -93,7 +95,20 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
           zIndex: 5,
         }}
       >
+        {/* This gives a header when scrolling so the menu button is visible still */}
+        <Box
+          css={{
+            position: 'fixed',
+            width: LIBRARY_LEFT_MENU_WIDTH,
+            top: '0',
+            left: '0',
+            height: '60px',
+            bg: '$thLeftMenuBackground',
+            zIndex: '100',
+          }}
+        ></Box>
         <Box css={{ width: '100%', height: '60px' }}></Box>
+
         <LibraryNav {...props} />
         <Shortcuts {...props} />
         <NavMenuFooter {...props} showFullThemeSection={true} />
@@ -518,8 +533,38 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
     [tree, router]
   )
 
+  function countTotalShortcuts(shortcuts: Shortcut[]): number {
+    let total = 0
+
+    for (const shortcut of shortcuts) {
+      // Count the current shortcut
+      total++
+
+      // If the shortcut has children, recursively count them
+      if (shortcut.children && shortcut.children.length > 0) {
+        total += countTotalShortcuts(shortcut.children)
+      }
+    }
+
+    return total
+  }
+
+  const maximumHeight = useMemo(() => {
+    // recurse the tree
+    return countTotalShortcuts(data as Shortcut[]) * 36
+  }, [data])
+
+  console.log('maximumHeight: ', maximumHeight)
+
   return (
-    <div ref={ref}>
+    <Box
+      ref={ref}
+      css={{
+        height: maximumHeight,
+        flexGrow: 1,
+        minBlockSize: 0,
+      }}
+    >
       {!isValidating && (
         <Tree
           ref={props.treeRef}
@@ -533,12 +578,12 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
           rowHeight={36}
           initialOpenState={folderOpenState}
           width={width}
-          height={640}
+          height={maximumHeight}
         >
           {NodeRenderer}
         </Tree>
       )}
-    </div>
+    </Box>
   )
 }
 
