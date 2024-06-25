@@ -17,7 +17,6 @@ import { ThemeId, theme } from '../tokens/stitches.config'
 import { NavigationMenu } from './navMenu/NavigationMenu'
 import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
-import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { LIBRARY_LEFT_MENU_WIDTH } from './navMenu/LibraryLegacyMenu'
 import { AddLinkModal } from './AddLinkModal'
 import { saveUrlMutation } from '../../lib/networking/mutations/saveUrlMutation'
@@ -39,6 +38,9 @@ type NavigationLayoutProps = {
   rightPane?: ReactNode
   section: NavigationSection
   pageMetaDataProps?: PageMetaDataProps
+
+  showNavigationMenu: boolean
+  setShowNavigationMenu: (show: boolean) => void
 }
 
 export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
@@ -49,12 +51,6 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
-
-  const [showNavMenu, setShowNavMenu, isLoading] = usePersistedState<boolean>({
-    key: 'nav-show-menu',
-    isSessionStorage: false,
-    initialValue: true,
-  })
 
   useKeyboardShortcuts(navigationCommands(router))
 
@@ -136,15 +132,15 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
     }
   }, [showLogout])
 
-  if (isLoading) {
-    return (
-      <HStack
-        css={{ width: '100vw', height: '100vh' }}
-        distribution="start"
-        alignment="start"
-      ></HStack>
-    )
-  }
+  // if (isLoading) {
+  //   return (
+  //     <HStack
+  //       css={{ width: '100vw', height: '100vh' }}
+  //       distribution="start"
+  //       alignment="start"
+  //     ></HStack>
+  //   )
+  // }
 
   return (
     <HStack
@@ -157,17 +153,17 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       ) : null}
 
       <Header
-        menuOpen={showNavMenu}
+        menuOpen={props.showNavigationMenu}
         toggleMenu={() => {
-          setShowNavMenu(!showNavMenu)
+          props.setShowNavigationMenu(!props.showNavigationMenu)
         }}
       />
-      {!isLoading && showNavMenu && (
+      {props.showNavigationMenu && (
         <>
           <NavigationMenu
             section={props.section}
             setShowAddLinkModal={setShowAddLinkModal}
-            showMenu={showNavMenu}
+            showMenu={props.showNavigationMenu}
           />
           <SpanBox
             css={{
