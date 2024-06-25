@@ -1415,6 +1415,7 @@ export type HomeItem = {
   canArchive?: Maybe<Scalars['Boolean']>;
   canComment?: Maybe<Scalars['Boolean']>;
   canDelete?: Maybe<Scalars['Boolean']>;
+  canMove?: Maybe<Scalars['Boolean']>;
   canSave?: Maybe<Scalars['Boolean']>;
   canShare?: Maybe<Scalars['Boolean']>;
   date: Scalars['Date'];
@@ -6398,6 +6399,7 @@ export type HomeItemResolvers<ContextType = ResolverContext, ParentType extends 
   canArchive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canComment?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canDelete?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  canMove?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canSave?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canShare?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   date?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
