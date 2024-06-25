@@ -90,6 +90,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           },
           '@xlgDown': {
             px: props.showFilterMenu ? '0px' : '40px',
+            pr: '0px',
           },
         }}
       >
