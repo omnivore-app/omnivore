@@ -16,6 +16,7 @@ export type LinkedItemCardAction =
   | 'open-notebook'
   | 'unsubscribe'
   | 'update-item'
+  | 'move-to-inbox'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode

@@ -13,6 +13,7 @@ import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { updatePageMutation } from '../mutations/updatePageMutation'
 import { gqlFetcher } from '../networkHelpers'
 import { Label } from './../fragments/labelFragment'
+import { moveToFolderMutation } from '../mutations/moveToLibraryMutation'
 
 export interface ReadableItem {
   id: string
@@ -51,6 +52,7 @@ type LibraryItemAction =
   | 'refresh'
   | 'unsubscribe'
   | 'update-item'
+  | 'move-to-inbox'
 
 export type LibraryItemsData = {
   search: LibraryItems
@@ -298,16 +300,11 @@ export function useGetLibraryItemsQuery(
 
       for (const searchResults of responsePages) {
         const itemIndex = getIndexOf(searchResults.search, item)
-        console.log(' --- item index', itemIndex)
         if (itemIndex !== -1) {
           if (typeof mutatedItem === 'undefined') {
             searchResults.search.edges.splice(itemIndex, 1)
           } else {
             searchResults.search.edges.splice(itemIndex, 1, mutatedItem)
-            console.log(
-              'earchResults.search.edges:',
-              searchResults.search.edges[itemIndex]
-            )
           }
           break
         }
@@ -316,8 +313,26 @@ export function useGetLibraryItemsQuery(
     }
 
     switch (action) {
+      case 'move-to-inbox':
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            folder: 'inbox',
+          },
+        })
+
+        moveToFolderMutation(item.cursor, 'inbox').then((res) => {
+          if (res) {
+            showSuccessToast('Link moved', { position: 'bottom-right' })
+          } else {
+            showErrorToast('Error moving link', { position: 'bottom-right' })
+          }
+        })
+
+        mutate()
+        break
       case 'archive':
-        console.log('setting item archived')
         updateData({
           cursor: item.cursor,
           node: {
@@ -341,17 +356,13 @@ export function useGetLibraryItemsQuery(
 
         break
       case 'unarchive':
-        if (/in:all/.test(query)) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              isArchived: false,
-            },
-          })
-        } else {
-          updateData(undefined)
-        }
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            isArchived: false,
+          },
+        })
 
         setLinkArchivedMutation({
           linkId: item.node.id,
@@ -365,9 +376,16 @@ export function useGetLibraryItemsQuery(
             })
           }
         })
+        mutate()
         break
       case 'delete':
-        updateData(undefined)
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            state: State.DELETED,
+          },
+        })
 
         const pageId = item.node.id
         deleteLinkMutation(pageId).then((res) => {
