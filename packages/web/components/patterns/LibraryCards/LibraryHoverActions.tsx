@@ -81,7 +81,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           onClick={async (event) => {
             event.preventDefault()
             event.stopPropagation()
-            props.handleAction('moveToInbox')
+            props.handleAction('move-to-inbox')
           }}
         >
           <MoveToInboxIcon
