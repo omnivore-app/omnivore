@@ -28,6 +28,7 @@ import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
+import { SyncLoader } from 'react-spinners'
 
 export function HomeContainer(): JSX.Element {
   const router = useRouter()
@@ -43,6 +44,23 @@ export function HomeContainer(): JSX.Element {
   useEffect(() => {
     window.localStorage.setItem('nav-return', router.asPath)
   }, [router.asPath])
+
+  if (homeData.error && homeData.errorMessage == 'PENDING') {
+    return (
+      <VStack
+        distribution="center"
+        alignment="center"
+        css={{
+          width: '100%',
+          bg: '$readerBg',
+          minHeight: '100vh',
+          minWidth: '320px',
+        }}
+      >
+        <SyncLoader color={theme.colors.omnivoreGray.toString()} size={8} />
+      </VStack>
+    )
+  }
 
   return (
     <VStack
@@ -74,11 +92,11 @@ export function HomeContainer(): JSX.Element {
         }}
       >
         {homeData.sections?.map((homeSection, idx) => {
-          if (homeSection.items.length < 1) {
-            return <SpanBox key={`section-${idx}`}></SpanBox>
-          }
           switch (homeSection.layout) {
             case 'just_added':
+              if (homeSection.items.length < 1) {
+                return <SpanBox key={`section-${idx}`}></SpanBox>
+              }
               return (
                 <JustAddedHomeSection
                   key={`section-${idx}`}
@@ -103,6 +121,9 @@ export function HomeContainer(): JSX.Element {
                 />
               )
             case 'hidden':
+              if (homeSection.items.length < 1) {
+                return <SpanBox key={`section-${idx}`}></SpanBox>
+              }
               return (
                 <HiddenHomeSection
                   key={`section-${idx}`}
@@ -235,19 +256,35 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
 
   const [items, dispatchList] = useReducer(listReducer, [])
 
-  function handleDelete(item: HomeItem) {
-    dispatchList({
-      type: 'REMOVE_ITEM',
-      itemId: item.id,
-    })
-  }
-
   useEffect(() => {
     dispatchList({
       type: 'RESET',
       items: props.homeSection.items,
     })
   }, [props])
+
+  console.log(
+    'props.homeSection.items.length: ',
+    props.homeSection.items.length
+  )
+  if (props.homeSection.items.length < 1) {
+    return (
+      <VStack
+        distribution="start"
+        css={{
+          height: '540px',
+          width: '100%',
+          gap: '20px',
+          '@mdDown': {
+            gap: '10px',
+          },
+          bg: '$homeCardHover',
+        }}
+      >
+        Your top picks are empty.
+      </VStack>
+    )
+  }
 
   return (
     <VStack
