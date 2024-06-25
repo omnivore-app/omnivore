@@ -31,6 +31,8 @@ export enum State {
   SUCCEEDED = 'SUCCEEDED',
   PROCESSING = 'PROCESSING',
   FAILED = 'FAILED',
+  DELETED = 'DELETED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export enum PageType {

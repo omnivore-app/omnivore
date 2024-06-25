@@ -82,6 +82,7 @@ export type LibraryItemNode = {
   readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
+  folder?: string
   isArchived: boolean
   description: string
   ownedByViewer: boolean
@@ -168,6 +169,7 @@ export function useGetLibraryItemsQuery(
               title
               slug
               url
+              folder
               pageType
               contentReader
               createdAt
@@ -284,6 +286,7 @@ export function useGetLibraryItemsQuery(
     action: LibraryItemAction,
     item: LibraryItem
   ) => {
+    console.log('performing action on items: ', action)
     if (!responsePages) {
       return
     }
@@ -295,11 +298,16 @@ export function useGetLibraryItemsQuery(
 
       for (const searchResults of responsePages) {
         const itemIndex = getIndexOf(searchResults.search, item)
+        console.log(' --- item index', itemIndex)
         if (itemIndex !== -1) {
           if (typeof mutatedItem === 'undefined') {
             searchResults.search.edges.splice(itemIndex, 1)
           } else {
             searchResults.search.edges.splice(itemIndex, 1, mutatedItem)
+            console.log(
+              'earchResults.search.edges:',
+              searchResults.search.edges[itemIndex]
+            )
           }
           break
         }
@@ -309,17 +317,14 @@ export function useGetLibraryItemsQuery(
 
     switch (action) {
       case 'archive':
-        if (/in:all/.test(query)) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              isArchived: true,
-            },
-          })
-        } else {
-          updateData(undefined)
-        }
+        console.log('setting item archived')
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            isArchived: true,
+          },
+        })
 
         setLinkArchivedMutation({
           linkId: item.node.id,
@@ -331,6 +336,8 @@ export function useGetLibraryItemsQuery(
             showErrorToast('Error archiving link', { position: 'bottom-right' })
           }
         })
+
+        mutate()
 
         break
       case 'unarchive':
@@ -421,27 +428,6 @@ export function useGetLibraryItemsQuery(
           readingProgressAnchorIndex: 0,
         })
         break
-      // case 'unsubscribe':
-      //   if (!!item.node.subscription) {
-      //     updateData({
-      //       cursor: item.cursor,
-      //       node: {
-      //         ...item.node,
-      //         subscription: undefined,
-      //       },
-      //     })
-      //     unsubscribeMutation(item.node.subscription).then((res) => {
-      //       if (res) {
-      //         showSuccessToast('Unsubscribed successfully', {
-      //           position: 'bottom-right',
-      //         })
-      //       } else {
-      //         showErrorToast('Error unsubscribing', {
-      //           position: 'bottom-right',
-      //         })
-      //       }
-      //     })
-      //   }
       case 'update-item':
         updateData(item)
         break

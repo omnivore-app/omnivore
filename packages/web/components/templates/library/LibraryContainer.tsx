@@ -19,6 +19,7 @@ import {
 } from '../../../lib/networking/queries/typeaheadSearch'
 import type {
   LibraryItem,
+  LibraryItemNode,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
@@ -75,6 +76,7 @@ const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
 type LibraryContainerProps = {
   folder: string
+  filterFunc: (item: LibraryItemNode) => boolean
 }
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
@@ -92,13 +94,11 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [notebookTarget, setNotebookTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -151,12 +151,14 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const libraryItems = useMemo(() => {
     const items =
-      itemsPages?.flatMap((ad) => {
-        return ad.search.edges.map((it) => ({
-          ...it,
-          isLoading: it.node.state === 'PROCESSING',
-        }))
-      }) || []
+      itemsPages
+        ?.flatMap((ad) => {
+          return ad.search.edges.map((it) => ({
+            ...it,
+            isLoading: it.node.state === 'PROCESSING',
+          }))
+        })
+        .filter((item) => props.filterFunc(item.node)) || []
     return items
   }, [itemsPages, performActionOnItem])
 
