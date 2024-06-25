@@ -1,16 +1,30 @@
-package app.omnivore.omnivore.feature.auth
+package app.omnivore.omnivore.feature.onboarding.auth
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,20 +38,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.core.designsystem.component.DividerWithText
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
+import app.omnivore.omnivore.utils.SELF_HOSTING_URL
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun SelfHostedView(viewModel: LoginViewModel) {
+fun SelfHostedScreen(
+    viewModel: OnboardingViewModel = hiltViewModel()
+) {
     var apiServer by rememberSaveable { mutableStateOf("") }
     var webServer by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
 
     Row(
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(bottom = 64.dp)
     ) {
         Spacer(modifier = Modifier.weight(1.0F))
         Column(
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -48,51 +69,25 @@ fun SelfHostedView(viewModel: LoginViewModel) {
                 onWebServerChange = { webServer = it },
                 onSaveClick = {
                     viewModel.setSelfHostingDetails(context, apiServer, webServer)
-                }
+                },
+                onResetClick = { viewModel.resetSelfHostingDetails(context) },
+                isLoading = viewModel.isLoading
             )
 
-            // TODO: add a activity indicator (maybe after a delay?)
-            if (viewModel.isLoading) {
-                Text(stringResource(R.string.self_hosted_view_loading))
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.Center,
+            Column(
+                modifier = Modifier.padding(top = 16.dp)
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    ClickableText(
-                        text = AnnotatedString(stringResource(R.string.self_hosted_view_action_reset)),
-                        style = MaterialTheme.typography.titleMedium
-                            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-                        onClick = { viewModel.resetSelfHostingDetails(context) },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    ClickableText(
-                        text = AnnotatedString(stringResource(R.string.self_hosted_view_action_back)),
-                        style = MaterialTheme.typography.titleMedium
-                            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-                        onClick = { viewModel.showSocialLogin() },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.weight(1.0F))
-//                Text("Omnivore is a free and open-source software project and allows self hosting. \n\n" +
-//                        "If you have chosen to deploy your own server instance, fill in the above fields to " +
-//                        "your private self-hosted instance.\n\n"
-//                )
-                    ClickableText(
-                        text = AnnotatedString(stringResource(R.string.self_hosted_view_action_learn_more)),
-                        style = MaterialTheme.typography.titleMedium
-                            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-                        onClick = {
-                            val uri = Uri.parse("https://docs.omnivore.app/self-hosting/self-hosting.html")
-                            val browserIntent = Intent(Intent.ACTION_VIEW, uri)
-                            ContextCompat.startActivity(context, browserIntent, null)
-                        },
-                        modifier = Modifier.padding(vertical = 10.dp)
-                    )
-                }
+                ClickableText(
+                    text = AnnotatedString(stringResource(R.string.self_hosted_view_action_learn_more)),
+                    style = MaterialTheme.typography.titleMedium
+                        .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+                    onClick = {
+                        val uri = Uri.parse(SELF_HOSTING_URL)
+                        val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+                        ContextCompat.startActivity(context, browserIntent, null)
+                    },
+                    modifier = Modifier.padding(vertical = 10.dp)
+                )
             }
         }
         Spacer(modifier = Modifier.weight(1.0F))
@@ -105,19 +100,19 @@ fun SelfHostedFields(
     webServer: String,
     onAPIServerChange: (String) -> Unit,
     onWebServerChange: (String) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onResetClick: () -> Unit,
+    isLoading: Boolean
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp),
-        verticalArrangement = Arrangement.spacedBy(25.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
             value = apiServer,
             placeholder = { Text(text = "https://api-prod.omnivore.app/") },
             label = { Text(stringResource(R.string.self_hosted_view_field_api_url_label)) },
@@ -130,6 +125,7 @@ fun SelfHostedFields(
         )
 
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
             value = webServer,
             placeholder = { Text(text = "https://omnivore.app/") },
             label = { Text(stringResource(R.string.self_hosted_view_field_web_url_label)) },
@@ -141,7 +137,9 @@ fun SelfHostedFields(
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
 
-        Button(onClick = {
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
             if (apiServer.isNotBlank() && webServer.isNotBlank()) {
                 onSaveClick()
                 focusManager.clearFocus()
@@ -158,8 +156,28 @@ fun SelfHostedFields(
         )
         ) {
             Text(
-                text = stringResource(R.string.self_hosted_view_action_save),
-                modifier = Modifier.padding(horizontal = 100.dp)
+                text = stringResource(R.string.self_hosted_view_action_save).uppercase(),
+            )
+            if (isLoading) {
+                Spacer(modifier = Modifier.width(16.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .height(16.dp)
+                        .width(16.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        DividerWithText(text = "or")
+
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onResetClick() }
+        ) {
+            Text(
+                text = "Reset".uppercase()
             )
         }
     }
