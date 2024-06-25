@@ -51,6 +51,7 @@ export function useGetHiddenHomeSection(): HiddenHomeSectionResponse {
                 type
               }
               canSave
+              canMove
               canComment
               canShare
               canArchive

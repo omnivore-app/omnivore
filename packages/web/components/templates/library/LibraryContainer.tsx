@@ -144,6 +144,24 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     } else setSearchResults([])
   }, [queryValue])
 
+  useEffect(() => {
+    if (!router.isReady) return
+    const q = router.query['q']
+    let qs = 'in:inbox' // Default to in:inbox search term.
+    if (q && typeof q === 'string') {
+      qs = q
+    }
+
+    if (qs !== (queryInputs.searchQuery || '')) {
+      setQueryInputs({ ...queryInputs, searchQuery: qs })
+      performActionOnItem('refresh', undefined as unknown as any)
+    }
+
+    // intentionally not watching queryInputs and performActionOnItem
+    // here to prevent infinite looping
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setQueryInputs, router.isReady, router.query])
+
   const hasMore = useMemo(() => {
     if (!itemsPages) {
       return false
