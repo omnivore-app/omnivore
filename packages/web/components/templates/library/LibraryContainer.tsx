@@ -995,7 +995,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
         {showItems && (
           <LibraryItemsLayout
-            folder={props.folder}
             viewer={viewerData?.me}
             layout={layout}
             isChecked={props.itemIsChecked}
