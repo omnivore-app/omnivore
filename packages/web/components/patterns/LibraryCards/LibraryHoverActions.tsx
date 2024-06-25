@@ -13,7 +13,6 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { BrowserIcon } from '../../elements/icons/BrowserIcon'
-import { LibraryIcon } from '../../elements/icons/LibraryIcon'
 import useLibraryItemActions from '../../../lib/hooks/useLibraryItemActions'
 import { MoveToInboxIcon } from '../../elements/icons/MoveToInboxIcon'
 
@@ -82,9 +81,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           onClick={async (event) => {
             event.preventDefault()
             event.stopPropagation()
-            if (await moveItem(props.item.id)) {
-              props.handleAction('update-item')
-            }
+            props.handleAction('moveToInbox')
           }}
         >
           <MoveToInboxIcon
