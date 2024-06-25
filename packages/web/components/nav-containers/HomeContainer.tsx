@@ -75,7 +75,6 @@ export function HomeContainer(): JSX.Element {
       >
         {homeData.sections?.map((homeSection, idx) => {
           if (homeSection.items.length < 1) {
-            console.log('empty home section: ', homeSection)
             return <SpanBox key={`section-${idx}`}></SpanBox>
           }
           switch (homeSection.layout) {
@@ -224,7 +223,6 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
       items?: HomeItem[]
     }
   ) => {
-    console.log('handling action: ', action)
     switch (action.type) {
       case 'RESET':
         return action.items ?? []
