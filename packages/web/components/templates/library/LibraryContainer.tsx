@@ -53,6 +53,9 @@ import { PinnedButtons } from '../homeFeed/PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { FetchItemsError } from '../homeFeed/FetchItemsError'
 import { LibraryHeader } from './LibraryHeader'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { theme } from '../../tokens/stitches.config'
+import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -805,6 +808,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   return (
     <HomeFeedGrid
+      folder={props.folder}
       items={libraryItems}
       actionHandler={handleCardAction}
       reloadItems={mutate}
@@ -870,6 +874,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 }
 
 export type HomeFeedContentProps = {
+  folder: string
   items: LibraryItem[]
   searchTerm?: string
   reloadItems: () => void
@@ -1009,6 +1014,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 }
 
 type LibraryItemsLayoutProps = {
+  folder: string
+
   layout: LayoutType
   viewer?: UserBasicData
 
@@ -1087,6 +1094,63 @@ export function LibraryItemsLayout(
           />
         </SpanBox>
 
+        {props.folder == 'trash' && (
+          <VStack
+            css={{
+              alignSelf: 'flex-start',
+              '-ms-overflow-style': 'none',
+              scrollbarWidth: 'none',
+              '::-webkit-scrollbar': {
+                display: 'none',
+              },
+              '@lgDown': {
+                display: 'none',
+              },
+              fontSize: '13px',
+              color: '$readerTextSubtle',
+              mt: '10px',
+              mb: '10px',
+              px: '70px',
+              '@xlgDown': {
+                px: '0px',
+              },
+            }}
+            distribution="start"
+          >
+            <HStack
+              alignment="center"
+              distribution="start"
+              css={{ gap: '10px' }}
+            >
+              <SpanBox css={{ pt: '4px' }}>
+                <TrashIcon
+                  size={18}
+                  color={theme.colors.thNotebookSubtle.toString()}
+                />
+              </SpanBox>
+              <VStack>
+                Items that remain in your trash for 14 days will be permanently
+                deleted.
+                <Button
+                  style="link"
+                  css={{ textDecoration: 'underline' }}
+                  onClick={async (event) => {
+                    event.preventDefault()
+                    await emptyTrashMutation()
+                    showSuccessToast('Emptying trash')
+                    setTimeout(() => {
+                      props.actionHandler('refresh', undefined)
+                    }, 500)
+                  }}
+                >
+                  Empty trash now
+                </Button>
+              </VStack>
+            </HStack>
+            <hr />
+          </VStack>
+        )}
+
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <div
           onDragEnter={(event) => {
@@ -1099,6 +1163,7 @@ export function LibraryItemsLayout(
           style={{ height: '100%', width: '100%' }}
         >
           <LibraryItems
+            folder={props.folder}
             items={props.items}
             layout={props.layout}
             viewer={props.viewer}
@@ -1187,6 +1252,7 @@ export function LibraryItemsLayout(
 }
 
 type LibraryItemsProps = {
+  folder: string
   items: LibraryItem[]
   layout: LayoutType
   viewer: UserBasicData | undefined
