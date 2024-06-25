@@ -427,6 +427,7 @@ export function useGetLibraryItemsQuery(
           readingProgressTopPercent: 100,
           readingProgressAnchorIndex: 0,
         })
+        mutate()
         break
       case 'mark-unread':
         updateData({
@@ -445,9 +446,11 @@ export function useGetLibraryItemsQuery(
           readingProgressTopPercent: 0,
           readingProgressAnchorIndex: 0,
         })
+        mutate()
         break
       case 'update-item':
         updateData(item)
+        mutate()
         break
       case 'refresh':
         await mutate()
