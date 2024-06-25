@@ -934,7 +934,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         py: '20px',
         width: '100%',
         '@mdDown': {
-          px: layout == 'GRID_LAYOUT' ? '20px' : '0px',
+          px: '0px',
         },
       }}
       distribution="start"
@@ -1030,6 +1030,9 @@ export function LibraryItemsLayout(
           height: '100%',
           width: '100%',
           paddingX: '40px',
+          '@mdDown': {
+            mx: props.layout == 'GRID_LAYOUT' ? '20px' : '0px',
+          },
         }}
       >
         <Toaster />

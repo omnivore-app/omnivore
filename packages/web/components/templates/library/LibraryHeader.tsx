@@ -38,27 +38,6 @@ export type LibraryHeaderProps = {
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 }
 
-export const headerControlWidths = (
-  layout: LayoutType,
-  multiSelectMode: MultiSelectMode
-) => {
-  return {
-    width: '95%',
-    '@mdDown': {
-      width: '100%',
-    },
-    '@media (min-width: 930px)': {
-      width: '620px',
-    },
-    '@media (min-width: 1280px)': {
-      width: '940px',
-    },
-    '@media (min-width: 1600px)': {
-      width: '1232px',
-    },
-  }
-}
-
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   const [small, setSmall] = useState(false)
 
@@ -89,8 +68,8 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
             right: '0',
           },
           '@xlgDown': {
-            px: props.showFilterMenu ? '0px' : '40px',
-            pr: '0px',
+            px: props.showFilterMenu ? '0px' : '60px',
+            pr: '10px',
           },
         }}
       >
