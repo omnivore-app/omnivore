@@ -147,8 +147,6 @@ export function useGetHomeItems(): HomeItemResponse {
   }
 
   const result = data as HomeResult
-  console.log('result: ', result)
-
   if (result && result.home.errorCodes) {
     const errorCodes = result.home.errorCodes
     return {
@@ -159,7 +157,6 @@ export function useGetHomeItems(): HomeItemResponse {
   }
 
   if (result && result.home && result.home.edges) {
-    console.log('data', result.home)
     return {
       mutate,
       error: false,

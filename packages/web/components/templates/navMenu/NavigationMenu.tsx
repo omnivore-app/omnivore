@@ -375,6 +375,7 @@ async function setShortcuts(
 
 async function resetShortcuts(path: string): Promise<Shortcut[]> {
   const url = new URL(path, fetchEndpoint)
+  console.log('resetting shortcuts')
   try {
     const response = await fetch(url.toString(), {
       method: 'DELETE',
@@ -399,10 +400,12 @@ async function resetShortcuts(path: string): Promise<Shortcut[]> {
 const cachedShortcutsData = (): Shortcut[] | undefined => {
   if (typeof localStorage !== 'undefined') {
     const str = localStorage.getItem('/api/shortcuts')
+    console.log('cached shortcuts: ', str)
     if (str) {
       return JSON.parse(str) as Shortcut[]
     }
   }
+  console.log('undefined shortcuts')
   return undefined
 }
 
@@ -411,6 +414,7 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
   const { ref, width, height } = useResizeObserver()
 
   const { isValidating, data } = useSWR('/api/shortcuts', getShortcuts, {
+    revalidateOnFocus: false,
     fallbackData: cachedShortcutsData(),
     onSuccess(data) {
       localStorage.setItem('/api/shortcuts', JSON.stringify(data))
