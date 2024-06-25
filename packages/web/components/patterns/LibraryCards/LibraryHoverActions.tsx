@@ -13,6 +13,9 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { BrowserIcon } from '../../elements/icons/BrowserIcon'
+import { LibraryIcon } from '../../elements/icons/LibraryIcon'
+import useLibraryItemActions from '../../../lib/hooks/useLibraryItemActions'
+import { MoveToInboxIcon } from '../../elements/icons/MoveToInboxIcon'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
@@ -25,6 +28,7 @@ type LibraryHoverActionsProps = {
 
 export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { moveItem } = useLibraryItemActions()
 
   return (
     <Box
@@ -71,28 +75,47 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           color={theme.colors.thNotebookSubtle.toString()}
         />
       </Button>
-      <Button
-        title={props.item.isArchived ? 'Unarchive (e)' : 'Archive (e)'}
-        style="hoverActionIcon"
-        onClick={(event) => {
-          const action = props.item.isArchived ? 'unarchive' : 'archive'
-          props.handleAction(action)
-          event.preventDefault()
-          event.stopPropagation()
-        }}
-      >
-        {props.item.isArchived ? (
-          <UnarchiveIcon
+      {props.item.folder == 'following' ? (
+        <Button
+          title="Move to library"
+          style="hoverActionIcon"
+          onClick={async (event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            if (await moveItem(props.item.id)) {
+              props.handleAction('update-item')
+            }
+          }}
+        >
+          <MoveToInboxIcon
             size={21}
             color={theme.colors.thNotebookSubtle.toString()}
           />
-        ) : (
-          <ArchiveIcon
-            size={21}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        )}
-      </Button>
+        </Button>
+      ) : (
+        <Button
+          title={props.item.isArchived ? 'Unarchive (e)' : 'Archive (e)'}
+          style="hoverActionIcon"
+          onClick={(event) => {
+            const action = props.item.isArchived ? 'unarchive' : 'archive'
+            props.handleAction(action)
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+        >
+          {props.item.isArchived ? (
+            <UnarchiveIcon
+              size={21}
+              color={theme.colors.thNotebookSubtle.toString()}
+            />
+          ) : (
+            <ArchiveIcon
+              size={21}
+              color={theme.colors.thNotebookSubtle.toString()}
+            />
+          )}
+        </Button>
+      )}
       <Button
         title="Remove (#)"
         style="hoverActionIcon"

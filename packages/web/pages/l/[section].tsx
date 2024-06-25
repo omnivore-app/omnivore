@@ -34,13 +34,46 @@ export default function Home(): JSX.Element {
       case 'highlights':
         return <HighlightsContainer />
       case 'library':
-        return <LibraryContainer folder="inbox" />
+        return (
+          <LibraryContainer
+            folder="inbox"
+            filterFunc={(item) => {
+              console.log('filtering: ', item)
+              return (
+                item.state != 'DELETED' &&
+                !item.isArchived &&
+                item.folder == 'inbox'
+              )
+            }}
+          />
+        )
       case 'subscriptions':
-        return <LibraryContainer folder="following" />
+        return (
+          <LibraryContainer
+            folder="following"
+            filterFunc={(item) => {
+              return (
+                item.state != 'DELETED' &&
+                !item.isArchived &&
+                item.folder == 'following'
+              )
+            }}
+          />
+        )
       case 'archive':
-        return <LibraryContainer folder="archive" />
+        return (
+          <LibraryContainer
+            folder="archive"
+            filterFunc={(item) => item.state != 'DELETED' && item.isArchived}
+          />
+        )
       case 'trash':
-        return <LibraryContainer folder="trash" />
+        return (
+          <LibraryContainer
+            folder="trash"
+            filterFunc={(item) => item.state == 'DELETED'}
+          />
+        )
 
       default:
         return <></>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
 import { setLinkArchivedMutation } from '../networking/mutations/setLinkArchivedMutation'
 import {
   showErrorToast,
@@ -8,6 +8,7 @@ import {
 import { deleteLinkMutation } from '../networking/mutations/deleteLinkMutation'
 import { updatePageMutation } from '../networking/mutations/updatePageMutation'
 import { State } from '../networking/fragments/articleFragment'
+import { moveToFolderMutation } from '../networking/mutations/moveToLibraryMutation'
 
 export default function useLibraryItemActions() {
   const archiveItem = useCallback(async (itemId: string) => {
@@ -51,15 +52,11 @@ export default function useLibraryItemActions() {
   }, [])
 
   const moveItem = useCallback(async (itemId: string) => {
-    const result = await setLinkArchivedMutation({
-      linkId: itemId,
-      archived: true,
-    })
-
+    const result = await moveToFolderMutation(itemId, 'inbox')
     if (result) {
-      showSuccessToast('Link archived', { position: 'bottom-right' })
+      showSuccessToast('Moved to library', { position: 'bottom-right' })
     } else {
-      showErrorToast('Error archiving link', { position: 'bottom-right' })
+      showErrorToast('Error moving item', { position: 'bottom-right' })
     }
 
     return !!result
