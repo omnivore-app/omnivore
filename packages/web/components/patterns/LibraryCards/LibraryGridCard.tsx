@@ -65,6 +65,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         pl: '0px',
         padding: '0px',
         width: '100%',
+        maxWidth: '400px',
         height: '100%',
         minHeight: '270px',
         borderRadius: '5px',

@@ -19,6 +19,7 @@ import {
 } from '../../../lib/networking/queries/typeaheadSearch'
 import type {
   LibraryItem,
+  LibraryItemNode,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
@@ -35,7 +36,7 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { AddLinkModal } from '../AddLinkModal'
 import { EditLibraryItemModal } from '../homeFeed/EditItemModals'
 import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
-import { LegacyLibraryHeader, MultiSelectMode } from '../homeFeed/LibraryHeader'
+import { MultiSelectMode } from '../homeFeed/LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -75,6 +76,9 @@ const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
 type LibraryContainerProps = {
   folder: string
+  filterFunc: (item: LibraryItemNode) => boolean
+
+  showNavigationMenu: boolean
 }
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
@@ -92,13 +96,11 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [notebookTarget, setNotebookTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -151,12 +153,14 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const libraryItems = useMemo(() => {
     const items =
-      itemsPages?.flatMap((ad) => {
-        return ad.search.edges.map((it) => ({
-          ...it,
-          isLoading: it.node.state === 'PROCESSING',
-        }))
-      }) || []
+      itemsPages
+        ?.flatMap((ad) => {
+          return ad.search.edges.map((it) => ({
+            ...it,
+            isLoading: it.node.state === 'PROCESSING',
+          }))
+        })
+        .filter((item) => props.filterFunc(item.node)) || []
     return items
   }, [itemsPages, performActionOnItem])
 
@@ -785,6 +789,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       setIsChecked={setIsChecked}
       itemIsChecked={itemIsChecked}
       multiSelectMode={multiSelectMode}
+      showNavigationMenu={props.showNavigationMenu}
       setMultiSelectMode={setMultiSelectMode}
       performMultiSelectAction={performMultiSelectAction}
       searchTerm={queryInputs.searchQuery}
@@ -883,6 +888,8 @@ export type HomeFeedContentProps = {
     locale: string
   ) => Promise<void>
 
+  showNavigationMenu: boolean
+
   setIsChecked: (itemId: string, set: boolean) => void
   itemIsChecked: (itemId: string) => boolean
 
@@ -937,9 +944,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         layout={layout}
         viewer={viewerData?.me}
         updateLayout={updateLayout}
-        showFilterMenu={true}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        setShowFilterMenu={() => {}}
+        showFilterMenu={props.showNavigationMenu}
         searchTerm={props.searchTerm}
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
