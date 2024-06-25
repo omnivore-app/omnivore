@@ -172,6 +172,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
           <SpanBox
             css={{
               width: LIBRARY_LEFT_MENU_WIDTH,
+              flexShrink: '0',
               '@mdDown': {
                 display: 'none',
               },
