@@ -70,9 +70,12 @@ export function HighlightsContainer(): JSX.Element {
   return (
     <VStack
       css={{
-        maxWidth: '70%',
         padding: '20px',
-        margin: '30px 50px 0 0',
+        margin: '30px',
+        '@mdDown': {
+          margin: '0px',
+          marginTop: '50px',
+        },
       }}
     >
       {highlights.map((highlight) => {
