@@ -164,6 +164,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
             section={props.section}
             setShowAddLinkModal={setShowAddLinkModal}
             showMenu={props.showNavigationMenu}
+            setShowMenu={props.setShowNavigationMenu}
           />
           <SpanBox
             css={{

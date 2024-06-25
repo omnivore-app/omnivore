@@ -46,7 +46,6 @@ export default function Home(): JSX.Element {
           <LibraryContainer
             folder="inbox"
             filterFunc={(item) => {
-              console.log('filtering: ', item)
               return (
                 item.state != 'DELETED' &&
                 !item.isArchived &&
