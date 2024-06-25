@@ -644,7 +644,7 @@ const TopPicksItemView = (
       </Box>
       <SpanBox css={{ px: '20px' }}></SpanBox>
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
-        {props.homeItem.canSave && (
+        {props.homeItem.canMove && (
           <Button
             style="homeAction"
             onClick={async (event) => {

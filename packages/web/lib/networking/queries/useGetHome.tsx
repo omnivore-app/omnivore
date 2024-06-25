@@ -35,6 +35,7 @@ export type HomeItem = {
   canComment?: boolean
   canDelete?: boolean
   canSave?: boolean
+  canMove?: boolean
   canShare?: boolean
   dir?: string
 
@@ -105,6 +106,7 @@ export function useGetHomeItems(): HomeItemResponse {
                   type
                 }
                 canSave
+                canMove
                 canComment
                 canShare
                 canArchive
