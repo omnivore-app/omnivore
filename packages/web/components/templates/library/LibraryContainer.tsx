@@ -162,6 +162,10 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setQueryInputs, router.isReady, router.query])
 
+  useEffect(() => {
+    window.localStorage.setItem('nav-return', router.asPath)
+  }, [router.asPath])
+
   const hasMore = useMemo(() => {
     if (!itemsPages) {
       return false
