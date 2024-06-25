@@ -17,6 +17,7 @@ export type LinkedItemCardAction =
   | 'unsubscribe'
   | 'update-item'
   | 'move-to-inbox'
+  | 'refresh'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode
