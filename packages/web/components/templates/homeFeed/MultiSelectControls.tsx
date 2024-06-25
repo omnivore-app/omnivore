@@ -21,9 +21,6 @@ export type MultiSelectProps = {
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 
-  showFilterMenu: boolean
-  setShowFilterMenu: (show: boolean) => void
-
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
