@@ -168,6 +168,7 @@ fun WebReader(
                     "utf-8",
                     null
                 )
+                Log.d("HTMLContent", styledContent)
                 requestFocus()
                 setOnKeyListener { _, keyCode, event ->
                     if (event.action == KeyEvent.ACTION_DOWN) {

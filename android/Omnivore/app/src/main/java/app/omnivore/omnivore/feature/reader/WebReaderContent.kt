@@ -7,32 +7,25 @@ import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
     INTER("Inter", "Inter"), SYSTEM("System Default", "system-ui"), OPEN_DYSLEXIC(
-        "Open Dyslexic",
-        "OpenDyslexic"
+        "Open Dyslexic", "OpenDyslexic"
     ),
     MERRIWEATHER("Merriweather", "Merriweather"), LORA("Lora", "Lora"), OPEN_SANS(
-        "Open Sans",
-        "Open Sans"
+        "Open Sans", "Open Sans"
     ),
     ROBOTO("Roboto", "Roboto"), CRIMSON_TEXT(
-        "Crimson Text",
-        "Crimson Text"
+        "Crimson Text", "Crimson Text"
     ),
     SOURCE_SERIF_PRO("Source Serif Pro", "Source Serif Pro"), NEWSREADER(
-        "Newsreader",
-        "Newsreader"
+        "Newsreader", "Newsreader"
     ),
     LEXEND("Lexend", "Lexend"), LXGWWENKAI(
-        "LXGW WenKai",
-        "LXGWWenKai"
+        "LXGW WenKai", "LXGWWenKai"
     ),
     ATKINSON_HYPERLEGIBLE(
-        "Atkinson Hyperlegible",
-        "AtkinsonHyperlegible"
+        "Atkinson Hyperlegible", "AtkinsonHyperlegible"
     ),
     SOURCE_SANS_PRO("Source Sans Pro", "SourceSansPro"), IBM_PLEX_SANS(
-        "IBM Plex Sans",
-        "IBMPlexSans"
+        "IBM Plex Sans", "IBMPlexSans"
     ),
     LITERATA("Literata", "Literata"), FRAUNCES("Fraunces", "Fraunces"),
 }
@@ -55,6 +48,7 @@ data class ArticleContent(
 
 data class WebReaderContent(
     val preferences: WebPreferences,
+    val rtlText: Boolean,
     val item: SavedItem,
     val articleContent: ArticleContent,
 ) {
@@ -68,6 +62,17 @@ data class WebReaderContent(
         val highlightCssFilePath =
             "highlight${if (preferences.themeKey == "Dark" || preferences.themeKey == "Black") "-dark" else ""}.css"
 
+        val rtlCss = if (rtlText) {
+            """
+            body, html, #_omnivore-htmlContent, p, a, div, span {
+                direction: rtl;
+                text-align: right;
+            }
+            """
+        } else {
+            ""
+        }
+
         Log.d("theme", "current theme is: ${preferences.themeKey}")
 
         Log.d("sync", "HIGHLIGHTS JSON:  ${articleContent.highlightsJSONString()}")
@@ -80,6 +85,7 @@ data class WebReaderContent(
               <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
                 <style>
                   @import url("$highlightCssFilePath");
+                  $rtlCss
                 </style>
             </head>
             <body>
