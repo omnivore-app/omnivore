@@ -4,18 +4,15 @@ import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { Button, IconButton } from '../../elements/Button'
+import { Button } from '../../elements/Button'
 import { FunnelSimple, X } from '@phosphor-icons/react'
-import { LayoutType, LibraryMode } from '../homeFeed/HomeFeedContainer'
+import { LayoutType } from '../homeFeed/HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from '../homeFeed/HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
-import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { userHasFeature } from '../../../lib/featureFlag'
 import {
   MultiSelectControls,
   CheckBoxButton,
@@ -33,7 +30,6 @@ export type LibraryHeaderProps = {
   applySearchQuery: (searchQuery: string) => void
 
   showFilterMenu: boolean
-  setShowFilterMenu: (show: boolean) => void
 
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
@@ -93,7 +89,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
             right: '0',
           },
           '@xlgDown': {
-            px: '40px',
+            px: props.showFilterMenu ? '0px' : '40px',
           },
         }}
       >

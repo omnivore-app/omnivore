@@ -8,10 +8,18 @@ import { HomeContainer } from '../../components/nav-containers/HomeContainer'
 import { LibraryContainer } from '../../components/templates/library/LibraryContainer'
 import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
   useApplyLocalTheme()
+
+  const [showNavigationMenu, setShowNavigationMenu] =
+    usePersistedState<boolean>({
+      key: 'nav-show-menu',
+      isSessionStorage: false,
+      initialValue: true,
+    })
 
   const section: NavigationSection | undefined = useMemo(() => {
     if (!router.isReady) {
@@ -45,6 +53,7 @@ export default function Home(): JSX.Element {
                 item.folder == 'inbox'
               )
             }}
+            showNavigationMenu={showNavigationMenu}
           />
         )
       case 'subscriptions':
@@ -58,6 +67,7 @@ export default function Home(): JSX.Element {
                 item.folder == 'following'
               )
             }}
+            showNavigationMenu={showNavigationMenu}
           />
         )
       case 'archive':
@@ -65,6 +75,7 @@ export default function Home(): JSX.Element {
           <LibraryContainer
             folder="archive"
             filterFunc={(item) => item.state != 'DELETED' && item.isArchived}
+            showNavigationMenu={showNavigationMenu}
           />
         )
       case 'trash':
@@ -72,6 +83,7 @@ export default function Home(): JSX.Element {
           <LibraryContainer
             folder="trash"
             filterFunc={(item) => item.state == 'DELETED'}
+            showNavigationMenu={showNavigationMenu}
           />
         )
 
@@ -81,7 +93,11 @@ export default function Home(): JSX.Element {
   }
 
   return (
-    <NavigationLayout section={section ?? 'home'}>
+    <NavigationLayout
+      section={section ?? 'home'}
+      showNavigationMenu={showNavigationMenu}
+      setShowNavigationMenu={setShowNavigationMenu}
+    >
       {sectionView(section)}
     </NavigationLayout>
   )

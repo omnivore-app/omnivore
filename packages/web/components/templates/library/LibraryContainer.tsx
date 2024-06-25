@@ -77,6 +77,8 @@ const TIMEOUT_DELAYS = [2000, 3500, 5000]
 type LibraryContainerProps = {
   folder: string
   filterFunc: (item: LibraryItemNode) => boolean
+
+  showNavigationMenu: boolean
 }
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
@@ -787,6 +789,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       setIsChecked={setIsChecked}
       itemIsChecked={itemIsChecked}
       multiSelectMode={multiSelectMode}
+      showNavigationMenu={props.showNavigationMenu}
       setMultiSelectMode={setMultiSelectMode}
       performMultiSelectAction={performMultiSelectAction}
       searchTerm={queryInputs.searchQuery}
@@ -885,6 +888,8 @@ export type HomeFeedContentProps = {
     locale: string
   ) => Promise<void>
 
+  showNavigationMenu: boolean
+
   setIsChecked: (itemId: string, set: boolean) => void
   itemIsChecked: (itemId: string) => boolean
 
@@ -939,9 +944,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         layout={layout}
         viewer={viewerData?.me}
         updateLayout={updateLayout}
-        showFilterMenu={true}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        setShowFilterMenu={() => {}}
+        showFilterMenu={props.showNavigationMenu}
         searchTerm={props.searchTerm}
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
