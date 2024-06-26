@@ -1,22 +1,61 @@
 version: '3'
+x-postgres:
+  &postgres-common
+  image: "ankane/pgvector:v0.5.1"
+  user: postgres
+  healthcheck:
+    test: "exit 0"
+    interval: 2s
+    timeout: 12s
+    retries: 3
+
+
 services:
   postgres:
-    image: "ankane/pgvector:v0.5.1"
+    <<: *postgres-common
     container_name: "omnivore-postgres"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=omnivore
-      - PG_POOL_MAX=20
-    healthcheck:
-      test: "exit 0"
-      interval: 2s
-      timeout: 12s
-      retries: 3
     expose:
       - 5432
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: omnivore
+      PG_POOL_MAX: 20
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256\nhost replication all 0.0.0.0/0 md5"
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
+
+  postgres-replica:
+    <<: *postgres-common
+    container_name: "omnivore-postgres-replica"
+    expose:
+      - 5433
+    ports:
+      - "5433:5432"
+    environment:
+      PGUSER: replicator
+      PGPASSWORD: replicator_password
+    command: |
+      bash -c "
+      until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres --port=5432
+      do
+      echo 'Waiting for primary to connect...'
+      sleep 1s
+      done
+      echo 'Backup done, starting replica...'
+      chmod 0700 /var/lib/postgresql/data
+      postgres
+      "
+    depends_on:
+      - postgres
 
   migrate:
     build:
