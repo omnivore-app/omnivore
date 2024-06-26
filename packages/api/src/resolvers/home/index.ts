@@ -41,7 +41,8 @@ export const homeResolver = authorized<
   const sections = await getHomeSections(uid, limit, cursor)
   log.info('Home sections fetched')
 
-  if (sections.length === 0) {
+  if (!sections) {
+    // home feed creation pending
     const existingJob = await getJob(updateHomeJobId(uid))
     if (existingJob) {
       log.info('Update job job already enqueued')
@@ -60,6 +61,17 @@ export const homeResolver = authorized<
 
     return {
       errorCodes: [HomeErrorCode.Pending],
+    }
+  }
+
+  if (sections.length === 0) {
+    // no available candidates
+    return {
+      edges: [],
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
     }
   }
 
@@ -127,7 +139,7 @@ export const hiddenHomeSectionResolver = authorized<
   const sections = await getHomeSections(uid)
   log.info('Home sections fetched')
 
-  if (sections.length === 0) {
+  if (!sections) {
     return {
       errorCodes: [HomeErrorCode.Pending],
     }
