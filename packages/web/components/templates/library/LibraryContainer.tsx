@@ -150,7 +150,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   useEffect(() => {
     if (!router.isReady) return
     const q = router.query['q']
-    let qs = 'in:inbox' // Default to in:inbox search term.
+    let qs = ''
     if (q && typeof q === 'string') {
       qs = q
     }
