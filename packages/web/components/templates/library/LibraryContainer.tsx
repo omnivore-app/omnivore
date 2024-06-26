@@ -19,6 +19,7 @@ import {
 } from '../../../lib/networking/queries/typeaheadSearch'
 import type {
   LibraryItem,
+  LibraryItemNode,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
@@ -35,7 +36,7 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { AddLinkModal } from '../AddLinkModal'
 import { EditLibraryItemModal } from '../homeFeed/EditItemModals'
 import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
-import { LegacyLibraryHeader, MultiSelectMode } from '../homeFeed/LibraryHeader'
+import { MultiSelectMode } from '../homeFeed/LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -52,6 +53,9 @@ import { PinnedButtons } from '../homeFeed/PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { FetchItemsError } from '../homeFeed/FetchItemsError'
 import { LibraryHeader } from './LibraryHeader'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { theme } from '../../tokens/stitches.config'
+import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -75,6 +79,9 @@ const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
 type LibraryContainerProps = {
   folder: string
+  filterFunc: (item: LibraryItemNode) => boolean
+
+  showNavigationMenu: boolean
 }
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
@@ -92,13 +99,11 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [notebookTarget, setNotebookTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -142,6 +147,28 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     } else setSearchResults([])
   }, [queryValue])
 
+  useEffect(() => {
+    if (!router.isReady) return
+    const q = router.query['q']
+    let qs = ''
+    if (q && typeof q === 'string') {
+      qs = q
+    }
+
+    if (qs !== (queryInputs.searchQuery || '')) {
+      setQueryInputs({ ...queryInputs, searchQuery: qs })
+      performActionOnItem('refresh', undefined as unknown as any)
+    }
+
+    // intentionally not watching queryInputs and performActionOnItem
+    // here to prevent infinite looping
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setQueryInputs, router.isReady, router.query])
+
+  useEffect(() => {
+    window.localStorage.setItem('nav-return', router.asPath)
+  }, [router.asPath])
+
   const hasMore = useMemo(() => {
     if (!itemsPages) {
       return false
@@ -151,12 +178,14 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const libraryItems = useMemo(() => {
     const items =
-      itemsPages?.flatMap((ad) => {
-        return ad.search.edges.map((it) => ({
-          ...it,
-          isLoading: it.node.state === 'PROCESSING',
-        }))
-      }) || []
+      itemsPages
+        ?.flatMap((ad) => {
+          return ad.search.edges.map((it) => ({
+            ...it,
+            isLoading: it.node.state === 'PROCESSING',
+          }))
+        })
+        .filter((item) => props.filterFunc(item.node)) || []
     return items
   }, [itemsPages, performActionOnItem])
 
@@ -779,12 +808,14 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   return (
     <HomeFeedGrid
+      folder={props.folder}
       items={libraryItems}
       actionHandler={handleCardAction}
       reloadItems={mutate}
       setIsChecked={setIsChecked}
       itemIsChecked={itemIsChecked}
       multiSelectMode={multiSelectMode}
+      showNavigationMenu={props.showNavigationMenu}
       setMultiSelectMode={setMultiSelectMode}
       performMultiSelectAction={performMultiSelectAction}
       searchTerm={queryInputs.searchQuery}
@@ -843,6 +874,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 }
 
 export type HomeFeedContentProps = {
+  folder: string
   items: LibraryItem[]
   searchTerm?: string
   reloadItems: () => void
@@ -882,6 +914,8 @@ export type HomeFeedContentProps = {
     timezone: string,
     locale: string
   ) => Promise<void>
+
+  showNavigationMenu: boolean
 
   setIsChecked: (itemId: string, set: boolean) => void
   itemIsChecked: (itemId: string) => boolean
@@ -927,7 +961,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         py: '20px',
         width: '100%',
         '@mdDown': {
-          px: layout == 'GRID_LAYOUT' ? '20px' : '0px',
+          px: '0px',
         },
       }}
       distribution="start"
@@ -937,9 +971,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         layout={layout}
         viewer={viewerData?.me}
         updateLayout={updateLayout}
-        showFilterMenu={true}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        setShowFilterMenu={() => {}}
+        showFilterMenu={props.showNavigationMenu}
         searchTerm={props.searchTerm}
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
@@ -982,6 +1014,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 }
 
 type LibraryItemsLayoutProps = {
+  folder: string
+
   layout: LayoutType
   viewer?: UserBasicData
 
@@ -1025,6 +1059,9 @@ export function LibraryItemsLayout(
           height: '100%',
           width: '100%',
           paddingX: '40px',
+          '@mdDown': {
+            mx: props.layout == 'GRID_LAYOUT' ? '20px' : '0px',
+          },
         }}
       >
         <Toaster />
@@ -1057,6 +1094,63 @@ export function LibraryItemsLayout(
           />
         </SpanBox>
 
+        {props.folder == 'trash' && (
+          <VStack
+            css={{
+              alignSelf: 'flex-start',
+              '-ms-overflow-style': 'none',
+              scrollbarWidth: 'none',
+              '::-webkit-scrollbar': {
+                display: 'none',
+              },
+              '@lgDown': {
+                display: 'none',
+              },
+              fontSize: '13px',
+              color: '$readerTextSubtle',
+              mt: '10px',
+              mb: '10px',
+              px: '70px',
+              '@xlgDown': {
+                px: '0px',
+              },
+            }}
+            distribution="start"
+          >
+            <HStack
+              alignment="center"
+              distribution="start"
+              css={{ gap: '10px' }}
+            >
+              <SpanBox css={{ pt: '4px' }}>
+                <TrashIcon
+                  size={18}
+                  color={theme.colors.thNotebookSubtle.toString()}
+                />
+              </SpanBox>
+              <VStack>
+                Items that remain in your trash for 14 days will be permanently
+                deleted.
+                <Button
+                  style="link"
+                  css={{ textDecoration: 'underline' }}
+                  onClick={async (event) => {
+                    event.preventDefault()
+                    await emptyTrashMutation()
+                    showSuccessToast('Emptying trash')
+                    setTimeout(() => {
+                      props.actionHandler('refresh', undefined)
+                    }, 500)
+                  }}
+                >
+                  Empty trash now
+                </Button>
+              </VStack>
+            </HStack>
+            <hr />
+          </VStack>
+        )}
+
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <div
           onDragEnter={(event) => {
@@ -1069,6 +1163,7 @@ export function LibraryItemsLayout(
           style={{ height: '100%', width: '100%' }}
         >
           <LibraryItems
+            folder={props.folder}
             items={props.items}
             layout={props.layout}
             viewer={props.viewer}
@@ -1157,6 +1252,7 @@ export function LibraryItemsLayout(
 }
 
 type LibraryItemsProps = {
+  folder: string
   items: LibraryItem[]
   layout: LayoutType
   viewer: UserBasicData | undefined

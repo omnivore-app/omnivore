@@ -4,14 +4,22 @@ import {
   NavigationLayout,
   NavigationSection,
 } from '../../components/templates/NavigationLayout'
-import { HomeContainer } from '../../components/nav-containers/home'
+import { HomeContainer } from '../../components/nav-containers/HomeContainer'
 import { LibraryContainer } from '../../components/templates/library/LibraryContainer'
 import { useMemo } from 'react'
-import { HighlightsContainer } from '../../components/nav-containers/highlights'
+import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
   useApplyLocalTheme()
+
+  const [showNavigationMenu, setShowNavigationMenu] =
+    usePersistedState<boolean>({
+      key: 'nav-show-menu',
+      isSessionStorage: false,
+      initialValue: true,
+    })
 
   const section: NavigationSection | undefined = useMemo(() => {
     if (!router.isReady) {
@@ -34,13 +42,56 @@ export default function Home(): JSX.Element {
       case 'highlights':
         return <HighlightsContainer />
       case 'library':
-        return <LibraryContainer folder="inbox" />
+        return (
+          <LibraryContainer
+            folder="inbox"
+            filterFunc={(item) => {
+              return (
+                item.state != 'DELETED' &&
+                !item.isArchived &&
+                item.folder == 'inbox'
+              )
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
       case 'subscriptions':
-        return <LibraryContainer folder="following" />
+        return (
+          <LibraryContainer
+            folder="following"
+            filterFunc={(item) => {
+              return (
+                item.state != 'DELETED' &&
+                !item.isArchived &&
+                item.folder == 'following'
+              )
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
       case 'archive':
-        return <LibraryContainer folder="archive" />
+        return (
+          <LibraryContainer
+            folder="archive"
+            filterFunc={(item) => {
+              console.log(
+                'running archive filter: ',
+                item.title,
+                item.isArchived
+              )
+              return item.state != 'DELETED' && item.isArchived
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
       case 'trash':
-        return <LibraryContainer folder="trash" />
+        return (
+          <LibraryContainer
+            folder="trash"
+            filterFunc={(item) => item.state == 'DELETED'}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
 
       default:
         return <></>
@@ -48,7 +99,11 @@ export default function Home(): JSX.Element {
   }
 
   return (
-    <NavigationLayout section={section ?? 'home'}>
+    <NavigationLayout
+      section={section ?? 'home'}
+      showNavigationMenu={showNavigationMenu}
+      setShowNavigationMenu={setShowNavigationMenu}
+    >
       {sectionView(section)}
     </NavigationLayout>
   )

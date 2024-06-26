@@ -680,6 +680,7 @@ export const functionResolvers = {
               siteIcon: libraryItem.siteIcon,
               slug: libraryItem.slug,
               score: item.score,
+              canMove: libraryItem.folder === 'following',
             }
           }
 

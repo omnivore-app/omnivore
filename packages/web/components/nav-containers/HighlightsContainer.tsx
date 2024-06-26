@@ -70,9 +70,12 @@ export function HighlightsContainer(): JSX.Element {
   return (
     <VStack
       css={{
-        maxWidth: '70%',
         padding: '20px',
-        margin: '30px 50px 0 0',
+        margin: '30px',
+        '@mdDown': {
+          margin: '0px',
+          marginTop: '50px',
+        },
       }}
     >
       {highlights.map((highlight) => {
@@ -128,9 +131,8 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
 
   const viewInReader = useCallback(
     (highlightId: string) => {
@@ -187,9 +189,21 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
         fontFamily: '$inter',
         padding: '20px',
         marginBottom: '20px',
-        bg: '$thBackground2',
+        bg: '$readerBg',
         borderRadius: '8px',
         cursor: 'pointer',
+        border: '1px solid $thLeftMenuBackground',
+        '&:focus': {
+          outline: 'none',
+          '> div': {
+            outline: 'none',
+            bg: '$thBackgroundActive',
+          },
+        },
+        '&:hover': {
+          bg: '$thBackgroundActive',
+          boxShadow: '$cardBoxShadow',
+        },
       }}
     >
       <Box

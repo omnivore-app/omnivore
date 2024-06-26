@@ -1,7 +1,7 @@
 import client from 'prom-client'
 import { LibraryItem } from '../entity/library_item'
 import { PublicItem } from '../entity/public_item'
-import { Subscription } from '../entity/subscription'
+import { Subscription, SubscriptionType } from '../entity/subscription'
 import { User } from '../entity/user'
 import { registerMetric } from '../prometheus'
 import { redisDataSource } from '../redis_data_source'
@@ -41,6 +41,9 @@ interface Candidate {
   subscription?: {
     name: string
     type: string
+    autoAddToLibrary?: boolean | null
+    createdAt: Date
+    fetchContent?: boolean | null
   }
 }
 
@@ -102,6 +105,7 @@ const publicItemToCandidate = (item: PublicItem): Candidate => ({
   subscription: {
     name: item.source.name,
     type: item.source.type,
+    createdAt: item.source.createdAt,
   },
   score: 0,
 })
@@ -222,6 +226,20 @@ const rankCandidates = async (
         word_count: item.wordCount,
         published_at: item.publishedAt,
         subscription: item.subscription?.name,
+        inbox_folder: item.folder === 'inbox',
+        is_feed: item.subscription?.type === SubscriptionType.Rss,
+        is_newsletter: item.subscription?.type === SubscriptionType.Newsletter,
+        is_subscription: !!item.subscription,
+        item_word_count: item.wordCount,
+        subscription_count: 0,
+        subscription_auto_add_to_library: item.subscription?.autoAddToLibrary,
+        subscription_fetch_content: item.subscription?.fetchContent,
+        days_since_subscribed: item.subscription
+          ? Math.floor(
+              (Date.now() - item.subscription.createdAt.getTime()) /
+                (1000 * 60 * 60 * 24)
+            )
+          : undefined,
       } as Feature
       return acc
     }, {} as Record<string, Feature>),
@@ -240,12 +258,13 @@ const rankCandidates = async (
 }
 
 const redisKey = (userId: string) => `home:${userId}`
+const emptyHomeKey = (key: string) => `${key}:empty`
 
 export const getHomeSections = async (
   userId: string,
   limit = 100,
   maxScore?: number
-): Promise<Array<{ member: Section; score: number }>> => {
+): Promise<Array<{ member: Section; score: number }> | null> => {
   const redisClient = redisDataSource.redisClient
   if (!redisClient) {
     throw new Error('Redis client not available')
@@ -266,6 +285,19 @@ export const getHomeSections = async (
     0,
     limit
   )
+
+  if (!results.length) {
+    logger.info('No sections found in redis')
+    // check if the feed is empty
+    const isEmpty = await redisClient.exists(emptyHomeKey(key))
+    if (isEmpty) {
+      logger.info('Empty feed')
+      return []
+    }
+
+    logger.info('Feed not found')
+    return null
+  }
 
   const sections = []
   for (let i = 0; i < results.length; i += 2) {
@@ -299,6 +331,14 @@ const appendSectionsToHome = async (
   }
 
   const key = redisKey(userId)
+  const emptyKey = emptyHomeKey(key)
+
+  if (!sections.length) {
+    logger.info('No available sections to add')
+    // set expiration to 1 hour
+    await redisClient.set(emptyKey, 'true', 'EX', 60 * 60)
+    return
+  }
 
   // store candidates in redis sorted set
   const pipeline = redisClient.pipeline()
@@ -318,6 +358,8 @@ const appendSectionsToHome = async (
 
   // add section to the sorted set
   pipeline.zadd(key, ...scoreMembers)
+
+  pipeline.del(emptyKey)
 
   // keep only the new sections and remove the oldest ones
   pipeline.zremrangebyrank(key, 0, -(sections.length + 1))
@@ -357,6 +399,10 @@ const mixHomeItems = (
     items: Array<Candidate>,
     batches: Array<Array<Candidate>>
   ) => {
+    if (batches.length === 0) {
+      return
+    }
+
     const batchSize = Math.ceil(items.length / batches.length)
 
     for (const item of items) {
@@ -406,32 +452,36 @@ const mixHomeItems = (
     >,
   }
 
-  distributeItems(shortItems, batches.short)
-  distributeItems(longItems, batches.long)
+  batches.short.length && distributeItems(shortItems, batches.short)
+  batches.long.length && distributeItems(longItems, batches.long)
 
   // convert batches to sections
   const sections = []
   const hiddenCandidates = rankedHomeItems.slice(50)
 
-  sections.push({
-    items: hiddenCandidates.map(candidateToItem),
-    layout: 'hidden',
-  })
+  hiddenCandidates.length &&
+    sections.push({
+      items: hiddenCandidates.map(candidateToItem),
+      layout: 'hidden',
+    })
 
-  sections.push({
-    items: batches.short.flat().map(candidateToItem),
-    layout: 'quick_links',
-  })
+  batches.short.length &&
+    sections.push({
+      items: batches.short.flat().map(candidateToItem),
+      layout: 'quick_links',
+    })
 
-  sections.push({
-    items: batches.long.flat().map(candidateToItem),
-    layout: 'top_picks',
-  })
+  batches.long.length &&
+    sections.push({
+      items: batches.long.flat().map(candidateToItem),
+      layout: 'top_picks',
+    })
 
-  sections.push({
-    items: justAddedCandidates.map(candidateToItem),
-    layout: 'just_added',
-  })
+  justAddedCandidates &&
+    sections.push({
+      items: justAddedCandidates.map(candidateToItem),
+      layout: 'just_added',
+    })
 
   return sections
 }
@@ -477,7 +527,6 @@ export const updateHome = async (data: UpdateHomeJobData) => {
 
     if (!justAddedCandidates.length && !candidates.length) {
       logger.info('No candidates found')
-      return
     }
 
     // TODO: integrity check on candidates

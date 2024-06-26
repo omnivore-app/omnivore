@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.component.TextPreferenceWidget
-import app.omnivore.omnivore.feature.auth.LoginViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.navigation.Routes
 
 internal const val RELEASE_URL = "https://github.com/omnivore-app/omnivore/releases"
@@ -27,7 +27,7 @@ internal const val RELEASE_URL = "https://github.com/omnivore-app/omnivore/relea
 @Composable
 internal fun SettingsScreen(
     navController: NavHostController,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
     Scaffold(topBar = {
         TopAppBar(
@@ -38,7 +38,7 @@ internal fun SettingsScreen(
         )
     }) { paddingValues ->
         SettingsViewContent(
-            loginViewModel = loginViewModel,
+            onboardingViewModel = onboardingViewModel,
             navController = navController,
             paddingValues = paddingValues
         )
@@ -47,7 +47,7 @@ internal fun SettingsScreen(
 
 @Composable
 fun SettingsViewContent(
-    loginViewModel: LoginViewModel,
+    onboardingViewModel: OnboardingViewModel,
     navController: NavHostController,
     paddingValues: PaddingValues
 ) {
@@ -94,7 +94,7 @@ fun SettingsViewContent(
     if (showLogoutDialog.value) {
         LogoutDialog { performLogout ->
             if (performLogout) {
-                loginViewModel.logout()
+                onboardingViewModel.logout()
             }
             showLogoutDialog.value = false
         }

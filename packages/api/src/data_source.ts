@@ -23,4 +23,24 @@ export const appDataSource = new DataSource({
     max: env.pg.pool.max,
     idleTimeoutMillis: 10000, // 10 seconds
   },
+  replication: env.pg.replication
+    ? {
+        master: {
+          host: env.pg.host,
+          port: env.pg.port,
+          username: env.pg.userName,
+          password: env.pg.password,
+          database: env.pg.dbName,
+        },
+        slaves: [
+          {
+            host: env.pg.replica.host,
+            port: env.pg.replica.port,
+            username: env.pg.replica.userName,
+            password: env.pg.replica.password,
+            database: env.pg.replica.dbName,
+          },
+        ],
+      }
+    : undefined,
 })

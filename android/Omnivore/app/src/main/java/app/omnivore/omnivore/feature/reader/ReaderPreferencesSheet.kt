@@ -46,7 +46,7 @@ import app.omnivore.omnivore.feature.components.SliderWithPlusMinus
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 
 @Composable
-fun ReaderPreferencesView(
+fun ReaderPreferencesSheet(
     webReaderViewModel: WebReaderViewModel
 ) {
     val isDark = isSystemInDarkTheme()
@@ -73,6 +73,8 @@ fun ReaderPreferencesView(
 
 
     val volumeForScrollState by webReaderViewModel.volumeRockerForScrollState.collectAsStateWithLifecycle()
+
+    val rtlTextState by webReaderViewModel.rtlTextState.collectAsStateWithLifecycle()
 
     OmnivoreTheme {
         // Temporary wrapping for margin while migrating components to design system
@@ -281,6 +283,11 @@ fun ReaderPreferencesView(
                 title = stringResource(R.string.reader_preferences_view_volume_scroll),
                 checked = volumeForScrollState,
                 onCheckedChanged = { webReaderViewModel.setVolumeRockerForScrollState(it) },
+            )
+            SwitchPreferenceWidget(
+                title = stringResource(R.string.reader_preferences_view_use_rtl),
+                checked = rtlTextState,
+                onCheckedChanged = { webReaderViewModel.setRtlTextState(it) },
             )
         }
     }

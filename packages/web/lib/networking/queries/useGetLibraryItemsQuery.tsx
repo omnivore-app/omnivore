@@ -13,6 +13,7 @@ import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { updatePageMutation } from '../mutations/updatePageMutation'
 import { gqlFetcher } from '../networkHelpers'
 import { Label } from './../fragments/labelFragment'
+import { moveToFolderMutation } from '../mutations/moveToLibraryMutation'
 
 export interface ReadableItem {
   id: string
@@ -51,6 +52,7 @@ type LibraryItemAction =
   | 'refresh'
   | 'unsubscribe'
   | 'update-item'
+  | 'move-to-inbox'
 
 export type LibraryItemsData = {
   search: LibraryItems
@@ -82,6 +84,7 @@ export type LibraryItemNode = {
   readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
+  folder?: string
   isArchived: boolean
   description: string
   ownedByViewer: boolean
@@ -168,6 +171,7 @@ export function useGetLibraryItemsQuery(
               title
               slug
               url
+              folder
               pageType
               contentReader
               createdAt
@@ -284,6 +288,7 @@ export function useGetLibraryItemsQuery(
     action: LibraryItemAction,
     item: LibraryItem
   ) => {
+    console.log('performing action on items: ', action)
     if (!responsePages) {
       return
     }
@@ -308,18 +313,33 @@ export function useGetLibraryItemsQuery(
     }
 
     switch (action) {
+      case 'move-to-inbox':
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            folder: 'inbox',
+          },
+        })
+
+        moveToFolderMutation(item.cursor, 'inbox').then((res) => {
+          if (res) {
+            showSuccessToast('Link moved', { position: 'bottom-right' })
+          } else {
+            showErrorToast('Error moving link', { position: 'bottom-right' })
+          }
+        })
+
+        mutate()
+        break
       case 'archive':
-        if (/in:all/.test(query)) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              isArchived: true,
-            },
-          })
-        } else {
-          updateData(undefined)
-        }
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            isArchived: true,
+          },
+        })
 
         setLinkArchivedMutation({
           linkId: item.node.id,
@@ -332,19 +352,17 @@ export function useGetLibraryItemsQuery(
           }
         })
 
+        mutate()
+
         break
       case 'unarchive':
-        if (/in:all/.test(query)) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              isArchived: false,
-            },
-          })
-        } else {
-          updateData(undefined)
-        }
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            isArchived: false,
+          },
+        })
 
         setLinkArchivedMutation({
           linkId: item.node.id,
@@ -358,9 +376,16 @@ export function useGetLibraryItemsQuery(
             })
           }
         })
+        mutate()
         break
       case 'delete':
-        updateData(undefined)
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            state: State.DELETED,
+          },
+        })
 
         const pageId = item.node.id
         deleteLinkMutation(pageId).then((res) => {
@@ -402,6 +427,7 @@ export function useGetLibraryItemsQuery(
           readingProgressTopPercent: 100,
           readingProgressAnchorIndex: 0,
         })
+        mutate()
         break
       case 'mark-unread':
         updateData({
@@ -420,30 +446,11 @@ export function useGetLibraryItemsQuery(
           readingProgressTopPercent: 0,
           readingProgressAnchorIndex: 0,
         })
+        mutate()
         break
-      // case 'unsubscribe':
-      //   if (!!item.node.subscription) {
-      //     updateData({
-      //       cursor: item.cursor,
-      //       node: {
-      //         ...item.node,
-      //         subscription: undefined,
-      //       },
-      //     })
-      //     unsubscribeMutation(item.node.subscription).then((res) => {
-      //       if (res) {
-      //         showSuccessToast('Unsubscribed successfully', {
-      //           position: 'bottom-right',
-      //         })
-      //       } else {
-      //         showErrorToast('Error unsubscribing', {
-      //           position: 'bottom-right',
-      //         })
-      //       }
-      //     })
-      //   }
       case 'update-item':
         updateData(item)
+        mutate()
         break
       case 'refresh':
         await mutate()

@@ -473,11 +473,6 @@ fun LibraryViewContent(
                                     val intent = Intent(context, activityClass)
                                     intent.putExtra("SAVED_ITEM_SLUG", currentItem.slug)
                                     context.startActivity(intent)
-                                },
-                                actionHandler = {
-                                    onSavedItemAction(
-                                        currentItem.savedItemId, it
-                                    )
                                 })
                         },
                     )

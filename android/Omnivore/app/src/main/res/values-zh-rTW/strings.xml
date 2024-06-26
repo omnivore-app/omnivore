@@ -1,27 +1,27 @@
 <resources>
     <string name="app_name">Omnivore</string>
     <string name="welcome_title">絕不錯過精彩閱讀</string>
-    <string name="learn_more">深入了解</string>
-    <string name="welcome_subtitle">在無干擾的閱讀器中儲存文章，以便稍後閱讀。</string>
-    <string name="highlight_menu_action">標記</string>
+    <string name="learn_more">深入瞭解</string>
+    <string name="welcome_subtitle">在無干擾的閱讀器中保存文章，以便稍後閱讀。</string>
+    <string name="highlight_menu_action">螢光筆</string>
     <string name="copy_menu_action">複製</string>
-    <string name="annotate_menu_action">註解</string>
+    <string name="annotate_menu_action">注釋</string>
     <string name="pdf_remove_highlight">移除</string>
-    <string name="pdf_highlight_menu_action">標記</string>
+    <string name="pdf_highlight_menu_action">高亮</string>
     <string name="pdf_highlight_copy">複製</string>
-    <string name="highlight_note">註解</string>
+    <string name="highlight_note">注釋</string>
     <string name="copyTextSelection">複製</string>
-    <string name="pdf_highlight_menu_note">註解</string>
+    <string name="pdf_highlight_menu_note">注釋</string>
 
     <!-- Apple Auth -->
     <string name="apple_auth_text">使用 Apple 繼續</string>
-    <string name="apple_auth_loading">正在登入...</string>
+    <string name="apple_auth_loading">正在登錄...</string>
 
     <!-- Create User Profile -->
-    <string name="create_user_profile_title">建立您的個人檔案</string>
+    <string name="create_user_profile_title">創建您的個人資料</string>
     <string name="create_user_profile_loading">載入中...</string>
     <string name="create_user_profile_action_cancel">取消註冊</string>
-    <string name="create_user_profile_action_submit">送出</string>
+    <string name="create_user_profile_action_submit">發送</string>
     <string name="create_user_profile_field_placeholder_name">名稱</string>
     <string name="create_user_profile_field_label_name">名稱</string>
     <string name="create_user_profile_field_placeholder_username">使用者名稱</string>
@@ -30,10 +30,10 @@
 
     <!-- Email Login -->
     <string name="email_login_loading">載入中...</string>
-    <string name="email_login_action_back">返回社交登入頁面</string>
-    <string name="email_login_action_no_account">還沒有帳戶？</string>
+    <string name="email_login_action_back">返回社交登錄頁面</string>
+    <string name="email_login_action_no_account">還沒有賬號？</string>
     <string name="email_login_action_forgot_password">忘記密碼？</string>
-    <string name="email_login_action_login">登入</string>
+    <string name="email_login_action_login">登錄</string>
     <string name="email_login_field_placeholder_email">user@email.com</string>
     <string name="email_login_field_label_email">電子郵件</string>
     <string name="email_login_field_placeholder_password">密碼</string>
@@ -41,12 +41,12 @@
     <string name="email_login_error_msg">請輸入電子郵件地址和密碼。</string>
 
     <!-- Email Sign Up -->
-    <string name="email_signup_verification_message">我們已向 %1$s 傳送驗證電子郵件。請驗證您的電子郵件，然後點選下面的按鈕。</string>
+    <string name="email_signup_verification_message">我們已向 %1$s 發送驗證電子郵件。請驗證您的電子郵件，然後點選下面的按鈕。</string>
     <string name="email_signup_check_status">檢查狀態</string>
     <string name="email_signup_action_use_different_email">使用不同的電子郵件？</string>
     <string name="email_signup_loading">載入中...</string>
-    <string name="email_signup_action_back">返回社交登入頁面</string>
-    <string name="email_signup_action_already_have_account">已經有帳戶？</string>
+    <string name="email_signup_action_back">返回社交登錄頁面</string>
+    <string name="email_signup_action_already_have_account">已經有賬號？</string>
     <string name="email_signup_action_sign_up">註冊</string>
     <string name="email_signup_field_placeholder_email">user@email.com</string>
     <string name="email_signup_field_label_email">電子郵件</string>
@@ -56,43 +56,43 @@
     <string name="email_signup_field_label_name">名稱</string>
     <string name="email_signup_field_placeholder_username">使用者名稱</string>
     <string name="email_signup_field_label_username">使用者名稱</string>
-    <string name="email_signup_error_msg">請完成所有欄位。</string>
+    <string name="email_signup_error_msg">請填寫所有空白欄。</string>
 
     <!-- Google Auth -->
     <string name="google_auth_text">使用 Google 繼續</string>
-    <string name="google_auth_loading">正在登入...</string>
+    <string name="google_auth_loading">正在登錄...</string>
 
     <!-- LoginViewModel -->
-    <string name="login_view_model_self_hosting_settings_updated">自建伺服器設定已更新。</string>
-    <string name="login_view_model_self_hosting_settings_reset">自建伺服器設定已重設。</string>
+    <string name="login_view_model_self_hosting_settings_updated">私有化部署設定已更新。</string>
+    <string name="login_view_model_self_hosting_settings_reset">私有化部署設定已重設。</string>
     <string name="login_view_model_username_validation_length_error_msg">使用者名稱必須介於 4 到 15 個字元之間。</string>
     <string name="login_view_model_username_validation_alphanumeric_error_msg">使用者名稱只能包含字母和數字。</string>
     <string name="login_view_model_username_not_available_error_msg">此使用者名稱不可用。</string>
-    <string name="login_view_model_connection_error_msg">抱歉，我們無法連線到伺服器。</string>
+    <string name="login_view_model_connection_error_msg">抱歉，我們無法連線到服務器。</string>
     <string name="login_view_model_something_went_wrong_error_msg">出了些問題。請檢查您的電子郵件/密碼，然後再試一次。</string>
-    <string name="login_view_model_something_went_wrong_two_error_msg">出了些問題。請檢查您的登入資訊，然後再試一次。</string>
+    <string name="login_view_model_something_went_wrong_two_error_msg">出了些問題。請檢查您的登錄密碼，然後再試一次。</string>
     <string name="login_view_model_google_auth_error_msg">無法使用 Google 進行身份驗證。</string>
     <string name="login_view_model_missing_auth_token_error_msg">找不到身份驗證權杖。</string>
 
     <!-- SelfHostedView -->
     <string name="self_hosted_view_loading">載入中...</string>
-    <string name="self_hosted_view_action_reset">重設</string>
+    <string name="self_hosted_view_action_reset">重置</string>
     <string name="self_hosted_view_action_back">返回</string>
-    <string name="self_hosted_view_action_save">儲存</string>
-    <string name="self_hosted_view_action_learn_more">了解更多關於自建伺服器 Omnivore 的資訊</string>
-    <string name="self_hosted_view_field_api_url_label">API 伺服器</string>
-    <string name="self_hosted_view_field_web_url_label">Web 伺服器</string>
-    <string name="self_hosted_view_error_msg">請輸入 API 伺服器和 Web 伺服器地址。</string>
+    <string name="self_hosted_view_action_save">保存</string>
+    <string name="self_hosted_view_action_learn_more">瞭解更多關於私有化部署 Omnivore 的資訊</string>
+    <string name="self_hosted_view_field_api_url_label">API 服務器</string>
+    <string name="self_hosted_view_field_web_url_label">Web 服務器</string>
+    <string name="self_hosted_view_error_msg">請輸入 API 服務器和 Web 服務器地址。</string>
 
     <!-- WelcomeScreen -->
     <string name="welcome_screen_action_dismiss">忽略</string>
     <string name="welcome_screen_action_continue_with_email">使用電子郵件繼續</string>
-    <string name="welcome_screen_action_self_hosting_options">自建伺服器選項</string>
+    <string name="welcome_screen_action_self_hosting_options">私有化部署選項</string>
 
     <!-- LabelCreationDialog -->
-    <string name="label_creation_title">建立新標籤</string>
+    <string name="label_creation_title">創建新標籤</string>
     <string name="label_creation_content">指定名稱和顏色。</string>
-    <string name="label_creation_action_create">建立</string>
+    <string name="label_creation_action_create">創建</string>
     <string name="label_creation_action_cancel">取消</string>
     <string name="label_creation_label_placeholder">標籤名稱</string>
 
@@ -100,101 +100,102 @@
     <string name="label_selection_sheet_title">按標籤篩選</string>
     <string name="label_selection_sheet_title_alt">設定標籤</string>
     <string name="label_selection_sheet_action_cancel">取消</string>
-    <string name="label_selection_sheet_action_search">搜尋</string>
-    <string name="label_selection_sheet_action_save">儲存</string>
-    <string name="label_selection_sheet_text_create">建立名為 \"%1$s\" 的新標籤</string>
+    <string name="label_selection_sheet_action_search">搜索</string>
+    <string name="label_selection_sheet_action_save">保存</string>
+    <string name="label_selection_sheet_text_create">創建名為 \"%1$s\" 的新標籤</string>
     <string name="label_selection_sheet_label_too_long_error_msg">提供的名稱太長（必須小於或等於 %1$d 個字元）</string>
 
     <!-- LibraryFilterBar -->
     <string name="library_filter_bar_label_labels">標籤</string>
 
     <!-- LibraryNavigationBar -->
-    <string name="library_nav_bar_title">圖書館</string>
+    <string name="library_nav_bar_title">文庫</string>
     <string name="library_nav_bar_title_alt"></string>
-    <string name="library_nav_bar_field_placeholder_search">搜尋</string>
+    <string name="library_nav_bar_field_placeholder_search">搜索</string>
 
     <!-- LibraryViewModel -->
     <string name="library_view_model_snackbar_success">標籤已更新</string>
     <string name="library_view_model_snackbar_error">無法設定標籤</string>
 
     <!-- NotebookView -->
-    <string name="notebook_view_title">筆記本</string>
+    <string name="notebook_view_title">筆記</string>
     <string name="notebook_view_action_copy">複製</string>
-    <string name="notebook_view_snackbar_msg">筆記本已複製</string>
+    <string name="notebook_view_snackbar_msg">筆記已複製</string>
 
     <!-- EditNoteModal -->
-    <string name="edit_note_modal_title">註解</string>
-    <string name="edit_note_modal_action_save">儲存</string>
+    <string name="edit_note_modal_title">注釋</string>
+    <string name="edit_note_modal_action_save">保存</string>
     <string name="edit_note_modal_action_cancel">取消</string>
 
     <!-- ArticleNotes -->
-    <string name="article_notes_title">文章註解</string>
-    <string name="article_notes_action_add_notes">新增註解...</string>
+    <string name="article_notes_title">文章注釋</string>
+    <string name="article_notes_action_add_notes">新增注釋...</string>
 
     <!-- HighlightsList -->
-    <string name="highlights_list_title">標記</string>
+    <string name="highlights_list_title">高亮</string>
     <string name="highlights_list_action_copy">複製</string>
-    <string name="highlights_list_snackbar_msg">標記已複製</string>
-    <string name="highlights_list_action_add_note">新增註解...</string>
-    <string name="highlights_list_error_msg_no_highlights">您尚未在此頁面新增任何標記。</string>
+    <string name="highlights_list_snackbar_msg">高亮已複製</string>
+    <string name="highlights_list_action_add_note">新增注釋...</string>
+    <string name="highlights_list_error_msg_no_highlights">您尚未在此頁面添加任何高亮顯示。</string>
 
     <!-- ReaderPreferencesView -->
+    <string name="reader_preferences_font">字體</string>
     <string name="reader_preferences_view_font_size">字型大小：</string>
     <string name="reader_preferences_view_margin">邊距</string>
-    <string name="reader_preferences_view_line_spacing">行距</string>
+    <string name="reader_preferences_view_line_spacing">行間距</string>
     <string name="reader_preferences_view_theme">主題：</string>
     <string name="reader_preferences_view_auto">自動</string>
     <string name="reader_preferences_view_high_constrast_text">高對比文字</string>
     <string name="reader_preferences_view_justify_text">對齊文字</string>
 
     <!-- WebReaderLoadingContainer -->
-    <string name="reader_preferences_view_volume_scroll">使用音量按鈕捲動</string>
+    <string name="reader_preferences_view_volume_scroll">使用音量按鈕滾動</string>
     <string name="web_reader_loading_container_error_msg">我們無法取得您的內容。</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">閱讀器偏好設定</string>
-    <string name="web_reader_loading_container_bottom_sheet_notebook">筆記本</string>
-    <string name="web_reader_loading_container_bottom_sheet_edit_info">编辑信息</string>
-    <string name="web_reader_loading_container_bottom_sheet_open_link">開啟連結</string>
+    <string name="web_reader_loading_container_bottom_sheet_notebook">筆記</string>
+    <string name="web_reader_loading_container_bottom_sheet_edit_info">編輯信息</string>
+    <string name="web_reader_loading_container_bottom_sheet_open_link">開啓鏈接</string>
 
     <!-- OpenLinkView -->
-    <string name="open_link_view_action_open_in_browser">在瀏覽器中開啟</string>
-    <string name="open_link_view_action_save_to_omnivore">儲存到 Omnivore</string>
-    <string name="open_link_view_action_copy_link">複製連結</string>
+    <string name="open_link_view_action_open_in_browser">在瀏覽器中開啓</string>
+    <string name="open_link_view_action_save_to_omnivore">保存到 Omnivore</string>
+    <string name="open_link_view_action_copy_link">複製鏈接</string>
     <string name="open_link_view_action_cancel">取消</string>
 
     <!-- WebReaderViewModel -->
-    <string name="web_reader_view_model_save_link_success">連結已儲存</string>
-    <string name="web_reader_view_model_save_link_error">儲存連結時出錯</string>
-    <string name="web_reader_view_model_copy_link_success">連結已複製</string>
+    <string name="web_reader_view_model_save_link_success">鏈接已保存</string>
+    <string name="web_reader_view_model_save_link_error">保存鏈接時出錯</string>
+    <string name="web_reader_view_model_copy_link_success">鏈接已複製</string>
 
     <!-- SaveContent -->
-    <string name="save_content_msg">儲存中</string>
+    <string name="save_content_msg">保存中</string>
     <string name="save_content_action_read_now">現在閱讀</string>
     <string name="save_content_action_read_later">稍後閱讀</string>
     <string name="save_content_action_dismiss">忽略</string>
 
     <!-- SaveViewModel -->
-    <string name="save_view_model_msg">正在儲存到 Omnivore...</string>
-    <string name="save_view_model_error_not_logged_in">您尚未登入。請在儲存前登入。</string>
-    <string name="save_view_model_page_saved_success">頁面已儲存</string>
-    <string name="save_view_model_page_saved_error">儲存您的頁面時出錯</string>
+    <string name="save_view_model_msg">正在保存到 Omnivore...</string>
+    <string name="save_view_model_error_not_logged_in">您尚未登入。請在保存前登入。</string>
+    <string name="save_view_model_page_saved_success">頁面已保存</string>
+    <string name="save_view_model_page_saved_error">保存您的頁面時出錯</string>
 
     <!-- SavedItemContextMenu -->
-    <string name="saved_item_context_menu_action_edit_info">编辑信息</string>
+    <string name="saved_item_context_menu_action_edit_info">編輯信息</string>
     <string name="saved_item_context_menu_action_edit_labels">編輯標籤</string>
-    <string name="saved_item_context_menu_action_archive">封存</string>
-    <string name="saved_item_context_menu_action_unarchive">取消封存</string>
+    <string name="saved_item_context_menu_action_archive">存檔</string>
+    <string name="saved_item_context_menu_action_unarchive">取消存檔</string>
     <string name="saved_item_context_menu_action_share_original">分享原始內容</string>
     <string name="saved_item_context_menu_action_remove_item">移除項目</string>
 
     <!-- LogoutDialog -->
-    <string name="logout_dialog_title">登出</string>
-    <string name="logout_dialog_confirm_msg">您確定要登出嗎？</string>
+    <string name="logout_dialog_title">退出</string>
+    <string name="logout_dialog_confirm_msg">您確定要退出嗎？</string>
     <string name="logout_dialog_action_confirm">確認</string>
     <string name="logout_dialog_action_cancel">取消</string>
 
     <!-- ManageAccount -->
-    <string name="manage_account_title">管理帳戶</string>
-    <string name="manage_account_action_reset_data_cache">重設資料快取</string>
+    <string name="manage_account_title">管理賬號</string>
+    <string name="manage_account_action_reset_data_cache">重設數據緩存</string>
 
     <!-- PolicyWebView -->
     <string name="policy_webview_title">設定</string>
@@ -202,9 +203,39 @@
     <!-- SettingsView -->
     <string name="profile_view_title">設定</string>
     <string name="about_documentation">文件</string>
-    <string name="about_feedback">回饋</string>
-    <string name="about_privacy_policy">隱私政策</string>
+    <string name="about_feedback">反饋</string>
+    <string name="about_privacy_policy">隱私策略</string>
     <string name="about_terms_and_conditions">條款和條件</string>
-    <string name="profile_manage_account">管理帳戶</string>
-    <string name="about_logout">登出</string>
+    <string name="profile_manage_account">管理賬號</string>
+    <string name="about_logout">退出</string>
+
+    <!-- stock filters -->
+    <string name="library_filter_inbox">收集箱</string>
+    <string name="library_filter_non_feed">非訂閱內容</string>
+    <string name="library_filter_feeds">訂閱內容</string>
+    <string name="library_filter_newsletters">新聞資訊</string>
+    <string name="library_filter_recommended">推薦</string>
+    <string name="library_filter_all">所有內容</string>
+    <string name="library_filter_archived">已歸檔</string>
+    <string name="library_filter_highlighted">已高亮顯示</string>
+    <string name="library_filter_files">文檔</string>
+
+    <!-- stock sorts -->
+    <string name="library_sort_newest">從新到舊</string>
+    <string name="library_sort_oldest">從舊到新</string>
+    <string name="library_sort_recently_read">最近閱讀</string>
+    <string name="library_sort_recently_published">最近發佈</string>
+
+    <!-- EditInfoViewModel -->
+    <string name="edit_info_view_model_error_not_logged_in">您尚未登入。請在保存前登入。</string>
+
+    <!-- EditInfoSheet -->
+    <string name="edit_info_sheet_title">編輯信息</string>
+    <string name="edit_info_sheet_text_field_label_title">標題</string>
+    <string name="edit_info_sheet_text_field_label_author">作者</string>
+    <string name="edit_info_sheet_text_field_label_description">說明</string>
+    <string name="edit_info_sheet_action_save">保存</string>
+    <string name="edit_info_sheet_action_cancel">取消</string>
+    <string name="edit_info_sheet_error">編輯文章時出錯</string>
+    <string name="edit_info_sheet_success">文章信息更新成功</string>
 </resources>

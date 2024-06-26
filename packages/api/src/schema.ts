@@ -3174,6 +3174,7 @@ const schema = gql`
     canArchive: Boolean
     canDelete: Boolean
     score: Float
+    canMove: Boolean
   }
 
   type HomeSection {

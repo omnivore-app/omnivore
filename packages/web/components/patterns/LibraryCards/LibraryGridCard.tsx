@@ -65,6 +65,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         pl: '0px',
         padding: '0px',
         width: '100%',
+        maxWidth: '400px',
         height: '100%',
         minHeight: '270px',
         borderRadius: '5px',
@@ -95,7 +96,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           props.setIsChecked(props.item.id, !props.isChecked)
           return
         }
-        window.sessionStorage.setItem('nav-return', router.asPath)
+        window.localStorage.setItem('nav-return', router.asPath)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

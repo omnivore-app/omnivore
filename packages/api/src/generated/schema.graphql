@@ -1294,6 +1294,7 @@ type HomeItem {
   canArchive: Boolean
   canComment: Boolean
   canDelete: Boolean
+  canMove: Boolean
   canSave: Boolean
   canShare: Boolean
   date: Date!

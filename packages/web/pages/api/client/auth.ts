@@ -29,7 +29,7 @@ const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     })
   } else {
     res.writeHead(302, {
-      Location: '/home',
+      Location: '/l/home',
     })
   }
 

@@ -214,12 +214,6 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
                     val intent = Intent(context, activityClass)
                     intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.savedItem.slug)
                     context.startActivity(intent)
-                },
-                actionHandler = {
-                    viewModel.handleSavedItemAction(
-                        cardDataWithLabels.savedItem.savedItemId,
-                        it
-                    )
                 }
             )
         }

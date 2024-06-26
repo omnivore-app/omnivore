@@ -57,6 +57,8 @@ export type Shortcut = {
   label?: Label
 
   join?: string
+
+  children?: Shortcut[]
 }
 
 type NavigationMenuProps = {
@@ -65,9 +67,11 @@ type NavigationMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
 
   showMenu: boolean
+  setShowMenu: (show: boolean) => void
 }
 
 export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
+  const [dismissed, setDismissed] = useState(false)
   return (
     <>
       <Box
@@ -84,16 +88,43 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            transition: 'top 100ms, visibility 100ms',
-            top: props.showMenu ? '0' : '100%',
-            visibility: props.showMenu ? 'visible' : 'hidden',
+            transition: 'left 100ms, visibility 100ms',
+            top: '0',
+            left: props.showMenu && !dismissed ? '0' : '-280px',
+            visibility: props.showMenu && !dismissed ? 'visible' : 'hidden',
             boxShadow:
-              'rgb(48, 54, 61) 0px 0px 0px 1px, rgba(1, 4, 9, 0.4) 0px 6px 12px -3px, rgba(1, 4, 9, 0.4) 0px 6px 18px 0px',
+              props.showMenu && !dismissed
+                ? 'rgb(48, 54, 61) 0px 0px 0px 1px, rgba(1, 4, 9, 0.4) 0px 6px 12px -3px, rgba(1, 4, 9, 0.4) 0px 6px 18px 0px'
+                : 'unset',
           },
           zIndex: 5,
         }}
+        onClick={(event) => {
+          // on small screens we want to dismiss the menu after click
+          if (window.innerWidth < 400) {
+            setDismissed(true)
+            setTimeout(() => {
+              props.setShowMenu(false)
+            }, 100)
+          }
+          event.stopPropagation()
+        }}
       >
+        {/* This gives a header when scrolling so the menu button is visible still */}
+        <Box
+          css={{
+            position: 'fixed',
+            width: LIBRARY_LEFT_MENU_WIDTH,
+            top: '0',
+            left: '0',
+            height: '60px',
+            bg: '$thLeftMenuBackground',
+            zIndex: '100',
+            visibility: props.showMenu && !dismissed ? 'visible' : 'hidden',
+          }}
+        ></Box>
         <Box css={{ width: '100%', height: '60px' }}></Box>
+
         <LibraryNav {...props} />
         <Shortcuts {...props} />
         <NavMenuFooter {...props} showFullThemeSection={true} />
@@ -248,7 +279,6 @@ const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
         type: 'internal',
         index: 0,
       })
-      console.log('create leaf: ', result)
     }
   }, [treeRef])
 
@@ -411,6 +441,7 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
   const { ref, width, height } = useResizeObserver()
 
   const { isValidating, data } = useSWR('/api/shortcuts', getShortcuts, {
+    revalidateOnFocus: false,
     fallbackData: cachedShortcutsData(),
     onSuccess(data) {
       localStorage.setItem('/api/shortcuts', JSON.stringify(data))
@@ -496,7 +527,6 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
 
   const onActivate = useCallback(
     (node: NodeApi<Shortcut>) => {
-      console.log('onActivate: ', node)
       if (node.data.type == 'folder') {
         const join = node.data.join
         if (join == 'or') {
@@ -505,7 +535,6 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
               return `(${child.data.filter})`
             })
             .join(' OR ')
-          console.log('query: ', query)
         }
       } else if (node.data.section != null && node.data.filter != null) {
         router.push(`/l/${node.data.section}?q=${node.data.filter}`)
@@ -514,8 +543,38 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
     [tree, router]
   )
 
+  function countTotalShortcuts(shortcuts: Shortcut[]): number {
+    let total = 0
+
+    for (const shortcut of shortcuts) {
+      // Count the current shortcut
+      total++
+
+      // If the shortcut has children, recursively count them
+      if (shortcut.children && shortcut.children.length > 0) {
+        total += countTotalShortcuts(shortcut.children)
+      }
+    }
+
+    return total
+  }
+
+  const maximumHeight = useMemo(() => {
+    if (!data) {
+      return 320
+    }
+    return countTotalShortcuts(data as Shortcut[]) * 36
+  }, [data])
+
   return (
-    <div ref={ref}>
+    <Box
+      ref={ref}
+      css={{
+        height: maximumHeight,
+        flexGrow: 1,
+        minBlockSize: 0,
+      }}
+    >
       {!isValidating && (
         <Tree
           ref={props.treeRef}
@@ -529,12 +588,12 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
           rowHeight={36}
           initialOpenState={folderOpenState}
           width={width}
-          height={640}
+          height={maximumHeight}
         >
           {NodeRenderer}
         </Tree>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -818,6 +877,8 @@ type NavButtonProps = {
 
   isSelected: boolean
   section: NavigationSection
+
+  setShowMenu: (show: boolean) => void
 }
 
 function NavButton(props: NavButtonProps): JSX.Element {
@@ -864,6 +925,7 @@ function NavButton(props: NavButtonProps): JSX.Element {
       }}
       title={props.text}
       onClick={(e) => {
+        // console.log('clicked navigation menu')
         router.push(`/l/` + props.section)
       }}
     >

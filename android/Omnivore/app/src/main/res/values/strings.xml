@@ -49,7 +49,7 @@
     <!-- Email Sign Up -->
     <string name="email_signup_verification_message">We\'ve sent a verification email to %1$s. Please verify your email and then tap the button below.</string>
     <string name="email_signup_check_status">Check Status</string>
-    <string name="email_signup_action_use_different_email">Use a different email?</string>
+    <string name="email_signup_action_use_different_email">Use a different email? Back</string>
     <string name="email_signup_loading">Loading...</string>
     <string name="email_signup_action_back">Return to Social Login</string>
     <string name="email_signup_action_already_have_account">Already have an account?</string>
@@ -154,6 +154,7 @@
     <string name="reader_preferences_view_high_constrast_text">High Contrast Text</string>
     <string name="reader_preferences_view_justify_text">Justify Text</string>
     <string name="reader_preferences_view_volume_scroll">Use Volume Rocker to scroll</string>
+    <string name="reader_preferences_view_use_rtl">Right-to-left text</string>
 
     <!-- WebReaderLoadingContainer -->
     <string name="web_reader_loading_container_error_msg">We were unable to fetch your content.</string>
@@ -268,4 +269,5 @@
     <string name="edit_info_sheet_action_cancel">Cancel</string>
     <string name="edit_info_sheet_error">Error while editing article!</string>
     <string name="edit_info_sheet_success">Article info successfully updated!</string>
+    <string name="forgot_password">Forgot Password?</string>
 </resources>
