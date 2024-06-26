@@ -10,9 +10,9 @@ class SelfHostSettingsViewModel: ObservableObject {
 }
 
 struct SelfHostSettingsView: View {
-  @State var apiServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue) ?? ""
-  @State var webServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue) ?? ""
-  @State var ttsServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue) ?? ""
+  @State var apiServerAddress = UserDefaults(suiteName: "group.app.omnivoreapp").string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue) ?? ""
+  @State var webServerAddress = UserDefaults(suiteName: "group.app.omnivoreapp").string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue) ?? ""
+  @State var ttsServerAddress = UserDefaults(suiteName: "group.app.omnivoreapp").string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue) ?? ""
 
   @State var showConfirmAlert = false
 
