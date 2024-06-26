@@ -51,7 +51,7 @@ export class CustomTypeOrmLogger
       return
     }
 
-    this.logger.log(level, message)
+    this.logger.info(message)
   }
 }
 
