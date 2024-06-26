@@ -37,11 +37,11 @@ if (env.pg.replication) {
       },
       slaves: [
         {
-          host: env.pg.slave.host,
-          port: env.pg.slave.port,
-          username: env.pg.slave.userName,
-          password: env.pg.slave.password,
-          database: env.pg.slave.dbName,
+          host: env.pg.replica.host,
+          port: env.pg.replica.port,
+          username: env.pg.replica.userName,
+          password: env.pg.replica.password,
+          database: env.pg.replica.dbName,
         },
       ],
     },
