@@ -36,6 +36,7 @@ export class CustomTypeOrmLogger
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
     this.logger.info(query, {
+      isReplicated: queryRunner?.connection?.driver?.isReplicated,
       parameters,
     })
   }
@@ -45,6 +46,11 @@ export class CustomTypeOrmLogger
     message: any,
     queryRunner?: QueryRunner
   ): void {
+    if (level === 'warn') {
+      this.logger.log('warning', message)
+      return
+    }
+
     this.logger.log(level, message)
   }
 }
