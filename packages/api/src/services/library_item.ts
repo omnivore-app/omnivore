@@ -138,13 +138,17 @@ export const batchGetLibraryItems = async (ids: readonly string[]) => {
   const select = getColumns(libraryItemRepository).filter(
     (select) => ['originalContent', 'readableContent'].indexOf(select) === -1
   )
-  const items = await authTrx(async (tx) =>
-    tx.getRepository(LibraryItem).find({
-      select,
-      where: {
-        id: In(ids as string[]),
-      },
-    })
+  const items = await authTrx(
+    async (tx) =>
+      tx.getRepository(LibraryItem).find({
+        select,
+        where: {
+          id: In(ids as string[]),
+        },
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return ids.map((id) => items.find((item) => item.id === id) || undefined)
@@ -709,6 +713,7 @@ export const countLibraryItems = async (args: SearchArgs, userId: string) => {
     async (tx) => createSearchQueryBuilder(args, userId, tx).getCount(),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -732,6 +737,7 @@ export const searchLibraryItems = async (
         .getMany(),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -778,6 +784,7 @@ export const findRecentLibraryItems = async (
         .getMany(),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -803,6 +810,7 @@ export const findLibraryItemsByIds = async (
         .getMany(),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -832,6 +840,7 @@ export const findLibraryItemById = async (
       }),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -855,6 +864,7 @@ export const findLibraryItemByUrl = async (
         .getOne(),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -1153,17 +1163,21 @@ export const findLibraryItemsByPrefix = async (
 ): Promise<LibraryItem[]> => {
   const prefixWildcard = `${prefix}%`
 
-  return authTrx(async (tx) =>
-    tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.user_id = :userId', { userId })
-      .andWhere(
-        '(library_item.title ILIKE :prefix OR library_item.site_name ILIKE :prefix)',
-        { prefix: prefixWildcard }
-      )
-      .orderBy('library_item.savedAt', 'DESC')
-      .limit(limit)
-      .getMany()
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere(
+          '(library_item.title ILIKE :prefix OR library_item.site_name ILIKE :prefix)',
+          { prefix: prefixWildcard }
+        )
+        .orderBy('library_item.savedAt', 'DESC')
+        .limit(limit)
+        .getMany(),
+    {
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -1184,6 +1198,7 @@ export const countBySavedAt = async (
         .getCount(),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -1424,6 +1439,7 @@ export const findLibraryItemIdsByLabelId = async (
     },
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }

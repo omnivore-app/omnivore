@@ -25,11 +25,15 @@ export type LabelEvent = Merge<
 export const batchGetLabelsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Label[][]> => {
-  const labels = await authTrx(async (tx) =>
-    tx.getRepository(EntityLabel).find({
-      where: { libraryItemId: In(libraryItemIds as string[]) },
-      relations: ['label'],
-    })
+  const labels = await authTrx(
+    async (tx) =>
+      tx.getRepository(EntityLabel).find({
+        where: { libraryItemId: In(libraryItemIds as string[]) },
+        relations: ['label'],
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return libraryItemIds.map((libraryItemId) =>
@@ -42,11 +46,15 @@ export const batchGetLabelsFromLibraryItemIds = async (
 export const batchGetLabelsFromHighlightIds = async (
   highlightIds: readonly string[]
 ): Promise<Label[][]> => {
-  const labels = await authTrx(async (tx) =>
-    tx.getRepository(EntityLabel).find({
-      where: { highlightId: In(highlightIds as string[]) },
-      relations: ['label'],
-    })
+  const labels = await authTrx(
+    async (tx) =>
+      tx.getRepository(EntityLabel).find({
+        where: { highlightId: In(highlightIds as string[]) },
+        relations: ['label'],
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return highlightIds.map((highlightId) =>
@@ -270,6 +278,7 @@ export const findLabelsByIds = async (
     },
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -357,6 +366,7 @@ export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {
       }),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -369,6 +379,7 @@ export const findLabelById = async (id: string, userId: string) => {
         .findOneBy({ id, user: { id: userId } }),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }

@@ -22,6 +22,7 @@ export const explainText = async (
       tx.withRepository(libraryItemRepository).findById(libraryItemId),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 

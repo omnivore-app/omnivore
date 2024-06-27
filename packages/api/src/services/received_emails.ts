@@ -60,6 +60,7 @@ export const findReceivedEmailById = async (id: string, userId: string) => {
       t.getRepository(ReceivedEmail).findOneBy({ id, user: { id: userId } }),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
