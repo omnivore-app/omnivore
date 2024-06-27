@@ -1,25 +1,21 @@
-import { ArrayContains, DeepPartial, EntityManager } from 'typeorm'
+import { ArrayContains, DeepPartial } from 'typeorm'
 import { Webhook } from '../entity/webhook'
 import { authTrx } from '../repository'
 
 export const createWebhooks = async (
   webhooks: DeepPartial<Webhook>[],
-  userId?: string,
-  entityManager?: EntityManager
+  userId?: string
 ) => {
   return authTrx((tx) => tx.getRepository(Webhook).save(webhooks), {
-    entityManager: entityManager,
     uid: userId,
   })
 }
 
 export const createWebhook = async (
   webhook: DeepPartial<Webhook>,
-  userId?: string,
-  entityManager?: EntityManager
+  userId?: string
 ) => {
   return authTrx((tx) => tx.getRepository(Webhook).save(webhook), {
-    entityManager: entityManager,
     uid: userId,
   })
 }

@@ -60,16 +60,15 @@ export const setClaims = async (
 }
 
 interface AuthTrxOptions {
-  entityManager?: EntityManager
   uid?: string
   userRole?: string
+  replicationMode?: 'master' | 'slave'
 }
 
 export const authTrx = async <T>(
   fn: (manager: EntityManager) => Promise<T>,
   options: AuthTrxOptions = {}
 ): Promise<T> => {
-  const entityManage = options.entityManager || appDataSource.manager
   let { uid, userRole } = options
 
   // if uid and dbRole are not passed in, then get them from the claims
@@ -79,10 +78,25 @@ export const authTrx = async <T>(
     userRole = claims?.userRole
   }
 
-  return entityManage.transaction(async (tx) => {
-    await setClaims(tx, uid, userRole)
-    return fn(tx)
-  })
+  const queryRunner = appDataSource.createQueryRunner(options.replicationMode)
+
+  // lets now open a new transaction:
+  await queryRunner.startTransaction()
+
+  try {
+    await setClaims(queryRunner.manager, uid, userRole)
+    const result = await fn(queryRunner.manager)
+
+    await queryRunner.commitTransaction()
+
+    return result
+  } catch (err) {
+    await queryRunner.rollbackTransaction()
+
+    throw err
+  } finally {
+    await queryRunner.release()
+  }
 }
 
 export const getRepository = <T extends ObjectLiteral>(
