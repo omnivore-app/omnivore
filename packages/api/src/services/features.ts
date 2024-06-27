@@ -183,6 +183,7 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
     },
     {
       uid,
+      replicationMode: 'replica',
     }
   )
 
@@ -194,6 +195,7 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
     },
     {
       uid,
+      replicationMode: 'replica',
     }
   )
 

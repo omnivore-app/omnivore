@@ -23,10 +23,14 @@ export type HighlightEvent = Merge<
 export const batchGetHighlightsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Highlight[][]> => {
-  const highlights = await authTrx(async (tx) =>
-    tx.getRepository(Highlight).find({
-      where: { libraryItem: { id: In(libraryItemIds as string[]) } },
-    })
+  const highlights = await authTrx(
+    async (tx) =>
+      tx.getRepository(Highlight).find({
+        where: { libraryItem: { id: In(libraryItemIds as string[]) } },
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return libraryItemIds.map((libraryItemId) =>
@@ -262,6 +266,7 @@ export const findHighlightById = async (
     },
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -281,6 +286,7 @@ export const findHighlightsByLibraryItemId = async (
       }),
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }
@@ -330,6 +336,7 @@ export const searchHighlights = async (
     },
     {
       uid: userId,
+      replicationMode: 'replica',
     }
   )
 }

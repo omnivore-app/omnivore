@@ -26,6 +26,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
           .findById(jobData.libraryItemId),
       {
         uid: jobData.userId,
+        replicationMode: 'replica',
       }
     )
     if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
