@@ -28,6 +28,7 @@ import {
   UpdateLabelErrorCode,
   UpdateLabelSuccess,
 } from '../../generated/graphql'
+import { authTrx } from '../../repository'
 import { labelRepository } from '../../repository/label'
 import { userRepository } from '../../repository/user'
 import {
@@ -41,7 +42,7 @@ import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/gql-utils'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
-  async (_obj, _params, { authTrx, log, uid }) => {
+  async (_obj, _params, { log, uid }) => {
     try {
       const user = await userRepository.findById(uid)
       if (!user) {
@@ -50,16 +51,21 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         }
       }
 
-      const labels = await authTrx(async (tx) => {
-        return tx.withRepository(labelRepository).find({
-          where: {
-            user: { id: uid },
-          },
-          order: {
-            name: 'ASC',
-          },
-        })
-      })
+      const labels = await authTrx(
+        async (tx) => {
+          return tx.withRepository(labelRepository).find({
+            where: {
+              user: { id: uid },
+            },
+            order: {
+              name: 'ASC',
+            },
+          })
+        },
+        {
+          replicationMode: 'replica',
+        }
+      )
 
       analytics.capture({
         distinctId: uid,
