@@ -6,6 +6,7 @@ import {
   ObjectLiteral,
   QueryBuilder,
   QueryFailedError,
+  ReplicationMode,
   Repository,
 } from 'typeorm'
 import { appDataSource } from '../data_source'
@@ -62,7 +63,7 @@ export const setClaims = async (
 interface AuthTrxOptions {
   uid?: string
   userRole?: string
-  replicationMode?: 'master' | 'slave'
+  replicationMode?: 'primary' | 'replica'
 }
 
 export const authTrx = async <T>(
@@ -78,7 +79,16 @@ export const authTrx = async <T>(
     userRole = claims?.userRole
   }
 
-  const queryRunner = appDataSource.createQueryRunner(options.replicationMode)
+  const replicationModes: Record<'primary' | 'replica', ReplicationMode> = {
+    primary: 'master',
+    replica: 'slave',
+  }
+
+  const replicationMode = options.replicationMode
+    ? replicationModes[options.replicationMode]
+    : undefined
+
+  const queryRunner = appDataSource.createQueryRunner(replicationMode)
 
   // lets now open a new transaction:
   await queryRunner.startTransaction()
