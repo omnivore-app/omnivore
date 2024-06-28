@@ -290,7 +290,7 @@ describe('Highlights API', () => {
       const labelColor = '#ff0000'
       const label = await createLabel(labelName, labelColor, user.id)
 
-      await saveLabelsInHighlight([label], highlightId, user.id)
+      await saveLabelsInHighlight([label], highlightId)
 
       const newHighlightId = generateFakeUuid()
       const newShortHighlightId = generateFakeShortId()
@@ -459,11 +459,7 @@ describe('Highlights API', () => {
       const label1 = await createLabel(labelName1, '#ff0001', user.id)
 
       // save labels in highlights
-      await saveLabelsInHighlight(
-        [label, label1],
-        existingHighlights[0].id,
-        user.id
-      )
+      await saveLabelsInHighlight([label, label1], existingHighlights[0].id)
 
       const res = await graphqlRequest(query, authToken, {
         query: `label:"${labelName}" label:"${labelName1}"`,

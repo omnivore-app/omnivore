@@ -185,15 +185,27 @@ export const addLabelsToLibraryItem = async (
 ) => {
   await authTrx(
     async (tx) => {
+      // assign new labels if not exist to the item owner by user
       await tx.query(
         `INSERT INTO omnivore.entity_labels (label_id, library_item_id, source)
-          SELECT id, $1, $2 FROM omnivore.labels
-          WHERE id = ANY($3)
-          AND NOT EXISTS (
-            SELECT 1 FROM omnivore.entity_labels
-            WHERE label_id = labels.id
-            AND library_item_id = $1
-          )`,
+          SELECT 
+              lbl.id, 
+              $1, 
+              $2 
+          FROM 
+              omnivore.labels lbl
+          LEFT JOIN 
+              omnivore.entity_labels el 
+          ON 
+              el.label_id = lbl.id 
+              AND el.library_item_id = $1
+          INNER JOIN 
+              omnivore.library_item li 
+          ON 
+              li.id = $1
+          WHERE 
+              lbl.id = ANY($3)
+              AND el.label_id IS NULL;`,
         [libraryItemId, source, labelIds]
       )
     },
@@ -207,9 +219,7 @@ export const addLabelsToLibraryItem = async (
 
 export const saveLabelsInHighlight = async (
   labels: Label[],
-  highlightId: string,
-  userId: string,
-  pubsub = createPubSubClient()
+  highlightId: string
 ) => {
   await authTrx(async (tx) => {
     const repo = tx.getRepository(EntityLabel)
@@ -227,31 +237,6 @@ export const saveLabelsInHighlight = async (
       }))
     )
   })
-
-  // const highlight = await findHighlightById(highlightId, userId)
-  // if (!highlight) {
-  //   logger.error('Highlight not found', { highlightId, userId })
-  //   return
-  // }
-
-  // const libraryItemId = highlight.libraryItemId
-  // // create pubsub event
-  // await pubsub.entityCreated<ItemEvent>(
-  //   EntityType.LABEL,
-  //   {
-  //     id: libraryItemId,
-  //     highlights: [
-  //       {
-  //         id: highlightId,
-  //         labels: labels.map((l) => deepDelete(l, columnToDelete)),
-  //       },
-  //     ],
-  //   },
-  //   userId
-  // )
-
-  // // update labels in library item
-  // await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const findLabelsByIds = async (

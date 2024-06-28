@@ -30,6 +30,7 @@ import {
 } from '../../generated/graphql'
 import { labelRepository } from '../../repository/label'
 import { userRepository } from '../../repository/user'
+import { findHighlightById } from '../../services/highlights'
 import {
   deleteLabelById,
   findOrCreateLabels,
@@ -37,6 +38,7 @@ import {
   saveLabelsInLibraryItem,
   updateLabel,
 } from '../../services/labels'
+import { findLibraryItemById } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/gql-utils'
 
@@ -189,47 +191,47 @@ export const setLabelsResolver = authorized<
       labelSource = source
     }
 
-    try {
-      let labelsSet: Label[] = []
+    let labelsSet: Label[] = []
 
-      if (labels && labels.length > 0) {
-        // for new clients that send label names
-        // create labels if they don't exist
-        labelsSet = await findOrCreateLabels(labels, uid)
-      } else if (labelIds && labelIds.length > 0) {
-        // for old clients that send labelIds
-        labelsSet = await authTrx(async (tx) => {
-          return tx.withRepository(labelRepository).findLabelsById(labelIds)
-        })
-
-        if (labelsSet.length !== labelIds.length) {
-          return {
-            errorCodes: [SetLabelsErrorCode.NotFound],
-          }
-        }
-      }
-
-      // save labels in the library item
-      await saveLabelsInLibraryItem(labelsSet, pageId, uid, labelSource, pubsub)
-
-      analytics.capture({
-        distinctId: uid,
-        event: 'labels_set',
-        properties: {
-          pageId,
-          labelIds,
-          env: env.server.apiEnv,
-        },
+    if (labels && labels.length > 0) {
+      // for new clients that send label names
+      // create labels if they don't exist
+      labelsSet = await findOrCreateLabels(labels, uid)
+    } else if (labelIds && labelIds.length > 0) {
+      // for old clients that send labelIds
+      labelsSet = await authTrx(async (tx) => {
+        return tx.withRepository(labelRepository).findLabelsById(labelIds)
       })
 
-      return {
-        labels: labelsSet,
+      if (labelsSet.length !== labelIds.length) {
+        return {
+          errorCodes: [SetLabelsErrorCode.NotFound],
+        }
       }
-    } catch (error) {
-      log.error('setLabelsResolver error', error)
+    }
+
+    const libraryItem = await findLibraryItemById(pageId, uid)
+    if (!libraryItem) {
       return {
-        errorCodes: [SetLabelsErrorCode.BadRequest],
+        errorCodes: [SetLabelsErrorCode.Unauthorized],
       }
+    }
+
+    // save labels in the library item
+    await saveLabelsInLibraryItem(labelsSet, pageId, uid, labelSource, pubsub)
+
+    analytics.capture({
+      distinctId: uid,
+      event: 'labels_set',
+      properties: {
+        pageId,
+        labelIds,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return {
+      labels: labelsSet,
     }
   }
 )
@@ -255,7 +257,7 @@ export const setLabelsForHighlightResolver = authorized<
   SetLabelsSuccess,
   SetLabelsError,
   MutationSetLabelsForHighlightArgs
->(async (_, { input }, { uid, log, pubsub, authTrx }) => {
+>(async (_, { input }, { uid, log, authTrx }) => {
   const { highlightId, labelIds, labels } = input
 
   if (!labelIds && !labels) {
@@ -265,46 +267,46 @@ export const setLabelsForHighlightResolver = authorized<
     }
   }
 
-  try {
-    let labelsSet: Label[] = []
+  let labelsSet: Label[] = []
 
-    if (labels && labels.length > 0) {
-      // for new clients that send label names
-      // create labels if they don't exist
-      labelsSet = await findOrCreateLabels(labels, uid)
-    } else if (labelIds && labelIds.length > 0) {
-      // for old clients that send labelIds
-      labelsSet = await authTrx(async (tx) => {
-        return tx.withRepository(labelRepository).findLabelsById(labelIds)
-      })
-      if (labelsSet.length !== labelIds.length) {
-        return {
-          errorCodes: [SetLabelsErrorCode.NotFound],
-        }
+  if (labels && labels.length > 0) {
+    // for new clients that send label names
+    // create labels if they don't exist
+    labelsSet = await findOrCreateLabels(labels, uid)
+  } else if (labelIds && labelIds.length > 0) {
+    // for old clients that send labelIds
+    labelsSet = await authTrx(async (tx) => {
+      return tx.withRepository(labelRepository).findLabelsById(labelIds)
+    })
+    if (labelsSet.length !== labelIds.length) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
       }
     }
+  }
 
-    // save labels in the highlight
-    await saveLabelsInHighlight(labelsSet, input.highlightId, uid, pubsub)
-
-    analytics.capture({
-      distinctId: uid,
-      event: 'labels_set_for_highlight',
-      properties: {
-        highlightId,
-        labelIds,
-        env: env.server.apiEnv,
-      },
-    })
-
+  const highlight = await findHighlightById(highlightId, uid)
+  if (!highlight) {
     return {
-      labels: labelsSet,
+      errorCodes: [SetLabelsErrorCode.Unauthorized],
     }
-  } catch (error) {
-    log.error('setLabelsForHighlightResolver error', error)
-    return {
-      errorCodes: [SetLabelsErrorCode.BadRequest],
-    }
+  }
+
+  // save labels in the highlight
+  await saveLabelsInHighlight(labelsSet, input.highlightId)
+
+  analytics.capture({
+    distinctId: uid,
+    event: 'labels_set_for_highlight',
+    properties: {
+      highlightId,
+      labelIds,
+      env: env.server.apiEnv,
+    },
+  })
+
+  return {
+    labels: labelsSet,
   }
 })
 

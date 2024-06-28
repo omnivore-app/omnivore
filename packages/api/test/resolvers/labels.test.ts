@@ -322,7 +322,7 @@ describe('Labels API', () => {
             libraryItem: item,
           }
           await createHighlight(highlight, item.id, user.id)
-          await saveLabelsInHighlight([toDeleteLabel], highlightId, user.id)
+          await saveLabelsInHighlight([toDeleteLabel], highlightId)
         })
 
         after(async () => {
