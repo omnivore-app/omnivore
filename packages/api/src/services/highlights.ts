@@ -253,6 +253,7 @@ export const findHighlightById = async (
       const highlightRepo = tx.withRepository(highlightRepository)
       return highlightRepo.findOneBy({
         id: highlightId,
+        user: { id: userId },
       })
     },
     undefined,

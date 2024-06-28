@@ -79,4 +79,4 @@ class ScoreClientImpl implements ScoreClient {
   }
 }
 
-export const scoreClient = new StubScoreClientImpl()
+export const scoreClient = new ScoreClientImpl()
