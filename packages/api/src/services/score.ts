@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { env } from '../env'
 
 export interface Feature {
@@ -62,20 +63,14 @@ class ScoreClientImpl implements ScoreClient {
   }
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
-    const response = await fetch(this.apiUrl, {
-      method: 'POST',
+    const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      timeout: 5000,
     })
 
-    if (!response.ok) {
-      throw new Error(`Failed to score candidates: ${response.statusText}`)
-    }
-
-    const scores = (await response.json()) as ScoreApiResponse
-    return scores
+    return response.data
   }
 }
 
