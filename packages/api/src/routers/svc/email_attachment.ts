@@ -67,8 +67,9 @@ export function emailAttachmentRouter() {
             contentType,
             user: { id: user.id },
           }),
-        undefined,
-        user.id
+        {
+          uid: user.id,
+        }
       )
 
       if (uploadFileData.id) {

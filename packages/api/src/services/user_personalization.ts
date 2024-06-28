@@ -12,8 +12,9 @@ export const findUserPersonalization = async (userId: string) => {
       t.getRepository(UserPersonalization).findOneBy({
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -23,8 +24,9 @@ export const deleteUserPersonalization = async (userId: string) => {
       t.getRepository(UserPersonalization).delete({
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -34,8 +36,9 @@ export const saveUserPersonalization = async (
 ) => {
   return authTrx(
     (t) => t.getRepository(UserPersonalization).save(userPersonalization),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -45,8 +48,9 @@ export const getShortcuts = async (userId: string): Promise<Shortcut[]> => {
       t.getRepository(UserPersonalization).findOneBy({
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
   if (personalization?.shortcuts) {
     return personalization?.shortcuts as Shortcut[]
@@ -67,8 +71,9 @@ export const resetShortcuts = async (userId: string): Promise<boolean> => {
         })
         .execute()
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
   if (!result) {
     throw Error('Could not update shortcuts')
@@ -90,8 +95,9 @@ export const setShortcuts = async (
           shortcuts: shortcuts,
         }
       ),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
   if (!result.affected || result.affected < 1) {
     throw Error('Could not update shortcuts')

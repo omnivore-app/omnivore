@@ -63,7 +63,7 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
-import { getColumns } from '../../repository'
+import { authTrx, getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
@@ -376,7 +376,7 @@ export const getArticleResolver = authorized<
   Merge<ArticleSuccess, { article: LibraryItem }>,
   ArticleError,
   QueryArticleArgs
->(async (_obj, { slug, format }, { authTrx, uid, log }, info) => {
+>(async (_obj, { slug, format }, { uid, log }, info) => {
   try {
     const selectColumns = getColumns(libraryItemRepository)
     const includeOriginalHtml =
@@ -386,36 +386,44 @@ export const getArticleResolver = authorized<
       selectColumns.splice(selectColumns.indexOf('originalContent'), 1)
     }
 
-    const libraryItem = await authTrx((tx) => {
-      const qb = tx
-        .createQueryBuilder(LibraryItem, 'libraryItem')
-        .select(selectColumns.map((column) => `libraryItem.${column}`))
-        .leftJoinAndSelect('libraryItem.labels', 'labels')
-        .leftJoinAndSelect('libraryItem.highlights', 'highlights')
-        .leftJoinAndSelect('highlights.labels', 'highlights_labels')
-        .leftJoinAndSelect('highlights.user', 'highlights_user')
-        .leftJoinAndSelect('highlights_user.profile', 'highlights_user_profile')
-        .leftJoinAndSelect('libraryItem.uploadFile', 'uploadFile')
-        .leftJoinAndSelect('libraryItem.recommendations', 'recommendations')
-        .leftJoinAndSelect('recommendations.group', 'recommendations_group')
-        .leftJoinAndSelect(
-          'recommendations.recommender',
-          'recommendations_recommender'
-        )
-        .leftJoinAndSelect(
-          'recommendations_recommender.profile',
-          'recommendations_recommender_profile'
-        )
-        .where('libraryItem.user_id = :uid', { uid })
+    const libraryItem = await authTrx(
+      (tx) => {
+        const qb = tx
+          .createQueryBuilder(LibraryItem, 'libraryItem')
+          .select(selectColumns.map((column) => `libraryItem.${column}`))
+          .leftJoinAndSelect('libraryItem.labels', 'labels')
+          .leftJoinAndSelect('libraryItem.highlights', 'highlights')
+          .leftJoinAndSelect('highlights.labels', 'highlights_labels')
+          .leftJoinAndSelect('highlights.user', 'highlights_user')
+          .leftJoinAndSelect(
+            'highlights_user.profile',
+            'highlights_user_profile'
+          )
+          .leftJoinAndSelect('libraryItem.uploadFile', 'uploadFile')
+          .leftJoinAndSelect('libraryItem.recommendations', 'recommendations')
+          .leftJoinAndSelect('recommendations.group', 'recommendations_group')
+          .leftJoinAndSelect(
+            'recommendations.recommender',
+            'recommendations_recommender'
+          )
+          .leftJoinAndSelect(
+            'recommendations_recommender.profile',
+            'recommendations_recommender_profile'
+          )
+          .where('libraryItem.user_id = :uid', { uid })
 
-      // We allow the backend to use the ID instead of a slug to fetch the article
-      // query against id if slug is a uuid
-      slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
-        ? qb.andWhere('libraryItem.id = :id', { id: slug })
-        : qb.andWhere('libraryItem.slug = :slug', { slug })
+        // We allow the backend to use the ID instead of a slug to fetch the article
+        // query against id if slug is a uuid
+        slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
+          ? qb.andWhere('libraryItem.id = :id', { id: slug })
+          : qb.andWhere('libraryItem.slug = :slug', { slug })
 
-      return qb.andWhere('libraryItem.deleted_at IS NULL').getOne()
-    })
+        return qb.andWhere('libraryItem.deleted_at IS NULL').getOne()
+      },
+      {
+        replicationMode: 'replica',
+      }
+    )
 
     if (!libraryItem) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
@@ -499,7 +507,7 @@ export const saveArticleReadingProgressResolver = authorized<
         force,
       },
     },
-    { authTrx, pubsub, uid, dataSources }
+    { pubsub, uid, dataSources }
   ) => {
     if (
       readingProgressPercent < 0 ||
@@ -515,13 +523,17 @@ export const saveArticleReadingProgressResolver = authorized<
     // We don't need to update the values of reading progress here
     // because the function resolver will handle that for us when
     // it resolves the properties of the Article object
-    let updatedItem = await authTrx((tx) =>
-      tx.getRepository(LibraryItem).findOne({
-        where: {
-          id,
-        },
-        relations: ['user'],
-      })
+    let updatedItem = await authTrx(
+      (tx) =>
+        tx.getRepository(LibraryItem).findOne({
+          where: {
+            id,
+          },
+          relations: ['user'],
+        }),
+      {
+        replicationMode: 'replica',
+      }
     )
     if (!updatedItem) {
       return {
@@ -838,7 +850,7 @@ export const moveToFolderResolver = authorized<
   MoveToFolderSuccess,
   MoveToFolderError,
   MutationMoveToFolderArgs
->(async (_, { id, folder }, { authTrx, log, pubsub, uid }) => {
+>(async (_, { id, folder }, { log, pubsub, uid }) => {
   analytics.capture({
     distinctId: uid,
     event: 'move_to_folder',
@@ -848,13 +860,17 @@ export const moveToFolderResolver = authorized<
     },
   })
 
-  const item = await authTrx((tx) =>
-    tx.getRepository(LibraryItem).findOne({
-      where: {
-        id,
-      },
-      relations: ['user'],
-    })
+  const item = await authTrx(
+    (tx) =>
+      tx.getRepository(LibraryItem).findOne({
+        where: {
+          id,
+        },
+        relations: ['user'],
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   if (!item) {
@@ -913,7 +929,7 @@ export const fetchContentResolver = authorized<
   FetchContentSuccess,
   FetchContentError,
   MutationFetchContentArgs
->(async (_, { id }, { authTrx, uid, log, pubsub }) => {
+>(async (_, { id }, { uid, log, pubsub }) => {
   analytics.capture({
     distinctId: uid,
     event: 'fetch_content',
@@ -922,13 +938,17 @@ export const fetchContentResolver = authorized<
     },
   })
 
-  const item = await authTrx((tx) =>
-    tx.getRepository(LibraryItem).findOne({
-      where: {
-        id,
-      },
-      relations: ['user'],
-    })
+  const item = await authTrx(
+    (tx) =>
+      tx.getRepository(LibraryItem).findOne({
+        where: {
+          id,
+        },
+        relations: ['user'],
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
   if (!item) {
     return {

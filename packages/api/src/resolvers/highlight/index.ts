@@ -32,6 +32,7 @@ import {
   UpdateHighlightErrorCode,
   UpdateHighlightSuccess,
 } from '../../generated/graphql'
+import { authTrx } from '../../repository'
 import { highlightRepository } from '../../repository/highlight'
 import {
   createHighlight,
@@ -87,7 +88,7 @@ export const mergeHighlightResolver = authorized<
   Merge<MergeHighlightSuccess, { highlight: HighlightEntity }>,
   MergeHighlightError,
   MutationMergeHighlightArgs
->(async (_, { input }, { authTrx, log, pubsub, uid }) => {
+>(async (_, { input }, { log, pubsub, uid }) => {
   const { overlapHighlightIdList, ...newHighlightInput } = input
 
   /* Compute merged annotation form the order of highlights appearing on page */
@@ -96,10 +97,14 @@ export const mergeHighlightResolver = authorized<
   const mergedColors: string[] = []
 
   try {
-    const existingHighlights = await authTrx((tx) =>
-      tx
-        .withRepository(highlightRepository)
-        .findByLibraryItemId(input.articleId, uid)
+    const existingHighlights = await authTrx(
+      (tx) =>
+        tx
+          .withRepository(highlightRepository)
+          .findByLibraryItemId(input.articleId, uid),
+      {
+        replicationMode: 'replica',
+      }
     )
 
     existingHighlights.forEach((highlight) => {

@@ -11,8 +11,9 @@ export const findDeviceTokenById = async (
   return authTrx(
     (t) =>
       t.getRepository(UserDeviceToken).findOneBy({ id, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -25,8 +26,9 @@ export const findDeviceTokenByToken = async (
       t
         .getRepository(UserDeviceToken)
         .findOneBy({ token, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -38,8 +40,9 @@ export const findDeviceTokensByUserId = async (
       t.getRepository(UserDeviceToken).findBy({
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -61,8 +64,9 @@ export const createDeviceToken = async (
         token,
         user: { id: userId },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -95,7 +99,8 @@ export const deleteDeviceTokens = async (
     async (t) => {
       await t.getRepository(UserDeviceToken).delete(criteria)
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

@@ -24,7 +24,7 @@ describe('Webhooks API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
 
     // create test webhooks
     await createWebhooks(
@@ -129,15 +129,15 @@ describe('Webhooks API', () => {
     let webhookId: string
     let enabled: boolean
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = `
         mutation {
           setWebhook(
             input: {
               id: "${webhookId}",
               url: "${webhookUrl}",
-              eventTypes: [${eventTypes}],
-              enabled: ${enabled}
+              eventTypes: [${eventTypes.toString()}],
+              enabled: ${enabled.toString()}
             }
           ) {
             ... on SetWebhookSuccess {
@@ -209,7 +209,7 @@ describe('Webhooks API', () => {
     let query: string
     let webhookId: string
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = `
         mutation {
           deleteWebhook(id: "${webhookId}") {

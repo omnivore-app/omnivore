@@ -53,8 +53,9 @@ export function textToSpeechRouter() {
           state,
         })
       },
-      undefined,
-      userId
+      {
+        uid: userId,
+      }
     )
 
     res.send('OK')
