@@ -35,9 +35,7 @@ import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
 import app.omnivore.omnivore.utils.Constants
 import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import kotlinx.coroutines.Job
@@ -359,9 +357,8 @@ class OnboardingViewModel @Inject constructor(
         setErrorMessage(resourceProvider.getString(R.string.login_view_model_google_auth_error_msg))
     }
 
-    fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
-        val result = task.getResult(ApiException::class.java)
-        val googleIdToken = result?.idToken ?: ""
+    fun handleGoogleAuthCredential(credential: GoogleIdTokenCredential) {
+        val googleIdToken = credential.idToken
 
         // If token is missing then set the error message
         if (googleIdToken.isEmpty()) {
