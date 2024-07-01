@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { env } from '../env'
+import { logError } from '../utils/logger'
 
 export interface Feature {
   library_item_id?: string
@@ -63,14 +64,23 @@ class ScoreClientImpl implements ScoreClient {
   }
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
-    const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 5000,
-    })
+    try {
+      const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      })
 
-    return response.data
+      return response.data
+    } catch (error) {
+      logError(error)
+
+      // Returns a stub score (0) in case of an error
+      return {
+        [Object.keys(data.items)[0]]: { score: 0 },
+      }
+    }
   }
 }
 
