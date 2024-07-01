@@ -1,5 +1,7 @@
 import axios from 'axios'
+import client from 'prom-client'
 import { env } from '../env'
+import { registerMetric } from '../prometheus'
 import { logError } from '../utils/logger'
 
 export interface Feature {
@@ -38,6 +40,15 @@ export type ScoreBody = {
   score: number
 }
 
+// use prometheus to monitor the latency of digest score api
+const latency = new client.Histogram({
+  name: 'omnivore_digest_score_latency',
+  help: 'Latency of digest score API in seconds',
+  buckets: [0.1, 0.5, 1, 2, 5, 10, 20, 30, 60],
+})
+
+registerMetric(latency)
+
 export type ScoreApiResponse = Record<string, ScoreBody> // item_id -> score
 interface ScoreClient {
   getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse>
@@ -65,12 +76,17 @@ class ScoreClientImpl implements ScoreClient {
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
     try {
+      const start = Date.now()
+
       const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
         headers: {
           'Content-Type': 'application/json',
         },
         timeout: 5000,
       })
+
+      const duration = (Date.now() - start) / 1000 // in seconds
+      latency.observe(duration)
 
       return response.data
     } catch (error) {
