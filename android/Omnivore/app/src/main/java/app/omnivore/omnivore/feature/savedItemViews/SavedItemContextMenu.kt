@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.ViewModel
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.feature.library.SavedItemAction
 import app.omnivore.omnivore.feature.reader.WebReaderViewModel
@@ -16,7 +17,7 @@ fun SavedItemContextMenu(
     isExpanded: Boolean,
     isArchived: Boolean,
     context: Context,
-    webReaderViewModel: WebReaderViewModel,
+    viewModel: ViewModel,
     onDismiss: () -> Unit,
     actionHandler: (SavedItemAction) -> Unit
 ) {
@@ -30,13 +31,13 @@ fun SavedItemContextMenu(
             textResourceId = if (isArchived) R.string.saved_item_context_menu_action_unarchive else R.string.saved_item_context_menu_action_archive,
             action = if (isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
         ),
-        MenuItemOption(
-            textResourceId = R.string.saved_item_context_menu_action_share_original,
-            customAction = {
-                webReaderViewModel.showShareLinkSheet(context)
-                onDismiss()
-            }
-        ),
+//        MenuItemOption(
+//            textResourceId = R.string.saved_item_context_menu_action_share_original,
+//            customAction = {
+//                webReaderViewModel.showShareLinkSheet(context)
+//                onDismiss()
+//            }
+//        ),
         MenuItemOption(R.string.saved_item_context_menu_action_remove_item, SavedItemAction.Delete)
     )
 

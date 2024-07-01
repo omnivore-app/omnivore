@@ -2,7 +2,6 @@ package app.omnivore.omnivore.feature.reader
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -39,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +60,18 @@ import app.omnivore.omnivore.feature.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.Fragment
 
 @AndroidEntryPoint
 class WebReaderLoadingContainerActivity : ComponentActivity() {
@@ -474,7 +484,7 @@ fun ReaderTopAppBar(
                             isExpanded = true,
                             isArchived = params.item.isArchived,
                             onDismiss = { isMenuExpanded = false },
-                            webReaderViewModel = webReaderViewModel,
+                            viewModel = webReaderViewModel,
                             actionHandler = {
                                 webReaderViewModel.handleSavedItemAction(
                                     params.item.savedItemId,
