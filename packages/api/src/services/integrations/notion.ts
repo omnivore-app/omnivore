@@ -1,4 +1,5 @@
 import { Client } from '@notionhq/client'
+import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import axios from 'axios'
 import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
@@ -377,14 +378,13 @@ export class NotionClient implements IntegrationClient {
     return true
   }
 
-  private findDatabase = async (databaseId: string) => {
+  findDatabase = async (databaseId: string) => {
     return this.client.databases.retrieve({
       database_id: databaseId,
     })
   }
 
-  updateDatabase = async (databaseId: string) => {
-    const database = await this.findDatabase(databaseId)
+  updateDatabase = async (database: GetDatabaseResponse) => {
     // find the title property and update it
     const titleProperty = Object.entries(database.properties).find(
       ([, property]) => property.type === 'title'
