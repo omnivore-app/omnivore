@@ -248,7 +248,7 @@ const rankCandidates = async (
   const scores = await scoreClient.getScores(data)
   // update scores for candidates
   candidates.forEach((item) => {
-    item.score = scores[item.id]['score'] || 0
+    item.score = scores[item.id].score || 0
   })
 
   // rank candidates by score in descending order
