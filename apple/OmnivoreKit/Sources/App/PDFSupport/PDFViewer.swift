@@ -54,7 +54,7 @@ import Utils
     @State private var showAnnotationModal = false
     @State private var showSettingsModal = false
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationCoordinator) var presentationCoordinator
 
     init(viewModel: PDFViewerViewModel) {
       self.viewModel = viewModel
@@ -479,7 +479,7 @@ import Utils
 
       @objc public func pop() {
         if let viewer = self.viewer {
-          viewer.dismiss()
+          viewer.presentationCoordinator.dismiss()
         }
       }
 

@@ -546,6 +546,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             if presentingItem.isPDF {
               PDFContainerView(item: presentingItem)
             } else {
+              let too = print("$viewModel.linkIsActive", viewModel.linkIsActive)
               WebReaderContainerView(item: presentingItem)
             }
           } else {
