@@ -248,7 +248,7 @@ const rankCandidates = async (
   const scores = await scoreClient.getScores(data)
   // update scores for candidates
   candidates.forEach((item) => {
-    item.score = scores[item.id]['score'] || 0
+    item.score = scores[item.id].score || 0
   })
 
   // rank candidates by score in descending order
@@ -493,8 +493,6 @@ const latency = new client.Histogram({
   labelNames: ['step'],
   buckets: [0.1, 0.5, 1, 2, 5, 10],
 })
-
-latency.observe(10)
 
 registerMetric(latency)
 
