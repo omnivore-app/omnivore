@@ -90,9 +90,10 @@ class ScoreClientImpl implements ScoreClient {
       logError(error)
 
       // Returns a stub score (0) in case of an error
-      return {
-        [Object.keys(data.items)[0]]: { score: 0 },
-      }
+      return Object.keys(data.items).reduce((acc, itemId) => {
+        acc[itemId] = { score: 0 }
+        return acc
+      }, {} as ScoreApiResponse)
     } finally {
       const duration = (Date.now() - start) / 1000 // in seconds
       latency.observe(duration)
