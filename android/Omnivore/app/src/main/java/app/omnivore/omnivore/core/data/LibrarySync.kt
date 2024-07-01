@@ -49,7 +49,7 @@ suspend fun DataService.sync(context: Context, since: String, cursor: String?, l
     }
 
     val savedItems = syncResult.items.map {
-        if (!saveLibraryItemContentToFile(context, it.id, it.content)) {
+        if (!saveLibraryItemContentToFile(context, it.id, it.contentReader, it.content, it.url)) {
             return SavedItemSyncResult(
                 hasError = true,
                 errorString = "Error saving page content",
