@@ -92,8 +92,6 @@ const jobLatency = new client.Histogram({
   buckets: [0, 1, 5, 10, 50, 100, 500],
 })
 
-jobLatency.observe(10)
-
 registerMetric(jobLatency)
 
 export const getBackendQueue = async (
