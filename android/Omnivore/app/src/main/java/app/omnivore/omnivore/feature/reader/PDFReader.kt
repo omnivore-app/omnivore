@@ -13,13 +13,51 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.Highlight
+import app.omnivore.omnivore.feature.savedItemViews.SavedItemContextMenu
+import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 import com.pspdfkit.annotations.Annotation
 import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.configuration.PdfConfiguration
@@ -42,7 +80,7 @@ import com.pspdfkit.ui.toolbar.popup.PopupToolbarMenuItem
 import com.pspdfkit.utils.PdfUtils
 import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONObject
-
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionManager.OnTextSelectionChangeListener, TextSelectionManager.OnTextSelectionModeChangeListener, OnPreparePopupToolbarListener {
@@ -66,8 +104,6 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
       .scrollDirection(PageScrollDirection.HORIZONTAL)
       .build()
 
-    setContentView(R.layout.pdf_reader_fragment)
-
     // Create the observer which updates the UI.
     val pdfParamsObserver = Observer<PDFReaderParams?> { params ->
       if (params != null) {
@@ -80,6 +116,26 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
 
     val slug = intent.getStringExtra("SAVED_ITEM_SLUG") ?: ""
     viewModel.loadItem(slug, this)
+
+      enableEdgeToEdge()
+
+      setContent {
+          OmnivoreTheme {
+              Scaffold(
+//                  topBar = {
+//                      PDFTopAppBar(viewModel)
+//                  },
+                  modifier = Modifier.statusBarsPadding()
+              ) { paddingValues ->
+                  AndroidView(
+                      factory = { context ->
+                          layoutInflater.inflate(R.layout.pdf_reader_fragment, null)
+                      },
+                      modifier = Modifier.fillMaxSize()
+                  )
+              }
+          }
+      }
   }
 
   override fun onDestroy() {
@@ -468,4 +524,58 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     )
     annotationEditFragment.show(fragment.childFragmentManager, null)
   }
+}
+
+@Composable
+fun PDFTopAppBar(
+    viewModel: PDFReaderViewModel,
+    onLibraryIconTap: (() -> Unit)? = null
+) {
+    val context = LocalContext.current
+    val themeTintColor = Color.White
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    var isMenuExpanded by remember { mutableStateOf(false) }
+
+    val params = viewModel.pdfReaderParamsLiveData.value
+
+    TopAppBar(
+        elevation = 0.dp,
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = {
+                onBackPressedDispatcher?.onBackPressed()
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    modifier = Modifier,
+                    contentDescription = "Back",
+                    tint = themeTintColor
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { isMenuExpanded = true }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.dots_horizontal),
+                    contentDescription = null,
+                    tint = themeTintColor
+                )
+                if (isMenuExpanded) {
+                        SavedItemContextMenu(
+                            context = context,
+                            isExpanded = true,
+                            isArchived = false,
+                            onDismiss = { isMenuExpanded = false },
+                            viewModel = viewModel,
+                            actionHandler = {
+//                                viewModel.handleSavedItemAction(
+//                                    params.item.savedItemId,
+//                                    it
+//                                )
+                            }
+                        )
+                }
+            }
+        },
+    )
 }
