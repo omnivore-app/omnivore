@@ -53,7 +53,7 @@ export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
   SetIntegrationError,
   MutationSetIntegrationArgs
->(async (_, { input }, { uid }) => {
+>(async (_, { input }, { uid, log }) => {
   const integrationToSave: DeepPartial<Integration> = {
     ...input,
     user: { id: uid },
@@ -104,11 +104,28 @@ export const setIntegrationResolver = authorized<
     if (settings.parentDatabaseId) {
       // update notion database properties
       const notion = new NotionClient(integration.token, integration)
+
       try {
-        await notion.updateDatabase(settings.parentDatabaseId)
+        const database = await notion.findDatabase(settings.parentDatabaseId)
+
+        try {
+          await notion.updateDatabase(database)
+        } catch (error) {
+          log.error('failed to update notion database', {
+            databaseId: settings.parentDatabaseId,
+          })
+
+          return {
+            errorCodes: [SetIntegrationErrorCode.BadRequest],
+          }
+        }
       } catch (error) {
+        log.error('notion database not found', {
+          databaseId: settings.parentDatabaseId,
+        })
+
         return {
-          errorCodes: [SetIntegrationErrorCode.BadRequest],
+          errorCodes: [SetIntegrationErrorCode.NotFound],
         }
       }
     }
