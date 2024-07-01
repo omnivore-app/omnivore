@@ -75,18 +75,15 @@ class ScoreClientImpl implements ScoreClient {
   }
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
-    try {
-      const start = Date.now()
+    const start = Date.now()
 
+    try {
       const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
         headers: {
           'Content-Type': 'application/json',
         },
         timeout: 5000,
       })
-
-      const duration = (Date.now() - start) / 1000 // in seconds
-      latency.observe(duration)
 
       return response.data
     } catch (error) {
@@ -96,6 +93,9 @@ class ScoreClientImpl implements ScoreClient {
       return {
         [Object.keys(data.items)[0]]: { score: 0 },
       }
+    } finally {
+      const duration = (Date.now() - start) / 1000 // in seconds
+      latency.observe(duration)
     }
   }
 }
