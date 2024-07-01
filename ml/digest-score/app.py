@@ -215,6 +215,8 @@ def batch():
     app.logger.error(f"exception in batch endpoint: {request.get_json()}\n{e}")
     return jsonify({'error': str(e)}), 500
 
+## Run this on startup in both production and development modes
+refresh_data()
+
 if __name__ == '__main__':
-  refresh_data()
   app.run(debug=True, port=5000)
