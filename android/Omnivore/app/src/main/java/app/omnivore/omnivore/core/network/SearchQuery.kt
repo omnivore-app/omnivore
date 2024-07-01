@@ -150,6 +150,12 @@ suspend fun saveLibraryItemContentToFile(context: Context, libraryItemId: String
         var localPDFPath: String? = null
         if (contentReader == ContentReader.PDF) {
             val localPDFPath = "${libraryItemId}.pdf"
+            val file = File(context.filesDir, localPDFPath)
+            if (file.exists()) {
+                // TODO: there should really be a checksum check here
+                Log.d("PDF", "SKIPPING DOWNLOAD FOR LOCAL PDF PATH: ${localPDFPath}")
+                return true
+            }
             withContext(Dispatchers.IO) {
                 val urlStream: InputStream = URL(contentUrl).openStream()
                 context.openFileOutput(localPDFPath, Context.MODE_PRIVATE).use { outputStream ->
