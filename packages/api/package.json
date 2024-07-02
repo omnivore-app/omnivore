@@ -115,7 +115,7 @@
     "winston": "^3.3.3",
     "word-counting": "^1.1.4",
     "yaml": "^2.4.1",
-    "youtubei": "1.4.0"
+    "youtubei": "1.4.1"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
