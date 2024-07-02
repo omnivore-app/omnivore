@@ -13,7 +13,6 @@ interface BackendEnv {
       max: number
     }
   }
-  apiKey: string
   openAiApiKey: string
   imageProxy: {
     url?: string
@@ -55,7 +54,6 @@ export function getEnv(): BackendEnv {
 
   return {
     pg,
-    apiKey: parse('OMNIVORE_API_KEY')!,
     openAiApiKey: parse('OPENAI_API_KEY')!,
     imageProxy: {
       url: parse('IMAGE_PROXY_URL', false),

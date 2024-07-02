@@ -15,6 +15,7 @@ import {
 } from '../../generated/graphql'
 import { authorized } from '../../utils/gql-utils'
 import { RSS_PARSER_CONFIG } from '../../utils/parser'
+import { EntityType } from '../../pubsub'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -22,10 +23,6 @@ const parser = new XMLParser({
   ignoreDeclaration: false,
   ignorePiTags: false,
 })
-
-type DiscoverFeedRows = {
-  rows: DiscoverFeed[]
-}
 
 const extractAtomData = (
   url: string,
@@ -70,7 +67,7 @@ const handleExistingSubscription = async (
     [userId, feed.id]
   )
 
-  if (existingSubscription.rows > 1) {
+  if (existingSubscription.length > 0) {
     return {
       __typename: 'AddDiscoverFeedError',
       errorCodes: [AddDiscoverFeedErrorCode.Conflict],
@@ -162,21 +159,20 @@ export const addDiscoverFeedResolver = authorized<
     const existingFeed = (await appDataSource.query(
       'SELECT id from omnivore.discover_feed where link = $1',
       [url]
-    )) as DiscoverFeedRows
+    )) as DiscoverFeed[]
 
-    if (existingFeed.rows.length > 0) {
-      return await handleExistingSubscription(existingFeed.rows[0], uid)
+    if (existingFeed.length > 0) {
+      return await handleExistingSubscription(existingFeed[0], uid)
     }
 
     const result = await addNewSubscription(url, uid)
-    // TODO: Add pubsub for new feed
-    // if (result.__typename == 'AddDiscoverFeedSuccess') {
-    //   await pubsub.entityCreated(
-    //     EntityType.RSS_FEED,
-    //     { feed: result.feed, libraryItemId: 'NA' },
-    //     uid
-    //   )
-    // }
+    if (result.__typename == 'AddDiscoverFeedSuccess') {
+      await pubsub.entityCreated(
+        EntityType.DISCOVER_FEED,
+        { id: result.feed.id, feed: result.feed },
+        uid
+      )
+    }
 
     return result
   } catch (error) {

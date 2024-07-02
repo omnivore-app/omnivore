@@ -4,10 +4,13 @@ import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { DiscoverItemCard } from './DiscoverItemCard'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
+import { DiscoverVisibilityType } from "../DiscoverContainer"
+import { useEffect, useState } from "react"
 
 type DiscoverItemsProps = {
   items: DiscoverFeedItem[]
   layout: LayoutType
+  visibility: DiscoverVisibilityType
   viewer?: UserBasicData
   handleLinkSubmission: (
     link: string,
@@ -17,6 +20,17 @@ type DiscoverItemsProps = {
 }
 
 export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
+  const [discoverItems, setDiscoveryItems] = useState(props.items);
+
+  const hideDiscoverItem = (item: DiscoverFeedItem) => {
+    const hiddenDiscoveryList = discoverItems.filter(it => it.id != item.id);
+    setDiscoveryItems(hiddenDiscoveryList);
+  }
+
+  useEffect(() => {
+    setDiscoveryItems(props.items)
+  }, [props.items])
+
   return (
     <Box
       id={"DiscoverItems"}
@@ -44,21 +58,28 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
         '@media (min-width: 930px)': {
+          width: '660px',
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
         },
         '@media (min-width: 1280px)': {
+          width: '1000px',
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
         },
         '@media (min-width: 1600px)': {
+          width: '1340px',
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
         },
       }}
     >
-      {props.items.map((linkedItem) => (
-        <Box
+      {discoverItems.map((linkedItem) => {
+        if (props.visibility == 'HIDE_HIDDEN' && linkedItem.hidden) {
+          return null
+        }
+
+        return (<Box
           id={linkedItem.id}
           tabIndex={0}
           key={linkedItem.id + linkedItem.image}
@@ -89,13 +110,15 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
           }}
         >
           <DiscoverItemCard
+            visibility={props.visibility}
             layout={props.layout}
             item={linkedItem}
             handleLinkSubmission={props.handleLinkSubmission}
+            hideDiscoverItem={hideDiscoverItem}
             viewer={props.viewer}
           />
-        </Box>
-      ))}
+        </Box>)
+      })}
     </Box>
   )
 }

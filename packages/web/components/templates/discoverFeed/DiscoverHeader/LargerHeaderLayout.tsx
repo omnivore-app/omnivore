@@ -6,6 +6,8 @@ import React from 'react'
 import { PinnedFeeds } from "./PinnedFeeds"
 import { HeaderToggleGridIcon } from "../../../elements/icons/HeaderToggleGridIcon"
 import { HeaderToggleListIcon } from "../../../elements/icons/HeaderToggleListIcon"
+import { DiscoverShowAllIcon } from "../../../elements/icons/DiscoverShowAllIcon"
+import { DiscoverHideHiddenIcon } from "../../../elements/icons/DiscoverHideHiddenIcon"
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -47,6 +49,21 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             activeTab={props.activeTab}
             topics={props.topics}
           />
+          <Button
+            style="plainIcon"
+            css={{ display: 'flex', marginLeft: 'auto' }}
+            onClick={(e) => {
+              const visibility = props.discoverVisibility == 'HIDE_HIDDEN' ? 'SHOW_ALL' : 'HIDE_HIDDEN';
+              props.setDiscoverVisibility(visibility);
+              e.preventDefault()
+            }}
+          >
+            {props.discoverVisibility == 'HIDE_HIDDEN' ? (
+              <DiscoverHideHiddenIcon />
+            ) : (
+              <DiscoverShowAllIcon />
+            )}
+          </Button>
           <Button
             style="plainIcon"
             css={{ display: 'flex', marginLeft: 'auto' }}

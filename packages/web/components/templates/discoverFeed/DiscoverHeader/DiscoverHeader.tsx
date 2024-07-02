@@ -3,7 +3,7 @@ import { Box, VStack } from '../../../elements/LayoutPrimitives'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../navMenu/LibraryMenu'
 import { LargeHeaderLayout } from './LargerHeaderLayout'
 import { SmallHeaderLayout } from './SmallerHeaderLayout'
-import { LayoutType, TopicTabData } from '../DiscoverContainer'
+import { DiscoverVisibilityType, LayoutType, TopicTabData } from "../DiscoverContainer"
 import { DiscoverFeed } from "../../../../lib/networking/queries/useGetDiscoverFeeds"
 
 export type DiscoverHeaderProps = {
@@ -32,6 +32,9 @@ export type DiscoverHeaderProps = {
 
   layout: LayoutType
   setLayoutType: (layout: LayoutType) => void
+
+  discoverVisibility: DiscoverVisibilityType
+  setDiscoverVisibility: (discoverVisibility: DiscoverVisibilityType) => void
 }
 
 function DiscoverHeaderSpace() {

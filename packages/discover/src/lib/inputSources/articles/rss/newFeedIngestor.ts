@@ -51,7 +51,7 @@ export const newFeeds$ = new Observable<OmnivoreFeed>(
       .then((subscription) => {
         subscription.on('message', (msg: Message) => {
           const parsedMessage = JSON.parse(msg.data.toString())
-          if (parsedMessage.type == 'feed') {
+          if (parsedMessage.ruleEventType == 'DISCOVER_FEED_CREATED') {
             subscriber.next(parsedMessage.feed as OmnivoreFeed)
           }
           msg.ack()

@@ -25,7 +25,7 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
         maxWidth: '100%',
         pt: '10px',
         pb: '0px',
-        gap: '10px',
+        gap: '5px',
         bg: 'transparent',
         // overflowX: 'scroll',
       }}

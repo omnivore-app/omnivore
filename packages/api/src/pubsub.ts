@@ -161,6 +161,7 @@ export enum EntityType {
   HIGHLIGHT = 'HIGHLIGHT',
   LABEL = 'LABEL',
   RSS_FEED = 'FEED',
+  DISCOVER_FEED = 'DISCOVER_FEED',
 }
 
 export interface PubsubClient {
