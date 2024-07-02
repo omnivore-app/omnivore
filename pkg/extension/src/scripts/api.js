@@ -346,3 +346,38 @@ async function deleteItem(apiUrl, pageId) {
   }
   return data.setBookmarkArticle.bookmarkedArticle
 }
+
+async function subscribeFeed(apiUrl, url) {
+  const mutation = JSON.stringify({
+    query: `mutation Subscribe($input: SubscribeInput!) {
+      subscribe(input: $input) {
+        ... on SubscribeSuccess {
+          subscriptions {
+            id
+          }
+        }
+        ... on SubscribeError{
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        subscriptionType: 'RSS',
+        url: url,
+      },
+    },
+  })
+
+  const data = await gqlRequest(apiUrl, mutation)
+  if (
+    !data.subscribe ||
+    data.subscribe['errorCodes'] ||
+    !data.subscribe.subscriptions
+  ) {
+    console.log('GQL Error subscribing to Feed:', data)
+    throw new Error('Error subscribing to Feed.')
+  }
+  return data.subscribe.subscriptions
+}
