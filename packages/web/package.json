@@ -49,7 +49,7 @@
     "node-html-markdown": "^1.3.0",
     "papaparse": "^5.4.1",
     "posthog-js": "^1.78.2",
-    "pspdfkit": "^2023.4.6",
+    "pspdfkit": "^2024.3.2",
     "re-resizable": "^6.9.11",
     "react": "^18.2.0",
     "react-arborist": "^3.4.0",
