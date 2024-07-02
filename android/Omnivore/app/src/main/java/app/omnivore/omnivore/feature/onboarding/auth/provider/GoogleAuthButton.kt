@@ -1,9 +1,5 @@
 package app.omnivore.omnivore.feature.onboarding.auth.provider
 
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,53 +13,64 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.Task
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import kotlinx.coroutines.launch
 
 @Composable
 fun GoogleAuthButton(viewModel: OnboardingViewModel) {
+
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val credentialManager = remember { CredentialManager.create(context) }
 
-    val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(BuildConfig.OMNIVORE_GAUTH_SERVER_CLIENT_ID).requestEmail().build()
+    val googleIdOption = remember {
+        GetSignInWithGoogleOption.Builder(BuildConfig.OMNIVORE_GAUTH_SERVER_CLIENT_ID)
+            .build()
+    }
 
-    val startForResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val intent = result.data
-                if (result.data != null) {
-                    val task: Task<GoogleSignInAccount> =
-                        GoogleSignIn.getSignedInAccountFromIntent(intent)
-                    viewModel.handleGoogleAuthTask(task)
-                }
-            } else {
-                viewModel.showGoogleErrorMessage()
-            }
-        }
+    val request = remember {
+        GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+    }
 
     OutlinedButton(
         onClick = {
-            val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
-
-            googleSignIn.silentSignIn().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    viewModel.handleGoogleAuthTask(task)
-                } else {
-                    startForResult.launch(googleSignIn.signInIntent)
+            scope.launch {
+                try {
+                    val credential = credentialManager.getCredential(
+                        request = request,
+                        context = context,
+                    ).credential
+                    if (credential is CustomCredential &&
+                        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                    ) {
+                        viewModel.handleGoogleAuthCredential(
+                            GoogleIdTokenCredential
+                                .createFrom(credential.data)
+                        )
+                    } else {
+                        viewModel.showGoogleErrorMessage()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    viewModel.showGoogleErrorMessage()
                 }
-            }.addOnFailureListener {
-                startForResult.launch(googleSignIn.signInIntent)
             }
         },
         modifier = Modifier
@@ -80,7 +87,10 @@ fun GoogleAuthButton(viewModel: OnboardingViewModel) {
             contentDescription = "",
             modifier = Modifier.padding(end = 10.dp)
         )
-        Text(text = stringResource(R.string.google_auth_text), modifier = Modifier.padding(vertical = 6.dp))
+        Text(
+            text = stringResource(R.string.google_auth_text),
+            modifier = Modifier.padding(vertical = 6.dp)
+        )
         if (viewModel.isLoading) {
             Spacer(modifier = Modifier.width(16.dp))
             CircularProgressIndicator(
