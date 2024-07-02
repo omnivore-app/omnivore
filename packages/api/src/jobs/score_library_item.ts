@@ -73,6 +73,7 @@ export const scoreLibraryItem = async (
       has_site_icon: !!libraryItem.siteIcon,
       saved_at: libraryItem.savedAt,
       site: libraryItem.siteName,
+      original_url: libraryItem.originalUrl,
       directionality: libraryItem.directionality,
       folder: libraryItem.folder,
       subscription_type: 'library',

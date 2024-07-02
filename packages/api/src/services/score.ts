@@ -16,6 +16,7 @@ export interface Feature {
   is_newsletter: boolean
   is_feed: boolean
 
+  original_url?: string
   site?: string
   language?: string
   author?: string

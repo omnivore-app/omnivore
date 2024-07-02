@@ -218,6 +218,7 @@ const rankCandidates = async (
         has_site_icon: !!item.siteIcon,
         saved_at: item.date,
         site: item.siteName,
+        original_url: item.url,
         language: item.languageCode,
         directionality: item.dir,
         folder: item.folder,
