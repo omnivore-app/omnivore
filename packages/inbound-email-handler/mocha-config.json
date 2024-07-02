@@ -1,6 +1,5 @@
 {
     "extension": ["ts"],
     "spec": "test/**/*.test.ts",
-    "require": ["test/global-teardown.ts"],
     "timeout": 10000
   }
