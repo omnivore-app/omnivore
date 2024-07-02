@@ -1,4 +1,5 @@
 import { Storage } from '@google-cloud/storage'
+import { RedisDataSource } from '@omnivore/utils'
 import { v4 as uuid } from 'uuid'
 import { EmailJobType, queueEmailJob } from './job'
 
@@ -37,6 +38,7 @@ export const uploadToBucket = async (
 }
 
 export const handleAttachments = async (
+  redisDataSource: RedisDataSource,
   from: string,
   to: string,
   subject: string,
@@ -54,7 +56,7 @@ export const handleAttachments = async (
       public: false,
     })
 
-    await queueEmailJob(EmailJobType.SaveAttachment, {
+    await queueEmailJob(redisDataSource, EmailJobType.SaveAttachment, {
       from,
       to,
       uploadFile: {
