@@ -72,7 +72,7 @@ export const authTrx = async <T>(
 ): Promise<T> => {
   let { uid, userRole } = options
 
-  // if uid and dbRole are not passed in, then get them from the claims
+  // if uid and dbRole are not passed in, then get them from the http context
   if (!uid && !userRole) {
     const claims: Claims | undefined = httpContext.get('claims')
     uid = claims?.uid

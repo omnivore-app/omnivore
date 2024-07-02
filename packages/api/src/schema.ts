@@ -3339,6 +3339,121 @@ const schema = gql`
     afterDays: Int
   }
 
+  type Post {
+    id: ID!
+    title: String!
+    content: String!
+    author: String!
+    ownedByViewer: Boolean!
+    thumbnail: String
+    thought: String
+    libraryItems: [Article!]
+    highlights: [Highlight!]
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  input CreatePostInput {
+    title: String! @sanitize(minLength: 1, maxLength: 255)
+    content: String! @sanitize(minLength: 1)
+    thumbnail: String
+    libraryItemIds: [ID!]!
+    highlightIds: [ID!]
+    thought: String
+  }
+
+  union CreatePostResult = CreatePostSuccess | CreatePostError
+
+  type CreatePostSuccess {
+    post: Post!
+  }
+
+  type CreatePostError {
+    errorCodes: [CreatePostErrorCode!]!
+  }
+
+  enum CreatePostErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input UpdatePostInput {
+    id: ID!
+    title: String @sanitize(minLength: 1, maxLength: 255)
+    content: String @sanitize(minLength: 1)
+    thumbnail: String
+    libraryItemIds: [ID!]
+    highlightIds: [ID!]
+    thought: String
+  }
+
+  union UpdatePostResult = UpdatePostSuccess | UpdatePostError
+
+  type UpdatePostSuccess {
+    post: Post!
+  }
+
+  type UpdatePostError {
+    errorCodes: [UpdatePostErrorCode!]!
+  }
+
+  enum UpdatePostErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union DeletePostResult = DeletePostSuccess | DeletePostError
+
+  type DeletePostSuccess {
+    success: Boolean!
+  }
+
+  type DeletePostError {
+    errorCodes: [DeletePostErrorCode!]!
+  }
+
+  enum DeletePostErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union PostsResult = PostsSuccess | PostsError
+
+  type PostsSuccess {
+    edges: [PostEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type PostEdge {
+    cursor: String!
+    node: Post!
+  }
+
+  type PostsError {
+    errorCodes: [PostsErrorCode!]!
+  }
+
+  enum PostsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union PostResult = PostSuccess | PostError
+
+  type PostSuccess {
+    post: Post!
+  }
+
+  type PostError {
+    errorCodes: [PostErrorCode!]!
+  }
+
+  enum PostErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3353,24 +3468,10 @@ const schema = gql`
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
     updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
     deleteHighlight(highlightId: ID!): DeleteHighlightResult!
-    # createHighlightReply(
-    #   input: CreateHighlightReplyInput!
-    # ): CreateHighlightReplyResult!
-    # updateHighlightReply(
-    #   input: UpdateHighlightReplyInput!
-    # ): UpdateHighlightReplyResult!
-    # deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
-    # createReaction(input: CreateReactionInput!): CreateReactionResult!
-    # deleteReaction(id: ID!): DeleteReactionResult!
     uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
     saveArticleReadingProgress(
       input: SaveArticleReadingProgressInput!
     ): SaveArticleReadingProgressResult!
-    # setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
-    # updateSharedComment(
-    #   input: UpdateSharedCommentInput!
-    # ): UpdateSharedCommentResult!
-    # setFollow(input: SetFollowInput!): SetFollowResult!
     setBookmarkArticle(
       input: SetBookmarkArticleInput!
     ): SetBookmarkArticleResult!
@@ -3380,11 +3481,7 @@ const schema = gql`
     createArticleSavingRequest(
       input: CreateArticleSavingRequestInput!
     ): CreateArticleSavingRequestResult!
-    # setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
     reportItem(input: ReportItemInput!): ReportItemResult!
-    # updateLinkShareInfo(
-    #   input: UpdateLinkShareInfoInput!
-    # ): UpdateLinkShareInfoResult!
     setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
     createNewsletterEmail(
       input: CreateNewsletterEmailInput
@@ -3472,6 +3569,9 @@ const schema = gql`
       input: UpdateFolderPolicyInput!
     ): UpdateFolderPolicyResult!
     deleteFolderPolicy(id: ID!): DeleteFolderPolicyResult!
+    createPost(input: CreatePostInput!): CreatePostResult!
+    updatePost(input: UpdatePostInput!): UpdatePostResult!
+    deletePost(id: ID!): DeletePostResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -3481,17 +3581,6 @@ const schema = gql`
     me: User
     user(userId: ID, username: String): UserResult!
     article(username: String!, slug: String!, format: String): ArticleResult!
-    # sharedArticle(
-    #   username: String!
-    #   slug: String!
-    #   selectedHighlightId: String
-    # ): SharedArticleResult!
-    # feedArticles(
-    #   after: String
-    #   first: Int
-    #   sort: SortParams
-    #   sharedByUser: ID
-    # ): FeedArticlesResult!
     users: UsersResult!
     validateUsername(username: String!): Boolean!
     # getFollowers(userId: ID): GetFollowersResult!
@@ -3547,6 +3636,8 @@ const schema = gql`
     hiddenHomeSection: HiddenHomeSectionResult!
     highlights(after: String, first: Int, query: String): HighlightsResult!
     folderPolicies: FolderPoliciesResult!
+    posts(userId: ID!, after: String, first: Int): PostsResult!
+    post(id: ID!): PostResult!
   }
 
   schema {
