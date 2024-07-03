@@ -27,8 +27,7 @@
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "build": "tsc",
     "start": "node build/src/app.js",
-    "start_gcf": "functions-framework --port=9090 --target=puppeteer",
-    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
+    "start_gcf": "functions-framework --port=9090 --target=puppeteer"
   },
   "volta": {
     "extends": "../../package.json"
