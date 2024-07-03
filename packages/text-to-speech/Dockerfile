@@ -1,4 +1,4 @@
-FROM node:18.16-alpine
+FROM node:18.16
 
 # Run everything after as non-privileged user.
 WORKDIR /app
@@ -10,9 +10,12 @@ COPY .prettierrc .
 COPY .eslintrc .
 
 COPY /packages/text-to-speech/package.json ./packages/text-to-speech/package.json
+COPY /packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile
 
+ADD /packages/utils ./packages/utils
+RUN yarn workspace @omnivore/utils build
 ADD /packages/text-to-speech ./packages/text-to-speech
 RUN yarn workspace @omnivore/text-to-speech-handler build
 
