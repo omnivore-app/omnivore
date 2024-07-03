@@ -21,7 +21,11 @@ export function sortHighlights(highlights: Highlight[]) {
   return highlights
     .filter((h) => h.type === 'HIGHLIGHT')
     .sort((a: Highlight, b: Highlight) => {
-      if (a.highlightPositionPercent && b.highlightPositionPercent) {
+      if (
+        a.highlightPositionPercent &&
+        b.highlightPositionPercent &&
+        a.highlightPositionPercent !== b.highlightPositionPercent
+      ) {
         return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
       }
       // We do this in a try/catch because it might be an invalid diff
