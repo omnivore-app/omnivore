@@ -382,7 +382,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error('Text to speech streaming error:', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
     } finally {
-      await redisDataSource.cacheClient.quit()
+      await redisDataSource.shutdown()
       console.log('Redis Client Disconnected')
     }
   }
