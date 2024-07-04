@@ -2,33 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { preHandleContent } from '@omnivore/content-handler'
 import axios from 'axios'
-// const { Storage } = require('@google-cloud/storage');
 import { parseHTML } from 'linkedom'
 import path from 'path'
-import { Browser, BrowserContext, Page, Protocol } from 'puppeteer-core'
-import puppeteer from 'puppeteer-extra'
-import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import { BrowserContext, Page, Protocol } from 'puppeteer-core'
+import { getBrowser } from './browser'
 
-// Add stealth plugin to hide puppeteer usage
-puppeteer.use(StealthPlugin())
-// Add adblocker plugin to block all ads and trackers (saves bandwidth)
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
-
-// const storage = new Storage();
-// const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
-//   ? process.env.ALLOWED_ORIGINS.split(',')
-//   : []
-// const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
-
-// const filePath = `${os.tmpdir()}/previewImage.png`
-
-// const MOBILE_USER_AGENT =
-//   'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 const DESKTOP_USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-// const BOT_DESKTOP_USER_AGENT =
-//   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
@@ -85,71 +65,6 @@ const enableJavascriptForUrl = (url: string) => {
   }
   return true
 }
-
-let browser: Browser
-
-// launch Puppeteer
-const launchBrowser = async () => {
-  console.log('starting puppeteer browser')
-
-  browser = (await puppeteer.launch({
-    args: [
-      '--allow-running-insecure-content',
-      '--autoplay-policy=user-gesture-required',
-      '--disable-component-update',
-      '--disable-domain-reliability',
-      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-      '--disable-print-preview',
-      '--disable-setuid-sandbox',
-      '--disable-site-isolation-trials',
-      '--disable-speech-api',
-      '--disable-web-security',
-      '--disk-cache-size=33554432',
-      '--enable-features=SharedArrayBuffer',
-      '--hide-scrollbars',
-      '--disable-gpu',
-      '--mute-audio',
-      '--no-default-browser-check',
-      '--no-pings',
-      '--no-sandbox',
-      '--no-zygote',
-      '--window-size=1920,1080',
-      '--disable-extensions',
-    ],
-    defaultViewport: {
-      deviceScaleFactor: 1,
-      hasTouch: false,
-      height: 1080,
-      isLandscape: true,
-      isMobile: false,
-      width: 1920,
-    },
-    executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.LAUNCH_HEADLESS,
-    timeout: 30_000, // 30 seconds
-    dumpio: true, // show console logs in the terminal
-  })) as Browser
-
-  const version = await browser.version()
-  console.log('browser started', version)
-
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  browser.on('disconnected', async () => {
-    console.log('browser disconnected, reconnecting...')
-
-    const childProcess = browser.process()
-    if (childProcess) {
-      childProcess.kill('SIGINT')
-      console.log('browser child process killed')
-    }
-
-    await launchBrowser()
-    console.log('browser reconnected')
-  })
-}
-
-// initialize Puppeteer
-;(async () => await launchBrowser())()
 
 export const fetchContent = async (
   url: string,
@@ -236,11 +151,6 @@ export const fetchContent = async (
     }
   } catch (e) {
     console.error(`Error while retrieving page ${url}`, e)
-
-    console.error(
-      'pendingProtocolErrors',
-      browser.debugInfo.pendingProtocolErrors
-    )
 
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
@@ -330,6 +240,7 @@ async function retrievePage(
     browserOpened: Date.now() - functionStartTime,
   }
 
+  const browser = await getBrowser()
   // create a new incognito browser context
   const context = await browser.createBrowserContext()
 
@@ -635,124 +546,3 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
   }
   return { domContent, title }
 }
-
-// async function preview(req, res) {
-//   const functionStartTime = Date.now();
-//   // Grabbing execution and trace ids to attach logs to the appropriate function call
-//   const execution_id = req.get('function-execution-id');
-//   const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-//   const console = buildconsole('cloudfunctions.googleapis.com%2Fcloud-functions', {
-//     trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-//     labels: {
-//       execution_id: execution_id,
-//     },
-//   });
-
-//   if (!process.env.PREVIEW_IMAGE_BUCKET) {
-//     console.error(`PREVIEW_IMAGE_BUCKET not set`)
-//     return res.sendStatus(500);
-//   }
-
-//   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
-//   const url = getUrl(urlStr);
-//   console.log('preview request url', url);
-
-//   const logRecord = {
-//     url,
-//     query: req.query,
-//     origin: req.get('Origin'),
-//     labels: {
-//       source: 'publicImagePreview',
-//     },
-//   };
-
-//   console.info(`Public preview image generation request`, logRecord);
-
-//   if (!url) {
-//     logRecord.urlIsInvalid = true;
-//     console.error(`Valid URL to parse is not specified`, logRecord);
-//     return res.sendStatus(400);
-//   }
-//   const { origin } = new URL(url);
-//   if (!ALLOWED_ORIGINS.some(o => o === origin)) {
-//     logRecord.forbiddenOrigin = true;
-//     console.error(`This origin is not allowed: ${origin}`, logRecord);
-//     return res.sendStatus(400);
-//   }
-
-//   const browser = await getBrowserPromise;
-//   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
-
-//   const page = await browser.newPage();
-//   const pageLoadingStart = Date.now();
-//   const modifiedUrl = new URL(url);
-//   modifiedUrl.searchParams.append('fontSize', '24');
-//   modifiedUrl.searchParams.append('adjustAspectRatio', '1.91');
-//   try {
-//     await page.goto(modifiedUrl.toString());
-//     logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
-//   } catch (error) {
-//     console.log('error going to page: ', modifiedUrl)
-//     console.log(error)
-//     throw error
-//   }
-
-//   // We lookup the destination path from our own page content and avoid trusting any passed query params
-//   // selector - CSS selector of the element to get screenshot of
-//   const selector = decodeURIComponent(
-//     await page.$eval(
-//       "head > meta[name='omnivore:preview_image_selector']",
-//       element => element.content,
-//     ),
-//   );
-//   if (!selector) {
-//     logRecord.selectorIsInvalid = true;
-//     console.error(`Valid element selector is not specified`, logRecord);
-//     await page.close();
-//     return res.sendStatus(400);
-//   }
-//   logRecord.selector = selector;
-
-//   // destination - destination pathname for the image to save with
-//   const destination = decodeURIComponent(
-//     await page.$eval(
-//       "head > meta[name='omnivore:preview_image_destination']",
-//       element => element.content,
-//     ),
-//   );
-//   if (!destination) {
-//     logRecord.destinationIsInvalid = true;
-//     console.error(`Valid file destination is not specified`, logRecord);
-//     await page.close();
-//     return res.sendStatus(400);
-//   }
-//   logRecord.destination = destination;
-
-//   const screenshotTakingStart = Date.now();
-//   try {
-//     await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
-//   } catch (error) {
-//     logRecord.elementNotFound = true;
-//     console.error(`Element is not presented on the page`, logRecord);
-//     await page.close();
-//     return res.sendStatus(400);
-//   }
-//   const element = await page.$(selector);
-//   await element.screenshot({ path: filePath }); // take screenshot of the element in puppeteer
-//   logRecord.timing = { ...logRecord.timing, screenshotTaken: Date.now() - screenshotTakingStart };
-
-//   await page.close();
-
-//   try {
-//     const [file] = await previewBucket.upload(filePath, {
-//       destination,
-//       metadata: logRecord,
-//     });
-//     logRecord.file = file.metadata;
-//   } catch (e) {
-//     console.log('error uploading to bucket, this is non-fatal', e)
-//   }
-
-//   console.info(`preview-image`, logRecord);
-//   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
-// }
