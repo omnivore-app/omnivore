@@ -17,65 +17,30 @@ import pyarrow.feather as feather
 from google.cloud import storage
 
 FEATURE_COLUMNS=[
-  # targets 
-  # 'user_clicked', 'user_read', 'user_long_read',
-
-  # item attributes / user setup attributes
-  'item_word_count','item_has_site_icon', 'is_subscription',
-  'inbox_folder', 'has_author',
-
-  # how the user has setup the subscription
-  'is_newsletter', 'is_feed', 'days_since_subscribed',
-  'subscription_count', 'subscription_auto_add_to_library', 
-  'subscription_fetch_content',
-
-  # user/item interaction history
-  'user_original_url_host_saved_count_week_1',
-  'user_original_url_host_interaction_count_week_1',
-  'user_original_url_host_rate_week_1',
-  'user_original_url_host_proportion_week_1',
-
-  'user_original_url_host_saved_count_week_2',
-  'user_original_url_host_interaction_count_week_2',
-  'user_original_url_host_rate_week_2',
-  'user_original_url_host_proportion_week_2',
-  'user_original_url_host_saved_count_week_3',
-  'user_original_url_host_interaction_count_week_3',
-  'user_original_url_host_rate_week_3',
-  'user_original_url_host_proportion_week_3',
-  'user_original_url_host_saved_count_week_4',
-  'user_original_url_host_interaction_count_week_4',
-  'user_original_url_host_rate_week_4',
-  'user_original_url_host_proportion_week_4',
-
-  'user_subscription_saved_count_week_1',
-  'user_subscription_interaction_count_week_1',
-  'user_subscription_rate_week_1', 'user_subscription_proportion_week_1',
-  'user_site_saved_count_week_3', 'user_site_interaction_count_week_3',
-  'user_site_rate_week_3', 'user_site_proportion_week_3',
-  'user_site_saved_count_week_2', 'user_site_interaction_count_week_2',
-  'user_site_rate_week_2', 'user_site_proportion_week_2',
-  'user_subscription_saved_count_week_2',
-  'user_subscription_interaction_count_week_2',
-  'user_subscription_rate_week_2', 'user_subscription_proportion_week_2',
-  'user_site_saved_count_week_1', 'user_site_interaction_count_week_1',
-  'user_site_rate_week_1', 'user_site_proportion_week_1',
-  'user_subscription_saved_count_week_3',
-  'user_subscription_interaction_count_week_3',
-  'user_subscription_rate_week_3', 'user_subscription_proportion_week_3',
-  'user_author_saved_count_week_4',
-  'user_author_interaction_count_week_4', 'user_author_rate_week_4',
-  'user_author_proportion_week_4', 'user_author_saved_count_week_1',
-  'user_author_interaction_count_week_1', 'user_author_rate_week_1',
-  'user_author_proportion_week_1', 'user_site_saved_count_week_4',
-  'user_site_interaction_count_week_4', 'user_site_rate_week_4',
-  'user_site_proportion_week_4', 'user_author_saved_count_week_2',
-  'user_author_interaction_count_week_2', 'user_author_rate_week_2',
-  'user_author_proportion_week_2', 'user_author_saved_count_week_3',
-  'user_author_interaction_count_week_3', 'user_author_rate_week_3',
-  'user_author_proportion_week_3', 'user_subscription_saved_count_week_4',
-  'user_subscription_interaction_count_week_4',
-  'user_subscription_rate_week_4', 'user_subscription_proportion_week_4'
+  'user_subscription_rate_week_1', 
+  'user_subscription_proportion_week_1',
+  'user_site_rate_week_3', 
+  'user_site_proportion_week_3',
+  'user_site_rate_week_2', 
+  'user_site_proportion_week_2',
+  'user_subscription_rate_week_2', 
+  'user_subscription_proportion_week_2',
+  'user_site_rate_week_1', 
+  'user_site_proportion_week_1',
+  'user_subscription_rate_week_3', 
+  'user_subscription_proportion_week_3',
+  'user_author_rate_week_4',
+  'user_author_proportion_week_4', 
+  'user_author_rate_week_1',
+  'user_author_proportion_week_1', 
+  'user_site_rate_week_4',
+  'user_site_proportion_week_4', 
+  'user_author_rate_week_2',
+  'user_author_proportion_week_2',  
+  'user_author_rate_week_3',
+  'user_author_proportion_week_3', 
+  'user_subscription_rate_week_4', 
+  'user_subscription_proportion_week_4'
 ]
 
 def parquet_to_dataframe(file_path):

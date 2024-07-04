@@ -1,5 +1,6 @@
 import logging
 from flask import Flask, request, jsonify
+from prometheus_client import start_http_server, Histogram, Summary, Counter, generate_latest
 
 from typing import List
 from timeit import default_timer as timer
@@ -17,16 +18,30 @@ from datetime import datetime
 import dateutil.parser
 from google.cloud import storage
 from features.user_history import FEATURE_COLUMNS
+from treeinterpreter import treeinterpreter as ti
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
-
 USER_HISTORY_PATH = 'user_features.pkl'
-MODEL_PIPELINE_PATH = 'predict_read_pipeline-v002.pkl'
+MODEL_PIPELINE_PATH = 'predict_read_model-v003.pkl'
 
 pipeline = None
 user_features = None
+
+# these buckets are used for reporting scores, we want to make sure
+# there is decent diversity in the returned scores.
+score_bucket_ranges = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+score_buckets = {
+    f'score_bucket_{int(b * 10)}': Counter(f'inference_score_bucket_{int(b * 10)}', f'Number of scores in the range {b - 0.1:.1f} to {b:.1f}')
+    for b in score_bucket_ranges
+}
+
+def observe_score(score):
+  for b in score_bucket_ranges:
+    if b - 0.1 < score <= b:
+      score_buckets[f'score_bucket_{int(b * 10)}'].inc()
+      break
 
 def download_from_gcs(bucket_name, gcs_path, destination_path):
   storage_client = storage.Client()
@@ -72,14 +87,20 @@ def merge_dicts(dict1, dict2):
       dict1[key] = value
   return dict1
 
+def predict_proba_wrapper(X):
+  return pipeline.predict_proba(X)
+
+
 def refresh_data():
   start = timer()
   global pipeline
+  global explainer
   global user_features
-  if os.getenv('LOAD_LOCAL_MODEL') != None:
+  if os.getenv('LOAD_LOCAL_MODEL') == None:
+    print(f"loading data from {os.getenv('GCS_BUCKET')}")
     gcs_bucket_name = os.getenv('GCS_BUCKET')
-    download_from_gcs(gcs_bucket_name, f'data/features/user_features.pkl', USER_HISTORY_PATH)
-    download_from_gcs(gcs_bucket_name, f'data/models/predict_read_pipeline-v002.pkl', MODEL_PIPELINE_PATH)
+    download_from_gcs(gcs_bucket_name, f'data/features/{USER_HISTORY_PATH}', USER_HISTORY_PATH)
+    download_from_gcs(gcs_bucket_name, f'data/models/{MODEL_PIPELINE_PATH}', MODEL_PIPELINE_PATH)
   pipeline = load_pipeline(MODEL_PIPELINE_PATH)
   user_features = load_user_features(USER_HISTORY_PATH)
   end = timer()
@@ -90,6 +111,7 @@ def refresh_data():
 
 def compute_score(user_id, item_features):
   interaction_score = compute_interaction_score(user_id, item_features)
+  observe_score(interaction_score)
   return {
     'score': interaction_score,
     'interaction_score': interaction_score,
@@ -97,6 +119,7 @@ def compute_score(user_id, item_features):
 
 
 def compute_interaction_score(user_id, item_features):
+  start = timer()
   original_url_host = urlparse(item_features.get('original_url')).netloc
   df_test = pd.DataFrame([{
     'user_id': user_id,
@@ -134,20 +157,26 @@ def compute_interaction_score(user_id, item_features):
     else:
       print("skipping feature: ", name)
       continue
-
     df_test = pd.merge(df_test, df, on=merge_keys, how='left')
   df_test = df_test.fillna(0)
   df_predict = df_test[FEATURE_COLUMNS]
 
+  end = timer()
+  print('time to compute score (in seconds):', end - start)
   interaction_score = pipeline.predict_proba(df_predict)
-  print('score', interaction_score, 'item_features', df_test[df_test != 0].stack())
+  print("INTERACTION SCORE: ", interaction_score)
+  print('item_features:\n', df_predict[df_predict != 0].stack())
 
-  return interaction_score[0][1]
+  return np.float64(interaction_score[0][1])
 
 
 @app.route('/_ah/health', methods=['GET'])
 def ready():
   return jsonify({'OK': 'yes'}), 200
+
+@app.route('/metrics')
+def metrics():
+  return generate_latest(), 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
 
 @app.route('/refresh', methods=['GET'])
@@ -158,6 +187,7 @@ def refresh():
 
 @app.route('/users/<user_id>/features', methods=['GET'])
 def get_user_features(user_id):
+  print("user_features", user_features)
   result = {}
   df_user = pd.DataFrame([{
     'user_id': user_id,
@@ -193,6 +223,7 @@ def predict():
 
 @app.route('/batch', methods=['POST'])
 def batch():
+  start = timer()
   try:
     result = {}
     data = request.get_json()
@@ -210,6 +241,8 @@ def batch():
       library_item_id = item['library_item_id']
       result[library_item_id] = compute_score(user_id, item)
 
+    end = timer()
+    print(f'time to compute batch of {len(items)} items (in seconds): {end - start}')
     return jsonify(result)
   except Exception as e:
     app.logger.error(f"exception in batch endpoint: {request.get_json()}\n{e}")
