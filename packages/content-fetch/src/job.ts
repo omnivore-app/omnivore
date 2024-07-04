@@ -1,5 +1,5 @@
+import { RedisDataSource } from '@omnivore/utils'
 import { BulkJobOptions, Queue } from 'bullmq'
-import { redisDataSource } from './redis_data_source'
 
 const QUEUE_NAME = 'omnivore-backend-queue'
 const JOB_NAME = 'save-page'
@@ -30,10 +30,6 @@ interface SavePageJob {
   isImport: boolean
   priority: 'low' | 'high'
 }
-
-const queue = new Queue(QUEUE_NAME, {
-  connection: redisDataSource.queueRedisClient,
-})
 
 const getPriority = (job: SavePageJob): number => {
   // we want to prioritized jobs by the expected time to complete
@@ -72,13 +68,20 @@ const getOpts = (job: SavePageJob): BulkJobOptions => {
   }
 }
 
-export const queueSavePageJob = async (savePageJobs: SavePageJob[]) => {
+export const queueSavePageJob = async (
+  redisDataSource: RedisDataSource,
+  savePageJobs: SavePageJob[]
+) => {
   const jobs = savePageJobs.map((job) => ({
     name: JOB_NAME,
     data: job.data,
     opts: getOpts(job),
   }))
   console.log('queue save page jobs:', JSON.stringify(jobs, null, 2))
+
+  const queue = new Queue(QUEUE_NAME, {
+    connection: redisDataSource.queueRedisClient,
+  })
 
   return queue.addBulk(jobs)
 }

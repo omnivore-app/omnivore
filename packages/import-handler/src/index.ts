@@ -1,7 +1,9 @@
 import { Storage } from '@google-cloud/storage'
 import { Readability } from '@omnivore/readability'
+import { RedisDataSource } from '@omnivore/utils'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
+import 'dotenv/config'
 import Redis from 'ioredis'
 import * as jwt from 'jsonwebtoken'
 import { Stream } from 'node:stream'
@@ -11,7 +13,6 @@ import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
 import { importMatterArchive } from './matterHistory'
 import { ImportStatus, updateMetrics } from './metrics'
-import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
 export enum ArticleSavingRequestStatus {
@@ -363,19 +364,26 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       const pubSubMessage = req.body.message.data as string
       const obj = getStorageEvent(pubSubMessage)
       if (obj) {
-        // create redis client
-        const redisClient = createRedisClient(
-          process.env.REDIS_URL,
-          process.env.REDIS_CERT
-        )
+        // create redis source
+        const redisDataSource = new RedisDataSource({
+          cache: {
+            url: process.env.REDIS_URL,
+            cert: process.env.REDIS_CERT,
+          },
+          mq: {
+            url: process.env.MQ_REDIS_URL,
+            cert: process.env.MQ_REDIS_CERT,
+          },
+        })
+
         try {
-          await handleEvent(obj, redisClient)
+          await handleEvent(obj, redisDataSource.cacheClient)
         } catch (err) {
           console.log('error handling event', { err, obj })
           throw err
         } finally {
           // close redis client
-          await redisClient.quit()
+          await redisDataSource.shutdown()
         }
       }
     } else {
@@ -413,14 +421,32 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(400).send('Bad Request')
     }
 
-    const redisClient = createRedisClient(
-      process.env.REDIS_URL,
-      process.env.REDIS_CERT
-    )
-    // update metrics
-    await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
+    // create redis source
+    const redisDataSource = new RedisDataSource({
+      cache: {
+        url: process.env.REDIS_URL,
+        cert: process.env.REDIS_CERT,
+      },
+      mq: {
+        url: process.env.MQ_REDIS_URL,
+        cert: process.env.MQ_REDIS_CERT,
+      },
+    })
 
-    await redisClient.quit()
+    try {
+      // update metrics
+      await updateMetrics(
+        redisDataSource.cacheClient,
+        userId,
+        req.body.taskId,
+        req.body.status
+      )
+    } catch (error) {
+      console.error('Error updating metrics', error)
+      return res.status(500).send('Error updating metrics')
+    } finally {
+      await redisDataSource.shutdown()
+    }
 
     res.send('ok')
   }

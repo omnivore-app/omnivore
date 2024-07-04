@@ -1,3 +1,4 @@
+import { RedisDataSource } from '@omnivore/utils'
 import Redis from 'ioredis'
 import { sendImportCompletedEmail } from '.'
 

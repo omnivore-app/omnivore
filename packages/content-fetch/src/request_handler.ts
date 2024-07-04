@@ -1,9 +1,10 @@
 import { Storage } from '@google-cloud/storage'
 import { fetchContent } from '@omnivore/puppeteer-parse'
+import { RedisDataSource } from '@omnivore/utils'
+import 'dotenv/config'
 import { RequestHandler } from 'express'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
-import { redisDataSource } from './redis_data_source'
 
 interface UserConfig {
   id: string
@@ -92,6 +93,7 @@ const isFetchResult = (obj: unknown): obj is FetchResult => {
 }
 
 export const cacheFetchResult = async (
+  redisDataSource: RedisDataSource,
   key: string,
   fetchResult: FetchResult
 ) => {
@@ -102,6 +104,7 @@ export const cacheFetchResult = async (
 }
 
 const getCachedFetchResult = async (
+  redisDataSource: RedisDataSource,
   key: string
 ): Promise<FetchResult | undefined> => {
   const result = await redisDataSource.cacheClient.get(key)
@@ -171,9 +174,21 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
 
   console.log(`Article parsing request`, logRecord)
 
+  // create redis source
+  const redisDataSource = new RedisDataSource({
+    cache: {
+      url: process.env.REDIS_URL,
+      cert: process.env.REDIS_CERT,
+    },
+    mq: {
+      url: process.env.MQ_REDIS_URL,
+      cert: process.env.MQ_REDIS_CERT,
+    },
+  })
+
   try {
     const key = cacheKey(url, locale, timezone)
-    let fetchResult = await getCachedFetchResult(key)
+    let fetchResult = await getCachedFetchResult(redisDataSource, key)
     if (!fetchResult) {
       console.log(
         'fetch result not found in cache, fetching content now...',
@@ -184,7 +199,11 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       console.log('content has been fetched')
 
       if (fetchResult.content) {
-        const cacheResult = await cacheFetchResult(key, fetchResult)
+        const cacheResult = await cacheFetchResult(
+          redisDataSource,
+          key,
+          fetchResult
+        )
         console.log('cache result', cacheResult)
       }
     }
@@ -219,7 +238,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       priority,
     }))
 
-    const jobs = await queueSavePageJob(savePageJobs)
+    const jobs = await queueSavePageJob(redisDataSource, savePageJobs)
     console.log('save-page jobs queued', jobs.length)
   } catch (error) {
     if (error instanceof Error) {
@@ -246,6 +265,8 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         },
       }
     )
+
+    await redisDataSource.shutdown()
   }
 
   res.sendStatus(200)
