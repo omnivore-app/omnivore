@@ -184,7 +184,6 @@ fun loadLibraryItemContent(context: Context, libraryItemId: String): String? {
     return try {
         return readFromInternalStorage(context = context, fileName = "${libraryItemId}.html")
     } catch (e: Exception) {
-        e.printStackTrace()
         null
     }
 }

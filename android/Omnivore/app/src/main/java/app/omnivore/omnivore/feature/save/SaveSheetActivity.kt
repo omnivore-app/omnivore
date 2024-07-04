@@ -1,9 +1,11 @@
 package app.omnivore.omnivore.feature.save
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -16,9 +18,12 @@ import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
@@ -49,7 +54,7 @@ class SaveSheetActivity : AppCompatActivity() {
                 if (intent.type?.startsWith("text/plain") == true) {
                     intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
                         extractedText = it
-                        workManager.enqueueSaveWorker(it)
+                        workManager.enqueueSaveWorker(this, it)
                         Log.d(ContentValues.TAG, "Extracted text: $extractedText")
                     }
                 }
@@ -80,8 +85,6 @@ class SaveSheetActivity : AppCompatActivity() {
             }
 
             val scaffoldState: ScaffoldState = rememberScaffoldState()
-
-
             val message = when (saveState) {
                 SaveState.DEFAULT -> ""
                 SaveState.SAVING -> "Saved to Omnivore"
@@ -129,25 +132,28 @@ class SaveSheetActivity : AppCompatActivity() {
         }
     }
 
-    private fun WorkManager.enqueueSaveWorker(url: String) {
+    private fun WorkManager.enqueueSaveWorker(context: Context, url: String) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val saveWorkerRequest = OneTimeWorkRequestBuilder<SaveURLWorker>()
-            .setConstraints(constraints)
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(workDataOf("url" to url))
-            .addTag(url)
-            // Can add other configs like setBackoffCriteria to retry sync if failed
-            .build()
-        val syncWorkerRequest = OneTimeWorkRequestBuilder<LibrarySyncWorker>()
+        val syncWorkerRequest = OneTimeWorkRequest.Builder(LibrarySyncWorker::class.java)
             .setConstraints(constraints)
             .addTag(url)
-            .setInitialDelay(5.seconds.toJavaDuration())
             .build()
 
-        beginWith(saveWorkerRequest)
+        val inputData = Data.Builder()
+            .putString("url", url)
+            .build()
+
+        val saveURLWorkRequest = OneTimeWorkRequest.Builder(SaveURLWorker::class.java)
+            .setConstraints(constraints)
+            .setInputData(inputData)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .addTag(url)
+            .build()
+
+        beginWith(saveURLWorkRequest)
             .then(syncWorkerRequest)
             .enqueue()
     }
