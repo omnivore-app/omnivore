@@ -8,6 +8,6 @@ pydantic
 sklearn2pmml
 sqlalchemy
 pyarrow
+requests
 prometheus_client
-treeinterpreter
 xgboost==2.1.0
