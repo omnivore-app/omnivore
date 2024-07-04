@@ -48,6 +48,7 @@
     "@sentry/node": "^5.26.0",
     "@types/showdown": "^2.0.6",
     "addressparser": "^1.0.1",
+    "alfaaz": "^1.1.0",
     "apollo-datasource": "^3.3.1",
     "apollo-server-express": "^3.6.3",
     "axios": "^0.27.2",
@@ -113,7 +114,6 @@
     "uuid": "^8.3.1",
     "voca": "^1.4.0",
     "winston": "^3.3.3",
-    "word-counting": "^1.1.4",
     "yaml": "^2.4.1",
     "youtubei": "1.4.0"
   },
