@@ -1,3 +1,4 @@
+import { RedisDataSource } from '@omnivore/utils'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
@@ -11,13 +12,25 @@ chai.use(chaiString)
 
 describe('Test csv importer', () => {
   let stub: ImportContext
+  let redisDataSource: RedisDataSource
 
   beforeEach(() => {
-    stub = stubImportCtx()
+    redisDataSource = new RedisDataSource({
+      cache: {
+        url: process.env.REDIS_URL,
+        cert: process.env.REDIS_CERT,
+      },
+      mq: {
+        url: process.env.MQ_REDIS_URL,
+        cert: process.env.MQ_REDIS_CERT,
+      },
+    })
+
+    stub = stubImportCtx(redisDataSource.cacheClient)
   })
 
   afterEach(async () => {
-    await stub.redisClient.quit()
+    await redisDataSource.shutdown()
   })
 
   describe('Load a simple CSV file', () => {

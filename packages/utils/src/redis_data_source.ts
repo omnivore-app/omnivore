@@ -28,8 +28,11 @@ export class RedisDataSource {
 
   async shutdown(): Promise<void> {
     try {
-      await this.queueRedisClient?.quit()
       await this.cacheClient?.quit()
+
+      if (this.queueRedisClient !== this.cacheClient) {
+        await this.queueRedisClient.quit()
+      }
 
       console.log('redis shutdown complete')
     } catch (err) {
