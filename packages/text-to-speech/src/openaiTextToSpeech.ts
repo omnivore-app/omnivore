@@ -8,64 +8,67 @@ import {
 
 const OPENAI_VOICE_PREFIX = 'openai-'
 
+const isOpenAIVoice = (voice: string | undefined) =>
+  voice?.startsWith(OPENAI_VOICE_PREFIX)
+
 const getVoiceId = (name: string | undefined): string | undefined => {
   if (!name) {
     return undefined
   }
 
-  if (name.startsWith(OPENAI_VOICE_PREFIX)) {
+  if (isOpenAIVoice(name)) {
     return name.substring(OPENAI_VOICE_PREFIX.length)
   }
 
   // map realistic voice name to openai voice id
   const voiceList = [
     {
-      voiceId: 'ErXwobaYiN019PkySvjV',
-      name: 'echo',
+      voiceId: 'alloy',
+      name: 'Antoni',
     },
     {
-      voiceId: 'pMsXgVXv3BLzUgSXRplE',
-      name: 'alloy',
+      voiceId: 'echo',
+      name: 'Serena',
     },
     {
-      voiceId: 'onwK4e9ZLuTAKqWW03F9',
-      name: 'onyx',
+      voiceId: 'fable',
+      name: 'Daniel',
     },
     {
-      voiceId: 'ThT5KcBeYPX3keUQqHPh',
-      name: 'fable',
+      voiceId: 'onyx',
+      name: 'Dorothy',
     },
     {
-      voiceId: 'flq6f7yk4E4fJM5XTYuZ',
-      name: 'onyx',
+      voiceId: 'nova',
+      name: 'Michael',
     },
     {
-      voiceId: 'XrExE9yKIg1WjnnlVkGX',
-      name: 'shimmer',
+      voiceId: 'shimmer',
+      name: 'Matilda',
     },
     {
-      voiceId: '21m00Tcm4TlvDq8ikWAM',
-      name: 'nova',
+      voiceId: 'alloy',
+      name: 'Rachel',
     },
     {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
-      name: 'alloy',
+      voiceId: 'echo',
+      name: 'Bella',
     },
     {
-      voiceId: 'MF3mGyEYCl7XYWbV9V6O',
-      name: 'shimmer',
+      voiceId: 'fable',
+      name: 'Elli',
     },
     {
-      voiceId: 'TxGEqnHWrfWFTfGW9XjX',
-      name: 'echo',
+      voiceId: 'onyx',
+      name: 'Josh',
     },
     {
-      voiceId: 'VR6AewLTigWG4xSOukaG',
-      name: 'nova',
+      voiceId: 'nova',
+      name: 'Arnold',
     },
     {
-      voiceId: 'pNInz6obpgDQGcFmaJgB',
-      name: 'fable',
+      voiceId: 'shimmer',
+      name: 'Adam',
     },
   ]
   return voiceList.find((voice) => voice.name === name)?.voiceId
@@ -111,15 +114,7 @@ export class OpenAITextToSpeech implements TextToSpeech {
   }
 
   use(input: TextToSpeechInput): boolean {
-    if (input.voice?.startsWith('openai-')) {
-      return true
-    }
-
     // Use OpenAI voice for ultra realistic voice
-    if (input.isUltraRealisticVoice) {
-      return true
-    }
-
-    return false
+    return isOpenAIVoice(input.voice) || !!input.isUltraRealisticVoice
   }
 }
