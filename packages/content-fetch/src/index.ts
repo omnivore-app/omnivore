@@ -1,5 +1,6 @@
 import { HttpFunction } from '@google-cloud/functions-framework'
 import * as Sentry from '@sentry/serverless'
+import 'dotenv/config'
 import { contentFetchRequestHandler } from './request_handler'
 
 Sentry.GCPFunction.init({
