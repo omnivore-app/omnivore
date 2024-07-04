@@ -45,7 +45,6 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disable-dev-shm-usage',
       '--no-first-run',
       '--disable-background-networking',
-      '--user-data-dir=/tmp/chrome-user-data',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
