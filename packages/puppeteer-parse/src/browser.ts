@@ -23,7 +23,6 @@ export const getBrowser = async (): Promise<Browser> => {
 
   browserInstance = (await puppeteer.launch({
     args: [
-      '--allow-running-insecure-content',
       '--autoplay-policy=user-gesture-required',
       '--disable-component-update',
       '--disable-domain-reliability',
@@ -32,7 +31,6 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disable-setuid-sandbox',
       '--disable-site-isolation-trials',
       '--disable-speech-api',
-      '--disable-web-security',
       '--disk-cache-size=33554432',
       '--enable-features=SharedArrayBuffer',
       '--hide-scrollbars',
@@ -44,6 +42,10 @@ export const getBrowser = async (): Promise<Browser> => {
       '--no-zygote',
       '--window-size=1920,1080',
       '--disable-extensions',
+      '--disable-dev-shm-usage',
+      '--no-first-run',
+      '--disable-background-networking',
+      '--user-data-dir=/tmp/chrome-user-data',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
