@@ -7,7 +7,7 @@ import { wordsCount } from '../utils/helpers'
 const convertToLibraryItem = (item: DeepPartial<LibraryItem>) => {
   return {
     ...item,
-    wordCount: item.wordCount ?? wordsCount(item.readableContent || ''),
+    wordCount: item.wordCount ?? wordsCount(item.readableContent || '', true),
   }
 }
 

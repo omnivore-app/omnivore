@@ -432,7 +432,7 @@ export const functionResolvers = {
       if (article.wordCount) return article.wordCount
 
       return article.readableContent
-        ? wordsCount(article.readableContent)
+        ? wordsCount(article.readableContent, true)
         : undefined
     },
     async labels(article: LibraryItem, _: unknown, ctx: ResolverContext) {
@@ -499,7 +499,9 @@ export const functionResolvers = {
     },
     wordsCount(item: LibraryItem) {
       if (item.wordCount) return item.wordCount
-      return item.readableContent ? wordsCount(item.readableContent) : undefined
+      return item.readableContent
+        ? wordsCount(item.readableContent, true)
+        : undefined
     },
     siteIcon(item: LibraryItem) {
       if (item.siteIcon && !isBase64Image(item.siteIcon)) {
