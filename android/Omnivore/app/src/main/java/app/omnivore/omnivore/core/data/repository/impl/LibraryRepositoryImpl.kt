@@ -430,7 +430,7 @@ class LibraryRepositoryImpl @Inject constructor(
         }
 
         val savedItems = syncResult.items.map {
-            saveLibraryItemContentToFile(context, it.id, it.content)
+            saveLibraryItemContentToFile(context, it.id, it.contentReader, it.content, it.url)
             val savedItem = SavedItem(
                 savedItemId = it.id,
                 title = it.title,

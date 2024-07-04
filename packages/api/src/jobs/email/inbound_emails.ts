@@ -248,8 +248,9 @@ export const saveAttachmentJob = async (data: EmailJobData) => {
         status: UploadFileStatus.Completed,
         user: { id: user.id },
       }),
-    undefined,
-    user.id
+    {
+      uid: user.id,
+    }
   )
 
   const uploadFileDetails = await getStorageFileDetails(

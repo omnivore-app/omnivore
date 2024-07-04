@@ -43,8 +43,9 @@ export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
         .innerJoinAndSelect('item.uploadFile', 'file')
         .where('file.id = :fileId', { fileId })
         .getOne(),
-    undefined,
-    uploadFile.user.id
+    {
+      uid: uploadFile.user.id,
+    }
   )
   if (!libraryItem) {
     logger.info(`No upload file found for id: ${fileId}`)

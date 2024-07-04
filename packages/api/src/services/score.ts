@@ -1,4 +1,8 @@
+import axios from 'axios'
+import client from 'prom-client'
 import { env } from '../env'
+import { registerMetric } from '../prometheus'
+import { logError } from '../utils/logger'
 
 export interface Feature {
   library_item_id?: string
@@ -12,6 +16,7 @@ export interface Feature {
   is_newsletter: boolean
   is_feed: boolean
 
+  original_url?: string
   site?: string
   language?: string
   author?: string
@@ -35,6 +40,15 @@ export interface ScoreApiRequestBody {
 export type ScoreBody = {
   score: number
 }
+
+// use prometheus to monitor the latency of digest score api
+const latency = new client.Histogram({
+  name: 'omnivore_digest_score_latency',
+  help: 'Latency of digest score API in seconds',
+  buckets: [0.1, 0.5, 1, 2, 5, 10, 20, 30, 60],
+})
+
+registerMetric(latency)
 
 export type ScoreApiResponse = Record<string, ScoreBody> // item_id -> score
 interface ScoreClient {
@@ -62,21 +76,30 @@ class ScoreClientImpl implements ScoreClient {
   }
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
-    const response = await fetch(this.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    const start = Date.now()
 
-    if (!response.ok) {
-      throw new Error(`Failed to score candidates: ${response.statusText}`)
+    try {
+      const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      })
+
+      return response.data
+    } catch (error) {
+      logError(error)
+
+      // Returns a stub score (0) in case of an error
+      return Object.keys(data.items).reduce((acc, itemId) => {
+        acc[itemId] = { score: 0 }
+        return acc
+      }, {} as ScoreApiResponse)
+    } finally {
+      const duration = (Date.now() - start) / 1000 // in seconds
+      latency.observe(duration)
     }
-
-    const scores = (await response.json()) as ScoreApiResponse
-    return scores
   }
 }
 
-export const scoreClient = new StubScoreClientImpl()
+export const scoreClient = new ScoreClientImpl()

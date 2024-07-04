@@ -10,10 +10,13 @@ COPY .prettierrc .
 COPY .eslintrc .
 
 COPY /packages/pdf-handler/package.json ./packages/pdf-handler/package.json
+COPY /packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile
 
 ADD /packages/pdf-handler ./packages/pdf-handler
+ADD /packages/utils ./packages/utils
+RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/pdf-handler build
 
 # After building, fetch the production dependencies

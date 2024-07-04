@@ -23,10 +23,14 @@ export type HighlightEvent = Merge<
 export const batchGetHighlightsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Highlight[][]> => {
-  const highlights = await authTrx(async (tx) =>
-    tx.getRepository(Highlight).find({
-      where: { libraryItem: { id: In(libraryItemIds as string[]) } },
-    })
+  const highlights = await authTrx(
+    async (tx) =>
+      tx.getRepository(Highlight).find({
+        where: { libraryItem: { id: In(libraryItemIds as string[]) } },
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return libraryItemIds.map((libraryItemId) =>
@@ -50,8 +54,9 @@ export const createHighlights = async (
   return authTrx(
     async (tx) =>
       tx.withRepository(highlightRepository).createAndSaves(highlights),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -73,8 +78,9 @@ export const createHighlight = async (
         },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   const data = deepDelete(newHighlight, columnsToDelete)
@@ -221,8 +227,9 @@ export const deleteHighlightById = async (
       await highlightRepo.delete(highlightId)
       return highlight
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   await enqueueUpdateHighlight({
@@ -239,8 +246,9 @@ export const deleteHighlightsByIds = async (
 ) => {
   await authTrx(
     async (tx) => tx.getRepository(Highlight).delete(highlightIds),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -253,10 +261,13 @@ export const findHighlightById = async (
       const highlightRepo = tx.withRepository(highlightRepository)
       return highlightRepo.findOneBy({
         id: highlightId,
+        user: { id: userId },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -273,8 +284,10 @@ export const findHighlightsByLibraryItemId = async (
           labels: true,
         },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -321,7 +334,9 @@ export const searchHighlights = async (
 
       return queryBuilder.getMany()
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }

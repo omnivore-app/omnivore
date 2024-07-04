@@ -8,7 +8,7 @@ import { StatusType, User } from '../entity/user'
 import { env } from '../env'
 import { SignupErrorCode } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
-import { authTrx, getRepository } from '../repository'
+import { getRepository } from '../repository'
 import { userRepository } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { analytics } from '../utils/analytics'
@@ -104,12 +104,13 @@ export const createUser = async (input: {
         })
       }
 
-      await addPopularReadsForNewUser(user.id, t)
       await createDefaultFiltersForUser(t)(user.id)
 
       return [user, profile]
     }
   )
+
+  await addPopularReadsForNewUser(user.id)
 
   const customAttributes: { source_user_id: string } = {
     source_user_id: user.sourceUserId,
@@ -185,11 +186,10 @@ const validateInvite = async (
     logger.info('rejecting invite, expired', invite)
     return false
   }
-  const numMembers = await authTrx(
-    (t) =>
-      t.getRepository(GroupMembership).countBy({ invite: { id: invite.id } }),
-    entityManager
-  )
+  const numMembers = await entityManager
+    .getRepository(GroupMembership)
+    .countBy({ invite: { id: invite.id } })
+
   if (numMembers >= invite.maxMembers) {
     logger.info('rejecting invite, too many users', { invite, numMembers })
     return false

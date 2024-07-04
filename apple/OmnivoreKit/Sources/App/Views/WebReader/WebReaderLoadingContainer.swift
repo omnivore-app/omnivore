@@ -41,11 +41,11 @@ import Views
 public struct WebReaderLoadingContainer: View {
   let requestID: String
 
-  @Environment(\.dismiss) private var dismiss
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
   @StateObject var viewModel = WebReaderLoadingContainerViewModel()
+  @Environment(\.presentationCoordinator) var presentationCoordinator
 
   public var body: some View {
     if let item = viewModel.item {
@@ -76,7 +76,7 @@ public struct WebReaderLoadingContainer: View {
         VStack(spacing: 15) {
           Text(errorMessage)
           Button(action: {
-            dismiss()
+            presentationCoordinator.dismiss()
           }, label: {
             Text("Dismiss")
           })

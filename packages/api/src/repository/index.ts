@@ -1,13 +1,14 @@
 import * as httpContext from 'express-http-context2'
+import { DatabaseError } from 'pg'
 import {
   EntityManager,
   EntityTarget,
   ObjectLiteral,
   QueryBuilder,
   QueryFailedError,
+  ReplicationMode,
   Repository,
 } from 'typeorm'
-import { DatabaseError } from 'pg'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
@@ -59,12 +60,18 @@ export const setClaims = async (
   ])
 }
 
+interface AuthTrxOptions {
+  uid?: string
+  userRole?: string
+  replicationMode?: 'primary' | 'replica'
+}
+
 export const authTrx = async <T>(
   fn: (manager: EntityManager) => Promise<T>,
-  em = appDataSource.manager,
-  uid?: string,
-  userRole?: string
+  options: AuthTrxOptions = {}
 ): Promise<T> => {
+  let { uid, userRole } = options
+
   // if uid and dbRole are not passed in, then get them from the claims
   if (!uid && !userRole) {
     const claims: Claims | undefined = httpContext.get('claims')
@@ -72,10 +79,34 @@ export const authTrx = async <T>(
     userRole = claims?.userRole
   }
 
-  return em.transaction(async (tx) => {
-    await setClaims(tx, uid, userRole)
-    return fn(tx)
-  })
+  const replicationModes: Record<'primary' | 'replica', ReplicationMode> = {
+    primary: 'master',
+    replica: 'slave',
+  }
+
+  const replicationMode = options.replicationMode
+    ? replicationModes[options.replicationMode]
+    : undefined
+
+  const queryRunner = appDataSource.createQueryRunner(replicationMode)
+
+  // lets now open a new transaction:
+  await queryRunner.startTransaction()
+
+  try {
+    await setClaims(queryRunner.manager, uid, userRole)
+    const result = await fn(queryRunner.manager)
+
+    await queryRunner.commitTransaction()
+
+    return result
+  } catch (err) {
+    await queryRunner.rollbackTransaction()
+
+    throw err
+  } finally {
+    await queryRunner.release()
+  }
 }
 
 export const getRepository = <T extends ObjectLiteral>(

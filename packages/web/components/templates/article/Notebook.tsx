@@ -4,7 +4,6 @@ import type { Highlight } from '../../../lib/networking/fragments/highlightFragm
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { diff_match_patch } from 'diff-match-patch'
 import 'react-markdown-editor-lite/lib/index.css'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { v4 as uuidv4 } from 'uuid'
@@ -20,6 +19,7 @@ import { ArticleNotes } from '../../patterns/ArticleNotes'
 import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { formattedShortTime } from '../../../lib/dateFormatting'
 import { isDarkTheme } from '../../../lib/themeUpdater'
+import { sortHighlights } from '../../../lib/highlights/sortHighlights'
 
 type NotebookContentProps = {
   viewer: UserBasicData
@@ -32,12 +32,6 @@ type NotebookContentProps = {
 
   showConfirmDeleteNote?: boolean
   setShowConfirmDeleteNote?: (show: boolean) => void
-}
-
-export const getHighlightLocation = (patch: string): number | undefined => {
-  const dmp = new diff_match_patch()
-  const patches = dmp.patch_fromText(patch)
-  return patches[0].start1 || undefined
 }
 
 type NoteState = {
@@ -137,33 +131,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   }, [props, highlights])
 
   const sortedHighlights = useMemo(() => {
-    const sorted = (a: number, b: number) => {
-      if (a < b) {
-        return -1
-      }
-      if (a > b) {
-        return 1
-      }
-      return 0
-    }
-
-    return (highlights ?? [])
-      .filter((h) => h.type === 'HIGHLIGHT')
-      .sort((a: Highlight, b: Highlight) => {
-        if (a.highlightPositionPercent && b.highlightPositionPercent) {
-          return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
-        }
-        // We do this in a try/catch because it might be an invalid diff
-        // With PDF it will definitely be an invalid diff.
-        try {
-          const aPos = getHighlightLocation(a.patch)
-          const bPos = getHighlightLocation(b.patch)
-          if (aPos && bPos) {
-            return sorted(aPos, bPos)
-          }
-        } catch {}
-        return a.createdAt.localeCompare(b.createdAt)
-      })
+    return sortHighlights(highlights ?? [])
   }, [highlights])
 
   const handleSaveNoteText = useCallback(

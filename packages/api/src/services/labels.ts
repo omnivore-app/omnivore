@@ -25,11 +25,15 @@ export type LabelEvent = Merge<
 export const batchGetLabelsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Label[][]> => {
-  const labels = await authTrx(async (tx) =>
-    tx.getRepository(EntityLabel).find({
-      where: { libraryItemId: In(libraryItemIds as string[]) },
-      relations: ['label'],
-    })
+  const labels = await authTrx(
+    async (tx) =>
+      tx.getRepository(EntityLabel).find({
+        where: { libraryItemId: In(libraryItemIds as string[]) },
+        relations: ['label'],
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return libraryItemIds.map((libraryItemId) =>
@@ -42,11 +46,15 @@ export const batchGetLabelsFromLibraryItemIds = async (
 export const batchGetLabelsFromHighlightIds = async (
   highlightIds: readonly string[]
 ): Promise<Label[][]> => {
-  const labels = await authTrx(async (tx) =>
-    tx.getRepository(EntityLabel).find({
-      where: { highlightId: In(highlightIds as string[]) },
-      relations: ['label'],
-    })
+  const labels = await authTrx(
+    async (tx) =>
+      tx.getRepository(EntityLabel).find({
+        where: { highlightId: In(highlightIds as string[]) },
+        relations: ['label'],
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return highlightIds.map((highlightId) =>
@@ -72,8 +80,9 @@ export const findOrCreateLabels = async (
         user: { id: userId },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -156,8 +165,9 @@ export const saveLabelsInLibraryItem = async (
         }))
       )
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   if (source === 'user') {
@@ -185,20 +195,33 @@ export const addLabelsToLibraryItem = async (
 ) => {
   await authTrx(
     async (tx) => {
+      // assign new labels if not exist to the item owner by user
       await tx.query(
         `INSERT INTO omnivore.entity_labels (label_id, library_item_id, source)
-          SELECT id, $1, $2 FROM omnivore.labels
-          WHERE id = ANY($3)
-          AND NOT EXISTS (
-            SELECT 1 FROM omnivore.entity_labels
-            WHERE label_id = labels.id
-            AND library_item_id = $1
-          )`,
+          SELECT 
+              lbl.id, 
+              $1, 
+              $2 
+          FROM 
+              omnivore.labels lbl
+          LEFT JOIN 
+              omnivore.entity_labels el 
+          ON 
+              el.label_id = lbl.id 
+              AND el.library_item_id = $1
+          INNER JOIN 
+              omnivore.library_item li 
+          ON 
+              li.id = $1
+          WHERE 
+              lbl.id = ANY($3)
+              AND el.label_id IS NULL;`,
         [libraryItemId, source, labelIds]
       )
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   // update labels in library item
@@ -207,9 +230,7 @@ export const addLabelsToLibraryItem = async (
 
 export const saveLabelsInHighlight = async (
   labels: Label[],
-  highlightId: string,
-  userId: string,
-  pubsub = createPubSubClient()
+  highlightId: string
 ) => {
   await authTrx(async (tx) => {
     const repo = tx.getRepository(EntityLabel)
@@ -227,31 +248,6 @@ export const saveLabelsInHighlight = async (
       }))
     )
   })
-
-  // const highlight = await findHighlightById(highlightId, userId)
-  // if (!highlight) {
-  //   logger.error('Highlight not found', { highlightId, userId })
-  //   return
-  // }
-
-  // const libraryItemId = highlight.libraryItemId
-  // // create pubsub event
-  // await pubsub.entityCreated<ItemEvent>(
-  //   EntityType.LABEL,
-  //   {
-  //     id: libraryItemId,
-  //     highlights: [
-  //       {
-  //         id: highlightId,
-  //         labels: labels.map((l) => deepDelete(l, columnToDelete)),
-  //       },
-  //     ],
-  //   },
-  //   userId
-  // )
-
-  // // update labels in library item
-  // await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const findLabelsByIds = async (
@@ -265,8 +261,10 @@ export const findLabelsByIds = async (
         user: { id: userId },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -278,8 +276,9 @@ export const createLabel = async (
   return authTrx(
     (t) =>
       t.withRepository(labelRepository).createLabel({ name, color }, userId),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -289,8 +288,9 @@ export const deleteLabels = async (
 ) => {
   return authTrx(
     async (t) => t.withRepository(labelRepository).delete(criteria),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -326,8 +326,9 @@ export const updateLabel = async (
 
       return repo.findOneByOrFail({ id })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   const libraryItemIds = await findLibraryItemIdsByLabelId(id, userId)
@@ -348,8 +349,10 @@ export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {
         where: { user: { id: userId } },
         order: { position: 'ASC' },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -359,8 +362,10 @@ export const findLabelById = async (id: string, userId: string) => {
       tx
         .withRepository(labelRepository)
         .findOneBy({ id, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -380,7 +385,8 @@ export const findLabelsByLibraryItemId = async (
         source: el.source,
       }))
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

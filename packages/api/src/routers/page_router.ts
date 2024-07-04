@@ -82,8 +82,9 @@ export function pageRouter() {
           status: UploadFileStatus.Initialized,
           contentType: 'application/pdf',
         }),
-      undefined,
-      claims.uid
+      {
+        uid: claims.uid,
+      }
     )
 
     const uploadFilePathName = generateUploadFilePathName(

@@ -15,8 +15,18 @@ import java.io.FileOutputStream
 import android.Manifest
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import app.omnivore.omnivore.graphql.generated.type.ContentReader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.InputStream
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 data class LibrarySearchQueryResponse(
     val cursor: String?, val items: List<LibrarySearchItem>
@@ -43,7 +53,7 @@ suspend fun Networker.search(
         val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
         val searchItems = itemList.map {
-            saveLibraryItemContentToFile(context, it.node.id, it.node.content)
+            saveLibraryItemContentToFile(context, it.node.id, it.node.contentReader, it.node.content, it.node.url)
             LibrarySearchItem(item = SavedItem(
                 savedItemId = it.node.id,
                 title = it.node.title,
@@ -129,14 +139,41 @@ private fun readFromInternalStorage(context: Context, fileName: String): String?
     }
 }
 
+fun getUriForInternalFile(context: Context, fileName: String): Uri {
+    val file = File(context.filesDir, fileName)
+    return file.toUri()
+}
 
-fun saveLibraryItemContentToFile(context: Context, libraryItemId: String, content: String?): Boolean {
+
+suspend fun saveLibraryItemContentToFile(context: Context, libraryItemId: String, contentReader: ContentReader, content: String?, contentUrl: String?): Boolean {
     return try {
-        content?.let { content ->
-            writeToInternalStorage(context, content = content, fileName = "${libraryItemId}.html", )
-            return false
+        var localPDFPath: String? = null
+        if (contentReader == ContentReader.PDF) {
+            val localPDFPath = "${libraryItemId}.pdf"
+            val file = File(context.filesDir, localPDFPath)
+            if (file.exists()) {
+                // TODO: there should really be a checksum check here
+                Log.d("PDF", "SKIPPING DOWNLOAD FOR LOCAL PDF PATH: ${localPDFPath}")
+                return true
+            }
+            withContext(Dispatchers.IO) {
+                val urlStream: InputStream = URL(contentUrl).openStream()
+                context.openFileOutput(localPDFPath, Context.MODE_PRIVATE).use { outputStream ->
+                    urlStream.use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+                Log.d("PDF", "File written successfully to internal storage.")
+            }
+            Log.d("PDF", "DOWNLOADING PDF TO LOCAL PDF PATH: ${localPDFPath}")
+            true
+        } else {
+            content?.let { content ->
+                writeToInternalStorage(context, content = content, fileName = "${libraryItemId}.html", )
+                return true
+            }
+            false
         }
-        false
     } catch (e: Exception) {
         e.printStackTrace()
         false
@@ -147,7 +184,6 @@ fun loadLibraryItemContent(context: Context, libraryItemId: String): String? {
     return try {
         return readFromInternalStorage(context = context, fileName = "${libraryItemId}.html")
     } catch (e: Exception) {
-        e.printStackTrace()
         null
     }
 }

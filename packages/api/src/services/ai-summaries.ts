@@ -27,8 +27,9 @@ export const getAISummary = async (data: {
         })
       }
     },
-    undefined,
-    data.userId
+    {
+      uid: data.userId,
+    }
   )
   return aiSummary ?? undefined
 }

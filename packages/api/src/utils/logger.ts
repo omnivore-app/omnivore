@@ -36,7 +36,7 @@ export class CustomTypeOrmLogger
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
     this.logger.info(query, {
-      isReplicated: queryRunner?.connection?.driver?.isReplicated,
+      replicationMode: queryRunner?.getReplicationMode(),
       parameters,
     })
   }

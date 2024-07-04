@@ -73,6 +73,7 @@ export const scoreLibraryItem = async (
       has_site_icon: !!libraryItem.siteIcon,
       saved_at: libraryItem.savedAt,
       site: libraryItem.siteName,
+      original_url: libraryItem.originalUrl,
       directionality: libraryItem.directionality,
       folder: libraryItem.folder,
       subscription_type: 'library',
@@ -97,23 +98,21 @@ export const scoreLibraryItem = async (
     items: itemFeatures,
   })
 
-  logger.info('Scores', scores)
-  const score = scores[libraryItem.id]['score']
+  const score = scores[libraryItem.id].score
   if (!score) {
     logger.error('Failed to score library item', data)
-    throw new Error('Failed to score library item')
+  } else {
+    await updateLibraryItem(
+      libraryItem.id,
+      {
+        score,
+      },
+      userId,
+      undefined,
+      true
+    )
+    logger.info('Library item score updated', data)
   }
-
-  await updateLibraryItem(
-    libraryItem.id,
-    {
-      score,
-    },
-    userId,
-    undefined,
-    true
-  )
-  logger.info('Library item scored', data)
 
   try {
     await enqueueUpdateHomeJob({

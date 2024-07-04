@@ -10,7 +10,7 @@ import WebKit
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
   @State var item: Models.LibraryItem
-  @Environment(\.dismiss) private var dismiss
+  @Environment(\.presentationCoordinator) var presentationCoordinator
 
   @State private var showPreferencesPopover = false
   @State private var showPreferencesFormsheet = false
@@ -268,7 +268,7 @@ struct WebReaderContainerView: View {
       #if os(iOS)
         Button(
           action: {
-            dismiss()
+            presentationCoordinator.dismiss()
           },
           label: {
             Image.chevronRight
@@ -679,7 +679,7 @@ struct WebReaderContainerView: View {
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
-      dismiss()
+      presentationCoordinator.dismiss()
     }
     .ignoresSafeArea(.all, edges: .bottom)
   }
@@ -699,7 +699,7 @@ struct WebReaderContainerView: View {
     let isArchived = item.isArchived
     dataService.archiveLink(objectID: item.objectID, archived: !isArchived)
     #if os(iOS)
-      dismiss()
+      presentationCoordinator.dismiss()
 
     Snackbar.show(message: isArchived ? "Unarchived" : "Archived", undoAction: {
       dataService.archiveLink(objectID: item.objectID, archived: isArchived)
@@ -736,7 +736,7 @@ struct WebReaderContainerView: View {
   }
 
   func delete() {
-    dismiss()
+    presentationCoordinator.dismiss()
 
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {

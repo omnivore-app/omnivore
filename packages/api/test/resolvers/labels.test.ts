@@ -322,7 +322,7 @@ describe('Labels API', () => {
             libraryItem: item,
           }
           await createHighlight(highlight, item.id, user.id)
-          await saveLabelsInHighlight([toDeleteLabel], highlightId, user.id)
+          await saveLabelsInHighlight([toDeleteLabel], highlightId)
         })
 
         after(async () => {
@@ -452,9 +452,9 @@ describe('Labels API', () => {
         labelIds = [labels[0].id, labels[1].id]
       })
 
-      it('should return error code BAD_REQUEST', async () => {
+      it('should return error code UNAUTHORIZED', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.setLabels.errorCodes).to.eql(['BAD_REQUEST'])
+        expect(res.body.data.setLabels.errorCodes).to.eql(['UNAUTHORIZED'])
       })
     })
 
@@ -670,14 +670,14 @@ describe('Labels API', () => {
 
     context('when highlight not exist', () => {
       before(() => {
-        highlightId = 'fake_highlight_id'
+        highlightId = generateFakeUuid()
         labelIds = [labels[0].id, labels[1].id]
       })
 
-      it('should return error code BAD_REQUEST', async () => {
+      it('should return error code UNAUTHORIZED', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.setLabelsForHighlight.errorCodes).to.eql([
-          'BAD_REQUEST',
+          'UNAUTHORIZED',
         ])
       })
     })

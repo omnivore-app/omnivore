@@ -1,3 +1,4 @@
+import { RedisDataSource } from '@omnivore/utils'
 import addressparser from 'addressparser'
 import { EmailJobType, queueEmailJob } from './job'
 
@@ -40,6 +41,7 @@ export const parseAuthor = (address: string): string => {
 }
 
 export const handleGoogleConfirmationEmail = async (
+  redisDataSource: RedisDataSource,
   from: string,
   to: string,
   subject: string
@@ -58,7 +60,7 @@ export const handleGoogleConfirmationEmail = async (
   }
 
   const message = { from, to, confirmationCode, subject }
-  return queueEmailJob(EmailJobType.ConfirmationEmail, message)
+  return queueEmailJob(redisDataSource, EmailJobType.ConfirmationEmail, message)
 }
 
 export const getConfirmationCode = (subject: string): string | undefined => {

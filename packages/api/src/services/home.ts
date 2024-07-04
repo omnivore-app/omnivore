@@ -4,12 +4,16 @@ import { authTrx } from '../repository'
 export const batchGetPublicItems = async (
   ids: readonly string[]
 ): Promise<Array<PublicItem | undefined>> => {
-  const publicItems = await authTrx(async (tx) =>
-    tx
-      .getRepository(PublicItem)
-      .createQueryBuilder('public_item')
-      .where('public_item.id IN (:...ids)', { ids })
-      .getMany()
+  const publicItems = await authTrx(
+    async (tx) =>
+      tx
+        .getRepository(PublicItem)
+        .createQueryBuilder('public_item')
+        .where('public_item.id IN (:...ids)', { ids })
+        .getMany(),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return ids.map((id) => publicItems.find((pi) => pi.id === id))
@@ -48,7 +52,9 @@ export const findUnseenPublicItems = async (
         .take(options.limit)
         .skip(options.offset)
         .getMany(),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }

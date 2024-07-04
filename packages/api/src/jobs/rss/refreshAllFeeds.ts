@@ -22,8 +22,12 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
     refreshID: uuid(),
     startedAt: new Date().toISOString(),
   } as RSSRefreshContext
-  const subscriptionGroups = (await db.createEntityManager().query(
-    `
+  let subscriptionGroups = []
+
+  const slaveQueryRunner = db.createQueryRunner('slave')
+  try {
+    subscriptionGroups = (await slaveQueryRunner.query(
+      `
       SELECT
         url,
         ARRAY_AGG(s.id) AS "subscriptionIds",
@@ -45,8 +49,11 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
       GROUP BY
         url
       `,
-    ['RSS', 'ACTIVE', 'following', 'ACTIVE']
-  )) as RssSubscriptionGroup[]
+      ['RSS', 'ACTIVE', 'following', 'ACTIVE']
+    )) as RssSubscriptionGroup[]
+  } finally {
+    await slaveQueryRunner.release()
+  }
 
   logger.info(`rss: checking ${subscriptionGroups.length}`, {
     refreshContext,

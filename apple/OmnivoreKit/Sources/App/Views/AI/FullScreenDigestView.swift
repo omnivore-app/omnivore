@@ -112,7 +112,7 @@ struct FullScreenDigestView: View {
   let dataService: DataService
   let audioController: AudioController
 
-  @Environment(\.dismiss) private var dismiss
+  @Environment(\.presentationCoordinator) var presentationCoordinator
 
   public init(dataService: DataService, audioController: AudioController) {
     self.dataService = dataService
@@ -221,7 +221,7 @@ struct FullScreenDigestView: View {
 
   var closeButton: some View {
     Button(action: {
-      dismiss()
+      presentationCoordinator.dismiss()
     }, label: {
       Text("Close")
         .foregroundColor(Color.blue)

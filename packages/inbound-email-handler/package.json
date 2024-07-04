@@ -35,11 +35,11 @@
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^7.0.1",
+    "@omnivore/utils": "1.0.0",
     "@sentry/serverless": "^7.77.0",
     "addressparser": "^1.0.1",
     "bullmq": "^5.1.1",
     "dotenv": "^8.2.0",
-    "ioredis": "^5.3.2",
     "parse-headers": "^2.0.4",
     "parse-multipart-data": "^1.2.1",
     "rfc2047": "^4.0.1",

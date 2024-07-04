@@ -1,5 +1,4 @@
 import Redis, { RedisOptions } from 'ioredis'
-import 'dotenv/config'
 
 type RedisClientType = 'cache' | 'mq'
 type RedisDataSourceOption = {
@@ -31,6 +30,8 @@ export class RedisDataSource {
     try {
       await this.queueRedisClient?.quit()
       await this.cacheClient?.quit()
+
+      console.log('redis shutdown complete')
     } catch (err) {
       console.error('error while shutting down redis', err)
     }
@@ -66,34 +67,3 @@ const createIORedisClient = (
   }
   return new Redis(redisURL, redisOptions)
 }
-
-export const redisDataSource = new RedisDataSource({
-  cache: {
-    url: process.env.REDIS_URL,
-    cert: process.env.REDIS_CERT,
-  },
-  mq: {
-    url: process.env.MQ_REDIS_URL,
-    cert: process.env.MQ_REDIS_CERT,
-  },
-})
-
-const gracefulShutdown = async (signal: string) => {
-  console.log(`Received ${signal}, shutting down gracefully...`)
-
-  await redisDataSource.shutdown()
-  console.log('redis shutdown successfully')
-
-  process.exit(0)
-}
-
-process.on('SIGINT', () => {
-  ;(async () => {
-    await gracefulShutdown('SIGINT')
-  })()
-})
-process.on('SIGTERM', () => {
-  ;(async () => {
-    await gracefulShutdown('SIGTERM')
-  })()
-})

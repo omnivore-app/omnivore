@@ -3,6 +3,8 @@ package app.omnivore.omnivore.feature.reader
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +22,7 @@ import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.core.database.entities.SavedItem
+import app.omnivore.omnivore.core.network.getUriForInternalFile
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import com.pspdfkit.annotations.Annotation
@@ -57,17 +60,22 @@ class PDFReaderViewModel @Inject constructor(
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
-      loadItemFromDB(slug)
+      loadItemFromDB(slug, context)
       loadItemFromNetwork(slug, context)
     }
   }
 
-  private suspend fun loadItemFromDB(slug: String) {
+
+
+  private suspend fun loadItemFromDB(slug: String, context: Context) {
     withContext(Dispatchers.IO) {
       val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
       persistedItem?.let { item ->
-        item.savedItem.localPDF?.let { localPDF ->
-          val localFile = File(localPDF)
+          Log.d("PDF", " - persistedItem?.let { item -> ${item}")
+          Log.d("PDF", " - item.savedItem.localPDF -> ${item.savedItem.localPDF}")
+
+          val localPdf =  getUriForInternalFile(context,"${item.savedItem.savedItemId}.pdf")
+          val localFile = localPdf.toFile()
 
           if (localFile.exists()) {
             val articleContent = ArticleContent(
@@ -82,10 +90,9 @@ class PDFReaderViewModel @Inject constructor(
               PDFReaderParams(
                 item.savedItem,
                 articleContent,
-                Uri.fromFile(localFile)
+                  localPdf
               )
             )
-          }
         }
       }
     }
