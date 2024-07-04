@@ -8,7 +8,6 @@ from timeit import default_timer as timer
 import os
 import sys
 import json
-import pytz
 import pickle
 import numpy as np
 import pandas as pd
@@ -18,7 +17,7 @@ from datetime import datetime
 import dateutil.parser
 from google.cloud import storage
 from features.user_history import FEATURE_COLUMNS
-from treeinterpreter import treeinterpreter as ti
+
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
