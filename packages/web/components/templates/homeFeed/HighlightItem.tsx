@@ -11,9 +11,8 @@ import {
   DropdownSeparator,
 } from '../../elements/DropdownElements'
 import { Box, VStack } from '../../elements/LayoutPrimitives'
-
 import { styled, theme } from '../../tokens/stitches.config'
-import { getHighlightLocation } from '../article/Notebook'
+import { sortHighlights } from '../../../lib/highlights/sortHighlights'
 
 type HighlightsMenuProps = {
   viewer: UserBasicData
@@ -133,36 +132,6 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
   )
 }
 
-const sortHighlights = (highlights: Highlight[]) => {
-  const sorted = (a: number, b: number) => {
-    if (a < b) {
-      return -1
-    }
-    if (a > b) {
-      return 1
-    }
-    return 0
-  }
-
-  return (highlights ?? [])
-    .filter((h) => h.type === 'HIGHLIGHT')
-    .sort((a: Highlight, b: Highlight) => {
-      if (a.highlightPositionPercent && b.highlightPositionPercent) {
-        return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
-      }
-      // We do this in a try/catch because it might be an invalid diff
-      // With PDF it will definitely be an invalid diff.
-      try {
-        const aPos = getHighlightLocation(a.patch)
-        const bPos = getHighlightLocation(b.patch)
-        if (aPos && bPos) {
-          return sorted(aPos, bPos)
-        }
-      } catch {}
-      return a.createdAt.localeCompare(b.createdAt)
-    })
-}
-
 export function highlightAsMarkdown(highlight: Highlight) {
   let buffer = `> ${highlight.quote}`
   if (highlight.annotation) {
@@ -175,8 +144,7 @@ export function highlightAsMarkdown(highlight: Highlight) {
 export function highlightsAsMarkdown(highlights: Highlight[]) {
   const noteMD = highlights.find((h) => h.type == 'NOTE')
 
-  const highlightMD = sortHighlights(highlights)
-    .filter((h) => h.type == 'HIGHLIGHT')
+  const highlightMD = sortHighlights(highlights ?? [])
     .map((highlight) => {
       return highlightAsMarkdown(highlight)
     })
