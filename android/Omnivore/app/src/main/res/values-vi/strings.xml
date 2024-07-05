@@ -1,0 +1,272 @@
+<resources>
+    <string name="app_name">Omnivore</string>
+    <string name="welcome_title">Không bao giờ bỏ lỡ một bài viết hay</string>
+    <string name="learn_more">Tìm hiểu thêm</string>
+    <string name="welcome_subtitle">Lưu các bài viết và đọc chúng sau trong trình đọc không bị phân tâm của chúng tôi.</string>
+    <string name="highlight_menu_action">Tô sáng</string>
+    <string name="copy_menu_action">Sao chép</string>
+    <string name="annotate_menu_action">Ghi chú</string>
+    <string name="pdf_remove_highlight">Loại bỏ</string>
+    <string name="pdf_highlight_menu_action">Tô sáng</string>
+    <string name="pdf_highlight_copy">Sao chép</string>
+    <string name="highlight_note">Ghi chú</string>
+    <string name="copyTextSelection">Sao chép</string>
+    <string name="pdf_highlight_menu_note">Ghi chú</string>
+    <string name="back">Quay lại</string>
+
+    <!-- Navigation -->
+    <string name="following">Đang theo dõi</string>
+    <string name="inbox">Hộp thư đến</string>
+    <string name="profile">Hồ sơ</string>
+
+    <!-- Apple Auth -->
+    <string name="apple_auth_text">Tiếp tục với Apple</string>
+    <string name="apple_auth_loading">Đang đăng nhập...</string>
+
+    <!-- Create User Profile -->
+    <string name="create_user_profile_title">Tạo hồ sơ của bạn</string>
+    <string name="create_user_profile_loading">Đang tải...</string>
+    <string name="create_user_profile_action_cancel">Hủy đăng ký</string>
+    <string name="create_user_profile_action_submit">Gửi</string>
+    <string name="create_user_profile_field_placeholder_name">Tên</string>
+    <string name="create_user_profile_field_label_name">Tên</string>
+    <string name="create_user_profile_field_placeholder_username">Tên người dùng</string>
+    <string name="create_user_profile_field_label_username">Tên người dùng</string>
+    <string name="create_user_profile_error_msg">Vui lòng nhập tên và tên người dùng hợp lệ.</string>
+
+    <!-- Email Login -->
+    <string name="email_login_loading">Đang tải...</string>
+    <string name="email_login_action_back">Quay lại Đăng nhập mạng xã hội</string>
+    <string name="email_login_action_no_account">Bạn chưa có tài khoản?</string>
+    <string name="email_login_action_forgot_password">Bạn quên mật khẩu?</string>
+    <string name="email_login_action_login">Đăng nhập</string>
+    <string name="email_login_field_placeholder_email">user@email.com</string>
+    <string name="email_login_field_label_email">Email</string>
+    <string name="email_login_field_placeholder_password">Mật khẩu</string>
+    <string name="email_login_field_label_password">Mật khẩu</string>
+    <string name="email_login_error_msg">Vui lòng nhập địa chỉ email và mật khẩu.</string>
+
+    <!-- Email Sign Up -->
+    <string name="email_signup_verification_message">Chúng tôi đã gửi email xác minh tới %1$s. Vui lòng xác minh email của bạn rồi nhấn vào nút bên dưới.</string>
+    <string name="email_signup_check_status">Kiểm tra trạng thái</string>
+    <string name="email_signup_action_use_different_email">Sử dụng một email khác? Quay lại</string>
+    <string name="email_signup_loading">Đang tải...</string>
+    <string name="email_signup_action_back">Quay lại Đăng nhập mạng xã hội</string>
+    <string name="email_signup_action_already_have_account">Đã có tài khoản?</string>
+    <string name="email_signup_action_sign_up">Đăng ký</string>
+    <string name="email_signup_field_placeholder_email">user@email.com</string>
+    <string name="email_signup_field_label_email">Email</string>
+    <string name="email_signup_field_placeholder_password">Mật khẩu</string>
+    <string name="email_signup_field_label_password">Mật khẩu</string>
+    <string name="email_signup_field_placeholder_name">Tên</string>
+    <string name="email_signup_field_label_name">Tên</string>
+    <string name="email_signup_field_placeholder_username">Tên người dùng</string>
+    <string name="email_signup_field_label_username">Tên người dùng</string>
+    <string name="email_signup_error_msg">Vui lòng điền vào tất cả các trường.</string>
+
+    <!-- Google Auth -->
+    <string name="google_auth_text">Tiếp tục với Google</string>
+    <string name="google_auth_loading">Đang đăng nhập...</string>
+
+    <!-- LoginViewModel -->
+    <string name="login_view_model_self_hosting_settings_updated">Đã cập nhật thiết đặt tự lưu trữ.</string>
+    <string name="login_view_model_self_hosting_settings_reset">Đặt lại thiết đặt tự lưu trữ.</string>
+    <string name="login_view_model_username_validation_length_error_msg">Tên người dùng phải dài từ 4 đến 15 ký tự.</string>
+    <string name="login_view_model_username_validation_alphanumeric_error_msg">Tên người dùng chỉ có thể chứa chữ cái và số.</string>
+    <string name="login_view_model_username_not_available_error_msg">Tên người dùng này không có sẵn.</string>
+    <string name="login_view_model_connection_error_msg">Rất tiếc, chúng tôi đang gặp sự cố khi kết nối với máy chủ.</string>
+    <string name="login_view_model_something_went_wrong_error_msg">Đã xảy ra lỗi. Vui lòng kiểm tra email/mật khẩu của bạn và thử lại.</string>
+    <string name="login_view_model_something_went_wrong_two_error_msg">Đã xảy ra lỗi. Vui lòng kiểm tra thông tin đăng nhập của bạn và thử lại.</string>
+    <string name="login_view_model_google_auth_error_msg">Không thể xác thực với Google.</string>
+    <string name="login_view_model_missing_auth_token_error_msg">Không tìm thấy mã thông báo xác thực.</string>
+
+    <!-- SelfHostedView -->
+    <string name="self_hosted_view_loading">Đang tải...</string>
+    <string name="self_hosted_view_action_reset">Đặt lại</string>
+    <string name="self_hosted_view_action_back">Quay lại</string>
+    <string name="self_hosted_view_action_save">Lưu</string>
+    <string name="self_hosted_view_action_learn_more">Tìm hiểu thêm về việc tự lưu trữ Omnivore</string>
+    <string name="self_hosted_view_field_api_url_label">Máy chủ API</string>
+    <string name="self_hosted_view_field_web_url_label">Máy chủ Web</string>
+    <string name="self_hosted_view_error_msg">Vui lòng nhập địa chỉ máy chủ API và máy chủ Web.</string>
+
+    <!-- WelcomeScreen -->
+    <string name="welcome_screen_action_dismiss">Giải tán</string>
+    <string name="welcome_screen_action_continue_with_email">Tiếp tục với Email</string>
+    <string name="welcome_screen_action_self_hosting_options">Tùy chọn tự lưu trữ</string>
+
+    <!-- LabelCreationDialog -->
+    <string name="label_creation_title">Tạo Nhãn Mới</string>
+    <string name="label_creation_content">Gán tên và màu sắc.</string>
+    <string name="label_creation_action_create">Tạo</string>
+    <string name="label_creation_action_cancel">Hủy</string>
+    <string name="label_creation_label_placeholder">Tên nhãn</string>
+
+    <!-- LabelSelectionSheet -->
+    <string name="label_selection_sheet_title">Lọc theo Nhãn</string>
+    <string name="label_selection_sheet_title_alt">Đặt nhãn</string>
+    <string name="label_selection_sheet_action_cancel">Hủy</string>
+    <string name="label_selection_sheet_action_search">Tìm kiếm</string>
+    <string name="label_selection_sheet_action_save">Lưu</string>
+    <string name="label_selection_sheet_text_create">Tạo nhãn mới có tên \"%1$s\"</string>
+    <string name="label_selection_sheet_label_too_long_error_msg">Tên được cung cấp quá dài (phải ít hơn hoặc bằng %1$d ký tự)</string>
+
+    <!-- LibraryFilterBar -->
+    <string name="library_filter_bar_label_labels">Nhãn</string>
+
+    <!-- LibraryNavigationBar -->
+    <string name="library_nav_bar_title">Thư viện</string>
+    <string name="library_nav_bar_title_alt"></string>
+    <string name="library_nav_bar_field_placeholder_search">Tìm kiếm</string>
+
+    <!-- LibraryViewModel -->
+    <string name="library_view_model_snackbar_success">Đã cập nhật nhãn</string>
+    <string name="library_view_model_snackbar_error">Không thể đặt nhãn</string>
+
+    <!-- NotebookView -->
+    <string name="notebook_view_title">Sổ tay</string>
+    <string name="notebook_view_action_copy">Sao chép</string>
+    <string name="notebook_view_snackbar_msg">Đã sao chép sổ tay</string>
+
+    <!-- EditNoteModal -->
+    <string name="edit_note_modal_title">Ghi chú</string>
+    <string name="edit_note_modal_action_save">Lưu</string>
+    <string name="edit_note_modal_action_cancel">Hủy</string>
+
+    <!-- ArticleNotes -->
+    <string name="article_notes_title">Ghi chú bài viết</string>
+    <string name="article_notes_action_add_notes">Thêm ghi chú...</string>
+
+    <!-- HighlightsList -->
+    <string name="highlights_list_title">Điểm sáng</string>
+    <string name="highlights_list_action_copy">Sao chép</string>
+    <string name="highlights_list_snackbar_msg">Đã sao chép điểm sáng</string>
+    <string name="highlights_list_action_add_note">Thêm ghi chú...</string>
+    <string name="highlights_list_error_msg_no_highlights">Bạn chưa thêm bất kỳ điểm sáng nào vào trang này.</string>
+
+    <!-- ReaderPreferencesView -->
+    <string name="reader_preferences_font">Phông chữ:</string>
+    <string name="reader_preferences_view_font_size">Cỡ chữ:</string>
+    <string name="reader_preferences_view_margin">Lề</string>
+    <string name="reader_preferences_view_line_spacing">Khoảng cách dòng</string>
+    <string name="reader_preferences_view_theme">Chủ đề:</string>
+    <string name="reader_preferences_view_auto">Tự động</string>
+    <string name="reader_preferences_view_high_constrast_text">Văn bản có độ tương phản cao</string>
+    <string name="reader_preferences_view_justify_text">Căn đều văn bản</string>
+    <string name="reader_preferences_view_volume_scroll">Sử dụng nút âm lượng để cuộn</string>
+    <string name="reader_preferences_view_use_rtl">Văn bản từ phải sang trái</string>
+
+    <!-- WebReaderLoadingContainer -->
+    <string name="web_reader_loading_container_error_msg">Chúng tôi không thể tìm nạp nội dung của bạn.</string>
+    <string name="web_reader_loading_container_bottom_sheet_reader_preferences">Tùy chọn trình đọc</string>
+    <string name="web_reader_loading_container_bottom_sheet_notebook">Sổ tay</string>
+    <string name="web_reader_loading_container_bottom_sheet_edit_info">Chỉnh sửa thông tin</string>
+    <string name="web_reader_loading_container_bottom_sheet_e">Sổ tay</string>
+    <string name="web_reader_loading_container_bottom_sheet_open_link">Mở liên kết</string>
+
+    <!-- OpenLinkView -->
+    <string name="open_link_view_action_open_in_browser">Mở trong trình duyệt</string>
+    <string name="open_link_view_action_save_to_omnivore">Lưu vào Omnivore</string>
+    <string name="open_link_view_action_copy_link">Sao chép liên kết</string>
+    <string name="open_link_view_action_cancel">Hủy</string>
+
+    <!-- WebReaderViewModel -->
+    <string name="web_reader_view_model_save_link_success">Đã lưu liên kết</string>
+    <string name="web_reader_view_model_save_link_error">Lỗi lưu liên kết</string>
+    <string name="web_reader_view_model_copy_link_success">Đã sao chép liên kết</string>
+
+    <!-- SaveContent -->
+    <string name="save_content_msg">Đang lưu</string>
+    <string name="save_content_action_read_now">Đọc ngay</string>
+    <string name="save_content_action_read_later">Đọc sau</string>
+    <string name="save_content_action_dismiss">Loại bỏ</string>
+
+    <!-- SaveViewModel -->
+    <string name="save_view_model_msg">Đang lưu vào Omnivore...</string>
+    <string name="save_view_model_error_not_logged_in">Bạn chưa đăng nhập. Vui lòng đăng nhập trước khi lưu.</string>
+    <string name="save_view_model_page_saved_success">Trang đã lưu</string>
+    <string name="save_view_model_page_saved_error">Đã xảy ra lỗi khi lưu trang của bạn</string>
+
+    <!-- SavedItemContextMenu -->
+    <string name="saved_item_context_menu_action_edit_info">Chỉnh sửa thông tin</string>
+    <string name="saved_item_context_menu_action_edit_labels">Chỉnh sửa nhãn</string>
+    <string name="saved_item_context_menu_action_archive">Lưu trữ</string>
+    <string name="saved_item_context_menu_action_unarchive">Hủy lưu trữ</string>
+    <string name="saved_item_context_menu_action_share_original">Chia sẻ bản gốc</string>
+    <string name="saved_item_context_menu_action_remove_item">Loại bỏ mục</string>
+    <string name="saved_item_context_menu_action_mark_read">Đánh dấu đã đọc</string>
+    <string name="saved_item_context_menu_action_mark_unread">Đánh dấu chưa đọc</string>
+
+    <!-- LogoutDialog -->
+    <string name="logout_dialog_title">Đăng xuất</string>
+    <string name="logout_dialog_confirm_msg">Bạn có chắc chắn muốn đăng xuất không?</string>
+    <string name="logout_dialog_action_confirm">Xác nhận</string>
+    <string name="logout_dialog_action_cancel">Hủy</string>
+
+    <!-- Filters -->
+    <string name="hide_following_tab">Ẩn tab đang theo dõi</string>
+
+    <!-- ManageAccount -->
+    <string name="manage_account_title">Quản lý tài khoản</string>
+    <string name="manage_account_action_reset_data_cache">Đặt lại bộ đệm dữ liệu</string>
+
+    <!-- PolicyWebView -->
+    <string name="policy_webview_title">Thiết đặt</string>
+
+    <!-- SettingsView -->
+    <string name="profile_view_title">Hồ sơ</string>
+    <string name="about_documentation">Tài liệu</string>
+    <string name="about_feedback">Phản hồi</string>
+    <string name="about_privacy_policy">Chính sách quyền riêng tư</string>
+    <string name="about_terms_and_conditions">Điều khoản và Điều kiện</string>
+    <string name="profile_filters">Bộ lọc</string>
+    <string name="profile_manage_account">Quản lý tài khoản</string>
+    <string name="about_logout">Đăng xuất</string>
+
+    <!-- About -->
+    <string name="about_view_title">Giới thiệu</string>
+    <string name="about_view_row_version">Phiên bản</string>
+    <string name="about_view_row_whats_new">Có gì mới</string>
+    <string name="website">Website</string>
+
+    <!-- stock filters -->
+    <string name="library_filter_inbox">Hộp thư đến</string>
+    <string name="library_filter_non_feed">Các mục không phải nguồn cấp dữ liệu</string>
+    <string name="library_filter_feeds">Nguồn cấp dữ liệu</string>
+    <string name="library_filter_newsletters">Bản tin</string>
+    <string name="library_filter_recommended">Được đề xuất</string>
+    <string name="library_filter_all">Tất cả</string>
+    <string name="library_filter_archived">Đã lưu trữ</string>
+    <string name="library_filter_highlighted">Đã đánh dấu</string>
+    <string name="library_filter_files">Tệp tin</string>
+
+    <!-- stock sorts -->
+    <string name="library_sort_newest">Mới nhất</string>
+    <string name="library_sort_oldest">Cũ nhất</string>
+    <string name="library_sort_recently_read">Đã đọc gần đây</string>
+    <string name="library_sort_recently_published">Được xuất bản gần đây</string>
+
+    <!-- AddLinkSheet -->
+    <string name="add_link_sheet_title">Thêm liên kết</string>
+    <string name="add_link_sheet_text_field_placeholder">Thêm liên kết</string>
+    <string name="add_link_sheet_action_add_link">Thêm</string>
+    <string name="add_link_sheet_action_cancel">Hủy</string>
+    <string name="add_link_sheet_action_paste_from_clipboard">Lấy từ clipboard</string>
+    <string name="add_link_sheet_invalid_url_error">URL không hợp lệ</string>
+    <string name="add_link_sheet_save_url_error">Lỗi khi lưu liên kết!</string>
+    <string name="add_link_sheet_save_url_success">Liên kết đã được lưu thành công!</string>
+
+    <!-- EditInfoViewModel -->
+    <string name="edit_info_view_model_error_not_logged_in">Bạn chưa đăng nhập. Vui lòng đăng nhập trước khi lưu.</string>
+
+    <!-- EditInfoSheet -->
+    <string name="edit_info_sheet_title">Chỉnh sửa thông tin</string>
+    <string name="edit_info_sheet_text_field_label_title">Tiêu đề</string>
+    <string name="edit_info_sheet_text_field_label_author">Tác giả</string>
+    <string name="edit_info_sheet_text_field_label_description">Mô tả</string>
+    <string name="edit_info_sheet_action_save">Lưu</string>
+    <string name="edit_info_sheet_action_cancel">Hủy</string>
+    <string name="edit_info_sheet_error">Lỗi khi chỉnh sửa bài viết!</string>
+    <string name="edit_info_sheet_success">Thông tin bài viết đã được cập nhật thành công!</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+</resources>
