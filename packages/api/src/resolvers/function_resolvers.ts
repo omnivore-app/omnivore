@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
+import * as httpContext from 'express-http-context2'
 import { isError } from 'lodash'
 import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -355,14 +356,26 @@ export const functionResolvers = {
   },
   User: {
     async intercomHash(user: User) {
-      if (env.intercom.secretKey) {
-        const userIdentifier = user.id.toString()
+      let secret: string
 
-        return createHmac('sha256', env.intercom.secretKey)
-          .update(userIdentifier)
-          .digest('hex')
+      const client = httpContext.get('client') as string
+      switch (client.toLowerCase()) {
+        case 'ios':
+          secret = env.intercom.iosSecret
+          break
+        case 'android':
+          secret = env.intercom.androidSecret
+          break
+        default:
+          secret = env.intercom.webSecret
       }
-      return undefined
+
+      if (!secret) {
+        return undefined
+      }
+
+      const userIdentifier = user.id
+      return createHmac('sha256', secret).update(userIdentifier).digest('hex')
     },
     async features(_: User, __: Record<string, unknown>, ctx: ResolverContext) {
       if (!ctx.claims?.uid) {
