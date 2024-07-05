@@ -54,6 +54,9 @@ export interface BackendEnv {
   intercom: {
     token: string
     secretKey: string
+    webSecret: string
+    iosSecret: string
+    androidSecret: string
   }
   sentry: {
     dsn: string
@@ -193,6 +196,9 @@ const nullableEnvVars = [
   'PG_REPLICA_USER',
   'PG_REPLICA_PASSWORD',
   'PG_REPLICA_DB',
+  'INTERCOM_WEB_SECRET',
+  'INTERCOM_IOS_SECRET',
+  'INTERCOM_ANDROID_SECRET',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -268,6 +274,9 @@ export function getEnv(): BackendEnv {
   const intercom = {
     token: parse('INTERCOM_TOKEN'),
     secretKey: parse('INTERCOM_SECRET_KEY'),
+    webSecret: parse('INTERCOM_WEB_SECRET'),
+    iosSecret: parse('INTERCOM_IOS_SECRET'),
+    androidSecret: parse('INTERCOM_ANDROID_SECRET'),
   }
   const sentry = {
     dsn: parse('SENTRY_DSN'),
