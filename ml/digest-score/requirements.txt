@@ -9,5 +9,6 @@ sklearn2pmml
 sqlalchemy
 pyarrow
 requests
+PyJWT
 prometheus_client
 xgboost==2.1.0

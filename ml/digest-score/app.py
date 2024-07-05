@@ -16,12 +16,15 @@ from urllib.parse import urlparse
 from datetime import datetime
 import dateutil.parser
 from google.cloud import storage
-from features.user_history import FEATURE_COLUMNS
 
 import concurrent.futures
 from threading import Lock, RLock
 from collections import ChainMap
 import copy
+
+from features.user_history import FEATURE_COLUMNS
+from auth import user_token_required, admin_token_required
+
 
 class ThreadSafeUserFeatures:
   def __init__(self):
@@ -219,12 +222,14 @@ def metrics():
 
 
 @app.route('/refresh', methods=['GET'])
+@admin_token_required
 def refresh():
   refresh_data()
   return jsonify({'OK': 'yes'}), 200
 
 
 @app.route('/users/<user_id>/features', methods=['GET'])
+@admin_token_required
 def get_user_features(user_id):
   result = {}
   df_user = pd.DataFrame([{
@@ -243,12 +248,13 @@ def get_user_features(user_id):
 
 
 @app.route('/predict', methods=['POST'])
+@user_token_required
 def predict():
   try:
     data = request.get_json()
     app.logger.info(f"predict scoring request: {data}")
 
-    user_id = data.get('user_id')
+    user_id = request.user_id
     item_features = data.get('item_features')
 
     if user_id is None:
@@ -263,14 +269,13 @@ def predict():
 
 
 @app.route('/batch', methods=['POST'])
+@user_token_required
 def batch():
   start = timer()
   try:
     data = request.get_json()
-    app.logger.info(f"batch scoring request: {data}")
-
     items = data.get('items')
-    user_id = data.get('user_id')
+    user_id = request.user_id
     if user_id == None:
       return jsonify({'error': 'no user_id supplied'}), 400
     if len(items) > 101:

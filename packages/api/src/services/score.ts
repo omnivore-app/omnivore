@@ -3,6 +3,7 @@ import client from 'prom-client'
 import { env } from '../env'
 import { registerMetric } from '../prometheus'
 import { logError } from '../utils/logger'
+import { createWebAuthToken } from '../routers/auth/jwt_helpers'
 
 export interface Feature {
   library_item_id?: string
@@ -77,10 +78,12 @@ class ScoreClientImpl implements ScoreClient {
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
     const start = Date.now()
+    const authToken = createWebAuthToken(data.user_id)
 
     try {
       const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
         headers: {
+          Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
         timeout: 5000,
