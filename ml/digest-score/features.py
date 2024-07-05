@@ -17,10 +17,15 @@ from features.extract import extract_and_upload_raw_data
 from features.user_history import generate_and_upload_user_history
 
 from datetime import datetime, timezone
+from auth import generate_admin_token
+
 
 def call_refresh_api(api):
+  headers = {
+    'Authorization': f'Bearer {generate_admin_token()}'
+  }
   try:
-    response = requests.get(api, timeout=10)
+    response = requests.get(api, headers=headers, timeout=10)
     if response.status_code == 200:
         print("scoring service refreshed")
     else:
