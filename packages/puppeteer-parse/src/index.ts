@@ -243,7 +243,7 @@ async function retrievePage(
     fingerprintOptions: {
       devices: ['desktop'],
       operatingSystems: ['windows'],
-      browsers: ['firefox'],
+      browsers: ['chrome'],
       mockWebRTC: true,
       locales: [locale || 'en-US'],
     },

@@ -62,6 +62,13 @@ const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
   : new Storage()
 const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
 
+const NO_CACHE_URLS = ['https://deviceandbrowserinfo.com/are_you_a_bot']
+
+const isUrlCacheable = (cacheKey: string) => {
+  const url = cacheKey.split(':')[1]
+  return !NO_CACHE_URLS.includes(url)
+}
+
 const uploadToBucket = async (filePath: string, data: string) => {
   await storage
     .bucket(bucketName)
@@ -97,6 +104,11 @@ export const cacheFetchResult = async (
   key: string,
   fetchResult: FetchResult
 ) => {
+  if (!isUrlCacheable(key)) {
+    console.info('url is not cacheable', key)
+    return undefined
+  }
+
   // cache the fetch result for 24 hours
   const ttl = 24 * 60 * 60
   const value = JSON.stringify(fetchResult)
@@ -107,6 +119,11 @@ const getCachedFetchResult = async (
   redisDataSource: RedisDataSource,
   key: string
 ): Promise<FetchResult | undefined> => {
+  if (!isUrlCacheable(key)) {
+    console.info('url is not cacheable', key)
+    return undefined
+  }
+
   const result = await redisDataSource.cacheClient.get(key)
   if (!result) {
     console.info('fetch result is not cached', key)
