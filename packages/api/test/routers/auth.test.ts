@@ -491,6 +491,7 @@ describe('auth router', () => {
       return request
         .post(`${route}/create-account`)
         .set('X-OmnivoreClient', client)
+        .set('User-Agent', 'chrome')
         .set('Cookie', [`pendingUserAuth=${pendingUserAuth}`])
         .send({
           name,
