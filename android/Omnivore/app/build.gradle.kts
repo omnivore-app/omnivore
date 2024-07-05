@@ -104,8 +104,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
-    implementation(libs.gms.playServicesBase)
-    implementation(libs.gms.playServicesAuth)
+    implementation(libs.androidx.credentials.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.googleid)
 
     val bom = platform(libs.androidx.compose.bom)
     implementation(bom)
