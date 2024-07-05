@@ -13,6 +13,7 @@
     "axios": "^1.4.0",
     "crypto": "^1.0.1",
     "dompurify": "^2.4.1",
+    "fingerprint-injector": "^2.1.52",
     "linkedom": "^0.14.9",
     "puppeteer-core": "^22.8.0",
     "puppeteer-extra": "^3.3.4",

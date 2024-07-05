@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { preHandleContent } from '@omnivore/content-handler'
 import axios from 'axios'
+import { newInjectedPage } from 'fingerprint-injector'
 import { parseHTML } from 'linkedom'
 import path from 'path'
-import { BrowserContext, Page, Protocol } from 'puppeteer-core'
+import { Page, Protocol } from 'puppeteer-core'
 import { getBrowser } from './browser'
 
 const DESKTOP_USER_AGENT =
@@ -80,8 +81,7 @@ export const fetchContent = async (
   }
   console.log(`content-fetch request`, logRecord)
 
-  let context: BrowserContext | undefined,
-    page: Page | undefined,
+  let page: Page | undefined,
     title: string | undefined,
     content: string | undefined,
     contentType: string | undefined
@@ -120,9 +120,6 @@ export const fetchContent = async (
         locale,
         timezone
       )
-      if (result && result.context) {
-        context = result.context
-      }
       if (result && result.page) {
         page = result.page
       }
@@ -168,11 +165,11 @@ export const fetchContent = async (
 
     throw e
   } finally {
-    // close browser context if it was opened
-    if (context) {
-      console.info('closing context...', url)
-      await context.close()
-      console.info('context closed', url)
+    // close browser page if it was opened
+    if (page) {
+      console.info('closing page...', url)
+      await page.close()
+      console.info('page closed', url)
     }
 
     console.info(`content-fetch result`, logRecord)
@@ -241,16 +238,21 @@ async function retrievePage(
   }
 
   const browser = await getBrowser()
-  // create a new incognito browser context
-  const context = await browser.createBrowserContext()
+  const page = (await newInjectedPage(browser, {
+    // constraints for the generated fingerprint
+    fingerprintOptions: {
+      devices: ['desktop'],
+      operatingSystems: ['windows'],
+      browsers: ['firefox'],
+      mockWebRTC: true,
+      locales: [locale || 'en-US'],
+    },
+  })) as Page
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
   let lastPdfUrl
-  let page
   try {
-    page = await context.newPage()
-
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
     }
@@ -371,17 +373,16 @@ async function retrievePage(
     logRecord.finalUrl = finalUrl
     logRecord.contentType = contentType
 
-    return { context, page, finalUrl, contentType }
+    return { page, finalUrl, contentType }
   } catch (error) {
     if (lastPdfUrl) {
       return {
-        context,
         page,
         finalUrl: lastPdfUrl,
         contentType: 'application/pdf',
       }
     }
-    await context.close()
+    await page.close()
     throw error
   }
 }
