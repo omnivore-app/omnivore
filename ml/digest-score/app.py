@@ -1,5 +1,6 @@
 import logging
 from flask import Flask, request, jsonify
+from prometheus_client import start_http_server, Histogram, Summary, Counter, generate_latest
 
 from typing import List
 from timeit import default_timer as timer
@@ -7,7 +8,6 @@ from timeit import default_timer as timer
 import os
 import sys
 import json
-import pytz
 import pickle
 import numpy as np
 import pandas as pd
@@ -16,17 +16,53 @@ from urllib.parse import urlparse
 from datetime import datetime
 import dateutil.parser
 from google.cloud import storage
+
+import concurrent.futures
+from threading import Lock, RLock
+from collections import ChainMap
+import copy
+
 from features.user_history import FEATURE_COLUMNS
+from auth import user_token_required, admin_token_required
+
+
+class ThreadSafeUserFeatures:
+  def __init__(self):
+    self._data = {}
+    self._lock = RLock()
+
+  def get(self):
+    with self._lock:
+      return dict(self._data)
+
+  def update(self, new_features):
+    with self._lock:
+      self._data.update(new_features)
+
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
-
 USER_HISTORY_PATH = 'user_features.pkl'
-MODEL_PIPELINE_PATH = 'predict_read_pipeline-v002.pkl'
+MODEL_PIPELINE_PATH = 'predict_read_model-v003.pkl'
 
 pipeline = None
-user_features = None
+user_features_store = ThreadSafeUserFeatures()
+
+
+# these buckets are used for reporting scores, we want to make sure
+# there is decent diversity in the returned scores.
+score_bucket_ranges = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+score_buckets = {
+    f'score_bucket_{int(b * 10)}': Counter(f'inference_score_bucket_{int(b * 10)}', f'Number of scores in the range {b - 0.1:.1f} to {b:.1f}')
+    for b in score_bucket_ranges
+}
+
+def observe_score(score):
+  for b in score_bucket_ranges:
+    if b - 0.1 < score <= b:
+      score_buckets[f'score_bucket_{int(b * 10)}'].inc()
+      break
 
 def download_from_gcs(bucket_name, gcs_path, destination_path):
   storage_client = storage.Client()
@@ -72,31 +108,39 @@ def merge_dicts(dict1, dict2):
       dict1[key] = value
   return dict1
 
+def predict_proba_wrapper(X):
+  return pipeline.predict_proba(X)
+
+
 def refresh_data():
   start = timer()
   global pipeline
-  global user_features
-  if os.getenv('LOAD_LOCAL_MODEL') != None:
+  if os.getenv('LOAD_LOCAL_MODEL') == None:
+    app.logger.info(f"loading data from {os.getenv('GCS_BUCKET')}")
     gcs_bucket_name = os.getenv('GCS_BUCKET')
-    download_from_gcs(gcs_bucket_name, f'data/features/user_features.pkl', USER_HISTORY_PATH)
-    download_from_gcs(gcs_bucket_name, f'data/models/predict_read_pipeline-v002.pkl', MODEL_PIPELINE_PATH)
+    download_from_gcs(gcs_bucket_name, f'data/features/{USER_HISTORY_PATH}', USER_HISTORY_PATH)
+    download_from_gcs(gcs_bucket_name, f'data/models/{MODEL_PIPELINE_PATH}', MODEL_PIPELINE_PATH)
   pipeline = load_pipeline(MODEL_PIPELINE_PATH)
-  user_features = load_user_features(USER_HISTORY_PATH)
-  end = timer()
-  print('time to refresh data (in seconds):', end - start)
-  print('loaded pipeline:', pipeline)
-  print('loaded number of user_features:', len(user_features))
+
+  new_features = load_user_features(USER_HISTORY_PATH)
+  user_features_store.update(new_features)
+
+  app.logger.info(f'time to refresh data (in seconds): {timer() - start}')
+  app.logger.info(f'loaded pipeline: {pipeline}')
+  app.logger.info(f'loaded number of user_features: {len(new_features)}')
 
 
-def compute_score(user_id, item_features):
-  interaction_score = compute_interaction_score(user_id, item_features)
+def compute_score(user_id, item_features, user_features):
+  interaction_score = compute_interaction_score(user_id, item_features, user_features)
+  observe_score(interaction_score)
   return {
     'score': interaction_score,
     'interaction_score': interaction_score,
   }
 
 
-def compute_interaction_score(user_id, item_features):
+def compute_interaction_score(user_id, item_features, user_features):
+  start = timer()
   original_url_host = urlparse(item_features.get('original_url')).netloc
   df_test = pd.DataFrame([{
     'user_id': user_id,
@@ -134,34 +178,68 @@ def compute_interaction_score(user_id, item_features):
     else:
       print("skipping feature: ", name)
       continue
-
     df_test = pd.merge(df_test, df, on=merge_keys, how='left')
   df_test = df_test.fillna(0)
   df_predict = df_test[FEATURE_COLUMNS]
 
+  infer_start = timer()
   interaction_score = pipeline.predict_proba(df_predict)
-  print('score', interaction_score, 'item_features', df_test[df_test != 0].stack())
+  app.logger.info(f'time to call infer (in seconds): {timer() - infer_start}')
 
-  return interaction_score[0][1]
+  app.logger.info(f'INTERACTION SCORE: {interaction_score}')
+  app.logger.info(f'item_features:\n{df_predict[df_predict != 0].stack()}')
+  app.logger.info(f'time to compute score (in seconds): {timer() - start}')
+
+  return np.float64(interaction_score[0][1])
+
+
+def process_parallel_item(user_id, key, item, user_features):
+  library_item_id = item['library_item_id']
+  return library_item_id, compute_score(user_id, item, user_features)
+
+def parallel_compute_scores(user_id, items, max_workers=None):
+  user_features = user_features_store.get()
+  result = {}
+  with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    future_to_item = {executor.submit(process_parallel_item, user_id, key, item, user_features): (key, item) 
+                      for key, item in items.items()}
+    
+  for future in concurrent.futures.as_completed(future_to_item):
+    key, item = future_to_item[future]
+    try:
+      library_item_id, score = future.result()
+      result[library_item_id] = score
+    except Exception as exc:
+      app.logger.error(f'Item {key} generated an exception: {exc}')
+  return result
+
 
 
 @app.route('/_ah/health', methods=['GET'])
 def ready():
   return jsonify({'OK': 'yes'}), 200
 
+@app.route('/metrics')
+def metrics():
+  return generate_latest(), 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
 
 @app.route('/refresh', methods=['GET'])
+@admin_token_required
 def refresh():
   refresh_data()
   return jsonify({'OK': 'yes'}), 200
 
 
 @app.route('/users/<user_id>/features', methods=['GET'])
+@admin_token_required
 def get_user_features(user_id):
   result = {}
   df_user = pd.DataFrame([{
     'user_id': user_id,
   }])
+
+  user_features = user_features_store.get()
 
   user_data = {}
   for name, df in user_features.items():
@@ -173,18 +251,20 @@ def get_user_features(user_id):
 
 
 @app.route('/predict', methods=['POST'])
+@user_token_required
 def predict():
   try:
     data = request.get_json()
     app.logger.info(f"predict scoring request: {data}")
 
-    user_id = data.get('user_id')
+    user_id = request.user_id
     item_features = data.get('item_features')
 
     if user_id is None:
         return jsonify({'error': 'Missing user_id'}), 400
 
-    score = compute_score(user_id, item_features)
+    user_features = user_features_store.get()
+    score = compute_score(user_id, item_features, user_features)
     return jsonify({'score': score})
   except Exception as e:
     app.logger.error(f"exception in predict endpoint: {request.get_json()}\n{e}")
@@ -192,24 +272,20 @@ def predict():
 
 
 @app.route('/batch', methods=['POST'])
+@user_token_required
 def batch():
+  start = timer()
   try:
-    result = {}
     data = request.get_json()
-    app.logger.info(f"batch scoring request: {data}")
-
-    user_id = data.get('user_id')
     items = data.get('items')
+    user_id = request.user_id
+    if user_id == None:
+      return jsonify({'error': 'no user_id supplied'}), 400
+    if len(items) > 101:
+      return jsonify({'error': f'too many items: {len(items)}'}), 400
+    result = parallel_compute_scores(user_id, items)
 
-    if user_id is None:
-        return jsonify({'error': 'Missing user_id'}), 400
-
-    for key, item in items.items():
-      print('key": ', key)
-      print('item: ', item)
-      library_item_id = item['library_item_id']
-      result[library_item_id] = compute_score(user_id, item)
-
+    app.logger.info(f'time to compute batch of {len(items)} items (in seconds): {timer() - start}')
     return jsonify(result)
   except Exception as e:
     app.logger.error(f"exception in batch endpoint: {request.get_json()}\n{e}")
