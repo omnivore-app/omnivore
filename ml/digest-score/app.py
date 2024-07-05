@@ -182,7 +182,10 @@ def compute_interaction_score(user_id, item_features, user_features):
   df_test = df_test.fillna(0)
   df_predict = df_test[FEATURE_COLUMNS]
 
+  infer_start = timer()
   interaction_score = pipeline.predict_proba(df_predict)
+  app.logger.info(f'time to call infer (in seconds): {timer() - infer_start}')
+
   app.logger.info(f'INTERACTION SCORE: {interaction_score}')
   app.logger.info(f'item_features:\n{df_predict[df_predict != 0].stack()}')
   app.logger.info(f'time to compute score (in seconds): {timer() - start}')
