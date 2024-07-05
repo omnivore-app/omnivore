@@ -45,6 +45,7 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disable-dev-shm-usage',
       '--no-first-run',
       '--disable-background-networking',
+      '--use-gl=swiftshader',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
@@ -56,7 +57,7 @@ export const getBrowser = async (): Promise<Browser> => {
     },
     executablePath: process.env.CHROMIUM_PATH,
     headless: !!process.env.LAUNCH_HEADLESS,
-    timeout: 30_000, // 30 seconds
+    timeout: 10_000, // 10 seconds
     dumpio: true, // show console logs in the terminal
   })) as Browser
 
