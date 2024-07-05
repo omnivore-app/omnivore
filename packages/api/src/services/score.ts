@@ -78,9 +78,12 @@ class ScoreClientImpl implements ScoreClient {
 
   async getScores(data: ScoreApiRequestBody): Promise<ScoreApiResponse> {
     const start = Date.now()
-    const authToken = await createWebAuthToken(data.user_id)
 
     try {
+      const authToken = await createWebAuthToken(data.user_id)
+      if (!authToken) {
+        throw Error('could not create auth token')
+      }
       const response = await axios.post<ScoreApiResponse>(this.apiUrl, data, {
         headers: {
           Authorization: `Bearer ${authToken}`,
