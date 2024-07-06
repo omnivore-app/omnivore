@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -134,23 +135,26 @@ class SaveSheetActivity : AppCompatActivity() {
     }
 
     private fun WorkManager.enqueueSaveWorker(context: Context, url: String) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
+        val saveData = workDataOf("url" to url)
+
+        val saveWork = OneTimeWorkRequestBuilder<SaveURLWorker>()
+            .setInputData(saveData)
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
             .build()
 
-        val inputData = Data.Builder()
-            .putString("url", url)
-            .build()
-
-        val saveURLWorkRequest = OneTimeWorkRequest.Builder(SaveURLWorker::class.java)
-            .setConstraints(constraints)
-            .setInputData(inputData)
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .addTag(url)
+        val syncWork = OneTimeWorkRequestBuilder<LibrarySyncWorker>()
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
+            .setInitialDelay(5, TimeUnit.SECONDS)
             .build()
 
         WorkManager.getInstance(context)
-            .enqueueUniqueWork("saveUrl", ExistingWorkPolicy.REPLACE, saveURLWorkRequest)
+            .beginUniqueWork("saveAndSync", ExistingWorkPolicy.REPLACE, saveWork)
+            .then(syncWork)
+            .enqueue()
     }
 
     @Composable

@@ -36,31 +36,9 @@ class SaveURLWorker @AssistedInject constructor(
     private val datastoreRepository: DatastoreRepository,
 ) : CoroutineWorker(appContext, workerParams) {
 
-    companion object {
-        const val NOTIFICATION_CHANNEL_ID = "SAVE_URL_WORKER_CHANNEL"
-        const val NOTIFICATION_CHANNEL_NAME = "URL Saver"
-        const val NOTIFICATION_ID = 1
-    }
-
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        val notification = createNotification()
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ForegroundInfo(
-                NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            )
-        } else {
-            ForegroundInfo(NOTIFICATION_ID, notification)
-        }
-    }
-
     override suspend fun doWork(): Result {
-        return try {
-            // Start foreground service immediately
-            setForeground(getForegroundInfo())
-
-            withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
+            try {
                 val url = inputData.getString("url")
                 if (url == null) {
                     Log.e("SaveURLWorker", "No URL provided")
@@ -74,21 +52,10 @@ class SaveURLWorker @AssistedInject constructor(
                     Log.e("SaveURLWorker", "Failed to save URL")
                     Result.failure()
                 }
-            }
-        } catch (e: IllegalStateException) {
-            Log.w("SaveURLWorker", "Couldn't start foreground service", e)
-            // Continue with the work without the foreground service
-            val url = inputData.getString("url")
-            if (url != null && saveURL(url)) {
-                Log.d("SaveURLWorker", "URL saved successfully without foreground service")
-                Result.success()
-            } else {
-                Log.e("SaveURLWorker", "Failed to save URL without foreground service")
+            } catch (e: Exception) {
+                Log.e("SaveURLWorker", "Unexpected error in SaveURLWorker", e)
                 Result.failure()
             }
-        } catch (e: Exception) {
-            Log.e("SaveURLWorker", "Unexpected error in SaveURLWorker", e)
-            Result.failure()
         }
     }
 
@@ -102,7 +69,7 @@ class SaveURLWorker @AssistedInject constructor(
 
         val cleanedUrl = cleanUrl(url) ?: url
 
-        try {
+        return try {
             val timezone = TimeZone.getDefault().id
             val locale = Locale.current.toLanguageTag()
 
@@ -117,11 +84,10 @@ class SaveURLWorker @AssistedInject constructor(
                     )
                 )
             ).execute()
-            return (response.data?.saveUrl?.onSaveSuccess?.url != null)
+            (response.data?.saveUrl?.onSaveSuccess?.url != null)
         } catch (e: Exception) {
-            Log.d("omnivore", "FAILED TO SAVE ITEM")
-            e.printStackTrace()
-            return false
+            Log.e("SaveURLWorker", "Failed to save item", e)
+            false
         }
     }
 
@@ -129,43 +95,10 @@ class SaveURLWorker @AssistedInject constructor(
         val pattern = Pattern.compile("\\b(?:https?|ftp)://\\S+")
         val matcher = pattern.matcher(text)
 
-        if (matcher.find()) {
-            return matcher.group()
-        }
-        return null
-    }
-
-    private fun createNotification(): Notification {
-        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel()
+        return if (matcher.find()) {
+            matcher.group()
         } else {
-            ""
-        }
-
-        return NotificationCompat.Builder(applicationContext, channelId)
-            .setContentTitle("Saving URL")
-            .setContentText("Your URL is being saved in the background.")
-            .setSmallIcon(R.drawable.ic_notification) // Ensure this icon is valid
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .build()
-    }
-
-    private fun createNotificationChannel(): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH // Changed from LOW to HIGH
-            ).apply {
-                description = "Notification channel for URL saving"
-            }
-
-            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-
-            NOTIFICATION_CHANNEL_ID
-        } else {
-            ""
+            null
         }
     }
 }

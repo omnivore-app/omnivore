@@ -40,79 +40,18 @@ class LibrarySyncWorker @AssistedInject constructor(
     private val datastoreRepository: DatastoreRepository,
 ) : CoroutineWorker(appContext, workerParams) {
 
-    companion object {
-        const val NOTIFICATION_CHANNEL_ID = "LIBRARY_SYNC_WORKER_CHANNEL"
-        const val NOTIFICATION_CHANNEL_NAME = "Sync library"
-        const val NOTIFICATION_ID = 2
-    }
-
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        val notification = createNotification()
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ForegroundInfo(
-                NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            )
-        } else {
-            ForegroundInfo(NOTIFICATION_ID, notification)
-        }
-    }
-
     override suspend fun doWork(): Result {
         return try {
-            // Start foreground service immediately
-            setForeground(getForegroundInfo())
-
             withContext(Dispatchers.IO) {
                 performItemSync()
                 loadUsingSearchAPI()
                 Log.d("LibrarySyncWorker", "Library sync completed successfully")
                 Result.success()
             }
-        } catch (e: IllegalStateException) {
-            Log.w("LibrarySyncWorker", "Couldn't start foreground service", e)
-            // Continue with the work without the foreground service
-            try {
-                performItemSync()
-                loadUsingSearchAPI()
-                Log.d("LibrarySyncWorker", "Library sync completed without foreground service")
-                Result.success()
-            } catch (e: Exception) {
-                Log.e("LibrarySyncWorker", "Failed to sync library without foreground service", e)
-                Result.failure()
-            }
         } catch (e: Exception) {
             Log.e("LibrarySyncWorker", "Unexpected error in LibrarySyncWorker", e)
             Result.failure()
         }
-    }
-
-    private fun createNotification(): Notification {
-        val channelId = createNotificationChannel()
-
-        return NotificationCompat.Builder(applicationContext, channelId)
-            .setContentTitle("Syncing library items")
-            .setContentText("Your library is being synced")
-            .setSmallIcon(R.drawable.ic_notification)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .build()
-    }
-
-    private fun createNotificationChannel(): String {
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = "Notification channel for library syncing"
-        }
-
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-
-        return NOTIFICATION_CHANNEL_ID
     }
 
     private suspend fun performItemSync(
@@ -133,7 +72,7 @@ class LibrarySyncWorker @AssistedInject constructor(
 
         if (result.hasError) {
             result.errorString?.let { errorString ->
-                println("SYNC ERROR: $errorString")
+                Log.e("LibrarySyncWorker", "SYNC ERROR: $errorString")
             }
         }
 
