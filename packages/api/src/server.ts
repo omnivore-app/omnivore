@@ -73,18 +73,19 @@ export const createApp = (): Express => {
   // set client info in the request context
   app.use(httpContext.middleware)
   app.use('/api/', (req, res, next) => {
-    // get client info from header
-    const client = req.header('X-OmnivoreClient')
-    if (client) {
-      httpContext.set('client', client)
-    }
-
     // get client info from user agent
     const userAgent = req.header('User-Agent')
     if (userAgent) {
       const client = getClientFromUserAgent(userAgent)
       httpContext.set('client', client)
     }
+
+    // get client info from header
+    const client = req.header('X-OmnivoreClient')
+    if (client) {
+      httpContext.set('client', client)
+    }
+
     next()
   })
 

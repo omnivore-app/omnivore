@@ -17,5 +17,7 @@ class Networker @Inject constructor(
     private suspend fun authToken() = datastoreRepo.getString(omnivoreAuthToken) ?: ""
 
     suspend fun authenticatedApolloClient() = ApolloClient.Builder().serverUrl(serverUrl())
-        .addHttpHeader("Authorization", value = authToken()).build()
+        .addHttpHeader("Authorization", value = authToken())
+        .addHttpHeader("X-OmnivoreClient", value = "android")
+        .build()
 }
