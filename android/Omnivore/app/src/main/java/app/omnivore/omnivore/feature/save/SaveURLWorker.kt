@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.text.intl.Locale
@@ -34,12 +35,6 @@ class SaveURLWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val datastoreRepository: DatastoreRepository,
 ) : CoroutineWorker(appContext, workerParams) {
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(
-            NOTIFICATION_ID,
-            createNotification()
-        )
-    }
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "SAVE_URL_WORKER_CHANNEL"
@@ -47,17 +42,53 @@ class SaveURLWorker @AssistedInject constructor(
         const val NOTIFICATION_ID = 1
     }
 
-    override suspend fun doWork(): Result {
-        try {
-            setForeground(createForegroundInfo())
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return Result.failure()
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val notification = createNotification()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            ForegroundInfo(NOTIFICATION_ID, notification)
         }
+    }
 
-        return withContext(Dispatchers.IO) {
-            val url = inputData.getString("url") ?: return@withContext Result.failure()
-            if (saveURL(url)) Result.success() else Result.failure()
+    override suspend fun doWork(): Result {
+        return try {
+            // Start foreground service immediately
+            setForeground(getForegroundInfo())
+
+            withContext(Dispatchers.IO) {
+                val url = inputData.getString("url")
+                if (url == null) {
+                    Log.e("SaveURLWorker", "No URL provided")
+                    return@withContext Result.failure()
+                }
+
+                if (saveURL(url)) {
+                    Log.d("SaveURLWorker", "URL saved successfully")
+                    Result.success()
+                } else {
+                    Log.e("SaveURLWorker", "Failed to save URL")
+                    Result.failure()
+                }
+            }
+        } catch (e: IllegalStateException) {
+            Log.w("SaveURLWorker", "Couldn't start foreground service", e)
+            // Continue with the work without the foreground service
+            val url = inputData.getString("url")
+            if (url != null && saveURL(url)) {
+                Log.d("SaveURLWorker", "URL saved successfully without foreground service")
+                Result.success()
+            } else {
+                Log.e("SaveURLWorker", "Failed to save URL without foreground service")
+                Result.failure()
+            }
+        } catch (e: Exception) {
+            Log.e("SaveURLWorker", "Unexpected error in SaveURLWorker", e)
+            Result.failure()
         }
     }
 
@@ -104,11 +135,6 @@ class SaveURLWorker @AssistedInject constructor(
         return null
     }
 
-    private fun createForegroundInfo(): ForegroundInfo {
-        val notification = createNotification()
-        return ForegroundInfo(NOTIFICATION_ID, notification)
-    }
-
     private fun createNotification(): Notification {
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
@@ -120,17 +146,16 @@ class SaveURLWorker @AssistedInject constructor(
             .setContentTitle("Saving URL")
             .setContentText("Your URL is being saved in the background.")
             .setSmallIcon(R.drawable.ic_notification) // Ensure this icon is valid
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
     }
 
     private fun createNotificationChannel(): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = NOTIFICATION_CHANNEL_NAME
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                channelName,
-                NotificationManager.IMPORTANCE_LOW
+                NOTIFICATION_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH // Changed from LOW to HIGH
             ).apply {
                 description = "Notification channel for URL saving"
             }
@@ -138,9 +163,9 @@ class SaveURLWorker @AssistedInject constructor(
             val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
 
-            return NOTIFICATION_CHANNEL_ID
+            NOTIFICATION_CHANNEL_ID
         } else {
-            return ""
+            ""
         }
     }
 }

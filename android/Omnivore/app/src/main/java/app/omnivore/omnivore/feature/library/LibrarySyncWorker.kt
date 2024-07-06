@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.text.intl.Locale
@@ -31,7 +32,6 @@ import java.time.Instant
 import java.util.TimeZone
 import java.util.UUID
 import java.util.regex.Pattern
-
 @HiltWorker
 class LibrarySyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -39,12 +39,6 @@ class LibrarySyncWorker @AssistedInject constructor(
     private val libraryRepository: LibraryRepository,
     private val datastoreRepository: DatastoreRepository,
 ) : CoroutineWorker(appContext, workerParams) {
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(
-            NOTIFICATION_ID,
-            createNotification()
-        )
-    }
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "LIBRARY_SYNC_WORKER_CHANNEL"
@@ -52,64 +46,73 @@ class LibrarySyncWorker @AssistedInject constructor(
         const val NOTIFICATION_ID = 2
     }
 
-    override suspend fun doWork(): Result {
-        try {
-            setForeground(createForegroundInfo())
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return Result.failure()
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val notification = createNotification()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            ForegroundInfo(NOTIFICATION_ID, notification)
         }
+    }
 
-        return withContext(Dispatchers.IO) {
+    override suspend fun doWork(): Result {
+        return try {
+            // Start foreground service immediately
+            setForeground(getForegroundInfo())
+
+            withContext(Dispatchers.IO) {
+                performItemSync()
+                loadUsingSearchAPI()
+                Log.d("LibrarySyncWorker", "Library sync completed successfully")
+                Result.success()
+            }
+        } catch (e: IllegalStateException) {
+            Log.w("LibrarySyncWorker", "Couldn't start foreground service", e)
+            // Continue with the work without the foreground service
             try {
                 performItemSync()
                 loadUsingSearchAPI()
+                Log.d("LibrarySyncWorker", "Library sync completed without foreground service")
                 Result.success()
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("LibrarySyncWorker", "Failed to sync library without foreground service", e)
                 Result.failure()
             }
+        } catch (e: Exception) {
+            Log.e("LibrarySyncWorker", "Unexpected error in LibrarySyncWorker", e)
+            Result.failure()
         }
-    }
-
-    private fun createForegroundInfo(): ForegroundInfo {
-        val notification = createNotification()
-        return ForegroundInfo(NOTIFICATION_ID, notification)
     }
 
     private fun createNotification(): Notification {
-        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel()
-        } else {
-            ""
-        }
+        val channelId = createNotificationChannel()
 
         return NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle("Syncing library items")
             .setContentText("Your library is being synced")
             .setSmallIcon(R.drawable.ic_notification)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
 
     private fun createNotificationChannel(): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = NOTIFICATION_CHANNEL_NAME
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                channelName,
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Notification channel for library syncing"
-            }
-
-            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-
-            return NOTIFICATION_CHANNEL_ID
-        } else {
-            return ""
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notification channel for library syncing"
         }
+
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+
+        return NOTIFICATION_CHANNEL_ID
     }
 
     private suspend fun performItemSync(

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
@@ -137,11 +138,6 @@ class SaveSheetActivity : AppCompatActivity() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val syncWorkerRequest = OneTimeWorkRequest.Builder(LibrarySyncWorker::class.java)
-            .setConstraints(constraints)
-            .addTag(url)
-            .build()
-
         val inputData = Data.Builder()
             .putString("url", url)
             .build()
@@ -153,9 +149,8 @@ class SaveSheetActivity : AppCompatActivity() {
             .addTag(url)
             .build()
 
-        beginWith(saveURLWorkRequest)
-            .then(syncWorkerRequest)
-            .enqueue()
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork("saveUrl", ExistingWorkPolicy.REPLACE, saveURLWorkRequest)
     }
 
     @Composable
