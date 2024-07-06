@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,7 +58,7 @@ class SaveSheetActivity : AppCompatActivity() {
                 if (intent.type?.startsWith("text/plain") == true) {
                     intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
                         extractedText = it
-                        workManager.enqueueSaveWorker(this, it)
+                        workManager.enqueueSaveWorker(it)
                         Log.d(ContentValues.TAG, "Extracted text: $extractedText")
                     }
                 }
@@ -75,7 +77,7 @@ class SaveSheetActivity : AppCompatActivity() {
         setContent {
             LaunchedEffect(extractedText) {
                 extractedText?.let { url ->
-                    workManager.getWorkInfosByTagFlow(url).map {
+                    workManager.getWorkInfosForUniqueWorkFlow(url).map {
                         saveState = when (it.firstOrNull()?.state) {
                             WorkInfo.State.RUNNING -> SaveState.SAVING
                             WorkInfo.State.SUCCEEDED -> SaveState.SAVED
@@ -86,7 +88,6 @@ class SaveSheetActivity : AppCompatActivity() {
                 }
             }
 
-            val scaffoldState: ScaffoldState = rememberScaffoldState()
             val message = when (saveState) {
                 SaveState.DEFAULT -> ""
                 SaveState.SAVING -> "Saved to Omnivore"
@@ -94,35 +95,30 @@ class SaveSheetActivity : AppCompatActivity() {
                 SaveState.SAVED -> "Saved to Omnivore"
             }
 
-            Scaffold(
-                modifier = Modifier.clickable {
-                    Log.d("debug", "DISMISS SCAFFOLD")
-                    exit()
-                },
-                scaffoldState = scaffoldState,
-                backgroundColor = Color.Transparent,
-
-                // TODO: In future versions we can present Label, Note, Highlight options here
-                bottomBar = {
-
-                    androidx.compose.material3.BottomAppBar(
-
-                        modifier = Modifier
-                            .height(55.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp)),
-                        containerColor = MaterialTheme.colors.background,
-                        actions = {
-                            Spacer(modifier = Modifier.width(25.dp))
-                            Text(
-                                message,
-                                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
-                            )
-                        },
-                    )
-                },
+            Box(
+                Modifier
+                    .background(Color.Transparent)
+                    .fillMaxSize()
+                    .clickable {
+                        Log.d("debug", "DISMISS BOX")
+                        exit()
+                    }
             ) {
-
+                Row(
+                    Modifier
+                        .align(BottomCenter)
+                        .height(55.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp))
+                        .background(MaterialTheme.colors.background)
+                        .padding(start = 25.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        message,
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                    )
+                }
             }
 
             LaunchedEffect(saveState) {
@@ -134,25 +130,30 @@ class SaveSheetActivity : AppCompatActivity() {
         }
     }
 
-    private fun WorkManager.enqueueSaveWorker(context: Context, url: String) {
+    private fun WorkManager.enqueueSaveWorker(url: String) {
         val saveData = workDataOf("url" to url)
 
         val saveWork = OneTimeWorkRequestBuilder<SaveURLWorker>()
             .setInputData(saveData)
-            .setConstraints(Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build())
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
             .build()
 
         val syncWork = OneTimeWorkRequestBuilder<LibrarySyncWorker>()
-            .setConstraints(Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build())
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
             .setInitialDelay(5, TimeUnit.SECONDS)
             .build()
 
-        WorkManager.getInstance(context)
-            .beginUniqueWork("saveAndSync", ExistingWorkPolicy.REPLACE, saveWork)
+        // using url as name because requests with a different url might not be completed yet
+        beginUniqueWork(url, ExistingWorkPolicy.REPLACE, saveWork)
             .then(syncWork)
             .enqueue()
     }

@@ -101,4 +101,51 @@ class SaveURLWorker @AssistedInject constructor(
             null
         }
     }
+
+    companion object {
+        const val NOTIFICATION_CHANNEL_ID = "SAVE_URL_WORKER_CHANNEL"
+        const val NOTIFICATION_CHANNEL_NAME = "URL Saver"
+        const val NOTIFICATION_ID = 1
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val notification = createNotification()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            ForegroundInfo(NOTIFICATION_ID, notification)
+        }
+    }
+
+    private fun createNotification(): Notification {
+        val channelId =
+            createNotificationChannel()
+
+        return NotificationCompat.Builder(applicationContext, channelId)
+            .setContentTitle("Saving URL")
+            .setContentText("Your URL is being saved in the background.")
+            .setSmallIcon(R.drawable.ic_notification) // Ensure this icon is valid
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+    }
+
+    private fun createNotificationChannel(): String {
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH // Changed from LOW to HIGH
+        ).apply {
+            description = "Notification channel for URL saving"
+        }
+
+        val notificationManager =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+
+        return NOTIFICATION_CHANNEL_ID
+    }
 }
