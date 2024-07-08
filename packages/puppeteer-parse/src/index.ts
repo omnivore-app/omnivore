@@ -244,8 +244,11 @@ async function retrievePage(
       devices: ['desktop'],
       operatingSystems: ['windows'],
       browsers: ['chrome'],
-      mockWebRTC: true,
       locales: [locale || 'en-US'],
+      screen: {
+        maxWidth: 1920,
+        maxHeight: 1080,
+      },
     },
   })) as Page
 
@@ -256,12 +259,12 @@ async function retrievePage(
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
     }
-    await page.setUserAgent(userAgentForUrl(url))
+    // await page.setUserAgent(userAgentForUrl(url))
 
-    // set locale for the page
-    if (locale) {
-      await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
-    }
+    // // set locale for the page
+    // if (locale) {
+    //   await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
+    // }
 
     // set timezone for the page
     if (timezone) {
