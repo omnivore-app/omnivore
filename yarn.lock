@@ -26961,9 +26961,9 @@ react-style-singleton@^2.2.1:
     tslib "^2.0.0"
 
 react-super-responsive-table@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/react-super-responsive-table/-/react-super-responsive-table-5.2.1.tgz#e9c3113d7676e74db9110f8385a3dddce45ee00f"
-  integrity sha512-93DAJbI4FjR0Yops+0v1MZIUhIMRQOm/N//o35mk/g4NCZ99HIOB+gdZPorZwKX3mfr3h3H3ATcU4jLMfpuC9Q==
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/react-super-responsive-table/-/react-super-responsive-table-5.2.3.tgz#28da7131b659cd5536aaa4648954016e24800b11"
+  integrity sha512-bFpNb6RrTfsrO8Exigr8R6cvH305P3ATLUciQGD6o8Ve+Wh/37TXzM+6+QpeF1NMweV/PDtBTIgT6CAc8TUluA==
 
 react-syntax-highlighter@^13.5.3:
   version "13.5.3"
