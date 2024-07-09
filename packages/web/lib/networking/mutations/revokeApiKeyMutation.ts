@@ -15,8 +15,8 @@ export async function revokeApiKeyMutation(
   id: string
 ): Promise<any | undefined> {
   const mutation = gql`
-    mutation {
-      revokeApiKey(id: "${id}") {
+    mutation RevokeApiKey($id: ID!) {
+      revokeApiKey(id: $id) {
         ... on RevokeApiKeySuccess {
           apiKey {
             id
@@ -30,7 +30,7 @@ export async function revokeApiKeyMutation(
   `
 
   try {
-    const data = (await gqlFetcher(mutation)) as RevokeApiKeyResult
+    const data = (await gqlFetcher(mutation, { id })) as RevokeApiKeyResult
     return data.errorCodes ? undefined : data.revokeApiKey.apiKey.id
   } catch (error) {
     console.log('revokeApiKeyMutation error', error)
