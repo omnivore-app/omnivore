@@ -16,6 +16,7 @@ import {
   createWebAuthToken,
   suggestedUsername,
 } from './jwt_helpers'
+import { DEFAULT_HOME_PATH } from '../../utils/navigation'
 
 const appleBaseURL = 'https://appleid.apple.com'
 const audienceName = 'app.omnivore.app'
@@ -142,10 +143,13 @@ export async function handleAppleWebAuth(
 
     const authToken = await createWebAuthToken(userId)
     if (authToken) {
-      const ssoToken = createSsoToken(authToken, `${baseURL()}/home`)
+      const ssoToken = createSsoToken(
+        authToken,
+        `${baseURL()}${DEFAULT_HOME_PATH}`
+      )
       const redirectURL = isVercel
         ? ssoRedirectURL(ssoToken)
-        : `${baseURL()}/home`
+        : `${baseURL()}${DEFAULT_HOME_PATH}`
 
       analytics.capture({
         distinctId: user.id,

@@ -24,6 +24,7 @@ import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
 import { SWRConfig } from 'swr'
+import { DEFAULT_HOME_PATH } from '../lib/navigations'
 
 TopBarProgress.config({
   barColors: {
@@ -48,7 +49,7 @@ const generateActions = (router: NextRouter) => {
           router.push(navReturn)
           return
         }
-        router?.push('/l/home')
+        router?.push(DEFAULT_HOME_PATH)
       },
     },
     {

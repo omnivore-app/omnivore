@@ -9,6 +9,7 @@ import { logger } from '../../utils/logger'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { DecodeTokenResult } from './auth_types'
 import { createPendingUserToken, createWebAuthToken } from './jwt_helpers'
+import { DEFAULT_HOME_PATH } from '../../utils/navigation'
 
 export const googleAuthMobile = (): OAuth2Client =>
   new google.auth.OAuth2(env.google.auth.clientId, env.google.auth.secret)
@@ -159,10 +160,13 @@ export async function handleGoogleWebAuth(
 
     const authToken = await createWebAuthToken(userId)
     if (authToken) {
-      const ssoToken = createSsoToken(authToken, `${baseURL()}/home`)
+      const ssoToken = createSsoToken(
+        authToken,
+        `${baseURL()}${DEFAULT_HOME_PATH}`
+      )
       const redirectURL = isVercel
         ? ssoRedirectURL(ssoToken)
-        : `${baseURL()}/home`
+        : `${baseURL()}${DEFAULT_HOME_PATH}`
 
       return {
         authToken,

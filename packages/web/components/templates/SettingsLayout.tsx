@@ -14,6 +14,7 @@ import { SettingsDropdown } from './navMenu/SettingsDropdown'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 import Link from 'next/link'
 import { CaretLeft } from '@phosphor-icons/react'
+import { DEFAULT_HOME_PATH } from '../../lib/navigations'
 
 type SettingsLayoutProps = {
   title?: string
@@ -32,7 +33,7 @@ const ReturnButton = (): JSX.Element => {
         },
       }}
     >
-      <Link href="/l/home">
+      <Link href={DEFAULT_HOME_PATH}>
         <HStack
           css={{
             pl: '20px',
