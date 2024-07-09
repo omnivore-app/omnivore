@@ -247,23 +247,26 @@ async function retrievePage(
     locales: ['en-US'],
   })
   const fingerprintWithHeaders = fingerprintGenerator.getFingerprint()
-  const fingerprint = {
-    fingerprint: {
-      ...fingerprintWithHeaders.fingerprint,
-      videoCard: {
-        vendor: 'Google Inc. (Intel Open Source Technology Center)',
-        renderer:
-          'ANGLE (Intel Open Source Technology Center, Mesa DRI Intel(R) HD Graphics 4400 (HSW GT2), OpenGL 4.5 (Core Profile) Mesa 21.2.0-devel (git-fb586a8 2021-06-28 focal-oibaf-ppa))',
-      },
-    },
-    headers: fingerprintWithHeaders.headers,
-  }
-  console.log('fingerprint', fingerprint)
+  // const fingerprint = {
+  //   fingerprint: {
+  //     ...fingerprintWithHeaders.fingerprint,
+  //     videoCard: {
+  //       vendor: 'Google Inc. (Intel Open Source Technology Center)',
+  //       renderer:
+  //         'ANGLE (Intel Open Source Technology Center, Mesa DRI Intel(R) HD Graphics 4400 (HSW GT2), OpenGL 4.5 (Core Profile) Mesa 21.2.0-devel (git-fb586a8 2021-06-28 focal-oibaf-ppa))',
+  //     },
+  //   },
+  //   headers: fingerprintWithHeaders.headers,
+  // }
+  console.log('fingerprint', fingerprintWithHeaders)
   const page = await browser.newPage()
 
   // Attach fingerprint to page
   const fingerprintInjector = new FingerprintInjector()
-  await fingerprintInjector.attachFingerprintToPuppeteer(page, fingerprint)
+  await fingerprintInjector.attachFingerprintToPuppeteer(
+    page,
+    fingerprintWithHeaders
+  )
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
