@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Button } from '../elements/Button'
 import { AddToLibraryActionIcon } from '../elements/icons/home/AddToLibraryActionIcon'
 import { ArchiveActionIcon } from '../elements/icons/home/ArchiveActionIcon'
-import { CommentActionIcon } from '../elements/icons/home/CommentActionIcon'
 import { RemoveActionIcon } from '../elements/icons/home/RemoveActionIcon'
 import { ShareActionIcon } from '../elements/icons/home/ShareActionIcon'
 import Pagination from '../elements/Pagination'
@@ -29,6 +28,7 @@ import { Toaster } from 'react-hot-toast'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
+import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 
 export function HomeContainer(): JSX.Element {
   const router = useRouter()
@@ -105,6 +105,9 @@ export function HomeContainer(): JSX.Element {
                 />
               )
             case 'top_picks':
+              if (homeSection.items.length < 1) {
+                return <FromYourLibraryHomeSection />
+              }
               return (
                 <TopPicksHomeSection
                   key={`section-${idx}`}
@@ -113,6 +116,9 @@ export function HomeContainer(): JSX.Element {
                 />
               )
             case 'quick_links':
+              if (homeSection.items.length < 1) {
+                return <SpanBox key={`section-${idx}`}></SpanBox>
+              }
               return (
                 <QuickLinksHomeSection
                   key={`section-${idx}`}
@@ -310,6 +316,118 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
           }}
         >
           {props.homeSection.title}
+        </SpanBox>
+      )}
+
+      <Pagination
+        items={items}
+        itemsPerPage={10}
+        loadMoreButtonText="Load more Top Picks"
+        render={(homeItem) => (
+          <TopPicksItemView
+            key={homeItem.id}
+            homeItem={homeItem}
+            dispatchList={dispatchList}
+          />
+        )}
+      />
+    </VStack>
+  )
+}
+
+const FromYourLibraryHomeSection = (): JSX.Element => {
+  const { itemsPages } = useGetLibraryItemsQuery('all', {
+    limit: 10,
+    includeContent: false,
+    sortDescending: true,
+  })
+
+  const searchItems = useMemo(() => {
+    return (
+      itemsPages?.flatMap((ad) => {
+        return ad.search.edges.map((it) => ({
+          ...it,
+          isLoading: it.node.state === 'PROCESSING',
+        }))
+      }) || []
+    ).map((item) => {
+      return {
+        id: item.node.id,
+        date: item.node.savedAt,
+        title: item.node.title,
+        url: item.node.url,
+        slug: item.node.slug,
+        score: 1.0,
+        thumbnail: item.node.image,
+        source: {
+          name:
+            item.node.folder == 'following'
+              ? item.node.subscription
+              : item.node.siteName,
+          icon: item.node.siteIcon,
+          type: 'LIBRARY',
+        },
+        canArchive: true,
+        canDelete: true,
+        canShare: true,
+        canMove: item.node.folder == 'following',
+      } as HomeItem
+    })
+  }, [itemsPages])
+
+  const listReducer = (
+    state: HomeItem[],
+    action: {
+      type: string
+      itemId?: string
+      items?: HomeItem[]
+    }
+  ) => {
+    switch (action.type) {
+      case 'RESET':
+        return action.items ?? []
+      case 'REMOVE_ITEM':
+        return state.filter((item) => item.id !== action.itemId)
+      default:
+        throw new Error()
+    }
+  }
+
+  const [items, dispatchList] = useReducer(listReducer, [])
+
+  useEffect(() => {
+    dispatchList({
+      type: 'RESET',
+      items: searchItems,
+    })
+  }, [searchItems])
+
+  console.log('items: ', items)
+
+  return (
+    <VStack
+      distribution="start"
+      css={{
+        width: '100%',
+        gap: '20px',
+        '@mdDown': {
+          gap: '10px',
+        },
+      }}
+    >
+      {items.length > 0 && (
+        <SpanBox
+          css={{
+            fontFamily: '$inter',
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '$homeTextTitle',
+            '@mdDown': {
+              px: '20px',
+            },
+          }}
+        >
+          From your library
         </SpanBox>
       )}
 
@@ -701,9 +819,7 @@ const TopPicksItemView = (
               }
             }}
           >
-            <AddToLibraryActionIcon
-              color={theme.colors.homeActionIcons.toString()}
-            />
+            <AddToLibraryActionIcon />
           </Button>
         )}
         {props.homeItem.canArchive && (
@@ -726,9 +842,7 @@ const TopPicksItemView = (
               }
             }}
           >
-            <ArchiveActionIcon
-              color={theme.colors.homeActionIcons.toString()}
-            />
+            <ArchiveActionIcon />
           </Button>
         )}
         {props.homeItem.canDelete && (
@@ -757,7 +871,7 @@ const TopPicksItemView = (
               }
             }}
           >
-            <RemoveActionIcon color={theme.colors.homeActionIcons.toString()} />
+            <RemoveActionIcon />
           </Button>
         )}
         {props.homeItem.canShare && (
@@ -767,11 +881,10 @@ const TopPicksItemView = (
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
               await shareItem(props.homeItem.title, props.homeItem.url)
             }}
           >
-            <ShareActionIcon color={theme.colors.homeActionIcons.toString()} />
+            <ShareActionIcon />
           </Button>
         )}
       </HStack>
@@ -847,47 +960,55 @@ type SourceInfoProps = {
   subtle?: boolean
 }
 
-const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => (
-  <HoverCard.Root>
-    <HoverCard.Trigger asChild>
-      <HStack
-        distribution="start"
-        alignment="center"
-        css={{
-          gap: '8px',
-          height: '16px',
-          cursor: 'pointer',
-          flex: '1',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {props.homeItem.source.icon && (
-          <SiteIconSmall src={props.homeItem.source.icon} />
-        )}
+const SourceInfo = (props: HomeItemViewProps & SourceInfoProps) => {
+  const hasHover = useMemo(() => {
+    const type = props.homeItem.source.type
+    return type == 'RSS' || type == 'NEWSLETTER'
+  }, [props])
+  return (
+    <HoverCard.Root>
+      <HoverCard.Trigger asChild>
         <HStack
+          distribution="start"
+          alignment="center"
           css={{
-            lineHeight: '1',
-            fontFamily: '$inter',
-            fontWeight: '500',
-            fontSize: props.subtle ? '12px' : '13px',
-            color: props.subtle ? '$homeTextSubtle' : '$homeTextSource',
-            textDecoration: 'underline',
+            gap: '8px',
+            height: '16px',
+            cursor: 'pointer',
+            flex: '1',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
           }}
         >
-          {props.homeItem.source.name}
+          {props.homeItem.source.icon && (
+            <SiteIconSmall src={props.homeItem.source.icon} />
+          )}
+          <HStack
+            css={{
+              lineHeight: '1',
+              fontFamily: '$inter',
+              fontWeight: '500',
+              fontSize: props.subtle ? '12px' : '13px',
+              color: props.subtle ? '$homeTextSubtle' : '$homeTextSource',
+              textDecoration: hasHover ? 'underline' : 'unset',
+            }}
+          >
+            {props.homeItem.source.name}
+          </HStack>
         </HStack>
-      </HStack>
-    </HoverCard.Trigger>
-    <HoverCard.Portal>
-      <HoverCard.Content sideOffset={5} style={{ zIndex: 5 }}>
-        <SubscriptionSourceHoverContent source={props.homeItem.source} />
-        <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
-      </HoverCard.Content>
-    </HoverCard.Portal>
-  </HoverCard.Root>
-)
+      </HoverCard.Trigger>
+      {hasHover && (
+        <HoverCard.Portal>
+          <HoverCard.Content sideOffset={5} style={{ zIndex: 5 }}>
+            <SubscriptionSourceHoverContent source={props.homeItem.source} />
+            <HoverCard.Arrow fill={theme.colors.thBackground2.toString()} />
+          </HoverCard.Content>
+        </HoverCard.Portal>
+      )}
+    </HoverCard.Root>
+  )
+}
 
 type SourceHoverContentProps = {
   source: HomeItemSource

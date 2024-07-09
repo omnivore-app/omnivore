@@ -1,4 +1,4 @@
-import { styled } from '../tokens/stitches.config'
+import { styled, theme } from '../tokens/stitches.config'
 
 export const Button = styled('button', {
   fontFamily: 'inter',
@@ -436,7 +436,12 @@ export const Button = styled('button', {
         cursor: 'pointer',
         p: '5px',
         borderRadius: '5px',
-        '&:hover': { bg: '$homeActionHoverBg', opacity: '1' },
+        '&:hover': {
+          opacity: '1',
+          bg: '$homeActionHoverBg',
+          '--stroke': theme.colors.homeTextTitle.toString(),
+        },
+        '--stroke': theme.colors.homeActionIcons.toString(),
       },
       menuAction: {
         display: 'flex',
