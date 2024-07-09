@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { PageMetaData } from '../components/patterns/PageMetaData'
 import { LoadingView } from '../components/patterns/LoadingView'
 import { About } from '../components/templates/About'
+import { DEFAULT_HOME_PATH } from '../lib/navigations'
 
 export default function LandingPage(): JSX.Element {
   const router = useRouter()
@@ -13,7 +14,7 @@ export default function LandingPage(): JSX.Element {
     if (navReturn) {
       router.push(navReturn)
     } else {
-      router.push('/l/home')
+      router.push(DEFAULT_HOME_PATH)
     }
     return <></>
   } else if (isLoading || !router.isReady) {

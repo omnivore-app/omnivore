@@ -240,7 +240,7 @@ export default function ImportUploader(): JSX.Element {
             {uploadState == 'completed' && (
               <Button
                 onClick={(e) => {
-                  window.location.href = '/l/home'
+                  window.location.href = DEFAULT_HOME_PATH
                   e.preventDefault()
                 }}
                 style="ctaDarkYellow"

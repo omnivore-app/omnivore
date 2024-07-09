@@ -21,6 +21,7 @@ import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 import { ResizableSidebar } from './ResizableSidebar'
+import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -455,9 +456,9 @@ export default function PdfArticleContainer(
             }
             const query = window.sessionStorage.getItem('q')
             if (query) {
-              window.location.assign(`/l/home?${query}`)
+              window.location.assign(`${DEFAULT_HOME_PATH}?${query}`)
             } else {
-              window.location.replace(`/l/home`)
+              window.location.replace(DEFAULT_HOME_PATH)
             }
             break
           case 'e':
