@@ -41,8 +41,9 @@ export default function Webhooks(): JSX.Element {
           }}
         >
           <StyledText>
-            Webhooks have been moved to <a href="/settings/rules">Rules</a>. To
-            trigger a webhook, create a rule and give it the Webhook action.
+            Webhooks have been moved to{' '}
+            <Link href="/settings/rules">Rules</Link>. To trigger a webhook,
+            create a rule and give it the Webhook action.
           </StyledText>
         </VStack>
       </VStack>
