@@ -1,9 +1,9 @@
 import { Browser } from 'puppeteer-core'
 import puppeteer from 'puppeteer-extra'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+// import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
-puppeteer.use(StealthPlugin())
+// puppeteer.use(StealthPlugin())
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 
 let browserInstance: Browser | null = null
@@ -44,9 +44,10 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disable-dev-shm-usage',
       '--no-first-run',
       '--disable-background-networking',
-      // use SwANGLE for WebGL
+      // '--disable-gpu',
+      // '--disable-software-rasterizer',
       '--use-gl=angle',
-      '--use-angle=swiftshader',
+      '--use-angle=swiftshader-webgl',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
