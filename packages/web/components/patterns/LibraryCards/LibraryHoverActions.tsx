@@ -4,7 +4,7 @@ import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryIt
 import { LinkedItemCardAction } from './CardTypes'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
-import { DotsThree, Share } from '@phosphor-icons/react'
+import { DotsThree } from '@phosphor-icons/react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
@@ -13,7 +13,6 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { BrowserIcon } from '../../elements/icons/BrowserIcon'
-import useLibraryItemActions from '../../../lib/hooks/useLibraryItemActions'
 import { MoveToInboxIcon } from '../../elements/icons/MoveToInboxIcon'
 
 type LibraryHoverActionsProps = {
@@ -27,7 +26,6 @@ type LibraryHoverActionsProps = {
 
 export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { moveItem } = useLibraryItemActions()
 
   return (
     <Box

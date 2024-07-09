@@ -683,6 +683,7 @@ const TopPicksItemView = (
       <HStack css={{ gap: '10px', my: '15px', px: '20px' }}>
         {props.homeItem.canMove && (
           <Button
+            title="Add to library"
             style="homeAction"
             onClick={async (event) => {
               event.preventDefault()
@@ -707,6 +708,7 @@ const TopPicksItemView = (
         )}
         {props.homeItem.canArchive && (
           <Button
+            title="Archive"
             style="homeAction"
             onClick={async (event) => {
               event.preventDefault()
@@ -731,6 +733,7 @@ const TopPicksItemView = (
         )}
         {props.homeItem.canDelete && (
           <Button
+            title="Delete"
             style="homeAction"
             onClick={async (event) => {
               event.preventDefault()
@@ -759,6 +762,7 @@ const TopPicksItemView = (
         )}
         {props.homeItem.canShare && (
           <Button
+            title="Share original"
             style="homeAction"
             onClick={async (event) => {
               event.preventDefault()

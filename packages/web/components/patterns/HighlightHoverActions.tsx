@@ -69,7 +69,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <Copy size={19} color={theme.colors.thNotebookSubtle.toString()} />
+        <Copy size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
         style="hoverActionIcon"
@@ -78,7 +78,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <LabelIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <LabelIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
         style="hoverActionIcon"
@@ -87,7 +87,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <BookOpen size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <BookOpen size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <Button
         style="hoverActionIcon"
@@ -96,7 +96,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
           event.preventDefault()
         }}
       >
-        <TrashIcon size={18} color={theme.colors.thNotebookSubtle.toString()} />
+        <TrashIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
     </Box>
   )
