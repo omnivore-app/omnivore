@@ -12,15 +12,8 @@ export async function updateLabelMutation(
   input: UpdateLabelInput
 ): Promise<string | undefined> {
   const mutation = gql`
-    mutation {
-      updateLabel(
-        input: {
-          color: "${input.color}"
-          name: "${input.name}"
-          description: "${input.description}"
-          labelId: "${input.labelId}"
-        }
-      ) {
+    mutation UpdateLabel($input: UpdateLabelInput!) {
+      updateLabel(input: $input) {
         ... on UpdateLabelSuccess {
           label {
             id
@@ -38,7 +31,9 @@ export async function updateLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation)
+    const data = await gqlFetcher(mutation, {
+      input,
+    })
     const output = data as any
     return output?.updatedLabel
   } catch (err) {
