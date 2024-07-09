@@ -29,11 +29,13 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
 import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useRegisterActions } from 'kbar'
 
 export function HomeContainer(): JSX.Element {
   const router = useRouter()
   const homeData = useGetHomeItems()
   const { viewerData } = useGetViewerQuery()
+  const [selectedItem, setSelectedItem] = useState<HTMLElement | null>(null)
 
   useApplyLocalTheme()
 
@@ -61,6 +63,130 @@ export function HomeContainer(): JSX.Element {
       </VStack>
     )
   }
+
+  const moveSelection = useCallback(
+    (direction: 'next' | 'previous') => {
+      const elements =
+        document.querySelectorAll<HTMLElement>('[data-navigable]')
+      let index = Array.prototype.indexOf.call(elements, selectedItem)
+
+      if (direction == 'next') {
+        index = index === -1 ? 0 : Math.min(index + 1, elements.length - 1)
+      } else if (direction == 'previous') {
+        index = index === -1 ? 0 : Math.max(index - 1, 0)
+      }
+      console.log('elements: ', index, elements)
+
+      const selected = elements[index]
+      setSelectedItem(selected)
+
+      selected.focus()
+    },
+    [selectedItem, setSelectedItem]
+  )
+
+  useRegisterActions(
+    [
+      {
+        id: 'open_readable',
+        section: 'Items',
+        name: 'Open focused item',
+        shortcut: ['enter'],
+        keywords: 'open',
+        perform: () => {
+          console.log('open item')
+        },
+      },
+      {
+        id: 'open_original',
+        section: 'Items',
+        name: 'Open original url',
+        shortcut: ['o'],
+        keywords: 'open original',
+        perform: () => {
+          console.log('open original')
+        },
+      },
+      {
+        id: 'archive',
+        section: 'Items',
+        name: 'Archive item',
+        shortcut: ['e'],
+        keywords: 'archive item',
+        perform: () => {
+          console.log('archive')
+        },
+      },
+      {
+        id: 'mark_read',
+        section: 'Items',
+        name: 'Mark item as read',
+        shortcut: ['-'],
+        keywords: 'mark read',
+        perform: () => {
+          console.log('mark_read')
+        },
+      },
+      {
+        id: 'delete_item',
+        section: 'Items',
+        name: 'Delete item',
+        shortcut: ['#'],
+        keywords: 'delete remove',
+        perform: () => {
+          console.log('delete')
+        },
+      },
+      {
+        id: 'move_next',
+        section: 'Items',
+        name: 'Focus next item',
+        shortcut: ['arrowdown'],
+        keywords: 'move next',
+        perform: () => {
+          moveSelection('next')
+        },
+      },
+      {
+        id: 'move_previous',
+        section: 'Items',
+        name: 'Focus previous item',
+        shortcut: ['arrowup'],
+        keywords: 'move previous',
+        perform: () => {
+          moveSelection('previous')
+        },
+      },
+      {
+        id: 'move_next_vim',
+        section: 'Items',
+        name: 'Focus next item',
+        shortcut: ['j'],
+        keywords: 'move next',
+        perform: () => {
+          moveSelection('next')
+        },
+      },
+      {
+        id: 'move_previous_vim',
+        section: 'Items',
+        name: 'Focus previous item',
+        shortcut: ['k'],
+        keywords: 'move previous',
+        perform: () => {
+          moveSelection('previous')
+        },
+      },
+
+      // {
+      //   shortcutKeys: ['a'],
+      //   actionDescription: 'Open Add Link dialog',
+      //   shortcutKeyDescription: 'a',
+      //   callback: () => actionHandler('showAddLinkModal'),
+      // },
+    ],
+    [selectedItem]
+  )
 
   return (
     <VStack
@@ -106,7 +232,7 @@ export function HomeContainer(): JSX.Element {
               )
             case 'top_picks':
               if (homeSection.items.length < 1) {
-                return <FromYourLibraryHomeSection />
+                return <FromYourLibraryHomeSection key="section-from-your" />
               }
               return (
                 <TopPicksHomeSection
@@ -401,8 +527,6 @@ const FromYourLibraryHomeSection = (): JSX.Element => {
       items: searchItems,
     })
   }, [searchItems])
-
-  console.log('items: ', items)
 
   return (
     <VStack
@@ -742,6 +866,8 @@ const TopPicksItemView = (
 
   return (
     <VStack
+      tabIndex={0}
+      data-navigable={props.homeItem.id}
       css={{
         width: '100%',
         pt: '15px',
@@ -749,6 +875,13 @@ const TopPicksItemView = (
         borderRadius: '5px',
         '@mdDown': {
           borderRadius: '0px',
+        },
+        '&:focus-visible': {
+          outline: 'none',
+          bg: '$homeCardHover',
+        },
+        '&:focus-visible .title-text': {
+          textDecoration: 'underline',
         },
         '&:hover': {
           bg: '$homeCardHover',
@@ -900,6 +1033,7 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
 
   return (
     <VStack
+      data-navigable={props.homeItem.id}
       css={{
         mt: '10px',
         width: '100%',
