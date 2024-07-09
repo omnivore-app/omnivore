@@ -13,6 +13,7 @@ import {
 } from '../../../lib/networking/mutations/uploadImportFileMutation'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { validateCsvFile } from '../../../utils/csvValidator'
+import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
 
 type UploadState = 'none' | 'uploading' | 'completed'
 
