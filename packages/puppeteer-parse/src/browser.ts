@@ -44,7 +44,9 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disable-dev-shm-usage',
       '--no-first-run',
       '--disable-background-networking',
-      '--use-gl=swiftshader',
+      // use SwANGLE for WebGL
+      '--use-gl=angle',
+      '--use-angle=swiftshader',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
