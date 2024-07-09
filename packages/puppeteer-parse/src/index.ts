@@ -242,13 +242,14 @@ async function retrievePage(
     // constraints for the generated fingerprint
     fingerprintOptions: {
       devices: ['desktop'],
-      operatingSystems: ['windows'],
+      operatingSystems: ['linux'],
       browsers: ['chrome'],
       locales: [locale || 'en-US'],
       screen: {
         maxWidth: 1920,
         maxHeight: 1080,
       },
+      mockWebRTC: true,
     },
   })) as Page
 
@@ -259,12 +260,11 @@ async function retrievePage(
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
     }
-    // await page.setUserAgent(userAgentForUrl(url))
 
-    // // set locale for the page
-    // if (locale) {
-    //   await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
-    // }
+    // set locale for the page
+    if (locale) {
+      await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
+    }
 
     // set timezone for the page
     if (timezone) {
@@ -364,7 +364,7 @@ async function retrievePage(
 
     const response = await page.goto(url, {
       timeout: 30 * 1000,
-      waitUntil: ['networkidle2'],
+      waitUntil: ['networkidle0'],
     })
     if (!response) {
       throw new Error('No response from page')

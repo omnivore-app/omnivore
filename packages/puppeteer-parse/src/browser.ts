@@ -34,7 +34,6 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disk-cache-size=33554432',
       '--enable-features=SharedArrayBuffer',
       '--hide-scrollbars',
-      '--disable-gpu',
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
@@ -56,7 +55,7 @@ export const getBrowser = async (): Promise<Browser> => {
       width: 1920,
     },
     executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.LAUNCH_HEADLESS,
+    headless: process.env.LAUNCH_HEADLESS === 'true',
     timeout: 10_000, // 10 seconds
     dumpio: true, // show console logs in the terminal
   })) as Browser
