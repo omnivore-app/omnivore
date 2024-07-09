@@ -14,7 +14,7 @@ export async function addPopularReadMutation(
   readName: string
 ): Promise<string | undefined> {
   const mutation = gql`
-    mutation {
+    mutation AddPopularRead($name: String!) {
       addPopularRead(name: "${readName}") {
         ... on AddPopularReadSuccess {
           pageId

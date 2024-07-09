@@ -15,8 +15,8 @@ export async function deleteLabelMutation(
   labelId: string
 ): Promise<any | undefined> {
   const mutation = gql`
-    mutation {
-      deleteLabel(id: "${labelId}") {
+    mutation DeleteLabel($id: ID!) {
+      deleteLabel(id: $id) {
         ... on DeleteLabelSuccess {
           label {
             id
@@ -34,7 +34,9 @@ export async function deleteLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation) as DeleteLabelResult
+    const data = (await gqlFetcher(mutation, {
+      id: labelId,
+    })) as DeleteLabelResult
     return data.errorCodes ? undefined : data.deleteLabel.label.id
   } catch (error) {
     console.log('deleteLabelMutation error', error)
