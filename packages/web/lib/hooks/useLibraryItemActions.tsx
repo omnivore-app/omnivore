@@ -17,6 +17,7 @@ export default function useLibraryItemActions() {
       archived: true,
     })
 
+    console.log('result: ', result)
     if (result) {
       showSuccessToast('Link archived', { position: 'bottom-right' })
     } else {

@@ -14,7 +14,6 @@ export type HomeItemResponse = {
   isValidating: boolean
   errorMessage?: string
   sections?: HomeSection[]
-  mutate?: () => void
 }
 
 export type HomeItem = {
@@ -160,7 +159,6 @@ export function useGetHomeItems(): HomeItemResponse {
 
   if (result && result.home && result.home.edges) {
     return {
-      mutate,
       error: false,
       isValidating,
       sections: result.home.edges.map((edge) => {

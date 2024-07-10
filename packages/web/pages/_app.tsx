@@ -36,22 +36,7 @@ TopBarProgress.config({
 })
 
 const generateActions = (router: NextRouter) => {
-  const defaultActions = [
-    {
-      id: 'home',
-      section: 'Navigation',
-      name: 'Go to Home (Library) ',
-      shortcut: ['g', 'h'],
-      keywords: 'go home',
-      perform: () => {
-        const navReturn = window.localStorage.getItem('nav-return')
-        if (navReturn) {
-          router.push(navReturn)
-          return
-        }
-        router?.push(DEFAULT_HOME_PATH)
-      },
-    },
+  return [
     {
       id: 'lightTheme',
       section: 'Preferences',
@@ -71,8 +56,6 @@ const generateActions = (router: NextRouter) => {
       perform: () => updateTheme(ThemeId.Dark),
     },
   ]
-
-  return defaultActions
 }
 
 const ConditionalCaptchaProvider = (props: {
