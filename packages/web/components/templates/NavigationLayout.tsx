@@ -52,7 +52,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
 
-  useKeyboardShortcuts(navigationCommands(router))
+  useRegisterActions(navigationCommands(router))
 
   useKeyboardShortcuts(
     primaryCommands((action) => {
@@ -62,38 +62,6 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
           break
       }
     })
-  )
-
-  useRegisterActions(
-    [
-      {
-        id: 'home',
-        section: 'Navigation',
-        name: 'Go to Home (Library) ',
-        shortcut: ['g h'],
-        keywords: 'go home',
-        perform: () => router?.push('/home'),
-      },
-      {
-        id: 'lightTheme',
-        section: 'Preferences',
-        name: 'Change theme (light) ',
-        shortcut: ['v', 'l'],
-        keywords: 'light theme',
-        priority: Priority.LOW,
-        perform: () => updateTheme(ThemeId.Light),
-      },
-      {
-        id: 'darkTheme',
-        section: 'Preferences',
-        name: 'Change theme (dark) ',
-        shortcut: ['v', 'd'],
-        keywords: 'dark theme',
-        priority: Priority.LOW,
-        perform: () => updateTheme(ThemeId.Dark),
-      },
-    ],
-    [router]
   )
 
   // Attempt to identify the user if they are logged in.

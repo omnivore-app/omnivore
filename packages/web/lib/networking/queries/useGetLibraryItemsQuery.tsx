@@ -11,9 +11,10 @@ import { articleReadingProgressMutation } from '../mutations/articleReadingProgr
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { updatePageMutation } from '../mutations/updatePageMutation'
-import { gqlFetcher } from '../networkHelpers'
+import { gqlFetcher, makeGqlFetcher } from '../networkHelpers'
 import { Label } from './../fragments/labelFragment'
 import { moveToFolderMutation } from '../mutations/moveToLibraryMutation'
+import useSWR from 'swr'
 
 export interface ReadableItem {
   id: string
@@ -43,6 +44,14 @@ type LibraryItemsQueryResponse = {
   mutate: () => void
 }
 
+type LibraryItemsRawQueryResponse = {
+  items: LibraryItemNode[]
+  itemsDataError?: unknown
+  isLoading: boolean
+  isValidating: boolean
+  error: boolean
+}
+
 type LibraryItemAction =
   | 'archive'
   | 'unarchive'
@@ -56,6 +65,7 @@ type LibraryItemAction =
 
 export type LibraryItemsData = {
   search: LibraryItems
+  errorCodes?: string[]
 }
 
 export type LibraryItems = {
@@ -466,6 +476,107 @@ export function useGetLibraryItemsQuery(
     size,
     setSize,
     mutate,
+    error: !!error,
+  }
+}
+
+export function useGetRawSearchItemsQuery(
+  {
+    limit,
+    searchQuery,
+    cursor,
+    includeContent = false,
+  }: LibraryItemsQueryInput,
+  shouldFetch = true
+): LibraryItemsRawQueryResponse {
+  const query = gql`
+    query Search(
+      $after: String
+      $first: Int
+      $query: String
+      $includeContent: Boolean
+    ) {
+      search(
+        first: $first
+        after: $after
+        query: $query
+        includeContent: $includeContent
+      ) {
+        ... on SearchSuccess {
+          edges {
+            cursor
+            node {
+              id
+              title
+              slug
+              url
+              folder
+              createdAt
+              author
+              image
+              description
+              publishedAt
+              originalArticleUrl
+              siteName
+              siteIcon
+              subscription
+              readAt
+              savedAt
+              wordsCount
+            }
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+            totalCount
+          }
+        }
+        ... on SearchError {
+          errorCodes
+        }
+      }
+    }
+  `
+
+  const variables = {
+    after: cursor,
+    first: limit,
+    query: searchQuery,
+    includeContent,
+  }
+
+  const { data, error, isValidating, mutate } = useSWR(
+    shouldFetch ? [query, variables.first, variables.after] : null,
+    makeGqlFetcher(query, variables),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+    }
+  )
+
+  const responseError = error
+  const responseData = data as LibraryItemsData | undefined
+
+  // We need to check the response errors here and return the error
+  // it will be nested in the data pages, if there is one error,
+  // we invalidate the data and return the error. We also zero out
+  // the response in the case of an error.
+  if (responseData?.errorCodes) {
+    return {
+      isValidating: false,
+      items: [],
+      isLoading: false,
+      error: true,
+    }
+  }
+
+  return {
+    isValidating,
+    items: responseData?.search.edges.map((edge) => edge.node) ?? [],
+    itemsDataError: responseError,
+    isLoading: !error && !data,
     error: !!error,
   }
 }

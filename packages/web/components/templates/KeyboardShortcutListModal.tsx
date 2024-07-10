@@ -178,7 +178,14 @@ export function KeyboardShortcutListModal(
           >
             <ShortcutListSection
               title="Navigation"
-              commands={navigationCommands(undefined)}
+              commands={navigationCommands(undefined).map((action) => {
+                return {
+                  shortcutKeys: action.shortcut ?? [],
+                  callback: () => {},
+                  actionDescription: action.name,
+                  shortcutKeyDescription: (action.shortcut ?? []).join(','),
+                }
+              })}
             />
             <ShortcutListSection
               title="Preferences"

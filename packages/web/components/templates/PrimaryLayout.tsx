@@ -34,8 +34,6 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
 
-  useKeyboardShortcuts(navigationCommands(router))
-
   useKeyboardShortcuts(
     primaryCommands((action) => {
       switch (action) {

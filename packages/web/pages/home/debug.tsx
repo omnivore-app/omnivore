@@ -38,9 +38,6 @@ export default function DebugHome(): JSX.Element {
   const refreshHome = useCallback(() => {
     ;(async () => {
       refreshHomeMutation()
-      if (homeData?.mutate) {
-        homeData.mutate()
-      }
     })()
   }, [])
 
