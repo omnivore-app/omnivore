@@ -3267,6 +3267,7 @@ enum UploadImportFileType {
 }
 
 type User {
+  createdAt: Date!
   email: String
   featureList: [Feature!]
   features: [String]
