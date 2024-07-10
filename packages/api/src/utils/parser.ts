@@ -26,6 +26,7 @@ import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
 import { userRepository } from '../repository/user'
 import { ArticleFormat } from '../resolvers/article'
+import { generateFingerprint } from './helpers'
 import {
   EmbeddedHighlightData,
   findEmbeddedHighlight,
@@ -77,15 +78,17 @@ const DOM_PURIFY_CONFIG = {
 const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
-export const RSS_PARSER_CONFIG = {
-  timeout: 20000, // 20 seconds
-  headers: {
-    // some rss feeds require user agent
-    'User-Agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-    Accept:
-      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4, text/html;q=0.2',
-  },
+export const rssParserConfig = () => {
+  const fingerprint = generateFingerprint()
+
+  return {
+    headers: {
+      'user-agent': fingerprint.headers['user-agent'],
+      accept:
+        'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4, text/html;q=0.2',
+    },
+    timeout: 20000, // 20 seconds
+  }
 }
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
@@ -836,7 +839,7 @@ export const parseFeed = async (
       }
     }
 
-    const parser = new Parser(RSS_PARSER_CONFIG)
+    const parser = new Parser(rssParserConfig())
 
     const feed = content
       ? await parser.parseString(content)
