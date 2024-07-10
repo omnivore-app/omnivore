@@ -52,10 +52,11 @@ export const getBrowser = async (): Promise<Browser> => {
       width: 1920,
     },
     executablePath: process.env.CHROMIUM_PATH,
-    headless: process.env.LAUNCH_HEADLESS === 'true',
+    headless: process.env.HEADLESS_MODE,
     timeout: 10_000, // 10 seconds
     dumpio: true, // show console logs in the terminal
-    targetFilter: (target: Target) => target.type() !== 'other',
+    targetFilter: (target: Target) =>
+      target.type() !== 'other' || !!target.url(),
   })) as Browser
 
   const version = await browserInstance.version()
