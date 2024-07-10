@@ -428,8 +428,7 @@ const mixHomeItems = (
 
   const topCandidates = rankedHomeItems.slice(0, 50)
 
-  // find the median word count
-  const wordCountThreshold = 500
+  const wordCountThreshold = 250
   // separate items into two groups based on word count
   const shortItems: Array<Candidate> = []
   const longItems: Array<Candidate> = []
