@@ -2,17 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { preHandleContent } from '@omnivore/content-handler'
 import axios from 'axios'
-import { newInjectedPage } from 'fingerprint-injector'
 import { parseHTML } from 'linkedom'
 import path from 'path'
 import { Page, Protocol } from 'puppeteer-core'
 import { getBrowser } from './browser'
 
-const DESKTOP_USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_DESKTOP_USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 const NON_SCRIPT_HOSTS = ['medium.com', 'fastcompany.com', 'fortelabs.com']
 
 const ALLOWED_CONTENT_TYPES = [
@@ -21,21 +15,6 @@ const ALLOWED_CONTENT_TYPES = [
   'text/plain',
   'application/pdf',
 ]
-const REQUEST_TIMEOUT = 30000
-
-const userAgentForUrl = (url: string) => {
-  try {
-    const u = new URL(url)
-    for (const host of NON_BOT_HOSTS) {
-      if (u.hostname.endsWith(host)) {
-        return NON_BOT_DESKTOP_USER_AGENT
-      }
-    }
-  } catch (e) {
-    console.log('error getting user agent for url', url, e)
-  }
-  return DESKTOP_USER_AGENT
-}
 
 const fetchContentWithScrapingBee = async (url: string) => {
   const response = await axios.get('https://app.scrapingbee.com/api/v1', {
@@ -46,7 +25,7 @@ const fetchContentWithScrapingBee = async (url: string) => {
       premium_proxy: 'true',
       country_code: 'us',
     },
-    timeout: REQUEST_TIMEOUT,
+    timeout: 10_000,
   })
 
   const dom = parseHTML(response.data).document
@@ -238,15 +217,7 @@ async function retrievePage(
   }
 
   const browser = await getBrowser()
-
-  const page = (await newInjectedPage(browser, {
-    fingerprintOptions: {
-      devices: ['desktop'],
-      operatingSystems: ['linux'],
-      browsers: ['chrome'],
-      locales: ['en-US'],
-    },
-  })) as Page
+  const page = await browser.newPage()
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
@@ -364,6 +335,8 @@ async function retrievePage(
     if (!response) {
       throw new Error('No response from page')
     }
+
+    await page.waitForSelector('body')
 
     const finalUrl = response.url()
     const contentType = response.headers()['content-type']
