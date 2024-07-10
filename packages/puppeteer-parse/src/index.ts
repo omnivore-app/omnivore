@@ -4,7 +4,7 @@ import { preHandleContent } from '@omnivore/content-handler'
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import path from 'path'
-import { Page, Protocol } from 'puppeteer-core'
+import { BrowserContext, Page, Protocol } from 'puppeteer-core'
 import { getBrowser } from './browser'
 
 const NON_SCRIPT_HOSTS = ['medium.com', 'fastcompany.com', 'fortelabs.com']
@@ -63,7 +63,8 @@ export const fetchContent = async (
   let page: Page | undefined,
     title: string | undefined,
     content: string | undefined,
-    contentType: string | undefined
+    contentType: string | undefined,
+    context: BrowserContext | undefined
 
   try {
     url = getUrl(url)
@@ -99,6 +100,9 @@ export const fetchContent = async (
         locale,
         timezone
       )
+      if (result && result.context) {
+        context = result.context
+      }
       if (result && result.page) {
         page = result.page
       }
@@ -144,10 +148,10 @@ export const fetchContent = async (
 
     throw e
   } finally {
-    // close browser page if it was opened
-    if (page) {
+    // close browser context if it was created
+    if (context) {
       console.info('closing page...', url)
-      await page.close()
+      await context.close()
       console.info('page closed', url)
     }
 
@@ -217,12 +221,14 @@ async function retrievePage(
   }
 
   const browser = await getBrowser()
-  const page = await browser.newPage()
+  const context = await browser.createBrowserContext()
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
   let lastPdfUrl
   try {
+    const page = await context.newPage()
+
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
     }
@@ -342,16 +348,16 @@ async function retrievePage(
     logRecord.finalUrl = finalUrl
     logRecord.contentType = contentType
 
-    return { page, finalUrl, contentType }
+    return { page, finalUrl, contentType, context }
   } catch (error) {
     if (lastPdfUrl) {
       return {
-        page,
+        context,
         finalUrl: lastPdfUrl,
         contentType: 'application/pdf',
       }
     }
-    await page.close()
+    await context.close()
     throw error
   }
 }

@@ -52,9 +52,11 @@ export const getBrowser = async (): Promise<Browser> => {
       width: 1920,
     },
     executablePath: process.env.CHROMIUM_PATH,
-    headless: process.env.HEADLESS_MODE,
+    // run in shell mode if headless
+    headless: process.env.LAUNCH_HEADLESS === 'true' ? 'shell' : false,
     timeout: 10_000, // 10 seconds
     dumpio: true, // show console logs in the terminal
+    // filter out targets
     targetFilter: (target: Target) =>
       target.type() !== 'other' || !!target.url(),
   })) as Browser
