@@ -336,8 +336,6 @@ async function retrievePage(
       throw new Error('No response from page')
     }
 
-    await page.waitForSelector('body')
-
     const finalUrl = response.url()
     const contentType = response.headers()['content-type']
 
@@ -363,6 +361,8 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
   try {
     title = await page.title()
     logRecord.title = title
+
+    await page.waitForSelector('body')
 
     const pageScrollingStart = Date.now()
     /* scroll with a 5 seconds timeout */
