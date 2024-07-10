@@ -61,7 +61,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
 
-  useKeyboardShortcuts(navigationCommands(router))
   applyStoredTheme()
 
   const showLogout = useCallback(() => {
