@@ -926,11 +926,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 }
 
-type TopPicksItemViewProps = {}
-
-const TopPicksItemView = (
-  props: HomeItemViewProps & TopPicksItemViewProps
-): JSX.Element => {
+const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
   const router = useRouter()
   const { dispatch } = useNavigation()
   const { archiveItem, deleteItem, moveItem, shareItem } =

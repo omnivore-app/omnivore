@@ -556,8 +556,8 @@ export function useGetRawSearchItemsQuery(
     }
   )
 
-  let responseError = error
-  let responseData = data as LibraryItemsData | undefined
+  const responseError = error
+  const responseData = data as LibraryItemsData | undefined
 
   // We need to check the response errors here and return the error
   // it will be nested in the data pages, if there is one error,
