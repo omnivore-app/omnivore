@@ -146,7 +146,6 @@ const getJustAddedCandidates = async (
 
 const selectCandidates = async (
   user: User,
-  excludes: Array<string> = [],
   limit = 100
 ): Promise<Array<Candidate>> => {
   const userId = user.id
@@ -155,7 +154,7 @@ const selectCandidates = async (
     {
       size: limit,
       includeContent: false,
-      query: `in:inbox -is:seen -includes:${excludes.join(',')}`,
+      query: 'in:inbox -is:seen',
     },
     userId
   )
@@ -429,8 +428,7 @@ const mixHomeItems = (
 
   const topCandidates = rankedHomeItems.slice(0, 50)
 
-  // find the median word count
-  const wordCountThreshold = 500
+  const wordCountThreshold = 250
   // separate items into two groups based on word count
   const shortItems: Array<Candidate> = []
   const longItems: Array<Candidate> = []
@@ -517,10 +515,7 @@ export const updateHome = async (data: UpdateHomeJobData) => {
     logger.info(`Found ${justAddedCandidates.length} just added candidates`)
 
     end = latency.startTimer({ step: 'select' })
-    const candidates = await selectCandidates(
-      user,
-      justAddedCandidates.map((c) => c.id)
-    )
+    const candidates = await selectCandidates(user)
     end()
     logger.info(`Found ${candidates.length} candidates`)
 
