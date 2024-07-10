@@ -4040,6 +4040,7 @@ export enum UploadImportFileType {
 
 export type User = {
   __typename?: 'User';
+  createdAt: Scalars['Date'];
   email?: Maybe<Scalars['String']>;
   featureList?: Maybe<Array<Feature>>;
   features?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -7813,6 +7814,7 @@ export type UploadImportFileSuccessResolvers<ContextType = ResolverContext, Pare
 };
 
 export type UserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   featureList?: Resolver<Maybe<Array<ResolversTypes['Feature']>>, ParentType, ContextType>;
   features?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;

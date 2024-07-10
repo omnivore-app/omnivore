@@ -98,6 +98,7 @@ const schema = gql`
     intercomHash: String
     features: [String]
     featureList: [Feature!]
+    createdAt: Date!
   }
 
   type Profile {
