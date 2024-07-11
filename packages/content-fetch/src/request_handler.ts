@@ -62,6 +62,11 @@ const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
   : new Storage()
 const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
 
+const NO_CACHE_URLS = [
+  'https://deviceandbrowserinfo.com/are_you_a_bot',
+  'https://deviceandbrowserinfo.com/info_device',
+]
+
 const uploadToBucket = async (filePath: string, data: string) => {
   await storage
     .bucket(bucketName)
@@ -198,7 +203,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       fetchResult = await fetchContent(url, locale, timezone)
       console.log('content has been fetched')
 
-      if (fetchResult.content) {
+      if (fetchResult.content && !NO_CACHE_URLS.includes(url)) {
         const cacheResult = await cacheFetchResult(
           redisDataSource,
           key,

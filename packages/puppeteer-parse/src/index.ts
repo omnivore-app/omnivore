@@ -7,11 +7,6 @@ import path from 'path'
 import { BrowserContext, Page, Protocol } from 'puppeteer-core'
 import { getBrowser } from './browser'
 
-const DESKTOP_USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_DESKTOP_USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 const NON_SCRIPT_HOSTS = ['medium.com', 'fastcompany.com', 'fortelabs.com']
 
 const ALLOWED_CONTENT_TYPES = [
@@ -20,21 +15,6 @@ const ALLOWED_CONTENT_TYPES = [
   'text/plain',
   'application/pdf',
 ]
-const REQUEST_TIMEOUT = 30000
-
-const userAgentForUrl = (url: string) => {
-  try {
-    const u = new URL(url)
-    for (const host of NON_BOT_HOSTS) {
-      if (u.hostname.endsWith(host)) {
-        return NON_BOT_DESKTOP_USER_AGENT
-      }
-    }
-  } catch (e) {
-    console.log('error getting user agent for url', url, e)
-  }
-  return DESKTOP_USER_AGENT
-}
 
 const fetchContentWithScrapingBee = async (url: string) => {
   const response = await axios.get('https://app.scrapingbee.com/api/v1', {
@@ -45,7 +25,7 @@ const fetchContentWithScrapingBee = async (url: string) => {
       premium_proxy: 'true',
       country_code: 'us',
     },
-    timeout: REQUEST_TIMEOUT,
+    timeout: 10_000,
   })
 
   const dom = parseHTML(response.data).document
@@ -80,11 +60,11 @@ export const fetchContent = async (
   }
   console.log(`content-fetch request`, logRecord)
 
-  let context: BrowserContext | undefined,
-    page: Page | undefined,
+  let page: Page | undefined,
     title: string | undefined,
     content: string | undefined,
-    contentType: string | undefined
+    contentType: string | undefined,
+    context: BrowserContext | undefined
 
   try {
     url = getUrl(url)
@@ -168,11 +148,11 @@ export const fetchContent = async (
 
     throw e
   } finally {
-    // close browser context if it was opened
+    // close browser context if it was created
     if (context) {
-      console.info('closing context...', url)
+      console.info('closing page...', url)
       await context.close()
-      console.info('context closed', url)
+      console.info('page closed', url)
     }
 
     console.info(`content-fetch result`, logRecord)
@@ -241,20 +221,17 @@ async function retrievePage(
   }
 
   const browser = await getBrowser()
-  // create a new incognito browser context
   const context = await browser.createBrowserContext()
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
   let lastPdfUrl
-  let page
   try {
-    page = await context.newPage()
+    const page = await context.newPage()
 
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
     }
-    await page.setUserAgent(userAgentForUrl(url))
 
     // set locale for the page
     if (locale) {
@@ -359,7 +336,7 @@ async function retrievePage(
 
     const response = await page.goto(url, {
       timeout: 30 * 1000,
-      waitUntil: ['networkidle2'],
+      waitUntil: ['networkidle0'],
     })
     if (!response) {
       throw new Error('No response from page')
@@ -371,12 +348,11 @@ async function retrievePage(
     logRecord.finalUrl = finalUrl
     logRecord.contentType = contentType
 
-    return { context, page, finalUrl, contentType }
+    return { page, finalUrl, contentType, context }
   } catch (error) {
     if (lastPdfUrl) {
       return {
         context,
-        page,
         finalUrl: lastPdfUrl,
         contentType: 'application/pdf',
       }
@@ -391,6 +367,8 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
   try {
     title = await page.title()
     logRecord.title = title
+
+    await page.waitForSelector('body')
 
     const pageScrollingStart = Date.now()
     /* scroll with a 5 seconds timeout */

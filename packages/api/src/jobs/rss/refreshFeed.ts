@@ -18,6 +18,7 @@ import createHttpTaskWithToken from '../../utils/createTask'
 import { cleanUrl } from '../../utils/helpers'
 import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
+import { rssParserConfig } from '../../utils/parser'
 import { RSSRefreshContext } from './refreshAllFeeds'
 
 type FolderType = 'following' | 'inbox'
@@ -181,15 +182,10 @@ const getThumbnail = (item: RssFeedItem) => {
 export const fetchAndChecksum = async (url: string) => {
   try {
     const response = await axios.get(url, {
+      ...rssParserConfig(),
       responseType: 'arraybuffer',
       timeout: 60_000,
       maxRedirects: 10,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-        Accept:
-          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml, text/html;q=0.4',
-      },
     })
 
     const hash = crypto.createHash('sha256')

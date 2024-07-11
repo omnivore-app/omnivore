@@ -52,7 +52,7 @@ import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
-import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
+import { parseFeed, parseOpml, rssParserConfig } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -442,7 +442,7 @@ export const scanFeedsResolver = authorized<
 
   try {
     // fetch page content and parse feeds
-    const response = await axios.get(url, RSS_PARSER_CONFIG)
+    const response = await axios.get(url, rssParserConfig())
     const content = response.data as string
     // check if the content is html or xml
     const contentType = response.headers['Content-Type']

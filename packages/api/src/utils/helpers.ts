@@ -2,6 +2,7 @@
 import languages from '@cospired/i18n-iso-languages'
 import { countWords } from 'alfaaz'
 import crypto from 'crypto'
+import { FingerprintGenerator } from 'fingerprint-generator'
 import Redis from 'ioredis'
 import { parseHTML } from 'linkedom'
 import normalizeUrl from 'normalize-url'
@@ -286,3 +287,7 @@ export const getClientFromUserAgent = (userAgent: string): string => {
 
 export const lanaugeToCode = (language: string): string =>
   languages.getAlpha2Code(language, 'en') || 'en'
+
+export const generateFingerprint = () => {
+  return new FingerprintGenerator().getFingerprint()
+}

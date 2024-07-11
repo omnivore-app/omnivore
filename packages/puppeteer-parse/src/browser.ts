@@ -1,4 +1,4 @@
-import { Browser } from 'puppeteer-core'
+import { Browser, Target } from 'puppeteer-core'
 import puppeteer from 'puppeteer-extra'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
@@ -26,26 +26,22 @@ export const getBrowser = async (): Promise<Browser> => {
       '--autoplay-policy=user-gesture-required',
       '--disable-component-update',
       '--disable-domain-reliability',
-      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
       '--disable-print-preview',
       '--disable-setuid-sandbox',
-      '--disable-site-isolation-trials',
       '--disable-speech-api',
-      '--disk-cache-size=33554432',
       '--enable-features=SharedArrayBuffer',
       '--hide-scrollbars',
-      '--disable-gpu',
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
       '--no-sandbox',
       '--no-zygote',
-      '--window-size=1920,1080',
       '--disable-extensions',
       '--disable-dev-shm-usage',
       '--no-first-run',
       '--disable-background-networking',
-      '--use-gl=swiftshader',
+      '--disable-gpu',
+      '--disable-software-rasterizer',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
@@ -56,9 +52,13 @@ export const getBrowser = async (): Promise<Browser> => {
       width: 1920,
     },
     executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.LAUNCH_HEADLESS,
+    // run in shell mode if headless
+    headless: process.env.LAUNCH_HEADLESS === 'true' ? 'shell' : false,
     timeout: 10_000, // 10 seconds
     dumpio: true, // show console logs in the terminal
+    // filter out targets
+    targetFilter: (target: Target) =>
+      target.type() !== 'other' || !!target.url(),
   })) as Browser
 
   const version = await browserInstance.version()
