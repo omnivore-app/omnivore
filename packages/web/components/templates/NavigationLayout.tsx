@@ -24,6 +24,7 @@ import {
   showErrorToast,
   showSuccessToastWithAction,
 } from '../../lib/toastHelpers'
+import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
 
 export type NavigationSection =
   | 'home'
@@ -72,6 +73,14 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)
   }, [setShowLogoutConfirmation])
+
+  const { width, previous } = useWindowDimensions()
+
+  useEffect(() => {
+    if (width < previous.width && width <= 768) {
+      props.setShowNavigationMenu(false)
+    }
+  }, [width, previous])
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
 
@@ -152,7 +161,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
               '@mdDown': {
                 display: 'flex',
                 top: '0px',
-                left: LIBRARY_LEFT_MENU_WIDTH,
+                left: '0px',
                 width: '100vw',
                 height: '100vh',
                 pointerEvents: 'auto',

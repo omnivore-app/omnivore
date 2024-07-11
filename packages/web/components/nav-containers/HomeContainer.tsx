@@ -423,8 +423,11 @@ export function HomeContainer(): JSX.Element {
             width: '680px',
             gap: '50px',
             minHeight: '100vh',
-            '@mdDown': {
+            '@lgDown': {
               gap: '40px',
+              width: '80%',
+            },
+            '@mdDown': {
               width: '100%',
             },
           }}
