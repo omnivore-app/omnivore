@@ -963,6 +963,7 @@ export const updateLibraryItem = async (
     EntityType.ITEM,
     {
       ...data,
+      updatedAt: new Date(),
       id,
     } as ItemEvent,
     userId
@@ -1012,7 +1013,8 @@ export const updateLibraryItemReadingProgress = async (
         reading_progress_top_percent as "readingProgressTopPercent",
         reading_progress_bottom_percent as "readingProgressBottomPercent",
         reading_progress_highest_read_anchor as "readingProgressHighestReadAnchor",
-        read_at as "readAt"
+        read_at as "readAt",
+        updated_at as "updatedAt"
       `,
         [id, topPercent, bottomPercent, anchorIndex]
       ),

@@ -3,11 +3,12 @@ import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import axios from 'axios'
 import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
+import { User } from '../../entity/user'
 import { env } from '../../env'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
-import { getItemUrl, ItemEvent } from '../library_item'
+import { findLibraryItemById, getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -178,11 +179,38 @@ export class NotionClient implements IntegrationClient {
     return Promise.resolve(env.notion.authUrl)
   }
 
-  private itemToNotionPage = (
+  private itemToNotionPage = async (
+    userId: string,
     item: ItemEvent,
     settings: Settings,
     lastSync?: Date | null
-  ): NotionPage => {
+  ): Promise<NotionPage> => {
+    if (!item.updatedAt) {
+      const libraryItem = await findLibraryItemById(item.id, userId, {
+        select: [
+          'originalUrl',
+          'title',
+          'author',
+          'thumbnail',
+          'updatedAt',
+          'siteIcon',
+          'savedAt',
+        ],
+      })
+
+      if (!libraryItem) {
+        throw new Error('Library item not found')
+      }
+
+      item.originalUrl = libraryItem.originalUrl
+      item.title = libraryItem.title
+      item.author = libraryItem.author
+      item.thumbnail = libraryItem.thumbnail
+      item.updatedAt = libraryItem.updatedAt
+      item.siteIcon = libraryItem.siteIcon
+      item.savedAt = libraryItem.savedAt
+    }
+
     return {
       parent: {
         database_id: settings.parentDatabaseId,
@@ -339,10 +367,13 @@ export class NotionClient implements IntegrationClient {
       return false
     }
 
+    const userId = this.integrationData.user.id
+
     await Promise.all(
       items.map(async (item) => {
         try {
-          const notionPage = this.itemToNotionPage(
+          const notionPage = await this.itemToNotionPage(
+            userId,
             item,
             settings,
             this.integrationData?.syncedAt
