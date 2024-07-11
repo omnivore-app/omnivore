@@ -208,7 +208,7 @@ export const deleteHighlightById = async (
 
   await enqueueUpdateHighlight({
     libraryItemId: deletedHighlight.libraryItemId,
-    userId: deletedHighlight.user.id,
+    userId: deletedHighlight.userId,
   })
 
   return deletedHighlight
