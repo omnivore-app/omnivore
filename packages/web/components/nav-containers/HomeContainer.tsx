@@ -210,7 +210,7 @@ export function HomeContainer(): JSX.Element {
 
   const shouldFallback =
     homeData.error || (!homeData.isValidating && !hasTopPicks(homeData))
-  const { items: searchResponseItems } = useGetRawSearchItemsQuery(
+  const searchData = useGetRawSearchItemsQuery(
     {
       limit: 10,
       searchQuery: 'in:inbox',
@@ -227,7 +227,7 @@ export function HomeContainer(): JSX.Element {
   }, [viewerData])
 
   const searchItems = useMemo(() => {
-    return searchResponseItems.map((item) => {
+    return searchData.items.map((item) => {
       return {
         id: item.id,
         date: item.savedAt,
@@ -248,7 +248,7 @@ export function HomeContainer(): JSX.Element {
         canMove: item.folder == 'following',
       } as HomeItem
     })
-  }, [searchResponseItems])
+  }, [searchData])
 
   useEffect(() => {
     window.localStorage.setItem('nav-return', router.asPath)
@@ -382,7 +382,10 @@ export function HomeContainer(): JSX.Element {
     [state.selectedItem, moveSelectedItem]
   )
 
-  if (homeData.error && homeData.errorMessage == 'PENDING') {
+  const dataReady =
+    !homeData.isValidating && (!shouldFallback || !searchData.isValidating)
+  if (!dataReady || (homeData.error && homeData.errorMessage == 'PENDING')) {
+    console.log('showing pending')
     return (
       <VStack
         distribution="center"
@@ -648,6 +651,13 @@ const TopPicksHomeSection = (props: HomeSectionProps): JSX.Element => {
 }
 
 const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
+  const { state } = useNavigation()
+  const items = useMemo(() => {
+    return (
+      state.home?.find((section) => section.layout == 'quick_links')?.items ??
+      []
+    )
+  }, [props, state.home])
   return (
     <VStack
       distribution="start"
@@ -677,7 +687,7 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
       </SpanBox>
 
       <Pagination
-        items={props.homeSection.items}
+        items={items}
         itemsPerPage={8}
         render={(homeItem) => (
           <QuickLinkHomeItemView key={homeItem.id} homeItem={homeItem} />
