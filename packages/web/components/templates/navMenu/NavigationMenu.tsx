@@ -94,14 +94,14 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
             visibility: props.showMenu && !dismissed ? 'visible' : 'hidden',
             boxShadow:
               props.showMenu && !dismissed
-                ? 'rgb(48, 54, 61) 0px 0px 0px 1px, rgba(1, 4, 9, 0.4) 0px 6px 12px -3px, rgba(1, 4, 9, 0.4) 0px 6px 18px 0px'
+                ? `0px 4px 4px 0px rgba(0, 0, 0, 0.15)`
                 : 'unset',
           },
           zIndex: 5,
         }}
         onClick={(event) => {
           // on small screens we want to dismiss the menu after click
-          if (window.innerWidth < 400) {
+          if (window.innerWidth <= 768) {
             setDismissed(true)
             setTimeout(() => {
               props.setShowMenu(false)
