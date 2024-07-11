@@ -161,7 +161,7 @@ export const updateHighlight = async (
     })
   })
 
-  const libraryItemId = updatedHighlight.libraryItem.id
+  const libraryItemId = updatedHighlight.libraryItemId
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.HIGHLIGHT,
     {
