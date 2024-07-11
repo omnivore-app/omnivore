@@ -1,8 +1,10 @@
+import cors from 'cors'
 import express from 'express'
 import { body, matchedData, validationResult } from 'express-validator'
 import { userRepository } from '../repository/user'
 import { findLibraryItemById } from '../services/library_item'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
+import { corsConfig } from '../utils/corsConfig'
 import { enqueueProcessYouTubeVideo } from '../utils/createTask'
 import { logger } from '../utils/logger'
 import { isYouTubeVideoURL } from '../utils/youtube'
@@ -16,6 +18,7 @@ export function youtubeTranscriptRouter() {
 
   router.put(
     '/',
+    cors<express.Request>(corsConfig),
     body('libraryItemId').isString().notEmpty(),
     async (req: express.Request, res) => {
       const errors = validationResult(req)

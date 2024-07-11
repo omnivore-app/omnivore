@@ -65,7 +65,6 @@ export const createApp = (): Express => {
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
-  app.use(cors(corsConfig))
 
   // set to true if behind a reverse proxy/load balancer
   app.set('trust proxy', env.server.trustProxy)
@@ -109,6 +108,7 @@ export const createApp = (): Express => {
   app.use('/api/tasks', taskRouter())
   app.use('/api/digest', digestRouter())
   app.use('/api/content', contentRouter())
+  app.use('/api/youtube-transcript', youtubeTranscriptRouter())
 
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())
@@ -120,7 +120,6 @@ export const createApp = (): Express => {
   app.use('/svc/pubsub/user', userServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
   app.use('/svc/following', followingServiceRouter())
-  app.use('/api/youtube-transcript', youtubeTranscriptRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())
