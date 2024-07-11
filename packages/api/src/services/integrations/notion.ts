@@ -277,7 +277,9 @@ export class NotionClient implements IntegrationClient {
                     },
                     annotations: {
                       code: true,
-                      color: highlight.color as AnnotationColor,
+                      color: highlight.color
+                        ? (highlight.color as AnnotationColor)
+                        : 'yellow',
                     },
                   },
                 ],
