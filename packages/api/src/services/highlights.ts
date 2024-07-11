@@ -72,10 +72,6 @@ export const createHighlight = async (
       const newHighlight = await repo.createAndSave(highlight)
       return repo.findOneOrFail({
         where: { id: newHighlight.id },
-        relations: {
-          user: true,
-          libraryItem: true,
-        },
       })
     },
     {
@@ -89,11 +85,7 @@ export const createHighlight = async (
     {
       id: libraryItemId,
       highlights: [data],
-      // for Readwise
-      originalUrl: newHighlight.libraryItem.originalUrl,
-      title: newHighlight.libraryItem.title,
-      author: newHighlight.libraryItem.author,
-      thumbnail: newHighlight.libraryItem.thumbnail,
+      updatedAt: new Date(),
     },
     userId
   )
@@ -133,10 +125,6 @@ export const mergeHighlights = async (
 
     return highlightRepo.findOneOrFail({
       where: { id: newHighlight.id },
-      relations: {
-        user: true,
-        libraryItem: true,
-      },
     })
   })
 
@@ -144,11 +132,8 @@ export const mergeHighlights = async (
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      originalUrl: newHighlight.libraryItem.originalUrl,
-      title: newHighlight.libraryItem.title,
-      author: newHighlight.libraryItem.author,
-      thumbnail: newHighlight.libraryItem.thumbnail,
       highlights: [newHighlight],
+      updatedAt: new Date(),
     },
     userId
   )
@@ -173,22 +158,14 @@ export const updateHighlight = async (
 
     return highlightRepo.findOneOrFail({
       where: { id: highlightId },
-      relations: {
-        libraryItem: true,
-        user: true,
-      },
     })
   })
 
-  const libraryItemId = updatedHighlight.libraryItem.id
+  const libraryItemId = updatedHighlight.libraryItemId
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      originalUrl: updatedHighlight.libraryItem.originalUrl,
-      title: updatedHighlight.libraryItem.title,
-      author: updatedHighlight.libraryItem.author,
-      thumbnail: updatedHighlight.libraryItem.thumbnail,
       highlights: [
         {
           ...highlight,
@@ -219,9 +196,6 @@ export const deleteHighlightById = async (
       const highlightRepo = tx.withRepository(highlightRepository)
       const highlight = await highlightRepo.findOneOrFail({
         where: { id: highlightId },
-        relations: {
-          user: true,
-        },
       })
 
       await highlightRepo.delete(highlightId)
@@ -234,7 +208,7 @@ export const deleteHighlightById = async (
 
   await enqueueUpdateHighlight({
     libraryItemId: deletedHighlight.libraryItemId,
-    userId: deletedHighlight.user.id,
+    userId: deletedHighlight.userId,
   })
 
   return deletedHighlight

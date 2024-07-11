@@ -7,7 +7,7 @@ import { env } from '../../env'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
-import { getItemUrl, ItemEvent } from '../library_item'
+import { findLibraryItemsByIds, getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -277,7 +277,9 @@ export class NotionClient implements IntegrationClient {
                     },
                     annotations: {
                       code: true,
-                      color: highlight.color as AnnotationColor,
+                      color: highlight.color
+                        ? (highlight.color as AnnotationColor)
+                        : 'yellow',
                     },
                   },
                 ],
@@ -335,6 +337,41 @@ export class NotionClient implements IntegrationClient {
     if (!databaseId) {
       logger.error('Notion database id not found')
       return false
+    }
+
+    const userId = this.integrationData.userId
+
+    // fetch the original url if not found
+    if (!items[0].originalUrl) {
+      const libraryItems = await findLibraryItemsByIds(
+        items.map((item) => item.id),
+        userId,
+        {
+          select: [
+            'id',
+            'originalUrl',
+            'title',
+            'author',
+            'thumbnail',
+            'siteIcon',
+            'savedAt',
+          ],
+        }
+      )
+
+      items.forEach((item) => {
+        const libraryItem = libraryItems.find((li) => li.id === item.id)
+        if (!libraryItem) {
+          return
+        }
+
+        item.originalUrl = libraryItem.originalUrl
+        item.title = libraryItem.title
+        item.author = libraryItem.author
+        item.thumbnail = libraryItem.thumbnail
+        item.siteIcon = libraryItem.siteIcon
+        item.savedAt = libraryItem.savedAt
+      })
     }
 
     await Promise.all(

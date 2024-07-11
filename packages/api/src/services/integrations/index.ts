@@ -13,7 +13,7 @@ export const getIntegrationClient = (
 ): IntegrationClient => {
   switch (name.toLowerCase()) {
     case 'readwise':
-      return new ReadwiseClient(token)
+      return new ReadwiseClient(token, integrationData)
     case 'pocket':
       return new PocketClient(token)
     case 'notion':
