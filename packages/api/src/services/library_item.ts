@@ -794,6 +794,7 @@ export const findLibraryItemsByIds = async (
   userId?: string,
   options?: {
     select?: (keyof LibraryItem)[]
+    relations?: Array<'labels' | 'highlights'>
   }
 ) => {
   const selectColumns =
@@ -802,12 +803,20 @@ export const findLibraryItemsByIds = async (
       .filter((column) => column !== 'originalContent')
       .map((column) => `library_item.${column}`)
   return authTrx(
-    async (tx) =>
-      tx
+    async (tx) => {
+      const qb = tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
         .where('library_item.id IN (:...ids)', { ids })
-        .getMany(),
+
+      if (options?.relations) {
+        options.relations.forEach((relation) => {
+          qb.leftJoinAndSelect(`library_item.${relation}`, relation)
+        })
+      }
+
+      return qb.getMany()
+    },
     {
       uid: userId,
       replicationMode: 'replica',

@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { HighlightType } from '../../entity/highlight'
+import { Integration } from '../../entity/integration'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
-import { getItemUrl, ItemEvent } from '../library_item'
+import { findLibraryItemsByIds, getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 interface ReadwiseHighlight {
@@ -43,9 +44,11 @@ export class ReadwiseClient implements IntegrationClient {
     baseURL: 'https://readwise.io/api/v2',
     timeout: 5000, // 5 seconds
   })
+  private integrationData?: Integration
 
-  constructor(token: string) {
+  constructor(token: string, integration?: Integration) {
     this.token = token
+    this.integrationData = integration
   }
 
   accessToken = async (): Promise<string | null> => {
@@ -68,10 +71,42 @@ export class ReadwiseClient implements IntegrationClient {
   }
 
   export = async (items: ItemEvent[]): Promise<boolean> => {
-    let result = true
+    if (!this.integrationData) {
+      logger.error('Integration data is missing')
+      return false
+    }
+
+    if (
+      items.every((item) => !item.highlights || item.highlights.length === 0)
+    ) {
+      return false
+    }
+
+    const userId = this.integrationData.userId
+    const libraryItems = await findLibraryItemsByIds(
+      items.map((item) => item.id),
+      userId,
+      {
+        select: ['id', 'title', 'author', 'thumbnail', 'siteName'],
+      }
+    )
+    console.log(libraryItems)
+
+    items.forEach((item) => {
+      const libraryItem = libraryItems.find((li) => li.id === item.id)
+      if (!libraryItem) {
+        return
+      }
+
+      item.title = libraryItem.title
+      item.author = libraryItem.author
+      item.thumbnail = libraryItem.thumbnail
+      item.siteName = libraryItem.siteName
+    })
 
     const highlights = items.flatMap(this._itemToReadwiseHighlight)
 
+    let result = true
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
       result = await this._syncWithReadwise(highlights)
