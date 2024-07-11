@@ -496,7 +496,7 @@ export const blackTheme = createTheme(ThemeId.Black, {
 export const globalStyles = globalCss({
   body: {
     colorScheme: 'var(--colorScheme-colorScheme)',
-    backgroundColor: '$thBackground',
+    backgroundColor: '$readerBg',
   },
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {
