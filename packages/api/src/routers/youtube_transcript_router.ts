@@ -1,9 +1,11 @@
 import express from 'express'
 import { body, matchedData, validationResult } from 'express-validator'
 import { userRepository } from '../repository/user'
+import { findLibraryItemById } from '../services/library_item'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { enqueueProcessYouTubeVideo } from '../utils/createTask'
 import { logger } from '../utils/logger'
+import { isYouTubeVideoURL } from '../utils/youtube'
 
 interface RequestData {
   libraryItemId: string
@@ -44,6 +46,17 @@ export function youtubeTranscriptRouter() {
       }
 
       const { libraryItemId } = matchedData<RequestData>(req)
+      const libraryItem = await findLibraryItemById(libraryItemId, uid, {
+        select: ['originalUrl'],
+      })
+      if (!libraryItem) {
+        return res.status(404).send({ errorCodes: ['LIBRARY_ITEM_NOT_FOUND'] })
+      }
+
+      if (!isYouTubeVideoURL(libraryItem.originalUrl)) {
+        return res.status(400).send({ errorCodes: ['NOT_YOUTUBE_VIDEO'] })
+      }
+
       try {
         await enqueueProcessYouTubeVideo({ libraryItemId, userId: uid })
       } catch (error) {
