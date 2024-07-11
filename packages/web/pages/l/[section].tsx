@@ -19,9 +19,9 @@ export default function Home(): JSX.Element {
     usePersistedState<boolean>({
       key: 'nav-show-menu',
       isSessionStorage: false,
-      initialValue: true,
+      initialValue: false,
       defaultEvaluator: () => {
-        return !isTouchScreenDevice()
+        return window.innerWidth > 1000
       },
     })
 
