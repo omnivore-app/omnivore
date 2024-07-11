@@ -143,6 +143,26 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
               },
             }}
           ></SpanBox>
+          <SpanBox
+            css={{
+              display: 'none',
+              position: 'fixed',
+              zIndex: '2',
+              backgroundColor: 'var(--colors-overlay)',
+              '@mdDown': {
+                display: 'flex',
+                top: '0px',
+                left: LIBRARY_LEFT_MENU_WIDTH,
+                width: '100vw',
+                height: '100vh',
+                pointerEvents: 'auto',
+              },
+            }}
+            onClick={(event) => {
+              props.setShowNavigationMenu(false)
+              event.stopPropagation()
+            }}
+          ></SpanBox>
         </>
       )}
       {props.children}

@@ -9,6 +9,7 @@ import { LibraryContainer } from '../../components/templates/library/LibraryCont
 import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { isTouchScreenDevice } from '../../lib/deviceType'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
@@ -18,7 +19,10 @@ export default function Home(): JSX.Element {
     usePersistedState<boolean>({
       key: 'nav-show-menu',
       isSessionStorage: false,
-      initialValue: true,
+      initialValue: false,
+      defaultEvaluator: () => {
+        return window.innerWidth > 1000
+      },
     })
 
   const section: NavigationSection | undefined = useMemo(() => {
