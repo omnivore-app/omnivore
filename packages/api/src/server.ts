@@ -6,6 +6,7 @@ import * as lw from '@google-cloud/logging-winston'
 import * as Sentry from '@sentry/node'
 import { json, urlencoded } from 'body-parser'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import promBundle from 'express-prom-bundle'
@@ -27,6 +28,7 @@ import { integrationRouter } from './routers/integration_router'
 import { localDebugRouter } from './routers/local_debug_router'
 import { notificationRouter } from './routers/notification_router'
 import { pageRouter } from './routers/page_router'
+import { shortcutsRouter } from './routers/shortcuts_router'
 import { contentServiceRouter } from './routers/svc/content'
 import { emailsServiceRouter } from './routers/svc/emails'
 import { emailAttachmentRouter } from './routers/svc/email_attachment'
@@ -41,13 +43,13 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { taskRouter } from './routers/task_router'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
+import { youtubeTranscriptRouter } from './routers/youtube_transcript_router'
 import { sentryConfig } from './sentry'
 import { analytics } from './utils/analytics'
 import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiLimiter, authLimiter } from './utils/rate_limit'
-import { shortcutsRouter } from './routers/shortcuts_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -63,6 +65,7 @@ export const createApp = (): Express => {
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
+  app.use(cors(corsConfig))
 
   // set to true if behind a reverse proxy/load balancer
   app.set('trust proxy', env.server.trustProxy)
@@ -115,9 +118,9 @@ export const createApp = (): Express => {
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
   app.use('/svc/pubsub/rss-feed', rssFeedRouter())
   app.use('/svc/pubsub/user', userServiceRouter())
-  // app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
   app.use('/svc/following', followingServiceRouter())
+  app.use('/api/youtube-transcript', youtubeTranscriptRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())
