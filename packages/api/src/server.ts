@@ -6,7 +6,6 @@ import * as lw from '@google-cloud/logging-winston'
 import * as Sentry from '@sentry/node'
 import { json, urlencoded } from 'body-parser'
 import cookieParser from 'cookie-parser'
-import cors from 'cors'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import promBundle from 'express-prom-bundle'
@@ -43,7 +42,6 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { taskRouter } from './routers/task_router'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
-import { youtubeTranscriptRouter } from './routers/youtube_transcript_router'
 import { sentryConfig } from './sentry'
 import { analytics } from './utils/analytics'
 import { corsConfig } from './utils/corsConfig'
@@ -108,7 +106,6 @@ export const createApp = (): Express => {
   app.use('/api/tasks', taskRouter())
   app.use('/api/digest', digestRouter())
   app.use('/api/content', contentRouter())
-  app.use('/api/youtube-transcript', youtubeTranscriptRouter())
 
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())

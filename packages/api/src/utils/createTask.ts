@@ -65,7 +65,11 @@ import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
-import { getBackendQueue, JOB_VERSION } from '../queue-processor'
+import {
+  getBackendQueue,
+  getFlowProducer,
+  JOB_VERSION,
+} from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { writeDigest } from '../services/digest'
 import { signFeatureToken } from '../services/features'
@@ -765,17 +769,36 @@ export const enqueueProcessYouTubeVideo = async (
 }
 
 export const enqueueProcessYouTubeTranscript = async (
-  data: ProcessYouTubeTranscriptJobData
+  data: ProcessYouTubeVideoJobData
 ) => {
   const queue = await getBackendQueue()
   if (!queue) {
     return undefined
   }
 
-  return queue.add(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME, data, {
-    priority: getJobPriority(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME),
-    attempts: 3,
-    delay: 2000,
+  const flowProducer = await getFlowProducer()
+
+  return flowProducer.add({
+    name: PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
+    queueName: queue.name,
+    data,
+    opts: {
+      priority: getJobPriority(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME),
+      attempts: 3,
+      delay: 2000,
+    },
+    children: [
+      {
+        name: PROCESS_YOUTUBE_VIDEO_JOB_NAME,
+        data,
+        queueName: queue.name,
+        opts: {
+          priority: getJobPriority(PROCESS_YOUTUBE_VIDEO_JOB_NAME),
+          attempts: 3,
+          delay: 2000,
+        },
+      },
+    ],
   })
 }
 

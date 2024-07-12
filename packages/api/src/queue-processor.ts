@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   ConnectionOptions,
+  FlowProducer,
   Job,
   JobState,
   JobType,
@@ -51,6 +52,7 @@ import {
 import {
   processYouTubeTranscript,
   processYouTubeVideo,
+  ProcessYouTubeVideoJobValue,
   PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
 } from './jobs/process-youtube-video'
@@ -118,6 +120,16 @@ export const getBackendQueue = async (
   })
   await backendQueue.waitUntilReady()
   return backendQueue
+}
+
+export const getFlowProducer = async (): Promise<FlowProducer> => {
+  if (!redisDataSource.workerRedisClient) {
+    throw new Error('Can not create queues, redis is not initialized')
+  }
+
+  return new FlowProducer({
+    connection: redisDataSource.workerRedisClient,
+  })
 }
 
 export const createJobId = (jobName: string, userId: string) =>
@@ -193,8 +205,21 @@ export const createWorker = (connection: ConnectionOptions) =>
             return aiSummarize(job.data)
           case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
             return processYouTubeVideo(job.data)
-          case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-            return processYouTubeTranscript(job.data)
+          case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME: {
+            const childrenValues = await job.getChildrenValues()
+
+            const videoJobValue = Object.values(childrenValues)[0] as
+              | ProcessYouTubeVideoJobValue
+              | undefined
+            if (!videoJobValue || !videoJobValue.getTranscript) {
+              return false
+            }
+
+            return processYouTubeTranscript({
+              videoId: videoJobValue.videoId,
+              ...job.data,
+            })
+          }
           case EXPORT_ALL_ITEMS_JOB_NAME:
             return exportAllItems(job.data)
           case SEND_EMAIL_JOB:
@@ -226,9 +251,9 @@ export const createWorker = (connection: ConnectionOptions) =>
         }
       }
 
-      const end = jobLatency.startTimer({ job_name: job.name })
-      await executeJob(job)
-      end()
+      // const end = jobLatency.startTimer({ job_name: job.name })
+      return executeJob(job)
+      // end()
     },
     {
       connection,

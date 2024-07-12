@@ -9,7 +9,6 @@ import {
   updateLibraryItem,
 } from '../services/library_item'
 import { OPENAI_MODEL } from '../utils/ai'
-import { enqueueProcessYouTubeTranscript } from '../utils/createTask'
 import { stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
@@ -19,6 +18,11 @@ import {
   uploadToBucket,
 } from '../utils/uploads'
 import { videoIdFromYouTubeUrl } from '../utils/youtube'
+
+export interface ProcessYouTubeVideoJobValue {
+  getTranscript: boolean
+  videoId: string
+}
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -281,6 +285,7 @@ export const processYouTubeVideo = async (
     updatedLibraryItem.publishedAt = new Date(video.uploadDate)
   }
 
+  let getTranscript = false
   if ('getTranscript' in video && duration > 0 && duration < 1801) {
     // If the video has a transcript available, put a placehold in and
     // enqueue a job to process the full transcript
@@ -294,10 +299,7 @@ export const processYouTubeVideo = async (
       updatedLibraryItem.readableContent = updatedContent
     }
 
-    await enqueueProcessYouTubeTranscript({
-      videoId,
-      ...jobData,
-    })
+    getTranscript = true
   }
 
   if (updatedLibraryItem !== {}) {
@@ -306,6 +308,11 @@ export const processYouTubeVideo = async (
       updatedLibraryItem,
       jobData.userId
     )
+  }
+
+  return {
+    getTranscript,
+    videoId,
   }
 }
 
