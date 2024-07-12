@@ -82,7 +82,7 @@ import { getMetrics, registerMetric } from './prometheus'
 import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
-import { logger } from './utils/logger'
+import { logError, logger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -166,7 +166,7 @@ export const createWorker = (connection: ConnectionOptions) =>
   new Worker(
     QUEUE_NAME,
     async (job: Job) => {
-      const executeJob = async (job: Job) => {
+      const executeJob = async (job: Job): Promise<unknown> => {
         switch (job.name) {
           case 'refresh-all-feeds': {
             const queue = await getBackendQueue()
@@ -251,9 +251,17 @@ export const createWorker = (connection: ConnectionOptions) =>
         }
       }
 
-      // const end = jobLatency.startTimer({ job_name: job.name })
-      return executeJob(job)
-      // end()
+      const end = jobLatency.startTimer({ job_name: job.name })
+
+      try {
+        return await executeJob(job)
+      } catch (error) {
+        logError(error)
+
+        throw error
+      } finally {
+        end()
+      }
     },
     {
       connection,
