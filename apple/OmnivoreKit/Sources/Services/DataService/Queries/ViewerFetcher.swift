@@ -82,13 +82,15 @@ public struct ViewerInternal {
 
       do {
         try context.save()
-        EventTracker.registerUser(userID: userID)
         logger.debug("Viewer saved succesfully")
       } catch {
         context.rollback()
         logger.debug("Failed to save Viewer: \(error.localizedDescription)")
         throw error
       }
+    }
+    DispatchQueue.main.async {
+      EventTracker.registerUser(userID: userID)
     }
   }
 }
