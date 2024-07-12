@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/intercom/intercom-ios",
       "state" : {
-        "revision" : "3345d9e7599141d7c844981423a7e5409f2bfb81",
-        "version" : "11.1.2"
+        "revision" : "ad789a51b350dffe804dbf083430e0d6e91ac4af",
+        "version" : "17.1.2"
       }
     },
     {

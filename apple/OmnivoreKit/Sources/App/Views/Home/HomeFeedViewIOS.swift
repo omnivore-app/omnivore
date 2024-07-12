@@ -820,8 +820,9 @@ struct AnimatingCellHeight: AnimatableModifier {
             .onAppear {
                 self.isAnimating = true
             }
+            .frame(height: 2)
         }
-        .background(Color.white)
+        .background(.clear)
         .edgesIgnoringSafeArea(.all)
     }
 

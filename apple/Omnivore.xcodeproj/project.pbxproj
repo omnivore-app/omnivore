@@ -2043,7 +2043,7 @@
 			repositoryURL = "https://github.com/intercom/intercom-ios";
 			requirement = {
 				kind = exactVersion;
-				version = 11.1.2;
+				version = 17.1.2;
 			};
 		};
 		048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
