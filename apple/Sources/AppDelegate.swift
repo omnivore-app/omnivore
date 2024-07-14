@@ -47,9 +47,11 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
         Intercom.setApiKey(intercomKeys.apiKey, forAppId: intercomKeys.appID)
 
         if let userId = UserDefaults.standard.string(forKey: Keys.userIdKey) {
-          Intercom.registerUser(withUserId: userId)
+          let userAttributes = ICMUserAttributes()
+          userAttributes.userId = userId
+          Intercom.loginUser(with: userAttributes)
         } else {
-          Intercom.registerUnidentifiedUser()
+          Intercom.loginUnidentifiedUser()
         }
       }
 

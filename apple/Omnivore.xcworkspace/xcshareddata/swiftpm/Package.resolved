@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Engine",
       "state" : {
-        "revision" : "0d2d5647921473be4aac40cb70ad13900f56ed2b",
-        "version" : "1.8.1"
+        "revision" : "391d0da0282f51327b5d2c0e5de64f75e59cbae7",
+        "version" : "1.8.3"
       }
     },
     {
@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/intercom/intercom-ios",
       "state" : {
-        "revision" : "3345d9e7599141d7c844981423a7e5409f2bfb81",
-        "version" : "11.1.2"
+        "revision" : "ad789a51b350dffe804dbf083430e0d6e91ac4af",
+        "version" : "17.1.2"
       }
     },
     {
@@ -239,8 +239,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Transmission",
       "state" : {
-        "revision" : "6b3e6b46f34d0d18715d27c46e0053f1eda1bcd1",
-        "version" : "1.3.1"
+        "revision" : "9cbf1f6fec330e25c615182f3de483b129576819",
+        "version" : "1.3.2"
       }
     },
     {

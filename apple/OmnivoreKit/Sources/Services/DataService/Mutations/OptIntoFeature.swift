@@ -50,6 +50,7 @@ public extension DataService {
         case let .error(errorCode: errorCode):
           if errorCode == .ineligible {
             continuation.resume(throwing: IneligibleError.message(messageText: "You are not eligible for this feature."))
+            return
           }
           continuation.resume(throwing: BasicError.message(messageText: errorCode.rawValue))
         }
