@@ -1641,6 +1641,9 @@ export const filterItemEvents = (
           return event[key]?.toLowerCase().includes(lowercasedValue)
         })
       }
+      case 'url': {
+        return event.originalUrl?.toLowerCase() === lowercasedValue
+      }
       case 'includes': {
         const ids = lowercasedValue.split(',')
         if (!ids || ids.length === 0) {
