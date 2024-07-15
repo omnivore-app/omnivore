@@ -12,7 +12,7 @@ interface UserConfig {
   folder?: string
 }
 
-interface RequestBody {
+export interface JobData {
   url: string
   userId?: string
   saveRequestId: string
@@ -175,36 +175,37 @@ const incrementContentFetchFailure = async (
   }
 }
 
-export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
+export const processFetchContentJob = async (
+  redisDataSource: RedisDataSource,
+  data: JobData
+) => {
   const functionStartTime = Date.now()
 
-  const body = <RequestBody>req.body
-
   // users is used when saving article for multiple users
-  let users = body.users || []
-  const userId = body.userId
+  let users = data.users || []
+  const userId = data.userId
   // userId is used when saving article for a single user
   if (userId) {
     users = [
       {
         id: userId,
-        folder: body.folder,
-        libraryItemId: body.saveRequestId,
+        folder: data.folder,
+        libraryItemId: data.saveRequestId,
       },
     ]
   }
-  const articleSavingRequestId = body.saveRequestId
-  const state = body.state
-  const labels = body.labels
-  const source = body.source || 'puppeteer-parse'
-  const taskId = body.taskId // taskId is used to update import status
-  const url = body.url
-  const locale = body.locale
-  const timezone = body.timezone
-  const rssFeedUrl = body.rssFeedUrl
-  const savedAt = body.savedAt
-  const publishedAt = body.publishedAt
-  const priority = body.priority
+  const articleSavingRequestId = data.saveRequestId
+  const state = data.state
+  const labels = data.labels
+  const source = data.source || 'puppeteer-parse'
+  const taskId = data.taskId // taskId is used to update import status
+  const url = data.url
+  const locale = data.locale
+  const timezone = data.timezone
+  const rssFeedUrl = data.rssFeedUrl
+  const savedAt = data.savedAt
+  const publishedAt = data.publishedAt
+  const priority = data.priority
 
   const logRecord: LogRecord = {
     url,
@@ -225,25 +226,13 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
 
   console.log(`Article parsing request`, logRecord)
 
-  // create redis source
-  const redisDataSource = new RedisDataSource({
-    cache: {
-      url: process.env.REDIS_URL,
-      cert: process.env.REDIS_CERT,
-    },
-    mq: {
-      url: process.env.MQ_REDIS_URL,
-      cert: process.env.MQ_REDIS_CERT,
-    },
-  })
-
   try {
     const domain = new URL(url).hostname
     const isBlocked = await isDomainBlocked(redisDataSource, domain)
     if (isBlocked) {
       console.log('domain is blocked', domain)
 
-      return res.sendStatus(200)
+      return
     }
 
     const key = cacheKey(url, locale, timezone)
@@ -312,7 +301,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       logRecord.error = 'unknown error'
     }
 
-    return res.sendStatus(500)
+    throw error
   } finally {
     logRecord.totalTime = Date.now() - functionStartTime
     console.log(`parse-page result`, logRecord)
@@ -330,7 +319,29 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         },
       }
     )
+  }
+}
 
+export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
+  const data = <JobData>req.body
+
+  // create redis source
+  const redisDataSource = new RedisDataSource({
+    cache: {
+      url: process.env.REDIS_URL,
+      cert: process.env.REDIS_CERT,
+    },
+    mq: {
+      url: process.env.MQ_REDIS_URL,
+      cert: process.env.MQ_REDIS_CERT,
+    },
+  })
+
+  try {
+    await processFetchContentJob(redisDataSource, data)
+  } catch (error) {
+    return res.sendStatus(500)
+  } finally {
     await redisDataSource.shutdown()
   }
 
