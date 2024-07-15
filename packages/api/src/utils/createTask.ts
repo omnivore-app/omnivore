@@ -65,7 +65,11 @@ import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
-import { getBackendQueue, JOB_VERSION } from '../queue-processor'
+import {
+  CONTENT_FETCH_QUEUE_NAME,
+  getQueue,
+  JOB_VERSION,
+} from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { writeDigest } from '../services/digest'
 import { signFeatureToken } from '../services/features'
@@ -77,6 +81,8 @@ import View = google.cloud.tasks.v2.Task.View
 
 // Instantiates a client.
 const client = new CloudTasksClient()
+
+const FETCH_CONTENT_JOB = 'fetch-content'
 
 /**
  * we want to prioritized jobs by the expected time to complete
@@ -94,11 +100,13 @@ export const getJobPriority = (jobName: string): number => {
     case SYNC_READ_POSITIONS_JOB_NAME:
     case SEND_EMAIL_JOB:
     case UPDATE_HOME_JOB:
+    case `${FETCH_CONTENT_JOB}_high`:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
     case AI_SUMMARIZE_JOB_NAME:
     case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
+    case `${FETCH_CONTENT_JOB}_low`:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
@@ -320,6 +328,24 @@ export const deleteTask = async (
   }
 }
 
+export interface fetchContentJobData {
+  url: string
+  users: Array<{
+    id: string
+    folder?: string
+    libraryItemId: string
+  }>
+  priority?: 'low' | 'high'
+  state?: ArticleSavingRequestStatus
+  labels?: Array<CreateLabelInput>
+  locale?: string
+  timezone?: string
+  savedAt?: string
+  publishedAt?: string
+  folder?: string
+  rssFeedUrl?: string
+}
+
 /**
  * Enqueues the task for the article content parsing with Puppeteer by URL
  * @param url - URL address of the article to parse
@@ -329,88 +355,27 @@ export const deleteTask = async (
  * @param queue - Queue name
  * @returns Name of the task created
  */
-export const enqueueParseRequest = async ({
-  url,
-  userId,
-  saveRequestId,
-  priority = 'high',
-  queue = env.queue.name,
-  state,
-  labels,
-  locale,
-  timezone,
-  savedAt,
-  publishedAt,
-  folder,
-  rssFeedUrl,
-}: {
-  url: string
-  userId: string
-  saveRequestId: string
-  priority?: 'low' | 'high'
-  queue?: string
-  state?: ArticleSavingRequestStatus
-  labels?: CreateLabelInput[]
-  locale?: string
-  timezone?: string
-  savedAt?: Date
-  publishedAt?: Date
-  folder?: string
-  rssFeedUrl?: string
-}): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
-  const payload = {
-    url,
-    userId,
-    saveRequestId,
-    state,
-    labels,
-    locale,
-    timezone,
-    savedAt,
-    publishedAt,
-    folder,
-    rssFeedUrl,
-    priority,
+export const enqueueFetchContentJob = async (
+  data: fetchContentJobData
+): Promise<string> => {
+  const priority = data.priority || 'high'
+
+  const queue = await getQueue(CONTENT_FETCH_QUEUE_NAME)
+  if (!queue) {
+    throw new Error('No queue found')
   }
 
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.contentFetchUrl) {
-      // Calling the handler function directly.
-      setTimeout(() => {
-        axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
-          logError(error)
-          logger.error(
-            `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
-          )
-        })
-      }, 0)
-    }
-    return ''
-  }
-
-  // use GCF url for low priority tasks
-  const taskHandlerUrl =
-    priority === 'low'
-      ? env.queue.contentFetchGCFUrl
-      : env.queue.contentFetchUrl
-
-  const createdTasks = await createHttpTaskWithToken({
-    project: GOOGLE_CLOUD_PROJECT,
-    payload,
-    priority,
-    taskHandlerUrl,
-    queue,
+  const job = await queue.add(FETCH_CONTENT_JOB, data, {
+    priority: getJobPriority(`${FETCH_CONTENT_JOB}_${priority}`),
+    attempts: priority === 'high' ? 5 : 2,
   })
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
-    })
-    throw new CreateTaskError(`Unable to get the name of the task`)
+
+  if (!job || !job.id) {
+    logger.error('Error while enqueuing fetch-content job', data)
+    throw new Error('Error while enqueuing fetch-content job')
   }
-  return createdTasks[0].name
+
+  return job.id
 }
 
 export const enqueueReminder = async (
@@ -629,7 +594,7 @@ export const enqueueExportToIntegration = async (
   integrationId: string,
   userId: string
 ) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -647,7 +612,7 @@ export const enqueueThumbnailJob = async (
   userId: string,
   libraryItemId: string
 ) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -714,7 +679,7 @@ export const enqueueRssFeedFetch = async (
 }
 
 export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -726,7 +691,7 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
 }
 
 export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -738,7 +703,7 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
 }
 
 export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -752,7 +717,7 @@ export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
 export const enqueueProcessYouTubeVideo = async (
   data: ProcessYouTubeVideoJobData
 ) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -767,7 +732,7 @@ export const enqueueProcessYouTubeVideo = async (
 export const enqueueProcessYouTubeTranscript = async (
   data: ProcessYouTubeTranscriptJobData
 ) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -780,7 +745,7 @@ export const enqueueProcessYouTubeTranscript = async (
 }
 
 export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return []
   }
@@ -806,7 +771,7 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
 }
 
 export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -825,7 +790,7 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
 }
 
 export const enqueueBulkAction = async (data: BulkActionData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -846,7 +811,7 @@ export const enqueueBulkAction = async (data: BulkActionData) => {
 }
 
 export const enqueueExportItem = async (jobData: ExportItemJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -862,7 +827,7 @@ export const enqueueExportItem = async (jobData: ExportItemJobData) => {
 }
 
 export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -881,7 +846,7 @@ export const scheduledDigestJobOptions = (
 })
 
 export const removeDigestJobs = async (userId: string) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     throw new Error('No queue found')
   }
@@ -911,7 +876,7 @@ export const enqueueCreateDigest = async (
   data: CreateDigestData,
   schedule?: CreateDigestJobSchedule
 ): Promise<CreateDigestJobResponse> => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     throw new Error('No queue found')
   }
@@ -974,7 +939,7 @@ export const enqueueCreateDigest = async (
 export const enqueueBulkUploadContentJob = async (
   data: UploadContentJobData[]
 ) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return ''
   }
@@ -998,7 +963,7 @@ export const updateHomeJobId = (userId: string) =>
   `${UPDATE_HOME_JOB}_${userId}_${JOB_VERSION}`
 
 export const enqueueUpdateHomeJob = async (data: UpdateHomeJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -1016,7 +981,7 @@ export const updateScoreJobId = (userId: string) =>
   `${SCORE_LIBRARY_ITEM_JOB}_${userId}_${JOB_VERSION}`
 
 export const enqueueScoreJob = async (data: ScoreLibraryItemJobData) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -1034,7 +999,7 @@ export const enqueueGeneratePreviewContentJob = async (
   libraryItemId: string,
   userId: string
 ) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -1056,7 +1021,7 @@ export const enqueueGeneratePreviewContentJob = async (
 }
 
 export const enqueuePruneTrashJob = async (numDays: number) => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
@@ -1075,7 +1040,7 @@ export const enqueuePruneTrashJob = async (numDays: number) => {
 }
 
 export const enqueueExpireFoldersJob = async () => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }
