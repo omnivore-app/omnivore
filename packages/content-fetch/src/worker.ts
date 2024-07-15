@@ -38,7 +38,10 @@ const createWorker = (redisDataSource: RedisDataSource) => {
     {
       connection: redisDataSource.queueRedisClient,
       autorun: true, // start processing jobs immediately
-      lockDuration: 60_000, // 1 minute
+      limiter: {
+        max: 50,
+        duration: 1000, // 1 second
+      },
     }
   )
 }

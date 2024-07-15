@@ -4,7 +4,6 @@ import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { v4 as uuid } from 'uuid'
 import { FetchContentType } from '../../entity/subscription'
-import { env } from '../../env'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
 import { redisDataSource } from '../../redis_data_source'
 import { validateUrl } from '../../services/create_page_save_request'
@@ -14,7 +13,7 @@ import {
   updateSubscriptions,
 } from '../../services/update_subscription'
 import { findActiveUser } from '../../services/user'
-import createHttpTaskWithToken from '../../utils/createTask'
+import { enqueueFetchContentJob } from '../../utils/createTask'
 import { cleanUrl } from '../../utils/helpers'
 import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
@@ -332,7 +331,7 @@ const fetchContentAndCreateItem = async (
   feedUrl: string,
   item: RssFeedItem
 ) => {
-  const payload = {
+  const data = {
     users,
     source: 'rss-feeder',
     url: item.link.trim(),
@@ -343,11 +342,7 @@ const fetchContentAndCreateItem = async (
   }
 
   try {
-    const task = await createHttpTaskWithToken({
-      queue: 'omnivore-rss-feed-queue',
-      taskHandlerUrl: env.queue.contentFetchGCFUrl,
-      payload,
-    })
+    const task = await enqueueFetchContentJob(data)
     return !!task
   } catch (error) {
     logger.error('Error while creating task', error)

@@ -9,7 +9,7 @@ import {
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import { enqueueParseRequest } from '../utils/createTask'
+import { enqueueFetchContentJob } from '../utils/createTask'
 import { cleanUrl, generateSlug } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { createOrUpdateLibraryItem } from './library_item'
@@ -160,18 +160,22 @@ export const createPageSaveRequest = async ({
   logger.debug('priority', { priority })
 
   // enqueue task to parse item
-  await enqueueParseRequest({
+  await enqueueFetchContentJob({
     url,
-    userId,
-    saveRequestId: libraryItem.id,
+    users: [
+      {
+        folder,
+        id: userId,
+        libraryItemId: libraryItem.id,
+      },
+    ],
     priority,
     state,
     labels,
     locale,
     timezone,
-    savedAt,
-    publishedAt,
-    folder,
+    savedAt: savedAt?.toISOString(),
+    publishedAt: publishedAt?.toISOString(),
     rssFeedUrl: subscription,
   })
 
