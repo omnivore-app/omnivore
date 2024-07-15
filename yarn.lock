@@ -10589,22 +10589,17 @@ aws-sign2@~0.7.0:
   integrity sha1-tG6JCTSpWR8tL2+G1+ap8bP+dqg=
 
 aws4-axios@^3.3.0:
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/aws4-axios/-/aws4-axios-3.3.4.tgz#d53acab9aed79d96f58a4cebb981d600b69e74c3"
-  integrity sha512-pcyliHZ1G6DqWvP1ITHX/LH+yc2vDzx6epB+/XDPA1oBZeIFyh71MlwjHcGemHRxcVq8pW5tzNln4S6GgZ1BFw==
+  version "3.3.6"
+  resolved "https://registry.yarnpkg.com/aws4-axios/-/aws4-axios-3.3.6.tgz#bb2da29748b107667eefcfe374f77e538465b37d"
+  integrity sha512-IUQXckwTlZuLgoHnK0Pqn8pghdyYRWdiwkdzHrHr5Ck43j/MGzF75Dx6hCSUwVuhZd0rg+Q9zxglLiMGzUZ8Nw==
   dependencies:
     "@aws-sdk/client-sts" "^3.4.1"
     aws4 "^1.12.0"
 
-aws4@^1.12.0:
+aws4@^1.12.0, aws4@^1.8.0:
   version "1.12.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.12.0.tgz#ce1c9d143389679e253b314241ea9aa5cec980d3"
   integrity sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==
-
-aws4@^1.8.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.10.0.tgz#a17b3a8ea811060e74d47d306122400ad4497ae2"
-  integrity sha512-3YDiu347mtVtjpyV3u5kVqQLP242c06zwDOgpeRnybmXlYYsLbtTrUBUm8i8srONt+FWobl5aibnU1030PeeuA==
 
 axe-core@^4.3.5:
   version "4.3.5"
