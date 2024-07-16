@@ -27,7 +27,7 @@ describe('/article/save API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
   })
 
   after(async () => {
@@ -39,7 +39,11 @@ describe('/article/save API', () => {
     const url = 'https://blog.omnivore.app'
 
     before(() => {
-      sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
+      sinon.replace(
+        createTask,
+        'enqueueFetchContentJob',
+        sinon.fake.resolves('')
+      )
     })
 
     after(() => {

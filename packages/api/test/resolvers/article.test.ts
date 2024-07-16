@@ -647,8 +647,8 @@ describe('Article API', () => {
 
     context('when the source is rss-feeder and url is from youtube.com', () => {
       const source = 'rss-feeder'
-      const stub = sinon.stub(createTask, 'enqueueParseRequest')
-      const stub2 = sinon.stub(createTask, 'enqueueProcessYouTubeVideo')
+      const stub = sinon.stub(createTask, 'enqueueFetchContentJob')
+      sinon.stub(createTask, 'enqueueProcessYouTubeVideo')
 
       before(() => {
         url = 'https://www.youtube.com/watch?v=123'
@@ -679,7 +679,11 @@ describe('Article API', () => {
     const url = 'https://blog.omnivore.app/new-url-1'
 
     before(() => {
-      sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
+      sinon.replace(
+        createTask,
+        'enqueueFetchContentJob',
+        sinon.fake.resolves('')
+      )
     })
 
     beforeEach(() => {
