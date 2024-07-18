@@ -15,7 +15,7 @@ export class WeixinQqHandler extends ContentHandler {
     // Retrieve the publish time
     const publishTime = dom.querySelector('#publish_time')?.textContent
     if (publishTime) {
-      const dateTimeFormat = 'yyyy-LL-dd HH:mm'
+      const dateTimeFormat = 'yyyy年LL月dd日 HH:mm'
       // published time is in UTC+8
       const publishTimeISO = DateTime.fromFormat(publishTime, dateTimeFormat, {
         zone: 'Asia/Shanghai',
