@@ -116,7 +116,7 @@
     "voca": "^1.4.0",
     "winston": "^3.3.3",
     "yaml": "^2.4.1",
-    "youtubei": "1.4.0"
+    "youtubei": "^1.5.4"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",

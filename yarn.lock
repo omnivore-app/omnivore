@@ -26012,6 +26012,24 @@ protobufjs@7.2.4:
     "@types/node" ">=13.7.0"
     long "^5.0.0"
 
+protobufjs@7.2.6:
+  version "7.2.6"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.2.6.tgz#4a0ccd79eb292717aacf07530a07e0ed20278215"
+  integrity sha512-dgJaEDDL6x8ASUZ1YqWciTRrdOuYNzoOf27oHNfdyvKqHr5i0FV7FSLU+aIeFjyFgVxrpTOtQUi0BLLBymZaBw==
+  dependencies:
+    "@protobufjs/aspromise" "^1.1.2"
+    "@protobufjs/base64" "^1.1.2"
+    "@protobufjs/codegen" "^2.0.4"
+    "@protobufjs/eventemitter" "^1.1.0"
+    "@protobufjs/fetch" "^1.1.0"
+    "@protobufjs/float" "^1.0.2"
+    "@protobufjs/inquire" "^1.1.0"
+    "@protobufjs/path" "^1.1.2"
+    "@protobufjs/pool" "^1.1.0"
+    "@protobufjs/utf8" "^1.1.0"
+    "@types/node" ">=13.7.0"
+    long "^5.0.0"
+
 protobufjs@^6.11.3:
   version "6.11.4"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.4.tgz#29a412c38bf70d89e537b6d02d904a6f448173aa"
@@ -32517,13 +32535,13 @@ yocto-queue@^1.0.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.0.0.tgz#7f816433fb2cbc511ec8bf7d263c3b58a1a3c251"
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
 
-youtubei@1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/youtubei/-/youtubei-1.4.0.tgz#a853080a292ab1a002c2658929cb8edd9e756fda"
-  integrity sha512-n3/f+46Q91p/Rfso73g9IHtmHhpW7z6ML5mELdeYY0BXsh757KFDvTT91e7RCzUblrSnLiKGMyO3UM4hIUJFsw==
+youtubei@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/youtubei/-/youtubei-1.5.4.tgz#2f1cd42f5f8dd614a60ab50bd5fabb8a15b4cd0f"
+  integrity sha512-TT99h0W6CUwHTxj6Q5xOT1w3v6pEDPw3xXQvTQ3tZ4Ez1VtZ20CGz5WSOyHjx7iXT8hDetHMZ1OQp64etGdI8Q==
   dependencies:
     node-fetch "2.6.7"
-    protobufjs "7.2.4"
+    protobufjs "7.2.6"
 
 yup@^0.31.0:
   version "0.31.1"
