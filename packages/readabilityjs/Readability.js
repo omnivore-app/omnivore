@@ -2004,6 +2004,8 @@ Readability.prototype = {
     metadata.byline = jsonld.byline ||
       values["dc:creator"] ||
       values["dcterm:creator"] ||
+      values["og:article:author"] ||
+      values["twitter:creator"] ||
       values["author"];
 
     // get description
