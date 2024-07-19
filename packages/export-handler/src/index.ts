@@ -81,22 +81,31 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
     })
 
     try {
-      // write the list of urls to a csv file and upload it to gcs
+      // write the exported data to a csv file and upload it to gcs
       // path style: exports/<uid>/<date>/<uuid>.csv
       const dateStr = new Date().toISOString()
       const fileUuid = uuidv4()
       const fullPath = `exports/${claims.uid}/${dateStr}/${fileUuid}.csv`
-      // open a write_stream to the file
       const file = createGCSFile(GCS_BUCKET, fullPath)
-      const writeStream = file.createWriteStream({
-        contentType: 'text/csv',
-      })
+
       // stringify the data and pipe it to the write_stream
       const stringifier = stringify({
         header: true,
-        columns: ['url', 'state', 'labels'],
+        columns: ['id', 'title', 'description', 'state', 'labels'],
       })
-      stringifier.pipe(writeStream)
+
+      stringifier
+        .pipe(
+          file.createWriteStream({
+            contentType: 'text/csv',
+          })
+        )
+        .on('error', (err) => {
+          console.error('error writing to file', err)
+        })
+        .on('finish', () => {
+          console.log('done writing to file')
+        })
 
       // fetch data from the database
       const omnivore = new Omnivore({
@@ -122,7 +131,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
         }
       } while (cursor)
 
-      writeStream.end()
+      stringifier.end()
 
       // generate a temporary signed url for the csv file
       const signedUrl = await createSignedUrl(file)
