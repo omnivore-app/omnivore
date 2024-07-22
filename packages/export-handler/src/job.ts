@@ -5,7 +5,7 @@ const QUEUE_NAME = 'omnivore-backend-queue'
 export const SEND_EMAIL_JOB = 'send-email'
 
 interface SendEmailJobData {
-  to: string
+  userId: string
   from?: string
   subject?: string
   html?: string

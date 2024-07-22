@@ -13,7 +13,7 @@ import { importCsv } from './csv'
 import { queueEmailJob } from './job'
 import { importMatterArchive } from './matterHistory'
 import { ImportStatus, updateMetrics } from './metrics'
-import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
+import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -116,28 +116,6 @@ const importURL = async (
     savedAt,
     publishedAt,
   })
-}
-
-const createEmailCloudTask = async (userId: string, payload: unknown) => {
-  if (!process.env.JWT_SECRET) {
-    throw 'Envrionment not setup correctly'
-  }
-
-  const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
-  const authToken = (await signToken(
-    { uid: userId, exp },
-    process.env.JWT_SECRET
-  )) as string
-  const headers = {
-    'Omnivore-Authorization': authToken,
-  }
-
-  return createCloudTask(
-    emailUserUrl(),
-    payload,
-    headers,
-    'omnivore-email-queue'
-  )
 }
 
 const sendImportFailedEmail = async (

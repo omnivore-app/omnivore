@@ -37,11 +37,11 @@ const createSignedUrl = async (file: File): Promise<string> => {
 
 export const sendExportCompletedEmail = async (
   redisDataSource: RedisDataSource,
-  emailAddress: string,
+  userId: string,
   urlToDownload: string
 ) => {
   return queueEmailJob(redisDataSource, {
-    to: emailAddress,
+    userId,
     subject: 'Your Omnivore export is ready',
     html: `<p>Your export is ready. You can download it from the following link: <a href="${urlToDownload}">${urlToDownload}</a></p>`,
   })
@@ -91,7 +91,26 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       // stringify the data and pipe it to the write_stream
       const stringifier = stringify({
         header: true,
-        columns: ['id', 'title', 'description', 'state', 'labels'],
+        columns: [
+          'id',
+          'title',
+          'description',
+          'labels',
+          'author',
+          'site_name',
+          'original_url',
+          'slug',
+          'updated_at',
+          'saved_at',
+          'type',
+          'published_at',
+          'url',
+          'thumbnail',
+          'read_at',
+          'word_count',
+          'reading_progress_percent',
+          'archived_at',
+        ],
       })
 
       stringifier
@@ -113,23 +132,50 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       })
 
       let cursor = 0
+      let hasNext = false
       do {
         const response = await omnivore.items.search({
-          first: 50,
+          first: 100,
           after: cursor,
+          includeContent: false,
         })
 
         const items = response.edges.map((edge) => edge.node)
         cursor = response.pageInfo.endCursor
           ? parseInt(response.pageInfo.endCursor)
           : 0
+        hasNext = response.pageInfo.hasNextPage
 
         // write data to the csv file
         if (items.length > 0) {
           // write the list of urls, state and labels to the stream
-          items.forEach((row) => stringifier.write(row))
+          items.forEach((item) =>
+            stringifier.write({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              labels: item.labels?.map((label) => label.name).join(','),
+              author: item.author,
+              site_name: item.siteName,
+              original_url: item.originalArticleUrl,
+              slug: item.slug,
+              updated_at: item.updatedAt,
+              saved_at: item.savedAt,
+              type: item.pageType,
+              published_at: item.publishedAt,
+              url: item.url,
+              thumbnail: item.image,
+              read_at: item.readAt,
+              word_count: item.wordsCount,
+              reading_progress_percent: item.readingProgressPercent,
+              archived_at: item.archivedAt,
+            })
+          )
+
+          // sleep for 1 second to avoid rate limiting
+          await new Promise((resolve) => setTimeout(resolve, 1000))
         }
-      } while (cursor)
+      } while (hasNext)
 
       stringifier.end()
 
@@ -137,7 +183,6 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       const signedUrl = await createSignedUrl(file)
       console.log('signed url', signedUrl)
 
-      // TODO: get the user's email from the database
       await sendExportCompletedEmail(redisDataSource, claims.uid, signedUrl)
 
       console.log('done')
