@@ -13,7 +13,6 @@ import * as jwt from 'jsonwebtoken'
 import { AzureTextToSpeech } from './azureTextToSpeech'
 import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
 import { OpenAITextToSpeech } from './openaiTextToSpeech'
-import { RealisticTextToSpeech } from './realisticTextToSpeech'
 import {
   SpeechMark,
   TextToSpeechInput,
@@ -59,11 +58,7 @@ Sentry.GCPFunction.init({
 const MAX_CHARACTER_COUNT = 50000
 const storage = new Storage()
 
-const textToSpeechHandlers = [
-  new OpenAITextToSpeech(),
-  new AzureTextToSpeech(),
-  new RealisticTextToSpeech(),
-]
+const textToSpeechHandlers = [new OpenAITextToSpeech(), new AzureTextToSpeech()]
 
 const synthesizeTextToSpeech = async (
   input: TextToSpeechInput
