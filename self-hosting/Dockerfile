@@ -17,6 +17,7 @@ COPY /packages/text-to-speech/package.json ./packages/text-to-speech/package.jso
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 COPY /packages/db/package.json ./packages/db/package.json
 COPY /packages/liqe/package.json ./packages/liqe/package.json
+COPY /packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile
 
@@ -26,7 +27,9 @@ COPY /packages/text-to-speech ./packages/text-to-speech
 COPY /packages/content-handler ./packages/content-handler
 COPY /packages/db ./packages/db
 COPY /packages/liqe ./packages/liqe
+COPY /packages/utils ./packages/utils
 
+RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/text-to-speech-handler build
 RUN yarn workspace @omnivore/content-handler build
 RUN yarn workspace @omnivore/liqe build
@@ -54,6 +57,7 @@ COPY --from=builder /app/packages/text-to-speech/ /app/packages/text-to-speech/
 COPY --from=builder /app/packages/content-handler/ /app/packages/content-handler/
 COPY --from=builder /app/packages/liqe/ /app/packages/liqe/
 COPY --from=builder /app/packages/db/ /app/packages/db/
+COPY --from=builder /app/packages/utils/ /app/packages/utils/
 
 RUN apk add --no-cache postgresql-client
 
