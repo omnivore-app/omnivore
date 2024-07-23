@@ -2007,6 +2007,7 @@ Readability.prototype = {
     metadata.byline = jsonld.byline ||
       values["dc:creator"] ||
       values["dcterm:creator"] ||
+      values["og:article:author"] ||
       values["author"];
 
     // get description
