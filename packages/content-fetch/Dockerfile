@@ -23,7 +23,6 @@ COPY .prettierrc .
 COPY .eslintrc .
 
 COPY /packages/content-fetch/package.json ./packages/content-fetch/package.json
-COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
@@ -33,7 +32,6 @@ RUN yarn install --pure-lockfile
 ADD /packages/content-fetch ./packages/content-fetch
 ADD /packages/content-handler ./packages/content-handler
 ADD /packages/puppeteer-parse ./packages/puppeteer-parse
-ADD /packages/readabilityjs ./packages/readabilityjs
 ADD /packages/utils ./packages/utils
 RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/content-handler build
