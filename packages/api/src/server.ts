@@ -46,7 +46,7 @@ import { analytics } from './utils/analytics'
 import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
-import { apiLimiter, authLimiter } from './utils/rate_limit'
+import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
 import { shortcutsRouter } from './routers/shortcuts_router'
 
 const PORT = process.env.PORT || 4000
@@ -68,7 +68,7 @@ export const createApp = (): Express => {
   app.set('trust proxy', env.server.trustProxy)
 
   // Apply the rate limiting middleware to API calls only
-  app.use('/api/', apiLimiter)
+  app.use('/api/', apiLimiter, apiHourLimiter)
 
   // set client info in the request context
   app.use(httpContext.middleware)
