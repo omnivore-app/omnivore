@@ -77,7 +77,10 @@ export const queueSavePageJob = async (
     data: job.data,
     opts: getOpts(job),
   }))
-  console.log('queue save page jobs:', JSON.stringify(jobs, null, 2))
+  console.log(
+    'queue save page jobs:',
+    jobs.map((job) => job.data.finalUrl)
+  )
 
   const queue = new Queue(QUEUE_NAME, {
     connection: redisDataSource.queueRedisClient,
