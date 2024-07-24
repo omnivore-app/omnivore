@@ -8,11 +8,10 @@ import {
   PageType,
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
-import { Merge } from '../util'
 import { enqueueParseRequest } from '../utils/createTask'
 import { cleanUrl, generateSlug } from '../utils/helpers'
 import { logger } from '../utils/logger'
-import { countBySavedAt, createOrUpdateLibraryItem } from './library_item'
+import { countByCreatedAt, createOrUpdateLibraryItem } from './library_item'
 
 interface PageSaveRequest {
   user: User
@@ -39,7 +38,13 @@ const isPrivateIP = privateIpLib.default
 const getPriorityByRateLimit = async (
   userId: string
 ): Promise<'low' | 'high'> => {
-  const count = await countBySavedAt(userId, new Date(Date.now() - 60 * 1000))
+  const now = new Date()
+  const count = await countByCreatedAt(
+    userId,
+    new Date(now.getTime() - 60 * 1000), // 1 minute ago
+    now
+  )
+
   return count >= 5 ? 'low' : 'high'
 }
 
