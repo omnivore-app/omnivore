@@ -28,6 +28,7 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
     <Dropdown
       triggerElement={props.triggerElement}
       onOpenChange={props.onOpenChange}
+      css={{ bg: '$thNavMenuFooter' }}
     >
       {!props.item.isArchived ? (
         <DropdownOption
