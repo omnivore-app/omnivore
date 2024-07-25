@@ -157,7 +157,6 @@ export const createPageSaveRequest = async ({
 
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
-  logger.debug('priority', { priority })
 
   // enqueue task to parse item
   await enqueueFetchContentJob({

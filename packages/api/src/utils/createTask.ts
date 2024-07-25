@@ -66,7 +66,9 @@ import {
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
 import {
-  CONTENT_FETCH_QUEUE_NAME,
+  CONTENT_FETCH_QUEUE,
+  CONTENT_FETCH_RSS_QUEUE,
+  CONTENT_FETCH_SLOW_QUEUE,
   getQueue,
   JOB_VERSION,
 } from '../queue-processor'
@@ -100,13 +102,12 @@ export const getJobPriority = (jobName: string): number => {
     case SYNC_READ_POSITIONS_JOB_NAME:
     case SEND_EMAIL_JOB:
     case UPDATE_HOME_JOB:
-    case `${FETCH_CONTENT_JOB}_high`:
+    case FETCH_CONTENT_JOB:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
     case AI_SUMMARIZE_JOB_NAME:
     case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
-    case `${FETCH_CONTENT_JOB}_low`:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
@@ -328,7 +329,7 @@ export const deleteTask = async (
   }
 }
 
-export interface fetchContentJobData {
+export interface FetchContentJobData {
   url: string
   users: Array<{
     id: string
@@ -344,6 +345,7 @@ export interface fetchContentJobData {
   publishedAt?: string
   folder?: string
   rssFeedUrl?: string
+  source?: string
 }
 
 /**
@@ -356,18 +358,29 @@ export interface fetchContentJobData {
  * @returns Name of the task created
  */
 export const enqueueFetchContentJob = async (
-  data: fetchContentJobData
+  data: FetchContentJobData
 ): Promise<string> => {
-  const priority = data.priority || 'high'
+  const getQueueName = (data: FetchContentJobData) => {
+    if (data.rssFeedUrl) {
+      return CONTENT_FETCH_RSS_QUEUE
+    }
 
-  const queue = await getQueue(CONTENT_FETCH_QUEUE_NAME)
+    if (data.priority === 'low') {
+      return CONTENT_FETCH_SLOW_QUEUE
+    }
+
+    return CONTENT_FETCH_QUEUE
+  }
+
+  const queueName = getQueueName(data)
+  const queue = await getQueue(queueName)
   if (!queue) {
     throw new Error('No queue found')
   }
 
   const job = await queue.add(FETCH_CONTENT_JOB, data, {
-    priority: getJobPriority(`${FETCH_CONTENT_JOB}_${priority}`),
-    attempts: priority === 'high' ? 5 : 2,
+    priority: getJobPriority(FETCH_CONTENT_JOB),
+    attempts: data.priority === 'low' ? 2 : 5,
   })
 
   if (!job || !job.id) {
