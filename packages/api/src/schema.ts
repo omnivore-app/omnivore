@@ -3340,6 +3340,22 @@ const schema = gql`
     afterDays: Int
   }
 
+  union FetchTranscriptResult = FetchTranscriptSuccess | FetchTranscriptError
+
+  type FetchTranscriptSuccess {
+    task: Task!
+  }
+
+  type FetchTranscriptError {
+    errorCodes: [FetchTranscriptErrorCode!]!
+  }
+
+  enum FetchTranscriptErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    FAILED_TO_CREATE_TASK
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3473,6 +3489,7 @@ const schema = gql`
       input: UpdateFolderPolicyInput!
     ): UpdateFolderPolicyResult!
     deleteFolderPolicy(id: ID!): DeleteFolderPolicyResult!
+    fetchTranscript(id: ID!): FetchTranscriptResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

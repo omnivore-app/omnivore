@@ -978,6 +978,23 @@ enum FetchContentType {
   WHEN_EMPTY
 }
 
+type FetchTranscriptError {
+  errorCodes: [FetchTranscriptErrorCode!]!
+}
+
+enum FetchTranscriptErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  FAILED_TO_CREATE_TASK
+  UNAUTHORIZED
+}
+
+union FetchTranscriptResult = FetchTranscriptError | FetchTranscriptSuccess
+
+type FetchTranscriptSuccess {
+  task: Task!
+}
+
 type Filter {
   category: String
   createdAt: Date!
@@ -1640,6 +1657,7 @@ type Mutation {
   emptyTrash: EmptyTrashResult!
   exportToIntegration(integrationId: ID!): ExportToIntegrationResult!
   fetchContent(id: ID!): FetchContentResult!
+  fetchTranscript(id: ID!): FetchTranscriptResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!

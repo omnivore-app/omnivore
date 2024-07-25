@@ -27,6 +27,7 @@ import { integrationRouter } from './routers/integration_router'
 import { localDebugRouter } from './routers/local_debug_router'
 import { notificationRouter } from './routers/notification_router'
 import { pageRouter } from './routers/page_router'
+import { shortcutsRouter } from './routers/shortcuts_router'
 import { contentServiceRouter } from './routers/svc/content'
 import { emailsServiceRouter } from './routers/svc/emails'
 import { emailAttachmentRouter } from './routers/svc/email_attachment'
@@ -47,7 +48,6 @@ import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiLimiter, authLimiter } from './utils/rate_limit'
-import { shortcutsRouter } from './routers/shortcuts_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -115,7 +115,6 @@ export const createApp = (): Express => {
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
   app.use('/svc/pubsub/rss-feed', rssFeedRouter())
   app.use('/svc/pubsub/user', userServiceRouter())
-  // app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
   app.use('/svc/following', followingServiceRouter())
 

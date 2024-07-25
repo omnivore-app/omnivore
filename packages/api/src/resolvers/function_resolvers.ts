@@ -158,6 +158,7 @@ import {
 } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { subscriptionResolver } from './subscriptions'
+import { fetchTranscriptResolver } from './transcript'
 import { ResolverContext } from './types'
 import { updateEmailResolver } from './user'
 
@@ -317,6 +318,7 @@ export const functionResolvers = {
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
     deleteFolderPolicy: deleteFolderPolicyResolver,
+    fetchTranscript: fetchTranscriptResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -890,4 +892,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('CreateFolderPolicy'),
   ...resultResolveTypeResolver('UpdateFolderPolicy'),
   ...resultResolveTypeResolver('DeleteFolderPolicy'),
+  ...resultResolveTypeResolver('FetchTranscript'),
 }

@@ -1088,6 +1088,25 @@ export enum FetchContentType {
   WhenEmpty = 'WHEN_EMPTY'
 }
 
+export type FetchTranscriptError = {
+  __typename?: 'FetchTranscriptError';
+  errorCodes: Array<FetchTranscriptErrorCode>;
+};
+
+export enum FetchTranscriptErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  FailedToCreateTask = 'FAILED_TO_CREATE_TASK',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FetchTranscriptResult = FetchTranscriptError | FetchTranscriptSuccess;
+
+export type FetchTranscriptSuccess = {
+  __typename?: 'FetchTranscriptSuccess';
+  task: Task;
+};
+
 export type Filter = {
   __typename?: 'Filter';
   category?: Maybe<Scalars['String']>;
@@ -1815,6 +1834,7 @@ export type Mutation = {
   emptyTrash: EmptyTrashResult;
   exportToIntegration: ExportToIntegrationResult;
   fetchContent: FetchContentResult;
+  fetchTranscript: FetchTranscriptResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
@@ -1988,6 +2008,11 @@ export type MutationExportToIntegrationArgs = {
 
 
 export type MutationFetchContentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationFetchTranscriptArgs = {
   id: Scalars['ID'];
 };
 
@@ -4442,6 +4467,10 @@ export type ResolversTypes = {
   FetchContentResult: ResolversTypes['FetchContentError'] | ResolversTypes['FetchContentSuccess'];
   FetchContentSuccess: ResolverTypeWrapper<FetchContentSuccess>;
   FetchContentType: FetchContentType;
+  FetchTranscriptError: ResolverTypeWrapper<FetchTranscriptError>;
+  FetchTranscriptErrorCode: FetchTranscriptErrorCode;
+  FetchTranscriptResult: ResolversTypes['FetchTranscriptError'] | ResolversTypes['FetchTranscriptSuccess'];
+  FetchTranscriptSuccess: ResolverTypeWrapper<FetchTranscriptSuccess>;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -5043,6 +5072,9 @@ export type ResolversParentTypes = {
   FetchContentError: FetchContentError;
   FetchContentResult: ResolversParentTypes['FetchContentError'] | ResolversParentTypes['FetchContentSuccess'];
   FetchContentSuccess: FetchContentSuccess;
+  FetchTranscriptError: FetchTranscriptError;
+  FetchTranscriptResult: ResolversParentTypes['FetchTranscriptError'] | ResolversParentTypes['FetchTranscriptSuccess'];
+  FetchTranscriptSuccess: FetchTranscriptSuccess;
   Filter: Filter;
   FiltersError: FiltersError;
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
@@ -6141,6 +6173,20 @@ export type FetchContentSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FetchTranscriptErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchTranscriptError'] = ResolversParentTypes['FetchTranscriptError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FetchTranscriptErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FetchTranscriptResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchTranscriptResult'] = ResolversParentTypes['FetchTranscriptResult']> = {
+  __resolveType: TypeResolveFn<'FetchTranscriptError' | 'FetchTranscriptSuccess', ParentType, ContextType>;
+};
+
+export type FetchTranscriptSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchTranscriptSuccess'] = ResolversParentTypes['FetchTranscriptSuccess']> = {
+  task?: Resolver<ResolversTypes['Task'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
   category?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -6709,6 +6755,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   emptyTrash?: Resolver<ResolversTypes['EmptyTrashResult'], ParentType, ContextType>;
   exportToIntegration?: Resolver<ResolversTypes['ExportToIntegrationResult'], ParentType, ContextType, RequireFields<MutationExportToIntegrationArgs, 'integrationId'>>;
   fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
+  fetchTranscript?: Resolver<ResolversTypes['FetchTranscriptResult'], ParentType, ContextType, RequireFields<MutationFetchTranscriptArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
@@ -8057,6 +8104,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   FetchContentError?: FetchContentErrorResolvers<ContextType>;
   FetchContentResult?: FetchContentResultResolvers<ContextType>;
   FetchContentSuccess?: FetchContentSuccessResolvers<ContextType>;
+  FetchTranscriptError?: FetchTranscriptErrorResolvers<ContextType>;
+  FetchTranscriptResult?: FetchTranscriptResultResolvers<ContextType>;
+  FetchTranscriptSuccess?: FetchTranscriptSuccessResolvers<ContextType>;
   Filter?: FilterResolvers<ContextType>;
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;

@@ -5,13 +5,11 @@ import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
   enqueueGeneratePreviewContentJob,
-  enqueueProcessYouTubeVideo,
   enqueueScoreJob,
   enqueueThumbnailJob,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
 import { logger } from './utils/logger'
-import { isYouTubeVideoURL } from './utils/youtube'
 
 export type EntityEvent = { id: string }
 
@@ -60,24 +58,6 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       if (type === EntityType.ITEM) {
-        // if (await findGrantedFeatureByName(FeatureName.AISummaries, userId)) {
-        // await enqueueAISummarizeJob({
-        //   userId,
-        //   libraryItemId,
-        // })
-        // }
-
-        const isItemWithURL = (data: any): data is { originalUrl: string } => {
-          return 'originalUrl' in data
-        }
-
-        if (isItemWithURL(data) && isYouTubeVideoURL(data['originalUrl'])) {
-          await enqueueProcessYouTubeVideo({
-            userId,
-            libraryItemId: data.id,
-          })
-        }
-
         await enqueueScoreJob({
           userId,
           libraryItemId: data.id,
