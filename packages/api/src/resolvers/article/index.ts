@@ -760,7 +760,7 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      const batchSize = 50
+      const batchSize = 20
       const searchArgs = {
         query,
         includePending: true,
@@ -779,13 +779,13 @@ export const bulkActionResolver = authorized<
           action,
           count,
         })
-        // if there are less than 50 items, update them synchronously
+        // if there are less than batchSize items, update them synchronously
         await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
 
         return { success: true }
       }
 
-      // if there are more than 50 items, update them asynchronously
+      // if there are more than batchSize items, update them asynchronously
       const data = {
         userId: uid,
         action,
