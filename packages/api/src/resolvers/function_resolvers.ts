@@ -12,6 +12,7 @@ import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
 } from '../entity/newsletter_email'
+import { Post } from '../entity/post'
 import { PublicItem } from '../entity/public_item'
 import { Recommendation } from '../entity/recommendation'
 import {
@@ -151,6 +152,13 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
+import {
+  createPostResolver,
+  deletePostResolver,
+  postResolver,
+  postsResolver,
+  updatePostResolver,
+} from './posts'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -317,6 +325,9 @@ export const functionResolvers = {
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
     deleteFolderPolicy: deleteFolderPolicyResolver,
+    createPost: createPostResolver,
+    updatePost: updatePostResolver,
+    deletePost: deletePostResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -353,6 +364,8 @@ export const functionResolvers = {
     hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
     folderPolicies: folderPoliciesResolver,
+    posts: postsResolver,
+    post: postResolver,
   },
   User: {
     async intercomHash(user: User) {
@@ -792,6 +805,35 @@ export const functionResolvers = {
     name: (recommendation: Recommendation) => recommendation.group.name,
     recommendedAt: (recommendation: Recommendation) => recommendation.createdAt,
   },
+  Post: {
+    async author(post: Post, _: never, ctx: ResolverContext) {
+      const author = await ctx.dataLoaders.users.load(post.userId)
+      return author?.name
+    },
+    ownedByViewer(post: Post, _: never, ctx: ResolverContext) {
+      return post.userId === ctx.claims?.uid
+    },
+    async libraryItems(
+      post: { libraryItemIds: string[] },
+      _: never,
+      ctx: ResolverContext
+    ) {
+      const items = await ctx.dataLoaders.libraryItems.loadMany(
+        post.libraryItemIds
+      )
+      return items.filter((item) => !!item)
+    },
+    async highlights(
+      post: { highlightIds: string[] },
+      _: never,
+      ctx: ResolverContext
+    ) {
+      const highlights = await ctx.dataLoaders.highlights.loadMany(
+        post.highlightIds
+      )
+      return highlights.filter((highlight) => !!highlight)
+    },
+  },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
   ...resultResolveTypeResolver('GoogleSignup'),
@@ -890,4 +932,9 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('CreateFolderPolicy'),
   ...resultResolveTypeResolver('UpdateFolderPolicy'),
   ...resultResolveTypeResolver('DeleteFolderPolicy'),
+  ...resultResolveTypeResolver('Posts'),
+  ...resultResolveTypeResolver('Post'),
+  ...resultResolveTypeResolver('CreatePost'),
+  ...resultResolveTypeResolver('UpdatePost'),
+  ...resultResolveTypeResolver('DeletePost'),
 }

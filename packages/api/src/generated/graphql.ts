@@ -509,6 +509,32 @@ export type CreateNewsletterEmailSuccess = {
   newsletterEmail: NewsletterEmail;
 };
 
+export type CreatePostError = {
+  __typename?: 'CreatePostError';
+  errorCodes: Array<CreatePostErrorCode>;
+};
+
+export enum CreatePostErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type CreatePostInput = {
+  content: Scalars['String'];
+  highlightIds?: InputMaybe<Array<Scalars['ID']>>;
+  libraryItemIds: Array<Scalars['ID']>;
+  thought?: InputMaybe<Scalars['String']>;
+  thumbnail?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
+};
+
+export type CreatePostResult = CreatePostError | CreatePostSuccess;
+
+export type CreatePostSuccess = {
+  __typename?: 'CreatePostSuccess';
+  post: Post;
+};
+
 export type CreateReactionError = {
   __typename?: 'CreateReactionError';
   errorCodes: Array<CreateReactionErrorCode>;
@@ -747,6 +773,23 @@ export type DeleteNewsletterEmailResult = DeleteNewsletterEmailError | DeleteNew
 export type DeleteNewsletterEmailSuccess = {
   __typename?: 'DeleteNewsletterEmailSuccess';
   newsletterEmail: NewsletterEmail;
+};
+
+export type DeletePostError = {
+  __typename?: 'DeletePostError';
+  errorCodes: Array<DeletePostErrorCode>;
+};
+
+export enum DeletePostErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeletePostResult = DeletePostError | DeletePostSuccess;
+
+export type DeletePostSuccess = {
+  __typename?: 'DeletePostSuccess';
+  success: Scalars['Boolean'];
 };
 
 export type DeleteReactionError = {
@@ -1800,6 +1843,7 @@ export type Mutation = {
   createHighlight: CreateHighlightResult;
   createLabel: CreateLabelResult;
   createNewsletterEmail: CreateNewsletterEmailResult;
+  createPost: CreatePostResult;
   deleteAccount: DeleteAccountResult;
   deleteDiscoverArticle: DeleteDiscoverArticleResult;
   deleteDiscoverFeed: DeleteDiscoverFeedResult;
@@ -1809,6 +1853,7 @@ export type Mutation = {
   deleteIntegration: DeleteIntegrationResult;
   deleteLabel: DeleteLabelResult;
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
+  deletePost: DeletePostResult;
   deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
   editDiscoverFeed: EditDiscoverFeedResult;
@@ -1859,6 +1904,7 @@ export type Mutation = {
   updateLabel: UpdateLabelResult;
   updateNewsletterEmail: UpdateNewsletterEmailResult;
   updatePage: UpdatePageResult;
+  updatePost: UpdatePostResult;
   updateSubscription: UpdateSubscriptionResult;
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
@@ -1922,6 +1968,11 @@ export type MutationCreateNewsletterEmailArgs = {
 };
 
 
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
+};
+
+
 export type MutationDeleteAccountArgs = {
   userID: Scalars['ID'];
 };
@@ -1964,6 +2015,11 @@ export type MutationDeleteLabelArgs = {
 
 export type MutationDeleteNewsletterEmailArgs = {
   newsletterEmailId: Scalars['ID'];
+};
+
+
+export type MutationDeletePostArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -2205,6 +2261,11 @@ export type MutationUpdatePageArgs = {
 };
 
 
+export type MutationUpdatePostArgs = {
+  input: UpdatePostInput;
+};
+
+
 export type MutationUpdateSubscriptionArgs = {
   input: UpdateSubscriptionInput;
 };
@@ -2346,6 +2407,63 @@ export type ParseResult = {
   title: Scalars['String'];
 };
 
+export type Post = {
+  __typename?: 'Post';
+  author: Scalars['String'];
+  content: Scalars['String'];
+  createdAt: Scalars['Date'];
+  highlights?: Maybe<Array<Highlight>>;
+  id: Scalars['ID'];
+  libraryItems?: Maybe<Array<Article>>;
+  ownedByViewer: Scalars['Boolean'];
+  thought?: Maybe<Scalars['String']>;
+  thumbnail?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
+  updatedAt: Scalars['Date'];
+};
+
+export type PostEdge = {
+  __typename?: 'PostEdge';
+  cursor: Scalars['String'];
+  node: Post;
+};
+
+export type PostError = {
+  __typename?: 'PostError';
+  errorCodes: Array<PostErrorCode>;
+};
+
+export enum PostErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type PostResult = PostError | PostSuccess;
+
+export type PostSuccess = {
+  __typename?: 'PostSuccess';
+  post: Post;
+};
+
+export type PostsError = {
+  __typename?: 'PostsError';
+  errorCodes: Array<PostsErrorCode>;
+};
+
+export enum PostsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type PostsResult = PostsError | PostsSuccess;
+
+export type PostsSuccess = {
+  __typename?: 'PostsSuccess';
+  edges: Array<PostEdge>;
+  pageInfo: PageInfo;
+};
+
 export type PreparedDocumentInput = {
   document: Scalars['String'];
   pageInfo: PageInfoInput;
@@ -2383,6 +2501,8 @@ export type Query = {
   labels: LabelsResult;
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
+  post: PostResult;
+  posts: PostsResult;
   recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
   rules: RulesResult;
@@ -2442,6 +2562,18 @@ export type QueryHomeArgs = {
 
 export type QueryIntegrationArgs = {
   name: Scalars['String'];
+};
+
+
+export type QueryPostArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPostsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  userId: Scalars['ID'];
 };
 
 
@@ -3824,6 +3956,33 @@ export type UpdatePageSuccess = {
   updatedPage: Article;
 };
 
+export type UpdatePostError = {
+  __typename?: 'UpdatePostError';
+  errorCodes: Array<UpdatePostErrorCode>;
+};
+
+export enum UpdatePostErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdatePostInput = {
+  content?: InputMaybe<Scalars['String']>;
+  highlightIds?: InputMaybe<Array<Scalars['ID']>>;
+  id: Scalars['ID'];
+  libraryItemIds?: InputMaybe<Array<Scalars['ID']>>;
+  thought?: InputMaybe<Scalars['String']>;
+  thumbnail?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdatePostResult = UpdatePostError | UpdatePostSuccess;
+
+export type UpdatePostSuccess = {
+  __typename?: 'UpdatePostSuccess';
+  post: Post;
+};
+
 export enum UpdateReason {
   Created = 'CREATED',
   Deleted = 'DELETED',
@@ -4325,6 +4484,11 @@ export type ResolversTypes = {
   CreateNewsletterEmailInput: CreateNewsletterEmailInput;
   CreateNewsletterEmailResult: ResolversTypes['CreateNewsletterEmailError'] | ResolversTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: ResolverTypeWrapper<CreateNewsletterEmailSuccess>;
+  CreatePostError: ResolverTypeWrapper<CreatePostError>;
+  CreatePostErrorCode: CreatePostErrorCode;
+  CreatePostInput: CreatePostInput;
+  CreatePostResult: ResolversTypes['CreatePostError'] | ResolversTypes['CreatePostSuccess'];
+  CreatePostSuccess: ResolverTypeWrapper<CreatePostSuccess>;
   CreateReactionError: ResolverTypeWrapper<CreateReactionError>;
   CreateReactionErrorCode: CreateReactionErrorCode;
   CreateReactionInput: CreateReactionInput;
@@ -4378,6 +4542,10 @@ export type ResolversTypes = {
   DeleteNewsletterEmailErrorCode: DeleteNewsletterEmailErrorCode;
   DeleteNewsletterEmailResult: ResolversTypes['DeleteNewsletterEmailError'] | ResolversTypes['DeleteNewsletterEmailSuccess'];
   DeleteNewsletterEmailSuccess: ResolverTypeWrapper<DeleteNewsletterEmailSuccess>;
+  DeletePostError: ResolverTypeWrapper<DeletePostError>;
+  DeletePostErrorCode: DeletePostErrorCode;
+  DeletePostResult: ResolversTypes['DeletePostError'] | ResolversTypes['DeletePostSuccess'];
+  DeletePostSuccess: ResolverTypeWrapper<DeletePostSuccess>;
   DeleteReactionError: ResolverTypeWrapper<DeleteReactionError>;
   DeleteReactionErrorCode: DeleteReactionErrorCode;
   DeleteReactionResult: ResolversTypes['DeleteReactionError'] | ResolversTypes['DeleteReactionSuccess'];
@@ -4590,6 +4758,16 @@ export type ResolversTypes = {
   PageInfoInput: PageInfoInput;
   PageType: PageType;
   ParseResult: ParseResult;
+  Post: ResolverTypeWrapper<Post>;
+  PostEdge: ResolverTypeWrapper<PostEdge>;
+  PostError: ResolverTypeWrapper<PostError>;
+  PostErrorCode: PostErrorCode;
+  PostResult: ResolversTypes['PostError'] | ResolversTypes['PostSuccess'];
+  PostSuccess: ResolverTypeWrapper<PostSuccess>;
+  PostsError: ResolverTypeWrapper<PostsError>;
+  PostsErrorCode: PostsErrorCode;
+  PostsResult: ResolversTypes['PostsError'] | ResolversTypes['PostsSuccess'];
+  PostsSuccess: ResolverTypeWrapper<PostsSuccess>;
   PreparedDocumentInput: PreparedDocumentInput;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
@@ -4824,6 +5002,11 @@ export type ResolversTypes = {
   UpdatePageInput: UpdatePageInput;
   UpdatePageResult: ResolversTypes['UpdatePageError'] | ResolversTypes['UpdatePageSuccess'];
   UpdatePageSuccess: ResolverTypeWrapper<UpdatePageSuccess>;
+  UpdatePostError: ResolverTypeWrapper<UpdatePostError>;
+  UpdatePostErrorCode: UpdatePostErrorCode;
+  UpdatePostInput: UpdatePostInput;
+  UpdatePostResult: ResolversTypes['UpdatePostError'] | ResolversTypes['UpdatePostSuccess'];
+  UpdatePostSuccess: ResolverTypeWrapper<UpdatePostSuccess>;
   UpdateReason: UpdateReason;
   UpdateReminderError: ResolverTypeWrapper<UpdateReminderError>;
   UpdateReminderErrorCode: UpdateReminderErrorCode;
@@ -4953,6 +5136,10 @@ export type ResolversParentTypes = {
   CreateNewsletterEmailInput: CreateNewsletterEmailInput;
   CreateNewsletterEmailResult: ResolversParentTypes['CreateNewsletterEmailError'] | ResolversParentTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: CreateNewsletterEmailSuccess;
+  CreatePostError: CreatePostError;
+  CreatePostInput: CreatePostInput;
+  CreatePostResult: ResolversParentTypes['CreatePostError'] | ResolversParentTypes['CreatePostSuccess'];
+  CreatePostSuccess: CreatePostSuccess;
   CreateReactionError: CreateReactionError;
   CreateReactionInput: CreateReactionInput;
   CreateReactionResult: ResolversParentTypes['CreateReactionError'] | ResolversParentTypes['CreateReactionSuccess'];
@@ -4994,6 +5181,9 @@ export type ResolversParentTypes = {
   DeleteNewsletterEmailError: DeleteNewsletterEmailError;
   DeleteNewsletterEmailResult: ResolversParentTypes['DeleteNewsletterEmailError'] | ResolversParentTypes['DeleteNewsletterEmailSuccess'];
   DeleteNewsletterEmailSuccess: DeleteNewsletterEmailSuccess;
+  DeletePostError: DeletePostError;
+  DeletePostResult: ResolversParentTypes['DeletePostError'] | ResolversParentTypes['DeletePostSuccess'];
+  DeletePostSuccess: DeletePostSuccess;
   DeleteReactionError: DeleteReactionError;
   DeleteReactionResult: ResolversParentTypes['DeleteReactionError'] | ResolversParentTypes['DeleteReactionSuccess'];
   DeleteReactionSuccess: DeleteReactionSuccess;
@@ -5158,6 +5348,14 @@ export type ResolversParentTypes = {
   PageInfo: PageInfo;
   PageInfoInput: PageInfoInput;
   ParseResult: ParseResult;
+  Post: Post;
+  PostEdge: PostEdge;
+  PostError: PostError;
+  PostResult: ResolversParentTypes['PostError'] | ResolversParentTypes['PostSuccess'];
+  PostSuccess: PostSuccess;
+  PostsError: PostsError;
+  PostsResult: ResolversParentTypes['PostsError'] | ResolversParentTypes['PostsSuccess'];
+  PostsSuccess: PostsSuccess;
   PreparedDocumentInput: PreparedDocumentInput;
   Profile: Profile;
   Query: {};
@@ -5340,6 +5538,10 @@ export type ResolversParentTypes = {
   UpdatePageInput: UpdatePageInput;
   UpdatePageResult: ResolversParentTypes['UpdatePageError'] | ResolversParentTypes['UpdatePageSuccess'];
   UpdatePageSuccess: UpdatePageSuccess;
+  UpdatePostError: UpdatePostError;
+  UpdatePostInput: UpdatePostInput;
+  UpdatePostResult: ResolversParentTypes['UpdatePostError'] | ResolversParentTypes['UpdatePostSuccess'];
+  UpdatePostSuccess: UpdatePostSuccess;
   UpdateReminderError: UpdateReminderError;
   UpdateReminderInput: UpdateReminderInput;
   UpdateReminderResult: ResolversParentTypes['UpdateReminderError'] | ResolversParentTypes['UpdateReminderSuccess'];
@@ -5703,6 +5905,20 @@ export type CreateNewsletterEmailSuccessResolvers<ContextType = ResolverContext,
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CreatePostErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreatePostError'] = ResolversParentTypes['CreatePostError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['CreatePostErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreatePostResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreatePostResult'] = ResolversParentTypes['CreatePostResult']> = {
+  __resolveType: TypeResolveFn<'CreatePostError' | 'CreatePostSuccess', ParentType, ContextType>;
+};
+
+export type CreatePostSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreatePostSuccess'] = ResolversParentTypes['CreatePostSuccess']> = {
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CreateReactionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateReactionError'] = ResolversParentTypes['CreateReactionError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['CreateReactionErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5872,6 +6088,20 @@ export type DeleteNewsletterEmailResultResolvers<ContextType = ResolverContext, 
 
 export type DeleteNewsletterEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteNewsletterEmailSuccess'] = ResolversParentTypes['DeleteNewsletterEmailSuccess']> = {
   newsletterEmail?: Resolver<ResolversTypes['NewsletterEmail'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeletePostErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeletePostError'] = ResolversParentTypes['DeletePostError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeletePostErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeletePostResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeletePostResult'] = ResolversParentTypes['DeletePostResult']> = {
+  __resolveType: TypeResolveFn<'DeletePostError' | 'DeletePostSuccess', ParentType, ContextType>;
+};
+
+export type DeletePostSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeletePostSuccess'] = ResolversParentTypes['DeletePostSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6694,6 +6924,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType, Partial<MutationCreateNewsletterEmailArgs>>;
+  createPost?: Resolver<ResolversTypes['CreatePostResult'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'input'>>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteDiscoverArticle?: Resolver<ResolversTypes['DeleteDiscoverArticleResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverArticleArgs, 'input'>>;
   deleteDiscoverFeed?: Resolver<ResolversTypes['DeleteDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverFeedArgs, 'input'>>;
@@ -6703,6 +6934,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
+  deletePost?: Resolver<ResolversTypes['DeletePostResult'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
   deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   editDiscoverFeed?: Resolver<ResolversTypes['EditDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationEditDiscoverFeedArgs, 'input'>>;
@@ -6753,6 +6985,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
   updateNewsletterEmail?: Resolver<ResolversTypes['UpdateNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateNewsletterEmailArgs, 'input'>>;
   updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
+  updatePost?: Resolver<ResolversTypes['UpdatePostResult'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'input'>>;
   updateSubscription?: Resolver<ResolversTypes['UpdateSubscriptionResult'], ParentType, ContextType, RequireFields<MutationUpdateSubscriptionArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserProfile?: Resolver<ResolversTypes['UpdateUserProfileResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
@@ -6827,6 +7060,56 @@ export type PageInfoResolvers<ContextType = ResolverContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type PostResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
+  author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  libraryItems?: Resolver<Maybe<Array<ResolversTypes['Article']>>, ParentType, ContextType>;
+  ownedByViewer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  thought?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostEdge'] = ResolversParentTypes['PostEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostError'] = ResolversParentTypes['PostError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['PostErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostResult'] = ResolversParentTypes['PostResult']> = {
+  __resolveType: TypeResolveFn<'PostError' | 'PostSuccess', ParentType, ContextType>;
+};
+
+export type PostSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostSuccess'] = ResolversParentTypes['PostSuccess']> = {
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostsError'] = ResolversParentTypes['PostsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['PostsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostsResult'] = ResolversParentTypes['PostsResult']> = {
+  __resolveType: TypeResolveFn<'PostsError' | 'PostsSuccess', ParentType, ContextType>;
+};
+
+export type PostsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PostsSuccess'] = ResolversParentTypes['PostsSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['PostEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ProfileResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Profile'] = ResolversParentTypes['Profile']> = {
   bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -6858,6 +7141,8 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['PostResult'], ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
+  posts?: Resolver<ResolversTypes['PostsResult'], ParentType, ContextType, RequireFields<QueryPostsArgs, 'userId'>>;
   recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
@@ -7696,6 +7981,20 @@ export type UpdatePageSuccessResolvers<ContextType = ResolverContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdatePostErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePostError'] = ResolversParentTypes['UpdatePostError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdatePostErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdatePostResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePostResult'] = ResolversParentTypes['UpdatePostResult']> = {
+  __resolveType: TypeResolveFn<'UpdatePostError' | 'UpdatePostSuccess', ParentType, ContextType>;
+};
+
+export type UpdatePostSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePostSuccess'] = ResolversParentTypes['UpdatePostSuccess']> = {
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdateReminderErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateReminderError'] = ResolversParentTypes['UpdateReminderError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdateReminderErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -7974,6 +8273,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateNewsletterEmailError?: CreateNewsletterEmailErrorResolvers<ContextType>;
   CreateNewsletterEmailResult?: CreateNewsletterEmailResultResolvers<ContextType>;
   CreateNewsletterEmailSuccess?: CreateNewsletterEmailSuccessResolvers<ContextType>;
+  CreatePostError?: CreatePostErrorResolvers<ContextType>;
+  CreatePostResult?: CreatePostResultResolvers<ContextType>;
+  CreatePostSuccess?: CreatePostSuccessResolvers<ContextType>;
   CreateReactionError?: CreateReactionErrorResolvers<ContextType>;
   CreateReactionResult?: CreateReactionResultResolvers<ContextType>;
   CreateReactionSuccess?: CreateReactionSuccessResolvers<ContextType>;
@@ -8011,6 +8313,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteNewsletterEmailError?: DeleteNewsletterEmailErrorResolvers<ContextType>;
   DeleteNewsletterEmailResult?: DeleteNewsletterEmailResultResolvers<ContextType>;
   DeleteNewsletterEmailSuccess?: DeleteNewsletterEmailSuccessResolvers<ContextType>;
+  DeletePostError?: DeletePostErrorResolvers<ContextType>;
+  DeletePostResult?: DeletePostResultResolvers<ContextType>;
+  DeletePostSuccess?: DeletePostSuccessResolvers<ContextType>;
   DeleteReactionError?: DeleteReactionErrorResolvers<ContextType>;
   DeleteReactionResult?: DeleteReactionResultResolvers<ContextType>;
   DeleteReactionSuccess?: DeleteReactionSuccessResolvers<ContextType>;
@@ -8160,6 +8465,14 @@ export type Resolvers<ContextType = ResolverContext> = {
   OptInFeatureSuccess?: OptInFeatureSuccessResolvers<ContextType>;
   Page?: PageResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
+  Post?: PostResolvers<ContextType>;
+  PostEdge?: PostEdgeResolvers<ContextType>;
+  PostError?: PostErrorResolvers<ContextType>;
+  PostResult?: PostResultResolvers<ContextType>;
+  PostSuccess?: PostSuccessResolvers<ContextType>;
+  PostsError?: PostsErrorResolvers<ContextType>;
+  PostsResult?: PostsResultResolvers<ContextType>;
+  PostsSuccess?: PostsSuccessResolvers<ContextType>;
   Profile?: ProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Reaction?: ReactionResolvers<ContextType>;
@@ -8307,6 +8620,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdatePageError?: UpdatePageErrorResolvers<ContextType>;
   UpdatePageResult?: UpdatePageResultResolvers<ContextType>;
   UpdatePageSuccess?: UpdatePageSuccessResolvers<ContextType>;
+  UpdatePostError?: UpdatePostErrorResolvers<ContextType>;
+  UpdatePostResult?: UpdatePostResultResolvers<ContextType>;
+  UpdatePostSuccess?: UpdatePostSuccessResolvers<ContextType>;
   UpdateReminderError?: UpdateReminderErrorResolvers<ContextType>;
   UpdateReminderResult?: UpdateReminderResultResolvers<ContextType>;
   UpdateReminderSuccess?: UpdateReminderSuccessResolvers<ContextType>;

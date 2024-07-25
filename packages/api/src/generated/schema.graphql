@@ -455,6 +455,30 @@ type CreateNewsletterEmailSuccess {
   newsletterEmail: NewsletterEmail!
 }
 
+type CreatePostError {
+  errorCodes: [CreatePostErrorCode!]!
+}
+
+enum CreatePostErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input CreatePostInput {
+  content: String!
+  highlightIds: [ID!]
+  libraryItemIds: [ID!]!
+  thought: String
+  thumbnail: String
+  title: String!
+}
+
+union CreatePostResult = CreatePostError | CreatePostSuccess
+
+type CreatePostSuccess {
+  post: Post!
+}
+
 type CreateReactionError {
   errorCodes: [CreateReactionErrorCode!]!
 }
@@ -671,6 +695,21 @@ union DeleteNewsletterEmailResult = DeleteNewsletterEmailError | DeleteNewslette
 
 type DeleteNewsletterEmailSuccess {
   newsletterEmail: NewsletterEmail!
+}
+
+type DeletePostError {
+  errorCodes: [DeletePostErrorCode!]!
+}
+
+enum DeletePostErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union DeletePostResult = DeletePostError | DeletePostSuccess
+
+type DeletePostSuccess {
+  success: Boolean!
 }
 
 type DeleteReactionError {
@@ -1625,6 +1664,7 @@ type Mutation {
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
   createNewsletterEmail(input: CreateNewsletterEmailInput): CreateNewsletterEmailResult!
+  createPost(input: CreatePostInput!): CreatePostResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
   deleteDiscoverArticle(input: DeleteDiscoverArticleInput!): DeleteDiscoverArticleResult!
   deleteDiscoverFeed(input: DeleteDiscoverFeedInput!): DeleteDiscoverFeedResult!
@@ -1634,6 +1674,7 @@ type Mutation {
   deleteIntegration(id: ID!): DeleteIntegrationResult!
   deleteLabel(id: ID!): DeleteLabelResult!
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
+  deletePost(id: ID!): DeletePostResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
   editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
@@ -1684,6 +1725,7 @@ type Mutation {
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
   updateNewsletterEmail(input: UpdateNewsletterEmailInput!): UpdateNewsletterEmailResult!
   updatePage(input: UpdatePageInput!): UpdatePageResult!
+  updatePost(input: UpdatePostInput!): UpdatePostResult!
   updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
@@ -1800,6 +1842,57 @@ input ParseResult {
   title: String!
 }
 
+type Post {
+  author: String!
+  content: String!
+  createdAt: Date!
+  highlights: [Highlight!]
+  id: ID!
+  libraryItems: [Article!]
+  ownedByViewer: Boolean!
+  thought: String
+  thumbnail: String
+  title: String!
+  updatedAt: Date!
+}
+
+type PostEdge {
+  cursor: String!
+  node: Post!
+}
+
+type PostError {
+  errorCodes: [PostErrorCode!]!
+}
+
+enum PostErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union PostResult = PostError | PostSuccess
+
+type PostSuccess {
+  post: Post!
+}
+
+type PostsError {
+  errorCodes: [PostsErrorCode!]!
+}
+
+enum PostsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union PostsResult = PostsError | PostsSuccess
+
+type PostsSuccess {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
 input PreparedDocumentInput {
   document: String!
   pageInfo: PageInfoInput!
@@ -1835,6 +1928,8 @@ type Query {
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
+  post(id: ID!): PostResult!
+  posts(after: String, first: Int, userId: ID!): PostsResult!
   recentEmails: RecentEmailsResult!
   recentSearches: RecentSearchesResult!
   rules(enabled: Boolean): RulesResult!
@@ -3066,6 +3161,31 @@ union UpdatePageResult = UpdatePageError | UpdatePageSuccess
 
 type UpdatePageSuccess {
   updatedPage: Article!
+}
+
+type UpdatePostError {
+  errorCodes: [UpdatePostErrorCode!]!
+}
+
+enum UpdatePostErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input UpdatePostInput {
+  content: String
+  highlightIds: [ID!]
+  id: ID!
+  libraryItemIds: [ID!]
+  thought: String
+  thumbnail: String
+  title: String
+}
+
+union UpdatePostResult = UpdatePostError | UpdatePostSuccess
+
+type UpdatePostSuccess {
+  post: Post!
 }
 
 enum UpdateReason {
