@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { preHandleContent } from '@omnivore/content-handler'
-import axios from 'axios'
-import { parseHTML } from 'linkedom'
 import path from 'path'
 import { BrowserContext, Page, Protocol } from 'puppeteer-core'
 import { getBrowser } from './browser'
@@ -15,22 +12,6 @@ const ALLOWED_CONTENT_TYPES = [
   'text/plain',
   'application/pdf',
 ]
-
-const fetchContentWithScrapingBee = async (url: string) => {
-  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
-    params: {
-      api_key: process.env.SCRAPINGBEE_API_KEY,
-      url: url,
-      render_js: 'false',
-      premium_proxy: 'true',
-      country_code: 'us',
-    },
-    timeout: 10_000,
-  })
-
-  const dom = parseHTML(response.data).document
-  return { title: dom.title, domContent: dom.documentElement.outerHTML, url }
-}
 
 const enableJavascriptForUrl = (url: string) => {
   try {
@@ -60,39 +41,28 @@ export const fetchContent = async (
   }
   console.log(`content-fetch request`, logRecord)
 
-  let page: Page | undefined,
-    title: string | undefined,
+  let title: string | undefined,
     content: string | undefined,
     contentType: string | undefined,
     context: BrowserContext | undefined
 
   try {
     url = getUrl(url)
-    if (!url) {
-      throw new Error('Valid URL to parse not specified')
-    }
 
     // pre handle url with custom handlers
     try {
       const result = await preHandleContent(url)
-      if (result && result.url) {
-        validateUrlString(url)
-        url = result.url
+      if (result?.url) {
+        url = getUrl(result.url)
       }
-      if (result && result.title) {
-        title = result.title
-      }
-      if (result && result.content) {
-        content = result.content
-      }
-      if (result && result.contentType) {
-        contentType = result.contentType
-      }
+      title = result?.title
+      content = result?.content
+      contentType = result?.contentType
     } catch (e) {
-      console.info('error with handler: ', e)
+      console.error('error with handler: ', e)
     }
 
-    if ((!content || !title) && contentType !== 'application/pdf') {
+    if (contentType !== 'application/pdf' && (!content || !title)) {
       const result = await retrievePage(
         url,
         logRecord,
@@ -100,59 +70,27 @@ export const fetchContent = async (
         locale,
         timezone
       )
-      if (result && result.context) {
-        context = result.context
-      }
-      if (result && result.page) {
-        page = result.page
-      }
-      if (result && result.finalUrl) {
-        url = result.finalUrl
-      }
-      if (result && result.contentType) {
-        contentType = result.contentType
-      }
-    }
+      context = result.context
+      url = result.finalUrl
+      contentType = result.contentType
 
-    if (contentType !== 'application/pdf') {
-      if (page && (!content || !title)) {
+      const page = result.page
+      if (page) {
         const result = await retrieveHtml(page, logRecord)
-        if (result.isBlocked) {
-          const sbResult = await fetchContentWithScrapingBee(url)
-          title = sbResult.title
-          content = sbResult.domContent
-        } else {
-          title = result.title
-          content = result.domContent
-        }
-      } else {
-        console.info('using prefetched content and title')
+        title = result.title
+        content = result.domContent
       }
     }
   } catch (e) {
     console.error(`Error while retrieving page ${url}`, e)
 
-    // fallback to scrapingbee for non pdf content
-    if (url && contentType !== 'application/pdf') {
-      console.info('fallback to scrapingbee', url)
-
-      const sbResult = await fetchContentWithScrapingBee(url)
-
-      return {
-        finalUrl: url,
-        title: sbResult.title,
-        content: sbResult.domContent,
-        contentType,
-      }
-    }
-
     throw e
   } finally {
     // close browser context if it was created
     if (context) {
-      console.info('closing page...', url)
+      console.info('closing context...', url)
       await context.close()
-      console.info('page closed', url)
+      console.info('context closed', url)
     }
 
     console.info(`content-fetch result`, logRecord)
@@ -519,8 +457,12 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
 
     throw e
   }
+
   if (domContent === 'IS_BLOCKED') {
-    return { isBlocked: true }
+    logRecord.blockedByClient = true
+
+    throw new Error('Page is blocked')
   }
+
   return { domContent, title }
 }

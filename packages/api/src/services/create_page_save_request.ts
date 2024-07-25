@@ -8,11 +8,11 @@ import {
   PageType,
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
-import { Merge } from '../util'
+import { redisDataSource } from '../redis_data_source'
 import { enqueueParseRequest } from '../utils/createTask'
 import { cleanUrl, generateSlug } from '../utils/helpers'
 import { logger } from '../utils/logger'
-import { countBySavedAt, createOrUpdateLibraryItem } from './library_item'
+import { createOrUpdateLibraryItem } from './library_item'
 
 interface PageSaveRequest {
   user: User
@@ -34,13 +34,47 @@ const SAVING_CONTENT = 'Your link is being saved...'
 
 const isPrivateIP = privateIpLib.default
 
+const recentSavedItemKey = (userId: string) => `recent-saved-item:${userId}`
+
+const addRecentSavedItem = async (userId: string) => {
+  const redisClient = redisDataSource.redisClient
+
+  if (redisClient) {
+    const key = recentSavedItemKey(userId)
+    try {
+      // add now to the sorted set for rate limiting
+      await redisClient.zadd(key, Date.now(), Date.now())
+    } catch (error) {
+      logger.error('error adding recently saved item in redis', {
+        key,
+        error,
+      })
+    }
+  }
+}
+
 // 5 items saved in the last minute: use low queue
 // default: use normal queue
 const getPriorityByRateLimit = async (
   userId: string
-): Promise<'low' | 'high'> => {
-  const count = await countBySavedAt(userId, new Date(Date.now() - 60 * 1000))
-  return count >= 5 ? 'low' : 'high'
+): Promise<'low' | 'high' | undefined> => {
+  const redisClient = redisDataSource.redisClient
+  if (redisClient) {
+    const oneMinuteAgo = Date.now() - 60 * 1000
+    const key = recentSavedItemKey(userId)
+
+    try {
+      // Remove items older than one minute
+      await redisClient.zremrangebyscore(key, '-inf', oneMinuteAgo)
+
+      // Count items in the last minute
+      const count = await redisClient.zcard(key)
+
+      return count >= 5 ? 'low' : 'high'
+    } catch (error) {
+      logger.error('Failed to get priority by rate limit', { userId, error })
+    }
+  }
 }
 
 export const validateUrl = (url: string): URL => {
@@ -118,8 +152,12 @@ export const createPageSaveRequest = async ({
     pubsub
   )
 
+  // add to recent saved item
+  await addRecentSavedItem(userId)
+
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
+  logger.debug('priority', { priority })
 
   // enqueue task to parse item
   await enqueueParseRequest({

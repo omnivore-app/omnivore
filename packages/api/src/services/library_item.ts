@@ -1192,7 +1192,7 @@ export const findLibraryItemsByPrefix = async (
   )
 }
 
-export const countBySavedAt = async (
+export const countByCreatedAt = async (
   userId: string,
   startDate = new Date(0),
   endDate = new Date()
@@ -1202,7 +1202,7 @@ export const countBySavedAt = async (
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.saved_at between :startDate and :endDate', {
+        .andWhere('library_item.created_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
@@ -1256,7 +1256,7 @@ export const batchUpdateLibraryItems = async (
     const queryBuilder = getQueryBuilder(userId, em)
 
     if (forUpdate) {
-      queryBuilder.setLock('pessimistic_write')
+      queryBuilder.setLock('pessimistic_read')
     }
 
     const libraryItems = await queryBuilder

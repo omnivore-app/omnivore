@@ -129,6 +129,52 @@ const getCachedFetchResult = async (
   return fetchResult
 }
 
+const failureRedisKey = (domain: string) => `fetch-failure:${domain}`
+
+const isDomainBlocked = async (
+  redisDataSource: RedisDataSource,
+  domain: string
+) => {
+  const blockedDomains = ['localhost', 'weibo.com']
+  if (blockedDomains.includes(domain)) {
+    return true
+  }
+
+  const key = failureRedisKey(domain)
+  const redisClient = redisDataSource.cacheClient
+  try {
+    const result = await redisClient.get(key)
+    // if the domain has failed to fetch more than certain times, block it
+    const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
+    if (result && parseInt(result) > maxFailures) {
+      console.info(`domain is blocked: ${domain}`)
+      return true
+    }
+  } catch (error) {
+    console.error('Failed to check domain block status', { domain, error })
+  }
+
+  return false
+}
+
+const incrementContentFetchFailure = async (
+  redisDataSource: RedisDataSource,
+  domain: string
+) => {
+  const redisClient = redisDataSource.cacheClient
+  const key = failureRedisKey(domain)
+  try {
+    const result = await redisClient.incr(key)
+    // expire the key in 1 day
+    await redisClient.expire(key, 24 * 60 * 60)
+
+    return result
+  } catch (error) {
+    console.error('Failed to increment failure in redis', { domain, error })
+    return null
+  }
+}
+
 export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   const functionStartTime = Date.now()
 
@@ -200,8 +246,22 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         url
       )
 
-      fetchResult = await fetchContent(url, locale, timezone)
-      console.log('content has been fetched')
+      const domain = new URL(url).hostname
+      const isBlocked = await isDomainBlocked(redisDataSource, domain)
+      if (isBlocked) {
+        console.log('domain is blocked', domain)
+
+        return res.sendStatus(200)
+      }
+
+      try {
+        fetchResult = await fetchContent(url, locale, timezone)
+        console.log('content has been fetched')
+      } catch (error) {
+        await incrementContentFetchFailure(redisDataSource, domain)
+
+        throw error
+      }
 
       if (fetchResult.content && !NO_CACHE_URLS.includes(url)) {
         const cacheResult = await cacheFetchResult(

@@ -25,7 +25,7 @@ export const libraryItemRepository = appDataSource
         .andWhere('md5(original_url) = md5(:url)', { url })
 
       if (forUpdate) {
-        qb.setLock('pessimistic_write')
+        qb.setLock('pessimistic_read')
       }
 
       return qb.getOne()

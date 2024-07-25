@@ -27,7 +27,7 @@ const configs: Partial<Options> = {
 export const apiLimiter = rateLimit({
   ...configs,
   max: async (req) => {
-    // 100 RPM for an authenticated request, 15 for a non-authenticated request
+    // 60 RPM for authenticated request, 15 for non-authenticated request
     const token = getTokenByRequest(req)
     try {
       const claims = await getClaimsByToken(token)
@@ -41,6 +41,26 @@ export const apiLimiter = rateLimit({
     return getTokenByRequest(req) || req.ip
   },
   store: getStore('api-rate-limit'),
+})
+
+export const apiHourLimiter = rateLimit({
+  ...configs,
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: async (req) => {
+    // 600 for authenticated request, 150 for non-authenticated request
+    const token = getTokenByRequest(req)
+    try {
+      const claims = await getClaimsByToken(token)
+      return claims ? 600 : 150
+    } catch (e) {
+      console.log('non-authenticated request')
+      return 150
+    }
+  },
+  keyGenerator: (req) => {
+    return getTokenByRequest(req) || req.ip
+  },
+  store: getStore('api-hour-rate-limit'),
 })
 
 // 5 RPM for auth requests
