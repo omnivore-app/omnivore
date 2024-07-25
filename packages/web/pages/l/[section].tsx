@@ -78,11 +78,6 @@ export default function Home(): JSX.Element {
           <LibraryContainer
             folder="archive"
             filterFunc={(item) => {
-              console.log(
-                'running archive filter: ',
-                item.title,
-                item.isArchived
-              )
               return item.state != 'DELETED' && item.isArchived
             }}
             showNavigationMenu={showNavigationMenu}
@@ -92,7 +87,9 @@ export default function Home(): JSX.Element {
         return (
           <LibraryContainer
             folder="trash"
-            filterFunc={(item) => item.state == 'DELETED'}
+            filterFunc={(item) => {
+              return item.state == 'DELETED'
+            }}
             showNavigationMenu={showNavigationMenu}
           />
         )

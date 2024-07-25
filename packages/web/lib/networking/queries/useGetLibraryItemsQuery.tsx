@@ -319,7 +319,7 @@ export function useGetLibraryItemsQuery(
           break
         }
       }
-      mutate(responsePages, false)
+      mutate(responsePages)
     }
 
     switch (action) {
