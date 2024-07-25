@@ -2,7 +2,6 @@ import { Storage } from '@google-cloud/storage'
 import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RedisDataSource } from '@omnivore/utils'
 import 'dotenv/config'
-import { RequestHandler } from 'express'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
 
@@ -320,30 +319,4 @@ export const processFetchContentJob = async (
       }
     )
   }
-}
-
-export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
-  const data = <JobData>req.body
-
-  // create redis source
-  const redisDataSource = new RedisDataSource({
-    cache: {
-      url: process.env.REDIS_URL,
-      cert: process.env.REDIS_CERT,
-    },
-    mq: {
-      url: process.env.MQ_REDIS_URL,
-      cert: process.env.MQ_REDIS_CERT,
-    },
-  })
-
-  try {
-    await processFetchContentJob(redisDataSource, data)
-  } catch (error) {
-    return res.sendStatus(500)
-  } finally {
-    await redisDataSource.shutdown()
-  }
-
-  res.sendStatus(200)
 }

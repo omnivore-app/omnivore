@@ -13,7 +13,10 @@ import {
   updateSubscriptions,
 } from '../../services/update_subscription'
 import { findActiveUser } from '../../services/user'
-import { enqueueFetchContentJob } from '../../utils/createTask'
+import {
+  enqueueFetchContentJob,
+  FetchContentJobData,
+} from '../../utils/createTask'
 import { cleanUrl } from '../../utils/helpers'
 import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
@@ -331,7 +334,7 @@ const fetchContentAndCreateItem = async (
   feedUrl: string,
   item: RssFeedItem
 ) => {
-  const data = {
+  const data: FetchContentJobData = {
     users,
     source: 'rss-feeder',
     url: item.link.trim(),
@@ -339,6 +342,7 @@ const fetchContentAndCreateItem = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
+    priority: 'low',
   }
 
   try {

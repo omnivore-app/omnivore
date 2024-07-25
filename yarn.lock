@@ -2799,7 +2799,7 @@
     google-gax "^3.5.7"
     protobufjs "^7.2.5"
 
-"@google-cloud/functions-framework@3.1.2", "@google-cloud/functions-framework@^3.0.0":
+"@google-cloud/functions-framework@3.1.2":
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-3.1.2.tgz#2cd92ce4307bf7f32555d028dca22e398473b410"
   integrity sha512-pYvEH65/Rqh1JNPdcBmorcV7Xoom2/iOSmbtYza8msro7Inl+qOYxbyMiQfySD2gwAyn38WyWPRqsDRcf/BFLg==

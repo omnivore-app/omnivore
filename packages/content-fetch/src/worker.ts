@@ -1,15 +1,17 @@
 import { RedisDataSource } from '@omnivore/utils'
-import { Job, JobType, Queue, QueueEvents, RedisClient, Worker } from 'bullmq'
-import express, { Express } from 'express'
-import asyncHandler from 'express-async-handler'
+import { Job, Queue, QueueEvents, RedisClient, Worker } from 'bullmq'
 import { JobData, processFetchContentJob } from './request_handler'
 
-const QUEUE_NAME = 'omnivore-content-fetch-queue'
+const FAST_QUEUE = 'omnivore-content-fetch-queue'
+const SLOW_QUEUE = 'omnivore-content-fetch-slow-queue'
+const RSS_QUEUE = 'omnivore-content-fetch-rss-queue'
+const QUEUE_NAMES = [FAST_QUEUE, SLOW_QUEUE, RSS_QUEUE] as const
 
-export const getContentFetchQueue = async (
-  connection: RedisClient
+export const getQueue = async (
+  connection: RedisClient,
+  queueName: string
 ): Promise<Queue> => {
-  const queue = new Queue(QUEUE_NAME, {
+  const queue = new Queue(queueName, {
     connection,
     defaultJobOptions: {
       backoff: {
@@ -28,9 +30,29 @@ export const getContentFetchQueue = async (
   return queue
 }
 
-const createWorker = (redisDataSource: RedisDataSource) => {
-  return new Worker(
-    QUEUE_NAME,
+const createWorker = (redisDataSource: RedisDataSource, queueName: string) => {
+  const getLimiter = (queueName: string) => {
+    switch (queueName) {
+      case SLOW_QUEUE:
+        return {
+          max: 5,
+          duration: 1000, // 1 second
+        }
+      case RSS_QUEUE:
+        return {
+          max: 3,
+          duration: 1000, // 1 second
+        }
+      default:
+        return {
+          max: 10,
+          duration: 1000, // 1 second
+        }
+    }
+  }
+
+  const worker = new Worker(
+    queueName,
     async (job: Job<JobData>) => {
       // process the job
       await processFetchContentJob(redisDataSource, job.data)
@@ -38,152 +60,39 @@ const createWorker = (redisDataSource: RedisDataSource) => {
     {
       connection: redisDataSource.queueRedisClient,
       autorun: true, // start processing jobs immediately
-      limiter: {
-        max: 50,
-        duration: 1000, // 1 second
-      },
+      limiter: getLimiter(queueName),
     }
   )
-}
 
-const main = () => {
-  console.log('[worker]: starting worker')
-
-  const app: Express = express()
-  const port = process.env.PORT || 3002
-
-  // create redis source
-  const redisDataSource = new RedisDataSource({
-    cache: {
-      url: process.env.REDIS_URL,
-      cert: process.env.REDIS_CERT,
-    },
-    mq: {
-      url: process.env.MQ_REDIS_URL,
-      cert: process.env.MQ_REDIS_CERT,
-    },
+  worker.on('error', (err) => {
+    console.error('worker error:', err)
   })
 
-  // respond healthy to auto-scaler.
-  app.get('/_ah/health', (req, res) => res.sendStatus(200))
-
-  app.get(
-    '/lifecycle/prestop',
-    asyncHandler(async (_req, res) => {
-      console.log('prestop lifecycle hook called.')
-      await worker.close()
-      res.sendStatus(200)
-    })
-  )
-
-  app.get(
-    '/metrics',
-    asyncHandler(async (_, res) => {
-      const queue = await getContentFetchQueue(redisDataSource.queueRedisClient)
-      if (!queue) {
-        res.sendStatus(400)
-        return
-      }
-
-      let output = ''
-      const jobsTypes: JobType[] = [
-        'active',
-        'failed',
-        'completed',
-        'prioritized',
-      ]
-      const counts = await queue.getJobCounts(...jobsTypes)
-
-      jobsTypes.forEach((metric) => {
-        output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
-        output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
-      })
-
-      // Export the age of the oldest prioritized job in the queue
-      const oldestJobs = await queue.getJobs(['prioritized'], 0, 1, true)
-      if (oldestJobs.length > 0) {
-        const currentTime = Date.now()
-        const ageInSeconds = (currentTime - oldestJobs[0].timestamp) / 1000
-        output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
-        output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${ageInSeconds}\n`
-      } else {
-        output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
-        output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${0}\n`
-      }
-
-      res.status(200).setHeader('Content-Type', 'text/plain').send(output)
-    })
-  )
-
-  const server = app.listen(port, () => {
-    console.log(`[worker]: started`)
-  })
-
-  const worker = createWorker(redisDataSource)
-
-  const queueEvents = new QueueEvents(QUEUE_NAME, {
+  const queueEvents = new QueueEvents(queueName, {
     connection: redisDataSource.queueRedisClient,
   })
 
   queueEvents.on('added', (job) => {
-    console.log('added job: ', job.jobId, job.name)
+    console.log('added job:', job.jobId, job.name)
   })
 
   queueEvents.on('removed', (job) => {
-    console.log('removed job: ', job.jobId)
+    console.log('removed job:', job.jobId)
   })
 
   queueEvents.on('completed', (job) => {
-    console.log('completed job: ', job.jobId)
+    console.log('completed job:', job.jobId)
   })
 
   queueEvents.on('failed', (job) => {
-    console.log('failed job: ', job.jobId)
+    console.log('failed job:', job.jobId)
   })
 
-  const gracefulShutdown = async (signal: string) => {
-    console.log(`[worker]: Received ${signal}, closing server...`)
-    await new Promise<void>((resolve) => {
-      server.close((err) => {
-        console.log('[worker]: Express server closed')
-        if (err) {
-          console.log('[worker]: error stopping server', { err })
-        }
-
-        resolve()
-      })
-    })
-
-    await worker.close()
-    console.log('[worker]: Worker closed')
-
-    await redisDataSource.shutdown()
-    console.log('[worker]: Redis connection closed')
-
-    process.exit(0)
-  }
-
-  const handleShutdown = (signal: string) => {
-    return () => {
-      void gracefulShutdown(signal)
-    }
-  }
-
-  process.on('SIGTERM', handleShutdown('SIGTERM'))
-  process.on('SIGINT', handleShutdown('SIGINT'))
-
-  process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error)
-    handleShutdown('uncaughtException')
-  })
-
-  process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason)
-    handleShutdown('unhandledRejection')
-  })
+  return worker
 }
 
-// only call main if the file was called from the CLI and wasn't required from another module
-if (require.main === module) {
-  main()
+export const createWorkers = (redisDataSource: RedisDataSource) => {
+  return QUEUE_NAMES.map((queueName) =>
+    createWorker(redisDataSource, queueName)
+  )
 }
