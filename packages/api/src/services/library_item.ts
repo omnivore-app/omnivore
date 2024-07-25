@@ -1256,7 +1256,7 @@ export const batchUpdateLibraryItems = async (
     const queryBuilder = getQueryBuilder(userId, em)
 
     if (forUpdate) {
-      queryBuilder.setLock('pessimistic_write')
+      queryBuilder.setLock('pessimistic_read')
     }
 
     const libraryItems = await queryBuilder
