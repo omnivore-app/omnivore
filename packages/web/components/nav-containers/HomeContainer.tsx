@@ -37,7 +37,7 @@ import { Toaster } from 'react-hot-toast'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
-import { useGetRawSearchItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
 import { useRegisterActions } from 'kbar'
 
 type HomeState = {
@@ -182,8 +182,9 @@ type NavigationContextType = {
   dispatch: React.Dispatch<Action>
 }
 
-const NavigationContext =
-  createContext<NavigationContextType | undefined>(undefined)
+const NavigationContext = createContext<NavigationContextType | undefined>(
+  undefined
+)
 
 export const useNavigation = (): NavigationContextType => {
   const context = useContext(NavigationContext)
@@ -210,13 +211,15 @@ export function HomeContainer(): JSX.Element {
 
   const shouldFallback =
     homeData.error || (!homeData.isValidating && !hasTopPicks(homeData))
-  const searchData = useGetRawSearchItemsQuery(
+  const searchData = useGetLibraryItems(
+    undefined,
     {
       limit: 10,
       searchQuery: 'in:inbox',
       includeContent: false,
       sortDescending: true,
     },
+    // only enable this search if we didn't get home data
     shouldFallback
   )
 
@@ -227,27 +230,28 @@ export function HomeContainer(): JSX.Element {
   }, [viewerData])
 
   const searchItems = useMemo(() => {
-    return searchData.items.map((item) => {
-      return {
-        id: item.id,
-        date: item.savedAt,
-        title: item.title,
-        url: item.url,
-        slug: item.slug,
-        score: 1.0,
-        thumbnail: item.image,
-        previewContent: item.description,
-        source: {
-          name: item.folder == 'following' ? item.subscription : item.siteName,
-          icon: item.siteIcon,
-          type: 'LIBRARY',
-        },
-        canArchive: true,
-        canDelete: true,
-        canShare: true,
-        canMove: item.folder == 'following',
-      } as HomeItem
-    })
+    return []
+    // return searchData.items.map((item) => {
+    //   return {
+    //     id: item.id,
+    //     date: item.savedAt,
+    //     title: item.title,
+    //     url: item.url,
+    //     slug: item.slug,
+    //     score: 1.0,
+    //     thumbnail: item.image,
+    //     previewContent: item.description,
+    //     source: {
+    //       name: item.folder == 'following' ? item.subscription : item.siteName,
+    //       icon: item.siteIcon,
+    //       type: 'LIBRARY',
+    //     },
+    //     canArchive: true,
+    //     canDelete: true,
+    //     canShare: true,
+    //     canMove: item.folder == 'following',
+    //   } as HomeItem
+    // })
   }, [searchData])
 
   useEffect(() => {
@@ -383,7 +387,7 @@ export function HomeContainer(): JSX.Element {
   )
 
   const dataReady =
-    !homeData.isValidating && (!shouldFallback || !searchData.isValidating)
+    !homeData.isValidating && (!shouldFallback || !searchData.isLoading)
   if (!dataReady || (homeData.error && homeData.errorMessage == 'PENDING')) {
     console.log('showing pending')
     return (

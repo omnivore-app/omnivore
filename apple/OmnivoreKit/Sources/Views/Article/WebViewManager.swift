@@ -20,6 +20,8 @@ enum WebViewConfigurationManager {
 
 public enum WebViewManager {
   public static let sharedView = create()
+  public static let cookieView = create()
+
   public static func shared() -> OmnivoreWebView {
     sharedView
   }

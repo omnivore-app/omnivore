@@ -1,6 +1,6 @@
 import { LayoutType } from '../../templates/homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import type { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import type { LibraryItemNode } from '../../../lib/networking/library_items/useLibraryItems'
 import { MultiSelectMode } from '../../templates/homeFeed/LibraryHeader'
 
 export type LinkedItemCardAction =
@@ -18,6 +18,7 @@ export type LinkedItemCardAction =
   | 'update-item'
   | 'move-to-inbox'
   | 'refresh'
+  | 'restore'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode

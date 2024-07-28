@@ -17,7 +17,6 @@ export const articleFragment = gql`
     readingProgressAnchorIndex
     slug
     folder
-    isArchived
     description
     linkId
     state
@@ -60,7 +59,6 @@ export type ArticleFragmentData = {
   readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
-  isArchived: boolean
   description: string
   linkId?: string
   state?: State

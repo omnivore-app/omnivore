@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request'
 import { highlightFragment } from '../fragments/highlightFragment'
+import { articleFragment } from '../fragments/articleFragment'
+import { labelFragment } from '../fragments/labelFragment'
 
 export const recommendationFragment = gql`
   fragment RecommendationFields on Recommendation {
@@ -41,7 +43,6 @@ export const GQL_SEARCH_QUERY = gql`
             pageType
             contentReader
             createdAt
-            isArchived
             readingProgressPercent
             readingProgressTopPercent
             readingProgressAnchorIndex
@@ -152,4 +153,37 @@ export const GQL_UPDATE_LIBRARY_ITEM = gql`
       }
     }
   }
+`
+
+export const GQL_GET_LIBRARY_ITEM_CONTENT = gql`
+  query GetArticle(
+    $username: String!
+    $slug: String!
+    $includeFriendsHighlights: Boolean
+  ) {
+    article(username: $username, slug: $slug) {
+      ... on ArticleSuccess {
+        article {
+          ...ArticleFields
+          content
+          highlights(input: { includeFriends: $includeFriendsHighlights }) {
+            ...HighlightFields
+          }
+          labels {
+            ...LabelFields
+          }
+          recommendations {
+            ...RecommendationFields
+          }
+        }
+      }
+      ... on ArticleError {
+        errorCodes
+      }
+    }
+  }
+  ${articleFragment}
+  ${highlightFragment}
+  ${labelFragment}
+  ${recommendationFragment}
 `

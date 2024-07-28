@@ -9,12 +9,9 @@ import {
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { ScopedMutator } from 'swr/dist/_internal'
 import { Label, labelFragment } from '../fragments/labelFragment'
-import {
-  LibraryItems,
-  Recommendation,
-  recommendationFragment,
-} from './useGetLibraryItemsQuery'
+import { LibraryItems, Recommendation } from '../library_items/useLibraryItems'
 import useSWR from 'swr'
+import { recommendationFragment } from '../library_items/gql'
 
 type ArticleQueryInput = {
   username?: string
@@ -49,7 +46,6 @@ export type ArticleAttributes = {
   author?: string
   image?: string
   savedAt: string
-  isArchived: boolean
   createdAt: string
   publishedAt?: string
   description?: string

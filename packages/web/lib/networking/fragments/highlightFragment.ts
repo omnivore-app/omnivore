@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request'
-import { LibraryItemNode } from '../queries/useGetLibraryItemsQuery'
+import { LibraryItemNode } from '../library_items/useLibraryItems'
 import { Label } from './labelFragment'
 
 export const highlightFragment = gql`

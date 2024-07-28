@@ -14,7 +14,7 @@ import { theme } from '../../components/tokens/stitches.config'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { useRouter } from 'next/router'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
 import {
   BorderedFormInput,
   FormLabel,
@@ -34,21 +34,20 @@ export default function BulkPerformer(): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [runningState, setRunningState] = useState<RunningState>('none')
 
-  const { itemsPages, isValidating } = useGetLibraryItemsQuery('', {
+  const { data: itemsPages, isLoading } = useGetLibraryItems(undefined, {
     searchQuery: query,
     limit: 1,
     sortDescending: false,
   })
 
   useEffect(() => {
-    console.log('itemsPages: ', itemsPages)
-    setExpectedCount(itemsPages?.find(() => true)?.search.pageInfo.totalCount)
+    setExpectedCount(itemsPages?.pages.find(() => true)?.pageInfo.totalCount)
   }, [itemsPages])
 
   const performAction = useCallback(() => {
     ;(async () => {
       console.log('performing action: ', action)
-      if (isValidating) {
+      if (isLoading) {
         showErrorToast('Query still being validated.')
         return
       }
