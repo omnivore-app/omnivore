@@ -9,20 +9,17 @@ import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { libraryListCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import {
-  PageType,
-  State,
-} from '../../../lib/networking/fragments/articleFragment'
-import {
   SearchItem,
   TypeaheadSearchItemsData,
   typeaheadSearchQuery,
 } from '../../../lib/networking/queries/typeaheadSearch'
-import type {
+import {
   LibraryItem,
   LibraryItemNode,
+  LibraryItems,
   LibraryItemsQueryInput,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+  useGetLibraryItems,
+} from '../../../lib/networking/library_items/useLibraryItems'
 import {
   useGetViewerQuery,
   UserBasicData,
@@ -56,6 +53,7 @@ import { LibraryHeader } from './LibraryHeader'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -99,11 +97,13 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [notebookTarget, setNotebookTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -114,27 +114,25 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     useState<LibraryItemsQueryInput>(defaultQuery)
 
   const {
-    itemsPages,
-    size,
-    setSize,
-    isValidating,
-    performActionOnItem,
-    mutate,
+    data: itemsPages,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
     error: fetchItemsError,
-  } = useGetLibraryItemsQuery(props.folder, queryInputs)
+  } = useGetLibraryItems(props.folder, queryInputs)
 
-  useEffect(() => {
-    const handleRevalidate = () => {
-      ;(async () => {
-        console.log('revalidating library')
-        await mutate()
-      })()
-    }
-    document.addEventListener('revalidateLibrary', handleRevalidate)
-    return () => {
-      document.removeEventListener('revalidateLibrary', handleRevalidate)
-    }
-  }, [mutate])
+  // useEffect(() => {
+  //   const handleRevalidate = () => {
+  //     ;(async () => {
+  //       console.log('revalidating library')
+  //       await mutate()
+  //     })()
+  //   }
+  //   document.addEventListener('revalidateLibrary', handleRevalidate)
+  //   return () => {
+  //     document.removeEventListener('revalidateLibrary', handleRevalidate)
+  //   }
+  // }, [mutate])
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -157,7 +155,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
     if (qs !== (queryInputs.searchQuery || '')) {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
-      performActionOnItem('refresh', undefined as unknown as any)
+      // performActionOnItem('refresh', undefined as unknown as any)
     }
 
     // intentionally not watching queryInputs and performActionOnItem
@@ -169,25 +167,25 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     window.localStorage.setItem('nav-return', router.asPath)
   }, [router.asPath])
 
-  const hasMore = useMemo(() => {
-    if (!itemsPages) {
-      return false
-    }
-    return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
-  }, [itemsPages])
+  // const hasMore = useMemo(() => {
+  //   if (!itemsPages) {
+  //     return false
+  //   }
+  //   return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
+  // }, [itemsPages])
 
   const libraryItems = useMemo(() => {
     const items =
-      itemsPages
-        ?.flatMap((ad) => {
-          return ad.search.edges.map((it) => ({
+      itemsPages?.pages
+        .flatMap((ad: LibraryItems) => {
+          return ad.edges.map((it) => ({
             ...it,
             isLoading: it.node.state === 'PROCESSING',
           }))
         })
         .filter((item) => props.filterFunc(item.node)) || []
     return items
-  }, [itemsPages, performActionOnItem])
+  }, [itemsPages])
 
   useEffect(() => {
     if (localStorage) {
@@ -198,78 +196,78 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     }
   }, [libraryItems])
 
-  useEffect(() => {
-    const timeout: NodeJS.Timeout[] = []
+  // useEffect(() => {
+  //   const timeout: NodeJS.Timeout[] = []
 
-    const items = (
-      itemsPages?.flatMap((ad) => {
-        return ad.search.edges.map((it) => ({
-          ...it,
-          isLoading: it.node.state === 'PROCESSING',
-        }))
-      }) || []
-    ).filter((it) => it.isLoading)
+  //   const items = (
+  //     itemsPages?.flatMap((ad) => {
+  //       return ad.search.edges.map((it) => ({
+  //         ...it,
+  //         isLoading: it.node.state === 'PROCESSING',
+  //       }))
+  //     }) || []
+  //   ).filter((it) => it.isLoading)
 
-    items.map(async (item) => {
-      let startIdx = 0
+  //   items.map(async (item) => {
+  //     let startIdx = 0
 
-      const seeIfUpdated = async () => {
-        if (startIdx >= TIMEOUT_DELAYS.length) {
-          item.node.state = State.FAILED
-          const updatedArticle = { ...item }
-          updatedArticle.node = { ...item.node }
-          updatedArticle.isLoading = false
-          performActionOnItem('update-item', updatedArticle)
-          return
-        }
+  //     const seeIfUpdated = async () => {
+  //       if (startIdx >= TIMEOUT_DELAYS.length) {
+  //         item.node.state = State.FAILED
+  //         const updatedArticle = { ...item }
+  //         updatedArticle.node = { ...item.node }
+  //         updatedArticle.isLoading = false
+  //         // performActionOnItem('update-item', updatedArticle)
+  //         return
+  //       }
 
-        const username = viewerData?.me?.profile.username
-        const itemsToUpdate = libraryItems.filter((it) => it.isLoading)
+  //       const username = viewerData?.me?.profile.username
+  //       const itemsToUpdate = libraryItems.filter((it) => it.isLoading)
 
-        if (itemsToUpdate.length > 0) {
-          const link = await articleQuery({
-            username,
-            slug: item.node.id,
-            includeFriendsHighlights: false,
-          })
+  //       if (itemsToUpdate.length > 0) {
+  //         const link = await articleQuery({
+  //           username,
+  //           slug: item.node.id,
+  //           includeFriendsHighlights: false,
+  //         })
 
-          if (link && link.state != 'PROCESSING') {
-            const updatedArticle = { ...item }
-            updatedArticle.node = { ...item.node, ...link }
-            updatedArticle.isLoading = false
-            console.log(`Updating Metadata of ${item.node.slug}.`)
-            performActionOnItem('update-item', updatedArticle)
-            return
-          }
+  //         if (link && link.state != 'PROCESSING') {
+  //           const updatedArticle = { ...item }
+  //           updatedArticle.node = { ...item.node, ...link }
+  //           updatedArticle.isLoading = false
+  //           console.log(`Updating Metadata of ${item.node.slug}.`)
+  //           // performActionOnItem('update-item', updatedArticle)
+  //           return
+  //         }
 
-          console.log(
-            `Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`
-          )
-          timeout.push(setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++]))
-        }
-      }
+  //         console.log(
+  //           `Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`
+  //         )
+  //         timeout.push(setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++]))
+  //       }
+  //     }
 
-      await seeIfUpdated()
-    })
+  //     await seeIfUpdated()
+  //   })
 
-    return () => {
-      timeout.forEach(clearTimeout)
-    }
-  }, [itemsPages])
+  //   return () => {
+  //     timeout.forEach(clearTimeout)
+  //   }
+  // }, [itemsPages])
 
-  const handleFetchMore = useCallback(() => {
-    if (isValidating || !hasMore) {
-      return
-    }
-    setSize(size + 1)
-  }, [size, isValidating])
+  // const handleFetchMore = useCallback(() => {
+  //   if (isLoading || !hasNextPage) {
+  //     return
+  //   }
+  //   setSize(size + 1)
+  // }, [size, isValidating])
 
-  useEffect(() => {
-    if (isValidating || !hasMore || size !== 1) {
-      return
-    }
-    setSize(size + 1)
-  }, [size, isValidating])
+  // useEffect(() => {
+  //   if (isValidating || !hasNextPage || size !== 1) {
+  //     return
+  //   }
+  //   setSize(size + 1)
+  // }, [size, isValidating])
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {
@@ -375,9 +373,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       scrollToActiveCard(activeCardId)
       alreadyScrolled.current = true
 
-      if (activeItem) {
-        performActionOnItem('refresh', activeItem)
-      }
+      // if (activeItem) {
+      //   performActionOnItem('refresh', activeItem)
+      // }
     }
   }, [activeCardId, scrollToActiveCard])
 
@@ -389,59 +387,64 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       return
     }
 
-    switch (action) {
-      case 'showDetail':
-        const username = viewerData?.me?.profile.username
-        if (username) {
-          setActiveCardId(item.node.id)
-          if (item.node.state === State.PROCESSING) {
-            router.push(`/article?url=${encodeURIComponent(item.node.url)}`)
-          } else {
-            const dl =
-              item.node.pageType === PageType.HIGHLIGHTS
-                ? `#${item.node.id}`
-                : ''
-            router.push(`/${username}/${item.node.slug}` + dl)
-          }
-        }
-        break
-      case 'showOriginal':
-        const url = item.node.originalArticleUrl
-        if (url) {
-          window.open(url, '_blank')
-        }
-        break
-      case 'archive':
-        performActionOnItem('archive', item)
-        break
-      case 'unarchive':
-        performActionOnItem('unarchive', item)
-        break
-      case 'delete':
-        performActionOnItem('delete', item)
-        break
-      case 'mark-read':
-        performActionOnItem('mark-read', item)
-        break
-      case 'mark-unread':
-        performActionOnItem('mark-unread', item)
-        break
-      case 'set-labels':
-        setLabelsTarget(item)
-        break
-      case 'open-notebook':
-        if (!notebookTarget) {
-          setNotebookTarget(item)
-        } else {
-          setNotebookTarget(undefined)
-        }
-        break
-      case 'unsubscribe':
-        performActionOnItem('unsubscribe', item)
-      case 'update-item':
-        performActionOnItem('update-item', item)
-        break
-    }
+    // switch (action) {
+    //   case 'showDetail':
+    //     const username = viewerData?.me?.profile.username
+    //     if (username) {
+    //       setActiveCardId(item.node.id)
+    //       if (item.node.state === State.PROCESSING) {
+    //         router.push(`/article?url=${encodeURIComponent(item.node.url)}`)
+    //       } else {
+    //         const dl =
+    //           item.node.pageType === PageType.HIGHLIGHTS
+    //             ? `#${item.node.id}`
+    //             : ''
+    //         router.push(`/${username}/${item.node.slug}` + dl)
+    //       }
+    //     }
+    //     break
+    //   case 'showOriginal':
+    //     const url = item.node.originalArticleUrl
+    //     if (url) {
+    //       window.open(url, '_blank')
+    //     }
+    //     break
+    //   case 'archive':
+    //     performActionOnItem('archive', item)
+    //     break
+    //   case 'unarchive':
+    //     performActionOnItem('unarchive', item)
+    //     break
+    //   case 'delete':
+    //     performActionOnItem('delete', item)
+    //     break
+    //   case 'restore':
+    //     performActionOnItem('restore', item)
+    //     break
+    //   case 'mark-read':
+    //     performActionOnItem('mark-read', item)
+    //     break
+    //   case 'mark-unread':
+    //     performActionOnItem('mark-unread', item)
+    //     break
+    //   case 'set-labels':
+    //     setLabelsTarget(item)
+    //     break
+    //   case 'open-notebook':
+    //     if (!notebookTarget) {
+    //       setNotebookTarget(item)
+    //     } else {
+    //       setNotebookTarget(undefined)
+    //     }
+    //     break
+    //   case 'unsubscribe':
+    //     performActionOnItem('unsubscribe', item)
+    //   case 'update-item':
+    //     performActionOnItem('update-item', item)
+    //     break
+    //   default:
+    //     console.warn('unknown action: ', action)
+    // }
   }
 
   const modalTargetItem = useMemo(() => {
@@ -590,19 +593,20 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     })
   )
 
-  const ARCHIVE_ACTION = !activeItem?.node.isArchived
-    ? createAction({
-        section: 'Library',
-        name: 'Archive selected item',
-        shortcut: ['e'],
-        perform: () => handleCardAction('archive', activeItem),
-      })
-    : createAction({
-        section: 'Library',
-        name: 'UnArchive selected item',
-        shortcut: ['e'],
-        perform: () => handleCardAction('unarchive', activeItem),
-      })
+  const ARCHIVE_ACTION =
+    activeItem?.node.state !== State.ARCHIVED
+      ? createAction({
+          section: 'Library',
+          name: 'Archive selected item',
+          shortcut: ['e'],
+          perform: () => handleCardAction('archive', activeItem),
+        })
+      : createAction({
+          section: 'Library',
+          name: 'UnArchive selected item',
+          shortcut: ['e'],
+          perform: () => handleCardAction('unarchive', activeItem),
+        })
 
   const ACTIVE_ACTIONS = [
     ARCHIVE_ACTION,
@@ -676,7 +680,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS,
     [activeCardId, activeItem]
   )
-  useFetchMore(handleFetchMore)
+  useFetchMore(fetchNextPage)
 
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {
@@ -710,8 +714,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       case 'search':
       case 'visible':
         const allIds = (
-          itemsPages?.flatMap((ad) => {
-            return ad.search.edges
+          itemsPages?.pages.flatMap((ad) => {
+            return ad.edges
           }) || []
         ).map((item) => item.node.id)
         setCheckedItems(allIds)
@@ -739,10 +743,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
           multiSelectMode === 'search'
             ? queryInputs.searchQuery || 'in:inbox'
             : `includes:${checkedItems.join(',')}`
-        const expectedCount =
-          multiSelectMode === 'search'
-            ? itemsPages?.[0].search.pageInfo.totalCount || 0
-            : checkedItems.length
+        const expectedCount = checkedItems.length
 
         try {
           const res = await bulkActionMutation(
@@ -753,7 +754,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
           )
           if (res) {
             let successMessage: string | undefined = undefined
-            console.log(action)
             switch (action) {
               case BulkAction.ARCHIVE:
                 successMessage = 'Link Archived'
@@ -781,7 +781,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
             position: 'bottom-right',
           })
         }
-        mutate()
+        // mutate()
       })()
       setMultiSelectMode('off')
     },
@@ -800,7 +800,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         return Promise.resolve()
       })
       const id = result.url?.match(/[^/]+$/)?.[0] ?? ''
-      performActionOnItem('refresh', undefined as unknown as any)
+      // performActionOnItem('refresh', undefined as unknown as any)
     } else {
       showErrorToast('Error saving link', { position: 'bottom-right' })
     }
@@ -811,7 +811,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       folder={props.folder}
       items={libraryItems}
       actionHandler={handleCardAction}
-      reloadItems={mutate}
       setIsChecked={setIsChecked}
       itemIsChecked={itemIsChecked}
       multiSelectMode={multiSelectMode}
@@ -836,18 +835,12 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
         window.sessionStorage.setItem('q', qp.toString())
-        performActionOnItem('refresh', undefined as unknown as any)
+        // performActionOnItem('refresh', undefined as unknown as any)
       }}
-      loadMore={() => {
-        if (isValidating) {
-          return
-        }
-        setSize(size + 1)
-      }}
-      hasMore={hasMore}
+      loadMore={fetchNextPage}
+      hasMore={hasNextPage ?? false}
       hasData={!!itemsPages}
-      totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
-      isValidating={isValidating}
+      isValidating={isLoading}
       fetchItemsError={!!fetchItemsError}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
@@ -864,11 +857,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       setLinkToEdit={setLinkToEdit}
       linkToUnsubscribe={linkToUnsubscribe}
       setLinkToUnsubscribe={setLinkToUnsubscribe}
-      numItemsSelected={
-        multiSelectMode == 'search'
-          ? itemsPages?.[0].search.pageInfo.totalCount || 0
-          : checkedItems.length
-      }
+      numItemsSelected={checkedItems.length}
     />
   )
 }
@@ -877,12 +866,10 @@ export type HomeFeedContentProps = {
   folder: string
   items: LibraryItem[]
   searchTerm?: string
-  reloadItems: () => void
   gridContainerRef: React.RefObject<HTMLDivElement>
   applySearchQuery: (searchQuery: string) => void
   hasMore: boolean
   hasData: boolean
-  totalItems: number
   isValidating: boolean
   fetchItemsError: boolean
 
@@ -1162,7 +1149,7 @@ export function LibraryItemsLayout(
           }}
           style={{ height: '100%', width: '100%' }}
         >
-          <LibraryItems
+          <LibraryItemsList
             folder={props.folder}
             items={props.items}
             layout={props.layout}
@@ -1274,7 +1261,7 @@ type LibraryItemsProps = {
   ) => Promise<void>
 }
 
-function LibraryItems(props: LibraryItemsProps): JSX.Element {
+function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
   return (
     <Box
       ref={props.gridContainerRef}

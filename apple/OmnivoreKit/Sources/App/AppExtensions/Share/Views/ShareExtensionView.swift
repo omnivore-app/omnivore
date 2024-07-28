@@ -302,6 +302,10 @@ public struct ShareExtensionView: View {
     VStack(alignment: .leading, spacing: 15) {
       titleBar
         .padding(.top, 15)
+      
+      if let urlToLoad = viewModel.urlToLoad {
+        InternalWebAppView(request: URLRequest(url: urlToLoad))
+      }
 
       TabView(selection: $visibleTab) {
         infoBox

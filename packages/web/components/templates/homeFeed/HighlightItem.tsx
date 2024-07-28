@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { DotsThreeVertical } from '@phosphor-icons/react'
 import { useCallback } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import {

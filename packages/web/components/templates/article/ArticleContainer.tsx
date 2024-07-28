@@ -19,7 +19,7 @@ import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Recommendation } from '../../../lib/networking/library_items/useLibraryItems'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { AISummary } from './AISummary'
@@ -124,16 +124,21 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
-    useState<number | null>(null)
-  const [lineHeightOverride, setLineHeightOverride] =
-    useState<number | null>(null)
-  const [fontFamilyOverride, setFontFamilyOverride] =
-    useState<string | null>(null)
-  const [highContrastTextOverride, setHighContrastTextOverride] =
-    useState<boolean | undefined>(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] =
-    useState<boolean | undefined>(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
+  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )

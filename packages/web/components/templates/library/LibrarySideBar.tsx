@@ -20,8 +20,7 @@ import {
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+} from '../../../lib/networking/library_items/useLibraryItems'
 import {
   useGetViewerQuery,
   UserBasicData,

@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
 import { Dropdown, DropdownOption } from '../elements/DropdownElements'
-import { LibraryItemNode } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import {
+  LibraryItemNode,
+  useUpdateItemReadStatus,
+} from '../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
+import { State } from '../../lib/networking/fragments/articleFragment'
 
 export type CardMenuDropdownAction =
-  | 'mark-read'
-  | 'mark-unread'
   | 'archive'
   | 'unarchive'
   | 'delete'
@@ -24,13 +26,15 @@ type CardMenuProps = {
 }
 
 export function CardMenu(props: CardMenuProps): JSX.Element {
+  const updateItemReadStatus = useUpdateItemReadStatus()
+
   return (
     <Dropdown
       triggerElement={props.triggerElement}
       onOpenChange={props.onOpenChange}
       css={{ bg: '$thNavMenuFooter' }}
     >
-      {!props.item.isArchived ? (
+      {props.item.state != State.ARCHIVED ? (
         <DropdownOption
           onSelect={() => props.actionHandler('archive')}
           title="Archive"
@@ -63,15 +67,23 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
       />
       {props.item.readingProgressPercent < 98 ? (
         <DropdownOption
-          onSelect={() => {
-            props.actionHandler('mark-read')
+          onSelect={async () => {
+            await updateItemReadStatus.mutateAsync({
+              id: props.item.id,
+              readingProgressPercent: 100,
+              force: true,
+            })
           }}
           title="Mark read"
         />
       ) : (
         <DropdownOption
-          onSelect={() => {
-            props.actionHandler('mark-unread')
+          onSelect={async () => {
+            await updateItemReadStatus.mutateAsync({
+              id: props.item.id,
+              readingProgressPercent: 0,
+              force: true,
+            })
           }}
           title="Mark unread"
         />

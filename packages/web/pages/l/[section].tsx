@@ -10,6 +10,7 @@ import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { isTouchScreenDevice } from '../../lib/deviceType'
+import { State } from '../../lib/networking/fragments/articleFragment'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
@@ -51,8 +52,8 @@ export default function Home(): JSX.Element {
             folder="inbox"
             filterFunc={(item) => {
               return (
-                item.state != 'DELETED' &&
-                !item.isArchived &&
+                item.state !== State.ARCHIVED &&
+                item.state !== State.DELETED &&
                 item.folder == 'inbox'
               )
             }}
@@ -65,8 +66,8 @@ export default function Home(): JSX.Element {
             folder="following"
             filterFunc={(item) => {
               return (
-                item.state != 'DELETED' &&
-                !item.isArchived &&
+                item.state !== State.ARCHIVED &&
+                item.state !== State.DELETED &&
                 item.folder == 'following'
               )
             }}
@@ -78,7 +79,7 @@ export default function Home(): JSX.Element {
           <LibraryContainer
             folder="archive"
             filterFunc={(item) => {
-              return item.state != 'DELETED' && item.isArchived
+              return item.state == 'ARCHIVED'
             }}
             showNavigationMenu={showNavigationMenu}
           />

@@ -57,8 +57,6 @@ export default function Debug(): JSX.Element {
     result.push({ name: 'savedAt', value: article.savedAt })
     result.push({ name: 'createdAt', value: article.createdAt })
     result.push({ name: 'publishedAt', value: article.publishedAt ?? 'null' })
-
-    result.push({ name: 'isArchived', value: article.isArchived.toString() })
     result.push({ name: 'description', value: article.description ?? 'null' })
 
     result.push({

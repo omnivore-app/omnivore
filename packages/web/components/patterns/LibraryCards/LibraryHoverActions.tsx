@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import {
+  LibraryItemNode,
+  useArchiveItem,
+  useDeleteItem,
+  useRestoreItem,
+} from '../../../lib/networking/library_items/useLibraryItems'
 import { LinkedItemCardAction } from './CardTypes'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
@@ -14,6 +19,8 @@ import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { BrowserIcon } from '../../elements/icons/BrowserIcon'
 import { MoveToInboxIcon } from '../../elements/icons/MoveToInboxIcon'
+import { UntrashIcon } from '../../elements/icons/UntrashIcon'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
@@ -26,6 +33,9 @@ type LibraryHoverActionsProps = {
 
 export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
+  const archiveItem = useArchiveItem()
+  const deleteItem = useDeleteItem()
+  const restoreItem = useRestoreItem()
 
   return (
     <Box
@@ -89,16 +99,22 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         </Button>
       ) : (
         <Button
-          title={props.item.isArchived ? 'Unarchive (e)' : 'Archive (e)'}
+          title={
+            props.item.state === State.ARCHIVED
+              ? 'Unarchive (e)'
+              : 'Archive (e)'
+          }
           style="hoverActionIcon"
-          onClick={(event) => {
-            const action = props.item.isArchived ? 'unarchive' : 'archive'
-            props.handleAction(action)
+          onClick={async (event) => {
+            await archiveItem.mutateAsync({
+              linkId: props.item.id,
+              archived: props.item.state !== State.ARCHIVED,
+            })
             event.preventDefault()
             event.stopPropagation()
           }}
         >
-          {props.item.isArchived ? (
+          {props.item.state === State.ARCHIVED ? (
             <UnarchiveIcon
               size={21}
               color={theme.colors.thNotebookSubtle.toString()}
@@ -112,15 +128,29 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         </Button>
       )}
       <Button
-        title="Remove (#)"
+        title={props.item.state == State.DELETED ? 'Restore' : 'Remove (#)'}
         style="hoverActionIcon"
-        onClick={(event) => {
-          props.handleAction('delete')
+        onClick={async (event) => {
+          if (props.item.state == State.DELETED) {
+            await restoreItem.mutateAsync(props.item.id)
+          } else {
+            await deleteItem.mutateAsync(props.item.id)
+          }
           event.preventDefault()
           event.stopPropagation()
         }}
       >
-        <TrashIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        {props.item.state == State.DELETED ? (
+          <UntrashIcon
+            size={21}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        ) : (
+          <TrashIcon
+            size={21}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        )}
       </Button>
       <Button
         title="Edit labels (l)"
