@@ -40,7 +40,7 @@
     "dayjs": "^1.11.7",
     "diff-match-patch": "^1.0.5",
     "epubjs": "^0.3.93",
-    "graphql-request": "^3.6.1",
+    "graphql-request": "^7.1.0",
     "kbar": "^v0.1.0-beta.45",
     "loadjs": "^4.3.0-rc1",
     "markdown-it": "^13.0.1",
