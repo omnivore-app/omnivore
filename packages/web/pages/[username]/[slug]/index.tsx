@@ -44,7 +44,6 @@ import {
   useCreateHighlight,
   useDeleteHighlight,
   useMergeHighlight,
-  useMergeHighlights,
   useUpdateHighlight,
 } from '../../../lib/networking/highlights/useItemHighlights'
 

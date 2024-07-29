@@ -385,6 +385,7 @@ export type ArticleAttributes = {
   publishedAt?: string
   description?: string
   wordsCount?: number
+  originalHtml?: string
   contentReader: ContentReader
   readingProgressPercent: number
   readingProgressTopPercent?: number

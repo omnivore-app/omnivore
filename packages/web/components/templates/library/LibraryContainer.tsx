@@ -461,7 +461,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         }
         break
       case 'unsubscribe':
-        setLinkToUnsubscribe(item.node)
+        // setLinkToUnsubscribe(item.node)
         break
       default:
         console.warn('unknown action: ', action)
@@ -1211,6 +1211,10 @@ export function LibraryItemsLayout(
           onOpenChange={() => {
             props.setShowEditTitleModal(false)
             props.setLinkToEdit(undefined)
+          }}
+          updateItem={async () => {
+            await Promise.resolve()
+            console.log('item updated')
           }}
           item={props.linkToEdit as LibraryItem}
         />
