@@ -145,6 +145,22 @@ export const GQL_MOVE_ITEM_TO_FOLDER = gql`
   }
 `
 
+export const GQL_SET_LABELS = gql`
+  mutation SetLabels($input: SetLabelsInput!) {
+    setLabels(input: $input) {
+      ... on SetLabelsSuccess {
+        labels {
+          ...LabelFields
+        }
+      }
+      ... on SetLabelsError {
+        errorCodes
+      }
+    }
+  }
+  ${labelFragment}
+`
+
 export const GQL_UPDATE_LIBRARY_ITEM = gql`
   mutation UpdatePage($input: UpdatePageInput!) {
     updatePage(input: $input) {

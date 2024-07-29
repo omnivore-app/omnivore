@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useReducer } from 'react'
-import { setLabelsMutation } from '../networking/mutations/setLabelsMutation'
 import { Label } from '../networking/fragments/labelFragment'
 import { showErrorToast } from '../toastHelpers'
 import throttle from 'lodash/throttle'
+import { useSetItemLabels } from '../networking/library_items/useLibraryItems'
 
 export type LabelAction = 'RESET' | 'TEMP' | 'SAVE'
 export type LabelsDispatcher = (action: {
@@ -13,11 +13,14 @@ export type LabelsDispatcher = (action: {
 export const useSetPageLabels = (
   articleId?: string
 ): [{ labels: Label[] }, LabelsDispatcher] => {
+  const setItemLabels = useSetItemLabels()
   const saveLabels = (labels: Label[], articleId: string) => {
     ;(async () => {
-      const labelIds = labels.map((l) => l.id)
       if (articleId) {
-        const result = await setLabelsMutation(articleId, labelIds)
+        const result = await setItemLabels.mutateAsync({
+          itemId: articleId,
+          labels,
+        })
         if (!result) {
           showErrorToast('Error saving labels', {
             position: 'bottom-right',
