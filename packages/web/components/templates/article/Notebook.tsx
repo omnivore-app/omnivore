@@ -245,6 +245,10 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             viewInReader={props.viewInReader}
             setSetLabelsTarget={setLabelsTarget}
             setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
+            updateHighlight={() => {
+              // nothing should be needed here anymore with new caching
+              console.log('update highlight')
+            }}
           />
         ))}
         {sortedHighlights.length === 0 && (
