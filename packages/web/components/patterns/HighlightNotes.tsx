@@ -50,6 +50,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
   const saveText = useCallback(
     (text: string, updateTime: Date, interactive: boolean) => {
       ;(async () => {
+        console.log('updating highlight text')
         const success = await updateHighlightMutation({
           annotation: text,
           libraryItemId: props.targetId,

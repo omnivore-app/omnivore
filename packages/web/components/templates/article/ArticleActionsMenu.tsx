@@ -1,5 +1,5 @@
 import { Separator } from '@radix-ui/react-separator'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Button } from '../../elements/Button'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { styled, theme } from '../../tokens/stitches.config'

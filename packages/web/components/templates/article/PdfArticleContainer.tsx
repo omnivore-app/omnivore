@@ -1,4 +1,4 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Box } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
@@ -36,8 +36,9 @@ export default function PdfArticleContainer(
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {

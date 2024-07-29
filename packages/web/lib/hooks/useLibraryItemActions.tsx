@@ -1,18 +1,24 @@
 import { useCallback } from 'react'
-import { setLinkArchivedMutation } from '../networking/mutations/setLinkArchivedMutation'
 import {
   showErrorToast,
   showSuccessToast,
   showSuccessToastWithUndo,
 } from '../toastHelpers'
-import { deleteLinkMutation } from '../networking/mutations/deleteLinkMutation'
 import { updatePageMutation } from '../networking/mutations/updatePageMutation'
 import { State } from '../networking/fragments/articleFragment'
-import { moveToFolderMutation } from '../networking/mutations/moveToLibraryMutation'
+import {
+  useArchiveItem,
+  useDeleteItem,
+  useMoveItemToFolder,
+} from '../networking/library_items/useLibraryItems'
 
 export default function useLibraryItemActions() {
-  const archiveItem = useCallback(async (itemId: string) => {
-    const result = await setLinkArchivedMutation({
+  const archiveItem = useArchiveItem()
+  const deleteItem = useDeleteItem()
+  const moveItem = useMoveItemToFolder()
+
+  const doArchiveItem = useCallback(async (itemId: string) => {
+    const result = await archiveItem.mutateAsync({
       linkId: itemId,
       archived: true,
     })
@@ -27,8 +33,8 @@ export default function useLibraryItemActions() {
     return !!result
   }, [])
 
-  const deleteItem = useCallback(async (itemId: string, undo: () => void) => {
-    const result = await deleteLinkMutation(itemId)
+  const doDeleteItem = useCallback(async (itemId: string, undo: () => void) => {
+    const result = await deleteItem.mutateAsync(itemId)
 
     if (result) {
       showSuccessToastWithUndo('Item removed', async () => {
@@ -52,8 +58,8 @@ export default function useLibraryItemActions() {
     return !!result
   }, [])
 
-  const moveItem = useCallback(async (itemId: string) => {
-    const result = await moveToFolderMutation(itemId, 'inbox')
+  const doMoveItem = useCallback(async (itemId: string) => {
+    const result = await moveItem.mutateAsync({ itemId, folder: 'inbox' })
     if (result) {
       showSuccessToast('Moved to library', { position: 'bottom-right' })
     } else {
@@ -85,5 +91,10 @@ export default function useLibraryItemActions() {
     []
   )
 
-  return { archiveItem, deleteItem, moveItem, shareItem }
+  return {
+    archiveItem: doArchiveItem,
+    deleteItem: doDeleteItem,
+    moveItem: doMoveItem,
+    shareItem,
+  }
 }

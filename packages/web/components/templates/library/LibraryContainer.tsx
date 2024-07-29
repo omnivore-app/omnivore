@@ -18,7 +18,10 @@ import {
   LibraryItemNode,
   LibraryItems,
   LibraryItemsQueryInput,
+  useArchiveItem,
+  useDeleteItem,
   useGetLibraryItems,
+  useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
 import {
   useGetViewerQuery,
@@ -110,6 +113,10 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
 
+  const archiveItem = useArchiveItem()
+  const deleteItem = useDeleteItem()
+  const updateItemReadStatus = useUpdateItemReadStatus()
+
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
 
@@ -120,19 +127,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     hasNextPage,
     error: fetchItemsError,
   } = useGetLibraryItems(props.folder, queryInputs)
-
-  // useEffect(() => {
-  //   const handleRevalidate = () => {
-  //     ;(async () => {
-  //       console.log('revalidating library')
-  //       await mutate()
-  //     })()
-  //   }
-  //   document.addEventListener('revalidateLibrary', handleRevalidate)
-  //   return () => {
-  //     document.removeEventListener('revalidateLibrary', handleRevalidate)
-  //   }
-  // }, [mutate])
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -166,13 +160,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   useEffect(() => {
     window.localStorage.setItem('nav-return', router.asPath)
   }, [router.asPath])
-
-  // const hasMore = useMemo(() => {
-  //   if (!itemsPages) {
-  //     return false
-  //   }
-  //   return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
-  // }, [itemsPages])
 
   const libraryItems = useMemo(() => {
     const items =
@@ -387,64 +374,98 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       return
     }
 
-    // switch (action) {
-    //   case 'showDetail':
-    //     const username = viewerData?.me?.profile.username
-    //     if (username) {
-    //       setActiveCardId(item.node.id)
-    //       if (item.node.state === State.PROCESSING) {
-    //         router.push(`/article?url=${encodeURIComponent(item.node.url)}`)
-    //       } else {
-    //         const dl =
-    //           item.node.pageType === PageType.HIGHLIGHTS
-    //             ? `#${item.node.id}`
-    //             : ''
-    //         router.push(`/${username}/${item.node.slug}` + dl)
-    //       }
-    //     }
-    //     break
-    //   case 'showOriginal':
-    //     const url = item.node.originalArticleUrl
-    //     if (url) {
-    //       window.open(url, '_blank')
-    //     }
-    //     break
-    //   case 'archive':
-    //     performActionOnItem('archive', item)
-    //     break
-    //   case 'unarchive':
-    //     performActionOnItem('unarchive', item)
-    //     break
-    //   case 'delete':
-    //     performActionOnItem('delete', item)
-    //     break
-    //   case 'restore':
-    //     performActionOnItem('restore', item)
-    //     break
-    //   case 'mark-read':
-    //     performActionOnItem('mark-read', item)
-    //     break
-    //   case 'mark-unread':
-    //     performActionOnItem('mark-unread', item)
-    //     break
-    //   case 'set-labels':
-    //     setLabelsTarget(item)
-    //     break
-    //   case 'open-notebook':
-    //     if (!notebookTarget) {
-    //       setNotebookTarget(item)
-    //     } else {
-    //       setNotebookTarget(undefined)
-    //     }
-    //     break
-    //   case 'unsubscribe':
-    //     performActionOnItem('unsubscribe', item)
-    //   case 'update-item':
-    //     performActionOnItem('update-item', item)
-    //     break
-    //   default:
-    //     console.warn('unknown action: ', action)
-    // }
+    switch (action) {
+      case 'showDetail':
+        const username = viewerData?.me?.profile.username
+        if (username) {
+          setActiveCardId(item.node.id)
+          if (item.node.state === State.PROCESSING) {
+            router.push(`/article?url=${encodeURIComponent(item.node.url)}`)
+          } else {
+            router.push(`/${username}/${item.node.slug}`)
+          }
+        }
+        break
+      case 'showOriginal':
+        const url = item.node.originalArticleUrl
+        if (url) {
+          window.open(url, '_blank')
+        }
+        break
+      case 'archive':
+      case 'unarchive':
+        try {
+          await archiveItem.mutateAsync({
+            linkId: item.node.id,
+            archived: action == 'archive',
+          })
+        } catch {
+          showErrorToast(`Error ${action}ing item`, {
+            position: 'bottom-right',
+          })
+          return
+        }
+        showSuccessToast(`Item ${action}d`, {
+          position: 'bottom-right',
+        })
+        break
+      case 'delete':
+        try {
+          await deleteItem.mutateAsync(item.node.id)
+        } catch {
+          showErrorToast(`Error deleting item`, {
+            position: 'bottom-right',
+          })
+          return
+        }
+        showSuccessToast(`Item deleted`, {
+          position: 'bottom-right',
+        })
+        break
+      case 'mark-read':
+      case 'mark-unread':
+        const desc = action == 'mark-read' ? 'read' : 'unread'
+        const values =
+          action == 'mark-read'
+            ? {
+                readingProgressPercent: 100,
+                readingProgressTopPercent: 100,
+                readingProgressAnchorIndex: 0,
+              }
+            : {
+                readingProgressPercent: 0,
+                readingProgressTopPercent: 0,
+                readingProgressAnchorIndex: 0,
+              }
+        try {
+          await updateItemReadStatus.mutateAsync({
+            id: item.node.id,
+            force: true,
+            ...values,
+          })
+        } catch {
+          showErrorToast(`Error marking as ${desc}`, {
+            position: 'bottom-right',
+          })
+          return
+        }
+        break
+      case 'set-labels':
+        setLabelsTarget(item)
+        break
+      case 'open-notebook':
+        if (!notebookTarget) {
+          setNotebookTarget(item)
+        } else {
+          setNotebookTarget(undefined)
+        }
+        break
+      case 'unsubscribe':
+        setLinkToUnsubscribe(item.node)
+        break
+      default:
+        console.warn('unknown action: ', action)
+    }
   }
 
   const modalTargetItem = useMemo(() => {
@@ -1187,9 +1208,6 @@ export function LibraryItemsLayout(
       </VStack>
       {props.showEditTitleModal && (
         <EditLibraryItemModal
-          updateItem={(item: LibraryItem) =>
-            props.actionHandler('update-item', item)
-          }
           onOpenChange={() => {
             props.setShowEditTitleModal(false)
             props.setLinkToEdit(undefined)

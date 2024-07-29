@@ -4,7 +4,7 @@ import {
   DropdownOption,
   DropdownSeparator,
 } from '../elements/DropdownElements'
-import { ArticleAttributes } from '../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../lib/networking/library_items/useLibraryItems'
 import { State } from '../../lib/networking/fragments/articleFragment'
 
 type DropdownMenuProps = {
