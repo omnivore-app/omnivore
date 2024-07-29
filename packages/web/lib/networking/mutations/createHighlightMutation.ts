@@ -5,26 +5,7 @@ import {
   highlightFragment,
   HighlightType,
 } from './../fragments/highlightFragment'
-
-export type CreateHighlightInput = {
-  id: string
-  shortId: string
-  articleId: string
-
-  prefix?: string
-  suffix?: string
-  quote?: string
-  html?: string
-  color?: string
-  annotation?: string
-
-  patch?: string
-
-  highlightPositionPercent?: number
-  highlightPositionAnchorIndex?: number
-
-  type?: HighlightType
-}
+import { CreateHighlightInput } from '../highlights/useItemHighlights'
 
 type CreateHighlightOutput = {
   createHighlight: InnerCreateHighlightOutput

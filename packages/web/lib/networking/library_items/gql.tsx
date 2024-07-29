@@ -132,6 +132,19 @@ export const GQL_DELETE_LIBRARY_ITEM = gql`
   }
 `
 
+export const GQL_MOVE_ITEM_TO_FOLDER = gql`
+  mutation MoveToFolder($id: ID!, $folder: String!) {
+    moveToFolder(id: $id, folder: $folder) {
+      ... on MoveToFolderSuccess {
+        success
+      }
+      ... on MoveToFolderError {
+        errorCodes
+      }
+    }
+  }
+`
+
 export const GQL_UPDATE_LIBRARY_ITEM = gql`
   mutation UpdatePage($input: UpdatePageInput!) {
     updatePage(input: $input) {

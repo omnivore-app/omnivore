@@ -1,7 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs'
 import { useCallback, useState } from 'react'
 import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { LibraryItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { CloseButton } from '../../elements/CloseButton'

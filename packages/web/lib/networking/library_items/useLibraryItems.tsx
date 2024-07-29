@@ -11,18 +11,15 @@ import { ContentReader, PageType, State } from '../fragments/articleFragment'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { makeGqlFetcher, requestHeaders } from '../networkHelpers'
 import { Label } from '../fragments/labelFragment'
-import { moveToFolderMutation } from '../mutations/moveToLibraryMutation'
 import {
   GQL_DELETE_LIBRARY_ITEM,
   GQL_GET_LIBRARY_ITEM_CONTENT,
+  GQL_MOVE_ITEM_TO_FOLDER,
   GQL_SEARCH_QUERY,
   GQL_SET_LINK_ARCHIVED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
-import { parseGraphQLResponse } from '../queries/gql-errors'
 import { gqlEndpoint } from '../../appConfig'
-import { GraphQLResponse } from 'graphql-request/dist/types'
-import { ArticleAttributes } from '../queries/useGetArticleQuery'
 
 function gqlFetcher(
   query: string,
@@ -63,25 +60,55 @@ const updateItemPropertyInCache = (
   propertyName: string,
   propertyValue: any
 ) => {
-  const setter = createDictionary(propertyName, propertyValue)
+  updateItemProperty(queryClient, itemId, (oldItem) => {
+    const setter = createDictionary(propertyName, propertyValue)
+    return {
+      ...oldItem,
+      ...setter,
+    }
+  })
+}
+
+export const updateItemProperty = (
+  queryClient: QueryClient,
+  itemId: string,
+  updateFunc: (input: ArticleAttributes) => ArticleAttributes
+) => {
+  let foundItemSlug: string | undefined
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
       if (!data) return data
-      return {
+      const updatedData = {
         ...data,
         pages: data.pages.map((page: any) => ({
           ...page,
-          edges: page.edges.map((edge: any) =>
-            edge.node.id === itemId
-              ? { ...edge, node: { ...edge.node, ...setter } }
-              : edge
-          ),
+          edges: page.edges.map((edge: any) => {
+            if (edge.node.id === itemId) {
+              foundItemSlug = edge.node.slug
+              return {
+                ...edge,
+                node: { ...edge.node, ...updateFunc(edge.node) },
+              }
+            }
+            return edge
+          }),
         })),
       }
+      return updatedData
     })
+    if (foundItemSlug)
+      queryClient.setQueryData(
+        ['libraryItem', foundItemSlug],
+        (oldData: ArticleAttributes) => {
+          return {
+            ...oldData,
+            ...updateFunc(oldData),
+          }
+        }
+      )
   })
 }
 
@@ -93,7 +120,6 @@ const updateItemPropertiesInCache = (
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
-  console.log('updateItemPropertiesInCache::libraryItems: ', keys)
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
       if (!data) return data
@@ -243,6 +269,43 @@ export const useRestoreItem = () => {
   })
 }
 
+export const useMoveItemToFolder = () => {
+  const queryClient = useQueryClient()
+  const restoreItem = async (variables: { itemId: string; folder: string }) => {
+    const result = (await gqlFetcher(GQL_MOVE_ITEM_TO_FOLDER, {
+      id: variables.itemId,
+      folder: variables.folder,
+    })) as UpdateLibraryItemData
+    if (result.updatePage.errorCodes?.length) {
+      throw new Error(result.updatePage.errorCodes[0])
+    }
+    return result.updatePage
+  }
+  return useMutation({
+    mutationFn: restoreItem,
+    onMutate: async (variables: { itemId: string; folder: string }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      updateItemPropertyInCache(
+        queryClient,
+        variables.itemId,
+        'folder',
+        variables.folder
+      )
+      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+    },
+    onError: (error, itemId, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+    },
+  })
+}
+
 export const useUpdateItemReadStatus = () => {
   const queryClient = useQueryClient()
   const updateItemReadStatus = async (
@@ -291,11 +354,6 @@ export const useGetLibraryItemContent = (username: string, slug: string) => {
   return useQuery({
     queryKey: ['libraryItem', slug],
     queryFn: async () => {
-      console.log('input: ', {
-        slug,
-        username,
-        includeFriendsHighlights: false,
-      })
       const response = (await gqlFetcher(GQL_GET_LIBRARY_ITEM_CONTENT, {
         slug,
         username,
@@ -311,6 +369,36 @@ export const useGetLibraryItemContent = (username: string, slug: string) => {
       return response.article.article
     },
   })
+}
+
+export type TextDirection = 'RTL' | 'LTR'
+
+export type ArticleAttributes = {
+  id: string
+  title: string
+  url: string
+  originalArticleUrl: string
+  author?: string
+  image?: string
+  savedAt: string
+  createdAt: string
+  publishedAt?: string
+  description?: string
+  wordsCount?: number
+  contentReader: ContentReader
+  readingProgressPercent: number
+  readingProgressTopPercent?: number
+  readingProgressAnchorIndex: number
+  slug: string
+  folder: string
+  savedByViewer?: boolean
+  content: string
+  highlights: Highlight[]
+  linkId: string
+  labels?: Label[]
+  state?: State
+  directionality?: TextDirection
+  recommendations?: Recommendation[]
 }
 
 type ArticleResult = {

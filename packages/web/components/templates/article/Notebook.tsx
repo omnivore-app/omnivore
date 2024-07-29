@@ -16,10 +16,10 @@ import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery
 import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
-import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { formattedShortTime } from '../../../lib/dateFormatting'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { sortHighlights } from '../../../lib/highlights/sortHighlights'
+import { useGetLibraryItemContent } from '../../../lib/networking/library_items/useLibraryItems'
 
 type NotebookContentProps = {
   viewer: UserBasicData
@@ -43,11 +43,10 @@ type NoteState = {
 export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const isDark = isDarkTheme()
 
-  const { articleData, mutate } = useGetArticleQuery({
-    slug: props.item.slug,
-    username: props.viewer.profile.username,
-    includeFriendsHighlights: false,
-  })
+  const { data: article } = useGetLibraryItemContent(
+    props.viewer.profile.username as string,
+    props.item.slug as string
+  )
   const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
@@ -112,7 +111,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   )
 
   const highlights = useMemo(() => {
-    const result = articleData?.article.article.highlights
+    const result = article?.highlights
     const note = result?.find((h) => h.type === 'NOTE')
     if (note) {
       noteState.current.note = note
@@ -122,7 +121,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       setNoteText('')
     }
     return result
-  }, [articleData])
+  }, [article])
 
   useEffect(() => {
     if (highlights && props.onAnnotationsChanged) {
@@ -178,16 +177,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
-
-  useEffect(() => {
-    const highlightsUpdated = () => {
-      mutate()
-    }
-    document.addEventListener('highlightsUpdated', highlightsUpdated)
-    return () => {
-      document.removeEventListener('highlightsUpdated', highlightsUpdated)
-    }
-  }, [mutate])
 
   return (
     <VStack
@@ -256,9 +245,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             viewInReader={props.viewInReader}
             setSetLabelsTarget={setLabelsTarget}
             setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
-            updateHighlight={() => {
-              mutate()
-            }}
           />
         ))}
         {sortedHighlights.length === 0 && (
@@ -298,7 +284,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
                 props.item.id,
                 showConfirmDeleteHighlightId
               )
-              mutate()
               if (success) {
                 showSuccessToast('Highlight deleted.', {
                   position: 'bottom-right',
@@ -333,7 +318,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             console.log('update highlight: ', highlight)
           }}
           onOpenChange={() => {
-            mutate()
             setLabelsTarget(undefined)
           }}
         />

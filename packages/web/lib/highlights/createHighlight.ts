@@ -54,7 +54,7 @@ export async function createHighlight(
   if (!input.selection.selection) {
     return {}
   }
-
+  console.log(' overlapping: ', input.selection.overlapHighlights)
   const shouldMerge = input.selection.overlapHighlights.length > 0
 
   const { range, selection } = input.selection

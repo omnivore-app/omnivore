@@ -1,4 +1,4 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Box, VStack } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
@@ -42,13 +42,15 @@ type EpubPatch = {
 export default function EpubContainer(props: EpubContainerProps): JSX.Element {
   const epubRef = useRef<HTMLDivElement | null>(null)
   const renditionRef = useRef<Rendition | undefined>(undefined)
-  const [shareTarget, setShareTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const [touchStart, setTouchStart] = useState(0)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const book = useMemo(() => {

@@ -1,4 +1,4 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Button } from '../../elements/Button'
 import { HStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'

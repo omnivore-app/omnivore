@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router'
-import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { useMemo } from 'react'
 import {
@@ -7,6 +6,7 @@ import {
   HStack,
   SpanBox,
 } from '../../../components/elements/LayoutPrimitives'
+import { useGetLibraryItemContent } from '../../../lib/networking/library_items/useLibraryItems'
 
 type ArticleAttribute = {
   name: string
@@ -15,11 +15,10 @@ type ArticleAttribute = {
 
 export default function Debug(): JSX.Element {
   const router = useRouter()
-  const { articleData, articleFetchError, isLoading } = useGetArticleQuery({
-    username: router.query.username as string,
-    slug: router.query.slug as string,
-    includeFriendsHighlights: false,
-  })
+  const { data: article } = useGetLibraryItemContent(
+    router.query.username as string,
+    router.query.slug as string
+  )
 
   applyStoredTheme()
 
@@ -30,12 +29,10 @@ export default function Debug(): JSX.Element {
     // return sortedAttributes.sort((a, b) =>
     //   a.createdAt.localeCompare(b.createdAt)
     // )
-    if (!articleData?.article.article) {
+    if (!article) {
       return []
     }
     const result: ArticleAttribute[] = []
-
-    const article = articleData.article.article
 
     result.push({ name: 'id', value: article.id })
     result.push({ name: 'linkId', value: article.linkId })
@@ -171,7 +168,7 @@ export default function Debug(): JSX.Element {
     // recommendations?: Recommendation[]
 
     return result
-  }, [articleData])
+  }, [article])
 
   return (
     <>

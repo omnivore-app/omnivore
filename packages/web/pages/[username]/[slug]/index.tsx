@@ -39,6 +39,14 @@ import {
   useGetLibraryItemContent,
   useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
+import {
+  CreateHighlightInput,
+  useCreateHighlight,
+  useDeleteHighlight,
+  useMergeHighlight,
+  useMergeHighlights,
+  useUpdateHighlight,
+} from '../../../lib/networking/highlights/useItemHighlights'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -59,13 +67,16 @@ export default function Reader(): JSX.Element {
   const archiveItem = useArchiveItem()
   const deleteItem = useDeleteItem()
   const updateItemReadStatus = useUpdateItemReadStatus()
+  const createHighlight = useCreateHighlight()
+  const deleteHighlight = useDeleteHighlight()
+  const updateHighlight = useUpdateHighlight()
+  const mergeHighlight = useMergeHighlight()
 
   const { data: libraryItem, error: articleFetchError } =
     useGetLibraryItemContent(
       router.query.username as string,
       router.query.slug as string
     )
-  console.log('articleFetchError: ', articleFetchError)
   useEffect(() => {
     dispatchLabels({
       type: 'RESET',
@@ -574,10 +585,59 @@ export default function Reader(): JSX.Element {
                 libraryItem.directionality ?? readerSettings.textDirection
               }
               articleMutations={{
-                createHighlightMutation,
-                deleteHighlightMutation,
-                mergeHighlightMutation,
-                updateHighlightMutation,
+                createHighlightMutation: async (
+                  input: CreateHighlightInput
+                ) => {
+                  try {
+                    const result = await createHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      input,
+                    })
+                    return result
+                  } catch (err) {
+                    console.log('error creating highlight', err)
+                    return undefined
+                  }
+                },
+                deleteHighlightMutation: async (
+                  libraryItemId,
+                  highlightId: string
+                ) => {
+                  try {
+                    await deleteHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      highlightId,
+                    })
+                    return true
+                  } catch (err) {
+                    console.log('error deleting highlight', err)
+                    return false
+                  }
+                },
+                mergeHighlightMutation: async (input) => {
+                  try {
+                    const result = await mergeHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      input,
+                    })
+                    return result?.highlight
+                  } catch (err) {
+                    console.log('error merging highlight', err)
+                    return undefined
+                  }
+                },
+                updateHighlightMutation: async (input) => {
+                  try {
+                    const result = await updateHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      input,
+                    })
+                    return result?.id
+                  } catch (err) {
+                    console.log('error updating highlight', err)
+                    return undefined
+                  }
+                },
                 articleReadingProgressMutation: async (
                   input: ArticleReadingProgressMutationInput
                 ) => {

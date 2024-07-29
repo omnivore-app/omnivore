@@ -1,7 +1,3 @@
-import {
-  ArticleAttributes,
-  TextDirection,
-} from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
@@ -19,11 +15,13 @@ import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { Recommendation } from '../../../lib/networking/library_items/useLibraryItems'
+import {
+  ArticleAttributes,
+  Recommendation,
+  TextDirection,
+} from '../../../lib/networking/library_items/useLibraryItems'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { AISummary } from './AISummary'
-import { userHasFeature } from '../../../lib/featureFlag'
 
 type ArticleContainerProps = {
   viewer: UserBasicData

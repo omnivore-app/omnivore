@@ -4,7 +4,6 @@ import { Box } from '../../../../components/elements/LayoutPrimitives'
 import { useGetArticleSavingStatus } from '../../../../lib/networking/queries/useGetArticleSavingStatus'
 import { ErrorComponent } from '../../../../components/templates/SavingRequest'
 import { useSWRConfig } from 'swr'
-import { cacheArticle } from '../../../../lib/networking/queries/useGetArticleQuery'
 import { PrimaryLayout } from '../../../../components/templates/PrimaryLayout'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
 
@@ -79,10 +78,6 @@ function PrimaryContent(props: PrimaryContentProps): JSX.Element {
     return (
       <ErrorComponent errorMessage="Something went wrong while processing and your link could not be saved. Please try again later." />
     )
-  }
-
-  if (article) {
-    cacheArticle(mutate, props.username, article)
   }
 
   if (successRedirectPath) {
