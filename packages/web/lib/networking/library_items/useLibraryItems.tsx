@@ -16,6 +16,7 @@ import {
   GQL_GET_LIBRARY_ITEM_CONTENT,
   GQL_MOVE_ITEM_TO_FOLDER,
   GQL_SEARCH_QUERY,
+  GQL_SET_LABELS,
   GQL_SET_LINK_ARCHIVED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
@@ -269,43 +270,6 @@ export const useRestoreItem = () => {
   })
 }
 
-export const useMoveItemToFolder = () => {
-  const queryClient = useQueryClient()
-  const restoreItem = async (variables: { itemId: string; folder: string }) => {
-    const result = (await gqlFetcher(GQL_MOVE_ITEM_TO_FOLDER, {
-      id: variables.itemId,
-      folder: variables.folder,
-    })) as MoveToFolderData
-    if (result.moveToFolder.errorCodes?.length) {
-      throw new Error(result.moveToFolder.errorCodes[0])
-    }
-    return result.moveToFolder
-  }
-  return useMutation({
-    mutationFn: restoreItem,
-    onMutate: async (variables: { itemId: string; folder: string }) => {
-      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
-      updateItemPropertyInCache(
-        queryClient,
-        variables.itemId,
-        'folder',
-        variables.folder
-      )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
-    },
-    onError: (error, itemId, context) => {
-      if (context?.previousItems) {
-        queryClient.setQueryData(['libraryItems'], context.previousItems)
-      }
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ['libraryItems'],
-      })
-    },
-  })
-}
-
 export const useUpdateItemReadStatus = () => {
   const queryClient = useQueryClient()
   const updateItemReadStatus = async (
@@ -369,6 +333,97 @@ export const useGetLibraryItemContent = (username: string, slug: string) => {
       return response.article.article
     },
   })
+}
+
+export const useMoveItemToFolder = () => {
+  const queryClient = useQueryClient()
+  const moveItem = async (variables: { itemId: string; folder: string }) => {
+    const result = (await gqlFetcher(GQL_MOVE_ITEM_TO_FOLDER, {
+      id: variables.itemId,
+      folder: variables.folder,
+    })) as MoveToFolderData
+    if (result.moveToFolder.errorCodes?.length) {
+      throw new Error(result.moveToFolder.errorCodes[0])
+    }
+    return result.moveToFolder
+  }
+  return useMutation({
+    mutationFn: moveItem,
+    onMutate: async (variables: { itemId: string; folder: string }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      updateItemPropertyInCache(
+        queryClient,
+        variables.itemId,
+        'folder',
+        variables.folder
+      )
+      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+    },
+    onError: (error, itemId, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+    },
+  })
+}
+
+export const useSetItemLabels = () => {
+  const queryClient = useQueryClient()
+  const setLabels = async (variables: { itemId: string; labels: Label[] }) => {
+    const labelIds = variables.labels.map((l) => l.id)
+    const result = (await gqlFetcher(GQL_SET_LABELS, {
+      input: { pageId: variables.itemId, labelIds },
+    })) as SetLabelsData
+    if (result.setLabels.errorCodes?.length) {
+      throw new Error(result.setLabels.errorCodes[0])
+    }
+    return result.setLabels.labels
+  }
+  return useMutation({
+    mutationFn: setLabels,
+    onMutate: async (variables: { itemId: string; labels: Label[] }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      updateItemPropertyInCache(
+        queryClient,
+        variables.itemId,
+        'labels',
+        variables.labels
+      )
+      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+    },
+    onError: (error, itemId, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+    },
+    onSuccess: (newLabels, variables) => {
+      updateItemPropertyInCache(
+        queryClient,
+        variables.itemId,
+        'labels',
+        newLabels
+      )
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+    },
+  })
+}
+
+type SetLabelsData = {
+  setLabels: SetLabelsResult
+}
+
+type SetLabelsResult = {
+  labels?: Label[]
+  errorCodes?: string[]
 }
 
 export type TextDirection = 'RTL' | 'LTR'
@@ -460,36 +515,6 @@ const GQL_SAVE_ARTICLE_READING_PROGRESS = gql`
     }
   }
 `
-
-// export async function articleReadingProgressMutation(
-//   input: ArticleReadingProgressMutationInput
-// ): Promise<boolean> {
-//   const mutation = gql`
-//     mutation SaveArticleReadingProgress(
-//       $input: SaveArticleReadingProgressInput!
-//     ) {
-//       saveArticleReadingProgress(input: $input) {
-//         ... on SaveArticleReadingProgressSuccess {
-//           updatedArticle {
-//             id
-//             readingProgressPercent
-//             readingProgressAnchorIndex
-//           }
-//         }
-//         ... on SaveArticleReadingProgressError {
-//           errorCodes
-//         }
-//       }
-//     }
-//   `
-
-//   try {
-//     await gqlFetcher(mutation, { input })
-//     return true
-//   } catch {
-//     return false
-//   }
-// }
 
 export interface ReadableItem {
   id: string
