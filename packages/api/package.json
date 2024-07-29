@@ -93,7 +93,7 @@
     "normalize-url": "^6.1.0",
     "oauth": "^0.10.0",
     "pg": "^8.3.3",
-    "postgrator": "^4.2.0",
+    "postgrator": "^5.0.1",
     "posthog-node": "^3.6.3",
     "private-ip": "^2.3.3",
     "prom-client": "^15.1.0",
@@ -159,7 +159,7 @@
     "mocha-unfunk-reporter": "^0.4.0",
     "nock": "^13.2.4",
     "nyc": "^15.1.0",
-    "postgrator": "^4.2.0",
+    "postgrator": "^5.0.1",
     "sinon": "^14.0.0",
     "sinon-chai": "^3.7.0",
     "ts-node-dev": "^1.1.8"

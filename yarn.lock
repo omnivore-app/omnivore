@@ -23145,11 +23145,6 @@ netmask@^2.0.2:
   resolved "https://registry.yarnpkg.com/netmask/-/netmask-2.0.2.tgz#8b01a07644065d536383835823bc52004ebac5e7"
   integrity sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==
 
-newline@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/newline/-/newline-0.0.3.tgz#0f6a74493223dba04fe7dbfb6cdc804bf7e46dd0"
-  integrity sha1-D2p0STIj26BP59v7bNyAS/fkbdA=
-
 next-tick@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.1.0.tgz#1836ee30ad56d67ef281b22bd199f709449b35eb"
@@ -25537,13 +25532,12 @@ postcss@^8.2.15, postcss@^8.3.11, postcss@^8.4.7:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
-postgrator@^4.1.1, postgrator@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/postgrator/-/postgrator-4.2.0.tgz#df96082b4a049fa5908315fdb47e37b45878b0e0"
-  integrity sha512-i19t0YozLUpxXQ+G96YlYXRGx8nX0ExTyloG5A/1HnPG6sCf0Y2hZsBBKsBcb9rouG6AUn3lwsCFD3O7FMDmBA==
+postgrator@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/postgrator/-/postgrator-5.0.1.tgz#5fbb87b598394ea97e63242429a28ca7b29ca12a"
+  integrity sha512-8CW1msWXXDVYNuvBxJeAUWo1fEU5Sp+7cE/73j92fQS/SP1dmqVL7wU05PR/hgwu4gCoBYgJmktXkws2+DXDCw==
   dependencies:
-    glob "^7.1.6"
-    newline "0.0.3"
+    glob "^7.2.0"
 
 postgres-array@~2.0.0:
   version "2.0.0"
