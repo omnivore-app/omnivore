@@ -275,11 +275,11 @@ export const useMoveItemToFolder = () => {
     const result = (await gqlFetcher(GQL_MOVE_ITEM_TO_FOLDER, {
       id: variables.itemId,
       folder: variables.folder,
-    })) as UpdateLibraryItemData
-    if (result.updatePage.errorCodes?.length) {
-      throw new Error(result.updatePage.errorCodes[0])
+    })) as MoveToFolderData
+    if (result.moveToFolder.errorCodes?.length) {
+      throw new Error(result.moveToFolder.errorCodes[0])
     }
-    return result.updatePage
+    return result.moveToFolder
   }
   return useMutation({
     mutationFn: restoreItem,
@@ -400,6 +400,15 @@ export type ArticleAttributes = {
   state?: State
   directionality?: TextDirection
   recommendations?: Recommendation[]
+}
+
+type MoveToFolderData = {
+  moveToFolder: MoveToFolderResult
+}
+
+type MoveToFolderResult = {
+  success?: boolean
+  errorCodes?: string[]
 }
 
 type ArticleResult = {
