@@ -185,8 +185,6 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
     initialValue: [],
   })
 
-  console.log('got shortcuts: ', shortcuts)
-
   // const shortcuts: Shortcut[] = [
   //   {
   //     id: '12asdfasdf',

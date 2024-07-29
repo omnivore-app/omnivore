@@ -1,4 +1,7 @@
-import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
+import {
+  ArticleAttributes,
+  useUpdateItemReadStatus,
+} from '../../../lib/networking/library_items/useLibraryItems'
 import { Box } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
@@ -9,7 +12,6 @@ import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { HighlightNoteModal } from './HighlightNoteModal'
@@ -40,6 +42,7 @@ export default function PdfArticleContainer(
     number | undefined
   >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
+  const updateItemReadStatus = useUpdateItemReadStatus()
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
     if (
@@ -411,7 +414,7 @@ export default function PdfArticleContainer(
             100,
             Math.max(0, ((pageIndex + 1) / instance.totalPageCount) * 100)
           )
-          await articleReadingProgressMutation({
+          await updateItemReadStatus.mutateAsync({
             id: props.article.id,
             force: true,
             readingProgressPercent: percent,
