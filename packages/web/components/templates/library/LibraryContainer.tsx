@@ -401,7 +401,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
             linkId: item.node.id,
             archived: action == 'archive',
           })
-        } catch {
+        } catch (err) {
+          console.log('Error setting archive state: ', err)
           showErrorToast(`Error ${action}ing item`, {
             position: 'bottom-right',
           })
@@ -414,7 +415,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       case 'delete':
         try {
           await deleteItem.mutateAsync(item.node.id)
-        } catch {
+        } catch (err) {
+          console.log('Error deleting item: ', err)
           showErrorToast(`Error deleting item`, {
             position: 'bottom-right',
           })
@@ -445,7 +447,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
             force: true,
             ...values,
           })
-        } catch {
+        } catch (err) {
+          console.log('Error marking item: ', err)
           showErrorToast(`Error marking as ${desc}`, {
             position: 'bottom-right',
           })
@@ -458,7 +461,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
             itemId: item.node.id,
             folder: 'inbox',
           })
-        } catch {
+        } catch (err) {
+          console.log('Error moving item: ', err)
           showErrorToast(`Error moving item`, {
             position: 'bottom-right',
           })
