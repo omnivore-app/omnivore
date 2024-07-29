@@ -161,6 +161,25 @@ export const GQL_SET_LABELS = gql`
   ${labelFragment}
 `
 
+export const GQL_SAVE_ARTICLE_READING_PROGRESS = gql`
+  mutation SaveArticleReadingProgress(
+    $input: SaveArticleReadingProgressInput!
+  ) {
+    saveArticleReadingProgress(input: $input) {
+      ... on SaveArticleReadingProgressSuccess {
+        updatedArticle {
+          id
+          readingProgressPercent
+          readingProgressAnchorIndex
+        }
+      }
+      ... on SaveArticleReadingProgressError {
+        errorCodes
+      }
+    }
+  }
+`
+
 export const GQL_UPDATE_LIBRARY_ITEM = gql`
   mutation UpdatePage($input: UpdatePageInput!) {
     updatePage(input: $input) {

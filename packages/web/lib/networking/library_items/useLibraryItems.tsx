@@ -15,6 +15,7 @@ import {
   GQL_DELETE_LIBRARY_ITEM,
   GQL_GET_LIBRARY_ITEM_CONTENT,
   GQL_MOVE_ITEM_TO_FOLDER,
+  GQL_SAVE_ARTICLE_READING_PROGRESS,
   GQL_SEARCH_QUERY,
   GQL_SET_LABELS,
   GQL_SET_LINK_ARCHIVED,
@@ -300,7 +301,7 @@ export const useUpdateItemReadStatus = () => {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
       }
     },
-    onSettled: (data, error, variables, context) => {
+    onSuccess: (data, variables, context) => {
       if (data) {
         updateItemPropertyInCache(
           queryClient,
@@ -496,25 +497,6 @@ export type ArticleReadingProgressMutationInput = {
   readingProgressTopPercent?: number
   readingProgressAnchorIndex?: number
 }
-
-const GQL_SAVE_ARTICLE_READING_PROGRESS = gql`
-  mutation SaveArticleReadingProgress(
-    $input: SaveArticleReadingProgressInput!
-  ) {
-    saveArticleReadingProgress(input: $input) {
-      ... on SaveArticleReadingProgressSuccess {
-        updatedArticle {
-          id
-          readingProgressPercent
-          readingProgressAnchorIndex
-        }
-      }
-      ... on SaveArticleReadingProgressError {
-        errorCodes
-      }
-    }
-  }
-`
 
 export interface ReadableItem {
   id: string
