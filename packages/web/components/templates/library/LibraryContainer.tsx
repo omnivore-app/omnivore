@@ -21,6 +21,7 @@ import {
   useArchiveItem,
   useDeleteItem,
   useGetLibraryItems,
+  useMoveItemToFolder,
   useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
 import {
@@ -115,6 +116,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const archiveItem = useArchiveItem()
   const deleteItem = useDeleteItem()
+  const moveToFolder = useMoveItemToFolder()
   const updateItemReadStatus = useUpdateItemReadStatus()
 
   const [queryInputs, setQueryInputs] =
@@ -449,6 +451,22 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
           })
           return
         }
+        break
+      case 'move-to-inbox':
+        try {
+          await moveToFolder.mutateAsync({
+            itemId: item.node.id,
+            folder: 'inbox',
+          })
+        } catch {
+          showErrorToast(`Error moving item`, {
+            position: 'bottom-right',
+          })
+          return
+        }
+        showSuccessToast(`Item moved to library`, {
+          position: 'bottom-right',
+        })
         break
       case 'set-labels':
         setLabelsTarget(item)
