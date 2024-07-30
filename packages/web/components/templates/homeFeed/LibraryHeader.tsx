@@ -121,7 +121,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         ...headerControlWidths(props.layout, props.multiSelectMode),
       }}
     >
-      {props.multiSelectMode !== 'off' && (
+      {props.multiSelectMode !== 'off' ? (
         <>
           <MultiSelectControls {...props} folder={'library'} />
         </>
@@ -310,7 +310,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             },
           }}
         >
-          <CheckBoxButton {...props} />
+          <CheckBoxButton {...props} folder={'library'} />
         </HStack>
         <HStack
           alignment="center"
