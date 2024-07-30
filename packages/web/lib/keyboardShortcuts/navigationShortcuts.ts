@@ -13,7 +13,7 @@ export function navigationCommands(router: NextRouter | undefined): Action[] {
       keywords: 'go home',
       perform: () => {
         console.log('go home')
-        router?.push(`/l/home`)
+        router?.push(`/home`)
       },
     },
     {
@@ -24,7 +24,7 @@ export function navigationCommands(router: NextRouter | undefined): Action[] {
       keywords: 'go library',
       perform: () => {
         console.log('go library')
-        router?.push(`/l/library`)
+        router?.push(`/library`)
       },
     },
     {
@@ -35,7 +35,7 @@ export function navigationCommands(router: NextRouter | undefined): Action[] {
       keywords: 'go subscriptions',
       perform: () => {
         console.log('go subscriptions')
-        router?.push(`/l/subscriptions`)
+        router?.push(`/subscriptions`)
       },
     },
     {
@@ -46,7 +46,7 @@ export function navigationCommands(router: NextRouter | undefined): Action[] {
       keywords: 'go highlights',
       perform: () => {
         console.log('go highlights')
-        router?.push(`/l/highlights`)
+        router?.push(`/highlights`)
       },
     },
     {

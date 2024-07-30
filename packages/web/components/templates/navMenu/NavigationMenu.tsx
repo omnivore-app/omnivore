@@ -537,7 +537,7 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
             .join(' OR ')
         }
       } else if (node.data.section != null && node.data.filter != null) {
-        router.push(`/l/${node.data.section}?q=${node.data.filter}`)
+        router.push(`/${node.data.section}?q=${node.data.filter}`)
       }
     },
     [tree, router]
@@ -925,8 +925,7 @@ function NavButton(props: NavButtonProps): JSX.Element {
       }}
       title={props.text}
       onClick={(e) => {
-        // console.log('clicked navigation menu')
-        router.push(`/l/` + props.section)
+        router.push(`/` + props.section)
       }}
     >
       {props.icon}
