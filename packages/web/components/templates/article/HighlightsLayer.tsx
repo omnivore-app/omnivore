@@ -39,9 +39,6 @@ type HighlightsLayerProps = {
   item: ReadableItem
   highlights: Highlight[]
 
-  articleId: string
-  articleTitle: string
-  articleAuthor: string
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
   showHighlightsModal: boolean
@@ -105,7 +102,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const result = await createHighlight(
         {
           selection: selection,
-          articleId: props.articleId,
+          articleId: props.item.id,
           existingHighlights: highlights,
           color: options?.color,
           highlightStartEndOffsets: highlightLocations,
@@ -141,7 +138,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [
       highlightLocations,
       highlights,
-      props.articleId,
+      props.item.id,
       props.articleMutations,
       setSelectionData,
     ]
@@ -189,7 +186,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
       const didDeleteHighlight =
         await props.articleMutations.deleteHighlightMutation(
-          props.articleId,
+          props.item.id,
           highlightId
         )
 
@@ -226,7 +223,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       updateHighlightsCallback(highlight)
       ;(async () => {
         const update = await props.articleMutations.updateHighlightMutation({
-          libraryItemId: props.articleId,
+          libraryItemId: props.item.id,
           highlightId: highlight.id,
           color: color,
         })
@@ -718,7 +715,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         const annotation = event.annotation ?? ''
 
         const result = await props.articleMutations.updateHighlightMutation({
-          libraryItemId: props.articleId,
+          libraryItemId: props.item.id,
           highlightId: focusedHighlight.id,
           annotation: event.annotation ?? '',
         })
@@ -800,9 +797,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       {highlightModalAction?.highlightModalAction == 'addComment' && (
         <HighlightNoteModal
           highlight={highlightModalAction.highlight}
-          author={props.articleAuthor}
-          title={props.articleTitle}
-          libraryItemId={props.articleId}
+          libraryItemId={props.item.id}
+          libraryItemSlug={props.item.slug}
           onUpdate={updateHighlightsCallback}
           onOpenChange={() =>
             setHighlightModalAction({ highlightModalAction: 'none' })

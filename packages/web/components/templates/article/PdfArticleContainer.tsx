@@ -10,9 +10,6 @@ import { isDarkTheme } from '../../../lib/themeUpdater'
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
@@ -24,6 +21,12 @@ import { NotebookHeader } from './NotebookHeader'
 import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 import { ResizableSidebar } from './ResizableSidebar'
 import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
+import {
+  useCreateHighlight,
+  useDeleteHighlight,
+  useMergeHighlight,
+  useUpdateHighlight,
+} from '../../../lib/networking/highlights/useItemHighlights'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -42,6 +45,10 @@ export default function PdfArticleContainer(
     number | undefined
   >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
+  const createHighlight = useCreateHighlight()
+  const deleteHighlight = useDeleteHighlight()
+  const mergeHighlight = useMergeHighlight()
+  const updateHighlight = useUpdateHighlight()
   const updateItemReadStatus = useUpdateItemReadStatus()
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
@@ -117,7 +124,11 @@ export default function PdfArticleContainer(
               .delete(annotation)
               .then(() => {
                 if (annotationId) {
-                  return deleteHighlightMutation(props.article.id, annotationId)
+                  return deleteHighlight.mutateAsync({
+                    itemId: props.article.id,
+                    slug: props.article.slug,
+                    highlightId: annotationId,
+                  })
                 }
               })
               .then(() => {
@@ -218,8 +229,6 @@ export default function PdfArticleContainer(
         }),
       }
 
-      console.log('instnace config: ', config)
-
       instance = await PSPDFKit.load(config)
       console.log('created PDF instance', instance)
 
@@ -233,7 +242,11 @@ export default function PdfArticleContainer(
         }
         const annotationId = annotationOmnivoreId(annotation)
         if (annotationId) {
-          await deleteHighlightMutation(props.article.id, annotationId)
+          await deleteHighlight.mutateAsync({
+            itemId: props.article.id,
+            slug: props.article.slug,
+            highlightId: annotationId,
+          })
         }
       })
 
@@ -343,16 +356,21 @@ export default function PdfArticleContainer(
 
           if (overlapping.size === 0) {
             const positionPercent = positionPercentForAnnotation(annotation)
-            const result = await createHighlightMutation({
-              id: id,
-              shortId: shortId,
-              quote: quote,
-              articleId: props.article.id,
-              prefix: surroundingText.prefix,
-              suffix: surroundingText.suffix,
-              patch: JSON.stringify(serialized),
-              highlightPositionPercent: positionPercent * 100,
-              highlightPositionAnchorIndex: annotation.pageIndex,
+
+            const result = await createHighlight.mutateAsync({
+              itemId: props.article.id,
+              slug: props.article.slug,
+              input: {
+                id: id,
+                shortId: shortId,
+                quote: quote,
+                articleId: props.article.id,
+                prefix: surroundingText.prefix,
+                suffix: surroundingText.suffix,
+                patch: JSON.stringify(serialized),
+                highlightPositionPercent: positionPercent * 100,
+                highlightPositionAnchorIndex: annotation.pageIndex,
+              },
             })
             if (result) {
               highlightsRef.current.push(result)
@@ -388,20 +406,24 @@ export default function PdfArticleContainer(
               (ha) => (ha.customData?.omnivoreHighlight as Highlight).id
             )
             const positionPercent = positionPercentForAnnotation(annotation)
-            const result = await mergeHighlightMutation({
-              quote,
-              id,
-              shortId,
-              patch: JSON.stringify(serialized),
-              prefix: surroundingText.prefix,
-              suffix: surroundingText.suffix,
-              articleId: props.article.id,
-              overlapHighlightIdList: mergedIds.toArray(),
-              highlightPositionPercent: positionPercent * 100,
-              highlightPositionAnchorIndex: annotation.pageIndex,
+            const result = await mergeHighlight.mutateAsync({
+              itemId: props.article.id,
+              slug: props.article.slug,
+              input: {
+                quote,
+                id,
+                shortId,
+                patch: JSON.stringify(serialized),
+                prefix: surroundingText.prefix,
+                suffix: surroundingText.suffix,
+                articleId: props.article.id,
+                overlapHighlightIdList: mergedIds.toArray(),
+                highlightPositionPercent: positionPercent * 100,
+                highlightPositionAnchorIndex: annotation.pageIndex,
+              },
             })
-            if (result) {
-              highlightsRef.current.push(result)
+            if (result && result.highlight) {
+              highlightsRef.current.push(result.highlight)
             }
           }
         }
@@ -415,10 +437,14 @@ export default function PdfArticleContainer(
             Math.max(0, ((pageIndex + 1) / instance.totalPageCount) * 100)
           )
           await updateItemReadStatus.mutateAsync({
-            id: props.article.id,
-            force: true,
-            readingProgressPercent: percent,
-            readingProgressAnchorIndex: pageIndex,
+            itemId: props.article.id,
+            slug: props.article.slug,
+            input: {
+              id: props.article.id,
+              force: true,
+              readingProgressPercent: percent,
+              readingProgressAnchorIndex: pageIndex,
+            },
           })
         }
       )
@@ -521,7 +547,11 @@ export default function PdfArticleContainer(
           const storedId = annotationOmnivoreId(annotation)
           if (storedId == annotationId) {
             await instance.delete(annotation)
-            await deleteHighlightMutation(props.article.id, annotationId)
+            await deleteHighlight.mutateAsync({
+              itemId: props.article.id,
+              slug: props.article.slug,
+              highlightId: annotationId,
+            })
 
             const highlightIdx = highlightsRef.current.findIndex((value) => {
               return value.id == annotationId
@@ -586,8 +616,7 @@ export default function PdfArticleContainer(
         <HighlightNoteModal
           highlight={noteTarget}
           libraryItemId={props.article.id}
-          author={props.article.author ?? ''}
-          title={props.article.title}
+          libraryItemSlug={props.article.slug}
           onUpdate={(highlight: Highlight) => {
             const savedHighlight = highlightsRef.current.find(
               (other: Highlight) => {

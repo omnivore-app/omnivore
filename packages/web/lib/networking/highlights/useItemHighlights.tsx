@@ -15,6 +15,7 @@ export const useCreateHighlight = () => {
   const queryClient = useQueryClient()
   const createHighlight = async (variables: {
     itemId: string
+    slug: string | undefined
     input: CreateHighlightInput
   }) => {
     const result = (await gqlFetcher(GQL_CREATE_HIGHLIGHT, {
@@ -29,12 +30,17 @@ export const useCreateHighlight = () => {
     mutationFn: createHighlight,
     onSuccess: (newHighlight, variables) => {
       if (newHighlight) {
-        updateItemProperty(queryClient, variables.itemId, (item) => {
-          return {
-            ...item,
-            highlights: [...item.highlights, newHighlight],
+        updateItemProperty(
+          queryClient,
+          variables.itemId,
+          variables.slug,
+          (item) => {
+            return {
+              ...item,
+              highlights: [...item.highlights, newHighlight],
+            }
           }
-        })
+        )
       }
     },
   })
@@ -44,6 +50,7 @@ export const useDeleteHighlight = () => {
   const queryClient = useQueryClient()
   const deleteHighlight = async (variables: {
     itemId: string
+    slug: string
     highlightId: string
   }) => {
     const result = (await gqlFetcher(GQL_DELETE_HIGHLIGHT, {
@@ -58,14 +65,19 @@ export const useDeleteHighlight = () => {
     mutationFn: deleteHighlight,
     onSuccess: (deletedHighlight, variables) => {
       if (deletedHighlight) {
-        updateItemProperty(queryClient, variables.itemId, (item) => {
-          return {
-            ...item,
-            highlights: item.highlights.filter(
-              (h) => h.id != deletedHighlight.id
-            ),
+        updateItemProperty(
+          queryClient,
+          variables.itemId,
+          variables.slug,
+          (item) => {
+            return {
+              ...item,
+              highlights: item.highlights.filter(
+                (h) => h.id != deletedHighlight.id
+              ),
+            }
           }
-        })
+        )
       }
     },
   })
@@ -75,6 +87,7 @@ export const useUpdateHighlight = () => {
   const queryClient = useQueryClient()
   const updateHighlight = async (variables: {
     itemId: string
+    slug: string | undefined
     input: UpdateHighlightInput
   }) => {
     const result = (await gqlFetcher(GQL_UPDATE_HIGHLIGHT, {
@@ -89,15 +102,20 @@ export const useUpdateHighlight = () => {
     mutationFn: updateHighlight,
     onSuccess: (updatedHighlight, variables) => {
       if (updatedHighlight) {
-        updateItemProperty(queryClient, variables.itemId, (item) => {
-          return {
-            ...item,
-            highlights: [
-              ...item.highlights.filter((h) => h.id != updatedHighlight.id),
-              updatedHighlight,
-            ],
+        updateItemProperty(
+          queryClient,
+          variables.itemId,
+          variables.slug,
+          (item) => {
+            return {
+              ...item,
+              highlights: [
+                ...item.highlights.filter((h) => h.id != updatedHighlight.id),
+                updatedHighlight,
+              ],
+            }
           }
-        })
+        )
       }
     },
   })
@@ -107,6 +125,7 @@ export const useMergeHighlight = () => {
   const queryClient = useQueryClient()
   const mergeHighlight = async (variables: {
     itemId: string
+    slug: string
     input: MergeHighlightInput
   }) => {
     const result = (await gqlFetcher(GQL_MERGE_HIGHLIGHT, {
@@ -137,15 +156,20 @@ export const useMergeHighlight = () => {
       if (mergeHighlights && mergeHighlights.highlight) {
         const newHighlight = mergeHighlights.highlight
         const mergedIds = mergeHighlights.overlapHighlightIdList ?? []
-        updateItemProperty(queryClient, variables.itemId, (item) => {
-          return {
-            ...item,
-            highlights: [
-              ...item.highlights.filter((h) => mergedIds.indexOf(h.id) == -1),
-              newHighlight,
-            ],
+        updateItemProperty(
+          queryClient,
+          variables.itemId,
+          variables.slug,
+          (item) => {
+            return {
+              ...item,
+              highlights: [
+                ...item.highlights.filter((h) => mergedIds.indexOf(h.id) == -1),
+                newHighlight,
+              ],
+            }
           }
-        })
+        )
       }
     },
   })

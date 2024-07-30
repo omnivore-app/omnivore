@@ -107,8 +107,12 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           style="hoverActionIcon"
           onClick={async (event) => {
             await archiveItem.mutateAsync({
-              linkId: props.item.id,
-              archived: props.item.state !== State.ARCHIVED,
+              itemId: props.item.id,
+              slug: props.item.slug,
+              input: {
+                linkId: props.item.id,
+                archived: props.item.state !== State.ARCHIVED,
+              },
             })
             event.preventDefault()
             event.stopPropagation()
@@ -132,9 +136,14 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         style="hoverActionIcon"
         onClick={async (event) => {
           if (props.item.state == State.DELETED) {
-            await restoreItem.mutateAsync(props.item.id)
-          } else {
-            await deleteItem.mutateAsync(props.item.id)
+            await restoreItem.mutateAsync({
+              itemId: props.item.id,
+              slug: props.item.slug,
+            })
+            await deleteItem.mutateAsync({
+              itemId: props.item.id,
+              slug: props.item.slug,
+            })
           }
           event.preventDefault()
           event.stopPropagation()

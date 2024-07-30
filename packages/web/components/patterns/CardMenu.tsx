@@ -69,9 +69,13 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         <DropdownOption
           onSelect={async () => {
             await updateItemReadStatus.mutateAsync({
-              id: props.item.id,
-              readingProgressPercent: 100,
-              force: true,
+              itemId: props.item.id,
+              slug: props.item.slug,
+              input: {
+                id: props.item.id,
+                readingProgressPercent: 100,
+                force: true,
+              },
             })
           }}
           title="Mark read"
@@ -80,9 +84,13 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         <DropdownOption
           onSelect={async () => {
             await updateItemReadStatus.mutateAsync({
-              id: props.item.id,
-              readingProgressPercent: 0,
-              force: true,
+              itemId: props.item.id,
+              slug: props.item.slug,
+              input: {
+                id: props.item.id,
+                readingProgressPercent: 0,
+                force: true,
+              },
             })
           }}
           title="Mark unread"

@@ -11,9 +11,6 @@ import {
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
@@ -310,56 +307,6 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
         {/* EPUB CONTAINER
         <div ></div> */}
       </Box>
-      {noteTarget && (
-        <HighlightNoteModal
-          highlight={noteTarget}
-          libraryItemId={props.article.id}
-          author={props.article.author ?? ''}
-          title={props.article.title}
-          onUpdate={(highlight: Highlight) => {
-            const savedHighlight = highlightsRef.current.find(
-              (other: Highlight) => {
-                return other.id == highlight.id
-              }
-            )
-
-            if (savedHighlight) {
-              savedHighlight.annotation = highlight.annotation
-            }
-          }}
-          onOpenChange={() => {
-            setNoteTarget(undefined)
-          }}
-        />
-      )}
-      {props.showHighlightsModal && (
-        <NotebookModal
-          key={notebookKey}
-          viewer={props.viewer}
-          item={props.article}
-          onClose={(updatedHighlights, deletedAnnotations) => {
-            console.log(
-              'closed PDF notebook: ',
-              updatedHighlights,
-              deletedAnnotations
-            )
-            deletedAnnotations.forEach((highlight) => {
-              const event = new CustomEvent('deleteHighlightbyId', {
-                detail: highlight.id,
-              })
-              document.dispatchEvent(event)
-            })
-            props.setShowHighlightsModal(false)
-          }}
-          viewHighlightInReader={(highlightId) => {
-            const event = new CustomEvent('scrollToHighlightId', {
-              detail: highlightId,
-            })
-            document.dispatchEvent(event)
-            props.setShowHighlightsModal(false)
-          }}
-        />
-      )}
     </Box>
   )
 }

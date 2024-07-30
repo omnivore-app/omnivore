@@ -11,10 +11,6 @@ import { PdfArticleContainerProps } from './../../../components/templates/articl
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { Toaster } from 'react-hot-toast'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import Script from 'next/script'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -130,8 +126,12 @@ export default function Reader(): JSX.Element {
         case 'unarchive':
           try {
             await archiveItem.mutateAsync({
-              linkId: libraryItem.id,
-              archived: action == 'archive',
+              itemId: libraryItem.id,
+              slug: libraryItem.slug,
+              input: {
+                linkId: libraryItem.id,
+                archived: action == 'archive',
+              },
             })
           } catch {
             showErrorToast(`Error ${action}ing item`, {
@@ -161,9 +161,13 @@ export default function Reader(): JSX.Element {
                 }
           try {
             await updateItemReadStatus.mutateAsync({
-              id: libraryItem.id,
-              force: true,
-              ...values,
+              itemId: libraryItem.id,
+              slug: libraryItem.slug,
+              input: {
+                id: libraryItem.id,
+                force: true,
+                ...values,
+              },
             })
           } catch {
             showErrorToast(`Error marking as ${desc}`, {
@@ -175,7 +179,10 @@ export default function Reader(): JSX.Element {
           break
         case 'delete':
           try {
-            await deleteItem.mutateAsync(libraryItem.id)
+            await deleteItem.mutateAsync({
+              itemId: libraryItem.id,
+              slug: libraryItem.slug,
+            })
           } catch {
             showErrorToast(`Error deleting item`, {
               position: 'bottom-right',
@@ -457,7 +464,10 @@ export default function Reader(): JSX.Element {
     [readerSettings, showHighlightsModal]
   )
 
-  const [labels, dispatchLabels] = useSetPageLabels(libraryItem?.id)
+  const [labels, dispatchLabels] = useSetPageLabels(
+    libraryItem?.id,
+    libraryItem?.slug
+  )
 
   new Error()
   if (
@@ -590,6 +600,7 @@ export default function Reader(): JSX.Element {
                   try {
                     const result = await createHighlight.mutateAsync({
                       itemId: libraryItem.id,
+                      slug: libraryItem.slug,
                       input,
                     })
                     return result
@@ -605,6 +616,7 @@ export default function Reader(): JSX.Element {
                   try {
                     await deleteHighlight.mutateAsync({
                       itemId: libraryItem.id,
+                      slug: libraryItem.slug,
                       highlightId,
                     })
                     return true
@@ -617,6 +629,7 @@ export default function Reader(): JSX.Element {
                   try {
                     const result = await mergeHighlight.mutateAsync({
                       itemId: libraryItem.id,
+                      slug: libraryItem.slug,
                       input,
                     })
                     return result?.highlight
@@ -629,6 +642,7 @@ export default function Reader(): JSX.Element {
                   try {
                     const result = await updateHighlight.mutateAsync({
                       itemId: libraryItem.id,
+                      slug: libraryItem.slug,
                       input,
                     })
                     return result?.id
@@ -641,7 +655,11 @@ export default function Reader(): JSX.Element {
                   input: ArticleReadingProgressMutationInput
                 ) => {
                   try {
-                    await updateItemReadStatus.mutateAsync(input)
+                    await updateItemReadStatus.mutateAsync({
+                      itemId: libraryItem.id,
+                      slug: libraryItem.slug,
+                      input,
+                    })
                   } catch {
                     return false
                   }
@@ -722,15 +740,14 @@ export default function Reader(): JSX.Element {
           article={libraryItem}
           onOpenChange={() => setShowEditModal(false)}
           updateArticle={(title, author, description, savedAt, publishedAt) => {
-            libraryItem.title = title
-            libraryItem.author = author
-            libraryItem.description = description
-            libraryItem.savedAt = savedAt
-            libraryItem.publishedAt = publishedAt
-
-            const titleEvent = new Event('updateTitle') as UpdateTitleEvent
-            titleEvent.title = title
-            document.dispatchEvent(titleEvent)
+            // libraryItem.title = title
+            // libraryItem.author = author
+            // libraryItem.description = description
+            // libraryItem.savedAt = savedAt
+            // libraryItem.publishedAt = publishedAt
+            // const titleEvent = new Event('updateTitle') as UpdateTitleEvent
+            // titleEvent.title = title
+            // document.dispatchEvent(titleEvent)
           }}
         />
       )}

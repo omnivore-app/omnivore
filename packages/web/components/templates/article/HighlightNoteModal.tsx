@@ -13,10 +13,9 @@ import { showErrorToast } from '../../../lib/toastHelpers'
 import { useUpdateHighlight } from '../../../lib/networking/highlights/useItemHighlights'
 
 type HighlightNoteModalProps = {
-  author: string
-  title: string
   highlight?: Highlight
   libraryItemId: string
+  libraryItemSlug: string
   onUpdate: (updatedHighlight: Highlight) => void
   onOpenChange: (open: boolean) => void
   createHighlightForNote?: (note?: string) => Promise<Highlight | undefined>
@@ -43,6 +42,7 @@ export function HighlightNoteModal(
       try {
         const result = await updateHighlight.mutateAsync({
           itemId: props.libraryItemId,
+          slug: props.libraryItemSlug,
           input: {
             libraryItemId: props.libraryItemId,
             highlightId: props.highlight?.id,

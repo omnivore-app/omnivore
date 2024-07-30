@@ -523,9 +523,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         item={props.article}
         scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
-        articleTitle={title}
-        articleAuthor={props.article.author ?? ''}
-        articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}

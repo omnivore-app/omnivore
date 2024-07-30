@@ -398,8 +398,12 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       case 'unarchive':
         try {
           await archiveItem.mutateAsync({
-            linkId: item.node.id,
-            archived: action == 'archive',
+            itemId: item.node.id,
+            slug: item.node.slug,
+            input: {
+              linkId: item.node.id,
+              archived: action == 'archive',
+            },
           })
         } catch (err) {
           console.log('Error setting archive state: ', err)
@@ -414,7 +418,10 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         break
       case 'delete':
         try {
-          await deleteItem.mutateAsync(item.node.id)
+          await deleteItem.mutateAsync({
+            itemId: item.node.id,
+            slug: item.node.slug,
+          })
         } catch (err) {
           console.log('Error deleting item: ', err)
           showErrorToast(`Error deleting item`, {
@@ -443,9 +450,13 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
               }
         try {
           await updateItemReadStatus.mutateAsync({
-            id: item.node.id,
-            force: true,
-            ...values,
+            itemId: item.node.id,
+            slug: item.node.slug,
+            input: {
+              id: item.node.id,
+              force: true,
+              ...values,
+            },
           })
         } catch (err) {
           console.log('Error marking item: ', err)
@@ -459,6 +470,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         try {
           await moveToFolder.mutateAsync({
             itemId: item.node.id,
+            slug: item.node.slug,
             folder: 'inbox',
           })
         } catch (err) {
@@ -1250,8 +1262,7 @@ export function LibraryItemsLayout(
       )}
       {props.labelsTarget?.node.id && (
         <SetPageLabelsModalPresenter
-          articleId={props.labelsTarget.node.id}
-          article={props.labelsTarget.node}
+          libraryItem={props.labelsTarget.node}
           onOpenChange={() => {
             if (props.labelsTarget) {
               const activate = props.labelsTarget

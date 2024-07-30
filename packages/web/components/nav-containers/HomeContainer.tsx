@@ -950,12 +950,12 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
     useLibraryItemActions()
 
   const doArchiveItem = useCallback(
-    async (libraryItemId: string) => {
+    async (libraryItemId: string, slug: string) => {
       dispatch({
         type: 'REMOVE_ITEM',
         payload: libraryItemId,
       })
-      if (!(await archiveItem(libraryItemId))) {
+      if (!(await archiveItem(libraryItemId, slug))) {
         // dispatch({
         //   type: 'REPLACE_ITEM',
         //   itemId: libraryItemId,
@@ -966,7 +966,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 
   const doDeleteItem = useCallback(
-    async (libraryItemId: string) => {
+    async (libraryItemId: string, slug: string) => {
       dispatch({
         type: 'REMOVE_ITEM',
         payload: libraryItemId,
@@ -977,7 +977,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
         //   : libraryItemId,
         // })
       }
-      if (!(await deleteItem(libraryItemId, undo))) {
+      if (!(await deleteItem(libraryItemId, slug, undo))) {
         // dispatch({
         //   type: 'REPLACE_ITEM',
         //   payload: libraryItemId,
@@ -988,12 +988,12 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 
   const doMoveItem = useCallback(
-    async (libraryItemId: string) => {
+    async (libraryItemId: string, slug: string) => {
       dispatch({
         type: 'REMOVE_ITEM',
         payload: libraryItemId,
       })
-      if (!(await moveItem(libraryItemId))) {
+      if (!(await moveItem(libraryItemId, slug))) {
         // dispatch({
         //   type: 'REPLACE_ITEM',
         //   payload: libraryItemId,
@@ -1043,13 +1043,13 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             ;(event.target as HTMLElement).click()
             break
           case 'e':
-            doArchiveItem(props.homeItem.id)
+            doArchiveItem(props.homeItem.id, props.homeItem.slug)
             break
           case '#':
-            doDeleteItem(props.homeItem.id)
+            doDeleteItem(props.homeItem.id, props.homeItem.slug)
             break
           case 'm':
-            doMoveItem(props.homeItem.id)
+            doMoveItem(props.homeItem.id, props.homeItem.slug)
             break
           case 'o':
             window.open(props.homeItem.url, '_blank')
@@ -1097,8 +1097,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
-              await doMoveItem(props.homeItem.id)
+              await doMoveItem(props.homeItem.id, props.homeItem.slug)
             }}
           >
             <AddToLibraryActionIcon />
@@ -1111,8 +1110,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
-              await doArchiveItem(props.homeItem.id)
+              await doArchiveItem(props.homeItem.id, props.homeItem.slug)
             }}
           >
             <ArchiveActionIcon />
@@ -1125,8 +1123,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
-              await doDeleteItem(props.homeItem.id)
+              await doDeleteItem(props.homeItem.id, props.homeItem.slug)
             }}
           >
             <RemoveActionIcon />
