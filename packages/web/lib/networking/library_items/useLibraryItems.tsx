@@ -83,7 +83,6 @@ export const updateItemProperty = (
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
-  console.log('updateItemProperty::KEYS: ', keys)
 
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
@@ -218,6 +217,13 @@ export const useArchiveItem = () => {
       input: SetLinkArchivedInput
     }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
 
       updateItemStateInCache(
         queryClient,
@@ -226,11 +232,17 @@ export const useArchiveItem = () => {
         variables.input.archived ? State.ARCHIVED : State.SUCCEEDED
       )
 
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return previousState
     },
-    onError: (error, itemId, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
       }
     },
     onSettled: () => {
@@ -255,20 +267,31 @@ export const useDeleteItem = () => {
   return useMutation({
     mutationFn: deleteItem,
     onMutate: async (variables: { itemId: string; slug: string }) => {
-      await queryClient.cancelQueries({
-        queryKey: ['libraryItems'],
-      })
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
       updateItemStateInCache(
         queryClient,
         variables.itemId,
         variables.slug,
         State.DELETED
       )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return previousState
     },
-    onError: (error, itemId, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
       }
     },
     onSettled: async () => {
@@ -293,18 +316,30 @@ export const useRestoreItem = () => {
   return useMutation({
     mutationFn: restoreItem,
     onMutate: async (variables: { itemId: string; slug: string }) => {
-      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
       updateItemStateInCache(
         queryClient,
         variables.itemId,
         variables.slug,
         State.SUCCEEDED
       )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return previousState
     },
-    onError: (error, itemId, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
       }
     },
     onSettled: async () => {
@@ -337,18 +372,30 @@ export const useUpdateItem = () => {
       slug: string | undefined
       input: UpdateLibraryItemInput
     }) => {
-      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
       overwriteItemPropertiesInCache(
         queryClient,
         variables.itemId,
         variables.slug,
         variables.input
       )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return previousState
     },
-    onError: (error, itemId, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
       }
     },
     onSuccess: async (data, variables) => {
@@ -384,7 +431,13 @@ export const useUpdateItemReadStatus = () => {
       slug: string
       input: ArticleReadingProgressMutationInput
     }) => {
-      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
@@ -392,11 +445,17 @@ export const useUpdateItemReadStatus = () => {
         'readingProgressPercent',
         variables.input.readingProgressPercent
       )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return previousState
     },
-    onError: (error, input, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
       }
     },
     onSuccess: (data, variables, context) => {
@@ -464,6 +523,13 @@ export const useMoveItemToFolder = () => {
       folder: string
     }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
@@ -471,13 +537,7 @@ export const useMoveItemToFolder = () => {
         'folder',
         variables.folder
       )
-      return {
-        previousDetail: queryClient.getQueryData([
-          'libraryItem',
-          variables.slug,
-        ]),
-        previousItems: queryClient.getQueryData(['libraryItems']),
-      }
+      return previousState
     },
     onError: (error, variables, context) => {
       if (context?.previousItems) {
@@ -522,7 +582,13 @@ export const useSetItemLabels = () => {
       labels: Label[]
     }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
-      console
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
@@ -530,13 +596,7 @@ export const useSetItemLabels = () => {
         'labels',
         variables.labels
       )
-      return {
-        previousItems: queryClient.getQueryData(['libraryItems']),
-        previousDetail: queryClient.getQueryData([
-          'libraryItem',
-          variables.slug,
-        ]),
-      }
+      return previousState
     },
     onError: (error, variables, context) => {
       if (context?.previousItems) {
