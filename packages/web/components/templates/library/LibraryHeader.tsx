@@ -26,6 +26,7 @@ export type LibraryHeaderProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
 
+  folder: string
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 
@@ -250,26 +251,28 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         distribution="start"
         css={{ width: '100%', height: '100%' }}
       >
-        <HStack
-          alignment="center"
-          distribution="center"
-          css={{
-            width: '53px',
-            height: '100%',
-            display: 'flex',
-            bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
-            borderTopLeftRadius: '6px',
-            borderBottomLeftRadius: '6px',
-            '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
-            '&:hover': {
-              bg: '$thLibraryMultiselectHover',
-              '--checkbox-color':
-                'var(--colors-thLibraryMultiselectCheckboxHover)',
-            },
-          }}
-        >
-          <CheckBoxButton {...props} />
-        </HStack>
+        {props.folder !== 'trash' && (
+          <HStack
+            alignment="center"
+            distribution="center"
+            css={{
+              width: '53px',
+              height: '100%',
+              display: 'flex',
+              bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
+              borderTopLeftRadius: '6px',
+              borderBottomLeftRadius: '6px',
+              '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
+              '&:hover': {
+                bg: '$thLibraryMultiselectHover',
+                '--checkbox-color':
+                  'var(--colors-thLibraryMultiselectCheckboxHover)',
+              },
+            }}
+          >
+            <CheckBoxButton {...props} />
+          </HStack>
+        )}
         <HStack
           alignment="center"
           distribution="start"

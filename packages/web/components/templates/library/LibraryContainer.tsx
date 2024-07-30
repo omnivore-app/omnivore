@@ -801,12 +801,18 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
             : `includes:${checkedItems.join(',')}`
         const expectedCount = checkedItems.length
 
+        let bulkArguments = undefined
+        if (action == BulkAction.MOVE_TO_FOLDER) {
+          bulkArguments = { folder: 'inbox ' }
+        }
+
         try {
           const res = await bulkAction.mutateAsync({
             action,
             query,
             expectedCount,
             labelIds,
+            arguments: bulkArguments,
           })
           if (res) {
             let successMessage: string | undefined = undefined
@@ -822,6 +828,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
                 break
               case BulkAction.MARK_AS_READ:
                 successMessage = 'Items marked as read'
+                break
+              case BulkAction.MOVE_TO_FOLDER:
+                successMessage = 'Items moved to library'
                 break
             }
             if (successMessage) {
@@ -1012,6 +1021,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     >
       <LibraryHeader
         layout={layout}
+        folder={props.folder}
         viewer={viewerData?.me}
         updateLayout={updateLayout}
         showFilterMenu={props.showNavigationMenu}

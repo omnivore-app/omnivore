@@ -629,6 +629,7 @@ export const useBulkActions = () => {
     query: string
     expectedCount: number
     labelIds?: string[]
+    arguments?: any
   }) => {
     const result = (await gqlFetcher(GQL_BULK_ACTION, {
       ...variables,
@@ -661,6 +662,7 @@ export enum BulkAction {
   DELETE = 'DELETE',
   ADD_LABELS = 'ADD_LABELS',
   MARK_AS_READ = 'MARK_AS_READ',
+  MOVE_TO_FOLDER = 'MOVE_TO_FOLDER',
 }
 
 type BulkActionResult = {

@@ -121,9 +121,9 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         ...headerControlWidths(props.layout, props.multiSelectMode),
       }}
     >
-      {props.multiSelectMode !== 'off' ? (
+      {props.multiSelectMode !== 'off' && (
         <>
-          <MultiSelectControls {...props} />
+          <MultiSelectControls {...props} folder={'library'} />
         </>
       ) : (
         <HeaderControls {...props} />
