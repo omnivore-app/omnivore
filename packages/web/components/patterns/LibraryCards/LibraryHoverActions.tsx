@@ -140,6 +140,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
               itemId: props.item.id,
               slug: props.item.slug,
             })
+          } else {
             await deleteItem.mutateAsync({
               itemId: props.item.id,
               slug: props.item.slug,
