@@ -43,9 +43,10 @@ function gqlFetcher(
 const updateItemStateInCache = (
   queryClient: QueryClient,
   itemId: string,
+  slug: string | undefined,
   newState: State
 ) => {
-  updateItemPropertyInCache(queryClient, itemId, 'state', newState)
+  updateItemPropertyInCache(queryClient, itemId, slug, 'state', newState)
 }
 
 function createDictionary(
@@ -59,10 +60,11 @@ function createDictionary(
 const updateItemPropertyInCache = (
   queryClient: QueryClient,
   itemId: string,
+  slug: string | undefined,
   propertyName: string,
   propertyValue: any
 ) => {
-  updateItemProperty(queryClient, itemId, (oldItem) => {
+  updateItemProperty(queryClient, itemId, slug, (oldItem) => {
     const setter = createDictionary(propertyName, propertyValue)
     return {
       ...oldItem,
@@ -74,12 +76,15 @@ const updateItemPropertyInCache = (
 export const updateItemProperty = (
   queryClient: QueryClient,
   itemId: string,
+  slug: string | undefined,
   updateFunc: (input: ArticleAttributes) => ArticleAttributes
 ) => {
   let foundItemSlug: string | undefined
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
+  console.log('updateItemProperty::KEYS: ', keys)
+
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
       if (!data) return data
@@ -101,9 +106,9 @@ export const updateItemProperty = (
       }
       return updatedData
     })
-    if (foundItemSlug)
+    if (foundItemSlug || slug)
       queryClient.setQueryData(
-        ['libraryItem', foundItemSlug],
+        ['libraryItem', foundItemSlug ?? slug],
         (oldData: ArticleAttributes) => {
           return {
             ...oldData,
@@ -114,29 +119,66 @@ export const updateItemProperty = (
   })
 }
 
-const updateItemPropertiesInCache = (
+const overwriteItemPropertiesInCache = (
   queryClient: QueryClient,
   itemId: string,
-  item: ArticleAttributes
+  slug: string | undefined,
+  item: any
 ) => {
+  let foundItemSlug: string | undefined
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
+  console.log('overwriteItemPropertiesInCache::KEYS: ', keys)
+  // keys.forEach((query) => {
+  //   queryClient.setQueryData(query.queryKey, (data: any) => {
+  //     if (!data) return data
+  //     return {
+  //       ...data,
+  //       pages: data.pages.map((page: any) => ({
+  //         ...page,
+  //         edges: page.edges.map((edge: any) =>
+  //           edge.node.id === itemId
+  //             ? { ...edge, node: { ...edge.node, ...item } }
+  //             : edge
+  //         ),
+  //       })),
+  //     }
+  //   })
+  // })
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
+      console.log('query.queryKey', query.queryKey, data)
       if (!data) return data
-      return {
+      const updatedData = {
         ...data,
         pages: data.pages.map((page: any) => ({
           ...page,
-          edges: page.edges.map((edge: any) =>
-            edge.node.id === itemId
-              ? { ...edge, node: { ...edge.node, ...item } }
-              : edge
-          ),
+          edges: page.edges.map((edge: any) => {
+            if (edge.node.id === itemId) {
+              foundItemSlug = edge.node.slug
+              return {
+                ...edge,
+                node: { ...edge.node, ...item },
+              }
+            }
+            return edge
+          }),
         })),
       }
+      return updatedData
     })
+    console.log('updating foundItem slug: ', foundItemSlug)
+    if (foundItemSlug || slug)
+      queryClient.setQueryData(
+        ['libraryItem', foundItemSlug ?? slug],
+        (oldData: ArticleAttributes) => {
+          return {
+            ...oldData,
+            ...item,
+          }
+        }
+      )
   })
 }
 
@@ -172,9 +214,13 @@ export function useGetLibraryItems(
 
 export const useArchiveItem = () => {
   const queryClient = useQueryClient()
-  const archiveItem = async (input: SetLinkArchivedInput) => {
+  const archiveItem = async (variables: {
+    itemId: string
+    slug: string
+    input: SetLinkArchivedInput
+  }) => {
     const result = (await gqlFetcher(GQL_SET_LINK_ARCHIVED, {
-      input,
+      input: variables.input,
     })) as SetLinkArchivedData
     if (result.errorCodes?.length) {
       throw new Error(result.errorCodes[0])
@@ -183,13 +229,18 @@ export const useArchiveItem = () => {
   }
   return useMutation({
     mutationFn: archiveItem,
-    onMutate: async (input: SetLinkArchivedInput) => {
+    onMutate: async (variables: {
+      itemId: string
+      slug: string
+      input: SetLinkArchivedInput
+    }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
 
       updateItemStateInCache(
         queryClient,
-        input.linkId,
-        input.archived ? State.ARCHIVED : State.SUCCEEDED
+        variables.itemId,
+        variables.slug,
+        variables.input.archived ? State.ARCHIVED : State.SUCCEEDED
       )
 
       return { previousItems: queryClient.getQueryData(['libraryItems']) }
@@ -209,9 +260,9 @@ export const useArchiveItem = () => {
 
 export const useDeleteItem = () => {
   const queryClient = useQueryClient()
-  const deleteItem = async (itemId: string) => {
+  const deleteItem = async (variables: { itemId: string; slug: string }) => {
     const result = (await gqlFetcher(GQL_DELETE_LIBRARY_ITEM, {
-      input: { articleID: itemId, bookmark: false },
+      input: { articleID: variables.itemId, bookmark: false },
     })) as SetBookmarkArticleData
     if (result.setBookmarkArticle.errorCodes?.length) {
       throw new Error(result.setBookmarkArticle.errorCodes[0])
@@ -220,11 +271,16 @@ export const useDeleteItem = () => {
   }
   return useMutation({
     mutationFn: deleteItem,
-    onMutate: async (itemId: string) => {
+    onMutate: async (variables: { itemId: string; slug: string }) => {
       await queryClient.cancelQueries({
         queryKey: ['libraryItems'],
       })
-      updateItemStateInCache(queryClient, itemId, State.DELETED)
+      updateItemStateInCache(
+        queryClient,
+        variables.itemId,
+        variables.slug,
+        State.DELETED
+      )
       return { previousItems: queryClient.getQueryData(['libraryItems']) }
     },
     onError: (error, itemId, context) => {
@@ -242,9 +298,9 @@ export const useDeleteItem = () => {
 
 export const useRestoreItem = () => {
   const queryClient = useQueryClient()
-  const restoreItem = async (itemId: string) => {
+  const restoreItem = async (variables: { itemId: string; slug: string }) => {
     const result = (await gqlFetcher(GQL_UPDATE_LIBRARY_ITEM, {
-      input: { pageId: itemId, state: State.SUCCEEDED },
+      input: { pageId: variables.itemId, state: State.SUCCEEDED },
     })) as UpdateLibraryItemData
     if (result.updatePage.errorCodes?.length) {
       throw new Error(result.updatePage.errorCodes[0])
@@ -253,9 +309,59 @@ export const useRestoreItem = () => {
   }
   return useMutation({
     mutationFn: restoreItem,
-    onMutate: async (itemId: string) => {
+    onMutate: async (variables: { itemId: string; slug: string }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
-      updateItemStateInCache(queryClient, itemId, State.SUCCEEDED)
+      updateItemStateInCache(
+        queryClient,
+        variables.itemId,
+        variables.slug,
+        State.SUCCEEDED
+      )
+      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+    },
+    onError: (error, itemId, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+    },
+  })
+}
+
+export const useUpdateItem = () => {
+  const queryClient = useQueryClient()
+  const updateItem = async (variables: {
+    itemId: string
+    slug: string | undefined
+    input: UpdateLibraryItemInput
+  }) => {
+    const result = (await gqlFetcher(GQL_UPDATE_LIBRARY_ITEM, {
+      input: variables.input,
+    })) as UpdateLibraryItemData
+    if (result.updatePage.errorCodes?.length) {
+      throw new Error(result.updatePage.errorCodes[0])
+    }
+    return result.updatePage
+  }
+  return useMutation({
+    mutationFn: updateItem,
+    onMutate: async (variables: {
+      itemId: string
+      slug: string | undefined
+      input: UpdateLibraryItemInput
+    }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      console.log('will update item')
+      overwriteItemPropertiesInCache(
+        queryClient,
+        variables.itemId,
+        variables.slug,
+        variables.input
+      )
       return { previousItems: queryClient.getQueryData(['libraryItems']) }
     },
     onError: (error, itemId, context) => {
@@ -273,11 +379,13 @@ export const useRestoreItem = () => {
 
 export const useUpdateItemReadStatus = () => {
   const queryClient = useQueryClient()
-  const updateItemReadStatus = async (
+  const updateItemReadStatus = async (variables: {
+    itemId: string
+    slug: string
     input: ArticleReadingProgressMutationInput
-  ) => {
+  }) => {
     const result = (await gqlFetcher(GQL_SAVE_ARTICLE_READING_PROGRESS, {
-      input,
+      input: variables.input,
     })) as ArticleReadingProgressMutationData
     if (result.saveArticleReadingProgress.errorCodes?.length) {
       throw new Error(result.saveArticleReadingProgress.errorCodes[0])
@@ -286,13 +394,18 @@ export const useUpdateItemReadStatus = () => {
   }
   return useMutation({
     mutationFn: updateItemReadStatus,
-    onMutate: async (input: ArticleReadingProgressMutationInput) => {
+    onMutate: async (variables: {
+      itemId: string
+      slug: string
+      input: ArticleReadingProgressMutationInput
+    }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
       updateItemPropertyInCache(
         queryClient,
-        input.id,
+        variables.itemId,
+        variables.slug,
         'readingProgressPercent',
-        input.readingProgressPercent
+        variables.input.readingProgressPercent
       )
       return { previousItems: queryClient.getQueryData(['libraryItems']) }
     },
@@ -305,7 +418,8 @@ export const useUpdateItemReadStatus = () => {
       if (data) {
         updateItemPropertyInCache(
           queryClient,
-          data.id,
+          variables.itemId,
+          variables.slug,
           'readingProgressPercent',
           data.readingProgressPercent
         )
@@ -329,7 +443,12 @@ export const useGetLibraryItemContent = (username: string, slug: string) => {
       }
       const article = response.article.article
       if (article) {
-        updateItemPropertiesInCache(queryClient, article.id, article)
+        overwriteItemPropertiesInCache(
+          queryClient,
+          article.id,
+          article.slug,
+          article
+        )
       }
       return response.article.article
     },
@@ -338,7 +457,11 @@ export const useGetLibraryItemContent = (username: string, slug: string) => {
 
 export const useMoveItemToFolder = () => {
   const queryClient = useQueryClient()
-  const moveItem = async (variables: { itemId: string; folder: string }) => {
+  const moveItem = async (variables: {
+    itemId: string
+    slug: string | undefined
+    folder: string
+  }) => {
     const result = (await gqlFetcher(GQL_MOVE_ITEM_TO_FOLDER, {
       id: variables.itemId,
       folder: variables.folder,
@@ -350,11 +473,16 @@ export const useMoveItemToFolder = () => {
   }
   return useMutation({
     mutationFn: moveItem,
-    onMutate: async (variables: { itemId: string; folder: string }) => {
+    onMutate: async (variables: {
+      itemId: string
+      slug: string | undefined
+      folder: string
+    }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
+        variables.slug,
         'folder',
         variables.folder
       )
@@ -375,7 +503,11 @@ export const useMoveItemToFolder = () => {
 
 export const useSetItemLabels = () => {
   const queryClient = useQueryClient()
-  const setLabels = async (variables: { itemId: string; labels: Label[] }) => {
+  const setLabels = async (variables: {
+    itemId: string
+    slug: string | undefined
+    labels: Label[]
+  }) => {
     const labelIds = variables.labels.map((l) => l.id)
     const result = (await gqlFetcher(GQL_SET_LABELS, {
       input: { pageId: variables.itemId, labelIds },
@@ -387,11 +519,16 @@ export const useSetItemLabels = () => {
   }
   return useMutation({
     mutationFn: setLabels,
-    onMutate: async (variables: { itemId: string; labels: Label[] }) => {
+    onMutate: async (variables: {
+      itemId: string
+      slug: string | undefined
+      labels: Label[]
+    }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
+        variables.slug,
         'labels',
         variables.labels
       )
@@ -406,6 +543,7 @@ export const useSetItemLabels = () => {
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
+        variables.slug,
         'labels',
         newLabels
       )
@@ -416,6 +554,16 @@ export const useSetItemLabels = () => {
       })
     },
   })
+}
+
+type UpdateLibraryItemInput = {
+  pageId: string
+  title?: string
+  byline?: string | undefined
+  description?: string
+  savedAt?: string
+  publishedAt?: string
+  state?: State
 }
 
 type SetLabelsData = {

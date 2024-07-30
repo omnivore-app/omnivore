@@ -11,7 +11,8 @@ export type LabelsDispatcher = (action: {
 }) => void
 
 export const useSetPageLabels = (
-  articleId?: string
+  libraryItemId?: string,
+  libraryItemSlug?: string
 ): [{ labels: Label[] }, LabelsDispatcher] => {
   const setItemLabels = useSetItemLabels()
   const saveLabels = (labels: Label[], articleId: string) => {
@@ -19,6 +20,7 @@ export const useSetPageLabels = (
       if (articleId) {
         const result = await setItemLabels.mutateAsync({
           itemId: articleId,
+          slug: libraryItemSlug,
           labels,
         })
         if (!result) {
@@ -91,13 +93,13 @@ export const useSetPageLabels = (
     dispatchLabels({
       type: 'UPDATE_ARTICLE_ID',
       labels: [],
-      articleId: articleId,
+      articleId: libraryItemId,
     })
-  }, [articleId])
+  }, [libraryItemId])
 
   const [labels, dispatchLabels] = useReducer(labelsReducer, {
     labels: [],
-    articleId: articleId,
+    articleId: libraryItemId,
     throttledSave: debouncedSave,
   })
 
