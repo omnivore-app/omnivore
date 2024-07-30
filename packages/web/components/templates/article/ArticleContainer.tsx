@@ -19,6 +19,7 @@ import {
   ArticleAttributes,
   Recommendation,
   TextDirection,
+  useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
@@ -115,7 +116,7 @@ const RecommendationComments = (
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [labels, setLabels] = useState(props.labels)
-  const [title, setTitle] = useState(props.article.title)
+  const [title, setTitle] = useState<string | undefined>(undefined)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   const [highlightOnRelease, setHighlightOnRelease] = useState(
@@ -447,9 +448,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 '-webkit-line-clamp': '6',
               },
             }}
-            title={title}
+            title={title ?? props.article.title}
           >
-            {title}
+            {title ?? props.article.title}
           </StyledText>
           <ArticleSubtitle
             author={props.article.author}

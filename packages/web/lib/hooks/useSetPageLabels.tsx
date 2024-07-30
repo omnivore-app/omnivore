@@ -15,11 +15,15 @@ export const useSetPageLabels = (
   libraryItemSlug?: string
 ): [{ labels: Label[] }, LabelsDispatcher] => {
   const setItemLabels = useSetItemLabels()
-  const saveLabels = (labels: Label[], articleId: string) => {
+  const saveLabels = (
+    labels: Label[],
+    libraryItemId: string,
+    libraryItemSlug: string
+  ) => {
     ;(async () => {
-      if (articleId) {
+      if (libraryItemId) {
         const result = await setItemLabels.mutateAsync({
-          itemId: articleId,
+          itemId: libraryItemId,
           slug: libraryItemSlug,
           labels,
         })
@@ -36,12 +40,14 @@ export const useSetPageLabels = (
     state: {
       labels: Label[]
       articleId: string | undefined
-      throttledSave: (labels: Label[], articleId: string) => void
+      slug: string | undefined
+      throttledSave: (labels: Label[], articleId: string, slug: string) => void
     },
     action: {
       type: string
       labels: Label[]
       articleId?: string
+      slug?: string
     }
   ) => {
     switch (action.type) {
@@ -58,8 +64,8 @@ export const useSetPageLabels = (
         }
       }
       case 'SAVE': {
-        if (state.articleId) {
-          state.throttledSave(action.labels, state.articleId)
+        if (state.articleId && state.slug) {
+          state.throttledSave(action.labels, state.articleId, state.slug)
         } else {
           showErrorToast('Unable to update labels', {
             position: 'bottom-right',
@@ -73,6 +79,7 @@ export const useSetPageLabels = (
       case 'UPDATE_ARTICLE_ID': {
         return {
           ...state,
+          slug: action.slug,
           articleId: action.articleId,
         }
       }
@@ -83,7 +90,8 @@ export const useSetPageLabels = (
 
   const debouncedSave = useCallback(
     throttle(
-      (labels: Label[], articleId: string) => saveLabels(labels, articleId),
+      (labels: Label[], articleId: string, slug: string) =>
+        saveLabels(labels, articleId, slug),
       2000
     ),
     []
@@ -93,6 +101,7 @@ export const useSetPageLabels = (
     dispatchLabels({
       type: 'UPDATE_ARTICLE_ID',
       labels: [],
+      slug: libraryItemSlug,
       articleId: libraryItemId,
     })
   }, [libraryItemId])
@@ -100,6 +109,7 @@ export const useSetPageLabels = (
   const [labels, dispatchLabels] = useReducer(labelsReducer, {
     labels: [],
     articleId: libraryItemId,
+    slug: libraryItemSlug,
     throttledSave: debouncedSave,
   })
 

@@ -106,17 +106,18 @@ export const updateItemProperty = (
       }
       return updatedData
     })
-    if (foundItemSlug || slug)
-      queryClient.setQueryData(
-        ['libraryItem', foundItemSlug ?? slug],
-        (oldData: ArticleAttributes) => {
-          return {
-            ...oldData,
-            ...updateFunc(oldData),
-          }
-        }
-      )
   })
+  if (foundItemSlug || slug) {
+    queryClient.setQueryData(
+      ['libraryItem', foundItemSlug ?? slug],
+      (oldData: ArticleAttributes) => {
+        return {
+          ...oldData,
+          ...updateFunc(oldData),
+        }
+      }
+    )
+  }
 }
 
 const overwriteItemPropertiesInCache = (
@@ -129,26 +130,8 @@ const overwriteItemPropertiesInCache = (
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
-  console.log('overwriteItemPropertiesInCache::KEYS: ', keys)
-  // keys.forEach((query) => {
-  //   queryClient.setQueryData(query.queryKey, (data: any) => {
-  //     if (!data) return data
-  //     return {
-  //       ...data,
-  //       pages: data.pages.map((page: any) => ({
-  //         ...page,
-  //         edges: page.edges.map((edge: any) =>
-  //           edge.node.id === itemId
-  //             ? { ...edge, node: { ...edge.node, ...item } }
-  //             : edge
-  //         ),
-  //       })),
-  //     }
-  //   })
-  // })
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
-      console.log('query.queryKey', query.queryKey, data)
       if (!data) return data
       const updatedData = {
         ...data,
@@ -168,18 +151,18 @@ const overwriteItemPropertiesInCache = (
       }
       return updatedData
     })
-    console.log('updating foundItem slug: ', foundItemSlug)
-    if (foundItemSlug || slug)
-      queryClient.setQueryData(
-        ['libraryItem', foundItemSlug ?? slug],
-        (oldData: ArticleAttributes) => {
-          return {
-            ...oldData,
-            ...item,
-          }
-        }
-      )
   })
+  if (foundItemSlug || slug) {
+    queryClient.setQueryData(
+      ['libraryItem', foundItemSlug ?? slug],
+      (oldData: ArticleAttributes) => {
+        return {
+          ...oldData,
+          ...item,
+        }
+      }
+    )
+  }
 }
 
 export function useGetLibraryItems(
@@ -355,7 +338,6 @@ export const useUpdateItem = () => {
       input: UpdateLibraryItemInput
     }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
-      console.log('will update item')
       overwriteItemPropertiesInCache(
         queryClient,
         variables.itemId,
@@ -369,9 +351,12 @@ export const useUpdateItem = () => {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
       }
     },
-    onSettled: async () => {
+    onSuccess: async (data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['libraryItems'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItem', variables.slug],
       })
     },
   })
@@ -486,11 +471,23 @@ export const useMoveItemToFolder = () => {
         'folder',
         variables.folder
       )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
     },
-    onError: (error, itemId, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
       }
     },
     onSettled: async () => {
@@ -525,6 +522,7 @@ export const useSetItemLabels = () => {
       labels: Label[]
     }) => {
       await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      console
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
@@ -532,14 +530,26 @@ export const useSetItemLabels = () => {
         'labels',
         variables.labels
       )
-      return { previousItems: queryClient.getQueryData(['libraryItems']) }
+      return {
+        previousItems: queryClient.getQueryData(['libraryItems']),
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+      }
     },
-    onError: (error, itemId, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(['libraryItems'], context.previousItems)
       }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
+      }
     },
-    onSuccess: (newLabels, variables) => {
+    onSuccess: async (newLabels, variables) => {
       updateItemPropertyInCache(
         queryClient,
         variables.itemId,
@@ -547,11 +557,6 @@ export const useSetItemLabels = () => {
         'labels',
         newLabels
       )
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ['libraryItems'],
-      })
     },
   })
 }
