@@ -19,6 +19,7 @@ import {
   LibraryItems,
   LibraryItemsQueryInput,
   useArchiveItem,
+  useBulkActions,
   useDeleteItem,
   useGetLibraryItems,
   useMoveItemToFolder,
@@ -39,8 +40,7 @@ import { EditLibraryItemModal } from '../homeFeed/EditItemModals'
 import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
 import { MultiSelectMode } from '../homeFeed/LibraryHeader'
 import { UploadModal } from '../UploadModal'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
-import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 import {
   showErrorToast,
   showSuccessToast,
@@ -117,6 +117,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const archiveItem = useArchiveItem()
   const deleteItem = useDeleteItem()
   const moveToFolder = useMoveItemToFolder()
+  const bulkAction = useBulkActions()
   const updateItemReadStatus = useUpdateItemReadStatus()
 
   const [queryInputs, setQueryInputs] =
@@ -801,12 +802,12 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         const expectedCount = checkedItems.length
 
         try {
-          const res = await bulkActionMutation(
+          const res = await bulkAction.mutateAsync({
             action,
             query,
             expectedCount,
-            labelIds
-          )
+            labelIds,
+          })
           if (res) {
             let successMessage: string | undefined = undefined
             switch (action) {

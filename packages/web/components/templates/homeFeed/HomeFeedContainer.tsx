@@ -1,7 +1,7 @@
 import type { LibraryItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { MultiSelectMode } from './LibraryHeader'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights' | 'tldr'
