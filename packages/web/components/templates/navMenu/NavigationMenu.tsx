@@ -26,8 +26,6 @@ import { NavigationSection } from '../NavigationLayout'
 import { NodeApi, SimpleTree, Tree, TreeApi } from 'react-arborist'
 import { ListMagnifyingGlass } from '@phosphor-icons/react'
 import React from 'react'
-import useSWR from 'swr'
-import useSWRMutation from 'swr/mutation'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { requestHeaders } from '../../../lib/networking/networkHelpers'
 import { v4 as uuidv4 } from 'uuid'
@@ -40,6 +38,11 @@ import { ShortcutFolderClosed } from '../../elements/icons/ShortcutFolderClosed'
 import { TrashSectionIcon } from '../../elements/icons/TrashSectionIcon'
 import { ShortcutFolderOpen } from '../../elements/icons/ShortcutFolderOpen'
 import useResizeObserver from 'use-resize-observer'
+import {
+  useGetShortcuts,
+  useResetShortcuts,
+  useSetShortcuts,
+} from '../../../lib/networking/shortcuts/useShortcuts'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -268,10 +271,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
 
 const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
   const treeRef = useRef<TreeApi<Shortcut> | undefined>(undefined)
-  const { trigger: resetShortcutsTrigger } = useSWRMutation(
-    '/api/shortcuts',
-    resetShortcuts
-  )
+  const resetShortcuts = useResetShortcuts()
 
   const createNewFolder = useCallback(async () => {
     if (treeRef.current) {
@@ -283,9 +283,7 @@ const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
   }, [treeRef])
 
   const resetShortcutsToDefault = useCallback(async () => {
-    resetShortcutsTrigger(null, {
-      revalidate: true,
-    })
+    await resetShortcuts.mutateAsync()
   }, [])
 
   return (
@@ -439,15 +437,10 @@ const cachedShortcutsData = (): Shortcut[] | undefined => {
 const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
   const router = useRouter()
   const { ref, width, height } = useResizeObserver()
+  const { data, isLoading } = useGetShortcuts()
+  const setShorcuts = useSetShortcuts()
+  const resetShortcuts = useResetShortcuts()
 
-  const { isValidating, data } = useSWR('/api/shortcuts', getShortcuts, {
-    revalidateOnFocus: false,
-    fallbackData: cachedShortcutsData(),
-    onSuccess(data) {
-      localStorage.setItem('/api/shortcuts', JSON.stringify(data))
-    },
-  })
-  const { trigger, isMutating } = useSWRMutation('/api/shortcuts', setShortcuts)
   const [folderOpenState, setFolderOpenState] = usePersistedState<
     Record<string, boolean>
   >({
@@ -460,55 +453,49 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
     return result
   }, [data])
 
-  const syncTreeData = (data: Shortcut[]) => {
-    trigger(
-      { shortcuts: data },
-      {
-        optimisticData: data,
-        rollbackOnError: true,
-        populateCache: (updatedShortcuts) => {
-          return updatedShortcuts
-        },
-        revalidate: false,
-      }
-    )
+  const syncTreeData = async (data: Shortcut[]) => {
+    await setShorcuts.mutateAsync({ shortcuts: data })
   }
 
   const onMove = useCallback(
-    (args: { dragIds: string[]; parentId: null | string; index: number }) => {
+    async (args: {
+      dragIds: string[]
+      parentId: null | string
+      index: number
+    }) => {
       for (const id of args.dragIds) {
         tree?.move({ id, parentId: args.parentId, index: args.index })
       }
-      syncTreeData(tree.data)
+      await syncTreeData(tree.data)
     },
     [tree, data]
   )
 
   const onCreate = useCallback(
-    (args: { parentId: string | null; index: number; type: string }) => {
+    async (args: { parentId: string | null; index: number; type: string }) => {
       const data = { id: uuidv4(), name: '', type: 'folder' } as any
       if (args.type === 'internal') {
         data.children = []
       }
       tree.create({ parentId: args.parentId, index: args.index, data })
-      syncTreeData(tree.data)
+      await syncTreeData(tree.data)
       return data
     },
     [tree, data]
   )
 
   const onDelete = useCallback(
-    (args: { ids: string[] }) => {
+    async (args: { ids: string[] }) => {
       args.ids.forEach((id) => tree.drop({ id }))
-      syncTreeData(tree.data)
+      await syncTreeData(tree.data)
     },
     [tree, data]
   )
 
   const onRename = useCallback(
-    (args: { name: string; id: string }) => {
+    async (args: { name: string; id: string }) => {
       tree.update({ id: args.id, changes: { name: args.name } as any })
-      syncTreeData(tree.data)
+      await syncTreeData(tree.data)
     },
     [tree, data]
   )
@@ -575,7 +562,7 @@ const ShortcutsTree = (props: ShortcutsTreeProps): JSX.Element => {
         minBlockSize: 0,
       }}
     >
-      {!isValidating && (
+      {!isLoading && (
         <Tree
           ref={props.treeRef}
           data={data as Shortcut[]}
