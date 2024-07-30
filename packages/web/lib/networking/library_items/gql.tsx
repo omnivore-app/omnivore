@@ -235,3 +235,26 @@ export const GQL_GET_LIBRARY_ITEM_CONTENT = gql`
   ${labelFragment}
   ${recommendationFragment}
 `
+
+export const GQL_BULK_ACTION = gql`
+  mutation BulkAction(
+    $action: BulkActionType!
+    $query: String!
+    $expectedCount: Int
+    $labelIds: [ID!]
+  ) {
+    bulkAction(
+      query: $query
+      action: $action
+      labelIds: $labelIds
+      expectedCount: $expectedCount
+    ) {
+      ... on BulkActionSuccess {
+        success
+      }
+      ... on BulkActionError {
+        errorCodes
+      }
+    }
+  }
+`

@@ -12,6 +12,7 @@ import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { makeGqlFetcher, requestHeaders } from '../networkHelpers'
 import { Label } from '../fragments/labelFragment'
 import {
+  GQL_BULK_ACTION,
   GQL_DELETE_LIBRARY_ITEM,
   GQL_GET_LIBRARY_ITEM_CONTENT,
   GQL_MOVE_ITEM_TO_FOLDER,
@@ -619,6 +620,56 @@ export const useSetItemLabels = () => {
       )
     },
   })
+}
+
+export const useBulkActions = () => {
+  const queryClient = useQueryClient()
+  const bulkAction = async (variables: {
+    action: BulkAction
+    query: string
+    expectedCount: number
+    labelIds?: string[]
+  }) => {
+    const result = (await gqlFetcher(GQL_BULK_ACTION, {
+      ...variables,
+    })) as BulkActionData
+    if (result.bulkAction?.errorCodes?.length) {
+      throw new Error(result.bulkAction.errorCodes[0])
+    }
+    return result.bulkAction.success
+  }
+  return useMutation({
+    mutationFn: bulkAction,
+    onMutate: async (variables: {
+      action: BulkAction
+      query: string
+      expectedCount: number
+      labelIds?: string[]
+    }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+    },
+    onSettled: async (newLabels, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+    },
+  })
+}
+
+export enum BulkAction {
+  ARCHIVE = 'ARCHIVE',
+  DELETE = 'DELETE',
+  ADD_LABELS = 'ADD_LABELS',
+  MARK_AS_READ = 'MARK_AS_READ',
+}
+
+type BulkActionResult = {
+  success?: boolean
+  errorCodes?: string[]
+}
+
+type BulkActionData = {
+  bulkAction: BulkActionResult
 }
 
 type UpdateLibraryItemInput = {

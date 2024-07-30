@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { theme } from '../../tokens/stitches.config'
 import { Box, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
@@ -116,7 +116,7 @@ export const MultiSelectControls = (props: MultiSelectProps): JSX.Element => {
           <SpanBox
             css={{
               display: 'none',
-              fontSize: '14px',
+              fontSize: '11px',
               fontFamily: '$display',
               marginRight: 'auto',
               '@mdDown': {
