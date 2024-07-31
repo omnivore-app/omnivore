@@ -8,7 +8,6 @@ import {
 } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Toaster } from 'react-hot-toast'
 import {
@@ -36,6 +35,7 @@ import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { escapeQuotes } from '../../utils/helper'
 import { Shortcut } from '../../components/templates/navMenu/NavigationMenu'
 import { useGetLabels } from '../../lib/networking/labels/useLabels'
+import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
 const SHORTCUTS_KEY = 'library-shortcuts'
@@ -233,7 +233,7 @@ type ListProps = {
 
 const AvailableItems = (props: ListProps): JSX.Element => {
   const { data: labels } = useGetLabels()
-  const { savedSearches } = useGetSavedSearchQuery()
+  const { data: savedSearches } = useGetSavedSearches()
   const { subscriptions } = useGetSubscriptionsQuery()
 
   const sortedLabels = useMemo(() => {

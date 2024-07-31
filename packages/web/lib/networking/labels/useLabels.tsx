@@ -105,7 +105,6 @@ export const useUpdateLabel = () => {
   return useMutation({
     mutationFn: updateLabel,
     onSuccess: (updatedLabel) => {
-      console.log('updated label: ', updatedLabel)
       if (updatedLabel) {
         const keys = queryClient
           .getQueryCache()
