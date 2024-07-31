@@ -33,9 +33,10 @@ import { Button } from '../../components/elements/Button'
 import { styled } from '@stitches/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { escapeQuotes } from '../../utils/helper'
-import { Shortcut } from '../../components/templates/navMenu/NavigationMenu'
 import { useGetLabels } from '../../lib/networking/labels/useLabels'
 import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
+import { Shortcut } from '../../lib/networking/shortcuts/useShortcuts'
+
 type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
 const SHORTCUTS_KEY = 'library-shortcuts'
@@ -181,16 +182,7 @@ export default function Shortcuts(): JSX.Element {
               )
               event.preventDefault()
             }}
-          >
-            {navMenuStyle === 'shortcuts' ? (
-              <CheckSquare size={20} weight="duotone" />
-            ) : (
-              <Square size={20} weight="duotone" />
-            )}
-            <StyledText style="modalTitle" css={{}}>
-              Enable shortcuts
-            </StyledText>
-          </HStack>
+          ></HStack>
           <Box
             css={{
               py: '$3',
