@@ -15,13 +15,13 @@ import {
 import { StyledText } from '../../components/elements/StyledText'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { CheckSquare, Circle, Square } from '@phosphor-icons/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { escapeQuotes } from '../../utils/helper'
 import { useGetLabels } from '../../lib/networking/labels/useLabels'
+import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 
 export type PinnedSearch = {
   type: 'saved-search' | 'label'
@@ -35,7 +35,7 @@ type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
 export default function PinnedSearches(): JSX.Element {
   const { data: labels } = useGetLabels()
-  const { savedSearches } = useGetSavedSearchQuery()
+  const { data: savedSearches } = useGetSavedSearches()
   const [hidePinnedSearches, setHidePinnedSearches] = usePersistedState({
     key: '--library-hide-pinned-searches',
     initialValue: false,

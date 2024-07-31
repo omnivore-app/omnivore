@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { gqlFetcher, makeGqlFetcher, publicGqlFetcher } from '../networkHelpers'
+import { makeGqlFetcher } from '../networkHelpers'
 
 type HomeResult = {
   home: {
