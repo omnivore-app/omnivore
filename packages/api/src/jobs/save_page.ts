@@ -273,7 +273,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         source,
         folder,
-        originalContentUploaded: true,
       },
       user
     )

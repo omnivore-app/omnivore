@@ -124,7 +124,6 @@ export const createTestLibraryItem = async (
     item,
     userId,
     undefined,
-    true,
     true
   )
   if (labels) {

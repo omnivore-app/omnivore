@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
-import graphqlFields from 'graphql-fields'
 import {
   ContentReaderType,
   LibraryItem,
@@ -106,7 +105,6 @@ import {
   titleForFilePath,
 } from '../../utils/helpers'
 import {
-  getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
   parsePreparedContent,
@@ -376,15 +374,9 @@ export const getArticleResolver = authorized<
   Merge<ArticleSuccess, { article: LibraryItem }>,
   ArticleError,
   QueryArticleArgs
->(async (_obj, { slug, format }, { uid, log }, info) => {
+>(async (_obj, { slug, format }, { uid, log }) => {
   try {
     const selectColumns = getColumns(libraryItemRepository)
-    const includeOriginalHtml =
-      format === ArticleFormat.Distiller ||
-      !!graphqlFields(info).article.originalHtml
-    if (!includeOriginalHtml) {
-      selectColumns.splice(selectColumns.indexOf('originalContent'), 1)
-    }
 
     const libraryItem = await authTrx(
       (tx) => {
@@ -435,18 +427,6 @@ export const getArticleResolver = authorized<
 
     if (format === ArticleFormat.Markdown) {
       libraryItem.readableContent = htmlToMarkdown(libraryItem.readableContent)
-    } else if (format === ArticleFormat.Distiller) {
-      if (!libraryItem.originalContent) {
-        return { errorCodes: [ArticleErrorCode.BadData] }
-      }
-      const distillerResult = await getDistillerResult(
-        uid,
-        libraryItem.originalContent
-      )
-      if (!distillerResult) {
-        return { errorCodes: [ArticleErrorCode.BadData] }
-      }
-      libraryItem.readableContent = distillerResult
     }
 
     return {

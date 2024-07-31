@@ -12,7 +12,7 @@ export const saveContentDisplayReport = async (
   input: ReportItemInput
 ): Promise<boolean> => {
   const item = await findLibraryItemById(input.pageId, uid, {
-    select: ['id', 'readableContent', 'originalContent', 'originalUrl'],
+    select: ['id', 'readableContent', 'originalUrl'],
   })
   if (!item) {
     logger.info('unable to submit report, item not found', input)

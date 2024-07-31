@@ -45,39 +45,15 @@ const CONTENT_TYPES = {
   readable: 'text/html',
 }
 
-const getSelectOptions = (
-  format: ContentFormat
-): { column: 'readableContent' | 'originalContent'; highlights?: boolean } => {
-  switch (format) {
-    case 'markdown':
-    case 'readable':
-      return {
-        column: 'readableContent',
-      }
-    case 'highlightedMarkdown':
-      return {
-        column: 'readableContent',
-        highlights: true,
-      }
-    case 'original':
-      return {
-        column: 'originalContent',
-      }
-    default:
-      throw new Error('Unsupported format')
-  }
-}
-
 export const uploadContentJob = async (data: UploadContentJobData) => {
   logger.info('Uploading content to bucket', data)
 
   const { libraryItemId, userId, format, filePath } = data
 
-  const { column, highlights } = getSelectOptions(format)
   const libraryItem = await findLibraryItemById(libraryItemId, userId, {
-    select: ['id', column], // id is required for relations
+    select: ['id', 'readableContent'], // id is required for relations
     relations: {
-      highlights,
+      highlights: format === 'highlightedMarkdown',
     },
   })
   if (!libraryItem) {
@@ -85,10 +61,10 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
     throw new Error('Library item not found')
   }
 
-  const content = data.content || libraryItem[column]
+  const content = libraryItem.readableContent
 
   if (!content) {
-    logger.error(`${column} not found`)
+    logger.error(`content not found`)
     throw new Error('Content not found')
   }
 

@@ -135,9 +135,6 @@ export class LibraryItem {
   @Column('enum', { enum: ContentReaderType, default: ContentReaderType.WEB })
   contentReader!: ContentReaderType
 
-  @Column('text', { nullable: true })
-  originalContent?: string | null
-
   @Column('text')
   readableContent!: string
 

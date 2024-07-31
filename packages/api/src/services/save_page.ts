@@ -71,7 +71,6 @@ export type SavePageArgs = Merge<
     feedContent?: string
     previewImage?: string
     author?: string
-    originalContentUploaded?: boolean
   }
 >
 
@@ -149,8 +148,7 @@ export const savePage = async (
     itemToSave,
     user.id,
     undefined,
-    isImported,
-    input.originalContentUploaded
+    isImported
   )
   clientRequestId = newItem.id
 
@@ -240,7 +238,6 @@ export const parsedContentToLibraryItem = ({
     id: itemId || undefined,
     slug,
     user: { id: userId },
-    originalContent: originalHtml,
     readableContent: parsedContent?.content || '',
     description: parsedContent?.excerpt,
     previewContent: parsedContent?.excerpt,
