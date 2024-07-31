@@ -8,13 +8,15 @@ import {
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 import { SetLabelsControl } from './SetLabelsControl'
-import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showSuccessToast } from '../../../lib/toastHelpers'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { v4 as uuidv4 } from 'uuid'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { LabelAction } from '../../../lib/hooks/useSetPageLabels'
 import { Button } from '../../elements/Button'
+import {
+  useCreateLabel,
+  useGetLabels,
+} from '../../../lib/networking/labels/useLabels'
 
 type AddBulkLabelsModalProps = {
   onOpenChange: (open: boolean) => void
@@ -24,12 +26,14 @@ type AddBulkLabelsModalProps = {
 export function AddBulkLabelsModal(
   props: AddBulkLabelsModalProps
 ): JSX.Element {
-  const availableLabels = useGetLabelsQuery()
+  const { data: availableLabels } = useGetLabels()
+  const createLabel = useCreateLabel()
   const [tabCount, setTabCount] = useState(-1)
   const [inputValue, setInputValue] = useState('')
   const [tabStartValue, setTabStartValue] = useState('')
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
   const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -97,10 +101,11 @@ export function AddBulkLabelsModal(
     (newLabels: Label[], tempLabel: Label) => {
       ;(async () => {
         const currentLabels = newLabels
-        const newLabel = await createLabelMutation(
-          tempLabel.name,
-          tempLabel.color
-        )
+        const newLabel = await createLabel.mutateAsync({
+          name: tempLabel.name,
+          color: tempLabel.color,
+          description: undefined,
+        })
         const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
         if (newLabel) {
           showSuccessToast(`Created label ${newLabel.name}`, {
@@ -132,7 +137,7 @@ export function AddBulkLabelsModal(
       const trimmedValue = value.trim()
       const current = selectedLabels.labels ?? []
       const lowerCasedValue = trimmedValue.toLowerCase()
-      const existing = availableLabels.labels.find(
+      const existing = availableLabels?.find(
         (l) => l.name.toLowerCase() == lowerCasedValue
       )
 
