@@ -2,16 +2,17 @@ import AutosizeInput_, { AutosizeInputProps } from 'react-input-autosize'
 import { Box, SpanBox } from './LayoutPrimitives'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Label } from '../../lib/networking/fragments/labelFragment'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { isTouchScreenDevice } from '../../lib/deviceType'
 import { EditLabelChip } from './EditLabelChip'
 import { LabelsDispatcher } from '../../lib/hooks/useSetPageLabels'
 import { EditLabelChipStack } from './EditLabelChipStack'
+import { useGetLabels } from '../../lib/networking/labels/useLabels'
 
 // AutosizeInput is a Class component, but the types are broken in React 18.
 // TODO: Maybe move away from this component, since it hasn't been updated for 3 years.
 // https://github.com/JedWatson/react-input-autosize/issues
-const AutosizeInput = AutosizeInput_ as unknown as React.FunctionComponent<AutosizeInputProps>
+const AutosizeInput =
+  AutosizeInput_ as unknown as React.FunctionComponent<AutosizeInputProps>
 
 const MaxUnstackedLabels = 7
 
@@ -40,7 +41,7 @@ type LabelsPickerProps = {
 
 export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>()
-  const availableLabels = useGetLabelsQuery()
+  const { data: availableLabels } = useGetLabels()
   const [isStackExpanded, setIsStackExpanded] = useState(false)
   const {
     focused,
@@ -80,9 +81,10 @@ export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
       setTabCount(_tabCount)
     }
 
-    const matches = availableLabels.labels.filter((l) =>
-      l.name.toLowerCase().startsWith(_tabStartValue)
-    )
+    const matches =
+      availableLabels?.filter((l) =>
+        l.name.toLowerCase().startsWith(_tabStartValue)
+      ) ?? []
 
     if (_tabCount < matches.length) {
       setInputValue(matches[_tabCount].name)

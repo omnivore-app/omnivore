@@ -1,6 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs'
 import { useCallback, useState } from 'react'
-import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
 import {
   ArticleAttributes,
   useUpdateItem,

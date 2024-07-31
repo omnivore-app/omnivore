@@ -8,7 +8,6 @@ import {
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
@@ -21,6 +20,7 @@ import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 import { NavMenuFooter } from './Footer'
 import { escapeQuotes } from '../../../utils/helper'
+import { useGetLabels } from '../../../lib/networking/labels/useLabels'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -50,7 +50,7 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
     isSessionStorage: false,
     initialValue: [],
   })
-  const labelsResponse = useGetLabelsQuery()
+  const labelsResponse = useGetLabels()
   const searchesResponse = useGetSavedSearchQuery()
   const subscriptionsResponse = useGetSubscriptionsQuery()
 
@@ -58,9 +58,9 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
     if (
       !labelsResponse.error &&
       !labelsResponse.isLoading &&
-      labelsResponse.labels
+      labelsResponse.data
     ) {
-      setLabels(labelsResponse.labels)
+      setLabels(labelsResponse.data)
     }
   }, [setLabels, labelsResponse])
 
