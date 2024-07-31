@@ -1,7 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { requestHeaders } from '../networkHelpers'
 import { fetchEndpoint } from '../../appConfig'
-import { Shortcut } from '../../../components/templates/navMenu/NavigationMenu'
+import { Label } from '../fragments/labelFragment'
+
+export type ShortcutType = 'search' | 'label' | 'newsletter' | 'feed' | 'folder'
+
+export type Shortcut = {
+  type: ShortcutType
+
+  id: string
+  name: string
+  section: string
+  filter: string
+
+  icon?: string
+  label?: Label
+
+  join?: string
+
+  children?: Shortcut[]
+}
 
 export function useGetShortcuts() {
   return useQuery({
