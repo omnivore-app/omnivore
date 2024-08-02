@@ -442,7 +442,7 @@ export const functionResolvers = {
       return article.originalUrl
     },
     hasContent(article: LibraryItem) {
-      return !!article.originalContent && !!article.readableContent
+      return !!article.readableContent
     },
     publishedAt(article: LibraryItem) {
       return validatedDate(article.publishedAt || undefined)

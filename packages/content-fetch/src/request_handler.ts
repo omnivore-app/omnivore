@@ -71,7 +71,7 @@ const uploadToBucket = async (filePath: string, data: string) => {
   await storage
     .bucket(bucketName)
     .file(filePath)
-    .save(data, { public: false, timeout: 30000 })
+    .save(data, { public: false, timeout: 5000 })
 }
 
 const uploadOriginalContent = async (
@@ -238,6 +238,14 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   })
 
   try {
+    const domain = new URL(url).hostname
+    const isBlocked = await isDomainBlocked(redisDataSource, domain)
+    if (isBlocked) {
+      console.log('domain is blocked', domain)
+
+      return res.sendStatus(200)
+    }
+
     const key = cacheKey(url, locale, timezone)
     let fetchResult = await getCachedFetchResult(redisDataSource, key)
     if (!fetchResult) {
@@ -245,14 +253,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         'fetch result not found in cache, fetching content now...',
         url
       )
-
-      const domain = new URL(url).hostname
-      const isBlocked = await isDomainBlocked(redisDataSource, domain)
-      if (isBlocked) {
-        console.log('domain is blocked', domain)
-
-        return res.sendStatus(200)
-      }
 
       try {
         fetchResult = await fetchContent(url, locale, timezone)

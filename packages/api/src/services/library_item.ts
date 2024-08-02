@@ -30,11 +30,9 @@ import {
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import { enqueueBulkUploadContentJob } from '../utils/createTask'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
-import { logError, logger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { contentFilePath, downloadFromBucket } from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -45,7 +43,6 @@ const columnsToDelete = [
   'links',
   'textContentHash',
   'readableContent',
-  'originalContent',
   'feedContent',
 ] as const
 type ColumnsToDeleteType = typeof columnsToDelete[number]
@@ -136,7 +133,7 @@ const readingProgressDataSource = new ReadingProgressDataSource()
 export const batchGetLibraryItems = async (ids: readonly string[]) => {
   // select all columns except content
   const select = getColumns(libraryItemRepository).filter(
-    (select) => ['originalContent', 'readableContent'].indexOf(select) === -1
+    (select) => select !== 'readableContent'
   )
   const items = await authTrx(
     async (tx) =>
@@ -638,12 +635,10 @@ export const createSearchQueryBuilder = (
 ) => {
   const queryBuilder = em.createQueryBuilder(LibraryItem, 'library_item')
 
-  // select all columns except content
+  // exclude content if not requested
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
-      (select) =>
-        select !== 'originalContent' && // exclude original content
-        (args.includeContent || select !== 'readableContent') // exclude content if not requested
+      (select) => args.includeContent || select !== 'readableContent' //
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -762,9 +757,7 @@ export const findRecentLibraryItems = async (
   offset?: number
 ) => {
   const selectColumns = getColumns(libraryItemRepository)
-    .filter(
-      (column) => column !== 'readableContent' && column !== 'originalContent'
-    )
+    .filter((column) => column !== 'readableContent')
     .map((column) => `library_item.${column}`)
 
   return authTrx(
@@ -797,11 +790,9 @@ export const findLibraryItemsByIds = async (
     relations?: Array<'labels' | 'highlights'>
   }
 ) => {
-  const selectColumns =
-    options?.select?.map((column) => `library_item.${column}`) ||
-    getColumns(libraryItemRepository)
-      .filter((column) => column !== 'originalContent')
-      .map((column) => `library_item.${column}`)
+  const selectColumns = (
+    options?.select || getColumns(libraryItemRepository)
+  ).map((column) => `library_item.${column}`)
   return authTrx(
     async (tx) => {
       const qb = tx
@@ -1061,17 +1052,8 @@ export const createOrUpdateLibraryItem = async (
   libraryItem: CreateOrUpdateLibraryItemArgs,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false,
-  originalContentUploaded = false
+  skipPubSub = false
 ): Promise<LibraryItem> => {
-  let originalContent: string | null = null
-  if (libraryItem.originalContent) {
-    originalContent = libraryItem.originalContent
-
-    // remove original content from the item
-    delete libraryItem.originalContent
-  }
-
   const newLibraryItem = await authTrx(
     async (tx) => {
       const repo = tx.withRepository(libraryItemRepository)
@@ -1145,24 +1127,6 @@ export const createOrUpdateLibraryItem = async (
 
   const data = deepDelete(newLibraryItem, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
-
-  // upload original content to GCS in a job if it's not already uploaded
-  if (originalContent && !originalContentUploaded) {
-    try {
-      await enqueueUploadOriginalContent(
-        userId,
-        newLibraryItem.id,
-        newLibraryItem.savedAt,
-        originalContent
-      )
-
-      logger.info('Queued to upload original content in GCS', {
-        id: newLibraryItem.id,
-      })
-    } catch (error) {
-      logError(error)
-    }
-  }
 
   return newLibraryItem
 }
@@ -1746,42 +1710,4 @@ export const filterItemEvents = (
   }
 
   throw new Error('Unexpected state.')
-}
-
-export const enqueueUploadOriginalContent = async (
-  userId: string,
-  libraryItemId: string,
-  savedAt: Date,
-  originalContent: string
-) => {
-  const filePath = contentFilePath({
-    userId,
-    libraryItemId,
-    savedAt,
-    format: 'original',
-  })
-  await enqueueBulkUploadContentJob([
-    {
-      userId,
-      libraryItemId,
-      filePath,
-      format: 'original',
-      content: originalContent,
-    },
-  ])
-}
-
-export const downloadOriginalContent = async (
-  userId: string,
-  libraryItemId: string,
-  savedAt: Date
-) => {
-  return downloadFromBucket(
-    contentFilePath({
-      userId,
-      libraryItemId,
-      savedAt,
-      format: 'original',
-    })
-  )
 }

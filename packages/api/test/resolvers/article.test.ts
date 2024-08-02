@@ -430,7 +430,6 @@ describe('Article API', () => {
     before(async () => {
       const itemToCreate: CreateOrUpdateLibraryItemArgs = {
         title: 'test title',
-        originalContent: '<p>test</p>',
         slug: realSlug,
         readingProgressTopPercent: 100,
         user,
@@ -441,7 +440,6 @@ describe('Article API', () => {
         itemToCreate,
         user.id,
         undefined,
-        true,
         true
       )
       itemId = item.id
@@ -1309,7 +1307,6 @@ describe('Article API', () => {
             item,
             user.id,
             undefined,
-            true,
             true
           )
           items.push(savedItem)
