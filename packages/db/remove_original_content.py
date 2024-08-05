@@ -9,25 +9,27 @@ PG_USER = os.getenv('PG_USER', 'app_user')
 PG_PASSWORD = os.getenv('PG_PASSWORD', 'app_pass')
 PG_DB = os.getenv('PG_DB', 'omnivore')
 PG_TIMEOUT = os.getenv('PG_TIMEOUT', 10)
+BATCH_SIZE = os.getenv('BATCH_SIZE', 100)
 
 
 def batch_update_library_items(conn):
-    batch_size = 100
     # update original_content to NULL in batches
     with conn.cursor() as cursor:
         while True:
             cursor.execute(f"""
                 UPDATE omnivore.library_item
                 SET original_content = NULL
-                WHERE ctid IN (
-                    SELECT ctid
+                WHERE id IN (
+                    SELECT id
                     FROM omnivore.library_item
                     WHERE original_content IS NOT NULL
-                    LIMIT {batch_size}
+                    ORDER BY user_id
+                    LIMIT {BATCH_SIZE}
                 )
             """)
-            rows_updated = cursor.rowcount
             conn.commit()
+
+            rows_updated = cursor.rowcount
             if rows_updated == 0:
                 break
 
