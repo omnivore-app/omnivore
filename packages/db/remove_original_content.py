@@ -27,8 +27,9 @@ def batch_update_library_items(conn):
                     LIMIT {batch_size}
                 )
             """)
-            rows_updated = cursor.rowcount
             conn.commit()
+
+            rows_updated = cursor.rowcount
             if rows_updated == 0:
                 break
 
