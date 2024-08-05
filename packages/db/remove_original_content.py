@@ -23,6 +23,7 @@ def batch_update_library_items(conn):
                     SELECT ctid
                     FROM omnivore.library_item
                     WHERE original_content IS NOT NULL
+                    ORDER BY user_id
                     LIMIT {batch_size}
                 )
             """)
