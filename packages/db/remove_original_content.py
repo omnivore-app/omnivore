@@ -19,8 +19,8 @@ def batch_update_library_items(conn):
             cursor.execute(f"""
                 UPDATE omnivore.library_item
                 SET original_content = NULL
-                WHERE ctid IN (
-                    SELECT ctid
+                WHERE id IN (
+                    SELECT id
                     FROM omnivore.library_item
                     WHERE original_content IS NOT NULL
                     ORDER BY user_id
