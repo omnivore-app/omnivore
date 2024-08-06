@@ -4,6 +4,6 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.library_item DROP COLUMN original_content;
+ALTER TABLE omnivore.library_item DROP COLUMN IF EXISTS original_content;
 
 COMMIT;
