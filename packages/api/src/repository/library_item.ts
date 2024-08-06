@@ -65,7 +65,6 @@ export const libraryItemRepository = appDataSource
         INSERT INTO omnivore.library_item (
           slug,
           readable_content,
-          original_content,
           description,
           title,
           author,
@@ -82,7 +81,6 @@ export const libraryItemRepository = appDataSource
         SELECT
           slug,
           readable_content,
-          original_content,
           description,
           title,
           author,
