@@ -26,7 +26,7 @@ export type LibraryHeaderProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
 
-  folder: string
+  folder: string | undefined
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 

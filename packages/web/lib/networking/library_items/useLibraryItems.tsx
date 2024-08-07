@@ -170,6 +170,7 @@ export function useGetLibraryItems(
   { limit, searchQuery }: LibraryItemsQueryInput,
   enabled = true
 ) {
+  console.log('folder: ', folder)
   const fullQuery = folder
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''

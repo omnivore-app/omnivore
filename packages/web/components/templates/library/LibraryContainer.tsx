@@ -80,7 +80,7 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
 const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
 type LibraryContainerProps = {
-  folder: string
+  folder: string | undefined
   filterFunc: (item: LibraryItemNode) => boolean
 
   showNavigationMenu: boolean
@@ -101,13 +101,11 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [notebookTarget, setNotebookTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -928,7 +926,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 }
 
 export type HomeFeedContentProps = {
-  folder: string
+  folder: string | undefined
   items: LibraryItem[]
   searchTerm?: string
   gridContainerRef: React.RefObject<HTMLDivElement>
@@ -1067,7 +1065,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 }
 
 type LibraryItemsLayoutProps = {
-  folder: string
+  folder: string | undefined
 
   layout: LayoutType
   viewer?: UserBasicData
@@ -1305,7 +1303,7 @@ export function LibraryItemsLayout(
 }
 
 type LibraryItemsProps = {
-  folder: string
+  folder: string | undefined
   items: LibraryItem[]
   layout: LayoutType
   viewer: UserBasicData | undefined
