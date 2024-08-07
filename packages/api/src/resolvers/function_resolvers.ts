@@ -569,13 +569,11 @@ export const functionResolvers = {
         item.format !== ArticleFormat.Html &&
         item.readableContent
       ) {
-        let highlights: Highlight[] = []
-        // load highlights if needed
-        if (
-          item.format === ArticleFormat.HighlightedMarkdown &&
-          item.highlightAnnotations?.length
-        ) {
-          highlights = await ctx.dataLoaders.highlights.load(item.id)
+        if (item.format === ArticleFormat.HighlightedMarkdown) {
+          // if the content is highlighted markdown, we will return markdown instead
+          // because the conversion is very slow and we don't want to block the response
+          // we will convert it to highlighted markdown in the client if needed
+          item.format = ArticleFormat.Markdown
         }
 
         try {
@@ -584,7 +582,7 @@ export const functionResolvers = {
           // convert html to the requested format
           const converter = contentConverter(item.format)
           if (converter) {
-            return converter(item.readableContent, highlights)
+            return converter(item.readableContent)
           }
         } catch (error) {
           ctx.log.error('Error converting content', error)
