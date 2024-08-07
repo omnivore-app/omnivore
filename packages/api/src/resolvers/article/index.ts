@@ -114,7 +114,6 @@ import { getStorageFileDetails } from '../../utils/uploads'
 export enum ArticleFormat {
   Markdown = 'markdown',
   Html = 'html',
-  Distiller = 'distiller',
   HighlightedMarkdown = 'highlightedMarkdown',
 }
 
