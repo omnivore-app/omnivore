@@ -9,7 +9,6 @@ import { LibraryContainer } from '../../components/templates/library/LibraryCont
 import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { isTouchScreenDevice } from '../../lib/deviceType'
 import { State } from '../../lib/networking/fragments/articleFragment'
 
 export default function Home(): JSX.Element {
@@ -43,7 +42,18 @@ export default function Home(): JSX.Element {
     }
     switch (name) {
       case 'home':
-        return <HomeContainer />
+        // return <HomeContainer />
+        return (
+          <LibraryContainer
+            folder={undefined}
+            filterFunc={(item) => {
+              return (
+                item.state !== State.ARCHIVED && item.state !== State.DELETED
+              )
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
       case 'highlights':
         return <HighlightsContainer />
       case 'library':

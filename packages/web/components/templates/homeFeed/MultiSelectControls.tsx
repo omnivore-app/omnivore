@@ -20,7 +20,7 @@ import { MoveToInboxIcon } from '../../elements/icons/MoveToInboxIcon'
 export type MultiSelectProps = {
   viewer: UserBasicData | undefined
 
-  folder: string
+  folder: string | undefined
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 
