@@ -37,7 +37,7 @@ export const importMatterHistoryCsv = async (
       const url = new URL(row['URL'])
       // update total counter
       await updateMetrics(
-        ctx.redisClient,
+        ctx.redisDataSource,
         ctx.userId,
         ctx.taskId,
         ImportStatus.TOTAL
@@ -46,7 +46,7 @@ export const importMatterHistoryCsv = async (
       ctx.countImported += 1
       // update started counter
       await updateMetrics(
-        ctx.redisClient,
+        ctx.redisDataSource,
         ctx.userId,
         ctx.taskId,
         ImportStatus.STARTED
@@ -219,7 +219,7 @@ const handleMatterHistoryRow = async (
     ctx.countFailed += 1
     // update failed counter
     await updateMetrics(
-      ctx.redisClient,
+      ctx.redisDataSource,
       ctx.userId,
       ctx.taskId,
       ImportStatus.FAILED
@@ -254,7 +254,7 @@ export const importMatterArchive = async (
   try {
     // create metrics in redis
     await createMetrics(
-      ctx.redisClient,
+      ctx.redisDataSource.cacheClient,
       ctx.userId,
       ctx.taskId,
       'matter-importer'
@@ -273,7 +273,7 @@ export const importMatterArchive = async (
       try {
         // update total metrics
         await updateMetrics(
-          ctx.redisClient,
+          ctx.redisDataSource,
           ctx.userId,
           ctx.taskId,
           ImportStatus.TOTAL
@@ -284,7 +284,7 @@ export const importMatterArchive = async (
         ctx.countImported += 1
         // update started metrics
         await updateMetrics(
-          ctx.redisClient,
+          ctx.redisDataSource,
           ctx.userId,
           ctx.taskId,
           ImportStatus.STARTED
@@ -294,7 +294,7 @@ export const importMatterArchive = async (
         ctx.countFailed += 1
         // update failed metrics
         await updateMetrics(
-          ctx.redisClient,
+          ctx.redisDataSource,
           ctx.userId,
           ctx.taskId,
           ImportStatus.FAILED

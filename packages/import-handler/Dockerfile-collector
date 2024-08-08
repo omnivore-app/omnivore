@@ -2,7 +2,6 @@ FROM node:18.16-alpine
 
 WORKDIR /app
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 RUN apk add g++ make python3
 
 ENV PORT 8080

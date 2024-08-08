@@ -1,5 +1,6 @@
 import { env } from '../../env'
 import { sendWithMailJet } from '../../services/send_emails'
+import { findActiveUser } from '../../services/user'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { sendEmail } from '../../utils/sendEmail'
@@ -9,7 +10,8 @@ export const SEND_EMAIL_JOB = 'send-email'
 type ContentType = { html: string } | { text: string } | { templateId: string }
 export type SendEmailJobData = Merge<
   {
-    to: string
+    userId: string
+    to?: string
     from?: string
     subject?: string
     html?: string
@@ -22,6 +24,16 @@ export type SendEmailJobData = Merge<
 >
 
 export const sendEmailJob = async (data: SendEmailJobData) => {
+  if (!data.to) {
+    const user = await findActiveUser(data.userId)
+    if (!user) {
+      logger.error('user not found', data.userId)
+      return false
+    }
+
+    data.to = user.email
+  }
+
   if (process.env.USE_MAILJET && data.dynamicTemplateData) {
     return sendWithMailJet(data.to, data.dynamicTemplateData.link)
   }

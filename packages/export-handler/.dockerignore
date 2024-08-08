@@ -1,0 +1,8 @@
+node_modules
+build
+test
+.env*
+Dockerfile
+.dockerignore
+.eslintrc
+.eslintignore

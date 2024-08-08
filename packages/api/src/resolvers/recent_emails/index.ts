@@ -127,6 +127,7 @@ export const replyToEmailResolver = authorized<
   }
 
   const result = await enqueueSendEmail({
+    userId: uid,
     to: recentEmail.replyTo || recentEmail.from, // send to the reply-to address if it exists or the from address
     subject: 'Re: ' + recentEmail.subject,
     text: reply,
