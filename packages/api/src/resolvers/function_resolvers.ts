@@ -61,11 +61,7 @@ import {
   updateFolderPolicyResolver,
 } from './folder_policy'
 import { highlightsResolver } from './highlight'
-import {
-  hiddenHomeSectionResolver,
-  homeResolver,
-  refreshHomeResolver,
-} from './home'
+import { hiddenHomeSectionResolver } from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -321,7 +317,6 @@ export const functionResolvers = {
     fetchContent: fetchContentResolver,
     exportToIntegration: exportToIntegrationResolver,
     replyToEmail: replyToEmailResolver,
-    refreshHome: refreshHomeResolver,
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
     deleteFolderPolicy: deleteFolderPolicyResolver,
@@ -359,7 +354,6 @@ export const functionResolvers = {
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
-    home: homeResolver,
     subscription: subscriptionResolver,
     hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
