@@ -78,11 +78,6 @@ export const createPubSubClient = (): PubsubClient => {
           })
         }
 
-        await enqueueScoreJob({
-          userId,
-          libraryItemId: data.id,
-        })
-
         const hasThumbnail = (
           data: any
         ): data is { thumbnail: string | null } => {
