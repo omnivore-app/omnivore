@@ -61,7 +61,6 @@ import {
   updateFolderPolicyResolver,
 } from './folder_policy'
 import { highlightsResolver } from './highlight'
-import { hiddenHomeSectionResolver } from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -355,7 +354,6 @@ export const functionResolvers = {
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
     subscription: subscriptionResolver,
-    hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
     folderPolicies: folderPoliciesResolver,
     posts: postsResolver,
