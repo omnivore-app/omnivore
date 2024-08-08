@@ -6,7 +6,7 @@ import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
   LibraryItem,
   LibraryItemNode,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+} from '../../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'

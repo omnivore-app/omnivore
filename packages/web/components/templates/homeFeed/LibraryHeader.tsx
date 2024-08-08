@@ -10,7 +10,7 @@ import { LayoutType, LibraryMode } from './HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
@@ -123,7 +123,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
     >
       {props.multiSelectMode !== 'off' ? (
         <>
-          <MultiSelectControls {...props} />
+          <MultiSelectControls {...props} folder={'library'} />
         </>
       ) : (
         <HeaderControls {...props} />
@@ -310,7 +310,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             },
           }}
         >
-          <CheckBoxButton {...props} />
+          <CheckBoxButton {...props} folder={'library'} />
         </HStack>
         <HStack
           alignment="center"

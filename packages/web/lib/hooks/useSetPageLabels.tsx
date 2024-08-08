@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useReducer } from 'react'
-import { setLabelsMutation } from '../networking/mutations/setLabelsMutation'
 import { Label } from '../networking/fragments/labelFragment'
 import { showErrorToast } from '../toastHelpers'
 import throttle from 'lodash/throttle'
+import { useSetItemLabels } from '../networking/library_items/useLibraryItems'
 
 export type LabelAction = 'RESET' | 'TEMP' | 'SAVE'
 export type LabelsDispatcher = (action: {
@@ -11,13 +11,22 @@ export type LabelsDispatcher = (action: {
 }) => void
 
 export const useSetPageLabels = (
-  articleId?: string
+  libraryItemId?: string,
+  libraryItemSlug?: string
 ): [{ labels: Label[] }, LabelsDispatcher] => {
-  const saveLabels = (labels: Label[], articleId: string) => {
+  const setItemLabels = useSetItemLabels()
+  const saveLabels = (
+    labels: Label[],
+    libraryItemId: string,
+    libraryItemSlug: string
+  ) => {
     ;(async () => {
-      const labelIds = labels.map((l) => l.id)
-      if (articleId) {
-        const result = await setLabelsMutation(articleId, labelIds)
+      if (libraryItemId) {
+        const result = await setItemLabels.mutateAsync({
+          itemId: libraryItemId,
+          slug: libraryItemSlug,
+          labels,
+        })
         if (!result) {
           showErrorToast('Error saving labels', {
             position: 'bottom-right',
@@ -31,12 +40,14 @@ export const useSetPageLabels = (
     state: {
       labels: Label[]
       articleId: string | undefined
-      throttledSave: (labels: Label[], articleId: string) => void
+      slug: string | undefined
+      throttledSave: (labels: Label[], articleId: string, slug: string) => void
     },
     action: {
       type: string
       labels: Label[]
       articleId?: string
+      slug?: string
     }
   ) => {
     switch (action.type) {
@@ -53,8 +64,8 @@ export const useSetPageLabels = (
         }
       }
       case 'SAVE': {
-        if (state.articleId) {
-          state.throttledSave(action.labels, state.articleId)
+        if (state.articleId && state.slug) {
+          state.throttledSave(action.labels, state.articleId, state.slug)
         } else {
           showErrorToast('Unable to update labels', {
             position: 'bottom-right',
@@ -68,6 +79,7 @@ export const useSetPageLabels = (
       case 'UPDATE_ARTICLE_ID': {
         return {
           ...state,
+          slug: action.slug,
           articleId: action.articleId,
         }
       }
@@ -78,7 +90,8 @@ export const useSetPageLabels = (
 
   const debouncedSave = useCallback(
     throttle(
-      (labels: Label[], articleId: string) => saveLabels(labels, articleId),
+      (labels: Label[], articleId: string, slug: string) =>
+        saveLabels(labels, articleId, slug),
       2000
     ),
     []
@@ -88,13 +101,15 @@ export const useSetPageLabels = (
     dispatchLabels({
       type: 'UPDATE_ARTICLE_ID',
       labels: [],
-      articleId: articleId,
+      slug: libraryItemSlug,
+      articleId: libraryItemId,
     })
-  }, [articleId])
+  }, [libraryItemId])
 
   const [labels, dispatchLabels] = useReducer(labelsReducer, {
     labels: [],
-    articleId: articleId,
+    articleId: libraryItemId,
+    slug: libraryItemSlug,
     throttledSave: debouncedSave,
   })
 

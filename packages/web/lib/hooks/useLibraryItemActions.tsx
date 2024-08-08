@@ -1,20 +1,30 @@
 import { useCallback } from 'react'
-import { setLinkArchivedMutation } from '../networking/mutations/setLinkArchivedMutation'
 import {
   showErrorToast,
   showSuccessToast,
   showSuccessToastWithUndo,
 } from '../toastHelpers'
-import { deleteLinkMutation } from '../networking/mutations/deleteLinkMutation'
-import { updatePageMutation } from '../networking/mutations/updatePageMutation'
-import { State } from '../networking/fragments/articleFragment'
-import { moveToFolderMutation } from '../networking/mutations/moveToLibraryMutation'
+import {
+  useArchiveItem,
+  useDeleteItem,
+  useMoveItemToFolder,
+  useRestoreItem,
+} from '../networking/library_items/useLibraryItems'
 
 export default function useLibraryItemActions() {
-  const archiveItem = useCallback(async (itemId: string) => {
-    const result = await setLinkArchivedMutation({
-      linkId: itemId,
-      archived: true,
+  const archiveItem = useArchiveItem()
+  const deleteItem = useDeleteItem()
+  const moveItem = useMoveItemToFolder()
+  const restoreItem = useRestoreItem()
+
+  const doArchiveItem = useCallback(async (itemId: string, slug: string) => {
+    const result = await archiveItem.mutateAsync({
+      itemId: itemId,
+      slug: slug,
+      input: {
+        linkId: itemId,
+        archived: true,
+      },
     })
 
     console.log('result: ', result)
@@ -27,33 +37,37 @@ export default function useLibraryItemActions() {
     return !!result
   }, [])
 
-  const deleteItem = useCallback(async (itemId: string, undo: () => void) => {
-    const result = await deleteLinkMutation(itemId)
+  const doDeleteItem = useCallback(
+    async (itemId: string, slug: string, undo: () => void) => {
+      const result = await deleteItem.mutateAsync({ itemId, slug })
 
-    if (result) {
-      showSuccessToastWithUndo('Item removed', async () => {
-        const result = await updatePageMutation({
-          pageId: itemId,
-          state: State.SUCCEEDED,
+      if (result) {
+        showSuccessToastWithUndo('Item removed', async () => {
+          const result = await restoreItem.mutateAsync({ itemId, slug })
+
+          undo()
+
+          if (result) {
+            showSuccessToast('Item recovered')
+          } else {
+            showErrorToast('Error recovering, check your deleted items')
+          }
         })
+      } else {
+        showErrorToast('Error removing item', { position: 'bottom-right' })
+      }
 
-        undo()
+      return !!result
+    },
+    []
+  )
 
-        if (result) {
-          showSuccessToast('Item recovered')
-        } else {
-          showErrorToast('Error recovering, check your deleted items')
-        }
-      })
-    } else {
-      showErrorToast('Error removing item', { position: 'bottom-right' })
-    }
-
-    return !!result
-  }, [])
-
-  const moveItem = useCallback(async (itemId: string) => {
-    const result = await moveToFolderMutation(itemId, 'inbox')
+  const doMoveItem = useCallback(async (itemId: string, slug: string) => {
+    const result = await moveItem.mutateAsync({
+      itemId,
+      slug,
+      folder: 'inbox',
+    })
     if (result) {
       showSuccessToast('Moved to library', { position: 'bottom-right' })
     } else {
@@ -85,5 +99,10 @@ export default function useLibraryItemActions() {
     []
   )
 
-  return { archiveItem, deleteItem, moveItem, shareItem }
+  return {
+    archiveItem: doArchiveItem,
+    deleteItem: doDeleteItem,
+    moveItem: doMoveItem,
+    shareItem,
+  }
 }

@@ -8,13 +8,15 @@ import {
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
-import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showSuccessToast } from '../../../lib/toastHelpers'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { v4 as uuidv4 } from 'uuid'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 import * as Dialog from '@radix-ui/react-dialog'
+import {
+  useCreateLabel,
+  useGetLabels,
+} from '../../../lib/networking/labels/useLabels'
 
 type SetLabelsModalProps = {
   provider: LabelsProvider
@@ -28,7 +30,7 @@ type SetLabelsModalProps = {
 export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const [inputValue, setInputValue] = useState('')
   const { selectedLabels, dispatchLabels } = props
-  const availableLabels = useGetLabelsQuery()
+  const { data: availableLabels } = useGetLabels()
   const [tabCount, setTabCount] = useState(-1)
   const [tabStartValue, setTabStartValue] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -36,6 +38,8 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   )
   const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
+
+  const createLabel = useCreateLabel()
 
   const showMessage = useCallback(
     (msg: string, timeout?: number) => {
@@ -82,10 +86,11 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     (newLabels: Label[], tempLabel: Label) => {
       ;(async () => {
         const currentLabels = newLabels
-        const newLabel = await createLabelMutation(
-          tempLabel.name,
-          tempLabel.color
-        )
+        const newLabel = await createLabel.mutateAsync({
+          name: tempLabel.name,
+          color: tempLabel.color,
+          description: undefined,
+        })
         const idx = currentLabels.findIndex((l) => l.id === tempLabel.id)
         if (newLabel) {
           showSuccessToast(`Created label ${newLabel.name}`, {
@@ -116,7 +121,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     (value: string) => {
       const current = selectedLabels ?? []
       const lowerCasedValue = value.toLowerCase()
-      const existing = availableLabels.labels.find(
+      const existing = availableLabels?.find(
         (l) => l.name.toLowerCase() == lowerCasedValue
       )
 

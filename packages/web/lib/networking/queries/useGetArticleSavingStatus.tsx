@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { articleFragment } from '../fragments/articleFragment'
 import { highlightFragment } from '../fragments/highlightFragment'
 import { makeGqlFetcher } from '../networkHelpers'
-import { ArticleAttributes } from './useGetArticleQuery'
+import { ArticleAttributes } from '../library_items/useLibraryItems'
 
 type ArticleSavingStatusInput = {
   id?: string

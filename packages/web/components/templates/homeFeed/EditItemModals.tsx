@@ -1,8 +1,10 @@
 import dayjs, { Dayjs } from 'dayjs'
 import { useCallback, useState } from 'react'
-import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
-import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import {
+  ArticleAttributes,
+  useUpdateItem,
+} from '../../../lib/networking/library_items/useLibraryItems'
+import { LibraryItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { CloseButton } from '../../elements/CloseButton'
 import { FormInput } from '../../elements/FormElements'
@@ -24,6 +26,7 @@ type EditLibraryItemModalProps = {
 export function EditLibraryItemModal(
   props: EditLibraryItemModalProps
 ): JSX.Element {
+  const updateItem = useUpdateItem()
   const onSave = useCallback(
     (
       title: string,
@@ -34,13 +37,17 @@ export function EditLibraryItemModal(
     ) => {
       ;(async () => {
         if (title !== '') {
-          const res = await updatePageMutation({
-            pageId: props.item.node.id,
-            title,
-            description,
-            byline: author,
-            savedAt: savedAt.toISOString(),
-            publishedAt: publishedAt ? publishedAt.toISOString() : undefined,
+          const res = await updateItem.mutateAsync({
+            itemId: props.item.node.id,
+            slug: props.item.node.slug,
+            input: {
+              pageId: props.item.node.id,
+              title,
+              description,
+              byline: author,
+              savedAt: savedAt.toISOString(),
+              publishedAt: publishedAt ? publishedAt.toISOString() : undefined,
+            },
           })
 
           if (res) {
@@ -102,6 +109,7 @@ type EditArticleModalProps = {
 }
 
 export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
+  const updateItem = useUpdateItem()
   const onSave = useCallback(
     (
       title: string,
@@ -112,13 +120,17 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
     ) => {
       ;(async () => {
         if (title !== '') {
-          const res = await updatePageMutation({
-            pageId: props.article.id,
-            title,
-            description,
-            byline: author,
-            savedAt: savedAt.toISOString(),
-            publishedAt: publishedAt ? publishedAt.toISOString() : undefined,
+          const res = await updateItem.mutateAsync({
+            itemId: props.article.id,
+            slug: props.article.slug,
+            input: {
+              pageId: props.article.id,
+              title,
+              description,
+              byline: author,
+              savedAt: savedAt.toISOString(),
+              publishedAt: publishedAt ? publishedAt.toISOString() : undefined,
+            },
           })
           if (res) {
             props.updateArticle(

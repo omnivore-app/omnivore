@@ -1,10 +1,6 @@
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import {
-  removeItemFromCache,
-  useGetArticleQuery,
-} from '../../../lib/networking/queries/useGetArticleQuery'
 import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import {
@@ -15,37 +11,37 @@ import { PdfArticleContainerProps } from './../../../components/templates/articl
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { Toaster } from 'react-hot-toast'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import Script from 'next/script'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
-import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { useSWRConfig } from 'swr'
-import {
-  showErrorToast,
-  showSuccessToast,
-  showSuccessToastWithUndo,
-} from '../../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 import { useRegisterActions } from 'kbar'
-import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
 import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
-import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
-import { State } from '../../../lib/networking/fragments/articleFragment'
 import { posthog } from 'posthog-js'
 import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
+import {
+  ArticleReadingProgressMutationInput,
+  useArchiveItem,
+  useDeleteItem,
+  useGetLibraryItemContent,
+  useUpdateItemReadStatus,
+} from '../../../lib/networking/library_items/useLibraryItems'
+import {
+  CreateHighlightInput,
+  useCreateHighlight,
+  useDeleteHighlight,
+  useMergeHighlight,
+  useUpdateHighlight,
+} from '../../../lib/networking/highlights/useItemHighlights'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -57,26 +53,31 @@ const EpubContainerNoSSR = dynamic<EpubContainerProps>(
   { ssr: false }
 )
 
-export default function Home(): JSX.Element {
+export default function Reader(): JSX.Element {
   const router = useRouter()
-  const { cache, mutate } = useSWRConfig()
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
   const readerSettings = useReaderSettings()
+  const archiveItem = useArchiveItem()
+  const deleteItem = useDeleteItem()
+  const updateItemReadStatus = useUpdateItemReadStatus()
+  const createHighlight = useCreateHighlight()
+  const deleteHighlight = useDeleteHighlight()
+  const updateHighlight = useUpdateHighlight()
+  const mergeHighlight = useMergeHighlight()
 
-  const { articleData, articleFetchError } = useGetArticleQuery({
-    username: router.query.username as string,
-    slug: router.query.slug as string,
-    includeFriendsHighlights: false,
-  })
-  const article = articleData?.article.article
+  const { data: libraryItem, error: articleFetchError } =
+    useGetLibraryItemContent(
+      router.query.username as string,
+      router.query.slug as string
+    )
   useEffect(() => {
     dispatchLabels({
       type: 'RESET',
-      labels: article?.labels ?? [],
+      labels: libraryItem?.labels ?? [],
     })
-  }, [articleData?.article.article])
+  }, [libraryItem])
 
   const goNextOrHome = useCallback(() => {
     // const listStr = localStorage.getItem('library-slug-list')
@@ -97,7 +98,7 @@ export default function Home(): JSX.Element {
 
     const query = window.sessionStorage.getItem('q')
     router.push(`/home?${query}`)
-  }, [router, viewerData, article])
+  }, [router, viewerData, libraryItem])
 
   const goPreviousOrHome = useCallback(() => {
     // const listStr = localStorage.getItem('library-slug-list')
@@ -113,78 +114,88 @@ export default function Home(): JSX.Element {
     const query = window.sessionStorage.getItem('q')
     router.push(`/home?${query}`)
     // router.push(`/home`)
-  }, [router, viewerData, article])
+  }, [router, viewerData, libraryItem])
 
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
+      if (!libraryItem) {
+        return
+      }
       switch (action) {
-        case 'unarchive':
-          if (article) {
-            removeItemFromCache(cache, mutate, article.id)
-
-            setLinkArchivedMutation({
-              linkId: article.id,
-              archived: false,
-            }).then((res) => {
-              if (res) {
-                showSuccessToast('Link unarchived', {
-                  position: 'bottom-right',
-                })
-              } else {
-                showErrorToast('Error unarchiving link', {
-                  position: 'bottom-right',
-                })
-              }
-            })
-            goNextOrHome()
-          }
-          break
         case 'archive':
-          if (article) {
-            removeItemFromCache(cache, mutate, article.id)
-
-            await setLinkArchivedMutation({
-              linkId: article.id,
-              archived: true,
-            }).then((res) => {
-              if (!res) {
-                showErrorToast('Error archiving', {
-                  position: 'bottom-right',
-                })
-              } else {
-                goNextOrHome()
-                showSuccessToast('Page archived', {
-                  position: 'bottom-right',
-                })
-              }
+        case 'unarchive':
+          try {
+            await archiveItem.mutateAsync({
+              itemId: libraryItem.id,
+              slug: libraryItem.slug,
+              input: {
+                linkId: libraryItem.id,
+                archived: action == 'archive',
+              },
             })
+          } catch {
+            showErrorToast(`Error ${action}ing item`, {
+              position: 'bottom-right',
+            })
+            return
           }
+          showSuccessToast(`Item ${action}d`, {
+            position: 'bottom-right',
+          })
+          goNextOrHome()
           break
         case 'mark-read':
-          if (article) {
-            articleReadingProgressMutation({
-              id: article.id,
-              force: true,
-              readingProgressPercent: 100,
-              readingProgressTopPercent: 100,
-              readingProgressAnchorIndex: 0,
-            }).then((res) => {
-              if (!res) {
-                // todo: revalidate or put back in cache?
-                showErrorToast('Error marking as read', {
-                  position: 'bottom-right',
-                })
-              } else {
-                goNextOrHome()
-              }
+        case 'mark-unread':
+          const desc = action == 'mark-read' ? 'read' : 'unread'
+          const values =
+            action == 'mark-read'
+              ? {
+                  readingProgressPercent: 100,
+                  readingProgressTopPercent: 100,
+                  readingProgressAnchorIndex: 0,
+                }
+              : {
+                  readingProgressPercent: 0,
+                  readingProgressTopPercent: 0,
+                  readingProgressAnchorIndex: 0,
+                }
+          try {
+            await updateItemReadStatus.mutateAsync({
+              itemId: libraryItem.id,
+              slug: libraryItem.slug,
+              input: {
+                id: libraryItem.id,
+                force: true,
+                ...values,
+              },
             })
+          } catch {
+            showErrorToast(`Error marking as ${desc}`, {
+              position: 'bottom-right',
+            })
+            return
           }
+          goNextOrHome()
           break
         case 'delete':
-          await deleteCurrentItem()
+          try {
+            await deleteItem.mutateAsync({
+              itemId: libraryItem.id,
+              slug: libraryItem.slug,
+            })
+          } catch {
+            showErrorToast(`Error deleting item`, {
+              position: 'bottom-right',
+            })
+            return
+          }
+          showSuccessToast(`Item deleted`, {
+            position: 'bottom-right',
+          })
+          goNextOrHome()
           break
         case 'openOriginalArticle':
-          const url = article?.url
+          const url = libraryItem?.url
           if (url) {
             window.open(url, '_blank')
           }
@@ -206,7 +217,15 @@ export default function Home(): JSX.Element {
           break
       }
     },
-    [article, viewerData, cache, mutate, router, readerSettings]
+    [
+      libraryItem,
+      viewerData,
+      router,
+      readerSettings,
+      archiveItem,
+      deleteItem,
+      updateItemReadStatus,
+    ]
   )
 
   useEffect(() => {
@@ -224,6 +243,10 @@ export default function Home(): JSX.Element {
       actionHandler('mark-read')
     }
 
+    const markUnread = () => {
+      actionHandler('mark-unread')
+    }
+
     const showEditModal = () => {
       actionHandler('showEditModal')
     }
@@ -231,6 +254,7 @@ export default function Home(): JSX.Element {
     document.addEventListener('archive', archive)
     document.addEventListener('delete', deletePage)
     document.addEventListener('mark-read', markRead)
+    document.addEventListener('mark-unread', markUnread)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
     document.addEventListener('showEditModal', showEditModal)
 
@@ -240,6 +264,8 @@ export default function Home(): JSX.Element {
     return () => {
       document.removeEventListener('archive', archive)
       document.removeEventListener('mark-read', markRead)
+      document.removeEventListener('mark-unread', markUnread)
+
       document.removeEventListener('delete', deletePage)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
       document.removeEventListener('showEditModal', showEditModal)
@@ -249,42 +275,15 @@ export default function Home(): JSX.Element {
   }, [actionHandler, goNextOrHome, goPreviousOrHome])
 
   useEffect(() => {
-    if (article && viewerData?.me) {
+    if (libraryItem && viewerData?.me) {
       posthog.capture('link_read', {
-        link: article.id,
-        slug: article.slug,
-        reader: article.contentReader,
-        url: article.originalArticleUrl,
+        link: libraryItem.id,
+        slug: libraryItem.slug,
+        reader: libraryItem.contentReader,
+        url: libraryItem.originalArticleUrl,
       })
     }
-  }, [article, viewerData])
-
-  const deleteCurrentItem = useCallback(async () => {
-    if (article) {
-      const pageId = article.id
-      removeItemFromCache(cache, mutate, pageId)
-      await deleteLinkMutation(pageId).then((res) => {
-        if (res) {
-          showSuccessToastWithUndo('Page deleted', async () => {
-            const result = await updatePageMutation({
-              pageId: pageId,
-              state: State.SUCCEEDED,
-            })
-            document.dispatchEvent(new Event('revalidateLibrary'))
-            if (result) {
-              showSuccessToast('Page recovered')
-            } else {
-              showErrorToast('Error recovering page, check your deleted items')
-            }
-          })
-        } else {
-          // todo: revalidate or put back in cache?
-          showErrorToast('Error deleting page', { position: 'bottom-right' })
-        }
-      })
-      goNextOrHome()
-    }
-  }, [article, cache, mutate, router])
+  }, [libraryItem, viewerData])
 
   useRegisterActions(
     [
@@ -358,6 +357,15 @@ export default function Home(): JSX.Element {
         shortcut: ['-'],
         perform: () => {
           document.dispatchEvent(new Event('mark-read'))
+        },
+      },
+      {
+        id: 'mark_unread',
+        section: 'Article',
+        name: 'Mark current item as unread',
+        shortcut: ['-'],
+        perform: () => {
+          document.dispatchEvent(new Event('mark-unread'))
         },
       },
       {
@@ -457,10 +465,16 @@ export default function Home(): JSX.Element {
   )
 
   const [labels, dispatchLabels] = useSetPageLabels(
-    articleData?.article.article?.id
+    libraryItem?.id,
+    libraryItem?.slug
   )
 
-  if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
+  new Error()
+  if (
+    articleFetchError &&
+    'message' in articleFetchError &&
+    articleFetchError['message'] === 'NOT_FOUND'
+  ) {
     router.push('/404')
     return <LoadingView />
   }
@@ -470,18 +484,18 @@ export default function Home(): JSX.Element {
       pageTestId="home-page-tag"
       headerToolbarControl={
         <ArticleActionsMenu
-          article={article}
+          article={libraryItem}
           layout="top"
-          showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          showReaderDisplaySettings={libraryItem?.contentReader != 'PDF'}
           readerSettings={readerSettings}
           articleActionHandler={actionHandler}
         />
       }
-      alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+      alwaysDisplayToolbar={libraryItem?.contentReader == 'PDF'}
       pageMetaDataProps={{
-        title: article?.title ?? '',
+        title: libraryItem?.title ?? '',
         path: router.pathname,
-        description: article?.description ?? '',
+        description: libraryItem?.description ?? '',
       }}
     >
       <Script async src="/static/mathjax/mathJaxConfiguration.js" />
@@ -497,17 +511,17 @@ export default function Home(): JSX.Element {
         showDisplaySettingsModal={
           readerSettings.setShowEditDisplaySettingsModal
         }
-        alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+        alwaysDisplayToolbar={libraryItem?.contentReader == 'PDF'}
       >
         <VerticalArticleActionsMenu
-          article={article}
+          article={libraryItem}
           layout="top"
-          showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          showReaderDisplaySettings={libraryItem?.contentReader != 'PDF'}
           articleActionHandler={actionHandler}
         />
       </ReaderHeader>
 
-      {article?.contentReader == 'PDF' && <PdfHeaderSpacer />}
+      {libraryItem?.contentReader == 'PDF' && <PdfHeaderSpacer />}
 
       <VStack
         distribution="between"
@@ -523,9 +537,9 @@ export default function Home(): JSX.Element {
           },
         }}
       >
-        {article?.contentReader !== 'PDF' ? (
+        {libraryItem?.contentReader !== 'PDF' ? (
           <ArticleActionsMenu
-            article={article}
+            article={libraryItem}
             layout="side"
             readerSettings={readerSettings}
             showReaderDisplaySettings={true}
@@ -533,15 +547,15 @@ export default function Home(): JSX.Element {
           />
         ) : null}
       </VStack>
-      {article && viewerData?.me && article.contentReader == 'PDF' && (
+      {libraryItem && viewerData?.me && libraryItem.contentReader == 'PDF' && (
         <PdfArticleContainerNoSSR
-          article={article}
+          article={libraryItem}
           showHighlightsModal={showHighlightsModal}
           setShowHighlightsModal={setShowHighlightsModal}
           viewer={viewerData.me}
         />
       )}
-      {article && viewerData?.me && article.contentReader == 'WEB' && (
+      {libraryItem && viewerData?.me && libraryItem.contentReader == 'WEB' && (
         <VStack
           id="article-wrapper"
           alignment="center"
@@ -558,10 +572,10 @@ export default function Home(): JSX.Element {
             },
           }}
         >
-          {article && viewerData?.me ? (
+          {libraryItem && viewerData?.me ? (
             <ArticleContainer
               viewer={viewerData.me}
-              article={article}
+              article={libraryItem}
               isAppleAppEmbed={false}
               highlightBarDisabled={false}
               fontSize={readerSettings.fontSize}
@@ -577,14 +591,80 @@ export default function Home(): JSX.Element {
                 readerSettings.highlightOnRelease ?? undefined
               }
               textDirection={
-                article.directionality ?? readerSettings.textDirection
+                libraryItem.directionality ?? readerSettings.textDirection
               }
               articleMutations={{
-                createHighlightMutation,
-                deleteHighlightMutation,
-                mergeHighlightMutation,
-                updateHighlightMutation,
-                articleReadingProgressMutation,
+                createHighlightMutation: async (
+                  input: CreateHighlightInput
+                ) => {
+                  try {
+                    const result = await createHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      slug: libraryItem.slug,
+                      input,
+                    })
+                    return result
+                  } catch (err) {
+                    console.log('error creating highlight', err)
+                    return undefined
+                  }
+                },
+                deleteHighlightMutation: async (
+                  libraryItemId,
+                  highlightId: string
+                ) => {
+                  try {
+                    await deleteHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      slug: libraryItem.slug,
+                      highlightId,
+                    })
+                    return true
+                  } catch (err) {
+                    console.log('error deleting highlight', err)
+                    return false
+                  }
+                },
+                mergeHighlightMutation: async (input) => {
+                  try {
+                    const result = await mergeHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      slug: libraryItem.slug,
+                      input,
+                    })
+                    return result?.highlight
+                  } catch (err) {
+                    console.log('error merging highlight', err)
+                    return undefined
+                  }
+                },
+                updateHighlightMutation: async (input) => {
+                  try {
+                    const result = await updateHighlight.mutateAsync({
+                      itemId: libraryItem.id,
+                      slug: libraryItem.slug,
+                      input,
+                    })
+                    return result?.id
+                  } catch (err) {
+                    console.log('error updating highlight', err)
+                    return undefined
+                  }
+                },
+                articleReadingProgressMutation: async (
+                  input: ArticleReadingProgressMutationInput
+                ) => {
+                  try {
+                    await updateItemReadStatus.mutateAsync({
+                      itemId: libraryItem.id,
+                      slug: libraryItem.slug,
+                      input,
+                    })
+                  } catch {
+                    return false
+                  }
+                  return true
+                },
               }}
             />
           ) : (
@@ -597,7 +677,7 @@ export default function Home(): JSX.Element {
         </VStack>
       )}
 
-      {article && viewerData?.me && article.contentReader == 'EPUB' && (
+      {libraryItem && viewerData?.me && libraryItem.contentReader == 'EPUB' && (
         <VStack
           alignment="center"
           distribution="start"
@@ -610,9 +690,9 @@ export default function Home(): JSX.Element {
             paddingTop: '80px',
           }}
         >
-          {article && viewerData?.me ? (
+          {libraryItem && viewerData?.me ? (
             <EpubContainerNoSSR
-              article={article}
+              article={libraryItem}
               showHighlightsModal={showHighlightsModal}
               setShowHighlightsModal={setShowHighlightsModal}
               viewer={viewerData.me}
@@ -627,15 +707,15 @@ export default function Home(): JSX.Element {
         </VStack>
       )}
 
-      {article && readerSettings.showSetLabelsModal && (
+      {libraryItem && readerSettings.showSetLabelsModal && (
         <SetLabelsModal
-          provider={article}
+          provider={libraryItem}
           selectedLabels={labels.labels}
           dispatchLabels={dispatchLabels}
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}
-      {article?.contentReader === 'PDF' &&
+      {libraryItem?.contentReader === 'PDF' &&
         readerSettings.showEditDisplaySettingsModal && (
           <PDFDisplaySettingsModal
             centerX={true}
@@ -645,7 +725,7 @@ export default function Home(): JSX.Element {
             }}
           />
         )}
-      {article?.contentReader !== 'PDF' &&
+      {libraryItem?.contentReader !== 'PDF' &&
         readerSettings.showEditDisplaySettingsModal && (
           <DisplaySettingsModal
             centerX={true}
@@ -655,20 +735,19 @@ export default function Home(): JSX.Element {
             }}
           />
         )}
-      {article && showEditModal && (
+      {libraryItem && showEditModal && (
         <EditArticleModal
-          article={article}
+          article={libraryItem}
           onOpenChange={() => setShowEditModal(false)}
           updateArticle={(title, author, description, savedAt, publishedAt) => {
-            article.title = title
-            article.author = author
-            article.description = description
-            article.savedAt = savedAt
-            article.publishedAt = publishedAt
-
-            const titleEvent = new Event('updateTitle') as UpdateTitleEvent
-            titleEvent.title = title
-            document.dispatchEvent(titleEvent)
+            // libraryItem.title = title
+            // libraryItem.author = author
+            // libraryItem.description = description
+            // libraryItem.savedAt = savedAt
+            // libraryItem.publishedAt = publishedAt
+            // const titleEvent = new Event('updateTitle') as UpdateTitleEvent
+            // titleEvent.title = title
+            // document.dispatchEvent(titleEvent)
           }}
         />
       )}

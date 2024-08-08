@@ -9,10 +9,6 @@ import {
   VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
-import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
-import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
 import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
@@ -35,6 +31,12 @@ import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { FeatureHelpBox } from '../../components/elements/FeatureHelpBox'
+import {
+  useCreateLabel,
+  useDeleteLabel,
+  useGetLabels,
+  useUpdateLabel,
+} from '../../lib/networking/labels/useLabels'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -143,7 +145,11 @@ const Input = styled('input', { ...inputStyles })
 const TextArea = styled('textarea', { ...inputStyles })
 
 export default function LabelsPage(): JSX.Element {
-  const { labels, revalidate } = useGetLabelsQuery()
+  const { data: labels, isLoading } = useGetLabels()
+  const createLabel = useCreateLabel()
+  const deleteLabel = useDeleteLabel()
+  const updateLabel = useUpdateLabel()
+
   const [labelColorHex, setLabelColorHex] = useState('#000000')
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null)
   const [nameInputText, setNameInputText] = useState<string>('')
@@ -162,6 +168,9 @@ export default function LabelsPage(): JSX.Element {
   applyStoredTheme()
 
   const sortedLabels = useMemo(() => {
+    if (!labels) {
+      return []
+    }
     return labels.sort((left: Label, right: Label) =>
       left.name.localeCompare(right.name)
     )
@@ -186,29 +195,35 @@ export default function LabelsPage(): JSX.Element {
     setLabelColorHex('#000000')
   }
 
-  async function createLabel(): Promise<void> {
-    const res = await createLabelMutation(
-      nameInputText.trim(),
-      labelColorHex,
-      descriptionInputText
-    )
+  async function doCreateLabel(): Promise<void> {
+    const res = await createLabel.mutateAsync({
+      name: nameInputText.trim(),
+      color: labelColorHex,
+      description: descriptionInputText,
+    })
     if (res) {
       showSuccessToast('Label created', { position: 'bottom-right' })
       resetLabelState()
-      revalidate()
     } else {
       showErrorToast('Failed to create label')
     }
   }
 
-  async function updateLabel(id: string): Promise<void> {
-    await updateLabelMutation({
-      labelId: id,
-      name: nameInputText,
-      color: labelColorHex,
-      description: descriptionInputText,
-    })
-    revalidate()
+  async function doUpdateLabel(id: string): Promise<void> {
+    try {
+      await updateLabel.mutateAsync({
+        labelId: id,
+        name: nameInputText,
+        color: labelColorHex,
+        description: descriptionInputText,
+      })
+    } catch (err) {
+      console.log('error updating label: ', err)
+      showErrorToast('Failed to update label')
+      return
+    }
+    showSuccessToast('Label updated', { position: 'bottom-right' })
+    resetLabelState()
   }
 
   const onEditPress = (label: Label | null) => {
@@ -222,17 +237,16 @@ export default function LabelsPage(): JSX.Element {
     }
   }
 
-  async function onDeleteLabel(id: string): Promise<void> {
-    const result = await deleteLabelMutation(id)
+  async function onDeleteLabel(labelId: string): Promise<void> {
+    const result = await deleteLabel.mutateAsync({ labelId })
     if (result) {
       showSuccessToast('Label deleted', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to delete label', { position: 'bottom-right' })
     }
-    revalidate()
   }
 
-  async function deleteLabel(id: string): Promise<void> {
+  async function doDeleteLabel(id: string): Promise<void> {
     setConfirmRemoveLabelId(id)
   }
 
@@ -349,14 +363,14 @@ export default function LabelsPage(): JSX.Element {
                   handleGenerateRandomColor={handleGenerateRandomColor}
                   setEditingLabelId={setEditingLabelId}
                   setLabelColorHex={setLabelColorHex}
-                  deleteLabel={deleteLabel}
+                  deleteLabel={doDeleteLabel}
                   nameInputText={nameInputText}
                   descriptionInputText={descriptionInputText}
                   setNameInputText={setNameInputText}
                   setDescriptionInputText={setDescriptionInputText}
                   setIsCreateMode={setIsCreateMode}
-                  createLabel={createLabel}
-                  updateLabel={updateLabel}
+                  createLabel={doCreateLabel}
+                  updateLabel={doUpdateLabel}
                   onEditPress={onEditPress}
                   resetState={resetLabelState}
                 />
@@ -369,15 +383,15 @@ export default function LabelsPage(): JSX.Element {
                   handleGenerateRandomColor={handleGenerateRandomColor}
                   setEditingLabelId={setEditingLabelId}
                   setLabelColorHex={setLabelColorHex}
-                  deleteLabel={deleteLabel}
+                  deleteLabel={doDeleteLabel}
                   nameInputText={nameInputText}
                   descriptionInputText={descriptionInputText}
                   setNameInputText={setNameInputText}
                   setDescriptionInputText={setDescriptionInputText}
                   setIsCreateMode={setIsCreateMode}
-                  createLabel={createLabel}
+                  createLabel={doCreateLabel}
                   resetState={resetLabelState}
-                  updateLabel={updateLabel}
+                  updateLabel={doUpdateLabel}
                 />
               )
             ) : null}
@@ -396,15 +410,15 @@ export default function LabelsPage(): JSX.Element {
                   handleGenerateRandomColor: handleGenerateRandomColor,
                   setEditingLabelId: setEditingLabelId,
                   setLabelColorHex: setLabelColorHex,
-                  deleteLabel: deleteLabel,
+                  deleteLabel: doDeleteLabel,
                   nameInputText: nameInputText,
                   descriptionInputText: descriptionInputText,
                   setNameInputText: setNameInputText,
                   setDescriptionInputText: setDescriptionInputText,
                   setIsCreateMode: setIsCreateMode,
-                  createLabel: createLabel,
+                  createLabel: doCreateLabel,
                   resetState: resetLabelState,
-                  updateLabel: updateLabel,
+                  updateLabel: doUpdateLabel,
                 }
 
                 if (editingLabelId == label.id) {
