@@ -203,6 +203,38 @@ export const GQL_UPDATE_LIBRARY_ITEM = gql`
   }
 `
 
+export const GQL_GET_LIBRARY_ITEM = gql`
+  query GetArticle(
+    $username: String!
+    $slug: String!
+    $includeFriendsHighlights: Boolean
+  ) {
+    article(username: $username, slug: $slug) {
+      ... on ArticleSuccess {
+        article {
+          ...ArticleFields
+          highlights(input: { includeFriends: $includeFriendsHighlights }) {
+            ...HighlightFields
+          }
+          labels {
+            ...LabelFields
+          }
+          recommendations {
+            ...RecommendationFields
+          }
+        }
+      }
+      ... on ArticleError {
+        errorCodes
+      }
+    }
+  }
+  ${articleFragment}
+  ${highlightFragment}
+  ${labelFragment}
+  ${recommendationFragment}
+`
+
 export const GQL_GET_LIBRARY_ITEM_CONTENT = gql`
   query GetArticle(
     $username: String!

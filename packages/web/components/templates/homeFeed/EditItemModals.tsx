@@ -31,7 +31,7 @@ export function EditLibraryItemModal(
     (
       title: string,
       author: string | undefined,
-      description: string,
+      description: string | undefined,
       savedAt: Dayjs,
       publishedAt: Dayjs | undefined
     ) => {
@@ -102,7 +102,7 @@ type EditArticleModalProps = {
   updateArticle: (
     title: string,
     author: string | undefined,
-    description: string,
+    description: string | undefined,
     savedAt: string,
     publishedAt: string | undefined
   ) => void
@@ -114,7 +114,7 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
     (
       title: string,
       author: string | undefined,
-      description: string,
+      description: string | undefined,
       savedAt: Dayjs,
       publishedAt: Dayjs | undefined
     ) => {
@@ -177,7 +177,7 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
 type EditItemModalProps = {
   title: string
   author: string | undefined
-  description: string
+  description: string | undefined
 
   savedAt: Dayjs
   publishedAt: Dayjs | undefined
@@ -186,7 +186,7 @@ type EditItemModalProps = {
   onSave: (
     title: string,
     author: string | undefined,
-    description: string,
+    description: string | undefined,
     savedAt: Dayjs,
     publishedAt: Dayjs | undefined
   ) => void

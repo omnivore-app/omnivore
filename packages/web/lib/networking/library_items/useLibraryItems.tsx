@@ -13,6 +13,7 @@ import { Label } from '../fragments/labelFragment'
 import {
   GQL_BULK_ACTION,
   GQL_DELETE_LIBRARY_ITEM,
+  GQL_GET_LIBRARY_ITEM,
   GQL_GET_LIBRARY_ITEM_CONTENT,
   GQL_MOVE_ITEM_TO_FOLDER,
   GQL_SAVE_ARTICLE_READING_PROGRESS,
@@ -514,6 +515,24 @@ export const useUpdateItemReadStatus = () => {
         )
       }
     },
+  })
+}
+
+export function useRefreshProcessingItems(itemIds: string[]) {
+  const fullQuery = `in:all includes:${itemIds.join(',')}`
+
+  return useQuery({
+    queryKey: ['libraryItems', fullQuery],
+    queryFn: async () => {
+      const response = (await gqlFetcher(GQL_SEARCH_QUERY, {
+        after: 0,
+        first: 10,
+        query: fullQuery,
+        includeContent: false,
+      })) as LibraryItemsData
+      return response.search
+    },
+    enabled: itemIds.length > 0,
   })
 }
 

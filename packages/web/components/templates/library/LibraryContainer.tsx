@@ -41,15 +41,9 @@ import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
 import { MultiSelectMode } from '../homeFeed/LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
-import {
-  showErrorToast,
-  showSuccessToast,
-  showSuccessToastWithAction,
-} from '../../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
-import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
-import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { PinnedButtons } from '../homeFeed/PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { FetchItemsError } from '../homeFeed/FetchItemsError'
@@ -59,6 +53,7 @@ import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
+import { QueryClient, useQueryClient } from '@tanstack/react-query'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -75,11 +70,6 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
   fetchSearchResults(query, cb)
 }, 300)
 
-// We set a relatively high delay for the refresh at the end, as it's likely there's an issue
-// in processing. We give it the best attempt to be able to resolve, but if it doesn't we set
-// the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
-const TIMEOUT_DELAYS = [2000, 3500, 5000]
-
 type LibraryContainerProps = {
   folder: string | undefined
   filterFunc: (item: LibraryItemNode) => boolean
@@ -88,8 +78,8 @@ type LibraryContainerProps = {
 }
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
   const router = useRouter()
+  const { viewerData } = useGetViewerQuery()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
 
@@ -185,78 +175,13 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     }
   }, [libraryItems])
 
-  // useEffect(() => {
-  //   const timeout: NodeJS.Timeout[] = []
+  const processingItems = useMemo(() => {
+    return libraryItems
+      .filter((li) => li.node.state === State.PROCESSING)
+      .map((li) => li.node.id)
+  }, [libraryItems])
 
-  //   const items = (
-  //     itemsPages?.flatMap((ad) => {
-  //       return ad.search.edges.map((it) => ({
-  //         ...it,
-  //         isLoading: it.node.state === 'PROCESSING',
-  //       }))
-  //     }) || []
-  //   ).filter((it) => it.isLoading)
-
-  //   items.map(async (item) => {
-  //     let startIdx = 0
-
-  //     const seeIfUpdated = async () => {
-  //       if (startIdx >= TIMEOUT_DELAYS.length) {
-  //         item.node.state = State.FAILED
-  //         const updatedArticle = { ...item }
-  //         updatedArticle.node = { ...item.node }
-  //         updatedArticle.isLoading = false
-  //         // performActionOnItem('update-item', updatedArticle)
-  //         return
-  //       }
-
-  //       const username = viewerData?.me?.profile.username
-  //       const itemsToUpdate = libraryItems.filter((it) => it.isLoading)
-
-  //       if (itemsToUpdate.length > 0) {
-  //         const link = await articleQuery({
-  //           username,
-  //           slug: item.node.id,
-  //           includeFriendsHighlights: false,
-  //         })
-
-  //         if (link && link.state != 'PROCESSING') {
-  //           const updatedArticle = { ...item }
-  //           updatedArticle.node = { ...item.node, ...link }
-  //           updatedArticle.isLoading = false
-  //           console.log(`Updating Metadata of ${item.node.slug}.`)
-  //           // performActionOnItem('update-item', updatedArticle)
-  //           return
-  //         }
-
-  //         console.log(
-  //           `Trying to get the metadata of item ${item.node.slug}... Retry ${startIdx} of 5`
-  //         )
-  //         timeout.push(setTimeout(seeIfUpdated, TIMEOUT_DELAYS[startIdx++]))
-  //       }
-  //     }
-
-  //     await seeIfUpdated()
-  //   })
-
-  //   return () => {
-  //     timeout.forEach(clearTimeout)
-  //   }
-  // }, [itemsPages])
-
-  // const handleFetchMore = useCallback(() => {
-  //   if (isLoading || !hasNextPage) {
-  //     return
-  //   }
-  //   setSize(size + 1)
-  // }, [size, isValidating])
-
-  // useEffect(() => {
-  //   if (isValidating || !hasNextPage || size !== 1) {
-  //     return
-  //   }
-  //   setSize(size + 1)
-  // }, [size, isValidating])
+  console.log('processingItems: ', processingItems)
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {
@@ -361,10 +286,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     if (activeCardId && !alreadyScrolled.current) {
       scrollToActiveCard(activeCardId)
       alreadyScrolled.current = true
-
-      // if (activeItem) {
-      //   performActionOnItem('refresh', activeItem)
-      // }
     }
   }, [activeCardId, scrollToActiveCard])
 
@@ -880,7 +801,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         const href = `${window.location.pathname}?${qp.toString()}`
         router.push(href, href, { shallow: true })
         window.sessionStorage.setItem('q', qp.toString())
-        // performActionOnItem('refresh', undefined as unknown as any)
       }}
       loadMore={fetchNextPage}
       hasMore={hasNextPage ?? false}

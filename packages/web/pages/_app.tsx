@@ -38,10 +38,10 @@ if (typeof window !== 'undefined') {
   persistQueryClient({
     queryClient,
     persister: localStoragePersister,
-    maxAge: 60 * 60 * 1000,
+    // one week cache time
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     dehydrateOptions: {
       shouldDehydrateQuery: ({ queryKey }) => {
-        console.log('queryKey: ', queryKey)
         // Don't cache the library items in local storage
         const [firstKey] = queryKey
         return firstKey !== 'library-items'
