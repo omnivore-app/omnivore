@@ -1187,6 +1187,9 @@ export function LibraryItemsLayout(
                   css={{ textDecoration: 'underline' }}
                   onClick={async (event) => {
                     event.preventDefault()
+                    alert(
+                      'Emptying trash happens in the background and could take a few minutes depending on the number of items you have in the trash. You may see old items in your trash during this time.'
+                    )
                     await emptyTrashMutation()
                     showSuccessToast('Emptying trash')
                     setTimeout(() => {
