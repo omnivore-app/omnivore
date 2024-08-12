@@ -24,6 +24,7 @@ import {
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
 import { gqlEndpoint } from '../../appConfig'
+import { useState } from 'react'
 
 function gqlFetcher(
   query: string,
@@ -518,22 +519,65 @@ export const useUpdateItemReadStatus = () => {
   })
 }
 
-export function useRefreshProcessingItems(itemIds: string[]) {
-  const fullQuery = `in:all includes:${itemIds.join(',')}`
+export function useRefreshProcessingItems() {
+  const maxAttempts = 3
 
-  return useQuery({
-    queryKey: ['libraryItems', fullQuery],
-    queryFn: async () => {
-      const response = (await gqlFetcher(GQL_SEARCH_QUERY, {
-        after: 0,
-        first: 10,
-        query: fullQuery,
-        includeContent: false,
-      })) as LibraryItemsData
-      return response.search
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms))
+
+  const queryClient = useQueryClient()
+  const refreshItems = async (variables: {
+    attempt: number
+    itemIds: string[]
+  }) => {
+    const fullQuery = `in:all includes:${variables.itemIds.join(',')}`
+    const result = (await gqlFetcher(GQL_SEARCH_QUERY, {
+      first: 10,
+      query: fullQuery,
+      includeContent: false,
+    })) as LibraryItemsData
+    if (result.search.errorCodes?.length) {
+      throw new Error(result.search.errorCodes[0])
+    }
+    return result.search
+  }
+  const mutation = useMutation({
+    mutationFn: refreshItems,
+    retry: 3,
+    retryDelay: 10,
+    onSuccess: async (
+      data: LibraryItems,
+      variables: {
+        attempt: number
+        itemIds: string[]
+      }
+    ) => {
+      let shouldRefetch = false
+      console.log('got processing items: ', data.edges)
+      for (const item of data.edges) {
+        if (item.node.state !== State.PROCESSING) {
+          overwriteItemPropertiesInCache(
+            queryClient,
+            item.node.id,
+            undefined,
+            item.node
+          )
+        } else {
+          shouldRefetch = true
+        }
+      }
+      if (shouldRefetch && variables.attempt < maxAttempts) {
+        await delay(3500 * variables.attempt + 1)
+        mutation.mutate({
+          attempt: variables.attempt + 1,
+          itemIds: data.edges
+            .filter((item) => item.node.state == State.PROCESSING)
+            .map((it) => it.node.id),
+        })
+      }
     },
-    enabled: itemIds.length > 0,
   })
+  return mutation
 }
 
 export const useGetLibraryItemContent = (username: string, slug: string) => {

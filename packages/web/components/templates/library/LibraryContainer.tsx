@@ -23,6 +23,7 @@ import {
   useDeleteItem,
   useGetLibraryItems,
   useMoveItemToFolder,
+  useRefreshProcessingItems,
   useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
 import {
@@ -181,7 +182,16 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       .map((li) => li.node.id)
   }, [libraryItems])
 
-  console.log('processingItems: ', processingItems)
+  const refreshProcessingItems = useRefreshProcessingItems()
+
+  useEffect(() => {
+    if (processingItems.length) {
+      refreshProcessingItems.mutateAsync({
+        attempt: 0,
+        itemIds: processingItems,
+      })
+    }
+  }, [processingItems])
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {
