@@ -11,20 +11,21 @@ import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { logout } from '../../lib/logout'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
-import { updateTheme } from '../../lib/themeUpdater'
-import { Priority, useRegisterActions } from 'kbar'
-import { ThemeId, theme } from '../tokens/stitches.config'
+import { useRegisterActions } from 'kbar'
+import { theme } from '../tokens/stitches.config'
 import { NavigationMenu } from './navMenu/NavigationMenu'
 import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
 import { LIBRARY_LEFT_MENU_WIDTH } from './navMenu/LibraryLegacyMenu'
 import { AddLinkModal } from './AddLinkModal'
-import { saveUrlMutation } from '../../lib/networking/mutations/saveUrlMutation'
+import { v4 as uuidv4 } from 'uuid'
 import {
   showErrorToast,
   showSuccessToastWithAction,
 } from '../../lib/toastHelpers'
 import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
+import { useAddItem } from '../../lib/networking/library_items/useLibraryItems'
+import { useHandleAddUrl } from '../../lib/hooks/useHandleAddUrl'
 
 export type NavigationSection =
   | 'home'
@@ -52,6 +53,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
+  const addItem = useAddItem()
 
   useRegisterActions(navigationCommands(router))
 
@@ -84,22 +86,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
 
-  const handleLinkAdded = useCallback(
-    async (link: string, timezone: string, locale: string) => {
-      const result = await saveUrlMutation(link, timezone, locale)
-      if (result) {
-        showSuccessToastWithAction('Link saved', 'Read now', async () => {
-          window.location.href = `/article?url=${encodeURIComponent(link)}`
-          return Promise.resolve()
-        })
-        // const id = result.url?.match(/[^/]+$/)?.[0] ?? ''
-        // performActionOnItem('refresh', undefined as unknown as any)
-      } else {
-        showErrorToast('Error saving link', { position: 'bottom-right' })
-      }
-    },
-    []
-  )
+  const handleLinkAdded = useHandleAddUrl()
 
   useEffect(() => {
     document.addEventListener('logout', showLogout)

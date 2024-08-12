@@ -58,6 +58,7 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
+import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -851,24 +852,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     [itemsPages, multiSelectMode, checkedItems]
   )
 
-  const handleLinkSubmission = async (
-    link: string,
-    timezone: string,
-    locale: string
-  ) => {
-    const result = await saveUrlMutation(link, timezone, locale)
-    if (result) {
-      showSuccessToastWithAction('Link saved', 'Read now', async () => {
-        window.location.href = `/article?url=${encodeURIComponent(link)}`
-        return Promise.resolve()
-      })
-      const id = result.url?.match(/[^/]+$/)?.[0] ?? ''
-      // performActionOnItem('refresh', undefined as unknown as any)
-    } else {
-      showErrorToast('Error saving link', { position: 'bottom-right' })
-    }
-  }
-
   return (
     <HomeFeedGrid
       folder={props.folder}
@@ -882,7 +865,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       performMultiSelectAction={performMultiSelectAction}
       searchTerm={queryInputs.searchQuery}
       gridContainerRef={gridContainerRef}
-      handleLinkSubmission={handleLinkSubmission}
       applySearchQuery={(searchQuery: string) => {
         setQueryInputs({
           ...queryInputs,
@@ -959,12 +941,6 @@ export type HomeFeedContentProps = {
     item: LibraryItem | undefined
   ) => Promise<void>
 
-  handleLinkSubmission: (
-    link: string,
-    timezone: string,
-    locale: string
-  ) => Promise<void>
-
   showNavigationMenu: boolean
 
   setIsChecked: (itemId: string, set: boolean) => void
@@ -1002,6 +978,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     }
     return true
   }, [props])
+
+  const addUrl = useHandleAddUrl()
 
   return (
     <VStack
@@ -1055,7 +1033,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
         {props.showAddLinkModal && (
           <AddLinkModal
-            handleLinkSubmission={props.handleLinkSubmission}
+            handleLinkSubmission={addUrl}
             onOpenChange={() => props.setShowAddLinkModal(false)}
           />
         )}

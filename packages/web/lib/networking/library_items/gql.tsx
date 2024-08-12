@@ -258,3 +258,18 @@ export const GQL_BULK_ACTION = gql`
     }
   }
 `
+
+export const GQL_SAVE_URL = gql`
+  mutation SaveUrl($input: SaveUrlInput!) {
+    saveUrl(input: $input) {
+      ... on SaveSuccess {
+        url
+        clientRequestId
+      }
+      ... on SaveError {
+        errorCodes
+        message
+      }
+    }
+  }
+`

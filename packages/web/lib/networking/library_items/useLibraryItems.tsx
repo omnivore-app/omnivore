@@ -1,6 +1,5 @@
-import { gql, GraphQLClient } from 'graphql-request'
+import { GraphQLClient } from 'graphql-request'
 import {
-  InfiniteData,
   QueryClient,
   useInfiniteQuery,
   useMutation,
@@ -8,8 +7,8 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { ContentReader, PageType, State } from '../fragments/articleFragment'
-import { Highlight, highlightFragment } from '../fragments/highlightFragment'
-import { makeGqlFetcher, requestHeaders } from '../networkHelpers'
+import { Highlight } from '../fragments/highlightFragment'
+import { requestHeaders } from '../networkHelpers'
 import { Label } from '../fragments/labelFragment'
 import {
   GQL_BULK_ACTION,
@@ -17,6 +16,7 @@ import {
   GQL_GET_LIBRARY_ITEM_CONTENT,
   GQL_MOVE_ITEM_TO_FOLDER,
   GQL_SAVE_ARTICLE_READING_PROGRESS,
+  GQL_SAVE_URL,
   GQL_SEARCH_QUERY,
   GQL_SET_LABELS,
   GQL_SET_LINK_ARCHIVED,
@@ -165,12 +165,55 @@ const overwriteItemPropertiesInCache = (
   }
 }
 
+export const insertItemInCache = (
+  queryClient: QueryClient,
+  itemId: string,
+  url: string
+) => {
+  const keys = queryClient
+    .getQueryCache()
+    .findAll({ queryKey: ['libraryItems'] })
+  console.log('keys: ', keys)
+
+  keys.forEach((query) => {
+    queryClient.setQueryData(query.queryKey, (data: any) => {
+      console.log('data, data.pages', data)
+      if (!data) return data
+      if (data.pages.length > 0) {
+        const firstPage = data.pages[0] as LibraryItems
+        firstPage.edges = [
+          ...firstPage.edges,
+          {
+            cursor: firstPage.pageInfo.endCursor,
+            node: {
+              id: itemId,
+              title: url,
+              url: url,
+              originalArticleUrl: url,
+              readingProgressPercent: 0,
+              readingProgressAnchorIndex: 0,
+              slug: url,
+              folder: 'inbox',
+              ownedByViewer: true,
+              state: State.PROCESSING,
+              pageType: PageType.UNKNOWN,
+              createdAt: new Date().toISOString(),
+            },
+          },
+        ]
+        data.pages[0] = firstPage
+        console.log('data: ', data)
+        return data
+      }
+    })
+  })
+}
+
 export function useGetLibraryItems(
   folder: string | undefined,
   { limit, searchQuery }: LibraryItemsQueryInput,
   enabled = true
 ) {
-  console.log('folder: ', folder)
   const fullQuery = folder
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''
@@ -623,6 +666,56 @@ export const useSetItemLabels = () => {
   })
 }
 
+export const useAddItem = () => {
+  const queryClient = useQueryClient()
+  const addItem = async (variables: {
+    itemId: string
+    url: string
+    timezone: string | undefined
+    locale: string | undefined
+  }) => {
+    const result = (await gqlFetcher(GQL_SAVE_URL, {
+      input: {
+        clientRequestId: variables.itemId,
+        url: variables.url,
+        source: 'add-link',
+        timezone: variables.timezone,
+        locale: variables.locale,
+      },
+    })) as SaveUrlData
+    if (result.saveUrl?.errorCodes?.length) {
+      throw new Error(result.saveUrl.errorCodes[0])
+    }
+    return result.saveUrl?.clientRequestId
+  }
+  return useMutation({
+    mutationFn: addItem,
+    onMutate: async (variables: {
+      itemId: string
+      url: string
+      timezone: string | undefined
+      locale: string | undefined
+    }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
+      insertItemInCache(queryClient, variables.itemId, variables.url)
+      return previousState
+    },
+    onError: (error, variables, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+    },
+  })
+}
+
 export const useBulkActions = () => {
   const queryClient = useQueryClient()
   const bulkAction = async (variables: {
@@ -673,6 +766,18 @@ type BulkActionResult = {
 
 type BulkActionData = {
   bulkAction: BulkActionResult
+}
+
+export type SaveUrlResult = {
+  id?: string
+  url?: string
+  slug?: string
+  clientRequestId?: string
+  errorCodes?: string[]
+}
+
+export type SaveUrlData = {
+  saveUrl?: SaveUrlResult
 }
 
 type UpdateLibraryItemInput = {
@@ -811,16 +916,16 @@ export type LibraryItemNode = {
   readingProgressAnchorIndex: number
   slug: string
   folder?: string
-  description: string
-  ownedByViewer: boolean
-  uploadFileId: string
-  labels?: Label[]
-  pageId: string
-  shortId: string
-  quote: string
-  annotation: string
   state: State
   pageType: PageType
+  description?: string
+  ownedByViewer: boolean
+  uploadFileId?: string
+  labels?: Label[]
+  pageId?: string
+  shortId?: string
+  quote?: string
+  annotation?: string
   siteName?: string
   siteIcon?: string
   subscription?: string
