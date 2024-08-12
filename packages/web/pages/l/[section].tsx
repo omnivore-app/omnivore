@@ -15,7 +15,7 @@ export default function Home(): JSX.Element {
   const router = useRouter()
   useApplyLocalTheme()
 
-  const [showNavigationMenu, setShowNavigationMenu] =
+  const [showNavigationMenu, setShowNavigationMenu, isShowNavigationLoading] =
     usePersistedState<boolean>({
       key: 'nav-show-menu',
       isSessionStorage: false,
@@ -37,7 +37,7 @@ export default function Home(): JSX.Element {
   }, [router])
 
   const sectionView = (name: string | string[] | undefined) => {
-    if (typeof name !== 'string') {
+    if (typeof name !== 'string' || isShowNavigationLoading) {
       return <></>
     }
     switch (name) {

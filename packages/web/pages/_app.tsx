@@ -38,7 +38,6 @@ if (typeof window !== 'undefined') {
   persistQueryClient({
     queryClient,
     persister: localStoragePersister,
-    // 60 min
     maxAge: 60 * 60 * 1000,
     dehydrateOptions: {
       shouldDehydrateQuery: ({ queryKey }) => {
