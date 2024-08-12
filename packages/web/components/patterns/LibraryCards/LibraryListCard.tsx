@@ -91,6 +91,9 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         '@media (max-width: 930px)': {
           borderRadius: '0px',
         },
+        '&:hover': {
+          borderBottom: 'unset',
+        },
         ...layoutWidths,
       }}
       alignment="start"
