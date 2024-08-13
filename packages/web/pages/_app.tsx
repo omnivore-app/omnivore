@@ -33,7 +33,7 @@ import React from 'react'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
+      gcTime: 1000 * 60 * 60 * 48, // 48 hours
     },
   },
 })
@@ -91,14 +91,6 @@ const ConditionalCaptchaProvider = (props: {
   }
   return <>{props.children}</>
 }
-
-// const queryClient = new QueryClient({
-//   defaultOptions: {
-//     queries: {
-//       gcTime: 1000 * 60 * 60 * 24,
-//     },
-//   },
-// })
 
 export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
