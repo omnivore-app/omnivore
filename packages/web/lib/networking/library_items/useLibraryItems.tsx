@@ -567,7 +567,7 @@ export function useRefreshProcessingItems() {
         }
       }
       if (shouldRefetch && variables.attempt < maxAttempts) {
-        await delay(3500 * variables.attempt + 1)
+        await delay(5000 * variables.attempt + 1)
         mutation.mutate({
           attempt: variables.attempt + 1,
           itemIds: data.edges
