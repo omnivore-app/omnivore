@@ -27,6 +27,7 @@ import {
   useMergeHighlight,
   useUpdateHighlight,
 } from '../../../lib/networking/highlights/useItemHighlights'
+import { useRouter } from 'next/router'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -38,12 +39,12 @@ export type PdfArticleContainerProps = {
 export default function PdfArticleContainer(
   props: PdfArticleContainerProps
 ): JSX.Element {
+  const router = useRouter()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
   const createHighlight = useCreateHighlight()
   const deleteHighlight = useDeleteHighlight()
@@ -481,14 +482,14 @@ export default function PdfArticleContainer(
           case 'u':
             const navReturn = window.localStorage.getItem('nav-return')
             if (navReturn) {
-              window.location.assign(navReturn)
+              router.push(navReturn)
               return
             }
             const query = window.sessionStorage.getItem('q')
             if (query) {
-              window.location.assign(`${DEFAULT_HOME_PATH}?${query}`)
+              router.push(`${DEFAULT_HOME_PATH}?${query}`)
             } else {
-              window.location.replace(DEFAULT_HOME_PATH)
+              router.push(DEFAULT_HOME_PATH)
             }
             break
           case 'e':
