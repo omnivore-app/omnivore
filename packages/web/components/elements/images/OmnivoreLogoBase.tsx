@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
+import { Box } from '../LayoutPrimitives'
 export type OmnivoreLogoBaseProps = {
   color?: string
   href?: string
@@ -9,13 +10,8 @@ export type OmnivoreLogoBaseProps = {
 }
 
 export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
-  const href = props.href || '/home'
-  const router = useRouter()
-
   return (
-    <Link
-      passHref
-      href={href}
+    <Box
       style={{
         textDecoration: 'none',
         display: 'flex',
@@ -38,6 +34,6 @@ export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
       aria-label="Omnivore logo"
     >
       {props.children}
-    </Link>
+    </Box>
   )
 }

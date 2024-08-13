@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'
 import { NextRouter, useRouter } from 'next/router'
 import { ReactNode, useEffect, useState } from 'react'
+import { HydrationBoundary } from '@tanstack/react-query'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import {
   KBarProvider,
@@ -23,7 +24,7 @@ import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import React from 'react'
@@ -31,7 +32,7 @@ import React from 'react'
 const queryClient = new QueryClient()
 
 if (typeof window !== 'undefined') {
-  const localStoragePersister = createSyncStoragePersister({
+  const localStoragePersister = createAsyncStoragePersister({
     storage: window.localStorage,
   })
 
@@ -44,7 +45,7 @@ if (typeof window !== 'undefined') {
       shouldDehydrateQuery: ({ queryKey }) => {
         // Don't cache the library items in local storage
         const [firstKey] = queryKey
-        return firstKey !== 'library-items'
+        return firstKey !== 'library-items' && firstKey !== 'shortcuts'
       },
     },
   })

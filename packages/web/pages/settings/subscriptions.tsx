@@ -48,13 +48,6 @@ export default function SubscriptionsPage(): JSX.Element {
       pageId="settings-subscriptions-tag"
       pageInfoLink="https://docs.omnivore.app/using/feeds.html"
       headerTitle="Subscriptions"
-      suggestionInfo={{
-        title: 'View and manage all your Feed and Newsletter subscriptions',
-        message:
-          'Use this page to view and manage all the Feeds (RSS & Atom) and Newsletters you have subscribed to.',
-        docs: 'https://docs.omnivore.app/using/inbox.html',
-        key: '--settings-recent-subscriptions-show-help',
-      }}
     >
       <>
         {sortedSubscriptions.length > 0 ? (

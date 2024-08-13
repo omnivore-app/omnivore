@@ -76,17 +76,6 @@ export default function DiscoverFeedsSettings(): JSX.Element {
       createAction={() => {
         router.push('/settings/discover-feeds/add')
       }}
-      suggestionInfo={{
-        title: 'Add RSS and Atom feeds to your Omnivore account',
-        message:
-          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every four hours, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
-        docs: 'https://docs.omnivore.app/using/feeds.html',
-        key: '--settings-feeds-show-help',
-        CTAText: 'Add a feed',
-        onClickCTA: () => {
-          router.push('/settings/discover-feeds/add')
-        },
-      }}
     >
       {sortedFeeds.length === 0 ? (
         <EmptySettingsRow text={isValidating ? '-' : 'No feeds subscribed'} />
