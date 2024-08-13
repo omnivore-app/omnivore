@@ -3599,6 +3599,7 @@ const schema = gql`
     # getFollowers(userId: ID): GetFollowersResult!
     # getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
+      @cacheControl(maxAge: 0)
     articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
       @cacheControl(maxAge: 0)
     newsletterEmails: NewsletterEmailsResult! @cacheControl(maxAge: 0)
