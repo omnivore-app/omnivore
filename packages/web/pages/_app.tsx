@@ -24,10 +24,23 @@ import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { QueryClient } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import React from 'react'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 60 * 48, // 48 hours
+    },
+  },
+})
+
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+})
 
 TopBarProgress.config({
   barColors: {
@@ -79,14 +92,6 @@ const ConditionalCaptchaProvider = (props: {
   return <>{props.children}</>
 }
 
-// const queryClient = new QueryClient({
-//   defaultOptions: {
-//     queries: {
-//       gcTime: 1000 * 60 * 60 * 24,
-//     },
-//   },
-// })
-
 export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
 
@@ -102,7 +107,10 @@ export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
 
   return (
     <ConditionalCaptchaProvider>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: asyncStoragePersister }}
+      >
         <KBarProvider actions={generateActions(router)}>
           <KBarPortal>
             <KBarPositioner style={{ zIndex: 100 }}>
@@ -116,7 +124,7 @@ export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
             <Component {...pageProps} />
           </IdProvider>
         </KBarProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ConditionalCaptchaProvider>
   )
 }

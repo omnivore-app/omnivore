@@ -10,24 +10,27 @@ export type OmnivoreLogoBaseProps = {
 }
 
 export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
+  const router = useRouter()
+
   return (
     <Box
       style={{
         textDecoration: 'none',
         display: 'flex',
         alignItems: 'center',
+        cursor: 'pointer',
       }}
       onClick={(event) => {
         const navReturn = window.localStorage.getItem('nav-return')
         if (navReturn) {
-          window.location.assign(navReturn)
+          router.push(navReturn)
           return
         }
         const query = window.sessionStorage.getItem('q')
         if (query) {
-          window.location.assign(`${DEFAULT_HOME_PATH}?${query}`)
+          router.push(`${DEFAULT_HOME_PATH}?${query}`)
         } else {
-          window.location.replace(DEFAULT_HOME_PATH)
+          router.push(DEFAULT_HOME_PATH)
         }
       }}
       tabIndex={-1}

@@ -69,18 +69,6 @@ export const GQL_SEARCH_QUERY = gql`
             readAt
             savedAt
             wordsCount
-            recommendations {
-              id
-              name
-              note
-              user {
-                userId
-                name
-                username
-                profileImageURL
-              }
-              recommendedAt
-            }
             highlights {
               ...HighlightFields
             }
