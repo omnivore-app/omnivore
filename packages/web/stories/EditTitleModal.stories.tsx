@@ -1,6 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { EditLibraryItemModal } from '../components/templates/homeFeed/EditItemModals'
-import { LibraryItem } from '../lib/networking/queries/useGetLibraryItemsQuery'
+import { LibraryItem } from '../lib/networking/library_items/useLibraryItems'
 
 export default {
   title: 'Components/EditTitleModal',
@@ -25,14 +25,15 @@ export default {
   },
 } as ComponentMeta<typeof EditLibraryItemModal>
 
-export const EditTitleModalStory: ComponentStory<typeof EditLibraryItemModal> =
-  (args) => (
-    <EditLibraryItemModal
-      onOpenChange={() => {}}
-      item={{
-        cursor: '',
-        node: { title: '', description: '' } as LibraryItem['node'],
-      }}
-      updateItem={async () => console.log('update item')}
-    />
-  )
+export const EditTitleModalStory: ComponentStory<
+  typeof EditLibraryItemModal
+> = (args) => (
+  <EditLibraryItemModal
+    onOpenChange={() => {}}
+    item={{
+      cursor: '',
+      node: { title: '', description: '' } as LibraryItem['node'],
+    }}
+    updateItem={async () => console.log('update item')}
+  />
+)

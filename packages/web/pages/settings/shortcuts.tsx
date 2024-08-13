@@ -4,13 +4,14 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { NavigationLayout } from '../../components/templates/NavigationLayout'
+
 import { Toaster } from 'react-hot-toast'
 import {
   Box,
@@ -35,187 +36,43 @@ import { Button } from '../../components/elements/Button'
 import { styled } from '@stitches/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { escapeQuotes } from '../../utils/helper'
-import { Shortcut } from '../../components/templates/navMenu/NavigationMenu'
-type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
+import { useGetLabels } from '../../lib/networking/labels/useLabels'
+import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
+import {
+  Shortcut,
+  useGetShortcuts,
+  useResetShortcuts,
+} from '../../lib/networking/shortcuts/useShortcuts'
 
-const SHORTCUTS_KEY = 'library-shortcuts'
+function flattenShortcuts(shortcuts: Shortcut[]): string[] {
+  let result: string[] = []
 
-export default function Shortcuts(): JSX.Element {
-  applyStoredTheme()
-  const [navMenuStyle, setNavMenuStyle] = usePersistedState<
-    'legacy' | 'shortcuts'
-  >({
-    key: 'library-nav-menu-style',
-    initialValue: 'legacy',
-  })
-
-  const listReducer = (
-    state: { state: string; items: Shortcut[] },
-    action: {
-      type: ListAction
-      item?: Shortcut
+  for (const shortcut of shortcuts) {
+    if (shortcut.type !== 'folder') {
+      result.push(shortcut.id)
     }
-  ) => {
-    switch (action.type) {
-      case 'RESET': {
-        const itemStr = window['localStorage'].getItem(SHORTCUTS_KEY)
-        if (itemStr) {
-          try {
-            const parsed = JSON.parse(itemStr)
-            if (Array.isArray(parsed)) {
-              return { state: 'CURRENT', items: parsed as Shortcut[] }
-            }
-          } catch (err) {
-            console.log('error: ', err)
-          }
-        }
-        return { state: 'CURRENT', items: [] }
-      }
-      case 'ADD_ITEM': {
-        const item = action.item
-        if (!item) {
-          return state
-        }
-        const existing = state.items.find(
-          (existing) => existing.type == item.type && existing.id == item.id
-        )
-        if (existing) {
-          return state
-        }
-        state.items.push(item)
-        return { state: 'CURRENT', items: [...state.items] }
-      }
-      case 'REMOVE_ITEM': {
-        const item = action.item
-        if (!item) {
-          return state
-        }
-        const updated = state.items.filter((existing) => existing.id != item.id)
-        return { state: 'CURRENT', items: [...updated] }
-      }
-      default:
-        throw new Error('unknown action')
+    if (shortcut.children && shortcut.children?.length > 0) {
+      result = result.concat(flattenShortcuts(shortcut.children))
     }
   }
 
-  const [shortcuts, dispatchList] = useReducer(listReducer, {
-    state: 'INITIAL',
-    items: [],
-  })
+  return result
+}
 
-  useEffect(() => {
-    try {
-      if (shortcuts.state == 'CURRENT') {
-        window['localStorage'].setItem(
-          SHORTCUTS_KEY,
-          JSON.stringify(shortcuts.items)
-        )
-      }
-    } catch (error) {
-      console.log('error": ', error)
+export default function Shortcuts(): JSX.Element {
+  const { data: shortcuts, isLoading } = useGetShortcuts()
+  const shortcutIds = useMemo(() => {
+    if (shortcuts) {
+      return flattenShortcuts(shortcuts)
     }
+    return []
   }, [shortcuts])
 
-  useEffect(() => {
-    dispatchList({ type: 'RESET' })
-  }, [])
+  console.log('shortcutIds: ', shortcutIds)
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-      <VStack
-        css={{ width: '100%', height: '100%' }}
-        distribution="start"
-        alignment="center"
-      >
-        <VStack
-          css={{
-            padding: '24px',
-            width: '100%',
-            height: '100%',
-            gap: '25px',
-            minWidth: '300px',
-            maxWidth: '880px',
-          }}
-        >
-          <Box css={{}}>
-            <StyledText style="fixedHeadline" css={{ my: '6px' }}>
-              Shortcuts
-            </StyledText>
-            <StyledText style="caption" css={{}}>
-              Use shortcuts to access your most important reads quickly
-            </StyledText>
-          </Box>
-          <HStack
-            css={{
-              px: '10px',
-              pt: '2px',
-              height: '30px',
-              gap: '5px',
-
-              fontSize: '14px',
-              fontWeight: 'regular',
-              fontFamily: '$display',
-              color:
-                navMenuStyle !== 'shortcuts'
-                  ? '$thLibraryMenuSecondary'
-                  : '$thLibraryMenuUnselected',
-
-              verticalAlign: 'middle',
-              borderRadius: '3px',
-              cursor: 'pointer',
-
-              '&:hover': {
-                backgroundColor: '$thBackground4',
-              },
-            }}
-            alignment="center"
-            distribution="start"
-            onClick={(event) => {
-              setNavMenuStyle(
-                navMenuStyle == 'shortcuts' ? 'legacy' : 'shortcuts'
-              )
-              event.preventDefault()
-            }}
-          >
-            {navMenuStyle === 'shortcuts' ? (
-              <CheckSquare size={20} weight="duotone" />
-            ) : (
-              <Square size={20} weight="duotone" />
-            )}
-            <StyledText style="modalTitle" css={{}}>
-              Enable shortcuts
-            </StyledText>
-          </HStack>
-          <Box
-            css={{
-              py: '$3',
-              display: 'grid',
-              width: '100%',
-              gridAutoRows: 'auto',
-              borderRadius: '6px',
-              gridGap: '40px',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              '@mdDown': {
-                gridTemplateColumns: 'repeat(1, 1fr)',
-              },
-            }}
-          >
-            <SelectedItems
-              shortcuts={shortcuts.items}
-              dispatchList={dispatchList}
-            />
-            <AvailableItems
-              shortcuts={shortcuts.items}
-              dispatchList={dispatchList}
-            />
-          </Box>
-        </VStack>
-      </VStack>
+      <SavedSearches shortcutIds={shortcutIds} />
     </SettingsLayout>
   )
 }
@@ -227,13 +84,13 @@ export const SectionSeparator = styled(Separator, {
 })
 
 type ListProps = {
-  shortcuts: Shortcut[]
-  dispatchList: (arg: { type: ListAction; item?: Shortcut | undefined }) => void
+  shortcutIds: string[]
+  // dispatchList: (arg: { type: ListAction; item?: Shortcut | undefined }) => void
 }
 
 const AvailableItems = (props: ListProps): JSX.Element => {
-  const { labels } = useGetLabelsQuery()
-  const { savedSearches } = useGetSavedSearchQuery()
+  const { data: labels } = useGetLabels()
+  const { data: savedSearches } = useGetSavedSearches()
   const { subscriptions } = useGetSubscriptionsQuery()
 
   const sortedLabels = useMemo(() => {
@@ -265,311 +122,176 @@ const AvailableItems = (props: ListProps): JSX.Element => {
 
   const searchSelected = useCallback(
     (search: SavedSearch) => {
-      return !!props.shortcuts.find((shortcut) => shortcut.id == search.id)
+      return !!props.shortcutIds.find((shortcutId) => shortcutId == search.id)
     },
     [props]
   )
 
   const labelSelected = useCallback(
     (label: Label) => {
-      return !!props.shortcuts.find((shortcut) => shortcut.id == label.id)
+      return !!props.shortcutIds.find((shortcutId) => shortcutId == label.id)
     },
     [props]
   )
 
   const subscriptionSelected = useCallback(
     (subscription: Subscription) => {
-      return !!props.shortcuts.find(
-        (shortcut) => shortcut.id == subscription.id
+      return !!props.shortcutIds.find(
+        (shortcutId) => shortcutId == subscription.id
       )
     },
     [props]
   )
 
+  console.log('sortedsavedSearchesL: ', sortedsavedSearches)
+
   return (
     <VStack
       css={{
-        width: '420px',
-        py: '30px',
-        pl: '28px', // becomes labels have some margin built in
-        pr: '30px',
+        m: '0px',
         gap: '10px',
-        bg: '$thLeftMenuBackground',
+        width: '100%',
+        maxWidth: '400px',
+        px: '0px',
+        pb: '25px',
       }}
-    >
-      <StyledText style="settingsSection">Saved Searches</StyledText>
-      {sortedsavedSearches?.map((search) => {
-        return (
-          <Button
-            style="plainIcon"
-            css={{
-              display: 'flex',
-              width: '100%',
-              p: '5px',
-              alignItems: 'center',
-              borderRadius: '5px',
-              '&:hover': {
-                bg: '$thLibrarySelectionColor',
-                color: '$thLibraryMenuSecondary',
-              },
-            }}
-            key={`search-${search.id}`}
-            onClick={(event) => {
-              const item: Shortcut = {
-                id: search.id,
-                name: search.name,
-                type: 'label',
-                section: 'library',
-                filter: search.filter,
-              }
-              props.dispatchList({
-                item,
-                type: searchSelected(search) ? 'REMOVE_ITEM' : 'ADD_ITEM',
-              })
-
-              event.preventDefault()
-            }}
-          >
-            {' '}
-            <StyledText style="settingsItem">{search.name}</StyledText>
-            <SpanBox css={{ ml: 'auto' }}>
-              {searchSelected(search) ? (
-                <CheckSquare size={20} weight="duotone" />
-              ) : (
-                <Square size={20} weight="duotone" />
-              )}
-            </SpanBox>
-          </Button>
-        )
-      })}
-      <SectionSeparator />
-
-      <StyledText style="settingsSection">Labels</StyledText>
-      {sortedLabels.map((label) => {
-        return (
-          <Button
-            style="plainIcon"
-            css={{
-              display: 'flex',
-              width: '100%',
-              p: '5px',
-              alignItems: 'center',
-              borderRadius: '5px',
-              '&:hover': {
-                bg: '$thLibrarySelectionColor',
-                color: '$thLibraryMenuSecondary',
-              },
-            }}
-            key={`label-${label.id}`}
-            onClick={(event) => {
-              const item: Shortcut = {
-                id: label.id,
-                type: 'label',
-                label: label,
-                section: 'library',
-                name: label.name,
-                filter: `label:\"${escapeQuotes(label.name)}\"`,
-              }
-              props.dispatchList({
-                item,
-                type: labelSelected(label) ? 'REMOVE_ITEM' : 'ADD_ITEM',
-              })
-
-              event.preventDefault()
-            }}
-          >
-            <LabelChip text={label.name} color={label.color} />
-            <SpanBox css={{ ml: 'auto' }}>
-              {labelSelected(label) ? (
-                <CheckSquare size={20} weight="duotone" />
-              ) : (
-                <Square size={20} weight="duotone" />
-              )}
-            </SpanBox>
-          </Button>
-        )
-      })}
-      <SectionSeparator />
-
-      <StyledText style="settingsSection">Subscriptions</StyledText>
-      {sortedSubscriptions.map((subscription) => {
-        return (
-          <Button
-            style="plainIcon"
-            css={{
-              display: 'flex',
-              width: '100%',
-              p: '5px',
-              alignItems: 'center',
-              borderRadius: '5px',
-              '&:hover': {
-                bg: '$thLibrarySelectionColor',
-                color: '$thLibraryMenuSecondary',
-              },
-            }}
-            key={`subscription-${subscription.id}`}
-            onClick={(event) => {
-              const item: Shortcut = {
-                id: subscription.id,
-                section: 'subscriptions',
-                name: subscription.name,
-                icon: subscription.icon,
-                type:
-                  subscription.type == SubscriptionType.NEWSLETTER
-                    ? 'newsletter'
-                    : 'feed',
-                filter:
-                  subscription.type == SubscriptionType.NEWSLETTER
-                    ? `subscription:\"${escapeQuotes(subscription.name)}\"`
-                    : `rss:\"${subscription.url}\"`,
-              }
-              props.dispatchList({
-                item,
-                type: subscriptionSelected(subscription)
-                  ? 'REMOVE_ITEM'
-                  : 'ADD_ITEM',
-              })
-
-              event.preventDefault()
-            }}
-          >
-            <StyledText style="settingsItem">{subscription.name}</StyledText>
-            <SpanBox css={{ ml: 'auto' }}>
-              {subscriptionSelected(subscription) ? (
-                <CheckSquare size={20} weight="duotone" />
-              ) : (
-                <Square size={20} weight="duotone" />
-              )}
-            </SpanBox>
-          </Button>
-        )
-      })}
-    </VStack>
-  )
-}
-
-type AvailableItemButtonProps = {
-  shortcut: Shortcut
-  isSelected: boolean
-  listAction: (arg: { type: ListAction; item?: Shortcut | undefined }) => void
-}
-
-const AvailableItemButton = (props: AvailableItemButtonProps): JSX.Element => {
-  const shortcutId = `checkbox-search-${props.shortcut.id}`
-  return (
-    <CheckboxButton
-      itemKey={shortcutId}
-      title={props.shortcut.filter}
-      isSelected={props.isSelected}
-      item={props.shortcut}
-      listAction={props.listAction}
-    >
-      <SpanBox css={{}}>{props.shortcut.name}</SpanBox>
-    </CheckboxButton>
-  )
-}
-
-const SelectedItems = (props: ListProps): JSX.Element => {
-  return (
-    <VStack
       alignment="start"
       distribution="start"
-      css={{
-        width: '420px',
-        py: '30px',
-        pl: '28px', // becomes labels have some margin built in
-        pr: '30px',
-        gap: '15px',
-        bg: '$thLeftMenuBackground',
-      }}
     >
-      <StyledText style="settingsSection">Your shortcuts</StyledText>
-      {props.shortcuts.map((shortcut) => {
-        return (
-          <HStack
-            alignment="center"
-            distribution="start"
-            css={{ width: '100%', gap: '10px' }}
-            key={`search-${shortcut.id}`}
-          >
-            <CoverImage src={shortcut.icon} width={20} height={20} />
-            <StyledText style="settingsItem">{shortcut.name}</StyledText>
-            <HStack css={{ ml: 'auto' }}>
-              <DragIcon />
-            </HStack>
-          </HStack>
-        )
-      })}
+      {/* <StyledText style="settingsSection">Available items</StyledText> */}
+      <SavedSearches {...props} />
+      <SectionSeparator />
+      {/* 
+        <StyledText style="settingsSection">Labels</StyledText>
+        {sortedLabels.map((label) => {
+          console.log('label: ', label)
+          return (
+            <Button
+              key={`label-${label.id}`}
+              style="plainIcon"
+              css={{
+                display: 'flex',
+                width: '100%',
+                p: '5px',
+                alignItems: 'center',
+                borderRadius: '5px',
+                '&:hover': {
+                  bg: '$thLibrarySelectionColor',
+                  color: '$thLibraryMenuSecondary',
+                },
+              }}
+              onClick={(event) => {
+                const item: Shortcut = {
+                  id: label.id,
+                  type: 'label',
+                  label: label,
+                  section: 'library',
+                  name: label.name,
+                  filter: `label:\"${escapeQuotes(label.name)}\"`,
+                }
+                props.dispatchList({
+                  item,
+                  type: labelSelected(label) ? 'REMOVE_ITEM' : 'ADD_ITEM',
+                })
+
+                event.preventDefault()
+              }}
+            >
+              <LabelChip text={label.name} color={label.color} />
+              <SpanBox css={{ ml: 'auto' }}>
+                {labelSelected(label) ? (
+                  <CheckSquare size={20} weight="duotone" />
+                ) : (
+                  <Square size={20} weight="duotone" />
+                )}
+              </SpanBox>
+            </Button>
+          )
+        })}
+        <SectionSeparator />
+
+        <StyledText style="settingsSection">Subscriptions</StyledText>
+        {sortedSubscriptions.map((subscription) => {
+          console.log('subscription: ', subscription)
+          return (
+            <Button
+              key={`subscription-${subscription.id}`}
+              style="plainIcon"
+              css={{
+                display: 'flex',
+                width: '100%',
+                p: '5px',
+                alignItems: 'center',
+                borderRadius: '5px',
+                '&:hover': {
+                  bg: '$thLibrarySelectionColor',
+                  color: '$thLibraryMenuSecondary',
+                },
+              }}
+              onClick={(event) => {
+                const item: Shortcut = {
+                  id: subscription.id,
+                  section: 'subscriptions',
+                  name: subscription.name,
+                  icon: subscription.icon,
+                  type:
+                    subscription.type == SubscriptionType.NEWSLETTER
+                      ? 'newsletter'
+                      : 'feed',
+                  filter:
+                    subscription.type == SubscriptionType.NEWSLETTER
+                      ? `subscription:\"${escapeQuotes(subscription.name)}\"`
+                      : `rss:\"${subscription.url}\"`,
+                }
+                props.dispatchList({
+                  item,
+                  type: subscriptionSelected(subscription)
+                    ? 'REMOVE_ITEM'
+                    : 'ADD_ITEM',
+                })
+
+                event.preventDefault()
+              }}
+            >
+              <StyledText style="settingsItem">{subscription.name}</StyledText>
+              <SpanBox css={{ ml: 'auto' }}>
+                {subscriptionSelected(subscription) ? (
+                  <CheckSquare size={20} weight="duotone" />
+                ) : (
+                  <Square size={20} weight="duotone" />
+                )}
+              </SpanBox>
+            </Button>
+          )
+        })} */}
     </VStack>
   )
 }
 
-type CheckboxButtonProps = {
-  itemKey: string
-  title: string
-  isSelected: boolean
-  item: Shortcut
+const SavedSearches = (props: ListProps) => {
+  const { data: savedSearches, isLoading } = useGetSavedSearches()
 
-  listAction: (arg: { type: ListAction; item?: Shortcut | undefined }) => void
-  children: ReactNode
-}
-
-function CheckboxButton(props: CheckboxButtonProps): JSX.Element {
-  const handleChange = useCallback(
-    (selected: boolean) => {
-      if (!selected) {
-        props.listAction({
-          type: 'REMOVE_ITEM',
-          item: props.item,
-        })
-      } else {
-        props.listAction({
-          type: 'ADD_ITEM',
-          item: props.item,
-        })
-      }
-    },
-    [props]
-  )
+  const sortedsavedSearches = useMemo(() => {
+    if (!savedSearches) {
+      return []
+    }
+    return savedSearches.sort((a, b) =>
+      a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
+    )
+  }, [savedSearches])
   return (
-    <HStack
-      key={props.itemKey}
-      title={props.title}
-      css={{
-        px: '10px',
-        pt: '2px',
-        height: '30px',
-        gap: '5px',
-
-        fontSize: '14px',
-        fontWeight: 'regular',
-        fontFamily: '$display',
-        color: props.isSelected
-          ? '$thLibraryMenuSecondary'
-          : '$thLibraryMenuUnselected',
-
-        verticalAlign: 'middle',
-        borderRadius: '3px',
-        cursor: 'pointer',
-
-        m: '0px',
-        '&:hover': {
-          backgroundColor: '$thBackground4',
-        },
-      }}
-      alignment="center"
-      distribution="start"
-      onClick={(event) => {
-        handleChange(!props.isSelected)
-        event.preventDefault()
-      }}
-    >
-      {props.isSelected ? (
-        <CheckSquare size={20} weight="duotone" />
-      ) : (
-        <Square size={20} weight="duotone" />
-      )}
-      {props.children}
-    </HStack>
+    <>
+      {/* <StyledText style="settingsSection">Saved Searches</StyledText> */}
+      {/* <Box> */}
+      {!isLoading &&
+        (savedSearches ?? []).map((search) => {
+          return (
+            <Box key={`saved-search-${search.id}`} suppressHydrationWarning>
+              {search.name}
+            </Box>
+          )
+        })}
+      {/* </Box> */}
+    </>
   )
 }

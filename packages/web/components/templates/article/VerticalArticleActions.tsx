@@ -1,4 +1,4 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Button } from '../../elements/Button'
 import { HStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
@@ -11,6 +11,7 @@ import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -94,15 +95,12 @@ export function VerticalArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
-            '@mdDown': {
-              display: 'none',
-            },
           }}
         >
           <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
-        {!props.article?.isArchived ? (
+        {props.article?.state !== State.ARCHIVED ? (
           <Button
             title="Archive (e)"
             style="articleActionIcon"
@@ -155,6 +153,7 @@ export function VerticalArticleActionsMenu(
         </Button>
 
         <ReaderDropdownMenu
+          libraryItem={props.article}
           triggerElement={
             <CircleUtilityMenuIcon
               size={24}

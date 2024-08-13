@@ -17,7 +17,7 @@ import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
 import { NotebookContent } from './Notebook'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 
 type NotebookModalProps = {
   viewer: UserBasicData

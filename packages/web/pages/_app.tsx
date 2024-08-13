@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'
 import { NextRouter, useRouter } from 'next/router'
 import { ReactNode, useEffect, useState } from 'react'
+import { HydrationBoundary } from '@tanstack/react-query'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import {
   KBarProvider,
@@ -23,8 +24,10 @@ import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
-import { SWRConfig } from 'swr'
-import { DEFAULT_HOME_PATH } from '../lib/navigations'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import React from 'react'
+
+const queryClient = new QueryClient()
 
 TopBarProgress.config({
   barColors: {
@@ -76,6 +79,14 @@ const ConditionalCaptchaProvider = (props: {
   return <>{props.children}</>
 }
 
+// const queryClient = new QueryClient({
+//   defaultOptions: {
+//     queries: {
+//       gcTime: 1000 * 60 * 60 * 24,
+//     },
+//   },
+// })
+
 export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
 
@@ -91,19 +102,21 @@ export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
 
   return (
     <ConditionalCaptchaProvider>
-      <KBarProvider actions={generateActions(router)}>
-        <KBarPortal>
-          <KBarPositioner style={{ zIndex: 100 }}>
-            <KBarAnimator style={animatorStyle}>
-              <KBarSearch style={searchStyle} />
-              <KBarResultsComponents />
-            </KBarAnimator>
-          </KBarPositioner>
-        </KBarPortal>
-        <IdProvider>
-          <Component {...pageProps} />
-        </IdProvider>
-      </KBarProvider>
+      <QueryClientProvider client={queryClient}>
+        <KBarProvider actions={generateActions(router)}>
+          <KBarPortal>
+            <KBarPositioner style={{ zIndex: 100 }}>
+              <KBarAnimator style={animatorStyle}>
+                <KBarSearch style={searchStyle} />
+                <KBarResultsComponents />
+              </KBarAnimator>
+            </KBarPositioner>
+          </KBarPortal>
+          <IdProvider>
+            <Component {...pageProps} />
+          </IdProvider>
+        </KBarProvider>
+      </QueryClientProvider>
     </ConditionalCaptchaProvider>
   )
 }

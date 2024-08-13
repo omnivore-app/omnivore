@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { gqlFetcher } from '../networkHelpers'
-import { PageInfo } from './useGetLibraryItemsQuery'
+import { PageInfo } from '../library_items/useLibraryItems'
 
 interface HighlightsResponse {
   data?: Array<HighlightsData>

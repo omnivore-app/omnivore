@@ -5,16 +5,16 @@ import { VStack } from '../../components/elements/LayoutPrimitives'
 
 import { StyledText } from '../../components/elements/StyledText'
 import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import {
-  BulkAction,
-  bulkActionMutation,
-} from '../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../lib/networking/library_items/useLibraryItems'
 import { Button } from '../../components/elements/Button'
 import { theme } from '../../components/tokens/stitches.config'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { useRouter } from 'next/router'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import {
+  useBulkActions,
+  useGetLibraryItems,
+} from '../../lib/networking/library_items/useLibraryItems'
 import {
   BorderedFormInput,
   FormLabel,
@@ -33,22 +33,22 @@ export default function BulkPerformer(): JSX.Element {
   const [expectedCount, setExpectedCount] = useState<number | undefined>()
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [runningState, setRunningState] = useState<RunningState>('none')
+  const bulkAction = useBulkActions()
 
-  const { itemsPages, isValidating } = useGetLibraryItemsQuery('', {
+  const { data: itemsPages, isLoading } = useGetLibraryItems(undefined, {
     searchQuery: query,
     limit: 1,
     sortDescending: false,
   })
 
   useEffect(() => {
-    console.log('itemsPages: ', itemsPages)
-    setExpectedCount(itemsPages?.find(() => true)?.search.pageInfo.totalCount)
+    setExpectedCount(itemsPages?.pages.find(() => true)?.pageInfo.totalCount)
   }, [itemsPages])
 
   const performAction = useCallback(() => {
     ;(async () => {
       console.log('performing action: ', action)
-      if (isValidating) {
+      if (isLoading) {
         showErrorToast('Query still being validated.')
         return
       }
@@ -65,7 +65,11 @@ export default function BulkPerformer(): JSX.Element {
         return
       }
       try {
-        const success = await bulkActionMutation(action, query, expectedCount)
+        const success = await bulkAction.mutateAsync({
+          action,
+          query,
+          expectedCount,
+        })
         if (!success) {
           throw 'Success not returned'
         }

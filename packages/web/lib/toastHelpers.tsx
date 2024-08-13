@@ -114,6 +114,8 @@ const showToastWithAction = (
   action: () => Promise<void>,
   options?: ToastOptions
 ) => {
+  console.trace('show success: ', message)
+
   return toast(
     ({ id }) => (
       <FullWidthContainer alignment="center">
@@ -124,7 +126,6 @@ const showToastWithAction = (
             style="ctaLightGray"
             onClick={(event) => {
               event.preventDefault()
-
               toast.dismiss(id)
               ;(async () => {
                 await action()

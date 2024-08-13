@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { LibraryItemNode } from '../../../lib/networking/library_items/useLibraryItems'
 import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { RecommendedFlairIcon } from '../../elements/icons/RecommendedFlairIcon'
 import { PinnedFlairIcon } from '../../elements/icons/PinnedFlairIcon'
@@ -140,9 +140,7 @@ type FlairIconProps = {
   children: React.ReactNode
 }
 
-export function FlairIcon(
-  props: FlairIconProps
-): JSX.Element {
+export function FlairIcon(props: FlairIconProps): JSX.Element {
   return (
     <SpanBox title={props.title} css={{ lineHeight: '1' }}>
       {props.children}

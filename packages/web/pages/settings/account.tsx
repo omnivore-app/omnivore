@@ -23,7 +23,7 @@ import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMut
 import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -99,15 +99,15 @@ export default function Account(): JSX.Element {
     isUsernameValidationLoading,
   ])
 
-  const { itemsPages, isValidating } = useGetLibraryItemsQuery('', {
+  const { data: itemsPages, isLoading } = useGetLibraryItems('all', {
     limit: 0,
-    searchQuery: 'in:all',
+    searchQuery: '',
     sortDescending: false,
   })
 
   const libraryCount = useMemo(() => {
-    return itemsPages?.find(() => true)?.search.pageInfo.totalCount
-  }, [itemsPages, isValidating])
+    return itemsPages?.pages.find(() => true)?.pageInfo.totalCount
+  }, [itemsPages, isLoading])
 
   useEffect(() => {
     if (viewerData?.me?.profile.username) {
@@ -415,7 +415,7 @@ export default function Account(): JSX.Element {
             }}
           >
             <StyledLabel>Account Storage</StyledLabel>
-            {!isValidating && (
+            {!isLoading && (
               <>
                 <ProgressBar
                   fillPercentage={((libraryCount ?? 0) / ACCOUNT_LIMIT) * 100}

@@ -9,14 +9,13 @@ import { VStack } from '../../elements/LayoutPrimitives'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast } from '../../../lib/toastHelpers'
+import { useUpdateHighlight } from '../../../lib/networking/highlights/useItemHighlights'
 
 type HighlightNoteModalProps = {
-  author: string
-  title: string
   highlight?: Highlight
   libraryItemId: string
+  libraryItemSlug: string
   onUpdate: (updatedHighlight: Highlight) => void
   onOpenChange: (open: boolean) => void
   createHighlightForNote?: (note?: string) => Promise<Highlight | undefined>
@@ -25,6 +24,7 @@ type HighlightNoteModalProps = {
 export function HighlightNoteModal(
   props: HighlightNoteModalProps
 ): JSX.Element {
+  const updateHighlight = useUpdateHighlight()
   const [noteContent, setNoteContent] = useState(
     props.highlight?.annotation ?? ''
   )
@@ -38,20 +38,25 @@ export function HighlightNoteModal(
 
   const saveNoteChanges = useCallback(async () => {
     if (noteContent != props.highlight?.annotation && props.highlight?.id) {
-      const result = await updateHighlightMutation({
-        libraryItemId: props.libraryItemId,
-        highlightId: props.highlight?.id,
-        annotation: noteContent,
-        color: props.highlight?.color,
-      })
-
-      if (result) {
+      console.log('updating highlight textsdsdfsd')
+      try {
+        const result = await updateHighlight.mutateAsync({
+          itemId: props.libraryItemId,
+          slug: props.libraryItemSlug,
+          input: {
+            libraryItemId: props.libraryItemId,
+            highlightId: props.highlight?.id,
+            annotation: noteContent,
+            color: props.highlight?.color,
+          },
+        })
         props.onUpdate({ ...props.highlight, annotation: noteContent })
         props.onOpenChange(false)
-      } else {
+        return result?.id
+      } catch (err) {
         showErrorToast('Error updating your note', { position: 'bottom-right' })
+        return undefined
       }
-      document.dispatchEvent(new Event('highlightsUpdated'))
     }
     if (!props.highlight && props.createHighlightForNote) {
       const result = await props.createHighlightForNote(noteContent)

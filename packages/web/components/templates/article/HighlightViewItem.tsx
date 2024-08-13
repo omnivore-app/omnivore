@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { HighlightView } from '../../patterns/HighlightView'

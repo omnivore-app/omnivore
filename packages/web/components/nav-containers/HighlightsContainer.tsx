@@ -31,6 +31,7 @@ import { highlightColor } from '../../lib/themeUpdater'
 
 import { HighlightViewNote } from '../patterns/HighlightNotes'
 import { theme } from '../tokens/stitches.config'
+import { useDeleteHighlight } from '../../lib/networking/highlights/useItemHighlights'
 
 const PAGE_SIZE = 10
 
@@ -131,8 +132,10 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
+  const deleteHighlight = useDeleteHighlight()
 
   const viewInReader = useCallback(
     (highlightId: string) => {
@@ -283,24 +286,22 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
             ;(async () => {
-              const highlightId = showConfirmDeleteHighlightId
-              const success = await deleteHighlightMutation(
-                props.highlight.libraryItem?.id || '',
-                showConfirmDeleteHighlightId
-              )
-              props.mutate()
-              if (success) {
-                showSuccessToast('Highlight deleted.', {
-                  position: 'bottom-right',
+              if (props.highlight.libraryItem) {
+                const success = await deleteHighlight.mutateAsync({
+                  itemId: props.highlight.libraryItem?.id,
+                  slug: props.highlight.libraryItem?.slug,
+                  highlightId: showConfirmDeleteHighlightId,
                 })
-                const event = new CustomEvent('deleteHighlightbyId', {
-                  detail: highlightId,
-                })
-                document.dispatchEvent(event)
-              } else {
-                showErrorToast('Error deleting highlight', {
-                  position: 'bottom-right',
-                })
+
+                if (success) {
+                  showSuccessToast('Highlight deleted.', {
+                    position: 'bottom-right',
+                  })
+                } else {
+                  showErrorToast('Error deleting highlight', {
+                    position: 'bottom-right',
+                  })
+                }
               }
             })()
             setShowConfirmDeleteHighlightId(undefined)

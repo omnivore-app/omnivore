@@ -5,21 +5,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import 'react-markdown-editor-lite/lib/index.css'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { HighlightViewItem } from './HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
-import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { formattedShortTime } from '../../../lib/dateFormatting'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { sortHighlights } from '../../../lib/highlights/sortHighlights'
+import { useGetLibraryItemContent } from '../../../lib/networking/library_items/useLibraryItems'
+import {
+  useCreateHighlight,
+  useDeleteHighlight,
+  useUpdateHighlight,
+} from '../../../lib/networking/highlights/useItemHighlights'
 
 type NotebookContentProps = {
   viewer: UserBasicData
@@ -42,12 +45,14 @@ type NoteState = {
 
 export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const isDark = isDarkTheme()
+  const createHighlight = useCreateHighlight()
+  const deleteHighlight = useDeleteHighlight()
+  const updateHighlight = useUpdateHighlight()
 
-  const { articleData, mutate } = useGetArticleQuery({
-    slug: props.item.slug,
-    username: props.viewer.profile.username,
-    includeFriendsHighlights: false,
-  })
+  const { data: article } = useGetLibraryItemContent(
+    props.viewer.profile.username as string,
+    props.item.slug as string
+  )
   const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
@@ -88,12 +93,16 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       noteState.current.createStarted = new Date()
       ;(async () => {
         try {
-          const success = await createHighlightMutation({
-            id: newNoteId,
-            shortId: nanoid(8),
-            type: 'NOTE',
-            articleId: props.item.id,
-            annotation: text,
+          const success = await createHighlight.mutateAsync({
+            itemId: props.item.id,
+            slug: props.item.slug,
+            input: {
+              id: newNoteId,
+              shortId: nanoid(8),
+              type: 'NOTE',
+              articleId: props.item.id,
+              annotation: text,
+            },
           })
           if (success) {
             noteState.current.note = success
@@ -112,7 +121,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   )
 
   const highlights = useMemo(() => {
-    const result = articleData?.article.article.highlights
+    const result = article?.highlights
     const note = result?.find((h) => h.type === 'NOTE')
     if (note) {
       noteState.current.note = note
@@ -122,7 +131,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       setNoteText('')
     }
     return result
-  }, [articleData])
+  }, [article])
 
   useEffect(() => {
     if (highlights && props.onAnnotationsChanged) {
@@ -165,7 +174,11 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       highlights
         ?.filter((h) => h.type === 'NOTE')
         .forEach(async (h) => {
-          const result = await deleteHighlightMutation(props.item.id, h.id)
+          const result = await deleteHighlight.mutateAsync({
+            itemId: props.item.id,
+            slug: props.item.slug,
+            highlightId: h.id,
+          })
           if (!result) {
             showErrorToast('Error deleting note')
           }
@@ -178,16 +191,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
-
-  useEffect(() => {
-    const highlightsUpdated = () => {
-      mutate()
-    }
-    document.addEventListener('highlightsUpdated', highlightsUpdated)
-    return () => {
-      document.removeEventListener('highlightsUpdated', highlightsUpdated)
-    }
-  }, [mutate])
 
   return (
     <VStack
@@ -257,7 +260,8 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             setSetLabelsTarget={setLabelsTarget}
             setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
             updateHighlight={() => {
-              mutate()
+              // nothing should be needed here anymore with new caching
+              console.log('update highlight')
             }}
           />
         ))}
@@ -294,11 +298,11 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
           onAccept={() => {
             ;(async () => {
               const highlightId = showConfirmDeleteHighlightId
-              const success = await deleteHighlightMutation(
-                props.item.id,
-                showConfirmDeleteHighlightId
-              )
-              mutate()
+              const success = await deleteHighlight.mutateAsync({
+                itemId: props.item.id,
+                slug: props.item.slug,
+                highlightId: showConfirmDeleteHighlightId,
+              })
               if (success) {
                 showSuccessToast('Highlight deleted.', {
                   position: 'bottom-right',
@@ -333,7 +337,6 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             console.log('update highlight: ', highlight)
           }}
           onOpenChange={() => {
-            mutate()
             setLabelsTarget(undefined)
           }}
         />
