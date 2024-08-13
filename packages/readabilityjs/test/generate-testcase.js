@@ -108,27 +108,25 @@ async function fetchSource(url, callbackFn) {
 
   const browser = await puppeteer.launch({
     args: [
-      '--allow-running-insecure-content',
       '--autoplay-policy=user-gesture-required',
       '--disable-component-update',
       '--disable-domain-reliability',
-      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
       '--disable-print-preview',
       '--disable-setuid-sandbox',
-      '--disable-site-isolation-trials',
       '--disable-speech-api',
-      '--disable-web-security',
-      '--disk-cache-size=33554432',
       '--enable-features=SharedArrayBuffer',
       '--hide-scrollbars',
-      '--disable-gpu',
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
       '--no-sandbox',
       '--no-zygote',
-      '--window-size=1920,1080',
       '--disable-extensions',
+      '--disable-dev-shm-usage',
+      '--no-first-run',
+      '--disable-background-networking',
+      '--disable-gpu',
+      '--disable-software-rasterizer',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
@@ -138,15 +136,18 @@ async function fetchSource(url, callbackFn) {
       isMobile: false,
       width: 1920,
     },
-    headless: true,
+    headless: 'shell',
+    dumpio: true, // show console logs in the terminal
     executablePath: process.env.CHROMIUM_PATH || '/opt/homebrew/bin/chromium',
+    // filter out targets
+    targetFilter: (target) =>
+      target.type() !== 'other' || !!target.url(),
   })
 
   const page = await browser.newPage()
   if (!enableJavascriptForUrl(url)) {
     await page.setJavaScriptEnabled(false)
   }
-  await page.setUserAgent(userAgentForUrl(url))
 
   try {
     /*
@@ -155,18 +156,29 @@ async function fetchSource(url, callbackFn) {
      * mathjax content when present.
      */
     await page.setRequestInterception(true)
+
+    let requestCount = 0
     page.on('request', (request) => {
-      if (
-        request.resourceType() === 'script' &&
-        request.url().toLowerCase().indexOf('mathjax') > -1
-      ) {
-        request.abort()
-      } else {
-        request.continue()
-      }
+      ;(async () => {
+        if (request.resourceType() === 'font') {
+          // Disallow fonts from loading
+          return request.abort()
+        }
+        if (requestCount++ > 100) {
+          return request.abort()
+        }
+        if (
+          request.resourceType() === 'script' &&
+          request.url().toLowerCase().indexOf('mathjax') > -1
+        ) {
+          return request.abort()
+        }
+
+        await request.continue()
+      })()
     })
 
-    await page.goto(url, { waitUntil: ['networkidle2'] })
+    await page.goto(url, { waitUntil: ['networkidle0'] })
 
     /* scroll with a 5 second timeout */
     await Promise.race([
