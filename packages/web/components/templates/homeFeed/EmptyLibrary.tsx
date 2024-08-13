@@ -78,7 +78,7 @@ const Subtitle = (props: EmptyLibraryProps) => {
   const titleText = (folder: string | undefined) => {
     switch (folder) {
       case 'highlights':
-        return 'highlight text while reading to start building your highlights library.'
+        return 'Highlight text while reading to start building your highlights library.'
       case 'trash':
         return 'Deleted items will appear here before they are permanently deleted.'
       case 'archive':
