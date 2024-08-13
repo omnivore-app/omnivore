@@ -283,6 +283,11 @@ export enum BulkActionType {
   MoveToFolder = 'MOVE_TO_FOLDER'
 }
 
+export enum CacheControlScope {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
+}
+
 export enum ContentReader {
   Epub = 'EPUB',
   Pdf = 'PDF',
@@ -4443,6 +4448,7 @@ export type ResolversTypes = {
   BulkActionResult: ResolversTypes['BulkActionError'] | ResolversTypes['BulkActionSuccess'];
   BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
   BulkActionType: BulkActionType;
+  CacheControlScope: CacheControlScope;
   ContentReader: ContentReader;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
@@ -5588,6 +5594,14 @@ export type ResolversParentTypes = {
   WebhooksResult: ResolversParentTypes['WebhooksError'] | ResolversParentTypes['WebhooksSuccess'];
   WebhooksSuccess: WebhooksSuccess;
 };
+
+export type CacheControlDirectiveArgs = {
+  inheritMaxAge?: Maybe<Scalars['Boolean']>;
+  maxAge?: Maybe<Scalars['Int']>;
+  scope?: Maybe<CacheControlScope>;
+};
+
+export type CacheControlDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type SanitizeDirectiveArgs = {
   allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -8665,5 +8679,6 @@ export type Resolvers<ContextType = ResolverContext> = {
 };
 
 export type DirectiveResolvers<ContextType = ResolverContext> = {
+  cacheControl?: CacheControlDirectiveResolver<any, any, ContextType>;
   sanitize?: SanitizeDirectiveResolver<any, any, ContextType>;
 };

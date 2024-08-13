@@ -4,8 +4,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
+import { KeyvAdapter } from '@apollo/utils.keyvadapter'
 import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 import { makeExecutableSchema } from '@graphql-tools/schema'
+import KeyvRedis from '@keyv/redis'
 import * as Sentry from '@sentry/node'
 import {
   ApolloServerPluginDrainHttpServer,
@@ -20,6 +22,7 @@ import { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import type http from 'http'
 import * as jwt from 'jsonwebtoken'
+import Keyv from 'keyv'
 import { EntityManager } from 'typeorm'
 import { promisify } from 'util'
 import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
@@ -27,6 +30,7 @@ import { appDataSource } from './data_source'
 import { sanitizeDirectiveTransformer } from './directives'
 import { env } from './env'
 import { createPubSubClient } from './pubsub'
+import { redisDataSource } from './redis_data_source'
 import { functionResolvers } from './resolvers/function_resolvers'
 import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
@@ -216,7 +220,6 @@ export function makeApolloServer(
       // enabling our servers to shut down gracefully.
       ApolloServerPluginDrainHttpServer({ httpServer }),
       promExporter,
-      usageLimitPlugin,
     ],
     formatError: (err) => {
       logger.info('server error', err)
@@ -227,6 +230,13 @@ export function makeApolloServer(
     introspection: env.dev.isLocal,
     persistedQueries: false,
     stopOnTerminationSignals: false, // we handle this ourselves
+    cache: redisDataSource.redisClient
+      ? new KeyvAdapter(
+          new Keyv({
+            store: new KeyvRedis(redisDataSource.redisClient),
+          })
+        )
+      : undefined,
   })
 
   return apollo

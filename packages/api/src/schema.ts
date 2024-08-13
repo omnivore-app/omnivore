@@ -13,6 +13,17 @@ const schema = gql`
     pattern: String
   ) on INPUT_FIELD_DEFINITION
 
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+  ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
   # default error code
   enum ErrorCode {
     UNAUTHORIZED
@@ -77,7 +88,7 @@ const schema = gql`
   }
 
   # User
-  type User {
+  type User @cacheControl(maxAge: 240, scope: PRIVATE) {
     id: ID!
     name: String!
     isFullUser: Boolean

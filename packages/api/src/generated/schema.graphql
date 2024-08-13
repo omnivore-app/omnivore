@@ -4,6 +4,8 @@ schema {
   subscription: SubscriptionRootType
 }
 
+directive @cacheControl(inheritMaxAge: Boolean, maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | INTERFACE | OBJECT | UNION
+
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddDiscoverFeedError {
@@ -243,6 +245,11 @@ enum BulkActionType {
   MARK_AS_READ
   MARK_AS_SEEN
   MOVE_TO_FOLDER
+}
+
+enum CacheControlScope {
+  PRIVATE
+  PUBLIC
 }
 
 enum ContentReader {
