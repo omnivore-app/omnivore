@@ -998,6 +998,7 @@ export type LibraryItemNode = {
   aiSummary?: string
   recommendations?: Recommendation[]
   highlights?: Highlight[]
+  highlightsCount?: number
 }
 
 export type Recommendation = {

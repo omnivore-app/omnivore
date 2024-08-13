@@ -177,11 +177,7 @@ type LibraryItemMetadataProps = {
 export function LibraryItemMetadata(
   props: LibraryItemMetadataProps
 ): JSX.Element {
-  const highlightCount = useMemo(() => {
-    return (
-      props.item.highlights?.filter((h) => h.type == 'HIGHLIGHT').length ?? 0
-    )
-  }, [props.item.highlights])
+  const highlightCount = props.item.highlightsCount ?? 0
 
   return (
     <HStack css={{ gap: '5px', alignItems: 'center' }}>
