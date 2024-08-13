@@ -24,9 +24,7 @@ import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import React from 'react'
 
 const queryClient = new QueryClient()
