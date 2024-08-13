@@ -67,12 +67,12 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
         }}
         onClick={(event) => {
           // on small screens we want to dismiss the menu after click
-          if (window.innerWidth <= 768) {
-            setDismissed(true)
-            setTimeout(() => {
-              props.setShowMenu(false)
-            }, 100)
-          }
+          // if (window.innerWidth <= 768) {
+          //   setDismissed(true)
+          //   setTimeout(() => {
+          //     props.setShowMenu(false)
+          //   }, 100)
+          // }
           event.stopPropagation()
         }}
       >
@@ -183,6 +183,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
         onClick={(event) => {
           setMoreFolderSectionOpen(!moreFolderSectionOpen)
           event.preventDefault()
+          event.stopPropagation()
         }}
       >
         <HStack
@@ -312,6 +313,10 @@ const Shortcuts = (props: NavigationMenuProps): JSX.Element => {
           '[role="treeitem"]:focus': {
             outline: 'none',
           },
+        }}
+        onClick={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
         }}
       >
         <ShortcutsTree treeRef={treeRef} />
