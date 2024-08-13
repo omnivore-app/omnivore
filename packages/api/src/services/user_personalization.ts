@@ -166,7 +166,7 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
           id: search.id,
           type: 'search',
           name: search.name,
-          section: 'seach',
+          section: 'search',
           filter: search.filter,
         }
       }),
