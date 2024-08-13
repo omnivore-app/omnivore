@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
-import { highlightFragment } from '../fragments/highlightFragment'
 import { articleFragment } from '../fragments/articleFragment'
+import { highlightFragment } from '../fragments/highlightFragment'
 import { labelFragment } from '../fragments/labelFragment'
 
 export const recommendationFragment = gql`
@@ -69,9 +69,7 @@ export const GQL_SEARCH_QUERY = gql`
             readAt
             savedAt
             wordsCount
-            highlights {
-              ...HighlightFields
-            }
+            highlightsCount
           }
         }
         pageInfo {
@@ -87,7 +85,6 @@ export const GQL_SEARCH_QUERY = gql`
       }
     }
   }
-  ${highlightFragment}
 `
 
 export const GQL_SET_LINK_ARCHIVED = gql`
