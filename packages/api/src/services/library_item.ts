@@ -704,13 +704,22 @@ export const createSearchQueryBuilder = (
 }
 
 export const countLibraryItems = async (args: SearchArgs, userId: string) => {
-  return authTrx(
+  const cacheKey = `countLibraryItems:${userId}:${JSON.stringify(args)}`
+  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
+  if (cachedCount) {
+    return parseInt(cachedCount, 10)
+  }
+
+  const count = await authTrx(
     async (tx) => createSearchQueryBuilder(args, userId, tx).getCount(),
     {
       uid: userId,
       replicationMode: 'replica',
     }
   )
+
+  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 60)
+  return count
 }
 
 export const searchLibraryItems = async (
