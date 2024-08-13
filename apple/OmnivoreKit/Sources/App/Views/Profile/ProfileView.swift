@@ -145,9 +145,6 @@ struct ProfileView: View {
           NavigationLink(destination: TextToSpeechView()) {
             Text(LocalText.textToSpeechGeneric)
           }
-          NavigationLink(destination: SetupLoginsView()) {
-            Text("Login to sites")
-          }
         }
       #endif
 

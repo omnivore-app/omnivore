@@ -47,18 +47,6 @@ struct WebReader: PlatformViewRepresentable {
     return storedSize <= 1 ? 100 : storedSize
   }
 
-  func transferCookiesToWKWebView(webView: WKWebView) {
-      let cookieStore = HTTPCookieStorage.shared
-      let webViewCookieStore = webView.configuration.websiteDataStore.httpCookieStore
-
-      if let cookies = cookieStore.cookies {
-          for cookie in cookies {
-            print("TRANSFERING COOKIE: ", cookie.name, cookie.value)
-              webViewCookieStore.setCookie(cookie)
-          }
-      }
-  }
-
   private func makePlatformView(context: Context) -> WKWebView {
     let webView = WebViewManager.shared()
     let contentController = WKUserContentController()
@@ -68,8 +56,6 @@ struct WebReader: PlatformViewRepresentable {
     webView.navigationDelegate = context.coordinator
     webView.configuration.userContentController = contentController
     webView.configuration.userContentController.removeAllScriptMessageHandlers()
-
-    transferCookiesToWKWebView(webView: webView)
 
     #if os(iOS)
       webView.isOpaque = false

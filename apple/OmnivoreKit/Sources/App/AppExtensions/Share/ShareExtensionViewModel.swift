@@ -9,7 +9,6 @@ import Views
 public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""
-  @Published public var urlToLoad: URL?
   @Published public var url: String?
   @Published public var iconURL: URL?
   @Published public var highlightData: HighlightData?
@@ -124,7 +123,6 @@ public class ShareExtensionViewModel: ObservableObject {
           case .none:
             self.url = hostname
             self.title = payload.url
-            self.urlToLoad = URL(string: payload.url)
           case let .pdf(localUrl: localUrl):
             self.url = hostname
             self.title = PDFUtils.titleFromPdfFile(localUrl.absoluteString)
