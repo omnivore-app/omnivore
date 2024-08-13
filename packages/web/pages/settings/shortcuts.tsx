@@ -44,37 +44,6 @@ import {
   useResetShortcuts,
 } from '../../lib/networking/shortcuts/useShortcuts'
 
-type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
-
-const SHORTCUTS_KEY = 'library-shortcuts'
-
-/**
- * Use this function when you want to fix the "hydration" error in NextJS
- * @param store
- * @param callback
- */
-export const useAsyncStore = <T, F>(
-  store: (callback: (state: T) => unknown) => unknown,
-  callback: (state: T) => F
-) => {
-  const result = store(callback) as F
-  const [data, setData] = useState<F>()
-
-  useEffect(() => {
-    setData(typeof result === 'function' ? () => result : result)
-  }, [result])
-
-  return data
-}
-
-/**
- * Use this function when you want to fix the "hydration" error in NextJS
- * @param key
- */
-export const useAsyncStoreValue = <K extends keyof ContextData>(key: K) => {
-  return useAsyncStore(yourContextNameHere, (state) => state[key])
-}
-
 function flattenShortcuts(shortcuts: Shortcut[]): string[] {
   let result: string[] = []
 
