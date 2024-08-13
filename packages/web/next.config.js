@@ -70,6 +70,10 @@ const moduleExports = {
       destination: '/l/subscriptions',
     })
     rewrites.push({
+      source: '/search',
+      destination: '/l/search',
+    })
+    rewrites.push({
       source: '/archive',
       destination: '/l/archive',
     })

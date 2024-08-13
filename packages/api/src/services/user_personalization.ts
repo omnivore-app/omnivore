@@ -131,7 +131,7 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
           id: label.id,
           type: 'label',
           name: label.name,
-          section: 'library',
+          section: 'search',
           label: label,
           filter: `in:all label:"${label.name}"`,
         }
@@ -166,7 +166,7 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
           id: search.id,
           type: 'search',
           name: search.name,
-          section: 'library',
+          section: 'seach',
           filter: search.filter,
         }
       }),

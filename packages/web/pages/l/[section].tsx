@@ -84,6 +84,17 @@ export default function Home(): JSX.Element {
             showNavigationMenu={showNavigationMenu}
           />
         )
+      case 'search':
+        return (
+          <LibraryContainer
+            folder={undefined}
+            filterFunc={(item) => {
+              console.log('item: ', item)
+              return true
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
       case 'archive':
         return (
           <LibraryContainer

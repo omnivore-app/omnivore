@@ -40,6 +40,7 @@ import { useGetLabels } from '../../lib/networking/labels/useLabels'
 import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 import {
   Shortcut,
+  ShortcutType,
   useGetShortcuts,
   useResetShortcuts,
   useSetShortcuts,
@@ -220,25 +221,22 @@ const SavedSearches = (props: ListProps) => {
                   <SwitchBox
                     checked={isChecked(search.id)}
                     setChecked={(checked) => {
+                      const item = {
+                        id: search.id,
+                        type: 'search' as ShortcutType,
+                        name: search.name,
+                        section: 'search',
+                        filter: search.filter,
+                      }
                       if (checked) {
                         props.dispatchList({
                           type: 'ADD_ITEM',
-                          item: {
-                            id: search.id,
-                            type: 'search',
-                            name: search.name,
-                            section: 'library',
-                            filter: search.filter,
-                          },
+                          item,
                         })
                       } else {
                         props.dispatchList({
                           type: 'REMOVE_ITEM',
-                          item: {
-                            type: 'search',
-                            section: 'library',
-                            ...search,
-                          },
+                          item,
                         })
                       }
                     }}
@@ -383,9 +381,9 @@ const Labels = (props: ListProps) => {
                         id: label.id,
                         type: 'label',
                         label: label,
-                        section: 'library',
+                        section: 'search',
                         name: label.name,
-                        filter: `label:\"${escapeQuotes(label.name)}\"`,
+                        filter: `in:all label:\"${escapeQuotes(label.name)}\"`,
                       }
                       if (checked) {
                         props.dispatchList({
