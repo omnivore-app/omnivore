@@ -32,14 +32,13 @@ import { highlightColor } from '../../lib/themeUpdater'
 import { HighlightViewNote } from '../patterns/HighlightNotes'
 import { theme } from '../tokens/stitches.config'
 import { useDeleteHighlight } from '../../lib/networking/highlights/useItemHighlights'
+import { EmptyLibrary } from '../templates/homeFeed/EmptyLibrary'
 
 const PAGE_SIZE = 10
 
 export function HighlightsContainer(): JSX.Element {
   const router = useRouter()
   const viewer = useGetViewerQuery()
-  const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [_, setShowAddLinkModal] = useState(false)
 
   const { isLoading, setSize, size, data, mutate } = useGetHighlights({
     first: PAGE_SIZE,
@@ -73,12 +72,18 @@ export function HighlightsContainer(): JSX.Element {
       css={{
         padding: '20px',
         margin: '30px',
+        width: '100%',
         '@mdDown': {
           margin: '0px',
           marginTop: '50px',
         },
       }}
     >
+      {!isLoading && highlights.length < 1 && (
+        <Box css={{ width: '100%' }}>
+          <EmptyLibrary folder="highlights" />
+        </Box>
+      )}
       {highlights.map((highlight) => {
         return (
           viewer.viewerData?.me && (
@@ -132,9 +137,8 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
   const deleteHighlight = useDeleteHighlight()
 
   const viewInReader = useCallback(
