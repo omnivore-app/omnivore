@@ -3146,6 +3146,7 @@ export type SearchItem = {
   folder: Scalars['String'];
   format?: Maybe<Scalars['String']>;
   highlights?: Maybe<Array<Highlight>>;
+  highlightsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
@@ -7481,6 +7482,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   format?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
+  highlightsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;

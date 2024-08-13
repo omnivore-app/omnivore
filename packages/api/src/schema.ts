@@ -1680,6 +1680,7 @@ const schema = gql`
     format: String
     score: Float
     seenAt: Date
+    highlightsCount: Int
   }
 
   type SearchItemEdge {

@@ -585,6 +585,7 @@ export const functionResolvers = {
     },
     isArchived: (item: LibraryItem) => !!item.archivedAt,
     pageType: (item: LibraryItem) => item.itemType,
+    highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
   },
   Subscription: {

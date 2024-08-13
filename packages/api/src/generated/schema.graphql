@@ -2415,6 +2415,7 @@ type SearchItem {
   folder: String!
   format: String
   highlights: [Highlight!]
+  highlightsCount: Int
   id: ID!
   image: String
   isArchived: Boolean!
