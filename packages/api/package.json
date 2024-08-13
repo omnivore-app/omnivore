@@ -53,6 +53,7 @@
     "alfaaz": "^1.1.0",
     "apollo-datasource": "^3.3.1",
     "apollo-server-express": "^3.6.3",
+    "apollo-server-plugin-response-cache": "^3.8.2",
     "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.1.1",

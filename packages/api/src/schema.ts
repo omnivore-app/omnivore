@@ -1123,7 +1123,7 @@ const schema = gql`
     errorCodes: [GetUserPersonalizationErrorCode!]!
   }
   type GetUserPersonalizationSuccess {
-    userPersonalization: UserPersonalization @cacheControl(maxAge: 240)
+    userPersonalization: UserPersonalization
   }
 
   # Mutation: SetUserPersonalizationResult
@@ -3589,67 +3589,72 @@ const schema = gql`
   # FIXME: remove sort from feedArticles after all cached tabs are closed
   # FIXME: sharedOnly is legacy
   type Query {
-    hello: String
-    me: User @cacheControl(maxAge: 240)
-    user(userId: ID, username: String): UserResult!
+    hello: String @cacheControl(maxAge: 0)
+    me: User @cacheControl(maxAge: 240, scope: PRIVATE)
+    user(userId: ID, username: String): UserResult! @cacheControl(maxAge: 0)
     article(username: String!, slug: String!, format: String): ArticleResult!
-    users: UsersResult!
-    validateUsername(username: String!): Boolean!
+      @cacheControl(maxAge: 0)
+    users: UsersResult! @cacheControl(maxAge: 0)
+    validateUsername(username: String!): Boolean! @cacheControl(maxAge: 0)
     # getFollowers(userId: ID): GetFollowersResult!
     # getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
     articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
-    newsletterEmails: NewsletterEmailsResult!
+      @cacheControl(maxAge: 0)
+    newsletterEmails: NewsletterEmailsResult! @cacheControl(maxAge: 0)
     # reminder(linkId: ID!): ReminderResult!
-    labels: LabelsResult!
+    labels: LabelsResult! @cacheControl(maxAge: 240, scope: PRIVATE)
     search(
       after: String
       first: Int
       query: String
       includeContent: Boolean
       format: String
-    ): SearchResult!
+    ): SearchResult! @cacheControl(maxAge: 0)
     getDiscoverFeedArticles(
       discoverTopicId: String!
       feedId: ID
       after: String
       first: Int
-    ): GetDiscoverFeedArticleResults!
-    discoverTopics: GetDiscoverTopicResults!
+    ): GetDiscoverFeedArticleResults! @cacheControl(maxAge: 0)
+    discoverTopics: GetDiscoverTopicResults! @cacheControl(maxAge: 0)
     subscriptions(
       sort: SortParams
       type: SubscriptionType
-    ): SubscriptionsResult!
+    ): SubscriptionsResult! @cacheControl(maxAge: 240, scope: PRIVATE)
     sendInstallInstructions: SendInstallInstructionsResult!
-    webhooks: WebhooksResult!
-    webhook(id: ID!): WebhookResult!
-    apiKeys: ApiKeysResult!
+    webhooks: WebhooksResult! @cacheControl(maxAge: 0)
+    webhook(id: ID!): WebhookResult! @cacheControl(maxAge: 0)
+    apiKeys: ApiKeysResult! @cacheControl(maxAge: 0)
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
+      @cacheControl(maxAge: 0)
     updatesSince(
       after: String
       first: Int
       since: Date!
       sort: SortParams
       folder: String
-    ): UpdatesSinceResult!
-    integration(name: String!): IntegrationResult!
-    integrations: IntegrationsResult!
-    recentSearches: RecentSearchesResult!
-    rules(enabled: Boolean): RulesResult!
-    deviceTokens: DeviceTokensResult!
-    filters: FiltersResult!
-    groups: GroupsResult!
-    recentEmails: RecentEmailsResult!
-    feeds(input: FeedsInput!): FeedsResult!
-    discoverFeeds: DiscoverFeedResult!
-    scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
-    home(first: Int, after: String): HomeResult!
-    subscription(id: ID!): SubscriptionResult!
-    hiddenHomeSection: HiddenHomeSectionResult!
+    ): UpdatesSinceResult! @cacheControl(maxAge: 0)
+    integration(name: String!): IntegrationResult! @cacheControl(maxAge: 0)
+    integrations: IntegrationsResult! @cacheControl(maxAge: 0)
+    recentSearches: RecentSearchesResult! @cacheControl(maxAge: 0)
+    rules(enabled: Boolean): RulesResult! @cacheControl(maxAge: 0)
+    deviceTokens: DeviceTokensResult! @cacheControl(maxAge: 0)
+    filters: FiltersResult! @cacheControl(maxAge: 240, scope: PRIVATE)
+    groups: GroupsResult! @cacheControl(maxAge: 0)
+    recentEmails: RecentEmailsResult! @cacheControl(maxAge: 0)
+    feeds(input: FeedsInput!): FeedsResult! @cacheControl(maxAge: 0)
+    discoverFeeds: DiscoverFeedResult! @cacheControl(maxAge: 0)
+    scanFeeds(input: ScanFeedsInput!): ScanFeedsResult! @cacheControl(maxAge: 0)
+    home(first: Int, after: String): HomeResult! @cacheControl(maxAge: 0)
+    subscription(id: ID!): SubscriptionResult! @cacheControl(maxAge: 0)
+    hiddenHomeSection: HiddenHomeSectionResult! @cacheControl(maxAge: 0)
     highlights(after: String, first: Int, query: String): HighlightsResult!
-    folderPolicies: FolderPoliciesResult!
+      @cacheControl(maxAge: 0)
+    folderPolicies: FolderPoliciesResult! @cacheControl(maxAge: 0)
     posts(userId: ID!, after: String, first: Int): PostsResult!
-    post(id: ID!): PostResult!
+      @cacheControl(maxAge: 0)
+    post(id: ID!): PostResult! @cacheControl(maxAge: 0)
   }
 
   schema {

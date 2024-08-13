@@ -10,6 +10,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import KeyvRedis from '@keyv/redis'
 import * as Sentry from '@sentry/node'
 import {
+  ApolloServerPluginCacheControl,
   ApolloServerPluginDrainHttpServer,
   ContextFunction,
   PluginDefinition,
@@ -17,6 +18,7 @@ import {
 import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import { ApolloServerPlugin } from 'apollo-server-plugin-base'
+import responseCachePlugin from 'apollo-server-plugin-response-cache'
 import DataLoader from 'dataloader'
 import { Express } from 'express'
 import * as httpContext from 'express-http-context2'
@@ -220,6 +222,14 @@ export function makeApolloServer(
       // enabling our servers to shut down gracefully.
       ApolloServerPluginDrainHttpServer({ httpServer }),
       promExporter,
+      ApolloServerPluginCacheControl({
+        defaultMaxAge: 600,
+      }),
+      responseCachePlugin({
+        sessionId: (requestContext) => {
+          return requestContext.context.claims?.uid || null
+        },
+      }),
     ],
     formatError: (err) => {
       logger.info('server error', err)
@@ -229,7 +239,7 @@ export function makeApolloServer(
     },
     introspection: env.dev.isLocal,
     persistedQueries: false,
-    stopOnTerminationSignals: false, // we handle this ourselves
+    stopOnTerminationSignals: false, // we handle this ourselves,
     cache: redisDataSource.redisClient
       ? new KeyvAdapter(
           new Keyv({
