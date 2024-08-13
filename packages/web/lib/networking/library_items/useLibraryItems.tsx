@@ -890,7 +890,6 @@ export type ArticleAttributes = {
   labels?: Label[]
   state?: State
   directionality?: TextDirection
-  recommendations?: Recommendation[]
 }
 
 type MoveToFolderData = {
