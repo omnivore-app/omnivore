@@ -7602,13 +7602,6 @@
     "@tanstack/query-core" "5.51.21"
     "@tanstack/query-persist-client-core" "5.51.21"
 
-"@tanstack/react-query-persist-client@^5.51.21":
-  version "5.51.23"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query-persist-client/-/react-query-persist-client-5.51.23.tgz#f4f4d7ba854907c43a864614eea94579a20f0651"
-  integrity sha512-SwTNwxhG4zgpji3B8oLZqZuaOXYtOjbuqVerMQkOX/vGroIU6dGh1SzOwy4glW3IVr+G3kUKMcS3JYibWPQZiQ==
-  dependencies:
-    "@tanstack/query-persist-client-core" "5.51.21"
-
 "@tanstack/react-query@^5.51.21":
   version "5.51.23"
   resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.51.23.tgz#83c223f4cb6054b206de8856b73ca7e41a63ba1f"

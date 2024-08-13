@@ -72,10 +72,7 @@ export default function Shortcuts(): JSX.Element {
 
   return (
     <SettingsLayout>
-      {!isLoading &&
-        shortcutIds.map((shortcutId) => {
-          return <Box key={shortcutId}>{shortcutId}</Box>
-        })}
+      <SavedSearches shortcutIds={shortcutIds} />
     </SettingsLayout>
   )
 }

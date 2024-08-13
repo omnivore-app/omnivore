@@ -31,26 +31,6 @@ import React from 'react'
 
 const queryClient = new QueryClient()
 
-if (typeof window !== 'undefined') {
-  const localStoragePersister = createAsyncStoragePersister({
-    storage: window.localStorage,
-  })
-
-  persistQueryClient({
-    queryClient,
-    persister: localStoragePersister,
-    // one week cache time
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    dehydrateOptions: {
-      shouldDehydrateQuery: ({ queryKey }) => {
-        // Don't cache the library items in local storage
-        const [firstKey] = queryKey
-        return firstKey !== 'library-items' && firstKey !== 'shortcuts'
-      },
-    },
-  })
-}
-
 TopBarProgress.config({
   barColors: {
     '0': '#FFD234',
