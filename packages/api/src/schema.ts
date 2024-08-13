@@ -88,7 +88,7 @@ const schema = gql`
   }
 
   # User
-  type User @cacheControl(maxAge: 240, scope: PRIVATE) {
+  type User {
     id: ID!
     name: String!
     isFullUser: Boolean
@@ -1123,7 +1123,7 @@ const schema = gql`
     errorCodes: [GetUserPersonalizationErrorCode!]!
   }
   type GetUserPersonalizationSuccess {
-    userPersonalization: UserPersonalization
+    userPersonalization: UserPersonalization @cacheControl(maxAge: 240)
   }
 
   # Mutation: SetUserPersonalizationResult
@@ -3590,7 +3590,7 @@ const schema = gql`
   # FIXME: sharedOnly is legacy
   type Query {
     hello: String
-    me: User
+    me: User @cacheControl(maxAge: 240)
     user(userId: ID, username: String): UserResult!
     article(username: String!, slug: String!, format: String): ArticleResult!
     users: UsersResult!
