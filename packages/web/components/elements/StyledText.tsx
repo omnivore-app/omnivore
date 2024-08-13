@@ -39,11 +39,10 @@ const textVariants = {
     },
     settingsSection: {
       fontWeight: '600',
-      fontSize: '17px',
+      fontSize: '22px',
       fontFamily: '$inter',
       color: '$grayText',
       m: '0px',
-      my: '15px',
       marginBlockStart: '0px',
       marginBlockEnd: '0px',
     },
