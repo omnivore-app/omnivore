@@ -47,13 +47,14 @@ export const createMetrics = async (
 }
 
 export const updateMetrics = async (
-  redisClient: Redis,
+  redisDataSource: RedisDataSource,
   userId: string,
   taskId: string,
   status: ImportStatus
 ) => {
   const key = `import:${userId}:${taskId}`
 
+  const redisClient = redisDataSource.cacheClient
   /**
    * Define our command
    */
@@ -109,7 +110,12 @@ export const updateMetrics = async (
     if ((state as ImportTaskState) == ImportTaskState.FINISHED) {
       const metrics = await getMetrics(redisClient, userId, taskId)
       if (metrics) {
-        await sendImportCompletedEmail(userId, metrics.imported, metrics.failed)
+        await sendImportCompletedEmail(
+          redisDataSource,
+          userId,
+          metrics.imported,
+          metrics.failed
+        )
       }
     }
   } catch (error) {

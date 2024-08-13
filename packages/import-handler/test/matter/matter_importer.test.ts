@@ -30,7 +30,7 @@ describe('matter importer', () => {
       },
     })
 
-    stub = stubImportCtx(redisDataSource.cacheClient)
+    stub = stubImportCtx(redisDataSource)
   })
 
   afterEach(async () => {

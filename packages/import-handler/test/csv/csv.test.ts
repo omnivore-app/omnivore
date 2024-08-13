@@ -26,7 +26,7 @@ describe('Test csv importer', () => {
       },
     })
 
-    stub = stubImportCtx(redisDataSource.cacheClient)
+    stub = stubImportCtx(redisDataSource)
   })
 
   afterEach(async () => {
