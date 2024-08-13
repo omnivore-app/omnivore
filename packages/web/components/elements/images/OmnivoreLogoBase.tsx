@@ -18,6 +18,7 @@ export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
         textDecoration: 'none',
         display: 'flex',
         alignItems: 'center',
+        cursor: 'pointer',
       }}
       onClick={(event) => {
         const navReturn = window.localStorage.getItem('nav-return')
