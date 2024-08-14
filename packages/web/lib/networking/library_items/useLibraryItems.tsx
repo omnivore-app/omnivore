@@ -1,4 +1,3 @@
-import { GraphQLClient } from 'graphql-request'
 import {
   QueryClient,
   useInfiniteQuery,
@@ -6,25 +5,24 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
+import { GraphQLClient } from 'graphql-request'
+import { gqlEndpoint } from '../../appConfig'
 import { ContentReader, PageType, State } from '../fragments/articleFragment'
 import { Highlight } from '../fragments/highlightFragment'
-import { requestHeaders } from '../networkHelpers'
 import { Label } from '../fragments/labelFragment'
+import { requestHeaders } from '../networkHelpers'
 import {
+  gqlSearchQuery,
   GQL_BULK_ACTION,
   GQL_DELETE_LIBRARY_ITEM,
-  GQL_GET_LIBRARY_ITEM,
   GQL_GET_LIBRARY_ITEM_CONTENT,
   GQL_MOVE_ITEM_TO_FOLDER,
   GQL_SAVE_ARTICLE_READING_PROGRESS,
   GQL_SAVE_URL,
-  GQL_SEARCH_QUERY,
   GQL_SET_LABELS,
   GQL_SET_LINK_ARCHIVED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
-import { gqlEndpoint } from '../../appConfig'
-import { useState } from 'react'
 
 function gqlFetcher(
   query: string,
@@ -213,7 +211,7 @@ export const insertItemInCache = (
 
 export function useGetLibraryItems(
   folder: string | undefined,
-  { limit, searchQuery }: LibraryItemsQueryInput,
+  { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
   enabled = true
 ) {
   const fullQuery = folder
@@ -223,7 +221,7 @@ export function useGetLibraryItems(
   return useInfiniteQuery({
     queryKey: ['libraryItems', fullQuery],
     queryFn: async ({ pageParam }) => {
-      const response = (await gqlFetcher(GQL_SEARCH_QUERY, {
+      const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
         first: limit,
         query: fullQuery,
@@ -532,7 +530,7 @@ export function useRefreshProcessingItems() {
     itemIds: string[]
   }) => {
     const fullQuery = `in:all includes:${variables.itemIds.join(',')}`
-    const result = (await gqlFetcher(GQL_SEARCH_QUERY, {
+    const result = (await gqlFetcher(gqlSearchQuery(), {
       first: 10,
       query: fullQuery,
       includeContent: false,
@@ -951,6 +949,7 @@ export type LibraryItemsQueryInput = {
   searchQuery?: string
   cursor?: string
   includeContent?: boolean
+  includeCount?: boolean
 }
 
 type LibraryItemsData = {

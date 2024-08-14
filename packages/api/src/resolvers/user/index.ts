@@ -41,7 +41,7 @@ import {
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendAccountChangeEmail } from '../../services/send_emails'
-import { softDeleteUser } from '../../services/user'
+import { cacheUser, getCachedUser, softDeleteUser } from '../../services/user'
 import { Merge } from '../../util'
 import { authorized } from '../../utils/gql-utils'
 import { validateUsername } from '../../utils/usernamePolicy'
@@ -254,10 +254,18 @@ export const getMeUserResolver: ResolverFn<
       return undefined
     }
 
+    const userId = claims.uid
+    const cachedUser = await getCachedUser(userId)
+    if (cachedUser) {
+      return cachedUser
+    }
+
     const user = await userRepository.findById(claims.uid)
     if (!user) {
       return undefined
     }
+
+    await cacheUser(user)
 
     return user
   } catch (error) {
@@ -354,6 +362,11 @@ export const updateEmailResolver = authorized<
           email,
         })
       )
+
+      await cacheUser({
+        ...user,
+        email,
+      })
 
       return { email }
     }

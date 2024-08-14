@@ -29,7 +29,16 @@ import {
   User,
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures } from '../services/features'
+import {
+  findUserFeatures,
+  getFeaturesCache,
+  setFeaturesCache,
+} from '../services/features'
+import {
+  countLibraryItems,
+  getCachedTotalCount,
+  setCachedTotalCount,
+} from '../services/library_item'
 import { Merge } from '../util'
 import { isBase64Image, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
@@ -43,6 +52,7 @@ import {
   emptyTrashResolver,
   fetchContentResolver,
   PartialLibraryItem,
+  PartialPageInfo,
 } from './article'
 import {
   addDiscoverFeedResolver,
@@ -398,7 +408,16 @@ export const functionResolvers = {
         return undefined
       }
 
-      return findUserFeatures(ctx.claims.uid)
+      const userId = ctx.claims.uid
+      const cachedFeatures = await getFeaturesCache(userId)
+      if (cachedFeatures) {
+        return cachedFeatures
+      }
+
+      const features = await findUserFeatures(userId)
+      await setFeaturesCache(userId, features)
+
+      return features
     },
     picture: (user: UserEntity) => user.profile.pictureUrl,
     // not implemented yet
@@ -587,6 +606,29 @@ export const functionResolvers = {
     pageType: (item: LibraryItem) => item.itemType,
     highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
+  },
+  PageInfo: {
+    async totalCount(
+      pageInfo: PartialPageInfo,
+      _: unknown,
+      ctx: ResolverContext
+    ) {
+      if (pageInfo.totalCount) return pageInfo.totalCount
+
+      if (pageInfo.searchLibraryItemArgs && ctx.claims) {
+        const args = pageInfo.searchLibraryItemArgs
+        const userId = ctx.claims.uid
+        const cachedCount = await getCachedTotalCount(userId, args)
+        if (cachedCount) return cachedCount
+
+        const count = await countLibraryItems(args, userId)
+        await setCachedTotalCount(userId, args, count)
+
+        return count
+      }
+
+      return 0
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {

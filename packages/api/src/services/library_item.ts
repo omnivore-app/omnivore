@@ -30,7 +30,11 @@ import {
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
+import {
+  deepDelete,
+  setRecentlySavedItemInRedis,
+  stringToHash,
+} from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { HighlightEvent } from './highlights'
@@ -704,22 +708,13 @@ export const createSearchQueryBuilder = (
 }
 
 export const countLibraryItems = async (args: SearchArgs, userId: string) => {
-  const cacheKey = `countLibraryItems:${userId}:${JSON.stringify(args)}`
-  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
-  if (cachedCount) {
-    return parseInt(cachedCount, 10)
-  }
-
-  const count = await authTrx(
+  return authTrx(
     async (tx) => createSearchQueryBuilder(args, userId, tx).getCount(),
     {
       uid: userId,
       replicationMode: 'replica',
     }
   )
-
-  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 60)
-  return count
 }
 
 export const searchLibraryItems = async (
@@ -1719,4 +1714,29 @@ export const filterItemEvents = (
   }
 
   throw new Error('Unexpected state.')
+}
+
+const totalCountCacheKey = (userId: string, args: SearchArgs) => {
+  return `cache:library_items_count:${userId}:${stringToHash(
+    JSON.stringify(args)
+  )}`
+}
+
+export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
+  const cacheKey = totalCountCacheKey(userId, args)
+  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
+  if (!cachedCount) {
+    return undefined
+  }
+
+  return parseInt(cachedCount, 10)
+}
+
+export const setCachedTotalCount = async (
+  userId: string,
+  args: SearchArgs,
+  count: number
+) => {
+  const cacheKey = totalCountCacheKey(userId, args)
+  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
 }

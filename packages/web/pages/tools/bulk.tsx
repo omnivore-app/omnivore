@@ -1,25 +1,23 @@
-import { useCallback, useEffect, useState } from 'react'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-
-import { VStack } from '../../components/elements/LayoutPrimitives'
-
-import { StyledText } from '../../components/elements/StyledText'
-import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import { BulkAction } from '../../lib/networking/library_items/useLibraryItems'
-import { Button } from '../../components/elements/Button'
-import { theme } from '../../components/tokens/stitches.config'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { useRouter } from 'next/router'
-import {
-  useBulkActions,
-  useGetLibraryItems,
-} from '../../lib/networking/library_items/useLibraryItems'
+import { useCallback, useEffect, useState } from 'react'
+import { Button } from '../../components/elements/Button'
 import {
   BorderedFormInput,
   FormLabel,
 } from '../../components/elements/FormElements'
+import { VStack } from '../../components/elements/LayoutPrimitives'
+import { StyledText } from '../../components/elements/StyledText'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import { ProfileLayout } from '../../components/templates/ProfileLayout'
+import { theme } from '../../components/tokens/stitches.config'
 import { DEFAULT_HOME_PATH } from '../../lib/navigations'
+import {
+  BulkAction,
+  useBulkActions,
+  useGetLibraryItems,
+} from '../../lib/networking/library_items/useLibraryItems'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 type RunningState = 'none' | 'confirming' | 'running' | 'completed'
 
@@ -39,6 +37,7 @@ export default function BulkPerformer(): JSX.Element {
     searchQuery: query,
     limit: 1,
     sortDescending: false,
+    includeCount: true,
   })
 
   useEffect(() => {
