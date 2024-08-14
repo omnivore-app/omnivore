@@ -79,6 +79,7 @@ import {
   batchUpdateLibraryItems,
   countLibraryItems,
   createOrUpdateLibraryItem,
+  deleteCachedTotalCount,
   findLibraryItemsByPrefix,
   SearchArgs,
   searchLibraryItems,
@@ -771,6 +772,8 @@ export const bulkActionResolver = authorized<
         // if there are less than batchSize items, update them synchronously
         await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
 
+        await deleteCachedTotalCount(uid)
+
         return { success: true }
       }
 
@@ -789,6 +792,8 @@ export const bulkActionResolver = authorized<
       if (!job) {
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
+
+      await deleteCachedTotalCount(uid)
 
       return { success: true }
     } catch (error) {
@@ -985,6 +990,8 @@ export const emptyTrashResolver = authorized<
     },
     state: LibraryItemState.Deleted,
   })
+
+  await deleteCachedTotalCount(uid)
 
   return {
     success: true,

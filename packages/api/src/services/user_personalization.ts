@@ -4,6 +4,7 @@ import { Subscription, SubscriptionStatus } from '../entity/subscription'
 import { Shortcut, UserPersonalization } from '../entity/user_personalization'
 import { redisDataSource } from '../redis_data_source'
 import { authTrx } from '../repository'
+import { logger } from '../utils/logger'
 import { findLabelsByUserId } from './labels'
 
 export const findUserPersonalization = async (userId: string) => {
@@ -177,6 +178,8 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
 const shortcutsCacheKey = (userId: string) => `cache:shortcuts:${userId}`
 
 export const getShortcutsCache = async (userId: string) => {
+  logger.debug(`Getting shortcuts from cache: ${userId}`)
+
   const cachedShortcuts = await redisDataSource.redisClient?.get(
     shortcutsCacheKey(userId)
   )
@@ -187,6 +190,8 @@ export const getShortcutsCache = async (userId: string) => {
 }
 
 export const cacheShortcuts = async (userId: string, shortcuts: Shortcut[]) => {
+  logger.debug(`Caching shortcuts: ${userId}`)
+
   await redisDataSource.redisClient?.set(
     shortcutsCacheKey(userId),
     JSON.stringify(shortcuts),

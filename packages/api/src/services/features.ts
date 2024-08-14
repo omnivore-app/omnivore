@@ -206,6 +206,8 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
 const featuresCacheKey = (userId: string) => `cache:features:${userId}`
 
 export const getFeaturesCache = async (userId: string) => {
+  logger.debug('getFeaturesCache', { userId })
+
   const cachedFeatures = await redisDataSource.redisClient?.get(
     featuresCacheKey(userId)
   )
@@ -218,6 +220,9 @@ export const getFeaturesCache = async (userId: string) => {
 
 export const setFeaturesCache = async (userId: string, features: Feature[]) => {
   const value = JSON.stringify(features)
+
+  logger.debug('setFeaturesCache', { userId, value })
+
   return redisDataSource.redisClient?.set(
     featuresCacheKey(userId),
     value,

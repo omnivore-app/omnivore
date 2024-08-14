@@ -1717,12 +1717,18 @@ export const filterItemEvents = (
 }
 
 const totalCountCacheKey = (userId: string, args: SearchArgs) => {
-  return `cache:library_items_count:${userId}:${stringToHash(
-    JSON.stringify(args)
-  )}`
+  // sort the args to make sure the cache key is consistent
+  const sortedArgs = JSON.stringify(args, Object.keys(args).sort())
+
+  return `cache:library_items_count:${userId}:${stringToHash(sortedArgs)}`
 }
 
 export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
+  logger.debug('Getting cached total count:', {
+    userId,
+    args,
+  })
+
   const cacheKey = totalCountCacheKey(userId, args)
   const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
   if (!cachedCount) {
@@ -1738,5 +1744,26 @@ export const setCachedTotalCount = async (
   count: number
 ) => {
   const cacheKey = totalCountCacheKey(userId, args)
+
+  logger.debug('Setting cached total count:', {
+    cacheKey,
+    count,
+  })
+
   await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
+}
+
+export const deleteCachedTotalCount = async (userId: string) => {
+  const keyPattern = `cache:library_items_count:${userId}:*`
+  const keys = await redisDataSource.redisClient?.keys(keyPattern)
+  if (!keys || keys.length === 0) {
+    return
+  }
+
+  logger.debug('Deleting keys:', {
+    keys,
+    userId,
+  })
+
+  await redisDataSource.redisClient?.del(keys)
 }
