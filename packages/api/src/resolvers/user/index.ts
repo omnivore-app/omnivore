@@ -82,6 +82,8 @@ export const updateUserResolver = authorized<
     })
   )
 
+  await cacheUser(updatedUser)
+
   return { user: updatedUser }
 })
 
@@ -138,6 +140,8 @@ export const updateUserProfileResolver = authorized<
       },
     })
   )
+
+  await cacheUser(updatedUser)
 
   return { user: updatedUser }
 })
