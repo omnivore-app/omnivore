@@ -18,7 +18,7 @@ export const recommendationFragment = gql`
   }
 `
 
-export const GQL_SEARCH_QUERY = gql`
+export const gqlSearchQuery = (includeTotalCount = false) => gql`
   query Search(
     $after: String
     $first: Int
@@ -77,7 +77,7 @@ export const GQL_SEARCH_QUERY = gql`
           hasPreviousPage
           startCursor
           endCursor
-          totalCount
+          totalCount @include(if: ${includeTotalCount})
         }
       }
       ... on SearchError {

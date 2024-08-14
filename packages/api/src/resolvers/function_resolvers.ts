@@ -30,6 +30,7 @@ import {
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
+import { countLibraryItems } from '../services/library_item'
 import { Merge } from '../util'
 import { isBase64Image, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
@@ -43,6 +44,7 @@ import {
   emptyTrashResolver,
   fetchContentResolver,
   PartialLibraryItem,
+  PartialPageInfo,
 } from './article'
 import {
   addDiscoverFeedResolver,
@@ -587,6 +589,21 @@ export const functionResolvers = {
     pageType: (item: LibraryItem) => item.itemType,
     highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
+  },
+  PageInfo: {
+    async totalCount(
+      pageInfo: PartialPageInfo,
+      _: unknown,
+      ctx: ResolverContext
+    ) {
+      if (pageInfo.totalCount) return pageInfo.totalCount
+
+      if (pageInfo.searchLibraryItemArgs && ctx.claims) {
+        return countLibraryItems(pageInfo.searchLibraryItemArgs, ctx.claims.uid)
+      }
+
+      return 0
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {

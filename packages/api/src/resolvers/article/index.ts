@@ -37,6 +37,7 @@ import {
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetFavoriteArticleArgs,
+  PageInfo,
   PageType,
   QueryArticleArgs,
   QuerySearchArgs,
@@ -79,7 +80,8 @@ import {
   countLibraryItems,
   createOrUpdateLibraryItem,
   findLibraryItemsByPrefix,
-  searchAndCountLibraryItems,
+  SearchArgs,
+  searchLibraryItems,
   softDeleteLibraryItem,
   sortParamsToSort,
   updateLibraryItem,
@@ -582,8 +584,15 @@ export const saveArticleReadingProgressResolver = authorized<
 
 export type PartialLibraryItem = Merge<LibraryItem, { format?: string }>
 type PartialSearchItemEdge = Merge<SearchItemEdge, { node: PartialLibraryItem }>
+export type PartialPageInfo = Merge<
+  PageInfo,
+  { searchLibraryItemArgs?: SearchArgs }
+>
 export const searchResolver = authorized<
-  Merge<SearchSuccess, { edges: Array<PartialSearchItemEdge> }>,
+  Merge<
+    SearchSuccess,
+    { edges: Array<PartialSearchItemEdge>; pageInfo: PartialPageInfo }
+  >,
   SearchError,
   QuerySearchArgs
 >(async (_obj, params, { uid }) => {
@@ -595,18 +604,17 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const { libraryItems, count } = await searchAndCountLibraryItems(
-    {
-      from: Number(startCursor),
-      size: first + 1, // fetch one more item to get next cursor
-      includePending: true,
-      includeContent: params.includeContent ?? true, // by default include content for offline use for now
-      includeDeleted: params.query?.includes('in:trash'),
-      query: params.query,
-      useFolders: params.query?.includes('use:folders'),
-    },
-    uid
-  )
+  const searchLibraryItemArgs = {
+    from: Number(startCursor),
+    size: first + 1, // fetch one more item to get next cursor
+    includePending: true,
+    includeContent: params.includeContent ?? true, // by default include content for offline use for now
+    includeDeleted: params.query?.includes('in:trash'),
+    query: params.query,
+    useFolders: params.query?.includes('use:folders'),
+  }
+
+  const libraryItems = await searchLibraryItems(searchLibraryItemArgs, uid)
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
@@ -631,7 +639,7 @@ export const searchResolver = authorized<
       startCursor,
       hasNextPage,
       endCursor,
-      totalCount: count,
+      searchLibraryItemArgs,
     },
   }
 })
@@ -675,7 +683,7 @@ export const updatesSinceResolver = authorized<
     folder ? ' in:' + folder : ''
   } sort:${sort.by}-${sort.order}`
 
-  const { libraryItems, count } = await searchAndCountLibraryItems(
+  const libraryItems = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
@@ -714,7 +722,6 @@ export const updatesSinceResolver = authorized<
       startCursor,
       hasNextPage,
       endCursor,
-      totalCount: count,
     },
   }
 })
