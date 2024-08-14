@@ -1724,6 +1724,11 @@ const totalCountCacheKey = (userId: string, args: SearchArgs) => {
 }
 
 export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
+  logger.debug('Getting cached total count:', {
+    userId,
+    args,
+  })
+
   const cacheKey = totalCountCacheKey(userId, args)
   const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
   if (!cachedCount) {
@@ -1739,6 +1744,12 @@ export const setCachedTotalCount = async (
   count: number
 ) => {
   const cacheKey = totalCountCacheKey(userId, args)
+
+  logger.debug('Setting cached total count:', {
+    cacheKey,
+    count,
+  })
+
   await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
 }
 
@@ -1749,6 +1760,10 @@ export const deleteCachedTotalCount = async (userId: string) => {
     return
   }
 
-  logger.debug('Deleting keys:', keys)
+  logger.debug('Deleting keys:', {
+    keys,
+    userId,
+  })
+
   await redisDataSource.redisClient?.del(keys)
 }
