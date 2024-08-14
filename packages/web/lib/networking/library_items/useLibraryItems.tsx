@@ -537,7 +537,7 @@ export function useRefreshProcessingItems() {
       includeContent: false,
     })) as LibraryItemsData
     if (result.search.errorCodes?.length) {
-      throw new Error(result.search.errorCodes[0])
+      return undefined
     }
     return result.search
   }
@@ -546,33 +546,38 @@ export function useRefreshProcessingItems() {
     retry: 3,
     retryDelay: 10,
     onSuccess: async (
-      data: LibraryItems,
+      data: LibraryItems | undefined,
       variables: {
         attempt: number
         itemIds: string[]
       }
     ) => {
-      let shouldRefetch = false
-      console.log('got processing items: ', data.edges)
-      for (const item of data.edges) {
-        if (item.node.state !== State.PROCESSING) {
-          overwriteItemPropertiesInCache(
-            queryClient,
-            item.node.id,
-            undefined,
-            item.node
-          )
-        } else {
-          shouldRefetch = true
+      let shouldRefetch = data == undefined
+      if (data) {
+        for (const item of data.edges) {
+          if (item.node.state !== State.PROCESSING) {
+            overwriteItemPropertiesInCache(
+              queryClient,
+              item.node.id,
+              undefined,
+              item.node
+            )
+          } else {
+            shouldRefetch = true
+          }
         }
+      } else {
+        shouldRefetch = true
       }
       if (shouldRefetch && variables.attempt < maxAttempts) {
         await delay(5000 * variables.attempt + 1)
         mutation.mutate({
           attempt: variables.attempt + 1,
-          itemIds: data.edges
-            .filter((item) => item.node.state == State.PROCESSING)
-            .map((it) => it.node.id),
+          itemIds: data
+            ? data.edges
+                .filter((item) => item.node.state == State.PROCESSING)
+                .map((it) => it.node.id)
+            : variables.itemIds,
         })
       }
     },
