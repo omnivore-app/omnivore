@@ -42,6 +42,7 @@ import {
   useMergeHighlight,
   useUpdateHighlight,
 } from '../../../lib/networking/highlights/useItemHighlights'
+import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -57,7 +58,7 @@ export default function Reader(): JSX.Element {
   const router = useRouter()
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
   const readerSettings = useReaderSettings()
   const archiveItem = useArchiveItem()
   const deleteItem = useDeleteItem()
@@ -275,7 +276,7 @@ export default function Reader(): JSX.Element {
   }, [actionHandler, goNextOrHome, goPreviousOrHome])
 
   useEffect(() => {
-    if (libraryItem && viewerData?.me) {
+    if (libraryItem && viewerData) {
       posthog.capture('link_read', {
         link: libraryItem.id,
         slug: libraryItem.slug,
@@ -547,15 +548,15 @@ export default function Reader(): JSX.Element {
           />
         ) : null}
       </VStack>
-      {libraryItem && viewerData?.me && libraryItem.contentReader == 'PDF' && (
+      {libraryItem && viewerData && libraryItem.contentReader == 'PDF' && (
         <PdfArticleContainerNoSSR
           article={libraryItem}
           showHighlightsModal={showHighlightsModal}
           setShowHighlightsModal={setShowHighlightsModal}
-          viewer={viewerData.me}
+          viewer={viewerData}
         />
       )}
-      {libraryItem && viewerData?.me && libraryItem.contentReader == 'WEB' && (
+      {libraryItem && viewerData && libraryItem.contentReader == 'WEB' && (
         <VStack
           id="article-wrapper"
           alignment="center"
@@ -572,9 +573,9 @@ export default function Reader(): JSX.Element {
             },
           }}
         >
-          {libraryItem && viewerData?.me ? (
+          {libraryItem && viewerData ? (
             <ArticleContainer
-              viewer={viewerData.me}
+              viewer={viewerData}
               article={libraryItem}
               isAppleAppEmbed={false}
               highlightBarDisabled={false}
@@ -677,7 +678,7 @@ export default function Reader(): JSX.Element {
         </VStack>
       )}
 
-      {libraryItem && viewerData?.me && libraryItem.contentReader == 'EPUB' && (
+      {libraryItem && viewerData && libraryItem.contentReader == 'EPUB' && (
         <VStack
           alignment="center"
           distribution="start"
@@ -690,12 +691,12 @@ export default function Reader(): JSX.Element {
             paddingTop: '80px',
           }}
         >
-          {libraryItem && viewerData?.me ? (
+          {libraryItem && viewerData ? (
             <EpubContainerNoSSR
               article={libraryItem}
               showHighlightsModal={showHighlightsModal}
               setShowHighlightsModal={setShowHighlightsModal}
-              viewer={viewerData.me}
+              viewer={viewerData}
             />
           ) : (
             <SkeletonArticleContainer

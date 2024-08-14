@@ -29,6 +29,7 @@ import {
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 // Styles
 const Header = styled(Box, {
   color: '$utilityTextDefault',
@@ -73,8 +74,6 @@ type integrationsCard = {
   }
 }
 export default function Integrations(): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
-
   const { integrations, revalidate } = useGetIntegrationsQuery()
   // const { webhooks } = useGetWebhooksQuery()
 

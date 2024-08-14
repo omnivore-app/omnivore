@@ -26,6 +26,7 @@ import {
 import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
 import { useAddItem } from '../../lib/networking/library_items/useLibraryItems'
 import { useHandleAddUrl } from '../../lib/hooks/useHandleAddUrl'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 export type NavigationSection =
   | 'home'
@@ -48,7 +49,7 @@ type NavigationLayoutProps = {
 export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   useApplyLocalTheme()
 
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
@@ -69,8 +70,10 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
 
   // Attempt to identify the user if they are logged in.
   useEffect(() => {
-    setupAnalytics(viewerData?.me)
-  }, [viewerData?.me])
+    if (viewerData) {
+      setupAnalytics(viewerData)
+    }
+  }, [viewerData])
 
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)
