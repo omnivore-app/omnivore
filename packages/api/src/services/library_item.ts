@@ -1749,6 +1749,6 @@ export const deleteCachedTotalCount = async (userId: string) => {
     return
   }
 
-  console.log('Deleting keys:', keys)
+  logger.debug('Deleting keys:', keys)
   await redisDataSource.redisClient?.del(keys)
 }
