@@ -606,8 +606,6 @@ export const searchResolver = authorized<
   }
 
   const searchLibraryItemArgs = {
-    from: Number(startCursor),
-    size: first + 1, // fetch one more item to get next cursor
     includePending: true,
     includeContent: params.includeContent ?? true, // by default include content for offline use for now
     includeDeleted: params.query?.includes('in:trash'),
@@ -615,7 +613,14 @@ export const searchResolver = authorized<
     useFolders: params.query?.includes('use:folders'),
   }
 
-  const libraryItems = await searchLibraryItems(searchLibraryItemArgs, uid)
+  const libraryItems = await searchLibraryItems(
+    {
+      ...searchLibraryItemArgs,
+      from: Number(startCursor),
+      size: first + 1, // fetch one more item to get next cursor
+    },
+    uid
+  )
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
@@ -688,14 +693,19 @@ export const updatesSinceResolver = authorized<
   } sort:${sort.by}-${sort.order}`
 
   const searchLibraryItemArgs = {
-    from: Number(startCursor),
-    size: size + 1, // fetch one more item to get next cursor
     includeDeleted: true,
     query,
     includeContent: true, // by default include content for offline use for now
   }
 
-  const libraryItems = await searchLibraryItems(searchLibraryItemArgs, uid)
+  const libraryItems = await searchLibraryItems(
+    {
+      ...searchLibraryItemArgs,
+      from: Number(startCursor),
+      size: size + 1, // fetch one more item to get next cursor
+    },
+    uid
+  )
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
