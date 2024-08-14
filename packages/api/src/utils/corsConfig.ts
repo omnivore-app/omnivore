@@ -19,4 +19,5 @@ export const corsConfig = {
     'capacitor://localhost',
     'http://localhost',
   ],
+  maxAge: 86400,
 }
