@@ -2,6 +2,7 @@ import { Notification } from 'firebase-admin/messaging'
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
+import { redisDataSource } from '../redis_data_source'
 import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
 import { SetClaimsRole } from '../utils/dictionary'
@@ -154,5 +155,25 @@ export const findUserAndPersonalization = async (id: string) => {
     {
       uid: id,
     }
+  )
+}
+
+const userCacheKey = (id: string) => `cache:user:${id}`
+
+export const getCachedUser = async (id: string) => {
+  const user = await redisDataSource.redisClient?.get(userCacheKey(id))
+  if (!user) {
+    return undefined
+  }
+
+  return JSON.parse(user) as User
+}
+
+export const cacheUser = async (user: User) => {
+  await redisDataSource.redisClient?.set(
+    userCacheKey(user.id),
+    JSON.stringify(user),
+    'EX',
+    600
   )
 }

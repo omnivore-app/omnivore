@@ -28,17 +28,19 @@ import {
   PageType,
   User,
 } from '../generated/graphql'
-import { redisDataSource } from '../redis_data_source'
 import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures } from '../services/features'
-import { countLibraryItems } from '../services/library_item'
-import { Merge } from '../util'
 import {
-  isBase64Image,
-  stringToHash,
-  validatedDate,
-  wordsCount,
-} from '../utils/helpers'
+  findUserFeatures,
+  getFeaturesCache,
+  setFeaturesCache,
+} from '../services/features'
+import {
+  countLibraryItems,
+  getCachedTotalCount,
+  setCachedTotalCount,
+} from '../services/library_item'
+import { Merge } from '../util'
+import { isBase64Image, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
 import { contentConverter } from '../utils/parser'
 import {
@@ -406,7 +408,16 @@ export const functionResolvers = {
         return undefined
       }
 
-      return findUserFeatures(ctx.claims.uid)
+      const userId = ctx.claims.uid
+      const cachedFeatures = await getFeaturesCache(userId)
+      if (cachedFeatures) {
+        return cachedFeatures
+      }
+
+      const features = await findUserFeatures(userId)
+      await setFeaturesCache(userId, features)
+
+      return features
     },
     picture: (user: UserEntity) => user.profile.pictureUrl,
     // not implemented yet
@@ -607,17 +618,12 @@ export const functionResolvers = {
       if (pageInfo.searchLibraryItemArgs && ctx.claims) {
         const args = pageInfo.searchLibraryItemArgs
         const userId = ctx.claims.uid
-        // hash the arguments to create a unique cache key
-        const argsHash = stringToHash(JSON.stringify(args))
-        const cacheKey = `countLibraryItems:${userId}:${argsHash}`
-        const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
-        if (cachedCount) {
-          return parseInt(cachedCount, 10)
-        }
+        const cachedCount = await getCachedTotalCount(userId, args)
+        if (cachedCount) return cachedCount
 
         const count = await countLibraryItems(args, userId)
+        await setCachedTotalCount(userId, args, count)
 
-        await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
         return count
       }
 
