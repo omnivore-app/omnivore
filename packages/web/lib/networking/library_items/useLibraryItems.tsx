@@ -230,8 +230,10 @@ export function useGetLibraryItems(
       return response.search
     },
     enabled,
-    refetchOnMount: false,
     initialPageParam: '0',
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
     getNextPageParam: (lastPage: LibraryItems) => {
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
