@@ -34,11 +34,11 @@ import {
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
 import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
 import { useRegisterActions } from 'kbar'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 type HomeState = {
   items: HomeItem[]
@@ -182,9 +182,8 @@ type NavigationContextType = {
   dispatch: React.Dispatch<Action>
 }
 
-const NavigationContext = createContext<NavigationContextType | undefined>(
-  undefined
-)
+const NavigationContext =
+  createContext<NavigationContextType | undefined>(undefined)
 
 export const useNavigation = (): NavigationContextType => {
   const context = useContext(NavigationContext)
@@ -199,7 +198,7 @@ export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
 
   const router = useRouter()
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
 
   const hasTopPicks = (homeData: HomeItemResponse) => {
     const topPicks = homeData.sections?.find(
@@ -226,7 +225,7 @@ export function HomeContainer(): JSX.Element {
   useApplyLocalTheme()
 
   const viewerUsername = useMemo(() => {
-    return viewerData?.me?.profile.username
+    return viewerData?.profile.username
   }, [viewerData])
 
   const searchItems = useMemo(() => {

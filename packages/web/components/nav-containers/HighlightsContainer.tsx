@@ -33,12 +33,13 @@ import { HighlightViewNote } from '../patterns/HighlightNotes'
 import { theme } from '../tokens/stitches.config'
 import { useDeleteHighlight } from '../../lib/networking/highlights/useItemHighlights'
 import { EmptyLibrary } from '../templates/homeFeed/EmptyLibrary'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 const PAGE_SIZE = 10
 
 export function HighlightsContainer(): JSX.Element {
   const router = useRouter()
-  const viewer = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
 
   const { isLoading, setSize, size, data, mutate } = useGetHighlights({
     first: PAGE_SIZE,
@@ -86,11 +87,11 @@ export function HighlightsContainer(): JSX.Element {
       )}
       {highlights.map((highlight) => {
         return (
-          viewer.viewerData?.me && (
+          viewerData && (
             <HighlightCard
               key={highlight.id}
               highlight={highlight}
-              viewer={viewer.viewerData.me}
+              viewer={viewerData}
               router={router}
               mutate={mutate}
             />

@@ -230,7 +230,7 @@ export function useGetLibraryItems(
       return response.search
     },
     enabled,
-    maxPages: 2,
+    refetchOnMount: false,
     initialPageParam: '0',
     getNextPageParam: (lastPage: LibraryItems) => {
       return lastPage.pageInfo.hasNextPage

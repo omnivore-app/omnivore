@@ -3,6 +3,7 @@ import { StyledText } from '../elements/StyledText'
 import Link from 'next/link'
 import { Button } from '../elements/Button'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 type ErrorPageStatusCode = 404 | 500
 
@@ -12,7 +13,7 @@ type ErrorLayoutProps = {
 }
 
 export function ErrorLayout(props: ErrorLayoutProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
 
   return (
     <VStack alignment="center" distribution="start" css={{ height: '100%' }}>
@@ -32,11 +33,11 @@ export function ErrorLayout(props: ErrorLayoutProps): JSX.Element {
         </StyledText>
       </HStack>
       <SpanBox css={{ height: '64px' }} />
-      <Link passHref href={viewerData?.me ? '/home' : '/login'} legacyBehavior>
+      <Link passHref href={viewerData ? '/home' : '/login'} legacyBehavior>
         <Button style="ctaDarkYellow">
-          {viewerData?.me ? 'Go Home' : 'Login'}
+          {viewerData ? 'Go Home' : 'Login'}
         </Button>
       </Link>
     </VStack>
-  );
+  )
 }

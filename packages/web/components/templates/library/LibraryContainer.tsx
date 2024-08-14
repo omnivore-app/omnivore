@@ -55,6 +55,7 @@ import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrash
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -80,7 +81,7 @@ type LibraryContainerProps = {
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const router = useRouter()
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
 
@@ -116,6 +117,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const {
     data: itemsPages,
     isLoading,
+    isFetching,
     fetchNextPage,
     hasNextPage,
     error: fetchItemsError,
@@ -309,7 +311,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
     switch (action) {
       case 'showDetail':
-        const username = viewerData?.me?.profile.username
+        const username = viewerData?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
           if (item.node.state === State.PROCESSING) {
@@ -652,7 +654,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       name: link.title,
       keywords: '#' + link.title + ' #' + link.siteName,
       perform: () => {
-        const username = viewerData?.me?.profile.username
+        const username = viewerData?.profile.username
         if (username) {
           setActiveCardId(link.id)
           router.push(`/${username}/${link.slug}`)
@@ -666,7 +668,11 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS,
     [activeCardId, activeItem]
   )
-  useFetchMore(fetchNextPage)
+  useFetchMore(() => {
+    if (!isFetching && !isLoading && hasNextPage) {
+      fetchNextPage()
+    }
+  })
 
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {
@@ -885,7 +891,7 @@ export type HomeFeedContentProps = {
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
   const [layout, setLayout] = usePersistedState<LayoutType>({
     key: 'libraryLayout',
     initialValue: 'LIST_LAYOUT',
@@ -928,7 +934,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       <LibraryHeader
         layout={layout}
         folder={props.folder}
-        viewer={viewerData?.me}
+        viewer={viewerData}
         updateLayout={updateLayout}
         showFilterMenu={props.showNavigationMenu}
         searchTerm={props.searchTerm}
@@ -954,7 +960,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
         {showItems && (
           <LibraryItemsLayout
-            viewer={viewerData?.me}
+            viewer={viewerData}
             layout={layout}
             isChecked={props.itemIsChecked}
             {...props}
