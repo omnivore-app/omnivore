@@ -203,7 +203,7 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
   return subscriptionsCount >= 2 && libraryItemsCount >= 10
 }
 
-const featuresCacheKey = (userId: string) => `features:${userId}`
+const featuresCacheKey = (userId: string) => `cache:features:${userId}`
 
 export const getFeaturesCache = async (userId: string) => {
   const cachedFeatures = await redisDataSource.redisClient?.get(
