@@ -721,7 +721,7 @@ export const countLibraryItems = async (args: SearchArgs, userId: string) => {
     }
   )
 
-  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 60)
+  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
   return count
 }
 
