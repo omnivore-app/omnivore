@@ -28,11 +28,17 @@ import {
   PageType,
   User,
 } from '../generated/graphql'
+import { redisDataSource } from '../redis_data_source'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
 import { countLibraryItems } from '../services/library_item'
 import { Merge } from '../util'
-import { isBase64Image, validatedDate, wordsCount } from '../utils/helpers'
+import {
+  isBase64Image,
+  stringToHash,
+  validatedDate,
+  wordsCount,
+} from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
 import { contentConverter } from '../utils/parser'
 import {
@@ -599,7 +605,20 @@ export const functionResolvers = {
       if (pageInfo.totalCount) return pageInfo.totalCount
 
       if (pageInfo.searchLibraryItemArgs && ctx.claims) {
-        return countLibraryItems(pageInfo.searchLibraryItemArgs, ctx.claims.uid)
+        const args = pageInfo.searchLibraryItemArgs
+        const userId = ctx.claims.uid
+        // hash the arguments to create a unique cache key
+        const argsHash = stringToHash(JSON.stringify(args))
+        const cacheKey = `countLibraryItems:${userId}:${argsHash}`
+        const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
+        if (cachedCount) {
+          return parseInt(cachedCount, 10)
+        }
+
+        const count = await countLibraryItems(args, userId)
+
+        await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
+        return count
       }
 
       return 0

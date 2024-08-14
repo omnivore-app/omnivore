@@ -665,7 +665,10 @@ export const typeaheadSearchResolver = authorized<
 })
 
 export const updatesSinceResolver = authorized<
-  Merge<UpdatesSinceSuccess, { edges: Array<PartialSearchItemEdge> }>,
+  Merge<
+    UpdatesSinceSuccess,
+    { edges: Array<PartialSearchItemEdge>; pageInfo: PartialPageInfo }
+  >,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
 >(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
@@ -683,16 +686,15 @@ export const updatesSinceResolver = authorized<
     folder ? ' in:' + folder : ''
   } sort:${sort.by}-${sort.order}`
 
-  const libraryItems = await searchLibraryItems(
-    {
-      from: Number(startCursor),
-      size: size + 1, // fetch one more item to get next cursor
-      includeDeleted: true,
-      query,
-      includeContent: true, // by default include content for offline use for now
-    },
-    uid
-  )
+  const searchLibraryItemArgs = {
+    from: Number(startCursor),
+    size: size + 1, // fetch one more item to get next cursor
+    includeDeleted: true,
+    query,
+    includeContent: true, // by default include content for offline use for now
+  }
+
+  const libraryItems = await searchLibraryItems(searchLibraryItemArgs, uid)
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
@@ -722,6 +724,7 @@ export const updatesSinceResolver = authorized<
       startCursor,
       hasNextPage,
       endCursor,
+      searchLibraryItemArgs,
     },
   }
 })

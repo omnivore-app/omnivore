@@ -35,7 +35,6 @@ import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
-import { stringToHash } from '../utils/helpers'
 
 const columnsToDelete = [
   'user',
@@ -705,24 +704,13 @@ export const createSearchQueryBuilder = (
 }
 
 export const countLibraryItems = async (args: SearchArgs, userId: string) => {
-  // hash the arguments to create a unique cache key
-  const argsHash = stringToHash(JSON.stringify(args))
-  const cacheKey = `countLibraryItems:${userId}:${argsHash}`
-  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
-  if (cachedCount) {
-    return parseInt(cachedCount, 10)
-  }
-
-  const count = await authTrx(
+  return authTrx(
     async (tx) => createSearchQueryBuilder(args, userId, tx).getCount(),
     {
       uid: userId,
       replicationMode: 'replica',
     }
   )
-
-  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
-  return count
 }
 
 export const searchLibraryItems = async (
