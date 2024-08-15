@@ -573,35 +573,6 @@ export const functionResolvers = {
 
       return ctx.dataLoaders.highlights.load(item.id)
     },
-    async content(item: PartialLibraryItem, _: unknown, ctx: ResolverContext) {
-      // convert html to the requested format if requested
-      if (
-        item.format &&
-        item.format !== ArticleFormat.Html &&
-        item.readableContent
-      ) {
-        if (item.format === ArticleFormat.HighlightedMarkdown) {
-          // if the content is highlighted markdown, we will return markdown instead
-          // because the conversion is very slow and we don't want to block the response
-          // we will convert it to highlighted markdown in the client if needed
-          item.format = ArticleFormat.Markdown
-        }
-
-        try {
-          ctx.log.info(`Converting content to: ${item.format}`)
-
-          // convert html to the requested format
-          const converter = contentConverter(item.format)
-          if (converter) {
-            return converter(item.readableContent)
-          }
-        } catch (error) {
-          ctx.log.error('Error converting content', error)
-        }
-      }
-
-      return item.readableContent
-    },
     isArchived: (item: LibraryItem) => !!item.archivedAt,
     pageType: (item: LibraryItem) => item.itemType,
     highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
