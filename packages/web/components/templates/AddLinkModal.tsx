@@ -531,52 +531,52 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
       const allFiles = [...uploadFiles, ...addedFiles]
 
       setUploadFiles(allFiles)
-      ;(async () => {
-        for (const file of addedFiles) {
-          try {
-            const uploadInfo = await uploadSignedUrlForFile(file)
-            if (!uploadInfo.uploadSignedUrl) {
-              const message = uploadInfo.message || 'No upload URL available'
-              showErrorToast(message, { duration: 10000 })
+        ; (async () => {
+          for (const file of addedFiles) {
+            try {
+              const uploadInfo = await uploadSignedUrlForFile(file)
+              if (!uploadInfo.uploadSignedUrl) {
+                const message = uploadInfo.message || 'No upload URL available'
+                showErrorToast(message, { duration: 10000 })
+                file.status = 'error'
+                setUploadFiles([...allFiles])
+                return
+              }
+
+              const uploadResult = await axios.request({
+                method: 'PUT',
+                url: uploadInfo.uploadSignedUrl,
+                data: file.file,
+                withCredentials: false,
+                headers: {
+                  'Content-Type': file.file.type,
+                },
+                onUploadProgress: (p) => {
+                  if (!p.total) {
+                    console.warn('No total available for upload progress')
+                    return
+                  }
+                  const progress = (p.loaded / p.total) * 100
+                  file.progress = progress
+
+                  setUploadFiles([...allFiles])
+                },
+              })
+
+              file.progress = 100
+              file.status = 'success'
+              file.openUrl = uploadInfo.requestId
+                ? `/article/sr/${uploadInfo.requestId}`
+                : undefined
+              file.message = uploadInfo.message
+
+              setUploadFiles([...allFiles])
+            } catch (error) {
               file.status = 'error'
               setUploadFiles([...allFiles])
-              return
             }
-
-            const uploadResult = await axios.request({
-              method: 'PUT',
-              url: uploadInfo.uploadSignedUrl,
-              data: file.file,
-              withCredentials: false,
-              headers: {
-                'Content-Type': file.file.type,
-              },
-              onUploadProgress: (p) => {
-                if (!p.total) {
-                  console.warn('No total available for upload progress')
-                  return
-                }
-                const progress = (p.loaded / p.total) * 100
-                file.progress = progress
-
-                setUploadFiles([...allFiles])
-              },
-            })
-
-            file.progress = 100
-            file.status = 'success'
-            file.openUrl = uploadInfo.requestId
-              ? `/article/sr/${uploadInfo.requestId}`
-              : undefined
-            file.message = uploadInfo.message
-
-            setUploadFiles([...allFiles])
-          } catch (error) {
-            file.status = 'error'
-            setUploadFiles([...allFiles])
           }
-        }
-      })()
+        })()
     },
     [uploadFiles]
   )
@@ -627,7 +627,7 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
         {({ getRootProps, getInputProps, acceptedFiles, fileRejections }) => (
           <div
             {...getRootProps({ className: 'dropzone' })}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '75%' }}
           >
             <DragnDropContainer>
               <DragnDropStyle>
@@ -681,7 +681,7 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                   </VStack>
                 </DragnDropIndicator>
               </DragnDropStyle>
-              <VStack css={{ width: '100%', mt: '25px', gap: '5px' }}>
+              <VStack css={{ width: '100%', mt: '10px', gap: '5px', overflowY: 'auto' }}>
                 {uploadFiles.map((file) => {
                   return (
                     <HStack
@@ -694,6 +694,7 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                         padding: '15px',
                         gap: '10px',
                         color: '$thTextContrast',
+                        overflow: "hidden"
                       }}
                       alignment="center"
                       distribution="start"
