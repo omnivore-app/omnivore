@@ -234,6 +234,7 @@ export function useGetLibraryItems(
       return response.search
     },
     enabled,
+    maxPages: 5,
     initialPageParam: '0',
     getNextPageParam: (lastPage: LibraryItems, pages) => {
       console.log('getting next page: ', pages)
