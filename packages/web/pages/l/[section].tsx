@@ -9,13 +9,13 @@ import { LibraryContainer } from '../../components/templates/library/LibraryCont
 import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { isTouchScreenDevice } from '../../lib/deviceType'
+import { State } from '../../lib/networking/fragments/articleFragment'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
   useApplyLocalTheme()
 
-  const [showNavigationMenu, setShowNavigationMenu] =
+  const [showNavigationMenu, setShowNavigationMenu, isShowNavigationLoading] =
     usePersistedState<boolean>({
       key: 'nav-show-menu',
       isSessionStorage: false,
@@ -37,12 +37,23 @@ export default function Home(): JSX.Element {
   }, [router])
 
   const sectionView = (name: string | string[] | undefined) => {
-    if (typeof name !== 'string') {
+    if (typeof name !== 'string' || isShowNavigationLoading) {
       return <></>
     }
     switch (name) {
       case 'home':
-        return <HomeContainer />
+        // return <HomeContainer />
+        return (
+          <LibraryContainer
+            folder={undefined}
+            filterFunc={(item) => {
+              return (
+                item.state !== State.ARCHIVED && item.state !== State.DELETED
+              )
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
       case 'highlights':
         return <HighlightsContainer />
       case 'library':
@@ -51,8 +62,8 @@ export default function Home(): JSX.Element {
             folder="inbox"
             filterFunc={(item) => {
               return (
-                item.state != 'DELETED' &&
-                !item.isArchived &&
+                item.state !== State.ARCHIVED &&
+                item.state !== State.DELETED &&
                 item.folder == 'inbox'
               )
             }}
@@ -65,10 +76,21 @@ export default function Home(): JSX.Element {
             folder="following"
             filterFunc={(item) => {
               return (
-                item.state != 'DELETED' &&
-                !item.isArchived &&
+                item.state !== State.ARCHIVED &&
+                item.state !== State.DELETED &&
                 item.folder == 'following'
               )
+            }}
+            showNavigationMenu={showNavigationMenu}
+          />
+        )
+      case 'search':
+        return (
+          <LibraryContainer
+            folder={undefined}
+            filterFunc={(item) => {
+              console.log('item: ', item)
+              return true
             }}
             showNavigationMenu={showNavigationMenu}
           />
@@ -78,12 +100,7 @@ export default function Home(): JSX.Element {
           <LibraryContainer
             folder="archive"
             filterFunc={(item) => {
-              console.log(
-                'running archive filter: ',
-                item.title,
-                item.isArchived
-              )
-              return item.state != 'DELETED' && item.isArchived
+              return item.state == 'ARCHIVED'
             }}
             showNavigationMenu={showNavigationMenu}
           />
@@ -92,7 +109,9 @@ export default function Home(): JSX.Element {
         return (
           <LibraryContainer
             folder="trash"
-            filterFunc={(item) => item.state == 'DELETED'}
+            filterFunc={(item) => {
+              return item.state == 'DELETED'
+            }}
             showNavigationMenu={showNavigationMenu}
           />
         )

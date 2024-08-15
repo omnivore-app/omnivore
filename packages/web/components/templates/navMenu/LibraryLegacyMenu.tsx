@@ -8,19 +8,19 @@ import {
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
 import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 import { NavMenuFooter } from './Footer'
 import { escapeQuotes } from '../../../utils/helper'
+import { useGetLabels } from '../../../lib/networking/labels/useLabels'
+import { useGetSavedSearches } from '../../../lib/networking/savedsearches/useSavedSearches'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -50,17 +50,17 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
     isSessionStorage: false,
     initialValue: [],
   })
-  const labelsResponse = useGetLabelsQuery()
-  const searchesResponse = useGetSavedSearchQuery()
+  const labelsResponse = useGetLabels()
+  const searchesResponse = useGetSavedSearches()
   const subscriptionsResponse = useGetSubscriptionsQuery()
 
   useEffect(() => {
     if (
       !labelsResponse.error &&
       !labelsResponse.isLoading &&
-      labelsResponse.labels
+      labelsResponse.data
     ) {
-      setLabels(labelsResponse.labels)
+      setLabels(labelsResponse.data)
     }
   }, [setLabels, labelsResponse])
 
@@ -78,9 +78,9 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
     if (
       !searchesResponse.error &&
       !searchesResponse.isLoading &&
-      searchesResponse.savedSearches
+      searchesResponse?.data
     ) {
-      setSavedSearches(searchesResponse.savedSearches)
+      setSavedSearches(searchesResponse.data)
     }
   }, [setSavedSearches, searchesResponse])
 

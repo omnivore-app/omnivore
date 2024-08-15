@@ -30,7 +30,11 @@ import {
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
+import {
+  deepDelete,
+  setRecentlySavedItemInRedis,
+  stringToHash,
+} from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { HighlightEvent } from './highlights'
@@ -1710,4 +1714,56 @@ export const filterItemEvents = (
   }
 
   throw new Error('Unexpected state.')
+}
+
+const totalCountCacheKey = (userId: string, args: SearchArgs) => {
+  // sort the args to make sure the cache key is consistent
+  const sortedArgs = JSON.stringify(args, Object.keys(args).sort())
+
+  return `cache:library_items_count:${userId}:${stringToHash(sortedArgs)}`
+}
+
+export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
+  logger.debug('Getting cached total count:', {
+    userId,
+    args,
+  })
+
+  const cacheKey = totalCountCacheKey(userId, args)
+  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
+  if (!cachedCount) {
+    return undefined
+  }
+
+  return parseInt(cachedCount, 10)
+}
+
+export const setCachedTotalCount = async (
+  userId: string,
+  args: SearchArgs,
+  count: number
+) => {
+  const cacheKey = totalCountCacheKey(userId, args)
+
+  logger.debug('Setting cached total count:', {
+    cacheKey,
+    count,
+  })
+
+  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
+}
+
+export const deleteCachedTotalCount = async (userId: string) => {
+  const keyPattern = `cache:library_items_count:${userId}:*`
+  const keys = await redisDataSource.redisClient?.keys(keyPattern)
+  if (!keys || keys.length === 0) {
+    return
+  }
+
+  logger.debug('Deleting keys:', {
+    keys,
+    userId,
+  })
+
+  await redisDataSource.redisClient?.del(keys)
 }

@@ -1,6 +1,6 @@
 import { LayoutType } from './HomeFeedContainer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { LibraryItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'

@@ -3,14 +3,6 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 
 const cloudTask = new CloudTasksClient()
 
-export const emailUserUrl = () => {
-  const envar = process.env.INTERNAL_SVC_ENDPOINT
-  if (envar) {
-    return envar + 'api/user/email'
-  }
-  throw 'INTERNAL_SVC_ENDPOINT not set'
-}
-
 export const CONTENT_FETCH_URL = process.env.CONTENT_FETCH_GCF_URL
 
 export const createCloudTask = async (

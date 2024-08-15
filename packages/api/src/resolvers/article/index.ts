@@ -37,6 +37,7 @@ import {
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetFavoriteArticleArgs,
+  PageInfo,
   PageType,
   QueryArticleArgs,
   QuerySearchArgs,
@@ -78,8 +79,10 @@ import {
   batchUpdateLibraryItems,
   countLibraryItems,
   createOrUpdateLibraryItem,
+  deleteCachedTotalCount,
   findLibraryItemsByPrefix,
-  searchAndCountLibraryItems,
+  SearchArgs,
+  searchLibraryItems,
   softDeleteLibraryItem,
   sortParamsToSort,
   updateLibraryItem,
@@ -114,7 +117,6 @@ import { getStorageFileDetails } from '../../utils/uploads'
 export enum ArticleFormat {
   Markdown = 'markdown',
   Html = 'html',
-  Distiller = 'distiller',
   HighlightedMarkdown = 'highlightedMarkdown',
 }
 
@@ -583,8 +585,15 @@ export const saveArticleReadingProgressResolver = authorized<
 
 export type PartialLibraryItem = Merge<LibraryItem, { format?: string }>
 type PartialSearchItemEdge = Merge<SearchItemEdge, { node: PartialLibraryItem }>
+export type PartialPageInfo = Merge<
+  PageInfo,
+  { searchLibraryItemArgs?: SearchArgs }
+>
 export const searchResolver = authorized<
-  Merge<SearchSuccess, { edges: Array<PartialSearchItemEdge> }>,
+  Merge<
+    SearchSuccess,
+    { edges: Array<PartialSearchItemEdge>; pageInfo: PartialPageInfo }
+  >,
   SearchError,
   QuerySearchArgs
 >(async (_obj, params, { uid }) => {
@@ -596,15 +605,19 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const { libraryItems, count } = await searchAndCountLibraryItems(
+  const searchLibraryItemArgs = {
+    includePending: true,
+    includeContent: params.includeContent ?? true, // by default include content for offline use for now
+    includeDeleted: params.query?.includes('in:trash'),
+    query: params.query,
+    useFolders: params.query?.includes('use:folders'),
+  }
+
+  const libraryItems = await searchLibraryItems(
     {
+      ...searchLibraryItemArgs,
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      includePending: true,
-      includeContent: params.includeContent ?? true, // by default include content for offline use for now
-      includeDeleted: params.query?.includes('in:trash'),
-      query: params.query,
-      useFolders: params.query?.includes('use:folders'),
     },
     uid
   )
@@ -632,7 +645,7 @@ export const searchResolver = authorized<
       startCursor,
       hasNextPage,
       endCursor,
-      totalCount: count,
+      searchLibraryItemArgs,
     },
   }
 })
@@ -658,7 +671,10 @@ export const typeaheadSearchResolver = authorized<
 })
 
 export const updatesSinceResolver = authorized<
-  Merge<UpdatesSinceSuccess, { edges: Array<PartialSearchItemEdge> }>,
+  Merge<
+    UpdatesSinceSuccess,
+    { edges: Array<PartialSearchItemEdge>; pageInfo: PartialPageInfo }
+  >,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
 >(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
@@ -676,13 +692,17 @@ export const updatesSinceResolver = authorized<
     folder ? ' in:' + folder : ''
   } sort:${sort.by}-${sort.order}`
 
-  const { libraryItems, count } = await searchAndCountLibraryItems(
+  const searchLibraryItemArgs = {
+    includeDeleted: true,
+    query,
+    includeContent: true, // by default include content for offline use for now
+  }
+
+  const libraryItems = await searchLibraryItems(
     {
+      ...searchLibraryItemArgs,
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
-      includeDeleted: true,
-      query,
-      includeContent: true, // by default include content for offline use for now
     },
     uid
   )
@@ -715,7 +735,7 @@ export const updatesSinceResolver = authorized<
       startCursor,
       hasNextPage,
       endCursor,
-      totalCount: count,
+      searchLibraryItemArgs,
     },
   }
 })
@@ -762,6 +782,8 @@ export const bulkActionResolver = authorized<
         // if there are less than batchSize items, update them synchronously
         await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
 
+        await deleteCachedTotalCount(uid)
+
         return { success: true }
       }
 
@@ -780,6 +802,8 @@ export const bulkActionResolver = authorized<
       if (!job) {
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
+
+      await deleteCachedTotalCount(uid)
 
       return { success: true }
     } catch (error) {
@@ -976,6 +1000,8 @@ export const emptyTrashResolver = authorized<
     },
     state: LibraryItemState.Deleted,
   })
+
+  await deleteCachedTotalCount(uid)
 
   return {
     success: true,

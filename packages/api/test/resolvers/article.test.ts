@@ -27,6 +27,7 @@ import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
 import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
+  countLibraryItems,
   createLibraryItems,
   createOrUpdateLibraryItem,
   CreateOrUpdateLibraryItemArgs,
@@ -2451,19 +2452,16 @@ describe('Article API', () => {
     })
 
     it('empties the trash', async () => {
-      let response = await graphqlRequest(
-        searchQuery('in:trash'),
-        authToken
-      ).expect(200)
-      expect(response.body.data.search.pageInfo.totalCount).to.eql(5)
-
       await graphqlRequest(emptyTrashQuery(), authToken).expect(200)
 
-      response = await graphqlRequest(
-        searchQuery('in:trash'),
-        authToken
-      ).expect(200)
-      expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
+      const count = await countLibraryItems(
+        {
+          query: 'in:trash',
+          includeDeleted: true,
+        },
+        user.id
+      )
+      expect(count).to.eql(0)
     })
   })
 })

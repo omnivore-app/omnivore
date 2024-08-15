@@ -623,6 +623,7 @@ const sendEmail = async (user: User, digest: Digest, channels: Channel[]) => {
     </div>`
 
   await enqueueSendEmail({
+    userId: user.id,
     to: user.email,
     from: env.sender.message,
     subject: subTitle,

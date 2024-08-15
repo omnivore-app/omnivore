@@ -14,7 +14,7 @@ import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { highlightColorVar } from '../../lib/themeUpdater'
-import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import {
   autoUpdate,

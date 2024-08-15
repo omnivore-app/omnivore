@@ -34,11 +34,11 @@ import {
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
-import { useGetRawSearchItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
 import { useRegisterActions } from 'kbar'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 type HomeState = {
   items: HomeItem[]
@@ -198,7 +198,7 @@ export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
 
   const router = useRouter()
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
 
   const hasTopPicks = (homeData: HomeItemResponse) => {
     const topPicks = homeData.sections?.find(
@@ -210,44 +210,47 @@ export function HomeContainer(): JSX.Element {
 
   const shouldFallback =
     homeData.error || (!homeData.isValidating && !hasTopPicks(homeData))
-  const searchData = useGetRawSearchItemsQuery(
+  const searchData = useGetLibraryItems(
+    undefined,
     {
       limit: 10,
       searchQuery: 'in:inbox',
       includeContent: false,
       sortDescending: true,
     },
+    // only enable this search if we didn't get home data
     shouldFallback
   )
 
   useApplyLocalTheme()
 
   const viewerUsername = useMemo(() => {
-    return viewerData?.me?.profile.username
+    return viewerData?.profile.username
   }, [viewerData])
 
   const searchItems = useMemo(() => {
-    return searchData.items.map((item) => {
-      return {
-        id: item.id,
-        date: item.savedAt,
-        title: item.title,
-        url: item.url,
-        slug: item.slug,
-        score: 1.0,
-        thumbnail: item.image,
-        previewContent: item.description,
-        source: {
-          name: item.folder == 'following' ? item.subscription : item.siteName,
-          icon: item.siteIcon,
-          type: 'LIBRARY',
-        },
-        canArchive: true,
-        canDelete: true,
-        canShare: true,
-        canMove: item.folder == 'following',
-      } as HomeItem
-    })
+    return []
+    // return searchData.items.map((item) => {
+    //   return {
+    //     id: item.id,
+    //     date: item.savedAt,
+    //     title: item.title,
+    //     url: item.url,
+    //     slug: item.slug,
+    //     score: 1.0,
+    //     thumbnail: item.image,
+    //     previewContent: item.description,
+    //     source: {
+    //       name: item.folder == 'following' ? item.subscription : item.siteName,
+    //       icon: item.siteIcon,
+    //       type: 'LIBRARY',
+    //     },
+    //     canArchive: true,
+    //     canDelete: true,
+    //     canShare: true,
+    //     canMove: item.folder == 'following',
+    //   } as HomeItem
+    // })
   }, [searchData])
 
   useEffect(() => {
@@ -383,7 +386,7 @@ export function HomeContainer(): JSX.Element {
   )
 
   const dataReady =
-    !homeData.isValidating && (!shouldFallback || !searchData.isValidating)
+    !homeData.isValidating && (!shouldFallback || !searchData.isLoading)
   if (!dataReady || (homeData.error && homeData.errorMessage == 'PENDING')) {
     console.log('showing pending')
     return (
@@ -544,7 +547,7 @@ const JustAddedHomeSection = (props: HomeSectionProps): JSX.Element => {
           <Button
             style="link"
             onClick={(event) => {
-              router.push('/l/library')
+              router.push('/library')
               event.preventDefault()
             }}
             css={{
@@ -946,12 +949,12 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
     useLibraryItemActions()
 
   const doArchiveItem = useCallback(
-    async (libraryItemId: string) => {
+    async (libraryItemId: string, slug: string) => {
       dispatch({
         type: 'REMOVE_ITEM',
         payload: libraryItemId,
       })
-      if (!(await archiveItem(libraryItemId))) {
+      if (!(await archiveItem(libraryItemId, slug))) {
         // dispatch({
         //   type: 'REPLACE_ITEM',
         //   itemId: libraryItemId,
@@ -962,7 +965,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 
   const doDeleteItem = useCallback(
-    async (libraryItemId: string) => {
+    async (libraryItemId: string, slug: string) => {
       dispatch({
         type: 'REMOVE_ITEM',
         payload: libraryItemId,
@@ -973,7 +976,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
         //   : libraryItemId,
         // })
       }
-      if (!(await deleteItem(libraryItemId, undo))) {
+      if (!(await deleteItem(libraryItemId, slug, undo))) {
         // dispatch({
         //   type: 'REPLACE_ITEM',
         //   payload: libraryItemId,
@@ -984,12 +987,12 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
   )
 
   const doMoveItem = useCallback(
-    async (libraryItemId: string) => {
+    async (libraryItemId: string, slug: string) => {
       dispatch({
         type: 'REMOVE_ITEM',
         payload: libraryItemId,
       })
-      if (!(await moveItem(libraryItemId))) {
+      if (!(await moveItem(libraryItemId, slug))) {
         // dispatch({
         //   type: 'REPLACE_ITEM',
         //   payload: libraryItemId,
@@ -1039,13 +1042,13 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             ;(event.target as HTMLElement).click()
             break
           case 'e':
-            doArchiveItem(props.homeItem.id)
+            doArchiveItem(props.homeItem.id, props.homeItem.slug)
             break
           case '#':
-            doDeleteItem(props.homeItem.id)
+            doDeleteItem(props.homeItem.id, props.homeItem.slug)
             break
           case 'm':
-            doMoveItem(props.homeItem.id)
+            doMoveItem(props.homeItem.id, props.homeItem.slug)
             break
           case 'o':
             window.open(props.homeItem.url, '_blank')
@@ -1093,8 +1096,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
-              await doMoveItem(props.homeItem.id)
+              await doMoveItem(props.homeItem.id, props.homeItem.slug)
             }}
           >
             <AddToLibraryActionIcon />
@@ -1107,8 +1109,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
-              await doArchiveItem(props.homeItem.id)
+              await doArchiveItem(props.homeItem.id, props.homeItem.slug)
             }}
           >
             <ArchiveActionIcon />
@@ -1121,8 +1122,7 @@ const TopPicksItemView = (props: HomeItemViewProps): JSX.Element => {
             onClick={async (event) => {
               event.preventDefault()
               event.stopPropagation()
-
-              await doDeleteItem(props.homeItem.id)
+              await doDeleteItem(props.homeItem.id, props.homeItem.slug)
             }}
           >
             <RemoveActionIcon />

@@ -10,13 +10,17 @@ export const useFetchMore = (callback: () => void, delay = 500): void => {
     }
 
     const callbackInternal = (): void => {
-      const {
-        scrollTop,
-        scrollHeight,
-        clientHeight
-      } = window.document.documentElement;
+      const { scrollTop, scrollHeight, clientHeight } =
+        window.document.documentElement
 
-      if (scrollTop + clientHeight >= scrollHeight - (scrollHeight / 3)) {
+      if (scrollTop + clientHeight >= scrollHeight - scrollHeight / 3) {
+        console.log(
+          'calling fetchMore: scrollTop + clientHeight >= scrollHeight - scrollHeight / 3',
+          scrollTop,
+          clientHeight,
+          scrollHeight,
+          scrollHeight / 3
+        )
         callback()
       }
       throttleTimeout.current = undefined

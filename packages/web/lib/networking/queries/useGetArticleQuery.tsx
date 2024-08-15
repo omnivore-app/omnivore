@@ -10,11 +10,12 @@ import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { ScopedMutator } from 'swr/dist/_internal'
 import { Label, labelFragment } from '../fragments/labelFragment'
 import {
+  ArticleAttributes,
   LibraryItems,
   Recommendation,
-  recommendationFragment,
-} from './useGetLibraryItemsQuery'
+} from '../library_items/useLibraryItems'
 import useSWR from 'swr'
+import { recommendationFragment } from '../library_items/gql'
 
 type ArticleQueryInput = {
   username?: string
@@ -37,37 +38,6 @@ type ArticleData = {
 type NestedArticleData = {
   article: ArticleAttributes
   errorCodes?: string[]
-}
-
-export type TextDirection = 'RTL' | 'LTR'
-
-export type ArticleAttributes = {
-  id: string
-  title: string
-  url: string
-  originalArticleUrl: string
-  author?: string
-  image?: string
-  savedAt: string
-  isArchived: boolean
-  createdAt: string
-  publishedAt?: string
-  description?: string
-  wordsCount?: number
-  contentReader: ContentReader
-  readingProgressPercent: number
-  readingProgressTopPercent?: number
-  readingProgressAnchorIndex: number
-  slug: string
-  folder: string
-  savedByViewer?: boolean
-  content: string
-  highlights: Highlight[]
-  linkId: string
-  labels?: Label[]
-  state?: State
-  directionality?: TextDirection
-  recommendations?: Recommendation[]
 }
 
 const query = gql`

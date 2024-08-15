@@ -1,7 +1,3 @@
-import {
-  ArticleAttributes,
-  TextDirection,
-} from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
@@ -19,11 +15,14 @@ import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import {
+  ArticleAttributes,
+  Recommendation,
+  TextDirection,
+  useUpdateItemReadStatus,
+} from '../../../lib/networking/library_items/useLibraryItems'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { AISummary } from './AISummary'
-import { userHasFeature } from '../../../lib/featureFlag'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -117,23 +116,28 @@ const RecommendationComments = (
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [labels, setLabels] = useState(props.labels)
-  const [title, setTitle] = useState(props.article.title)
+  const [title, setTitle] = useState<string | undefined>(undefined)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   const [highlightOnRelease, setHighlightOnRelease] = useState(
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
-    useState<number | null>(null)
-  const [lineHeightOverride, setLineHeightOverride] =
-    useState<number | null>(null)
-  const [fontFamilyOverride, setFontFamilyOverride] =
-    useState<string | null>(null)
-  const [highContrastTextOverride, setHighContrastTextOverride] =
-    useState<boolean | undefined>(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] =
-    useState<boolean | undefined>(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
+  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -444,9 +448,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 '-webkit-line-clamp': '6',
               },
             }}
-            title={title}
+            title={title ?? props.article.title}
           >
-            {title}
+            {title ?? props.article.title}
           </StyledText>
           <ArticleSubtitle
             author={props.article.author}
@@ -520,9 +524,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         item={props.article}
         scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
-        articleTitle={title}
-        articleAuthor={props.article.author ?? ''}
-        articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}

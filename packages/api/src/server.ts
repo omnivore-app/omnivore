@@ -95,7 +95,6 @@ export const createApp = (): Express => {
   app.use('/api/auth', authLimiter, authRouter())
   app.use('/api/mobile-auth', authLimiter, mobileAuthRouter())
   app.use('/api/page', pageRouter())
-  app.use('/api/user', userRouter())
   app.use('/api/shortcuts', shortcutsRouter())
   app.use('/api/article', articleRouter())
   app.use('/api/ai-summary', aiSummariesRouter())

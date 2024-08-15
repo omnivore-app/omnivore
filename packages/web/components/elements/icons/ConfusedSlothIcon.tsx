@@ -8,7 +8,6 @@ import React from 'react'
 
 export function ConfusedSlothIcon(): JSX.Element {
   const { currentThemeIsDark } = useCurrentTheme()
-  console.log('is dark mdoe: ', currentThemeIsDark)
   return currentThemeIsDark ? (
     <ConfusedSlothIconDark />
   ) : (

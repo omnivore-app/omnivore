@@ -273,6 +273,7 @@
   ul {
     margin: 0;
   }
+  text-align: left;
 }
 
 .article-inner-css sup,

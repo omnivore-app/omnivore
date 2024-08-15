@@ -31,14 +31,15 @@ import { highlightColor } from '../../lib/themeUpdater'
 
 import { HighlightViewNote } from '../patterns/HighlightNotes'
 import { theme } from '../tokens/stitches.config'
+import { useDeleteHighlight } from '../../lib/networking/highlights/useItemHighlights'
+import { EmptyLibrary } from '../templates/homeFeed/EmptyLibrary'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 const PAGE_SIZE = 10
 
 export function HighlightsContainer(): JSX.Element {
   const router = useRouter()
-  const viewer = useGetViewerQuery()
-  const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [_, setShowAddLinkModal] = useState(false)
+  const { data: viewerData } = useGetViewer()
 
   const { isLoading, setSize, size, data, mutate } = useGetHighlights({
     first: PAGE_SIZE,
@@ -72,19 +73,25 @@ export function HighlightsContainer(): JSX.Element {
       css={{
         padding: '20px',
         margin: '30px',
+        width: '100%',
         '@mdDown': {
           margin: '0px',
           marginTop: '50px',
         },
       }}
     >
+      {!isLoading && highlights.length < 1 && (
+        <Box css={{ width: '100%' }}>
+          <EmptyLibrary folder="highlights" />
+        </Box>
+      )}
       {highlights.map((highlight) => {
         return (
-          viewer.viewerData?.me && (
+          viewerData && (
             <HighlightCard
               key={highlight.id}
               highlight={highlight}
-              viewer={viewer.viewerData.me}
+              viewer={viewerData}
               router={router}
               mutate={mutate}
             />
@@ -133,6 +140,7 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
     useState<undefined | string>(undefined)
   const [labelsTarget, setLabelsTarget] =
     useState<Highlight | undefined>(undefined)
+  const deleteHighlight = useDeleteHighlight()
 
   const viewInReader = useCallback(
     (highlightId: string) => {
@@ -283,24 +291,22 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
           message={'Are you sure you want to delete this highlight?'}
           onAccept={() => {
             ;(async () => {
-              const highlightId = showConfirmDeleteHighlightId
-              const success = await deleteHighlightMutation(
-                props.highlight.libraryItem?.id || '',
-                showConfirmDeleteHighlightId
-              )
-              props.mutate()
-              if (success) {
-                showSuccessToast('Highlight deleted.', {
-                  position: 'bottom-right',
+              if (props.highlight.libraryItem) {
+                const success = await deleteHighlight.mutateAsync({
+                  itemId: props.highlight.libraryItem?.id,
+                  slug: props.highlight.libraryItem?.slug,
+                  highlightId: showConfirmDeleteHighlightId,
                 })
-                const event = new CustomEvent('deleteHighlightbyId', {
-                  detail: highlightId,
-                })
-                document.dispatchEvent(event)
-              } else {
-                showErrorToast('Error deleting highlight', {
-                  position: 'bottom-right',
-                })
+
+                if (success) {
+                  showSuccessToast('Highlight deleted.', {
+                    position: 'bottom-right',
+                  })
+                } else {
+                  showErrorToast('Error deleting highlight', {
+                    position: 'bottom-right',
+                  })
+                }
               }
             })()
             setShowConfirmDeleteHighlightId(undefined)

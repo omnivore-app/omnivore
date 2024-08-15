@@ -29,7 +29,16 @@ import {
   User,
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures } from '../services/features'
+import {
+  findUserFeatures,
+  getFeaturesCache,
+  setFeaturesCache,
+} from '../services/features'
+import {
+  countLibraryItems,
+  getCachedTotalCount,
+  setCachedTotalCount,
+} from '../services/library_item'
 import { Merge } from '../util'
 import { isBase64Image, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
@@ -43,6 +52,7 @@ import {
   emptyTrashResolver,
   fetchContentResolver,
   PartialLibraryItem,
+  PartialPageInfo,
 } from './article'
 import {
   addDiscoverFeedResolver,
@@ -61,11 +71,6 @@ import {
   updateFolderPolicyResolver,
 } from './folder_policy'
 import { highlightsResolver } from './highlight'
-import {
-  hiddenHomeSectionResolver,
-  homeResolver,
-  refreshHomeResolver,
-} from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -321,7 +326,6 @@ export const functionResolvers = {
     fetchContent: fetchContentResolver,
     exportToIntegration: exportToIntegrationResolver,
     replyToEmail: replyToEmailResolver,
-    refreshHome: refreshHomeResolver,
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
     deleteFolderPolicy: deleteFolderPolicyResolver,
@@ -359,9 +363,7 @@ export const functionResolvers = {
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
-    home: homeResolver,
     subscription: subscriptionResolver,
-    hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
     folderPolicies: folderPoliciesResolver,
     posts: postsResolver,
@@ -406,7 +408,16 @@ export const functionResolvers = {
         return undefined
       }
 
-      return findUserFeatures(ctx.claims.uid)
+      const userId = ctx.claims.uid
+      const cachedFeatures = await getFeaturesCache(userId)
+      if (cachedFeatures) {
+        return cachedFeatures
+      }
+
+      const features = await findUserFeatures(userId)
+      await setFeaturesCache(userId, features)
+
+      return features
     },
     picture: (user: UserEntity) => user.profile.pictureUrl,
     // not implemented yet
@@ -569,13 +580,11 @@ export const functionResolvers = {
         item.format !== ArticleFormat.Html &&
         item.readableContent
       ) {
-        let highlights: Highlight[] = []
-        // load highlights if needed
-        if (
-          item.format === ArticleFormat.HighlightedMarkdown &&
-          item.highlightAnnotations?.length
-        ) {
-          highlights = await ctx.dataLoaders.highlights.load(item.id)
+        if (item.format === ArticleFormat.HighlightedMarkdown) {
+          // if the content is highlighted markdown, we will return markdown instead
+          // because the conversion is very slow and we don't want to block the response
+          // we will convert it to highlighted markdown in the client if needed
+          item.format = ArticleFormat.Markdown
         }
 
         try {
@@ -584,7 +593,7 @@ export const functionResolvers = {
           // convert html to the requested format
           const converter = contentConverter(item.format)
           if (converter) {
-            return converter(item.readableContent, highlights)
+            return converter(item.readableContent)
           }
         } catch (error) {
           ctx.log.error('Error converting content', error)
@@ -595,7 +604,31 @@ export const functionResolvers = {
     },
     isArchived: (item: LibraryItem) => !!item.archivedAt,
     pageType: (item: LibraryItem) => item.itemType,
+    highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
+  },
+  PageInfo: {
+    async totalCount(
+      pageInfo: PartialPageInfo,
+      _: unknown,
+      ctx: ResolverContext
+    ) {
+      if (pageInfo.totalCount) return pageInfo.totalCount
+
+      if (pageInfo.searchLibraryItemArgs && ctx.claims) {
+        const args = pageInfo.searchLibraryItemArgs
+        const userId = ctx.claims.uid
+        const cachedCount = await getCachedTotalCount(userId, args)
+        if (cachedCount) return cachedCount
+
+        const count = await countLibraryItems(args, userId)
+        await setCachedTotalCount(userId, args, count)
+
+        return count
+      }
+
+      return 0
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {

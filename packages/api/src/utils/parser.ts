@@ -647,9 +647,15 @@ export const contentConverter = (
 ): contentConverterFunc | undefined => {
   switch (format) {
     case ArticleFormat.Markdown:
-      return htmlToMarkdown
+      return (html: string) => {
+        return ''
+      }
+    //      return htmlToMarkdown
     case ArticleFormat.HighlightedMarkdown:
-      return htmlToHighlightedMarkdown
+      return (html: string) => {
+        return ''
+      }
+    //      return htmlToHighlightedMarkdown
     default:
       return undefined
   }

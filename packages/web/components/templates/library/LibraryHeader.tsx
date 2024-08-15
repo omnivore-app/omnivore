@@ -9,7 +9,7 @@ import { FunnelSimple, X } from '@phosphor-icons/react'
 import { LayoutType } from '../homeFeed/HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
@@ -26,6 +26,7 @@ export type LibraryHeaderProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
 
+  folder: string | undefined
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 
@@ -250,26 +251,28 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         distribution="start"
         css={{ width: '100%', height: '100%' }}
       >
-        <HStack
-          alignment="center"
-          distribution="center"
-          css={{
-            width: '53px',
-            height: '100%',
-            display: 'flex',
-            bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
-            borderTopLeftRadius: '6px',
-            borderBottomLeftRadius: '6px',
-            '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
-            '&:hover': {
-              bg: '$thLibraryMultiselectHover',
-              '--checkbox-color':
-                'var(--colors-thLibraryMultiselectCheckboxHover)',
-            },
-          }}
-        >
-          <CheckBoxButton {...props} />
-        </HStack>
+        {props.folder !== 'trash' && (
+          <HStack
+            alignment="center"
+            distribution="center"
+            css={{
+              width: '53px',
+              height: '100%',
+              display: 'flex',
+              bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
+              borderTopLeftRadius: '6px',
+              borderBottomLeftRadius: '6px',
+              '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
+              '&:hover': {
+                bg: '$thLibraryMultiselectHover',
+                '--checkbox-color':
+                  'var(--colors-thLibraryMultiselectCheckboxHover)',
+              },
+            }}
+          >
+            <CheckBoxButton {...props} />
+          </HStack>
+        )}
         <HStack
           alignment="center"
           distribution="start"

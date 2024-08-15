@@ -2,7 +2,7 @@ import { useRegisterActions } from 'kbar'
 import { useCallback, useState } from 'react'
 import { applyStoredTheme } from '../themeUpdater'
 import { usePersistedState } from './usePersistedState'
-import { TextDirection } from '../networking/queries/useGetArticleQuery'
+import { TextDirection } from '../networking/library_items/useLibraryItems'
 
 const DEFAULT_FONT = 'Inter'
 

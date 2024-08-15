@@ -1,10 +1,11 @@
-import { DeepPartial, IsNull } from 'typeorm'
-import { Shortcut, UserPersonalization } from '../entity/user_personalization'
-import { authTrx } from '../repository'
-import { findLabelsByUserId } from './labels'
-import { findSubscriptionById } from './subscriptions'
+import { DeepPartial } from 'typeorm'
 import { Filter } from '../entity/filter'
 import { Subscription, SubscriptionStatus } from '../entity/subscription'
+import { Shortcut, UserPersonalization } from '../entity/user_personalization'
+import { redisDataSource } from '../redis_data_source'
+import { authTrx } from '../repository'
+import { logger } from '../utils/logger'
+import { findLabelsByUserId } from './labels'
 
 export const findUserPersonalization = async (userId: string) => {
   return authTrx(
@@ -131,7 +132,7 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
           id: label.id,
           type: 'label',
           name: label.name,
-          section: 'library',
+          section: 'search',
           label: label,
           filter: `in:all label:"${label.name}"`,
         }
@@ -166,10 +167,35 @@ const userDefaultShortcuts = async (userId: string): Promise<Shortcut[]> => {
           id: search.id,
           type: 'search',
           name: search.name,
-          section: 'library',
+          section: 'search',
           filter: search.filter,
         }
       }),
     },
   ]
+}
+
+const shortcutsCacheKey = (userId: string) => `cache:shortcuts:${userId}`
+
+export const getShortcutsCache = async (userId: string) => {
+  logger.debug(`Getting shortcuts from cache: ${userId}`)
+
+  const cachedShortcuts = await redisDataSource.redisClient?.get(
+    shortcutsCacheKey(userId)
+  )
+  if (!cachedShortcuts) {
+    return undefined
+  }
+  return JSON.parse(cachedShortcuts) as Shortcut[]
+}
+
+export const cacheShortcuts = async (userId: string, shortcuts: Shortcut[]) => {
+  logger.debug(`Caching shortcuts: ${userId}`)
+
+  await redisDataSource.redisClient?.set(
+    shortcutsCacheKey(userId),
+    JSON.stringify(shortcuts),
+    'EX',
+    600
+  )
 }
