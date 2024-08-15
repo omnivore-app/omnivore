@@ -202,7 +202,6 @@ export const insertItemInCache = (
           },
         ]
         data.pages[0] = firstPage
-        console.log('data: ', data)
         return data
       }
     })
@@ -222,7 +221,8 @@ export function useGetLibraryItems(
   return useInfiniteQuery({
     // If no folder is specified cache this as `home`
     queryKey: ['libraryItems', folder ?? 'home', fullQuery],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ queryKey, pageParam }) => {
+      console.log('querying: ', pageParam, fullQuery, queryKey)
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
         first: limit,
@@ -233,24 +233,18 @@ export function useGetLibraryItems(
     },
     enabled,
     initialPageParam: '0',
-    getNextPageParam: (lastPage: LibraryItems) => {
-      console.log(
-        'lastPage.pageInfo.hasNextPage: ',
-        lastPage.pageInfo.hasNextPage,
-        'lastPage?.pageInfo?.endCursor:',
-        lastPage?.pageInfo?.endCursor
-      )
+    getNextPageParam: (lastPage: LibraryItems, pages) => {
+      console.log('getting next page: ', pages)
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
         : undefined
     },
-    // getPreviousPageParam: (firstPage, pages) => {
-    //   return firstPage.pageInfo.hasPreviousPage
-    //     ? firstPage?.pageInfo?.startCursor
-    //     : undefined
-    //   // console.log('getPreviousPageParam: firstPage, pages', firstPage, pages)
-    //   // return undefined
-    // },
+    getPreviousPageParam: (firstPage, pages) => {
+      console.log('firstPage.pageInfo', firstPage?.pageInfo?.startCursor)
+      return firstPage.pageInfo.hasPreviousPage
+        ? firstPage?.pageInfo?.startCursor
+        : undefined
+    },
   })
 }
 

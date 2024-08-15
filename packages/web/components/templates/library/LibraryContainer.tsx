@@ -54,7 +54,11 @@ import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import {
+  InfiniteData,
+  QueryClient,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
@@ -86,7 +90,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
 
   const defaultQuery = {
-    limit: 5,
+    limit: 10,
     folder: props.folder,
     sortDescending: true,
     searchQuery: undefined,
@@ -209,6 +213,20 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     }
     activateCard(firstItem.node.id)
   }, [libraryItems])
+
+  // const queryClient = useQueryClient()
+  // useEffect(() => {
+  //   return () => {
+  //     console.log('clearing old items')
+  //     queryClient.setQueryData(
+  //       ['libraryItems'],
+  //       (data: InfiniteData<LibraryItems, unknown>) => ({
+  //         pages: data.pages.slice(0, 1),
+  //         pageParams: data.pageParams.slice(0, 1),
+  //       })
+  //     )
+  //   }
+  // }, [])
 
   const activateCard = useCallback(
     (id: string) => {

@@ -45,6 +45,7 @@ export default function Home(): JSX.Element {
         // return <HomeContainer />
         return (
           <LibraryContainer
+            key={name}
             folder={undefined}
             filterFunc={(item) => {
               return (
@@ -59,6 +60,7 @@ export default function Home(): JSX.Element {
       case 'library':
         return (
           <LibraryContainer
+            key={name}
             folder="inbox"
             filterFunc={(item) => {
               return (
@@ -73,6 +75,7 @@ export default function Home(): JSX.Element {
       case 'subscriptions':
         return (
           <LibraryContainer
+            key={name}
             folder="following"
             filterFunc={(item) => {
               return (
@@ -87,6 +90,7 @@ export default function Home(): JSX.Element {
       case 'search':
         return (
           <LibraryContainer
+            key={name}
             folder={undefined}
             filterFunc={(item) => {
               console.log('item: ', item)
@@ -98,6 +102,7 @@ export default function Home(): JSX.Element {
       case 'archive':
         return (
           <LibraryContainer
+            key={name}
             folder="archive"
             filterFunc={(item) => {
               return item.state == 'ARCHIVED'
@@ -108,6 +113,7 @@ export default function Home(): JSX.Element {
       case 'trash':
         return (
           <LibraryContainer
+            key={name}
             folder="trash"
             filterFunc={(item) => {
               return item.state == 'DELETED'
