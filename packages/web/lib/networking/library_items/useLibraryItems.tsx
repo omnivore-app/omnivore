@@ -209,6 +209,7 @@ export const insertItemInCache = (
 }
 
 export function useGetLibraryItems(
+  section: string,
   folder: string | undefined,
   { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
   enabled = true
@@ -217,10 +218,9 @@ export function useGetLibraryItems(
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''
 
-  console.log('fullQuery: ', fullQuery)
   return useInfiniteQuery({
     // If no folder is specified cache this as `home`
-    queryKey: ['libraryItems', folder ?? 'home', fullQuery],
+    queryKey: ['libraryItems', section, fullQuery],
     queryFn: async ({ queryKey, pageParam }) => {
       console.log('querying: ', pageParam, fullQuery, queryKey)
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {

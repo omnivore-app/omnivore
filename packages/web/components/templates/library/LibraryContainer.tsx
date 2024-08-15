@@ -54,11 +54,7 @@ import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
-import {
-  InfiniteData,
-  QueryClient,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
@@ -125,7 +121,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     fetchNextPage,
     hasNextPage,
     error: fetchItemsError,
-  } = useGetLibraryItems(props.folder, queryInputs)
+  } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -214,19 +210,28 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activateCard(firstItem.node.id)
   }, [libraryItems])
 
-  // const queryClient = useQueryClient()
-  // useEffect(() => {
-  //   return () => {
-  //     console.log('clearing old items')
-  //     queryClient.setQueryData(
-  //       ['libraryItems'],
-  //       (data: InfiniteData<LibraryItems, unknown>) => ({
-  //         pages: data.pages.slice(0, 1),
-  //         pageParams: data.pageParams.slice(0, 1),
-  //       })
-  //     )
-  //   }
-  // }, [])
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    return () => {
+      const keys = queryClient
+        .getQueryCache()
+        .findAll({ queryKey: ['libraryItems', props.folder ?? 'home'] })
+
+      keys.forEach((query) => {
+        console.log('clearing old items')
+        queryClient.setQueryData(
+          query.queryKey,
+          (data: InfiniteData<LibraryItems, unknown>) => {
+            console.log('unloading data: ', data)
+            return {
+              pages: data.pages.slice(0, 3),
+              pageParams: data.pageParams.slice(0, 3),
+            }
+          }
+        )
+      })
+    }
+  }, [queryClient])
 
   const activateCard = useCallback(
     (id: string) => {
