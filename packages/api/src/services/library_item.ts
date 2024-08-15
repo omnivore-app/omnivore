@@ -642,7 +642,10 @@ export const createSearchQueryBuilder = (
   // exclude content if not requested
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
-      (select) => args.includeContent || select !== 'readableContent' //
+      (select) =>
+        args.includeContent ||
+        ['readableContent', 'feedContent', 'previewContent'].indexOf(select) ===
+          -1
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
