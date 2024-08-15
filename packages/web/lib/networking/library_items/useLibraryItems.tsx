@@ -233,7 +233,6 @@ export function useGetLibraryItems(
     },
     enabled,
     initialPageParam: '0',
-    staleTime: 60 * 1000,
     getNextPageParam: (lastPage: LibraryItems) => {
       console.log(
         'lastPage.pageInfo.hasNextPage: ',
