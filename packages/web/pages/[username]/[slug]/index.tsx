@@ -305,7 +305,7 @@ export default function Reader(): JSX.Element {
         perform: () => {
           const navReturn = window.localStorage.getItem('nav-return')
           if (navReturn) {
-            router.push(navReturn)
+            router.push(navReturn, navReturn, { scroll: false })
             return
           }
           const query = window.sessionStorage.getItem('q')

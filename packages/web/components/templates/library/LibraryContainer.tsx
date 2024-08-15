@@ -56,6 +56,7 @@ import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
 import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
+import { Spinner } from '@phosphor-icons/react/dist/ssr'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -210,29 +211,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activateCard(firstItem.node.id)
   }, [libraryItems])
 
-  const queryClient = useQueryClient()
-  useEffect(() => {
-    return () => {
-      const keys = queryClient
-        .getQueryCache()
-        .findAll({ queryKey: ['libraryItems', props.folder ?? 'home'] })
-
-      keys.forEach((query) => {
-        console.log('clearing old items')
-        queryClient.setQueryData(
-          query.queryKey,
-          (data: InfiniteData<LibraryItems, unknown>) => {
-            console.log('unloading data: ', data)
-            return {
-              pages: data.pages.slice(0, 3),
-              pageParams: data.pageParams.slice(0, 3),
-            }
-          }
-        )
-      })
-    }
-  }, [queryClient])
-
   const activateCard = useCallback(
     (id: string) => {
       if (!document.getElementById(id)) {
@@ -318,6 +296,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [libraryItems, activeCardId])
 
   useEffect(() => {
+    console.log('active card id: ', activeCardId)
     if (activeCardId && !alreadyScrolled.current) {
       scrollToActiveCard(activeCardId)
       alreadyScrolled.current = true
@@ -1173,16 +1152,20 @@ export function LibraryItemsLayout(
             css={{ width: '100%', mt: '$2', mb: '$4' }}
           >
             {props.hasMore ? (
-              <Button
-                style="ctaGray"
-                css={{
-                  cursor: props.isValidating ? 'not-allowed' : 'pointer',
-                }}
-                onClick={props.loadMore}
-                disabled={props.isValidating}
-              >
-                {props.isValidating ? 'Loading' : 'Load More'}
-              </Button>
+              props.isValidating ? (
+                <Spinner />
+              ) : (
+                <Button
+                  style="ctaGray"
+                  css={{
+                    cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                  }}
+                  onClick={props.loadMore}
+                  disabled={props.isValidating}
+                >
+                  {props.isValidating ? 'Loading' : 'More search results'}
+                </Button>
+              )
             ) : (
               <StyledText style="caption"></StyledText>
             )}

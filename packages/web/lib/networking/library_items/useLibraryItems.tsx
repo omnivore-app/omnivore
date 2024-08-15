@@ -86,6 +86,7 @@ export const updateItemProperty = (
     .findAll({ queryKey: ['libraryItems'] })
 
   keys.forEach((query) => {
+    console.log('updating query: ', query.queryKey)
     queryClient.setQueryData(query.queryKey, (data: any) => {
       if (!data) return data
       const updatedData = {
@@ -107,6 +108,7 @@ export const updateItemProperty = (
       return updatedData
     })
   })
+  console.log('updated: foundItemSlug', foundItemSlug)
   if (foundItemSlug || slug) {
     queryClient.setQueryData(
       ['libraryItem', foundItemSlug ?? slug],
