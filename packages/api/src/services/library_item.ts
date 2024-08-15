@@ -694,7 +694,7 @@ export const createSearchQueryBuilder = (
   }
 
   // default order by saved at descending
-  if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+  if (orders.length === 0) {
     orders.push({
       by: 'library_item.saved_at',
       order: SortOrder.DESCENDING,
