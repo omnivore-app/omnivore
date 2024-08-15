@@ -220,7 +220,8 @@ export function useGetLibraryItems(
 
   console.log('fullQuery: ', fullQuery)
   return useInfiniteQuery({
-    queryKey: ['libraryItems', folder, fullQuery],
+    // If no folder is specified cache this as `home`
+    queryKey: ['libraryItems', folder ?? 'home', fullQuery],
     queryFn: async ({ pageParam }) => {
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
@@ -232,7 +233,7 @@ export function useGetLibraryItems(
     },
     enabled,
     initialPageParam: '0',
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
     getNextPageParam: (lastPage: LibraryItems) => {
       console.log(
         'lastPage.pageInfo.hasNextPage: ',
