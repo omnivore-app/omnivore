@@ -218,8 +218,9 @@ export function useGetLibraryItems(
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''
 
+  console.log('fullQuery: ', fullQuery)
   return useInfiniteQuery({
-    queryKey: ['libraryItems', fullQuery],
+    queryKey: ['libraryItems', folder, fullQuery],
     queryFn: async ({ pageParam }) => {
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
@@ -231,14 +232,25 @@ export function useGetLibraryItems(
     },
     enabled,
     initialPageParam: '0',
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    staleTime: 10 * 60 * 1000,
+    // maxPages: 3,
     getNextPageParam: (lastPage: LibraryItems) => {
+      console.log(
+        'lastPage.pageInfo.hasNextPage: ',
+        lastPage.pageInfo.hasNextPage,
+        'lastPage?.pageInfo?.endCursor:',
+        lastPage?.pageInfo?.endCursor
+      )
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
         : undefined
     },
+    // getPreviousPageParam: (firstPage, pages) => {
+    //   return firstPage.pageInfo.hasPreviousPage
+    //     ? firstPage?.pageInfo?.startCursor
+    //     : undefined
+    //   // console.log('getPreviousPageParam: firstPage, pages', firstPage, pages)
+    //   // return undefined
+    // },
   })
 }
 
@@ -531,7 +543,9 @@ export function useRefreshProcessingItems() {
     attempt: number
     itemIds: string[]
   }) => {
-    const fullQuery = `in:all includes:${variables.itemIds.join(',')}`
+    const fullQuery = `in:all includes:${variables.itemIds
+      .slice(0, 5)
+      .join(',')}`
     const result = (await gqlFetcher(gqlSearchQuery(), {
       first: 10,
       query: fullQuery,

@@ -86,7 +86,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
 
   const defaultQuery = {
-    limit: 10,
+    limit: 5,
     folder: props.folder,
     sortDescending: true,
     searchQuery: undefined,
@@ -178,22 +178,22 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     }
   }, [libraryItems])
 
-  const processingItems = useMemo(() => {
-    return libraryItems
-      .filter((li) => li.node.state === State.PROCESSING)
-      .map((li) => li.node.id)
-  }, [libraryItems])
+  // const processingItems = useMemo(() => {
+  //   return libraryItems
+  //     .filter((li) => li.node.state === State.PROCESSING)
+  //     .map((li) => li.node.id)
+  // }, [libraryItems])
 
-  const refreshProcessingItems = useRefreshProcessingItems()
+  // const refreshProcessingItems = useRefreshProcessingItems()
 
-  useEffect(() => {
-    if (processingItems.length) {
-      refreshProcessingItems.mutateAsync({
-        attempt: 0,
-        itemIds: processingItems,
-      })
-    }
-  }, [processingItems])
+  // useEffect(() => {
+  //   if (processingItems.length) {
+  //     refreshProcessingItems.mutateAsync({
+  //       attempt: 0,
+  //       itemIds: processingItems,
+  //     })
+  //   }
+  // }, [processingItems])
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {
