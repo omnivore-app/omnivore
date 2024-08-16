@@ -158,6 +158,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [router.asPath])
 
   const libraryItems = useMemo(() => {
+    console.log('library items: ', itemsPages)
     const items =
       itemsPages?.pages
         .flatMap((ad: LibraryItems) => {
