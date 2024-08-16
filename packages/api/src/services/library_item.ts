@@ -694,7 +694,10 @@ export const createSearchQueryBuilder = (
   }
 
   // default order by saved at descending
-  if (orders.length === 0) {
+  if (
+    orders.length === 0 ||
+    orders.every((order) => order.by.startsWith('rank')) // if only rank orders are present, add saved at order
+  ) {
     orders.push({
       by: 'library_item.saved_at',
       order: SortOrder.DESCENDING,
