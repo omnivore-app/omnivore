@@ -688,8 +688,8 @@ export const updatesSinceResolver = authorized<
   const sort = sortParamsToSort(sortParams)
 
   // create a search query
-  const query = `${
-    folder ? ' in:' + folder : ''
+  const query = `in:${
+    folder || 'all'
   } updated:${startDate.toISOString()} sort:${sort.by}-${sort.order}`
 
   const searchLibraryItemArgs = {
@@ -703,7 +703,7 @@ export const updatesSinceResolver = authorized<
       ...searchLibraryItemArgs,
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
-      useFolders: query.includes('use:folders'),
+      useFolders: true,
     },
     uid
   )
