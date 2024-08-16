@@ -688,14 +688,14 @@ export const updatesSinceResolver = authorized<
   const sort = sortParamsToSort(sortParams)
 
   // create a search query
-  const query = `updated:${startDate.toISOString()}${
-    folder ? ' in:' + folder : ''
-  } sort:${sort.by}-${sort.order}`
+  const query = `in:${
+    folder || 'all'
+  } updated:${startDate.toISOString()} sort:${sort.by}-${sort.order}`
 
   const searchLibraryItemArgs = {
     includeDeleted: true,
     query,
-    includeContent: true, // by default include content for offline use for now
+    includeContent: false,
   }
 
   const libraryItems = await searchLibraryItems(
@@ -703,6 +703,7 @@ export const updatesSinceResolver = authorized<
       ...searchLibraryItemArgs,
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
+      useFolders: true,
     },
     uid
   )

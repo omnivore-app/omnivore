@@ -642,7 +642,10 @@ export const createSearchQueryBuilder = (
   // exclude content if not requested
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
-      (select) => args.includeContent || select !== 'readableContent' //
+      (select) =>
+        args.includeContent ||
+        ['readableContent', 'feedContent', 'previewContent'].indexOf(select) ===
+          -1
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -691,7 +694,10 @@ export const createSearchQueryBuilder = (
   }
 
   // default order by saved at descending
-  if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+  if (
+    orders.length === 0 ||
+    orders.every((order) => order.by.startsWith('rank')) // if only rank orders are present, add saved at order
+  ) {
     orders.push({
       by: 'library_item.saved_at',
       order: SortOrder.DESCENDING,
