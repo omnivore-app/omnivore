@@ -118,6 +118,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const {
     data: itemsPages,
     isLoading,
+    isFetchingNextPage,
     isFetching,
     fetchNextPage,
     hasNextPage,
@@ -677,6 +678,13 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     }
   })
 
+  console.log(
+    'isFetching && !isLoading, isFetchingNextPage',
+    isFetching,
+    isLoading,
+    isFetchingNextPage
+  )
+
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {
       if (set && checkedItems.indexOf(itemId) === -1) {
@@ -824,7 +832,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       loadMore={fetchNextPage}
       hasMore={hasNextPage ?? false}
       hasData={!!itemsPages}
-      isValidating={isLoading}
+      isValidating={isLoading || isFetchingNextPage}
       fetchItemsError={!!fetchItemsError}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
