@@ -812,7 +812,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   return (
     <InfiniteScroll
-      dataLength={libraryItems} //This is important field to render the next data
+      dataLength={libraryItems.length}
       next={fetchNextPage}
       hasMore={hasNextPage}
       loader={<h4>Loading...</h4>}
