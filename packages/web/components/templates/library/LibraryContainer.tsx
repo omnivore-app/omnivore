@@ -121,7 +121,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     isFetchingNextPage,
     isFetching,
     fetchNextPage,
+    fetchPreviousPage,
     hasNextPage,
+    hasPreviousPage,
     error: fetchItemsError,
   } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
 
@@ -187,16 +189,16 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       .map((li) => li.node.id)
   }, [libraryItems])
 
-  const refreshProcessingItems = useRefreshProcessingItems()
+  // const refreshProcessingItems = useRefreshProcessingItems()
 
-  useEffect(() => {
-    if (processingItems.length) {
-      refreshProcessingItems.mutateAsync({
-        attempt: 0,
-        itemIds: processingItems,
-      })
-    }
-  }, [processingItems])
+  // useEffect(() => {
+  //   if (processingItems.length) {
+  //     refreshProcessingItems.mutateAsync({
+  //       attempt: 0,
+  //       itemIds: processingItems,
+  //     })
+  //   }
+  // }, [processingItems])
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {
@@ -672,11 +674,18 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS,
     [activeCardId, activeItem]
   )
-  useFetchMore(() => {
-    if (!isFetching && !isLoading && hasNextPage) {
-      fetchNextPage()
+  useFetchMore(
+    () => {
+      if (!isFetching && !isLoading && hasNextPage) {
+        fetchNextPage()
+      }
+    },
+    () => {
+      if (!isFetching && !isLoading && hasPreviousPage) {
+        fetchPreviousPage()
+      }
     }
-  })
+  )
 
   console.log(
     'isFetching && !isLoading, isFetchingNextPage',

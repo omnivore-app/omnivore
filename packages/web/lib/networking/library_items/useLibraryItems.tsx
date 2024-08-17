@@ -23,6 +23,7 @@ import {
   GQL_SET_LINK_ARCHIVED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
+import { useState } from 'react'
 
 function gqlFetcher(
   query: string,
@@ -224,7 +225,6 @@ export function useGetLibraryItems(
     // If no folder is specified cache this as `home`
     queryKey: ['libraryItems', section, fullQuery],
     queryFn: async ({ queryKey, pageParam }) => {
-      console.log('queryKey, pageParam', queryKey, pageParam)
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
         first: limit,
@@ -234,19 +234,31 @@ export function useGetLibraryItems(
       return response.search
     },
     enabled,
+    maxPages: 3,
     initialPageParam: '0',
     getNextPageParam: (lastPage: LibraryItems, pages) => {
-      console.log('getting next page: ', lastPage?.pageInfo?.endCursor, pages)
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
         : undefined
     },
-    // getPreviousPageParam: (firstPage, pages) => {
-    //   console.log('firstPage.pageInfo', firstPage?.pageInfo?.startCursor)
-    //   return firstPage.pageInfo.hasPreviousPage
-    //     ? firstPage?.pageInfo?.startCursor
-    //     : undefined
-    // },
+    select: (data) => {
+      console.log('data: ', data, 'infiniteQuery')
+      return data
+      // console.log('data: ', data)
+      // // Keep the rest of the data the same and only refetch the first page
+      // console.log(
+      //   'data.pages.length > 1 && infiniteQuery.isRefetching',
+      //   data.pages.length,
+      //   infiniteQuery.isRefetching
+      // )
+      // // if (data.pages.length > 1 && infiniteQuery.isRefetching) {
+      // //   return {
+      // //     ...data,
+      // //     pages: [data.pages[0], ...data.pages.slice(1)],
+      // //   }
+      // // }
+      // return data
+    },
   })
 }
 

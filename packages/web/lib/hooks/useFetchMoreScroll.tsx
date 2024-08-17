@@ -1,19 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 
-export const useFetchMore = (callback: () => void, delay = 500): void => {
+export const useFetchMore = (
+  fetchNextPage: () => void,
+  fetchPreviousPage: () => void,
+  delay = 500
+): void => {
   const [first, setFirst] = useState(true)
+  const [lastScrollTop, setLastScrollTop] = useState(0)
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
     const callbackInternal = (): void => {
       const { scrollTop, scrollHeight, clientHeight } =
         window.document.documentElement
+      const direction = scrollTop > lastScrollTop ? 'down' : 'up'
+      setLastScrollTop(scrollTop)
 
-      if (scrollTop + clientHeight >= scrollHeight - scrollHeight / 3) {
+      console.log('direction: ', direction)
+
+      if (
+        direction == 'down' &&
+        scrollTop + clientHeight >= scrollHeight - scrollHeight / 3
+      ) {
         console.log(
           'calling fetchMore: scrollTop + clientHeight >= scrollHeight - scrollHeight / 3',
           scrollTop,
@@ -21,8 +29,14 @@ export const useFetchMore = (callback: () => void, delay = 500): void => {
           scrollHeight,
           scrollHeight / 3
         )
-        callback()
+        fetchNextPage()
+      } else if (direction == 'up' && scrollTop < 300) {
+        console.log('calling fetchPrevious: ', scrollTop)
+        fetchPreviousPage()
       }
+
+      console.log('scrollTop: ', scrollTop)
+
       throttleTimeout.current = undefined
     }
 
@@ -42,5 +56,5 @@ export const useFetchMore = (callback: () => void, delay = 500): void => {
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [callback, delay, first, setFirst])
+  }, [fetchNextPage, fetchPreviousPage, delay, first, setFirst])
 }
