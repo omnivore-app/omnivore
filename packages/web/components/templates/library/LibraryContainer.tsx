@@ -823,7 +823,16 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       }
     >
       {libraryItems.map((item) => {
-        return <Box key={item.node.id}>{item.node.title}</Box>
+        return (
+          <Box
+            key={item.node.id}
+            onClick={() => {
+              router.push(`${viewerData?.profile.username}/${item.node.slug}`)
+            }}
+          >
+            {item.node.title}
+          </Box>
+        )
       })}
     </InfiniteScroll>
   )
