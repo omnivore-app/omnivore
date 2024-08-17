@@ -830,7 +830,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
               router.push(`${viewerData?.profile.username}/${item.node.slug}`)
             }}
           >
-            {item.node.title}
+            {item.cursor}: {item.node.title}
           </Box>
         )
       })}
