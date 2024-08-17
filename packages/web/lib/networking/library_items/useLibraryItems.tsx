@@ -241,23 +241,10 @@ export function useGetLibraryItems(
         ? lastPage?.pageInfo?.endCursor
         : undefined
     },
-    select: (data) => {
-      console.log('data: ', data, 'infiniteQuery')
-      return data
-      // console.log('data: ', data)
-      // // Keep the rest of the data the same and only refetch the first page
-      // console.log(
-      //   'data.pages.length > 1 && infiniteQuery.isRefetching',
-      //   data.pages.length,
-      //   infiniteQuery.isRefetching
-      // )
-      // // if (data.pages.length > 1 && infiniteQuery.isRefetching) {
-      // //   return {
-      // //     ...data,
-      // //     pages: [data.pages[0], ...data.pages.slice(1)],
-      // //   }
-      // // }
-      // return data
+    getPreviousPageParam: (firstPage: LibraryItems, pages) => {
+      return firstPage.pageInfo.hasPreviousPage
+        ? firstPage?.pageInfo?.startCursor
+        : undefined
     },
   })
 }
