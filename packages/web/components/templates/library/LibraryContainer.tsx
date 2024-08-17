@@ -57,6 +57,7 @@ import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
 import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 import { Spinner } from '@phosphor-icons/react/dist/ssr'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -807,6 +808,24 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       setMultiSelectMode('off')
     },
     [itemsPages, multiSelectMode, checkedItems]
+  )
+
+  return (
+    <InfiniteScroll
+      dataLength={libraryItems} //This is important field to render the next data
+      next={fetchNextPage}
+      hasMore={hasNextPage}
+      loader={<h4>Loading...</h4>}
+      endMessage={
+        <p style={{ textAlign: 'center' }}>
+          <b>Yay! You have seen it all</b>
+        </p>
+      }
+    >
+      {libraryItems.map((item) => {
+        return <Box key={item.node.id}>{item.node.title}</Box>
+      })}
+    </InfiniteScroll>
   )
 
   return (
