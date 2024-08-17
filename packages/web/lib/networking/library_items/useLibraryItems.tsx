@@ -234,16 +234,13 @@ export function useGetLibraryItems(
       return response.search
     },
     enabled,
-    maxPages: 3,
     initialPageParam: '0',
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
     getNextPageParam: (lastPage: LibraryItems, pages) => {
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
-        : undefined
-    },
-    getPreviousPageParam: (firstPage: LibraryItems, pages) => {
-      return firstPage.pageInfo.hasPreviousPage
-        ? firstPage?.pageInfo?.startCursor
         : undefined
     },
   })
