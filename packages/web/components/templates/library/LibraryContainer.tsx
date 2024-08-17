@@ -827,7 +827,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
           <Box
             key={item.node.id}
             onClick={() => {
-              router.push(`${viewerData?.profile.username}/${item.node.slug}`)
+              router.push(`/${viewerData?.profile.username}/${item.node.slug}`)
             }}
           >
             {item.cursor}: {item.node.title}

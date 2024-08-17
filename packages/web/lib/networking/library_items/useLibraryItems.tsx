@@ -235,9 +235,7 @@ export function useGetLibraryItems(
     },
     enabled,
     initialPageParam: '0',
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
+    staleTime: 10_000,
     getNextPageParam: (lastPage: LibraryItems, pages) => {
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
