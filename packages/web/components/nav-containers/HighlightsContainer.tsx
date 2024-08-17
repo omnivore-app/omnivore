@@ -59,7 +59,7 @@ export function HighlightsContainer(): JSX.Element {
     setSize(size + 1)
   }, [isLoading, hasMore, setSize, size])
 
-  useFetchMore(handleFetchMore)
+  // useFetchMore(handleFetchMore)
 
   const highlights = useMemo(() => {
     if (!data) {
