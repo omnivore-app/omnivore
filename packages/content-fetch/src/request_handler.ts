@@ -165,8 +165,8 @@ const incrementContentFetchFailure = async (
   const key = failureRedisKey(domain)
   try {
     const result = await redisClient.incr(key)
-    // expire the key in 1 day
-    await redisClient.expire(key, 24 * 60 * 60)
+    // expire the key in 1 hour
+    await redisClient.expire(key, 60 * 60)
 
     return result
   } catch (error) {

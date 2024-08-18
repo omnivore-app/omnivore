@@ -15,7 +15,7 @@ export const getYoutubePlaylistId = (url: string) => {
   return u.searchParams.get('list')
 }
 
-const getEmbedData = (url: string) => {
+export const getEmbedData = (url: string) => {
   const BaseUrl = 'https://www.youtube.com'
   const embedBaseUrl = 'https://www.youtube.com/embed'
 
@@ -25,17 +25,17 @@ const getEmbedData = (url: string) => {
     throw new Error(`Invalid youtube url: ${url}`)
   }
 
-  const type = match[4]
-  const id = match[5]
-
-  if (type === '/playlist?list=') {
-    const playlistId = getYoutubePlaylistId(url) || id
-
+  const playlistId = getYoutubePlaylistId(url)
+  if (playlistId) {
     return {
       src: `${embedBaseUrl}/videoseries?list=${playlistId}`,
       url: `${BaseUrl}/playlist?list=${playlistId}`,
     }
-  } else if (type === '/shorts/') {
+  }
+
+  const type = match[4]
+  const id = match[5]
+  if (type === '/shorts/') {
     return {
       src: `${embedBaseUrl}/${id}`,
       url: `${BaseUrl}/shorts/${id}`,
@@ -43,7 +43,6 @@ const getEmbedData = (url: string) => {
   }
 
   const videoId = getYoutubeVideoId(url) || id
-
   return {
     src: `${embedBaseUrl}/${videoId}`,
     url: `${BaseUrl}/watch?v=${videoId}`,
