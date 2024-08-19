@@ -54,10 +54,8 @@ import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
-import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 import { Spinner } from '@phosphor-icons/react/dist/ssr'
-import InfiniteScroll from 'react-infinite-scroll-component'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
