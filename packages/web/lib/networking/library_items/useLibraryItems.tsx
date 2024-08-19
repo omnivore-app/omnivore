@@ -276,6 +276,10 @@ export function useGetLibraryItems(
         includeContent: false,
       })) as LibraryItemsData
 
+      console.log(
+        'cached.pageParams.indexOf(pageParam)',
+        cached.pageParams.indexOf(pageParam)
+      )
       if (cached && cached.pageParams.indexOf(pageParam) > -1) {
         const idx = cached.pageParams.indexOf(pageParam)
         // // if there is a cache, check to see if the page is already in it
