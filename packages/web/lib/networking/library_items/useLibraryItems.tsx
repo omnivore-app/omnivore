@@ -245,6 +245,11 @@ export function useGetLibraryItems(
       const cached = queryClient.getQueryData(queryKey) as CachedPagesData
       if (Number(pageParam) > limit) {
         // check in the query cache
+        console.log(
+          'cached, previousPageUnchanged',
+          cached,
+          previousPageUnchanged
+        )
         if (cached && previousPageUnchanged) {
           // First check if the previous page had detected a modification
           // if it had we keep fetching until we find a
@@ -271,11 +276,8 @@ export function useGetLibraryItems(
         includeContent: false,
       })) as LibraryItemsData
 
-      console.log('cached: ', cached)
       if (cached && cached.pageParams.indexOf(pageParam) > -1) {
         const idx = cached.pageParams.indexOf(pageParam)
-
-        console.log(' -- checking cache', idx, cached.pages[idx])
         // // if there is a cache, check to see if the page is already in it
         // // and mark whether or not the page has changed
         try {
@@ -284,13 +286,6 @@ export function useGetLibraryItems(
           const compareFunc = (a: string[], b: string[]) =>
             a.length === b.length &&
             a.every((element, index) => element === b[index])
-          console.log(
-            'cachedIds == resultIds',
-            cachedIds == resultIds,
-            cachedIds,
-            resultIds,
-            compareFunc(cachedIds, resultIds)
-          )
           setPreviousPageUnchanged(compareFunc(cachedIds, resultIds))
         } catch (err) {
           console.log('error: ', err)
