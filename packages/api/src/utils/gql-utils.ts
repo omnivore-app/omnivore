@@ -1,3 +1,4 @@
+import { GraphQLResolveInfo } from 'graphql'
 import { ResolverFn } from '../generated/graphql'
 import { Claims, ResolverContext } from '../resolvers/types'
 
@@ -23,4 +24,16 @@ export function authorized<
     }
     return { errorCodes: ['UNAUTHORIZED'] } as TError
   }
+}
+
+export const isFieldInSelectionSet = (
+  info: GraphQLResolveInfo,
+  fieldName: string
+): boolean => {
+  return info.fieldNodes.some((node) => {
+    return node.selectionSet?.selections.some(
+      (selection) =>
+        selection.kind === 'Field' && selection.name.value === fieldName
+    )
+  })
 }
