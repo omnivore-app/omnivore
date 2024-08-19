@@ -260,8 +260,7 @@ export function useGetLibraryItems(
           if (idx > -1 && idx < cached.pages.length) {
             const cachedResult = cached.pages[idx]
             console.log('found cached page result: ', cachedResult)
-            // check
-            // return cachedResult
+            return cachedResult
           }
         }
       }
@@ -301,7 +300,6 @@ export function useGetLibraryItems(
     },
     enabled,
     initialPageParam: '0',
-    staleTime: 10_000,
     getNextPageParam: (lastPage: LibraryItems, pages) => {
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
