@@ -675,25 +675,18 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS,
     [activeCardId, activeItem]
   )
-  // useFetchMore(
-  //   () => {
-  //     if (!isFetching && !isLoading && hasNextPage) {
-  //       fetchNextPage()
-  //     }
-  //   },
-  //   () => {
-  //     if (!isFetching && !isLoading && hasPreviousPage) {
-  //       fetchPreviousPage()
-  //     }
-  //   }
-  // )
-
-  // console.log(
-  //   'isFetching && !isLoading, isFetchingNextPage',
-  //   isFetching,
-  //   isLoading,
-  //   isFetchingNextPage
-  // )
+  useFetchMore(
+    () => {
+      if (!isFetching && !isLoading && hasNextPage) {
+        fetchNextPage()
+      }
+    },
+    () => {
+      if (!isFetching && !isLoading && hasPreviousPage) {
+        fetchPreviousPage()
+      }
+    }
+  )
 
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {
@@ -810,32 +803,32 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     [itemsPages, multiSelectMode, checkedItems]
   )
 
-  return (
-    <InfiniteScroll
-      dataLength={libraryItems.length}
-      next={fetchNextPage}
-      hasMore={hasNextPage}
-      loader={<h4>Loading...</h4>}
-      endMessage={
-        <p style={{ textAlign: 'center' }}>
-          <b>Yay! You have seen it all</b>
-        </p>
-      }
-    >
-      {libraryItems.map((item) => {
-        return (
-          <Box
-            key={item.node.id}
-            onClick={() => {
-              router.push(`/${viewerData?.profile.username}/${item.node.slug}`)
-            }}
-          >
-            {item.cursor}: {item.node.title}
-          </Box>
-        )
-      })}
-    </InfiniteScroll>
-  )
+  // return (
+  //   <InfiniteScroll
+  //     dataLength={libraryItems.length}
+  //     next={fetchNextPage}
+  //     hasMore={hasNextPage}
+  //     loader={<h4>Loading...</h4>}
+  //     endMessage={
+  //       <p style={{ textAlign: 'center' }}>
+  //         <b>Yay! You have seen it all</b>
+  //       </p>
+  //     }
+  //   >
+  //     {libraryItems.map((item) => {
+  //       return (
+  //         <Box
+  //           key={item.node.id}
+  //           onClick={() => {
+  //             router.push(`/${viewerData?.profile.username}/${item.node.slug}`)
+  //           }}
+  //         >
+  //           {item.cursor}: {item.node.title}
+  //         </Box>
+  //       )
+  //     })}
+  //   </InfiniteScroll>
+  // )
 
   return (
     <HomeFeedGrid

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export const useFetchMore = (
   fetchNextPage: () => void,
-  fetchPreviousPage: () => void,
+  // fetchPreviousPage: () => void,
   delay = 500
 ): void => {
   const [first, setFirst] = useState(true)
@@ -21,10 +21,10 @@ export const useFetchMore = (
         scrollTop + clientHeight >= scrollHeight - scrollHeight / 3
       ) {
         fetchNextPage()
-      } else if (direction == 'up' && scrollTop < 300) {
+      } /* else if (direction == 'up' && scrollTop < 300) {
         console.log('calling fetchPrevious: ', scrollTop)
         fetchPreviousPage()
-      }
+      } */
 
       throttleTimeout.current = undefined
     }
@@ -45,5 +45,5 @@ export const useFetchMore = (
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [fetchNextPage, fetchPreviousPage, delay, first, setFirst])
+  }, [fetchNextPage, /* fetchPreviousPage, */ delay, first, setFirst])
 }
