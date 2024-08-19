@@ -605,7 +605,10 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const isContentRequested = isFieldInSelectionSet(info, 'content')
+  const selectionSet = info.fieldNodes[0].selectionSet
+  const isContentRequested = selectionSet
+    ? isFieldInSelectionSet(selectionSet, 'content')
+    : false
 
   const searchLibraryItemArgs = {
     includePending: true,
@@ -679,78 +682,69 @@ export const updatesSinceResolver = authorized<
   >,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
->(
-  async (
-    _obj,
-    { since, first, after, sort: sortParams, folder },
-    { uid },
-    info
-  ) => {
-    const startCursor = after || ''
-    const size = Math.min(first || 10, 100) // limit to 100 items
-    let startDate = new Date(since)
-    if (isNaN(startDate.getTime())) {
-      // for android app compatibility
-      startDate = new Date(0)
-    }
-    const sort = sortParamsToSort(sortParams)
-
-    // create a search query
-    const query = `in:${
-      folder || 'all'
-    } updated:${startDate.toISOString()} sort:${sort.by}-${sort.order}`
-
-    const searchLibraryItemArgs = {
-      includeDeleted: true,
-      query,
-      includeContent: false,
-    }
-
-    const libraryItems = await searchLibraryItems(
-      {
-        ...searchLibraryItemArgs,
-        from: Number(startCursor),
-        size: size + 1, // fetch one more item to get next cursor
-        useFolders: true,
-      },
-      uid
-    )
-
-    const start =
-      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-    const hasNextPage = libraryItems.length > size
-    const endCursor = String(
-      start + libraryItems.length - (hasNextPage ? 1 : 0)
-    )
-
-    //TODO: refactor so that the lastCursor included
-    if (hasNextPage) {
-      // remove an extra if exists
-      libraryItems.pop()
-    }
-
-    const edges = libraryItems.map((item) => {
-      const updateReason = getUpdateReason(item, startDate)
-      return {
-        node: item,
-        cursor: endCursor,
-        itemID: item.id,
-        updateReason,
-      }
-    })
-
-    return {
-      edges,
-      pageInfo: {
-        hasPreviousPage: false,
-        startCursor,
-        hasNextPage,
-        endCursor,
-        searchLibraryItemArgs,
-      },
-    }
+>(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
+  const startCursor = after || ''
+  const size = Math.min(first || 10, 100) // limit to 100 items
+  let startDate = new Date(since)
+  if (isNaN(startDate.getTime())) {
+    // for android app compatibility
+    startDate = new Date(0)
   }
-)
+  const sort = sortParamsToSort(sortParams)
+
+  // create a search query
+  const query = `in:${
+    folder || 'all'
+  } updated:${startDate.toISOString()} sort:${sort.by}-${sort.order}`
+
+  const searchLibraryItemArgs = {
+    includeDeleted: true,
+    query,
+    includeContent: false,
+  }
+
+  const libraryItems = await searchLibraryItems(
+    {
+      ...searchLibraryItemArgs,
+      from: Number(startCursor),
+      size: size + 1, // fetch one more item to get next cursor
+      useFolders: true,
+    },
+    uid
+  )
+
+  const start =
+    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+  const hasNextPage = libraryItems.length > size
+  const endCursor = String(start + libraryItems.length - (hasNextPage ? 1 : 0))
+
+  //TODO: refactor so that the lastCursor included
+  if (hasNextPage) {
+    // remove an extra if exists
+    libraryItems.pop()
+  }
+
+  const edges = libraryItems.map((item) => {
+    const updateReason = getUpdateReason(item, startDate)
+    return {
+      node: item,
+      cursor: endCursor,
+      itemID: item.id,
+      updateReason,
+    }
+  })
+
+  return {
+    edges,
+    pageInfo: {
+      hasPreviousPage: false,
+      startCursor,
+      hasNextPage,
+      endCursor,
+      searchLibraryItemArgs,
+    },
+  }
+})
 
 export const bulkActionResolver = authorized<
   BulkActionSuccess,
