@@ -675,25 +675,25 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS,
     [activeCardId, activeItem]
   )
-  useFetchMore(
-    () => {
-      if (!isFetching && !isLoading && hasNextPage) {
-        fetchNextPage()
-      }
-    },
-    () => {
-      if (!isFetching && !isLoading && hasPreviousPage) {
-        fetchPreviousPage()
-      }
-    }
-  )
+  // useFetchMore(
+  //   () => {
+  //     if (!isFetching && !isLoading && hasNextPage) {
+  //       fetchNextPage()
+  //     }
+  //   },
+  //   () => {
+  //     if (!isFetching && !isLoading && hasPreviousPage) {
+  //       fetchPreviousPage()
+  //     }
+  //   }
+  // )
 
-  console.log(
-    'isFetching && !isLoading, isFetchingNextPage',
-    isFetching,
-    isLoading,
-    isFetchingNextPage
-  )
+  // console.log(
+  //   'isFetching && !isLoading, isFetchingNextPage',
+  //   isFetching,
+  //   isLoading,
+  //   isFetchingNextPage
+  // )
 
   const setIsChecked = useCallback(
     (itemId: string, set: boolean) => {

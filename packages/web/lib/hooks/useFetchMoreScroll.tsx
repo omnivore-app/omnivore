@@ -16,26 +16,15 @@ export const useFetchMore = (
       const direction = scrollTop > lastScrollTop ? 'down' : 'up'
       setLastScrollTop(scrollTop)
 
-      console.log('direction: ', direction)
-
       if (
         direction == 'down' &&
         scrollTop + clientHeight >= scrollHeight - scrollHeight / 3
       ) {
-        console.log(
-          'calling fetchMore: scrollTop + clientHeight >= scrollHeight - scrollHeight / 3',
-          scrollTop,
-          clientHeight,
-          scrollHeight,
-          scrollHeight / 3
-        )
         fetchNextPage()
       } else if (direction == 'up' && scrollTop < 300) {
         console.log('calling fetchPrevious: ', scrollTop)
         fetchPreviousPage()
       }
-
-      console.log('scrollTop: ', scrollTop)
 
       throttleTimeout.current = undefined
     }

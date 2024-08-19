@@ -87,7 +87,6 @@ export const updateItemProperty = (
     .findAll({ queryKey: ['libraryItems'] })
 
   keys.forEach((query) => {
-    console.log('updating query: ', query.queryKey)
     queryClient.setQueryData(query.queryKey, (data: any) => {
       if (!data) return data
       const updatedData = {
@@ -109,7 +108,6 @@ export const updateItemProperty = (
       return updatedData
     })
   })
-  console.log('updated: foundItemSlug', foundItemSlug)
   if (foundItemSlug || slug) {
     queryClient.setQueryData(
       ['libraryItem', foundItemSlug ?? slug],
@@ -176,11 +174,8 @@ export const insertItemInCache = (
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
-  console.log('keys: ', keys)
-
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
-      console.log('data, data.pages', data)
       if (!data) return data
       if (data.pages.length > 0) {
         const firstPage = data.pages[0] as LibraryItems
@@ -211,26 +206,97 @@ export const insertItemInCache = (
   })
 }
 
+// const useOptimizedPageFetcher = (
+//   section: string,
+//   folder: string | undefined,
+//   { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
+//   enabled = true
+// ) => {
+//   const [pages, setPages] = useState([])
+//   const queryClient = useQueryClient()
+//   const fullQuery = folder
+//     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
+//     : searchQuery ?? ''
+// }
+
+interface CachedPagesData {
+  pageParams: string[]
+  pages: LibraryItems[]
+}
+
 export function useGetLibraryItems(
   section: string,
   folder: string | undefined,
   { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
   enabled = true
 ) {
+  const [previousPageUnchanged, setPreviousPageUnchanged] = useState(false)
+  const queryClient = useQueryClient()
   const fullQuery = folder
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''
 
+  const queryKey = ['libraryItems', section, fullQuery]
   return useInfiniteQuery({
     // If no folder is specified cache this as `home`
-    queryKey: ['libraryItems', section, fullQuery],
-    queryFn: async ({ queryKey, pageParam }) => {
+    queryKey,
+    queryFn: async ({ queryKey, pageParam, meta }) => {
+      console.log('pageParam and limit', Number(pageParam), limit)
+      const cached = queryClient.getQueryData(queryKey) as CachedPagesData
+      if (Number(pageParam) > limit) {
+        // check in the query cache
+        if (cached && previousPageUnchanged) {
+          // First check if the previous page had detected a modification
+          // if it had we keep fetching until we find a
+          console.log(
+            'GOING TO USE cached page: ',
+            pageParam,
+            typeof pageParam,
+            cached.pages,
+            cached.pageParams,
+            cached.pageParams.indexOf(pageParam)
+          )
+          const idx = cached.pageParams.indexOf(pageParam)
+          if (idx > -1 && idx < cached.pages.length) {
+            const cachedResult = cached.pages[idx]
+            console.log('found cached page result: ', cachedResult)
+            // check
+            // return cachedResult
+          }
+        }
+      }
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
         first: limit,
         query: fullQuery,
         includeContent: false,
       })) as LibraryItemsData
+
+      console.log('cached: ', cached)
+      if (cached && cached.pageParams.indexOf(pageParam) > -1) {
+        const idx = cached.pageParams.indexOf(pageParam)
+
+        console.log(' -- checking cache', idx, cached.pages[idx])
+        // // if there is a cache, check to see if the page is already in it
+        // // and mark whether or not the page has changed
+        try {
+          const cachedIds = cached.pages[idx].edges.map((m) => m.node.id)
+          const resultIds = response.search.edges.map((m) => m.node.id)
+          const compareFunc = (a: string[], b: string[]) =>
+            a.length === b.length &&
+            a.every((element, index) => element === b[index])
+          console.log(
+            'cachedIds == resultIds',
+            cachedIds == resultIds,
+            cachedIds,
+            resultIds,
+            compareFunc(cachedIds, resultIds)
+          )
+          setPreviousPageUnchanged(compareFunc(cachedIds, resultIds))
+        } catch (err) {
+          console.log('error: ', err)
+        }
+      }
       return response.search
     },
     enabled,
