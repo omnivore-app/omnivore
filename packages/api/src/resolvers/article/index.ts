@@ -99,7 +99,7 @@ import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import { enqueueBulkAction } from '../../utils/createTask'
-import { authorized } from '../../utils/gql-utils'
+import { authorized, isFieldInSelectionSet } from '../../utils/gql-utils'
 import {
   cleanUrl,
   errorHandler,
@@ -596,7 +596,7 @@ export const searchResolver = authorized<
   >,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { uid }) => {
+>(async (_obj, params, { uid }, info) => {
   const startCursor = params.after || ''
   const first = Math.min(params.first || 10, 100) // limit to 100 items
 
@@ -605,9 +605,14 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
+  const selectionSet = info.fieldNodes[0].selectionSet
+  const isContentRequested = selectionSet
+    ? isFieldInSelectionSet(selectionSet, 'content')
+    : false
+
   const searchLibraryItemArgs = {
     includePending: true,
-    includeContent: params.includeContent ?? true, // by default include content for offline use for now
+    includeContent: params.includeContent || isContentRequested,
     includeDeleted: params.query?.includes('in:trash'),
     query: params.query,
     useFolders: params.query?.includes('use:folders'),
