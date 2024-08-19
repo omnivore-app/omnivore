@@ -33,12 +33,16 @@ export default function BulkPerformer(): JSX.Element {
   const [runningState, setRunningState] = useState<RunningState>('none')
   const bulkAction = useBulkActions()
 
-  const { data: itemsPages, isLoading } = useGetLibraryItems(undefined, {
-    searchQuery: query,
-    limit: 1,
-    sortDescending: false,
-    includeCount: true,
-  })
+  const { data: itemsPages, isLoading } = useGetLibraryItems(
+    'search',
+    undefined,
+    {
+      searchQuery: query,
+      limit: 1,
+      sortDescending: false,
+      includeCount: true,
+    }
+  )
 
   useEffect(() => {
     setExpectedCount(itemsPages?.pages.find(() => true)?.pageInfo.totalCount)

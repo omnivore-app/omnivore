@@ -23,6 +23,7 @@ import {
   GQL_SET_LINK_ARCHIVED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
+import { useState } from 'react'
 
 function gqlFetcher(
   query: string,
@@ -173,11 +174,8 @@ export const insertItemInCache = (
   const keys = queryClient
     .getQueryCache()
     .findAll({ queryKey: ['libraryItems'] })
-  console.log('keys: ', keys)
-
   keys.forEach((query) => {
     queryClient.setQueryData(query.queryKey, (data: any) => {
-      console.log('data, data.pages', data)
       if (!data) return data
       if (data.pages.length > 0) {
         const firstPage = data.pages[0] as LibraryItems
@@ -202,42 +200,138 @@ export const insertItemInCache = (
           },
         ]
         data.pages[0] = firstPage
-        console.log('data: ', data)
         return data
       }
     })
   })
 }
 
+// const useOptimizedPageFetcher = (
+//   section: string,
+//   folder: string | undefined,
+//   { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
+//   enabled = true
+// ) => {
+//   const [pages, setPages] = useState([])
+//   const queryClient = useQueryClient()
+//   const fullQuery = folder
+//     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
+//     : searchQuery ?? ''
+// }
+
+interface CachedPagesData {
+  pageParams: string[]
+  pages: LibraryItems[]
+}
+
 export function useGetLibraryItems(
+  section: string,
   folder: string | undefined,
   { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
   enabled = true
 ) {
+  const queryClient = useQueryClient()
+
+  const INITIAL_INDEX = '0'
   const fullQuery = folder
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''
 
+  const queryKey = ['libraryItems', section, fullQuery]
   return useInfiniteQuery({
-    queryKey: ['libraryItems', fullQuery],
-    queryFn: async ({ pageParam }) => {
+    // If no folder is specified cache this as `home`
+    queryKey,
+    queryFn: async ({ queryKey, pageParam, meta }) => {
+      console.log('pageParam and limit', Number(pageParam), limit)
+      const cached = queryClient.getQueryData(queryKey) as CachedPagesData
+      if (pageParam !== INITIAL_INDEX) {
+        // check in the query cache, if there is an item for this page
+        // in the query page, check if pageIndex - 1 was unchanged since
+        // the last query, this will determine if we should refetch this
+        // page and subsequent pages.
+        if (cached) {
+          const idx = cached.pageParams.indexOf(pageParam)
+
+          // First check if the previous page had detected a modification
+          // if it had we keep fetching until we find a
+          if (
+            idx > 0 &&
+            idx < cached.pages.length &&
+            cached.pages[idx - 1].pageInfo.wasUnchanged
+          ) {
+            const cachedResult = cached.pages[idx]
+            console.log('found cached page result: ', cachedResult)
+            return {
+              edges: cachedResult.edges,
+              pageInfo: {
+                ...cachedResult.pageInfo,
+                wasUnchanged: true,
+              },
+            }
+          }
+        }
+      }
       const response = (await gqlFetcher(gqlSearchQuery(includeCount), {
         after: pageParam,
         first: limit,
         query: fullQuery,
         includeContent: false,
       })) as LibraryItemsData
-      return response.search
+      let wasUnchanged = false
+      if (cached && cached.pageParams.indexOf(pageParam) > -1) {
+        const idx = cached.pageParams.indexOf(pageParam)
+        // // if there is a cache, check to see if the page is already in it
+        // // and mark whether or not the page has changed
+        try {
+          const cachedIds = cached.pages[idx].edges.map((m) => m.node.id)
+          const resultIds = response.search.edges.map((m) => m.node.id)
+          const compareFunc = (a: string[], b: string[]) =>
+            a.length === b.length &&
+            a.every((element, index) => element === b[index])
+          wasUnchanged = compareFunc(cachedIds, resultIds)
+          console.log('previous unchanged', wasUnchanged, cachedIds, resultIds)
+        } catch (err) {
+          console.log('error: ', err)
+        }
+      }
+      return {
+        edges: response.search.edges,
+        pageInfo: {
+          ...response.search.pageInfo,
+          wasUnchanged,
+          lastUpdated: new Date(),
+        },
+      }
     },
     enabled,
-    initialPageParam: '0',
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    staleTime: 10 * 60 * 1000,
-    getNextPageParam: (lastPage: LibraryItems) => {
+    initialPageParam: INITIAL_INDEX,
+    getNextPageParam: (lastPage: LibraryItems, pages) => {
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
         : undefined
+    },
+    select: (data) => {
+      const now = new Date()
+
+      // Filter pages based on the lastUpdated condition
+      const filteredPages = data.pages.slice(0, 5).concat(
+        data.pages.slice(5).filter((page, index) => {
+          if (page.pageInfo?.lastUpdated) {
+            const lastUpdatedDate = new Date(page.pageInfo.lastUpdated)
+            const diffMinutes =
+              (now.getTime() - lastUpdatedDate.getTime()) / (1000 * 60)
+            console.log(`page: ${index} age: ${diffMinutes}`)
+            return diffMinutes <= 10
+          }
+          return true
+        })
+      )
+      console.log('setting filteredPages: ', filteredPages)
+
+      return {
+        ...data,
+        pages: filteredPages,
+      }
     },
   })
 }
@@ -531,7 +625,9 @@ export function useRefreshProcessingItems() {
     attempt: number
     itemIds: string[]
   }) => {
-    const fullQuery = `in:all includes:${variables.itemIds.join(',')}`
+    const fullQuery = `in:all includes:${variables.itemIds
+      .slice(0, 5)
+      .join(',')}`
     const result = (await gqlFetcher(gqlSearchQuery(), {
       first: 10,
       query: fullQuery,
@@ -1029,6 +1125,10 @@ export type PageInfo = {
   startCursor: string
   endCursor: string
   totalCount: number
+
+  // used internally for some cache handling
+  lastUpdated?: Date
+  wasUnchanged?: boolean
 }
 
 type SetLinkArchivedInput = {

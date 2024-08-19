@@ -54,8 +54,8 @@ import { theme } from '../../tokens/stitches.config'
 import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
+import { Spinner } from '@phosphor-icons/react/dist/ssr'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -117,11 +117,14 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const {
     data: itemsPages,
     isLoading,
+    isFetchingNextPage,
     isFetching,
     fetchNextPage,
+    fetchPreviousPage,
     hasNextPage,
+    hasPreviousPage,
     error: fetchItemsError,
-  } = useGetLibraryItems(props.folder, queryInputs)
+  } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -157,6 +160,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [router.asPath])
 
   const libraryItems = useMemo(() => {
+    console.log('library items: ', itemsPages)
     const items =
       itemsPages?.pages
         .flatMap((ad: LibraryItems) => {
@@ -184,16 +188,16 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       .map((li) => li.node.id)
   }, [libraryItems])
 
-  const refreshProcessingItems = useRefreshProcessingItems()
+  // const refreshProcessingItems = useRefreshProcessingItems()
 
-  useEffect(() => {
-    if (processingItems.length) {
-      refreshProcessingItems.mutateAsync({
-        attempt: 0,
-        itemIds: processingItems,
-      })
-    }
-  }, [processingItems])
+  // useEffect(() => {
+  //   if (processingItems.length) {
+  //     refreshProcessingItems.mutateAsync({
+  //       attempt: 0,
+  //       itemIds: processingItems,
+  //     })
+  //   }
+  // }, [processingItems])
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {
@@ -295,6 +299,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [libraryItems, activeCardId])
 
   useEffect(() => {
+    console.log('active card id: ', activeCardId)
     if (activeCardId && !alreadyScrolled.current) {
       scrollToActiveCard(activeCardId)
       alreadyScrolled.current = true
@@ -789,6 +794,33 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     [itemsPages, multiSelectMode, checkedItems]
   )
 
+  // return (
+  //   <InfiniteScroll
+  //     dataLength={libraryItems.length}
+  //     next={fetchNextPage}
+  //     hasMore={hasNextPage}
+  //     loader={<h4>Loading...</h4>}
+  //     endMessage={
+  //       <p style={{ textAlign: 'center' }}>
+  //         <b>Yay! You have seen it all</b>
+  //       </p>
+  //     }
+  //   >
+  //     {libraryItems.map((item) => {
+  //       return (
+  //         <Box
+  //           key={item.node.id}
+  //           onClick={() => {
+  //             router.push(`/${viewerData?.profile.username}/${item.node.slug}`)
+  //           }}
+  //         >
+  //           {item.cursor}: {item.node.title}
+  //         </Box>
+  //       )
+  //     })}
+  //   </InfiniteScroll>
+  // )
+
   return (
     <HomeFeedGrid
       folder={props.folder}
@@ -821,7 +853,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       loadMore={fetchNextPage}
       hasMore={hasNextPage ?? false}
       hasData={!!itemsPages}
-      isValidating={isLoading}
+      isValidating={isLoading || isFetchingNextPage}
       fetchItemsError={!!fetchItemsError}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
@@ -1150,16 +1182,20 @@ export function LibraryItemsLayout(
             css={{ width: '100%', mt: '$2', mb: '$4' }}
           >
             {props.hasMore ? (
-              <Button
-                style="ctaGray"
-                css={{
-                  cursor: props.isValidating ? 'not-allowed' : 'pointer',
-                }}
-                onClick={props.loadMore}
-                disabled={props.isValidating}
-              >
-                {props.isValidating ? 'Loading' : 'Load More'}
-              </Button>
+              props.isValidating ? (
+                <Spinner />
+              ) : (
+                <Button
+                  style="ctaGray"
+                  css={{
+                    cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                  }}
+                  onClick={props.loadMore}
+                  disabled={props.isValidating}
+                >
+                  {props.isValidating ? 'Loading' : 'More search results'}
+                </Button>
+              )
             ) : (
               <StyledText style="caption"></StyledText>
             )}

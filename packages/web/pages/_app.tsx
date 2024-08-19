@@ -33,7 +33,7 @@ import React from 'react'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 1000 * 60 * 60 * 48, // 48 hours
+      gcTime: 1000 * 60 * 60 * 4, // 4hrs
     },
   },
 })

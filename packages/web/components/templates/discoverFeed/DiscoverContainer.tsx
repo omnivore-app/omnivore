@@ -89,7 +89,7 @@ export function DiscoverContainer(): JSX.Element {
     }
     setPage(page + 1)
   }, [page, isLoading])
-  useFetchMore(handleFetchMore)
+  // useFetchMore(handleFetchMore)
 
   const handleSaveDiscover = async (
     discoverArticleId: string,

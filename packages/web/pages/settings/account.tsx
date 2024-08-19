@@ -92,7 +92,7 @@ export default function Account(): JSX.Element {
     isUsernameValidationLoading,
   ])
 
-  const { data: itemsPages, isLoading } = useGetLibraryItems('all', {
+  const { data: itemsPages, isLoading } = useGetLibraryItems('search', 'all', {
     limit: 0,
     searchQuery: '',
     sortDescending: false,

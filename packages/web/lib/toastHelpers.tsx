@@ -114,8 +114,6 @@ const showToastWithAction = (
   action: () => Promise<void>,
   options?: ToastOptions
 ) => {
-  console.trace('show success: ', message)
-
   return toast(
     ({ id }) => (
       <FullWidthContainer alignment="center">

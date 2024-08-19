@@ -211,6 +211,7 @@ export function HomeContainer(): JSX.Element {
   const shouldFallback =
     homeData.error || (!homeData.isValidating && !hasTopPicks(homeData))
   const searchData = useGetLibraryItems(
+    'home',
     undefined,
     {
       limit: 10,
