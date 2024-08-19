@@ -577,6 +577,7 @@ export const functionResolvers = {
     pageType: (item: LibraryItem) => item.itemType,
     highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
+    content: (item: LibraryItem) => item.readableContent,
   },
   PageInfo: {
     async totalCount(

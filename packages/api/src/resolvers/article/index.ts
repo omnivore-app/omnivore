@@ -596,7 +596,7 @@ export const searchResolver = authorized<
   >,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { uid }) => {
+>(async (_obj, params, { uid }, info) => {
   const startCursor = params.after || ''
   const first = Math.min(params.first || 10, 100) // limit to 100 items
 
@@ -605,9 +605,11 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
+  const isContentRequested = isFieldInSelectionSet(info, 'content')
+
   const searchLibraryItemArgs = {
     includePending: true,
-    includeContent: params.includeContent ?? true, // by default include content for offline use for now
+    includeContent: params.includeContent || isContentRequested,
     includeDeleted: params.query?.includes('in:trash'),
     query: params.query,
     useFolders: params.query?.includes('use:folders'),
@@ -698,12 +700,10 @@ export const updatesSinceResolver = authorized<
       folder || 'all'
     } updated:${startDate.toISOString()} sort:${sort.by}-${sort.order}`
 
-    const isContentRequested = isFieldInSelectionSet(info, 'content')
-
     const searchLibraryItemArgs = {
       includeDeleted: true,
       query,
-      includeContent: isContentRequested,
+      includeContent: false,
     }
 
     const libraryItems = await searchLibraryItems(
