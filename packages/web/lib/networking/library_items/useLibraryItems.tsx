@@ -286,7 +286,9 @@ export function useGetLibraryItems(
           const compareFunc = (a: string[], b: string[]) =>
             a.length === b.length &&
             a.every((element, index) => element === b[index])
-          setPreviousPageUnchanged(compareFunc(cachedIds, resultIds))
+          const unchanged = compareFunc(cachedIds, resultIds)
+          console.log('previous unchanged', unchanged, cachedIds, resultIds)
+          setPreviousPageUnchanged(unchanged)
         } catch (err) {
           console.log('error: ', err)
         }
