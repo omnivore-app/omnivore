@@ -230,7 +230,6 @@ export function useGetLibraryItems(
   { limit, searchQuery, includeCount }: LibraryItemsQueryInput,
   enabled = true
 ) {
-  const [previousPageUnchanged, setPreviousPageUnchanged] = useState(false)
   const queryClient = useQueryClient()
   const fullQuery = folder
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
@@ -244,28 +243,33 @@ export function useGetLibraryItems(
       console.log('pageParam and limit', Number(pageParam), limit)
       const cached = queryClient.getQueryData(queryKey) as CachedPagesData
       if (Number(pageParam) > limit) {
-        // check in the query cache
-        console.log(
-          'cached, previousPageUnchanged',
-          cached,
-          previousPageUnchanged
-        )
-        if (cached && previousPageUnchanged) {
+        // check in the query cache, if there is an item for this page
+        // in the query page, check if pageIndex - 1 was unchanged since
+        // the last query, this will determine if we should refetch this
+        // page and subsequent pages.
+        if (cached) {
+          const idx = cached.pageParams.indexOf(pageParam)
+
           // First check if the previous page had detected a modification
           // if it had we keep fetching until we find a
           console.log(
             'GOING TO USE cached page: ',
-            pageParam,
-            typeof pageParam,
-            cached.pages,
-            cached.pageParams,
-            cached.pageParams.indexOf(pageParam)
+            cached.pages[idx - 1].pageInfo.wasUnchanged
           )
-          const idx = cached.pageParams.indexOf(pageParam)
-          if (idx > -1 && idx < cached.pages.length) {
+          if (
+            idx > 0 &&
+            idx < cached.pages.length &&
+            cached.pages[idx - 1].pageInfo.wasUnchanged
+          ) {
             const cachedResult = cached.pages[idx]
             console.log('found cached page result: ', cachedResult)
-            return cachedResult
+            return {
+              edges: cachedResult.edges,
+              pageInfo: {
+                ...cachedResult.pageInfo,
+                wasUnchanged: true,
+              },
+            }
           }
         }
       }
@@ -280,6 +284,7 @@ export function useGetLibraryItems(
         'cached.pageParams.indexOf(pageParam)',
         cached.pageParams.indexOf(pageParam)
       )
+      let wasUnchanged = false
       if (cached && cached.pageParams.indexOf(pageParam) > -1) {
         const idx = cached.pageParams.indexOf(pageParam)
         // // if there is a cache, check to see if the page is already in it
@@ -290,14 +295,20 @@ export function useGetLibraryItems(
           const compareFunc = (a: string[], b: string[]) =>
             a.length === b.length &&
             a.every((element, index) => element === b[index])
-          const unchanged = compareFunc(cachedIds, resultIds)
-          console.log('previous unchanged', unchanged, cachedIds, resultIds)
-          setPreviousPageUnchanged(unchanged)
+          wasUnchanged = compareFunc(cachedIds, resultIds)
+          console.log('previous unchanged', wasUnchanged, cachedIds, resultIds)
         } catch (err) {
           console.log('error: ', err)
         }
       }
-      return response.search
+      return {
+        edges: response.search.edges,
+        pageInfo: {
+          ...response.search.pageInfo,
+          wasUnchanged,
+          lastUpdated: new Date(),
+        },
+      }
     },
     enabled,
     initialPageParam: '0',
@@ -1098,6 +1109,10 @@ export type PageInfo = {
   startCursor: string
   endCursor: string
   totalCount: number
+
+  // used internally for some cache handling
+  lastUpdated?: Date
+  wasUnchanged?: boolean
 }
 
 type SetLinkArchivedInput = {
