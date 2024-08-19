@@ -324,6 +324,7 @@ export function useGetLibraryItems(
           return true
         })
       )
+      console.log('setting filteredPages: ', filteredPages)
 
       return {
         ...data,
