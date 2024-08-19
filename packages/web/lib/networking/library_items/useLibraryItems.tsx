@@ -231,6 +231,8 @@ export function useGetLibraryItems(
   enabled = true
 ) {
   const queryClient = useQueryClient()
+
+  const INITIAL_INDEX = '0'
   const fullQuery = folder
     ? (`in:${folder} use:folders ` + (searchQuery ?? '')).trim()
     : searchQuery ?? ''
@@ -242,7 +244,7 @@ export function useGetLibraryItems(
     queryFn: async ({ queryKey, pageParam, meta }) => {
       console.log('pageParam and limit', Number(pageParam), limit)
       const cached = queryClient.getQueryData(queryKey) as CachedPagesData
-      if (Number(pageParam) > limit) {
+      if (pageParam !== INITIAL_INDEX) {
         // check in the query cache, if there is an item for this page
         // in the query page, check if pageIndex - 1 was unchanged since
         // the last query, this will determine if we should refetch this
@@ -302,7 +304,7 @@ export function useGetLibraryItems(
       }
     },
     enabled,
-    initialPageParam: '0',
+    initialPageParam: INITIAL_INDEX,
     getNextPageParam: (lastPage: LibraryItems, pages) => {
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
