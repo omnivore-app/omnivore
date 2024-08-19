@@ -252,10 +252,6 @@ export function useGetLibraryItems(
 
           // First check if the previous page had detected a modification
           // if it had we keep fetching until we find a
-          console.log(
-            'GOING TO USE cached page: ',
-            cached.pages[idx - 1].pageInfo.wasUnchanged
-          )
           if (
             idx > 0 &&
             idx < cached.pages.length &&
@@ -279,11 +275,6 @@ export function useGetLibraryItems(
         query: fullQuery,
         includeContent: false,
       })) as LibraryItemsData
-
-      console.log(
-        'cached.pageParams.indexOf(pageParam)',
-        cached.pageParams.indexOf(pageParam)
-      )
       let wasUnchanged = false
       if (cached && cached.pageParams.indexOf(pageParam) > -1) {
         const idx = cached.pageParams.indexOf(pageParam)
@@ -316,6 +307,28 @@ export function useGetLibraryItems(
       return lastPage.pageInfo.hasNextPage
         ? lastPage?.pageInfo?.endCursor
         : undefined
+    },
+    select: (data) => {
+      const now = new Date()
+
+      // Filter pages based on the lastUpdated condition
+      const filteredPages = data.pages.slice(0, 5).concat(
+        data.pages.slice(5).filter((page, index) => {
+          if (page.pageInfo?.lastUpdated) {
+            const lastUpdatedDate = new Date(page.pageInfo.lastUpdated)
+            const diffMinutes =
+              (now.getTime() - lastUpdatedDate.getTime()) / (1000 * 60)
+            console.log(`page: ${index} age: ${diffMinutes}`)
+            return diffMinutes <= 10
+          }
+          return true
+        })
+      )
+
+      return {
+        ...data,
+        pages: filteredPages,
+      }
     },
   })
 }
