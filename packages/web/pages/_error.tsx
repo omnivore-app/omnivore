@@ -2,8 +2,16 @@
 import NextErrorComponent from 'next/error'
 
 import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 const MyError = ({ statusCode, hasGetInitialPropsRun, err }: any) => {
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    console.log('unhandled exception occurred, clearing cached data.')
+    queryClient.clear()
+  }, [])
+
   if (!hasGetInitialPropsRun && err) {
     // getInitialProps is not called in case of
     // https://github.com/vercel/next.js/issues/8592. As a workaround, we pass

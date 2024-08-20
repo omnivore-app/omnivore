@@ -277,6 +277,9 @@ export function useGetLibraryItems(
         query: fullQuery,
         includeContent: false,
       })) as LibraryItemsData
+      if (response.search.errorCodes?.length) {
+        throw new Error(response.search.errorCodes[0])
+      }
       let wasUnchanged = false
       if (cached && cached.pageParams.indexOf(pageParam) > -1) {
         const idx = cached.pageParams.indexOf(pageParam)
@@ -326,8 +329,6 @@ export function useGetLibraryItems(
           return true
         })
       )
-      console.log('setting filteredPages: ', filteredPages)
-
       return {
         ...data,
         pages: filteredPages,
