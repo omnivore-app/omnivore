@@ -3,12 +3,13 @@ import NextErrorComponent from 'next/error'
 
 import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useQueryClient } from '@tanstack/react-query'
 
 const MyError = ({ statusCode, hasGetInitialPropsRun, err }: any) => {
+  const queryClient = useQueryClient()
   useEffect(() => {
     console.log('unhandled exception occurred, clearing cached data.')
-    AsyncStorage.clear()
+    queryClient.clear()
   }, [])
 
   if (!hasGetInitialPropsRun && err) {
