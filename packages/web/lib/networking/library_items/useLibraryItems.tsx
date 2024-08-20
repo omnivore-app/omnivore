@@ -277,6 +277,9 @@ export function useGetLibraryItems(
         query: fullQuery,
         includeContent: false,
       })) as LibraryItemsData
+      if (response.search.errorCodes?.length) {
+        throw new Error(response.search.errorCodes[0])
+      }
       let wasUnchanged = false
       if (cached && cached.pageParams.indexOf(pageParam) > -1) {
         const idx = cached.pageParams.indexOf(pageParam)
@@ -326,8 +329,6 @@ export function useGetLibraryItems(
           return true
         })
       )
-      console.log('setting filteredPages: ', filteredPages)
-
       return {
         ...data,
         pages: filteredPages,
@@ -676,6 +677,20 @@ export function useRefreshProcessingItems() {
                 .map((it) => it.node.id)
             : variables.itemIds,
         })
+      } else if (shouldRefetch) {
+        console.log('failed for edges: ', data?.edges)
+        // There are still processing items, but we've reached max attempts
+        // so we will mark them as failed.
+        for (const item of data?.edges ?? []) {
+          if (item.node.state == State.PROCESSING) {
+            updateItemStateInCache(
+              queryClient,
+              item.node.id,
+              item.node.slug,
+              State.FAILED
+            )
+          }
+        }
       }
     },
   })

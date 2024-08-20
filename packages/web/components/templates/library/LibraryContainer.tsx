@@ -164,6 +164,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     const items =
       itemsPages?.pages
         .flatMap((ad: LibraryItems) => {
+          if (!ad.edges) {
+            return []
+          }
           return ad.edges.map((it) => ({
             ...it,
             isLoading: it.node.state === 'PROCESSING',
@@ -188,16 +191,16 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       .map((li) => li.node.id)
   }, [libraryItems])
 
-  // const refreshProcessingItems = useRefreshProcessingItems()
+  const refreshProcessingItems = useRefreshProcessingItems()
 
-  // useEffect(() => {
-  //   if (processingItems.length) {
-  //     refreshProcessingItems.mutateAsync({
-  //       attempt: 0,
-  //       itemIds: processingItems,
-  //     })
-  //   }
-  // }, [processingItems])
+  useEffect(() => {
+    if (processingItems.length) {
+      refreshProcessingItems.mutateAsync({
+        attempt: 0,
+        itemIds: processingItems,
+      })
+    }
+  }, [processingItems])
 
   const focusFirstItem = useCallback(() => {
     if (libraryItems.length < 1) {

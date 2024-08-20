@@ -196,32 +196,24 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
       <DropdownSeparator />
       <ThemeSection {...props} />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-install')}
+        onSelect={() => router.push('/settings/installation')}
         title="Install"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-feeds')}
+        onSelect={() => router.push('/settings/feeds')}
         title="Feeds"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-emails')}
+        onSelect={() => router.push('/settings/emails')}
         title="Emails"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-labels')}
+        onSelect={() => router.push('/settings/labels')}
         title="Labels"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-rules')}
-        title="Rules"
-      />
-      <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-api')}
-        title="API Keys"
-      />
-      <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-integrations')}
-        title="Integrations"
+        onSelect={() => router.push('/settings/settings')}
+        title="Settings"
       />
       <DropdownOption
         onSelect={() => window.open('https://docs.omnivore.app', '_blank')}
