@@ -2,8 +2,15 @@
 import NextErrorComponent from 'next/error'
 
 import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const MyError = ({ statusCode, hasGetInitialPropsRun, err }: any) => {
+  useEffect(() => {
+    console.log('unhandled exception occurred, clearing cached data.')
+    AsyncStorage.clear()
+  }, [])
+
   if (!hasGetInitialPropsRun && err) {
     // getInitialProps is not called in case of
     // https://github.com/vercel/next.js/issues/8592. As a workaround, we pass
