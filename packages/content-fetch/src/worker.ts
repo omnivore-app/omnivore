@@ -40,12 +40,12 @@ const createWorker = (redisDataSource: RedisDataSource, queueName: string) => {
         }
       case RSS_QUEUE:
         return {
-          max: 3,
+          max: 5,
           duration: 1000, // 1 second
         }
       default:
         return {
-          max: 10,
+          max: 100,
           duration: 1000, // 1 second
         }
     }
