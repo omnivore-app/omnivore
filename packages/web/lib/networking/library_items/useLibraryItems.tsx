@@ -676,6 +676,20 @@ export function useRefreshProcessingItems() {
                 .map((it) => it.node.id)
             : variables.itemIds,
         })
+      } else if (shouldRefetch) {
+        console.log('failed for edges: ', data?.edges)
+        // There are still processing items, but we've reached max attempts
+        // so we will mark them as failed.
+        for (const item of data?.edges ?? []) {
+          if (item.node.state == State.PROCESSING) {
+            updateItemStateInCache(
+              queryClient,
+              item.node.id,
+              item.node.slug,
+              State.FAILED
+            )
+          }
+        }
       }
     },
   })
