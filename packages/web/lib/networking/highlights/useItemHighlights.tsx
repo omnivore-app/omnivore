@@ -91,7 +91,12 @@ export const useUpdateHighlight = () => {
     input: UpdateHighlightInput
   }) => {
     const result = (await gqlFetcher(GQL_UPDATE_HIGHLIGHT, {
-      input: variables.input,
+      input: {
+        highlightId: variables.input.highlightId,
+        annotation: variables.input.annotation,
+        sharedAt: variables.input.sharedAt,
+        color: variables.input.color,
+      },
     })) as UpdateHighlightData
     if (result.updateHighlight.errorCodes?.length) {
       throw new Error(result.updateHighlight.errorCodes[0])
