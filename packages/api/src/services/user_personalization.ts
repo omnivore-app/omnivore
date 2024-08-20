@@ -88,19 +88,18 @@ export const setShortcuts = async (
 ): Promise<Shortcut[]> => {
   const result = await authTrx(
     (t) =>
-      t.getRepository(UserPersonalization).update(
+      t.getRepository(UserPersonalization).upsert(
         {
           user: { id: userId },
-        },
-        {
           shortcuts: shortcuts,
-        }
+        },
+        ['user']
       ),
     {
       uid: userId,
     }
   )
-  if (!result.affected || result.affected < 1) {
+  if (!result.identifiers || result.identifiers.length < 1) {
     throw Error('Could not update shortcuts')
   }
   return shortcuts
