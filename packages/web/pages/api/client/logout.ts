@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { withSentry } from '@sentry/nextjs'
 import { serialize } from 'cookie'
 
 const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
@@ -7,4 +6,4 @@ const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
   res.send('logged out')
 }
 
-export default withSentry(requestHandler)
+export default requestHandler
