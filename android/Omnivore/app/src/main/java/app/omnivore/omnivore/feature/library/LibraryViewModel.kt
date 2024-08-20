@@ -113,7 +113,8 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             handleFilterChanges()
             for (slug in contentRequestChannel) {
-                libraryRepository.fetchSavedItemContent(slug)
+                val context = applicationContext
+                libraryRepository.fetchSavedItemContent(context, slug)
             }
         }
 
@@ -167,20 +168,25 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun loadUsingSearchAPI() {
+        val context = applicationContext
         viewModelScope.launch {
-            val result = libraryRepository.librarySearch(
-                cursor = librarySearchCursor,
-                query = searchQueryString()
-            )
-            result.cursor?.let {
-                librarySearchCursor = it
-            }
-            result.savedItems.map {
-                val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(it.savedItem.slug)
+            withContext(Dispatchers.IO) {
+                val result = libraryRepository.librarySearch(
+                    context = context,
+                    cursor = librarySearchCursor,
+                    query = searchQueryString()
+                )
+                result.cursor?.let {
+                    librarySearchCursor = it
+                }
+                result.savedItems.map {
+                    val isSavedInDB =
+                        libraryRepository.isSavedItemContentStoredInDB(context, it.savedItem.slug)
 
-                if (!isSavedInDB) {
-                    delay(2000)
-                    contentRequestChannel.send(it.savedItem.slug)
+                    if (!isSavedInDB) {
+                        delay(2000)
+                        contentRequestChannel.send(it.savedItem.slug)
+                    }
                 }
             }
         }
@@ -277,8 +283,14 @@ class LibraryViewModel @Inject constructor(
     ) {
         libraryRepository.syncOfflineItemsWithServerIfNeeded()
 
-        val result = libraryRepository.sync(since = since, cursor = cursor, limit = 20)
+        val result = libraryRepository.sync(context = this.applicationContext, since = since, cursor = cursor, limit = 10)
         val totalCount = count + result.count
+
+        if (result.hasError) {
+            result.errorString?.let { errorString ->
+                System.out.println("SYNC ERROR: ${errorString}")
+            }
+        }
 
         if (!result.hasError && result.hasMoreItems && result.cursor != null) {
             performItemSync(

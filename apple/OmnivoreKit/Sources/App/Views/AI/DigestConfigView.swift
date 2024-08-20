@@ -18,6 +18,9 @@ public class DigestConfigViewModel: ObservableObject {
   @Published var presentedLibraryItem: String?
   @Published var presentWebContainer = false
 
+  @Published var notificationsEnabled = false
+  @Published var isTryingToEnableNotifications = false
+
   @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
   func checkAlreadyOptedIn(dataService: DataService) async {
@@ -37,6 +40,7 @@ public class DigestConfigViewModel: ObservableObject {
       try await dataService.setupUserDigestConfig()
       try await dataService.refreshDigest()
       digestEnabled = true
+      dataService.featureFlags.digestEnabled = true
     } catch {
       if error is IneligibleError {
         isIneligible = true
@@ -45,6 +49,25 @@ public class DigestConfigViewModel: ObservableObject {
       }
     }
     isLoading = false
+  }
+
+  func tryEnableNotifications(dataService: DataService) {
+    isTryingToEnableNotifications = true
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, _ in
+      DispatchQueue.main.async {
+        self.notificationsEnabled = granted
+        UserDefaults.standard.set(granted, forKey: UserDefaultKey.notificationsEnabled.rawValue)
+
+        Task {
+          if let savedToken = UserDefaults.standard.string(forKey: UserDefaultKey.firebasePushToken.rawValue) {
+            _ = try? await dataService.syncDeviceToken(
+              deviceTokenOperation: DeviceTokenOperation.addToken(token: savedToken))
+          }
+          NotificationCenter.default.post(name: Notification.Name("ReconfigurePushNotifications"), object: nil)
+          self.isTryingToEnableNotifications = false
+        }
+      }
+    }
   }
 }
 
@@ -87,8 +110,23 @@ struct DigestConfigView: View {
         }
         .padding(.top, 50)
       } else if viewModel.digestEnabled {
-        Text("You've been added to the AI Digest demo. You first issue should be ready soon.")
-          .padding(15)
+        VStack(spacing: 25) {
+          Spacer()
+          // swiftlint:disable:next line_length
+          Text("You've been added to the AI Digest demo. Your first issue should be ready soon. When a new digest is ready the icon in the library header will change color. You can close this window now.")
+          if !viewModel.notificationsEnabled {
+            if viewModel.isTryingToEnableNotifications {
+               ProgressView()
+            } else {
+              Button(action: {
+                viewModel.tryEnableNotifications(dataService: dataService)
+              }, label: { Text("Enable digest notifications") })
+              .buttonStyle(RoundedRectButtonStyle(color: Color.blue, textColor: Color.white))
+            }
+          }
+          Spacer()
+        }
+        .padding(20)
       } else if viewModel.isIneligible {
         Text("To enable digest you need to have saved at least ten library items and have two active subscriptions.")
           .padding(15)

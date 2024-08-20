@@ -5,6 +5,7 @@
 import * as lw from '@google-cloud/logging-winston'
 import * as Sentry from '@sentry/node'
 import { json, urlencoded } from 'body-parser'
+import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
@@ -27,6 +28,7 @@ import { integrationRouter } from './routers/integration_router'
 import { localDebugRouter } from './routers/local_debug_router'
 import { notificationRouter } from './routers/notification_router'
 import { pageRouter } from './routers/page_router'
+import { shortcutsRouter } from './routers/shortcuts_router'
 import { contentServiceRouter } from './routers/svc/content'
 import { emailsServiceRouter } from './routers/svc/emails'
 import { emailAttachmentRouter } from './routers/svc/email_attachment'
@@ -40,13 +42,12 @@ import { userServiceRouter } from './routers/svc/user'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { taskRouter } from './routers/task_router'
 import { textToSpeechRouter } from './routers/text_to_speech'
-import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { analytics } from './utils/analytics'
 import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
-import { apiLimiter, authLimiter } from './utils/rate_limit'
+import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
 
 const PORT = process.env.PORT || 4000
 
@@ -62,28 +63,30 @@ export const createApp = (): Express => {
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
+  app.use(compression())
 
   // set to true if behind a reverse proxy/load balancer
   app.set('trust proxy', env.server.trustProxy)
 
   // Apply the rate limiting middleware to API calls only
-  app.use('/api/', apiLimiter)
+  app.use('/api/', apiLimiter, apiHourLimiter)
 
   // set client info in the request context
   app.use(httpContext.middleware)
   app.use('/api/', (req, res, next) => {
-    // get client info from header
-    const client = req.header('X-OmnivoreClient')
-    if (client) {
-      httpContext.set('client', client)
-    }
-
     // get client info from user agent
     const userAgent = req.header('User-Agent')
     if (userAgent) {
       const client = getClientFromUserAgent(userAgent)
       httpContext.set('client', client)
     }
+
+    // get client info from header
+    const client = req.header('X-OmnivoreClient')
+    if (client) {
+      httpContext.set('client', client)
+    }
+
     next()
   })
 
@@ -93,7 +96,7 @@ export const createApp = (): Express => {
   app.use('/api/auth', authLimiter, authRouter())
   app.use('/api/mobile-auth', authLimiter, mobileAuthRouter())
   app.use('/api/page', pageRouter())
-  app.use('/api/user', userRouter())
+  app.use('/api/shortcuts', shortcutsRouter())
   app.use('/api/article', articleRouter())
   app.use('/api/ai-summary', aiSummariesRouter())
   app.use('/api/explain', explainRouter())

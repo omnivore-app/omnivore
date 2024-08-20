@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { articleFragment } from '../fragments/articleFragment'
 import { highlightFragment } from '../fragments/highlightFragment'
 import { makeGqlFetcher } from '../networkHelpers'
-import { ArticleAttributes } from './useGetArticleQuery'
+import { ArticleAttributes } from '../library_items/useLibraryItems'
 
 type ArticleSavingStatusInput = {
   id?: string
@@ -87,7 +87,7 @@ export function useGetArticleSavingStatus({
   `
   const key = id ? [query, id] : [query, url]
   // poll twice a second
-  const { data, error } = useSWR(key, makeGqlFetcher({ id, url }), {
+  const { data, error } = useSWR(key, makeGqlFetcher(query, { id, url }), {
     refreshInterval: 500,
   })
 

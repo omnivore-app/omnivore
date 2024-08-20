@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -91,9 +92,10 @@ class FollowingViewModel @Inject constructor(
         syncLabels()
 
         viewModelScope.launch {
+            val context = applicationContext
             handleFilterChanges()
             for (slug in contentRequestChannel) {
-                libraryRepository.fetchSavedItemContent(slug)
+                libraryRepository.fetchSavedItemContent(context, slug)
             }
         }
 
@@ -148,19 +150,26 @@ class FollowingViewModel @Inject constructor(
 
     fun loadUsingSearchAPI() {
         viewModelScope.launch {
-            val result = libraryRepository.librarySearch(
-                cursor = librarySearchCursor,
-                query = searchQueryString()
-            )
-            result.cursor?.let {
-                librarySearchCursor = it
-            }
-            result.savedItems.map {
-                val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(it.savedItem.slug)
+            withContext(Dispatchers.IO) {
+                val context = applicationContext
+                val result = libraryRepository.librarySearch(
+                    context = context,
+                    cursor = librarySearchCursor,
+                    query = searchQueryString()
+                )
+                result.cursor?.let {
+                    librarySearchCursor = it
+                }
+                result.savedItems.map {
+                    val isSavedInDB = libraryRepository.isSavedItemContentStoredInDB(
+                        context = applicationContext,
+                        it.savedItem.slug
+                    )
 
-                if (!isSavedInDB) {
-                    delay(2000)
-                    contentRequestChannel.send(it.savedItem.slug)
+                    if (!isSavedInDB) {
+                        delay(2000)
+                        contentRequestChannel.send(it.savedItem.slug)
+                    }
                 }
             }
         }
@@ -257,7 +266,7 @@ class FollowingViewModel @Inject constructor(
         startTime: String,
     ) {
         libraryRepository.syncOfflineItemsWithServerIfNeeded()
-        val result = libraryRepository.sync(since = since, cursor = cursor, limit = 20)
+        val result = libraryRepository.sync(context = this.applicationContext, since = since, cursor = cursor, limit = 20)
         val totalCount = count + result.count
 
         if (!result.hasError && result.hasMoreItems && result.cursor != null) {

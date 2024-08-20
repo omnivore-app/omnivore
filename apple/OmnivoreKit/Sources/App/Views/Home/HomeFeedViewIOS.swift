@@ -803,9 +803,40 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
+    @State private var isAnimating = false
+
+    var progress: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer()
+                Rectangle()
+                    .fill(Color.yellow)
+                    .frame(height: 2)
+                    .offset(x: self.isAnimating ? geometry.size.width - 40 : 0)
+                    .frame(width: self.isAnimating ? geometry.size.width : 40)
+                    .animation(Animation.linear(duration: 2).repeatForever(autoreverses: true))
+                Spacer()
+            }
+            .onAppear {
+                self.isAnimating = true
+            }
+            .frame(height: 2)
+        }
+        .background(.clear)
+        .edgesIgnoringSafeArea(.all)
+    }
+
     var body: some View {
       VStack(spacing: 0) {
-        Color.systemBackground.frame(height: 1)
+        if viewModel.showLoadingBar == .simple {
+          progress
+            .frame(height: 2)
+            .frame(maxWidth: .infinity)
+            .listRowSeparator(.hidden, edges: .all)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+        } else {
+          Color.systemBackground.frame(height: 2)
+        }
         ScrollViewReader { reader in
           List(selection: $selection) {
             Section(content: {
@@ -842,15 +873,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                     }
                 }
 
-                if viewModel.showLoadingBar == .redacted || viewModel.showLoadingBar == .simple {
-                  VStack {
-                    ProgressView()
-                  }
-                  .frame(minHeight: 400)
-                  .frame(maxWidth: .infinity)
-                  .padding()
-                  .listRowSeparator(.hidden, edges: .all)
-                } else if viewModel.isEmptyingTrash {
+                if viewModel.isEmptyingTrash {
                     VStack {
                       Text("Emptying trash")
                       ProgressView()

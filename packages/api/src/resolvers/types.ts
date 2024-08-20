@@ -8,8 +8,12 @@ import winston from 'winston'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
+import { LibraryItem } from '../entity/library_item'
+import { PublicItem } from '../entity/public_item'
 import { Recommendation } from '../entity/recommendation'
+import { Subscription } from '../entity/subscription'
 import { UploadFile } from '../entity/upload_file'
+import { User } from '../entity/user'
 import { PubsubClient } from '../pubsub'
 
 export interface Claims {
@@ -51,11 +55,12 @@ export interface RequestContext {
     highlights: DataLoader<string, Highlight[]>
     recommendations: DataLoader<string, Recommendation[]>
     uploadFiles: DataLoader<string, UploadFile | undefined>
+    libraryItems: DataLoader<string, LibraryItem | undefined>
+    publicItems: DataLoader<string, PublicItem | undefined>
+    subscriptions: DataLoader<string, Subscription | undefined>
+    users: DataLoader<string, User | undefined>
+    highlightLabels: DataLoader<string, Label[]>
   }
 }
 
 export type ResolverContext = ApolloContext<RequestContext>
-
-export type WithDataSourcesContext = {
-  uid: string
-} & ResolverContext

@@ -12,7 +12,7 @@ export type RequestContext = {
   }
 }
 
-function requestHeaders(): Record<string, string> {
+export function requestHeaders(): Record<string, string> {
   const authToken = window?.localStorage.getItem('authToken') || undefined
   const pendingAuthToken =
     window?.localStorage.getItem('pendingUserAuth') || undefined
@@ -54,6 +54,7 @@ export function gqlFetcher(
     credentials: 'include',
     mode: 'cors',
   })
+
   return graphQLClient.request(query, variables, requestHeaders())
 }
 
@@ -68,10 +69,14 @@ export function apiFetcher(path: string): Promise<unknown> {
   })
 }
 
-export function apiPoster(path: string, body: any): Promise<Response> {
+export function apiPoster(
+  path: string,
+  body: any,
+  method = 'POST'
+): Promise<Response> {
   const url = new URL(path, fetchEndpoint)
   return fetch(url.toString(), {
-    method: 'POST',
+    method: method,
     credentials: 'include',
     mode: 'cors',
     headers: {
@@ -83,17 +88,19 @@ export function apiPoster(path: string, body: any): Promise<Response> {
 }
 
 export function makePublicGqlFetcher(
+  gql: string,
   variables?: unknown
 ): (query: string) => Promise<unknown> {
-  return (query: string) => gqlFetcher(query, variables, false)
+  return (query: string) => gqlFetcher(gql, variables, false)
 }
 
 // Partially apply gql variables to the request
 // This avoids using an object for the swr cache key
 export function makeGqlFetcher(
+  gql: string,
   variables?: unknown
 ): (query: string) => Promise<unknown> {
-  return (query: string) => gqlFetcher(query, variables, true)
+  return (query: string) => gqlFetcher(gql, variables, true)
 }
 
 export function ssrFetcher(

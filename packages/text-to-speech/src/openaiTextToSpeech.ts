@@ -1,19 +1,85 @@
+import axios from 'axios'
+import { stripEmojis } from './htmlToSsml'
 import {
   TextToSpeech,
   TextToSpeechInput,
   TextToSpeechOutput,
 } from './textToSpeech'
-import axios from 'axios'
-import { stripEmojis } from './htmlToSsml'
 
-const OPEN_AI_VOICES = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+const OPENAI_VOICE_PREFIX = 'openai-'
+
+const isOpenAIVoice = (voice: string | undefined) =>
+  voice?.startsWith(OPENAI_VOICE_PREFIX)
+
+const getVoiceId = (name: string | undefined): string | undefined => {
+  if (!name) {
+    return undefined
+  }
+
+  if (isOpenAIVoice(name)) {
+    return name.substring(OPENAI_VOICE_PREFIX.length)
+  }
+
+  // map realistic voice name to openai voice id
+  const voiceList = [
+    {
+      voiceId: 'alloy',
+      name: 'Antoni',
+    },
+    {
+      voiceId: 'echo',
+      name: 'Serena',
+    },
+    {
+      voiceId: 'fable',
+      name: 'Daniel',
+    },
+    {
+      voiceId: 'onyx',
+      name: 'Dorothy',
+    },
+    {
+      voiceId: 'nova',
+      name: 'Michael',
+    },
+    {
+      voiceId: 'shimmer',
+      name: 'Matilda',
+    },
+    {
+      voiceId: 'alloy',
+      name: 'Rachel',
+    },
+    {
+      voiceId: 'echo',
+      name: 'Bella',
+    },
+    {
+      voiceId: 'fable',
+      name: 'Elli',
+    },
+    {
+      voiceId: 'onyx',
+      name: 'Josh',
+    },
+    {
+      voiceId: 'nova',
+      name: 'Arnold',
+    },
+    {
+      voiceId: 'shimmer',
+      name: 'Adam',
+    },
+  ]
+  return voiceList.find((voice) => voice.name === name)?.voiceId
+}
 
 export class OpenAITextToSpeech implements TextToSpeech {
   synthesizeTextToSpeech = async (
     input: TextToSpeechInput
   ): Promise<TextToSpeechOutput> => {
     const apiKey = process.env.OPENAI_API_KEY
-    const voice = input.voice?.substring('openai-'.length)
+    const voice = getVoiceId(input.voice)
 
     if (!apiKey) {
       throw new Error('API credentials not set')
@@ -48,9 +114,7 @@ export class OpenAITextToSpeech implements TextToSpeech {
   }
 
   use(input: TextToSpeechInput): boolean {
-    if (input.voice?.startsWith('openai-')) {
-      return true
-    }
-    return false
+    // Use OpenAI voice for ultra realistic voice
+    return isOpenAIVoice(input.voice) || !!input.isUltraRealisticVoice
   }
 }

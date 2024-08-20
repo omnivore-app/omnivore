@@ -1,5 +1,6 @@
 import { In } from 'typeorm'
 import { Group } from '../../entity/groups/group'
+import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   CreateGroupError,
@@ -19,6 +20,7 @@ import {
   MutationLeaveGroupArgs,
   MutationRecommendArgs,
   MutationRecommendHighlightsArgs,
+  RecommendationGroup,
   RecommendError,
   RecommendErrorCode,
   RecommendHighlightsError,
@@ -38,26 +40,30 @@ import {
   leaveGroup,
 } from '../../services/groups'
 import { findLibraryItemById } from '../../services/library_item'
+import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRecommendation } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
-import { userDataToUser } from '../../utils/helpers'
 
+export type PartialRecommendationGroup = Merge<
+  RecommendationGroup,
+  { admins: Array<User>; members: Array<User> }
+>
 export const createGroupResolver = authorized<
-  CreateGroupSuccess,
+  Merge<CreateGroupSuccess, { group: PartialRecommendationGroup }>,
   CreateGroupError,
   MutationCreateGroupArgs
 >(async (_, { input }, { uid, log }) => {
   try {
-    const userData = await userRepository.findById(uid)
-    if (!userData) {
+    const user = await userRepository.findById(uid)
+    if (!user) {
       return {
         errorCodes: [CreateGroupErrorCode.Unauthorized],
       }
     }
 
     const [group, invite] = await createGroup({
-      admin: userData,
+      admin: user,
       name: input.name,
       maxMembers: input.maxMembers,
       expiresInDays: input.expiresInDays,
@@ -80,7 +86,6 @@ export const createGroupResolver = authorized<
     await createLabelAndRuleForGroup(uid, group.name)
 
     const inviteUrl = getInviteUrl(invite)
-    const user = userDataToUser(userData)
 
     return {
       group: {
@@ -103,37 +108,38 @@ export const createGroupResolver = authorized<
   }
 })
 
-export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
-  async (_, __, { uid, log }) => {
-    try {
-      const user = await userRepository.findById(uid)
-      if (!user) {
-        return {
-          errorCodes: [GroupsErrorCode.Unauthorized],
-        }
-      }
-
-      const groups = await getRecommendationGroups(user)
-
+export const groupsResolver = authorized<
+  Merge<GroupsSuccess, { groups: Array<PartialRecommendationGroup> }>,
+  GroupsError
+>(async (_, __, { uid, log }) => {
+  try {
+    const user = await userRepository.findById(uid)
+    if (!user) {
       return {
-        groups,
-      }
-    } catch (error) {
-      log.error('Error getting groups', {
-        error,
-        labels: {
-          source: 'resolver',
-          resolver: 'groupsResolver',
-          uid,
-        },
-      })
-
-      return {
-        errorCodes: [GroupsErrorCode.BadRequest],
+        errorCodes: [GroupsErrorCode.Unauthorized],
       }
     }
+
+    const groups = await getRecommendationGroups(user)
+
+    return {
+      groups,
+    }
+  } catch (error) {
+    log.error('Error getting groups', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'groupsResolver',
+        uid,
+      },
+    })
+
+    return {
+      errorCodes: [GroupsErrorCode.BadRequest],
+    }
   }
-)
+})
 
 export const recommendResolver = authorized<
   RecommendSuccess,
@@ -206,7 +212,7 @@ export const recommendResolver = authorized<
 })
 
 export const joinGroupResolver = authorized<
-  JoinGroupSuccess,
+  Merge<JoinGroupSuccess, { group: PartialRecommendationGroup }>,
   JoinGroupError,
   MutationJoinGroupArgs
 >(async (_, { inviteCode }, { uid, log }) => {

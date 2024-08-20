@@ -15,6 +15,7 @@ import { updateTheme } from '../../lib/themeUpdater'
 import { Priority, useRegisterActions } from 'kbar'
 import { ThemeId } from '../tokens/stitches.config'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -28,13 +29,11 @@ type PrimaryLayoutProps = {
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
   useApplyLocalTheme()
 
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
-
-  useKeyboardShortcuts(navigationCommands(router))
 
   useKeyboardShortcuts(
     primaryCommands((action) => {
@@ -80,8 +79,10 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
 
   // Attempt to identify the user if they are logged in.
   useEffect(() => {
-    setupAnalytics(viewerData?.me)
-  }, [viewerData?.me])
+    if (viewerData) {
+      setupAnalytics(viewerData)
+    }
+  }, [viewerData])
 
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)

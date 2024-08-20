@@ -20,11 +20,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -34,15 +33,13 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import app.omnivore.omnivore.core.designsystem.motion.materialSharedAxisXIn
-import app.omnivore.omnivore.core.designsystem.motion.materialSharedAxisXOut
-import app.omnivore.omnivore.feature.auth.LoginViewModel
-import app.omnivore.omnivore.feature.auth.WelcomeScreen
+import app.omnivore.omnivore.core.designsystem.theme.OmnivoreBrand
+import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
+import app.omnivore.omnivore.feature.onboarding.OnboardingScreen
 import app.omnivore.omnivore.feature.following.FollowingScreen
 import app.omnivore.omnivore.feature.library.LibraryView
 import app.omnivore.omnivore.feature.library.SearchView
@@ -51,19 +48,20 @@ import app.omnivore.omnivore.feature.profile.about.AboutScreen
 import app.omnivore.omnivore.feature.profile.account.AccountScreen
 import app.omnivore.omnivore.feature.profile.filters.FiltersScreen
 import app.omnivore.omnivore.feature.web.WebViewScreen
+import app.omnivore.omnivore.navigation.OmnivoreNavHost
 import app.omnivore.omnivore.navigation.Routes
 import app.omnivore.omnivore.navigation.TopLevelDestination
 
 @Composable
 fun RootView(
-    loginViewModel: LoginViewModel = hiltViewModel()
+    onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
 
-    val followingTabActive by loginViewModel.followingTabActiveState.collectAsStateWithLifecycle()
-    val hasAuthToken by loginViewModel.hasAuthTokenState.collectAsStateWithLifecycle()
+    val followingTabActive by onboardingViewModel.followingTabActiveState.collectAsStateWithLifecycle()
+    val hasAuthToken by onboardingViewModel.hasAuthTokenState.collectAsStateWithLifecycle()
 
     val destinations = if (followingTabActive) {
         TopLevelDestination.entries
@@ -71,7 +69,9 @@ fun RootView(
         TopLevelDestination.entries.filter { it.route != Routes.Following.route }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
         if (navController.currentBackStackEntryAsState().value?.destination?.route in TopLevelDestination.entries.map { it.route }) {
             OmnivoreBottomBar(
                 navController,
@@ -81,7 +81,7 @@ fun RootView(
         }
     }) { padding ->
         Box(
-            modifier = if (!hasAuthToken) Modifier.background(Color(0xFFFCEBA8)) else Modifier
+            modifier = if (!hasAuthToken) Modifier.background(OmnivoreBrand) else Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .consumeWindowInsets(padding)
@@ -95,46 +95,43 @@ fun RootView(
             PrimaryNavigator(
                 navController = navController,
                 snackbarHostState = snackbarHostState,
-                startDestination = startDestination,
-                loginViewModel = loginViewModel
+                startDestination = startDestination
             )
-            DisposableEffect(hasAuthToken) {
+            LaunchedEffect(hasAuthToken) {
                 if (hasAuthToken) {
-                    loginViewModel.registerUser()
+                    onboardingViewModel.registerUser()
                 }
-                onDispose {}
             }
         }
     }
 }
 
-private const val INITIAL_OFFSET_FACTOR = 0.10f
+
 
 @Composable
 fun PrimaryNavigator(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    startDestination: String,
-    loginViewModel: LoginViewModel
+    startDestination: String
 ) {
 
-    NavHost(navController = navController,
-        startDestination = startDestination,
-        enterTransition = { materialSharedAxisXIn(initialOffsetX = { (it * INITIAL_OFFSET_FACTOR).toInt() }) },
-        exitTransition = { materialSharedAxisXOut(targetOffsetX = { -(it * INITIAL_OFFSET_FACTOR).toInt() }) },
-        popEnterTransition = { materialSharedAxisXIn(initialOffsetX = { -(it * INITIAL_OFFSET_FACTOR).toInt() }) },
-        popExitTransition = { materialSharedAxisXOut(targetOffsetX = { (it * INITIAL_OFFSET_FACTOR).toInt() }) }) {
+    OmnivoreNavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
 
         composable(Routes.Welcome.route) {
-            WelcomeScreen(viewModel = loginViewModel)
+            OnboardingScreen()
         }
 
-        navigation(startDestination = Routes.Inbox.route,
+        navigation(
+            startDestination = Routes.Inbox.route,
             route = Routes.Home.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }) {
+            popExitTransition = { ExitTransition.None }
+        ) {
 
             composable(Routes.Inbox.route) {
                 LibraryView(navController = navController)
@@ -222,8 +219,3 @@ private fun OmnivoreBottomBar(
         }
     }
 }
-
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.name, true) ?: false
-    } ?: false

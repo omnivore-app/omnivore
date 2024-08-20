@@ -1,4 +1,4 @@
-import { styled } from '../tokens/stitches.config'
+import { styled, theme } from '../tokens/stitches.config'
 
 export const Button = styled('button', {
   fontFamily: 'inter',
@@ -43,6 +43,21 @@ export const Button = styled('button', {
         cursor: 'pointer',
         border: '0px solid $yellow3',
         bg: '$ctaBlue',
+        color: 'white',
+        '&:hover': {
+          border: '0px solid #0056D2',
+          background: `#0056D2`,
+        },
+      },
+      ctaSubtle: {
+        borderRadius: '5px',
+        px: '10px',
+        py: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+        cursor: 'pointer',
+        border: '0px solid $yellow3',
+        bg: 'gray',
         color: 'white',
         '&:hover': {
           border: '0px solid #0056D2',
@@ -412,6 +427,28 @@ export const Button = styled('button', {
         '&:hover': {
           opacity: 0.8,
         },
+      },
+      homeAction: {
+        display: 'flex',
+        color: 'transparent',
+        border: 'none',
+        bg: 'transparent',
+        cursor: 'pointer',
+        p: '5px',
+        borderRadius: '5px',
+        '&:hover': {
+          opacity: '1',
+          bg: '$homeActionHoverBg',
+          '--stroke': theme.colors.homeTextTitle.toString(),
+        },
+        '--stroke': theme.colors.homeActionIcons.toString(),
+      },
+      menuAction: {
+        display: 'flex',
+        border: 'none',
+        bg: 'transparent',
+        cursor: 'pointer',
+        '&:hover': { bg: 'transparent', opacity: '1' },
       },
       themeSwitch: {
         p: '0px',

@@ -9,16 +9,15 @@ import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useState } from 'react'
-import { X } from 'phosphor-react'
+import { X } from '@phosphor-icons/react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { diff_match_patch } from 'diff-match-patch'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
 import { NotebookContent } from './Notebook'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 
 type NotebookModalProps = {
   viewer: UserBasicData
@@ -29,19 +28,15 @@ type NotebookModalProps = {
   onClose: (highlights: Highlight[], deletedHighlights: Highlight[]) => void
 }
 
-export const getHighlightLocation = (patch: string): number | undefined => {
-  const dmp = new diff_match_patch()
-  const patches = dmp.patch_fromText(patch)
-  return patches[0].start1 || undefined
-}
-
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [allAnnotations, setAllAnnotations] =
-    useState<Highlight[] | undefined>(undefined)
+  const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
+    undefined
+  )
 
-  const [deletedHighlights, setDeletedAnnotations] =
-    useState<Highlight[] | undefined>(undefined)
+  const [deletedHighlights, setDeletedAnnotations] = useState<
+    Highlight[] | undefined
+  >(undefined)
 
   const handleClose = useCallback(() => {
     props.onClose(allAnnotations ?? [], deletedHighlights ?? [])

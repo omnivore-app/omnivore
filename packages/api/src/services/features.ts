@@ -2,13 +2,13 @@ import * as jwt from 'jsonwebtoken'
 import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
+import { LibraryItem } from '../entity/library_item'
+import { Subscription, SubscriptionStatus } from '../entity/subscription'
 import { env } from '../env'
+import { OptInFeatureErrorCode } from '../generated/graphql'
+import { redisDataSource } from '../redis_data_source'
 import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
-import { OptInFeatureErrorCode } from '../generated/graphql'
-import { Subscription, SubscriptionStatus } from '../entity/subscription'
-import { libraryItemRepository } from '../repository/library_item'
-import { LibraryItem } from '../entity/library_item'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
@@ -182,8 +182,10 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
         where: { user: { id: uid }, status: SubscriptionStatus.Active },
       })
     },
-    undefined,
-    uid
+    {
+      uid,
+      replicationMode: 'replica',
+    }
   )
 
   const libraryItemsCount = await authTrx(
@@ -192,9 +194,39 @@ export const userDigestEligible = async (uid: string): Promise<boolean> => {
         where: { user: { id: uid } },
       })
     },
-    undefined,
-    uid
+    {
+      uid,
+      replicationMode: 'replica',
+    }
   )
 
   return subscriptionsCount >= 2 && libraryItemsCount >= 10
+}
+
+const featuresCacheKey = (userId: string) => `cache:features:${userId}`
+
+export const getFeaturesCache = async (userId: string) => {
+  logger.debug('getFeaturesCache', { userId })
+
+  const cachedFeatures = await redisDataSource.redisClient?.get(
+    featuresCacheKey(userId)
+  )
+  if (!cachedFeatures) {
+    return undefined
+  }
+
+  return JSON.parse(cachedFeatures) as Feature[]
+}
+
+export const setFeaturesCache = async (userId: string, features: Feature[]) => {
+  const value = JSON.stringify(features)
+
+  logger.debug('setFeaturesCache', { userId, value })
+
+  return redisDataSource.redisClient?.set(
+    featuresCacheKey(userId),
+    value,
+    'EX',
+    600
+  )
 }

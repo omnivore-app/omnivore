@@ -47,7 +47,6 @@ export const addRecommendation = async (
         author: item.author,
         description: item.description,
         originalUrl: item.originalUrl,
-        originalContent: item.originalContent,
         contentReader: item.contentReader,
         directionality: item.directionality,
         itemLanguage: item.itemLanguage,
@@ -116,8 +115,9 @@ export const createRecommendation = async (
 ) => {
   return authTrx(
     async (tx) => tx.getRepository(Recommendation).save(recommendation),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -134,7 +134,8 @@ export const findRecommendationsByLibraryItemId = async (
           recommender: true,
         },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }

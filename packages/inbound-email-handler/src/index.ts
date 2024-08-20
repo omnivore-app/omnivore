@@ -2,7 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { RedisDataSource } from '@omnivore/utils'
 import * as Sentry from '@sentry/serverless'
+import 'dotenv/config'
 import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
 import rfc2047 from 'rfc2047'
@@ -72,6 +74,17 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         ? parseUnsubscribe(unSubHeader)
         : undefined
 
+      const redisDataSource = new RedisDataSource({
+        cache: {
+          url: process.env.REDIS_URL,
+          cert: process.env.REDIS_CERT,
+        },
+        mq: {
+          url: process.env.MQ_REDIS_URL,
+          cert: process.env.MQ_REDIS_CERT,
+        },
+      })
+
       try {
         // check if it is a subscription or google confirmation email
         const isGoogleConfirmation = isGoogleConfirmationEmail(from, subject)
@@ -79,11 +92,16 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           console.debug('handleConfirmation', from, subject)
           // we need to parse the confirmation code from the email
           if (isGoogleConfirmation) {
-            await handleGoogleConfirmationEmail(from, to, subject)
+            await handleGoogleConfirmationEmail(
+              redisDataSource,
+              from,
+              to,
+              subject
+            )
           }
 
           // forward emails
-          await queueEmailJob(EmailJobType.ForwardEmail, {
+          await queueEmailJob(redisDataSource, EmailJobType.ForwardEmail, {
             from,
             to,
             subject,
@@ -98,13 +116,19 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (attachments.length > 0) {
           console.debug('handle attachments', from, to, subject)
           // save the attachments as articles
-          await handleAttachments(from, to, subject, attachments)
+          await handleAttachments(
+            redisDataSource,
+            from,
+            to,
+            subject,
+            attachments
+          )
           return res.send('ok')
         }
 
         // all other emails are considered newsletters
         // queue newsletter emails
-        await queueEmailJob(EmailJobType.SaveNewsletter, {
+        await queueEmailJob(redisDataSource, EmailJobType.SaveNewsletter, {
           from,
           to,
           subject,
@@ -128,7 +152,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         )
 
         // fallback to forward the email
-        await queueEmailJob(EmailJobType.ForwardEmail, {
+        await queueEmailJob(redisDataSource, EmailJobType.ForwardEmail, {
           from,
           to,
           subject,
@@ -139,7 +163,9 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           replyTo,
         })
 
-        res.send('ok')
+        return res.send('ok')
+      } finally {
+        await redisDataSource.shutdown()
       }
     } catch (e) {
       console.error(e)

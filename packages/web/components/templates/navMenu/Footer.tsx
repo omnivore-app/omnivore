@@ -4,6 +4,7 @@ import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryMenu'
 
 type NavMenuFooterProps = {
+  showFullThemeSection?: boolean
   setShowAddLinkModal?: (show: true) => void
 }
 
@@ -16,19 +17,16 @@ export const NavMenuFooter = (props: NavMenuFooterProps): JSX.Element => {
         position: 'fixed',
         bottom: '0%',
         alignItems: 'center',
-        backgroundColor: '$thBackground2',
+        bg: '$thNavMenuFooter',
         width: LIBRARY_LEFT_MENU_WIDTH,
         overflowY: 'auto',
         overflowX: 'hidden',
         '&::-webkit-scrollbar': {
           display: 'none',
         },
-        '@mdDown': {
-          width: '100%',
-        },
       }}
     >
-      <PrimaryDropdown showThemeSection={true} />
+      <PrimaryDropdown />
       <SpanBox
         css={{
           marginLeft: 'auto',

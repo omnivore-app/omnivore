@@ -79,6 +79,7 @@ export const setLinkArchivedResolver = authorized<
       {
         state,
         archivedAt,
+        seenAt: new Date(),
       },
       uid
     )

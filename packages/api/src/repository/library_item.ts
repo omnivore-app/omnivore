@@ -7,7 +7,7 @@ import { wordsCount } from '../utils/helpers'
 const convertToLibraryItem = (item: DeepPartial<LibraryItem>) => {
   return {
     ...item,
-    wordCount: item.wordCount ?? wordsCount(item.readableContent || ''),
+    wordCount: item.wordCount ?? wordsCount(item.readableContent || '', true),
   }
 }
 
@@ -25,7 +25,7 @@ export const libraryItemRepository = appDataSource
         .andWhere('md5(original_url) = md5(:url)', { url })
 
       if (forUpdate) {
-        qb.setLock('pessimistic_write')
+        qb.setLock('pessimistic_read')
       }
 
       return qb.getOne()
@@ -65,7 +65,6 @@ export const libraryItemRepository = appDataSource
         INSERT INTO omnivore.library_item (
           slug,
           readable_content,
-          original_content,
           description,
           title,
           author,
@@ -82,7 +81,6 @@ export const libraryItemRepository = appDataSource
         SELECT
           slug,
           readable_content,
-          original_content,
           description,
           title,
           author,

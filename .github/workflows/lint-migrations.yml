@@ -1,0 +1,23 @@
+name: Lint Migrations
+
+on:
+  pull_request:
+    paths:
+      - 'packages/db/migrations/**'
+
+jobs:
+  lint_migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Fetch main branch
+        run: git fetch origin main:main
+      - name: Find modified migrations
+        run: |
+          modified_migrations=$(git diff --diff-filter=d --name-only main 'packages/db/migrations/*.do.*.sql')
+          echo "$modified_migrations"
+          echo "file_names=$modified_migrations" >> $GITHUB_OUTPUT
+        id: modified-migrations
+      - uses: sbdchd/squawk-action@v1
+        with:
+          pattern: ${{ steps.modified-migrations.outputs.file_names }}

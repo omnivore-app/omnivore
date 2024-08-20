@@ -48,6 +48,7 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import { DEFAULT_HOME_PATH } from '../../utils/navigation'
 
 export interface SignupRequest {
   email: string
@@ -373,11 +374,13 @@ export function authRouter() {
             decodeURIComponent(redirectUri)
           )
         } else {
-          redirectUri = `${env.client.url}/home`
+          redirectUri = `${env.client.url}${DEFAULT_HOME_PATH}`
         }
       }
 
-      redirectUri = redirectUri ? redirectUri : `${env.client.url}/home`
+      redirectUri = redirectUri
+        ? redirectUri
+        : `${env.client.url}${DEFAULT_HOME_PATH}`
 
       const message = res.get('Message')
       if (message) {

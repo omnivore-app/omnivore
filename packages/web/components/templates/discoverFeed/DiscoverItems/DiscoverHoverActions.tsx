@@ -7,12 +7,12 @@ import {
   Browsers,
   MinusCircle,
   PlusCircle,
-} from 'phosphor-react'
+} from '@phosphor-icons/react'
 import { timeZone, locale } from '../../../../lib/dateFormatting'
 import React from 'react'
-import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
-import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
-import { BrowserIcon } from "../../../elements/icons/BrowserIcon"
+import { SaveDiscoverArticleOutput } from '../../../../lib/networking/mutations/saveDiscoverArticle'
+import { DiscoverFeedItem } from '../../../../lib/networking/queries/useGetDiscoverFeedItems'
+import { BrowserIcon } from '../../../elements/icons/BrowserIcon'
 
 type DiscoverHoverActionsProps = {
   viewer?: UserBasicData
@@ -29,7 +29,7 @@ type DiscoverHoverActionsProps = {
   setSavedUrl: (url: string) => void
   savedUrl?: string
 
-  deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>,
+  deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>
 }
 
 export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
@@ -60,14 +60,14 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
     >
       <Button
         title={
-          (props.savedId && 'Remove From Library (A)') ||
-          'Add to Library (A)'
+          (props.savedId && 'Remove From Library (A)') || 'Add to Library (A)'
         }
         style="hoverActionIcon"
         onClick={(event) => {
-          console.log(props);
+          console.log(props)
           if (!props.savedUrl) {
-            props.handleLinkSubmission(props.item.id, timeZone, locale)
+            props
+              .handleLinkSubmission(props.item.id, timeZone, locale)
               .then((item) => {
                 if (item) {
                   props.setSavedId(item.saveDiscoverArticle.saveId)
@@ -120,7 +120,10 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           event.stopPropagation()
         }}
       >
-        <BrowserIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        <BrowserIcon
+          size={21}
+          color={theme.colors.thNotebookSubtle.toString()}
+        />
       </Button>
     </Box>
   )

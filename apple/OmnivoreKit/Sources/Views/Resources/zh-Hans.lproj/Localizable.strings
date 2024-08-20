@@ -23,9 +23,9 @@
 "labelNamePlaceholder" = "标签名称";
 
 // Manage Account View
-"manageAccountDelete" = "删除帐户";
+"manageAccountDelete" = "删除账号";
 "manageAccountResetCache" = "重置数据缓存";
-"manageAccountConfirmDeleteMessage" = "您确定要彻底删除您的帐户吗? 此操作无法撤消。";
+"manageAccountConfirmDeleteMessage" = "您确定要彻底删除您的账号吗? 此操作无法撤消。";
 
 // Newsletter Emails View
 "newsletterEmailsExisting" = "现有电子邮箱 (点击复制)";
@@ -43,7 +43,7 @@
 // Push Notification Settings
 "notificationsEnabled" = "启用通知";
 "notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限，但由您负责发送哪些通知。";
-"notificationsTriggerExplainer" = "推送通知使用您的[帐户规则](https://omnivore.app/settings/rules)您可以在线编辑。";
+"notificationsTriggerExplainer" = "推送通知使用您的[账号规则](https://omnivore.app/settings/rules)您可以在线编辑。";
 "notificationsEnable" = "确定启用推送通知?";
 "notificationsGeneralExplainer" = "当新闻资讯链接到达您的收集箱时收到通知。或者接收您从我们的分享扩展中设置的提醒。";
 "notificationsOptionDeny" = "不用了";
@@ -91,7 +91,7 @@
 "registrationUseDifferentEmail" = "使用其他电子邮箱?";
 "registrationFullName" = "姓名";
 "registrationUsername" = "用户名";
-"registrationAlreadyHaveAccount" = "已有帐户?";
+"registrationAlreadyHaveAccount" = "已有账号?";
 "registrationBio" = "个人简介 (可选)";
 "registrationWelcome" = "绝不错过精彩阅读";
 "registrationUsernameAssignedPrefix" = "您的用户名是:";
@@ -149,7 +149,7 @@
 "genericProfile" = "个人资料";
 "genericNext" = "下一页";
 "genericName" = "名字";
-"genericOk" = "好";
+"genericOk" = "好的";
 "genericRetry" = "重试";
 "genericEmail" = "电子邮箱";
 "genericPassword" = "密码";
@@ -177,7 +177,7 @@
 "privacyPolicyGeneric" = "隐私策略";
 "termsAndConditionsGeneric" = "条款与条件";
 "feedbackGeneric" = "反馈";
-"manageAccountGeneric" = "管理帐户";
+"manageAccountGeneric" = "管理账号";
 "logoutGeneric" = "退出登录";
 "doneGeneric" = "完成";
 "cancelGeneric" = "取消";
@@ -200,7 +200,7 @@
 "errorGeneric" = "哦！出现了小问题，请您重试。";
 "readerSettingsGeneric" = "阅读设置";
 "pushNotificationsGeneric" = "推送通知";
-"dismissButton" = "返回或撤销";
+"dismissButton" = "撤回";
 "errorNetwork" = "我们在连接到互联网时遇到问题。";
 "documentationGeneric" = "使用手册";
 
@@ -276,8 +276,8 @@
 //
 //// Views/Profile/ProfileView.swift
 //"Omnivore Version \(appVersion)" = "Omnivore 版本 \(appVersion)";
-//"Unable to load account information." = "无法加载帐户信息。";
-//"We were unable to delete your account." = "我们无法删除您的帐户。";
+//"Unable to load account information." = "无法加载账号信息。";
+//"We were unable to delete your account." = "我们无法删除您的账号。";
 //
 //// Views/Profile/PushNotificationSettingsView.swift
 //"Devices" = "设备";
@@ -326,7 +326,7 @@
 //"Self-hosting Options" = "自我管选项";
 //
 //// Views/WelcomeView.swift
-//"Your account has been deleted. Additional steps may be needed if Sign in with Apple was used to register." = "您的帐户已被删除。如果使用 Apple 登录 进行注册，则可能需要执行其他步骤。";
+//"Your account has been deleted. Additional steps may be needed if Sign in with Apple was used to register." = "您的账号已被删除。如果使用 Apple 登录 进行注册，则可能需要执行其他步骤。";
 //"View Terms of Service" = "查看服务条款";
 //"View Privacy Policy" = "查看隐私策略";
 //"Self-hosting options" = "私有化部署选项";

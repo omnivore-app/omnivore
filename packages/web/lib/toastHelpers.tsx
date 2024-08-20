@@ -1,5 +1,5 @@
 import { toast, ToastOptions } from 'react-hot-toast'
-import { CheckCircle, WarningCircle, X } from 'phosphor-react'
+import { CheckCircle, WarningCircle, X } from '@phosphor-icons/react'
 import { Box, HStack } from '../components/elements/LayoutPrimitives'
 import { styled } from '@stitches/react'
 import { Button } from '../components/elements/Button'
@@ -124,7 +124,6 @@ const showToastWithAction = (
             style="ctaLightGray"
             onClick={(event) => {
               event.preventDefault()
-
               toast.dismiss(id)
               ;(async () => {
                 await action()

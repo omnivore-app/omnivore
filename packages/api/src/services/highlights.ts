@@ -23,11 +23,14 @@ export type HighlightEvent = Merge<
 export const batchGetHighlightsFromLibraryItemIds = async (
   libraryItemIds: readonly string[]
 ): Promise<Highlight[][]> => {
-  const highlights = await authTrx(async (tx) =>
-    tx.getRepository(Highlight).find({
-      where: { libraryItem: { id: In(libraryItemIds as string[]) } },
-      relations: ['user'],
-    })
+  const highlights = await authTrx(
+    async (tx) =>
+      tx.getRepository(Highlight).find({
+        where: { libraryItem: { id: In(libraryItemIds as string[]) } },
+      }),
+    {
+      replicationMode: 'replica',
+    }
   )
 
   return libraryItemIds.map((libraryItemId) =>
@@ -51,8 +54,9 @@ export const createHighlights = async (
   return authTrx(
     async (tx) =>
       tx.withRepository(highlightRepository).createAndSaves(highlights),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -68,14 +72,11 @@ export const createHighlight = async (
       const newHighlight = await repo.createAndSave(highlight)
       return repo.findOneOrFail({
         where: { id: newHighlight.id },
-        relations: {
-          user: true,
-          libraryItem: true,
-        },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   const data = deepDelete(newHighlight, columnsToDelete)
@@ -84,11 +85,7 @@ export const createHighlight = async (
     {
       id: libraryItemId,
       highlights: [data],
-      // for Readwise
-      originalUrl: newHighlight.libraryItem.originalUrl,
-      title: newHighlight.libraryItem.title,
-      author: newHighlight.libraryItem.author,
-      thumbnail: newHighlight.libraryItem.thumbnail,
+      updatedAt: new Date(),
     },
     userId
   )
@@ -128,10 +125,6 @@ export const mergeHighlights = async (
 
     return highlightRepo.findOneOrFail({
       where: { id: newHighlight.id },
-      relations: {
-        user: true,
-        libraryItem: true,
-      },
     })
   })
 
@@ -139,11 +132,8 @@ export const mergeHighlights = async (
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      originalUrl: newHighlight.libraryItem.originalUrl,
-      title: newHighlight.libraryItem.title,
-      author: newHighlight.libraryItem.author,
-      thumbnail: newHighlight.libraryItem.thumbnail,
       highlights: [newHighlight],
+      updatedAt: new Date(),
     },
     userId
   )
@@ -168,22 +158,14 @@ export const updateHighlight = async (
 
     return highlightRepo.findOneOrFail({
       where: { id: highlightId },
-      relations: {
-        libraryItem: true,
-        user: true,
-      },
     })
   })
 
-  const libraryItemId = updatedHighlight.libraryItem.id
+  const libraryItemId = updatedHighlight.libraryItemId
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      originalUrl: updatedHighlight.libraryItem.originalUrl,
-      title: updatedHighlight.libraryItem.title,
-      author: updatedHighlight.libraryItem.author,
-      thumbnail: updatedHighlight.libraryItem.thumbnail,
       highlights: [
         {
           ...highlight,
@@ -205,26 +187,43 @@ export const updateHighlight = async (
   return updatedHighlight
 }
 
-export const deleteHighlightById = async (highlightId: string) => {
-  const deletedHighlight = await authTrx(async (tx) => {
-    const highlightRepo = tx.withRepository(highlightRepository)
-    const highlight = await highlightRepo.findOneOrFail({
-      where: { id: highlightId },
-      relations: {
-        user: true,
-      },
-    })
+export const deleteHighlightById = async (
+  highlightId: string,
+  userId?: string
+) => {
+  const deletedHighlight = await authTrx(
+    async (tx) => {
+      const highlightRepo = tx.withRepository(highlightRepository)
+      const highlight = await highlightRepo.findOneOrFail({
+        where: { id: highlightId },
+      })
 
-    await highlightRepo.delete(highlightId)
-    return highlight
-  })
+      await highlightRepo.delete(highlightId)
+      return highlight
+    },
+    {
+      uid: userId,
+    }
+  )
 
   await enqueueUpdateHighlight({
     libraryItemId: deletedHighlight.libraryItemId,
-    userId: deletedHighlight.user.id,
+    userId: deletedHighlight.userId,
   })
 
   return deletedHighlight
+}
+
+export const deleteHighlightsByIds = async (
+  userId: string,
+  highlightIds: string[]
+) => {
+  await authTrx(
+    async (tx) => tx.getRepository(Highlight).delete(highlightIds),
+    {
+      uid: userId,
+    }
+  )
 }
 
 export const findHighlightById = async (
@@ -236,10 +235,13 @@ export const findHighlightById = async (
       const highlightRepo = tx.withRepository(highlightRepository)
       return highlightRepo.findOneBy({
         id: highlightId,
+        user: { id: userId },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -256,7 +258,59 @@ export const findHighlightsByLibraryItemId = async (
           labels: true,
         },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
+  )
+}
+
+export const searchHighlights = async (
+  userId: string,
+  query?: string,
+  limit?: number,
+  offset?: number
+): Promise<Array<Highlight>> => {
+  return authTrx(
+    async (tx) => {
+      const queryBuilder = tx
+        .getRepository(Highlight)
+        .createQueryBuilder('highlight')
+        .innerJoin(
+          'highlight.libraryItem',
+          'libraryItem',
+          'highlight.libraryItemId = libraryItem.id AND libraryItem.deletedAt IS NULL'
+        )
+        .andWhere('highlight.userId = :userId', { userId })
+        .orderBy('highlight.updatedAt', 'DESC')
+        .take(limit)
+        .skip(offset)
+
+      if (query) {
+        // parse query and search by it
+        const labelRegex = /label:"([^"]+)"/g
+        const labels = Array.from(query.matchAll(labelRegex)).map(
+          (match) => match[1]
+        )
+
+        labels.forEach((label, index) => {
+          const alias = `label_${index}`
+          queryBuilder.innerJoin(
+            'highlight.labels',
+            alias,
+            `LOWER(${alias}.name) = LOWER(:${alias})`,
+            {
+              [alias]: label,
+            }
+          )
+        })
+      }
+
+      return queryBuilder.getMany()
+    },
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }

@@ -33,7 +33,6 @@ import {
   UpdateUserProfileErrorCode,
   UpdateUserProfileSuccess,
   UpdateUserSuccess,
-  User,
   UserErrorCode,
   UserResult,
   UsersError,
@@ -42,14 +41,14 @@ import {
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendAccountChangeEmail } from '../../services/send_emails'
-import { softDeleteUser } from '../../services/user'
-import { userDataToUser } from '../../utils/helpers'
-import { validateUsername } from '../../utils/usernamePolicy'
-import { WithDataSourcesContext } from '../types'
+import { cacheUser, getCachedUser, softDeleteUser } from '../../services/user'
+import { Merge } from '../../util'
 import { authorized } from '../../utils/gql-utils'
+import { validateUsername } from '../../utils/usernamePolicy'
+import { ResolverContext } from '../types'
 
 export const updateUserResolver = authorized<
-  UpdateUserSuccess,
+  Merge<UpdateUserSuccess, { user: UserEntity }>,
   UpdateUserError,
   MutationUpdateUserArgs
 >(async (_, { input: { name, bio } }, { uid, authTrx }) => {
@@ -83,11 +82,13 @@ export const updateUserResolver = authorized<
     })
   )
 
-  return { user: userDataToUser(updatedUser) }
+  await cacheUser(updatedUser)
+
+  return { user: updatedUser }
 })
 
 export const updateUserProfileResolver = authorized<
-  UpdateUserProfileSuccess,
+  Merge<UpdateUserProfileSuccess, { user: UserEntity }>,
   UpdateUserProfileError,
   MutationUpdateUserProfileArgs
 >(async (_, { input: { userId, username, pictureUrl } }, { uid, authTrx }) => {
@@ -140,13 +141,15 @@ export const updateUserProfileResolver = authorized<
     })
   )
 
-  return { user: userDataToUser(updatedUser) }
+  await cacheUser(updatedUser)
+
+  return { user: updatedUser }
 })
 
 export const googleLoginResolver: ResolverFn<
-  LoginResult,
+  Merge<LoginResult, { me?: UserEntity }>,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   MutationGoogleLoginArgs
 > = async (_obj, { input }, { setAuth }) => {
   const { email, secret } = input
@@ -167,13 +170,13 @@ export const googleLoginResolver: ResolverFn<
 
   // set auth cookie in response header
   await setAuth({ uid: user.id })
-  return { me: userDataToUser(user) }
+  return { me: user }
 }
 
 export const validateUsernameResolver: ResolverFn<
   boolean,
   Record<string, unknown>,
-  WithDataSourcesContext,
+  ResolverContext,
   QueryValidateUsernameArgs
 > = async (_obj, { username }) => {
   const lowerCasedUsername = username.toLowerCase()
@@ -190,9 +193,9 @@ export const validateUsernameResolver: ResolverFn<
 }
 
 export const googleSignupResolver: ResolverFn<
-  GoogleSignupResult,
+  Merge<GoogleSignupResult, { me?: UserEntity }>,
   Record<string, unknown>,
-  WithDataSourcesContext,
+  ResolverContext,
   MutationGoogleSignupArgs
 > = async (_obj, { input }, { setAuth, log }) => {
   const { email, username, name, bio, sourceUserId, pictureUrl, secret } = input
@@ -205,7 +208,7 @@ export const googleSignupResolver: ResolverFn<
   }
 
   try {
-    const [user, profile] = await createUser({
+    const [user] = await createUser({
       email,
       sourceUserId,
       provider: 'GOOGLE',
@@ -218,7 +221,7 @@ export const googleSignupResolver: ResolverFn<
 
     await setAuth({ uid: user.id })
     return {
-      me: userDataToUser({ ...user, profile: { ...profile, private: false } }),
+      me: user,
     }
   } catch (err) {
     log.info('error signing up with google', err)
@@ -232,7 +235,7 @@ export const googleSignupResolver: ResolverFn<
 export const logOutResolver: ResolverFn<
   LogOutResult,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   unknown
 > = (_, __, { clearAuth, log }) => {
   try {
@@ -245,9 +248,9 @@ export const logOutResolver: ResolverFn<
 }
 
 export const getMeUserResolver: ResolverFn<
-  User | undefined,
+  UserEntity | undefined,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   unknown
 > = async (_obj, __, { claims }) => {
   try {
@@ -255,23 +258,31 @@ export const getMeUserResolver: ResolverFn<
       return undefined
     }
 
+    const userId = claims.uid
+    const cachedUser = await getCachedUser(userId)
+    if (cachedUser) {
+      return cachedUser
+    }
+
     const user = await userRepository.findById(claims.uid)
     if (!user) {
       return undefined
     }
 
-    return userDataToUser(user)
+    await cacheUser(user)
+
+    return user
   } catch (error) {
     return undefined
   }
 }
 
 export const getUserResolver: ResolverFn<
-  UserResult,
+  Merge<UserResult, { user?: UserEntity }>,
   unknown,
-  WithDataSourcesContext,
+  ResolverContext,
   QueryUserArgs
-> = async (_obj, { userId: id, username }, { uid }) => {
+> = async (_obj, { userId: id, username }) => {
   if (!(id || username)) {
     return { errorCodes: [UserErrorCode.BadRequest] }
   }
@@ -294,16 +305,17 @@ export const getUserResolver: ResolverFn<
     return { errorCodes: [UserErrorCode.UserNotFound] }
   }
 
-  return { user: userDataToUser(userRecord) }
+  return { user: userRecord }
 }
 
-export const getAllUsersResolver = authorized<UsersSuccess, UsersError>(
-  async (_obj, _params) => {
-    const users = await userRepository.findTopUsers()
-    const result = { users: users.map((userData) => userDataToUser(userData)) }
-    return result
-  }
-)
+export const getAllUsersResolver = authorized<
+  Merge<UsersSuccess, { users: Array<UserEntity> }>,
+  UsersError
+>(async (_obj, _params) => {
+  const users = await userRepository.findTopUsers()
+  const result = { users }
+  return result
+})
 
 type ErrorWithCode = {
   errorCode: string
@@ -354,6 +366,11 @@ export const updateEmailResolver = authorized<
           email,
         })
       )
+
+      await cacheUser({
+        ...user,
+        email,
+      })
 
       return { email }
     }

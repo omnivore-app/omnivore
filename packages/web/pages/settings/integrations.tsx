@@ -1,19 +1,19 @@
 import { styled } from '@stitches/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { DownloadSimple, Link, Spinner } from 'phosphor-react'
+import { DownloadSimple, Link, Spinner } from '@phosphor-icons/react'
 import { useCallback, useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
   Dropdown,
-  DropdownOption
+  DropdownOption,
 } from '../../components/elements/DropdownElements'
 import {
   Box,
   HStack,
   SpanBox,
-  VStack
+  VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
@@ -29,6 +29,7 @@ import {
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 // Styles
 const Header = styled(Box, {
   color: '$utilityTextDefault',
@@ -73,8 +74,6 @@ type integrationsCard = {
   }
 }
 export default function Integrations(): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
-
   const { integrations, revalidate } = useGetIntegrationsQuery()
   // const { webhooks } = useGetWebhooksQuery()
 
@@ -245,7 +244,7 @@ export default function Integrations(): JSX.Element {
         icon: '/static/icons/pocket.svg',
         title: 'Pocket',
         subText:
-          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import.',
+          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import. The import is a one-time process and can only be performed once per-account.',
         button: {
           text: pocket ? 'Disconnect' : 'Import',
           icon: isImporting(pocket) ? (

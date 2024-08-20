@@ -1,6 +1,6 @@
-import { gql } from "graphql-request"
-import useSWR from "swr"
-import { makeGqlFetcher } from "../networkHelpers"
+import { gql } from 'graphql-request'
+import useSWR from 'swr'
+import { makeGqlFetcher } from '../networkHelpers'
 
 type DiscoverFeedsQueryResponse = {
   error: any
@@ -15,9 +15,9 @@ export type DiscoverFeed = {
   visibleName: string
   title: string
   link: string
-  description?: string,
-  image? : string,
-  type: "rss" | "atom"
+  description?: string
+  image?: string
+  type: 'rss' | 'atom'
 }
 
 export function useGetDiscoverFeeds(): DiscoverFeedsQueryResponse {
@@ -26,16 +26,16 @@ export function useGetDiscoverFeeds(): DiscoverFeedsQueryResponse {
       discoverFeeds {
         ... on DiscoverFeedSuccess {
           feeds {
-            visibleName, 
-            id,
-            title, 
-            link,
-            description,
-            image, 
+            visibleName
+            id
+            title
+            link
+            description
+            image
             type
           }
         }
-        ... on DiscoverFeedError{
+        ... on DiscoverFeedError {
           errorCodes
         }
       }
@@ -44,12 +44,13 @@ export function useGetDiscoverFeeds(): DiscoverFeedsQueryResponse {
 
   const { data, error, mutate, isValidating } = useSWR(
     [query],
-    makeGqlFetcher()
+    makeGqlFetcher(query),
+    {}
   )
 
   try {
     if (data) {
-      const result = data as { discoverFeeds: { feeds: DiscoverFeed[] }}
+      const result = data as { discoverFeeds: { feeds: DiscoverFeed[] } }
       const feeds = result.discoverFeeds.feeds as DiscoverFeed[]
       return {
         error,

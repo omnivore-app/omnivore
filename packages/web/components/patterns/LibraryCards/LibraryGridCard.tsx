@@ -26,7 +26,7 @@ import {
   autoUpdate,
 } from '@floating-ui/react'
 import { CardMenu } from '../CardMenu'
-import { DotsThree } from 'phosphor-react'
+import { DotsThree } from '@phosphor-icons/react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { LoadingBarOverlay, ProgressBarOverlay } from './LibraryListCard'
 import { GridFallbackImage } from './FallbackImage'
@@ -64,15 +64,18 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       css={{
         pl: '0px',
         padding: '0px',
-        width: '293px',
+        width: '100%',
+        maxWidth: '400px',
         height: '100%',
         minHeight: '270px',
-        background: 'white',
         borderRadius: '5px',
         borderWidth: '1px',
         borderStyle: 'none',
         overflow: 'hidden',
         cursor: 'pointer',
+        border: props.legacyLayout
+          ? 'unset'
+          : '1px solid $thLeftMenuBackground',
         '@media (max-width: 930px)': {
           width: 'calc(100% - 30px)',
         },
@@ -93,6 +96,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           props.setIsChecked(props.item.id, !props.isChecked)
           return
         }
+        window.localStorage.setItem('nav-return', router.asPath)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

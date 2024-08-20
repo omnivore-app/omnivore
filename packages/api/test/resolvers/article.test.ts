@@ -27,6 +27,7 @@ import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
 import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
+  countLibraryItems,
   createLibraryItems,
   createOrUpdateLibraryItem,
   CreateOrUpdateLibraryItemArgs,
@@ -430,7 +431,6 @@ describe('Article API', () => {
     before(async () => {
       const itemToCreate: CreateOrUpdateLibraryItemArgs = {
         title: 'test title',
-        originalContent: '<p>test</p>',
         slug: realSlug,
         readingProgressTopPercent: 100,
         user,
@@ -441,7 +441,6 @@ describe('Article API', () => {
         itemToCreate,
         user.id,
         undefined,
-        true,
         true
       )
       itemId = item.id
@@ -1309,7 +1308,6 @@ describe('Article API', () => {
             item,
             user.id,
             undefined,
-            true,
             true
           )
           items.push(savedItem)
@@ -2322,6 +2320,51 @@ describe('Article API', () => {
         expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
+
+    context(
+      'when action is MarkAsSeen and query contains a list of item id',
+      () => {
+        const items: LibraryItem[] = []
+
+        before(async () => {
+          // Create some test items
+          for (let i = 0; i < 5; i++) {
+            const item = await createOrUpdateLibraryItem(
+              {
+                user,
+                title: 'test item',
+                slug: '',
+                originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
+              },
+              user.id
+            )
+
+            items.push(item)
+          }
+        })
+
+        after(async () => {
+          // Delete all items
+          await deleteLibraryItemsByUserId(user.id)
+        })
+
+        it('marks items as seen', async () => {
+          const query = `includes:${items.map((i) => i.id).join(',')}`
+
+          const res = await graphqlRequest(
+            bulkActionQuery(BulkActionType.MarkAsSeen, query),
+            authToken
+          ).expect(200)
+          expect(res.body.data.bulkAction.success).to.be.true
+
+          const response = await graphqlRequest(
+            searchQuery('is:seen'),
+            authToken
+          ).expect(200)
+          expect(response.body.data.search.pageInfo.totalCount).to.eql(5)
+        })
+      }
+    )
   })
 
   describe('SetFavoriteArticle API', () => {
@@ -2409,19 +2452,16 @@ describe('Article API', () => {
     })
 
     it('empties the trash', async () => {
-      let response = await graphqlRequest(
-        searchQuery('in:trash'),
-        authToken
-      ).expect(200)
-      expect(response.body.data.search.pageInfo.totalCount).to.eql(5)
-
       await graphqlRequest(emptyTrashQuery(), authToken).expect(200)
 
-      response = await graphqlRequest(
-        searchQuery('in:trash'),
-        authToken
-      ).expect(200)
-      expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
+      const count = await countLibraryItems(
+        {
+          query: 'in:trash',
+          includeDeleted: true,
+        },
+        user.id
+      )
+      expect(count).to.eql(0)
     })
   })
 })

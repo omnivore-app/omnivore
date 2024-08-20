@@ -3,7 +3,7 @@ import {
   Desktop,
   DeviceTabletSpeaker,
   DeviceMobileCamera,
-} from 'phosphor-react'
+} from '@phosphor-icons/react'
 import { Box, HStack } from './LayoutPrimitives'
 import { StyledText, StyledAnchor } from './StyledText'
 

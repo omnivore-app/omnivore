@@ -1,0 +1,14 @@
+psycopg2-binary
+pandas
+scikit-learn
+joblib
+google-cloud-storage
+flask
+pydantic
+sklearn2pmml
+sqlalchemy
+pyarrow
+requests
+PyJWT
+prometheus_client
+xgboost==2.1.0

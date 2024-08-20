@@ -27,8 +27,9 @@ export const findApiKeys = async (
           createdAt: 'DESC',
         },
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -36,9 +37,7 @@ export const deleteApiKey = async (
   criteria: string[] | FindOptionsWhere<ApiKey>,
   userId: string
 ) => {
-  return authTrx(
-    async (t) => t.getRepository(ApiKey).delete(criteria),
-    undefined,
-    userId
-  )
+  return authTrx(async (t) => t.getRepository(ApiKey).delete(criteria), {
+    uid: userId,
+  })
 }

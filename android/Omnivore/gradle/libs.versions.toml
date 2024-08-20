@@ -2,14 +2,13 @@
 accompanistFlowLayout = "0.34.0"
 androidGradlePlugin = "8.3.2"
 androidxActivity = "1.9.0"
-androidxAppCompat = "1.6.1"
-androidxComposeBom = "2024.04.01"
-androidxComposeCompiler = "1.5.9"
-androidxCore = "1.13.0"
-androidxDataStore = "1.1.0"
+androidxAppCompat = "1.7.0"
+androidxComposeBom = "2024.06.00"
+androidxCore = "1.13.1"
+androidxDataStore = "1.1.1"
 androidxEspresso = "3.5.1"
 androidxHiltNavigationCompose = "1.2.0"
-androidxLifecycle = "2.7.0"
+androidxLifecycle = "2.8.2"
 androidxNavigation = "2.7.7"
 androidxSecurity = "1.0.0"
 androidxTestExt = "1.1.5"
@@ -19,18 +18,20 @@ coil = "2.6.0"
 composeMarkdown = "0.3.3"
 coreSplashscreen = "1.0.1"
 gson = "2.10.1"
-hilt = "2.51"
+hilt = "2.51.1"
 intercom = "15.8.2"
 junit4 = "4.13.2"
-kotlin = "1.9.22"
-ksp = "1.9.22-1.0.18"
+kotlin = "2.0.0"
+ksp = "2.0.0-1.0.21"
 kotlinxCoroutines = "1.8.0"
-playServices = "18.4.0"
-playServicesAuth = "21.1.0"
+androidxCredentials = "1.2.2"
 posthog = "2.0.3"
 pspdfkit = "8.9.1"
 retrofit = "2.11.0"
 room = "2.6.1"
+workManager = "2.9.0"
+hiltWork = "1.2.0"
+googleid = "1.1.1"
 
 [libraries]
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanistFlowLayout" }
@@ -64,8 +65,9 @@ chiptextfield-m3 = { group = "io.github.dokar3", name = "chiptextfield-m3", vers
 coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 compose-markdown = { group = "com.github.jeziellago", name = "compose-markdown", version.ref = "composeMarkdown" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
-gms-playServicesAuth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
-gms-playServicesBase = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServices" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "androidxCredentials" }
+androidx-credentials-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "androidxCredentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 intercom = { group = "io.intercom.android", name = "intercom-sdk", version.ref = "intercom" }
@@ -81,8 +83,13 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 android-hilt = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager"}
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork"}
+hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork"}
 
 [plugins]
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

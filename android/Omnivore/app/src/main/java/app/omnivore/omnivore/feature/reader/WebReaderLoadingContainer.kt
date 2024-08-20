@@ -2,7 +2,6 @@ package app.omnivore.omnivore.feature.reader
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
@@ -11,10 +10,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,11 +33,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,9 +47,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
@@ -62,7 +61,6 @@ import app.omnivore.omnivore.feature.notebook.NotebookViewModel
 import app.omnivore.omnivore.feature.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
@@ -87,8 +85,10 @@ class WebReaderLoadingContainerActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
+                        .imePadding()
                 ) {
-                    if (viewModel.hasFetchError.value == true) {
+                    val hasFetchError by viewModel.hasFetchError.collectAsStateWithLifecycle()
+                    if (hasFetchError) {
                         Text(stringResource(R.string.web_reader_loading_container_error_msg))
                     } else {
                         WebReaderLoadingContainer(
@@ -103,15 +103,6 @@ class WebReaderLoadingContainerActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-
-        // animate the view up when keyboard appears
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val rootView = findViewById<View>(android.R.id.content).rootView
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
-            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            rootView.setPadding(0, 0, 0, imeHeight)
-            insets
         }
     }
 
@@ -142,19 +133,25 @@ fun WebReaderLoadingContainer(
     labelsViewModel: LabelsViewModel,
     editInfoViewModel: EditInfoViewModel
 ) {
-    val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
-    val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
+    val currentThemeKey = webReaderViewModel.currentThemeKey.collectAsStateWithLifecycle(
+        "System"
+    )
+    val currentTheme by remember {
+        derivedStateOf {
+            Themes.entries.find { it.themeKey == currentThemeKey.value }
+        }
+    }
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val bottomSheetState: BottomSheetState? by webReaderViewModel.bottomSheetStateLiveData.observeAsState(
+    val bottomSheetState: BottomSheetState? by webReaderViewModel.bottomSheetStateFlow.collectAsState(
         BottomSheetState.NONE
     )
 
-    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(
+    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsFlow.collectAsStateWithLifecycle(
         null
     )
-    val shouldPopView: Boolean by webReaderViewModel.shouldPopViewLiveData.observeAsState(false)
+    val shouldPopView: Boolean by webReaderViewModel.shouldPopViewFlow.collectAsStateWithLifecycle(false)
 
-    val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsLiveData.observeAsState(
+    val labels: List<SavedItemLabel> by webReaderViewModel.savedItemLabelsFlow.collectAsStateWithLifecycle(
         listOf()
     )
 
@@ -162,17 +159,23 @@ fun WebReaderLoadingContainer(
     webReaderViewModel.maxToolbarHeightPx =
         with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
 
-    val coroutineScope = rememberCoroutineScope()
+    val darkTheme = isSystemInDarkTheme()
 
-    val styledContent = webReaderParams?.let {
-        val webReaderContent = WebReaderContent(
-            preferences = webReaderViewModel.storedWebPreferences(isSystemInDarkTheme()),
-            item = it.item,
-            articleContent = it.articleContent,
-        )
-        webReaderContent.styledContent()
+    val rtlTextState by webReaderViewModel.rtlTextState.collectAsStateWithLifecycle()
+
+    val styledContent by remember {
+        derivedStateOf {
+            webReaderParams?.let {
+                val webReaderContent = WebReaderContent(
+                    preferences = webReaderViewModel.storedWebPreferences(darkTheme),
+                    rtlText = rtlTextState,
+                    item = it.item,
+                    articleContent = it.articleContent
+                )
+                webReaderContent.styledContent()
+            }
+        }
     }
-
 
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -185,34 +188,27 @@ fun WebReaderLoadingContainer(
         }
     )
 
-    val showMenu = {
-        coroutineScope.launch {
-            modalBottomSheetState.show()
-        }
-    }
-
-    when (bottomSheetState) {
-        BottomSheetState.PREFERENCES -> {
-            coroutineScope.launch {
+    LaunchedEffect(bottomSheetState) {
+        when (bottomSheetState) {
+            BottomSheetState.PREFERENCES -> {
                 if (!modalBottomSheetState.isVisible) {
                     modalBottomSheetState.show()
                 }
             }
-        }
 
-        BottomSheetState.NOTEBOOK, BottomSheetState.EDITNOTE,
-        BottomSheetState.HIGHLIGHTNOTE, BottomSheetState.LABELS, BottomSheetState.EDIT_INFO,
-        BottomSheetState.LINK,
-        -> {
-            showMenu()
-        }
+            BottomSheetState.NOTEBOOK, BottomSheetState.EDITNOTE,
+            BottomSheetState.HIGHLIGHTNOTE, BottomSheetState.LABELS, BottomSheetState.EDIT_INFO,
+            BottomSheetState.LINK,
+            -> {
+                modalBottomSheetState.show()
+            }
 
-        else -> {
-            coroutineScope.launch {
+            else -> {
                 modalBottomSheetState.hide()
             }
         }
     }
+
 
     ModalBottomSheetLayout(
         modifier = Modifier
@@ -223,7 +219,7 @@ fun WebReaderLoadingContainer(
             when (bottomSheetState) {
                 BottomSheetState.PREFERENCES -> {
                     BottomSheetUI {
-                        ReaderPreferencesView(webReaderViewModel)
+                        ReaderPreferencesSheet(webReaderViewModel)
                     }
                 }
 
@@ -246,24 +242,22 @@ fun WebReaderLoadingContainer(
                         EditNoteModal(
                             initialValue = notebookViewModel.highlightUnderEdit?.annotation,
                             onDismiss = { save, note ->
-                                coroutineScope.launch {
-                                    if (save) {
-                                        notebookViewModel.highlightUnderEdit?.let { highlight ->
-                                            notebookViewModel.updateHighlightNote(
-                                                highlight.highlightId,
-                                                note
+                                if (save) {
+                                    notebookViewModel.highlightUnderEdit?.let { highlight ->
+                                        notebookViewModel.updateHighlightNote(
+                                            highlight.highlightId,
+                                            note
+                                        )
+                                    } ?: run {
+                                        if (note != null) {
+                                            notebookViewModel.addArticleNote(
+                                                savedItemId = params.item.savedItemId,
+                                                note = note
                                             )
-                                        } ?: run {
-                                            if (note != null) {
-                                                notebookViewModel.addArticleNote(
-                                                    savedItemId = params.item.savedItemId,
-                                                    note = note
-                                                )
-                                            }
                                         }
                                     }
-                                    notebookViewModel.highlightUnderEdit = null
                                 }
+                                notebookViewModel.highlightUnderEdit = null
                                 webReaderViewModel.setBottomSheet(BottomSheetState.NOTEBOOK)
                             })
                     }
@@ -273,14 +267,12 @@ fun WebReaderLoadingContainer(
                     EditNoteModal(
                         initialValue = webReaderViewModel.annotation,
                         onDismiss = { save, note ->
-                            coroutineScope.launch {
-                                if (save) {
-                                    webReaderViewModel.saveAnnotation(note ?: "")
-                                } else {
-                                    webReaderViewModel.cancelAnnotation()
-                                }
-                                webReaderViewModel.annotation = null
+                            if (save) {
+                                webReaderViewModel.saveAnnotation(note ?: "")
+                            } else {
+                                webReaderViewModel.cancelAnnotation()
                             }
+                            webReaderViewModel.annotation = null
                             webReaderViewModel.resetBottomSheet()
                         }
                     )
@@ -293,21 +285,18 @@ fun WebReaderLoadingContainer(
                             labelsViewModel = labelsViewModel,
                             initialSelectedLabels = webReaderParams?.labels ?: listOf(),
                             onCancel = {
-                                coroutineScope.launch {
-                                    webReaderViewModel.resetBottomSheet()
-                                }
+                                webReaderViewModel.resetBottomSheet()
                             },
                             isLibraryMode = false,
                             onSave = {
                                 if (it != labels) {
                                     webReaderViewModel.updateSavedItemLabels(
-                                        savedItemID = webReaderParams?.item?.savedItemId ?: "",
+                                        savedItemID = webReaderParams?.item?.savedItemId
+                                            ?: "",
                                         labels = it
                                     )
                                 }
-                                coroutineScope.launch {
-                                    webReaderViewModel.resetBottomSheet()
-                                }
+                                webReaderViewModel.resetBottomSheet()
                             },
                             onCreateLabel = { newLabelName, labelHexValue ->
                                 webReaderViewModel.createNewSavedItemLabel(
@@ -328,15 +317,11 @@ fun WebReaderLoadingContainer(
                             description = webReaderParams?.item?.descriptionText,
                             viewModel = editInfoViewModel,
                             onCancel = {
-                                coroutineScope.launch {
-                                    webReaderViewModel.resetBottomSheet()
-                                }
+                                webReaderViewModel.resetBottomSheet()
                             },
                             onUpdated = {
-                                coroutineScope.launch {
-                                    webReaderViewModel.updateItemTitle()
-                                    webReaderViewModel.resetBottomSheet()
-                                }
+                                webReaderViewModel.updateItemTitle()
+                                webReaderViewModel.resetBottomSheet()
                             }
                         )
                     }
@@ -356,18 +341,20 @@ fun WebReaderLoadingContainer(
 
                 }
             }
-            Spacer(modifier = Modifier.weight(1.0F))
         }
     ) {
         Scaffold(
             topBar = {
                 ReaderTopAppBar(webReaderViewModel, onLibraryIconTap)
-            }) { paddingValues ->
-            if (styledContent != null) {
+            },
+            modifier = Modifier.statusBarsPadding()
+        ) { paddingValues ->
+            styledContent?.let {
                 WebReader(
-                    styledContent = styledContent,
+                    styledContent = it,
                     webReaderViewModel = webReaderViewModel,
                     currentTheme = currentTheme,
+                    modifier = Modifier.consumeWindowInsets(paddingValues)
                 )
             }
 
@@ -389,25 +376,29 @@ fun ReaderTopAppBar(
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     val isDarkMode = isSystemInDarkTheme()
-    val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
-    val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
-    val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightLiveData.observeAsState(
+    val currentThemeKey = webReaderViewModel.currentThemeKey.collectAsStateWithLifecycle("System")
+    val currentTheme by remember {
+        derivedStateOf {
+            Themes.entries.find { it.themeKey == currentThemeKey.value }
+        }
+    }
+    val toolbarHeightPx: Float by webReaderViewModel.currentToolbarHeightFlow.collectAsStateWithLifecycle(
         0.0f
     )
-    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(
+    val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsFlow.collectAsStateWithLifecycle(
         null
     )
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     val themeBackgroundColor = currentTheme?.let {
         if (it.themeKey == "System" && isDarkMode) {
-            Color(0xFF000000)
+            Color.Black
         } else if (it.themeKey == "System") {
-            Color(0xFFFFFFFF)
+            Color.White
         } else {
             Color(it.backgroundColor)
         }
-    } ?: Color(0xFFFFFFFF)
+    } ?: Color.White
 
     val themeTintColor = currentTheme?.let {
         if (it.themeKey == "System" && isDarkMode) {
@@ -509,7 +500,11 @@ fun BottomSheetUI(content: @Composable () -> Unit) {
             .statusBarsPadding()
     ) {
         Scaffold { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
                 content()
             }
         }

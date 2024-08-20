@@ -1,11 +1,14 @@
 package app.omnivore.omnivore.core.network
 
+import android.content.Context
 import android.util.Log
 import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.graphql.generated.GetArticleQuery
 import app.omnivore.omnivore.graphql.generated.type.ContentReader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -24,7 +27,7 @@ data class SavedItemQueryResponse(
     }
 }
 
-suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
+suspend fun Networker.savedItem(context: Context, slug: String): SavedItemQueryResponse {
     try {
         val result = authenticatedApolloClient().query(
             GetArticleQuery(slug = slug)
@@ -66,21 +69,7 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
             )
         }
 
-        var localPDFPath: String? = null
-        if (article.articleFields.contentReader == ContentReader.PDF) {
-            // download the PDF and save it locally
-            // article.articleFields.url
-
-            val localFile = File.createTempFile("pdf-" + article.articleFields.id, ".pdf")
-            val url = URL(article.articleFields.url)
-            Log.d("pdf", "creating local file: $localFile")
-
-            url.openStream()
-                .use { Files.copy(it, localFile.toPath(), StandardCopyOption.REPLACE_EXISTING) }
-            localPDFPath = localFile.toPath().toString()
-        }
-
-        saveLibraryItemContentToFile(article.articleFields.id, article.articleFields.content)
+        saveLibraryItemContentToFile(context, article.articleFields.id, article.articleFields.contentReader, article.articleFields.content, article.articleFields.url)
 
         val savedItem = SavedItem(
             savedItemId = article.articleFields.id,
@@ -103,7 +92,6 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
             isArchived = article.articleFields.isArchived,
             contentReader = article.articleFields.contentReader.rawValue,
             wordsCount = article.articleFields.wordsCount,
-            localPDFPath = localPDFPath
         )
 
         return SavedItemQueryResponse(

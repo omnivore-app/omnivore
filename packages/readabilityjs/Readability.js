@@ -206,7 +206,10 @@ Readability.prototype = {
     unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar|tl_article_header|mvp(-post)*-(add-story|soc(-mob)*-wrap)|w-condition-invisible|rich-text-block main w-richtext|rich-text-block_ataglance at-a-glance test w-richtext|PostsPage-commentsSection|hide-text|text-blurple|bottom-wrapper/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
-      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection|highlight--with-header`, 'i')
+      return new RegExp(
+        `and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection|highlight--with-header|header-anchor-post`,
+        'i'
+      )
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners|player|commentOnSelection/i,
@@ -1917,7 +1920,8 @@ Readability.prototype = {
     var metaElements = this._doc.getElementsByTagName("meta");
 
     // property is a space-separated list of values
-    var propertyPattern = /\s*(dc|dcterm|og|twitter|article)\s*:\s*(locale|author|creator|description|title|site_name|published_time|published|date|image)\s*/gi;
+    var propertyPattern =
+      /\s*(dc|dcterm|og|twitter|article)\s*:\s*(locale|author|creator|description|title|site_name|published_time|published|date|image(?:$|\s|:url|:secure_url))\s*/gi;
 
     // name is a single value
     var namePattern = /^\s*(?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|site_name|date|image)\s*$/i;
@@ -2003,6 +2007,7 @@ Readability.prototype = {
     metadata.byline = jsonld.byline ||
       values["dc:creator"] ||
       values["dcterm:creator"] ||
+      values["og:article:author"] ||
       values["author"];
 
     // get description
@@ -2056,7 +2061,7 @@ Readability.prototype = {
       values["og:image"] ||
       values["weibo:article:image"] ||
       values["weibo:webpage:image"] || 
-      jsonld.previewImage
+      jsonld.previewImage;
 
     metadata.locale = values["og:locale"];
 
@@ -3100,13 +3105,18 @@ Readability.prototype = {
     this._postProcessContent(articleContent);
 
     // If we haven't found an excerpt in the article's metadata, use the article's
-    // first paragraph as the excerpt. This is used for displaying a preview of
+    // first meaningful paragraph (more than 50 characters) as the excerpt. This is used for displaying a preview of
     // the article's content.
     if (!metadata.excerpt) {
       var paragraphs = articleContent.getElementsByTagName("p");
-      if (paragraphs.length > 0) {
-        metadata.excerpt = paragraphs[0].textContent.trim();
-      }
+      for (const p of paragraphs) {
+        const text = p.textContent.trim();
+
+        if (text.length > 50) {
+          metadata.excerpt = text;
+          break;
+        }
+      };
     }
     if (!metadata.siteName) {
       // Fallback to hostname

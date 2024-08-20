@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@bmatei/apollo-prometheus-exporter": "^3.0.0",
+    "@cospired/i18n-iso-languages": "^4.2.0",
     "@google-cloud/logging-winston": "^6.0.0",
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
@@ -47,11 +48,13 @@
     "@sentry/node": "^5.26.0",
     "@types/showdown": "^2.0.6",
     "addressparser": "^1.0.1",
+    "alfaaz": "^1.1.0",
     "apollo-datasource": "^3.3.1",
     "apollo-server-express": "^3.6.3",
     "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.1.1",
+    "compression": "^1.7.4",
     "cookie": "^0.5.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -66,6 +69,7 @@
     "express-prom-bundle": "^7.0.0",
     "express-rate-limit": "^6.3.0",
     "fast-safe-stringify": "^2.1.1",
+    "fingerprint-generator": "^2.1.52",
     "firebase-admin": "^11.5.0",
     "googleapis": "^125.0.0",
     "graphql": "^15.3.0",
@@ -112,9 +116,8 @@
     "uuid": "^8.3.1",
     "voca": "^1.4.0",
     "winston": "^3.3.3",
-    "word-counting": "^1.1.4",
     "yaml": "^2.4.1",
-    "youtubei": "1.4.0"
+    "youtubei": "^1.5.4"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -124,6 +127,7 @@
     "@types/chai": "^4.2.18",
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-string": "^1.4.2",
+    "@types/compression": "^1.7.5",
     "@types/cookie": "^0.4.0",
     "@types/cookie-parser": "^1.4.7",
     "@types/csv-stringify": "^3.1.0",

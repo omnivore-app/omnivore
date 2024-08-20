@@ -16,7 +16,6 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { Merge } from '../util'
-import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
@@ -72,7 +71,6 @@ export type SavePageArgs = Merge<
     feedContent?: string
     previewImage?: string
     author?: string
-    originalContentUploaded?: boolean
   }
 >
 
@@ -150,8 +148,7 @@ export const savePage = async (
     itemToSave,
     user.id,
     undefined,
-    isImported,
-    input.originalContentUploaded
+    isImported
   )
   clientRequestId = newItem.id
 
@@ -162,17 +159,6 @@ export const savePage = async (
     input.labels,
     input.rssFeedUrl
   )
-
-  // we don't want to create thumbnail for imported pages and pages that already have thumbnail
-  if (!isImported && !parseResult.parsedContent?.previewImage) {
-    try {
-      // create a task to update thumbnail and pre-cache all images
-      const job = await enqueueThumbnailJob(user.id, clientRequestId)
-      logger.info('Created thumbnail job', { job })
-    } catch (e) {
-      logger.error('Failed to enqueue thumbnail job', e)
-    }
-  }
 
   if (parseResult.highlightData) {
     const highlight: DeepPartial<Highlight> = {
@@ -252,9 +238,9 @@ export const parsedContentToLibraryItem = ({
     id: itemId || undefined,
     slug,
     user: { id: userId },
-    originalContent: originalHtml,
     readableContent: parsedContent?.content || '',
     description: parsedContent?.excerpt,
+    previewContent: parsedContent?.excerpt,
     title:
       title ||
       parsedContent?.title ||
@@ -284,7 +270,9 @@ export const parsedContentToLibraryItem = ({
     siteName: parsedContent?.siteName,
     itemLanguage: parsedContent?.language,
     siteIcon: parsedContent?.siteIcon,
-    wordCount: wordsCount(parsedContent?.textContent || ''),
+    wordCount: parsedContent?.textContent
+      ? wordsCount(parsedContent.textContent)
+      : wordsCount(parsedContent?.content || '', true),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
     folder: folder || 'inbox',

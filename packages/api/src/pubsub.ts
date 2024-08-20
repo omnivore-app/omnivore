@@ -5,6 +5,7 @@ import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
   enqueueProcessYouTubeVideo,
+  enqueueThumbnailJob,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
 import { logger } from './utils/logger'
@@ -73,6 +74,23 @@ export const createPubSubClient = (): PubsubClient => {
             userId,
             libraryItemId: data.id,
           })
+        }
+
+        const hasThumbnail = (
+          data: any
+        ): data is { thumbnail: string | null } => {
+          return 'thumbnail' in data
+        }
+
+        // we don't want to create thumbnail for imported pages and pages that already have thumbnail
+        if (!hasThumbnail(data) || !data.thumbnail) {
+          try {
+            // create a task to update thumbnail and pre-cache all images
+            const job = await enqueueThumbnailJob(userId, data.id)
+            logger.info('Thumbnail job created', { id: job?.id })
+          } catch (e) {
+            logger.error('Failed to enqueue thumbnail job', e)
+          }
         }
       }
     },

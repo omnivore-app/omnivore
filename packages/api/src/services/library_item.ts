@@ -5,6 +5,7 @@ import {
   DeepPartial,
   EntityManager,
   FindOptionsWhere,
+  In,
   ObjectLiteral,
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
@@ -18,17 +19,24 @@ import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  paramtersToObject,
+  queryBuilderToRawSql,
+  Select,
+  Sort,
+  SortOrder,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
+import {
+  deepDelete,
+  setRecentlySavedItemInRedis,
+  stringToHash,
+} from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import {
-  contentFilePath,
-  downloadFromBucket,
-  uploadToBucket,
-} from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -39,7 +47,6 @@ const columnsToDelete = [
   'links',
   'textContentHash',
   'readableContent',
-  'originalContent',
   'feedContent',
 ] as const
 type ColumnsToDeleteType = typeof columnsToDelete[number]
@@ -63,6 +70,7 @@ enum ReadFilter {
   READ = 'read',
   READING = 'reading',
   UNREAD = 'unread',
+  SEEN = 'seen',
 }
 
 enum InFilter {
@@ -124,23 +132,28 @@ export enum SortBy {
   WORDS_COUNT = 'wordscount',
 }
 
-export enum SortOrder {
-  ASCENDING = 'ASC',
-  DESCENDING = 'DESC',
-}
-
-export interface Sort {
-  by: string
-  order?: SortOrder
-  nulls?: 'NULLS FIRST' | 'NULLS LAST'
-}
-
-interface Select {
-  column: string
-  alias?: string
-}
-
 const readingProgressDataSource = new ReadingProgressDataSource()
+
+export const batchGetLibraryItems = async (ids: readonly string[]) => {
+  // select all columns except content
+  const select = getColumns(libraryItemRepository).filter(
+    (select) => select !== 'readableContent'
+  )
+  const items = await authTrx(
+    async (tx) =>
+      tx.getRepository(LibraryItem).find({
+        select,
+        where: {
+          id: In(ids as string[]),
+        },
+      }),
+    {
+      replicationMode: 'replica',
+    }
+  )
+
+  return ids.map((id) => items.find((item) => item.id === id) || undefined)
+}
 
 export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
 
@@ -173,10 +186,6 @@ const handleNoCase = (value: string) => {
   }
 
   throw new Error(`Unexpected keyword: ${value}`)
-}
-
-const paramtersToObject = (parameters: ObjectLiteral[]) => {
-  return parameters.reduce((a, b) => ({ ...a, ...b }), {})
 }
 
 export const sortParamsToSort = (
@@ -305,12 +314,14 @@ export const buildQueryString = (
             case InFilter.ALL:
               return null
             case InFilter.ARCHIVE:
-              return "(library_item.state = 'ARCHIVED' or (library_item.state != 'DELETED' and library_item.archived_at is not null))"
+              return `(library_item.state = 'ARCHIVED' 
+                        OR (library_item.state IN ('SUCCEEDED', 'ARCHIVED', 'PROCESSING', 'FAILED', 'CONTENT_NOT_FETCHED') 
+                          AND library_item.archived_at IS NOT NULL))`
             case InFilter.TRASH:
               // return only deleted pages within 14 days
-              return "(library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days')"
+              return "(library_item.state = 'DELETED' AND library_item.deleted_at >= NOW() - INTERVAL '14 days')"
             default: {
-              let sql = 'library_item.archived_at is null'
+              let sql = 'library_item.archived_at IS NULL'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
@@ -333,6 +344,8 @@ export const buildQueryString = (
               return 'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
             case ReadFilter.UNREAD:
               return 'library_item.reading_progress_bottom_percent < 2'
+            case ReadFilter.SEEN:
+              return 'library_item.seen_at IS NOT NULL'
             default:
               throw new Error(`Unexpected keyword: ${value}`)
           }
@@ -626,12 +639,13 @@ export const createSearchQueryBuilder = (
 ) => {
   const queryBuilder = em.createQueryBuilder(LibraryItem, 'library_item')
 
-  // select all columns except content
+  // exclude content if not requested
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
       (select) =>
-        select !== 'originalContent' && // exclude original content
-        (args.includeContent || select !== 'readableContent') // exclude content if not requested
+        args.includeContent ||
+        ['readableContent', 'feedContent', 'previewContent'].indexOf(select) ===
+          -1
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -667,7 +681,9 @@ export const createSearchQueryBuilder = (
   }
 
   if (!args.includeDeleted) {
-    queryBuilder.andWhere("library_item.state <> 'DELETED'")
+    queryBuilder.andWhere(
+      "library_item.state IN ('SUCCEEDED', 'ARCHIVED', 'PROCESSING', 'FAILED', 'CONTENT_NOT_FETCHED')"
+    )
   }
 
   if (queryString) {
@@ -678,7 +694,10 @@ export const createSearchQueryBuilder = (
   }
 
   // default order by saved at descending
-  if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+  if (
+    orders.length === 0 ||
+    orders.every((order) => order.by.startsWith('rank')) // if only rank orders are present, add saved at order
+  ) {
     orders.push({
       by: 'library_item.saved_at',
       order: SortOrder.DESCENDING,
@@ -697,8 +716,10 @@ export const createSearchQueryBuilder = (
 export const countLibraryItems = async (args: SearchArgs, userId: string) => {
   return authTrx(
     async (tx) => createSearchQueryBuilder(args, userId, tx).getCount(),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -719,8 +740,10 @@ export const searchLibraryItems = async (
         .skip(from)
         .take(size)
         .getMany(),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -744,9 +767,7 @@ export const findRecentLibraryItems = async (
   offset?: number
 ) => {
   const selectColumns = getColumns(libraryItemRepository)
-    .filter(
-      (column) => column !== 'readableContent' && column !== 'originalContent'
-    )
+    .filter((column) => column !== 'readableContent')
     .map((column) => `library_item.${column}`)
 
   return authTrx(
@@ -764,32 +785,43 @@ export const findRecentLibraryItems = async (
         .take(limit)
         .skip(offset)
         .getMany(),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
 export const findLibraryItemsByIds = async (
   ids: string[],
-  userId: string,
+  userId?: string,
   options?: {
     select?: (keyof LibraryItem)[]
+    relations?: Array<'labels' | 'highlights'>
   }
 ) => {
-  const selectColumns =
-    options?.select?.map((column) => `library_item.${column}`) ||
-    getColumns(libraryItemRepository)
-      .filter((column) => column !== 'originalContent')
-      .map((column) => `library_item.${column}`)
+  const selectColumns = (
+    options?.select || getColumns(libraryItemRepository)
+  ).map((column) => `library_item.${column}`)
   return authTrx(
-    async (tx) =>
-      tx
+    async (tx) => {
+      const qb = tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
         .where('library_item.id IN (:...ids)', { ids })
-        .getMany(),
-    undefined,
-    userId
+
+      if (options?.relations) {
+        options.relations.forEach((relation) => {
+          qb.leftJoinAndSelect(`library_item.${relation}`, relation)
+        })
+      }
+
+      return qb.getMany()
+    },
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -816,8 +848,10 @@ export const findLibraryItemById = async (
         where: { id },
         relations: options?.relations,
       }),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -838,8 +872,10 @@ export const findLibraryItemByUrl = async (
         .where('library_item.user_id = :userId', { userId })
         .andWhere('md5(library_item.original_url) = md5(:url)', { url })
         .getOne(),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -874,12 +910,14 @@ export const softDeleteLibraryItem = async (
       await itemRepo.update(id, {
         state: LibraryItemState.Deleted,
         deletedAt: new Date(),
+        seenAt: new Date(),
       })
 
       return itemRepo.findOneByOrFail({ id })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   await pubsub.entityDeleted(EntityType.ITEM, id, userId)
@@ -913,8 +951,9 @@ export const updateLibraryItem = async (
 
       return itemRepo.findOneByOrFail({ id })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   if (skipPubSub || libraryItem.state === LibraryItemState.Processing) {
@@ -934,6 +973,7 @@ export const updateLibraryItem = async (
     EntityType.ITEM,
     {
       ...data,
+      updatedAt: new Date(),
       id,
     } as ItemEvent,
     userId
@@ -983,12 +1023,14 @@ export const updateLibraryItemReadingProgress = async (
         reading_progress_top_percent as "readingProgressTopPercent",
         reading_progress_bottom_percent as "readingProgressBottomPercent",
         reading_progress_highest_read_anchor as "readingProgressHighestReadAnchor",
-        read_at as "readAt"
+        read_at as "readAt",
+        updated_at as "updatedAt"
       `,
         [id, topPercent, bottomPercent, anchorIndex]
       ),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )) as [LibraryItem[], number]
   if (result[1] === 0) {
     return null
@@ -1006,8 +1048,9 @@ export const createLibraryItems = async (
 ): Promise<LibraryItem[]> => {
   return authTrx(
     async (tx) => tx.withRepository(libraryItemRepository).save(libraryItems),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -1019,17 +1062,8 @@ export const createOrUpdateLibraryItem = async (
   libraryItem: CreateOrUpdateLibraryItemArgs,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false,
-  originalContentUploaded = false
+  skipPubSub = false
 ): Promise<LibraryItem> => {
-  let originalContent: string | null = null
-  if (libraryItem.originalContent) {
-    originalContent = libraryItem.originalContent
-
-    // remove original content from the item
-    delete libraryItem.originalContent
-  }
-
   const newLibraryItem = await authTrx(
     async (tx) => {
       const repo = tx.withRepository(libraryItemRepository)
@@ -1083,8 +1117,9 @@ export const createOrUpdateLibraryItem = async (
       // create or update library item
       return repo.upsertLibraryItemById(libraryItem)
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   // set recently saved item in redis if redis is enabled
@@ -1103,19 +1138,6 @@ export const createOrUpdateLibraryItem = async (
   const data = deepDelete(newLibraryItem, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
-  // upload original content to GCS if it's not already uploaded
-  if (originalContent && !originalContentUploaded) {
-    await uploadOriginalContent(
-      userId,
-      newLibraryItem.id,
-      newLibraryItem.savedAt,
-      originalContent
-    )
-    logger.info('Uploaded original content to GCS', {
-      id: newLibraryItem.id,
-    })
-  }
-
   return newLibraryItem
 }
 
@@ -1126,21 +1148,25 @@ export const findLibraryItemsByPrefix = async (
 ): Promise<LibraryItem[]> => {
   const prefixWildcard = `${prefix}%`
 
-  return authTrx(async (tx) =>
-    tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.user_id = :userId', { userId })
-      .andWhere(
-        '(library_item.title ILIKE :prefix OR library_item.site_name ILIKE :prefix)',
-        { prefix: prefixWildcard }
-      )
-      .orderBy('library_item.savedAt', 'DESC')
-      .limit(limit)
-      .getMany()
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere(
+          '(library_item.title ILIKE :prefix OR library_item.site_name ILIKE :prefix)',
+          { prefix: prefixWildcard }
+        )
+        .orderBy('library_item.savedAt', 'DESC')
+        .limit(limit)
+        .getMany(),
+    {
+      replicationMode: 'replica',
+    }
   )
 }
 
-export const countBySavedAt = async (
+export const countByCreatedAt = async (
   userId: string,
   startDate = new Date(0),
   endDate = new Date()
@@ -1150,13 +1176,15 @@ export const countBySavedAt = async (
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.saved_at between :startDate and :endDate', {
+        .andWhere('library_item.created_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
         .getCount(),
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -1202,7 +1230,7 @@ export const batchUpdateLibraryItems = async (
     const queryBuilder = getQueryBuilder(userId, em)
 
     if (forUpdate) {
-      queryBuilder.setLock('pessimistic_write')
+      queryBuilder.setLock('pessimistic_read')
     }
 
     const libraryItems = await queryBuilder
@@ -1237,8 +1265,9 @@ export const batchUpdateLibraryItems = async (
 
       const libraryItemIds = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
-        undefined,
-        userId
+        {
+          uid: userId,
+        }
       )
       // add labels to library items
       for (const libraryItemId of libraryItemIds) {
@@ -1250,8 +1279,9 @@ export const batchUpdateLibraryItems = async (
     case BulkActionType.MarkAsRead: {
       const libraryItemIds = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
-        undefined,
-        userId
+        {
+          uid: userId,
+        }
       )
       // update reading progress for library items
       for (const libraryItemId of libraryItemIds) {
@@ -1271,6 +1301,11 @@ export const batchUpdateLibraryItems = async (
       }
 
       break
+    case BulkActionType.MarkAsSeen:
+      values = {
+        seenAt: now,
+      }
+      break
     default:
       throw new Error('Invalid bulk action')
   }
@@ -1280,16 +1315,18 @@ export const batchUpdateLibraryItems = async (
       const libraryItemIds = await getLibraryItemIds(userId, tx, true)
       await tx.getRepository(LibraryItem).update(libraryItemIds, values)
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
 export const deleteLibraryItemById = async (id: string, userId?: string) => {
   return authTrx(
     async (tx) => tx.withRepository(libraryItemRepository).delete(id),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -1300,8 +1337,9 @@ export const deleteLibraryItems = async (
   return authTrx(
     async (tx) =>
       tx.withRepository(libraryItemRepository).delete(items.map((i) => i.id)),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -1311,8 +1349,9 @@ export const deleteLibraryItemByUrl = async (url: string, userId: string) => {
       tx
         .withRepository(libraryItemRepository)
         .delete({ originalUrl: url, user: { id: userId } }),
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -1322,19 +1361,9 @@ export const deleteLibraryItemsByUserId = async (userId: string) => {
       tx.withRepository(libraryItemRepository).delete({
         user: { id: userId },
       }),
-    undefined,
-    userId
-  )
-}
-
-export const deleteLibraryItemsByAdmin = async (
-  criteria: FindOptionsWhere<LibraryItem>
-) => {
-  return authTrx(
-    async (tx) => tx.withRepository(libraryItemRepository).delete(criteria),
-    undefined,
-    undefined,
-    'admin'
+    {
+      uid: userId,
+    }
   )
 }
 
@@ -1393,8 +1422,10 @@ export const findLibraryItemIdsByLabelId = async (
 
       return result.map((r) => r.library_item_id)
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+      replicationMode: 'replica',
+    }
   )
 }
 
@@ -1691,40 +1722,54 @@ export const filterItemEvents = (
   throw new Error('Unexpected state.')
 }
 
-export const uploadOriginalContent = async (
-  userId: string,
-  libraryItemId: string,
-  savedAt: Date,
-  originalContent: string,
-  timeout = 10_000 // 10 seconds
-) => {
-  await uploadToBucket(
-    contentFilePath({
-      userId,
-      libraryItemId,
-      savedAt,
-      format: 'original',
-    }),
-    Buffer.from(originalContent),
-    {
-      public: false,
-      contentType: 'text/html',
-      timeout,
-    }
-  )
+const totalCountCacheKey = (userId: string, args: SearchArgs) => {
+  // sort the args to make sure the cache key is consistent
+  const sortedArgs = JSON.stringify(args, Object.keys(args).sort())
+
+  return `cache:library_items_count:${userId}:${stringToHash(sortedArgs)}`
 }
 
-export const downloadOriginalContent = async (
+export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
+  logger.debug('Getting cached total count:', {
+    userId,
+    args,
+  })
+
+  const cacheKey = totalCountCacheKey(userId, args)
+  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
+  if (!cachedCount) {
+    return undefined
+  }
+
+  return parseInt(cachedCount, 10)
+}
+
+export const setCachedTotalCount = async (
   userId: string,
-  libraryItemId: string,
-  savedAt: Date
+  args: SearchArgs,
+  count: number
 ) => {
-  return downloadFromBucket(
-    contentFilePath({
-      userId,
-      libraryItemId,
-      savedAt,
-      format: 'original',
-    })
-  )
+  const cacheKey = totalCountCacheKey(userId, args)
+
+  logger.debug('Setting cached total count:', {
+    cacheKey,
+    count,
+  })
+
+  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
+}
+
+export const deleteCachedTotalCount = async (userId: string) => {
+  const keyPattern = `cache:library_items_count:${userId}:*`
+  const keys = await redisDataSource.redisClient?.keys(keyPattern)
+  if (!keys || keys.length === 0) {
+    return
+  }
+
+  logger.debug('Deleting keys:', {
+    keys,
+    userId,
+  })
+
+  await redisDataSource.redisClient?.del(keys)
 }

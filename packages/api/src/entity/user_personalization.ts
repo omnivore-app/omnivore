@@ -8,6 +8,23 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
+import { Label } from './label'
+
+export type ShortcutType = 'search' | 'label' | 'newsletter' | 'feed' | 'folder'
+
+export type Shortcut = {
+  type: ShortcutType
+
+  id: string
+  name: string
+  section: string
+  filter?: string
+
+  icon?: string
+  label?: Label
+
+  children?: Shortcut[]
+}
 
 @Entity({ name: 'user_personalization' })
 export class UserPersonalization {
@@ -59,4 +76,7 @@ export class UserPersonalization {
 
   @Column('jsonb')
   digestConfig?: any | null
+
+  @Column({ type: 'jsonb', nullable: true })
+  shortcuts?: any | null // Explicitly allow null values
 }

@@ -13,6 +13,7 @@ import {
 } from '../../../lib/networking/mutations/uploadImportFileMutation'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { validateCsvFile } from '../../../utils/csvValidator'
+import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
 
 type UploadState = 'none' | 'uploading' | 'completed'
 
@@ -240,7 +241,7 @@ export default function ImportUploader(): JSX.Element {
             {uploadState == 'completed' && (
               <Button
                 onClick={(e) => {
-                  window.location.href = '/home'
+                  window.location.href = DEFAULT_HOME_PATH
                   e.preventDefault()
                 }}
                 style="ctaDarkYellow"

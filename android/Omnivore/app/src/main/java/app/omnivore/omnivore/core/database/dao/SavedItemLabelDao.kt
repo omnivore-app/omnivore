@@ -21,7 +21,7 @@ interface SavedItemLabelDao {
 
     @Transaction
     @Query("SELECT * FROM SavedItemLabel WHERE serverSyncStatus != 2 ORDER BY name ASC")
-    fun getSavedItemLabelsLiveData(): LiveData<List<SavedItemLabel>>
+    fun getSavedItemLabelsFlow(): Flow<List<SavedItemLabel>>
 
     @Transaction
     @Query("UPDATE SavedItemLabel set savedItemLabelId = :permanentId,  serverSyncStatus = :status WHERE savedItemLabelId = :tempId")

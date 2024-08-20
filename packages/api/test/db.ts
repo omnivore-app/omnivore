@@ -115,7 +115,6 @@ export const createTestLibraryItem = async (
   const item = {
     user: { id: userId },
     title: 'test title',
-    originalContent: '<p>test content</p>',
     originalUrl: `https://blog.omnivore.app/test-url-${generateFakeUuid()}`,
     slug: 'test-with-omnivore',
   }
@@ -124,7 +123,6 @@ export const createTestLibraryItem = async (
     item,
     userId,
     undefined,
-    true,
     true
   )
   if (labels) {
@@ -158,8 +156,9 @@ export const saveLabelsInLibraryItem = async (
         }))
       )
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   // update labels in library item
@@ -184,8 +183,9 @@ export const createHighlight = async (
         },
       })
     },
-    undefined,
-    userId
+    {
+      uid: userId,
+    }
   )
 
   const job = await enqueueUpdateHighlight({

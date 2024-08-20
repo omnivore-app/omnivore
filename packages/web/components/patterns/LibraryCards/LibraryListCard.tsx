@@ -24,7 +24,7 @@ import {
   autoUpdate,
 } from '@floating-ui/react'
 import { CardMenu } from '../CardMenu'
-import { DotsThree } from 'phosphor-react'
+import { DotsThree } from '@phosphor-icons/react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { CoverImage } from '../../elements/CoverImage'
 import { ProgressBar } from '../../elements/ProgressBar'
@@ -54,20 +54,8 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
-  return (
-    <VStack
-      ref={refs.setReference}
-      {...getReferenceProps()}
-      css={{
-        px: '20px',
-        pl: '10px',
-        py: '15px',
-        height: '100%',
-        cursor: 'pointer',
-        gap: '10px',
-        borderStyle: 'none',
-        borderBottom: 'none',
-        borderRadius: '6px',
+  const layoutWidths = props.legacyLayout
+    ? {
         width: '100vw',
         '@media (min-width: 768px)': {
           width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
@@ -81,9 +69,32 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         '@media (min-width: 1600px)': {
           width: '1200px',
         },
+      }
+    : {
+        width: '100%',
+      }
+
+  return (
+    <VStack
+      ref={refs.setReference}
+      {...getReferenceProps()}
+      css={{
+        px: '20px',
+        pl: '10px',
+        py: '15px',
+        height: '100%',
+        cursor: 'pointer',
+        gap: '10px',
+        borderBottom: props.legacyLayout
+          ? 'unset'
+          : '1px solid $thLeftMenuBackground',
         '@media (max-width: 930px)': {
           borderRadius: '0px',
         },
+        '&:hover': {
+          borderBottom: 'unset',
+        },
+        ...layoutWidths,
       }}
       alignment="start"
       distribution="start"
@@ -92,6 +103,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           props.setIsChecked(props.item.id, !props.isChecked)
           return
         }
+        window.localStorage.setItem('nav-return', router.asPath)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

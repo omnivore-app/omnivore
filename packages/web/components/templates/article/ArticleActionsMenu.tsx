@@ -1,5 +1,5 @@
 import { Separator } from '@radix-ui/react-separator'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Button } from '../../elements/Button'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { styled, theme } from '../../tokens/stitches.config'
@@ -11,6 +11,7 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -163,7 +164,7 @@ export function ArticleActionsMenu(
           <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
-        {!props.article?.isArchived ? (
+        {props.article?.state !== State.ARCHIVED ? (
           <Button
             title="Archive (e)"
             style="articleActionIcon"

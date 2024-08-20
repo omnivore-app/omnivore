@@ -11,11 +11,14 @@ COPY .eslintrc .
 
 COPY /packages/inbound-email-handler/package.json ./packages/inbound-email-handler/package.json
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
+COPY /packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile
 
 ADD /packages/inbound-email-handler ./packages/inbound-email-handler
 ADD /packages/content-handler ./packages/content-handler
+ADD /packages/utils ./packages/utils
+RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/content-handler build
 RUN yarn workspace @omnivore/inbound-email-handler build
 

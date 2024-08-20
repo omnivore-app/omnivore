@@ -219,7 +219,7 @@ enum LoadingBarStyle {
 
   func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false, loadingBarStyle: LoadingBarStyle? = nil) async {
     isLoading = true
-    showLoadingBar = isRefresh ? loadingBarStyle ?? .redacted : .none
+    showLoadingBar = .simple // isRefresh ? loadingBarStyle ?? .redacted : .none
 
     if let filterState = filterState {
       await fetcher.loadItems(

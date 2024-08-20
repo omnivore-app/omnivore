@@ -49,6 +49,38 @@ const moduleExports = {
       source: '/collect/:match*',
       destination: 'https://app.posthog.com/:match*',
     })
+    rewrites.push({
+      source: '/home',
+      destination: '/l/home',
+    })
+    rewrites.push({
+      source: '/library',
+      destination: '/l/library',
+    })
+    rewrites.push({
+      source: '/subscriptions',
+      destination: '/l/subscriptions',
+    })
+    rewrites.push({
+      source: '/highlights',
+      destination: '/l/highlights',
+    })
+    rewrites.push({
+      source: '/subscriptions',
+      destination: '/l/subscriptions',
+    })
+    rewrites.push({
+      source: '/search',
+      destination: '/l/search',
+    })
+    rewrites.push({
+      source: '/archive',
+      destination: '/l/archive',
+    })
+    rewrites.push({
+      source: '/trash',
+      destination: '/l/trash',
+    })
     return rewrites
   },
   async headers() {
@@ -159,7 +191,7 @@ const moduleExports = {
       {
         source: '/install/chrome',
         destination:
-          'https://chrome.google.com/webstore/detail/omnivore/blkggjdmcfjdbmmmlfcpplkchpeaiiab/',
+          'https://chromewebstore.google.com/detail/omnivore/blkggjdmcfjdbmmmlfcpplkchpeaiiab',
         permanent: true,
       },
       {

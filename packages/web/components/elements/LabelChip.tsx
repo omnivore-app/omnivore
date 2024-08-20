@@ -1,5 +1,5 @@
 import { SpanBox, HStack } from './LayoutPrimitives'
-import { Circle, X } from 'phosphor-react'
+import { Circle, X } from '@phosphor-icons/react'
 
 type LabelChipProps = {
   text: string
@@ -26,7 +26,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         color: '$thLabelChipForeground',
         borderColor: props.isSelected
           ? '$thLabelChipSelectedBorder'
-          : '$thLabelChipUnselectedBorder',
+          : '$thLabelChipBackground',
         backgroundColor: '$thLabelChipBackground',
       }}
     >

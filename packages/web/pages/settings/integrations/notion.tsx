@@ -13,7 +13,10 @@ import {
   Task,
   TaskState,
 } from '../../../lib/networking/mutations/exportToIntegrationMutation'
-import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
+import {
+  SetIntegrationErrorCode,
+  setIntegrationMutation,
+} from '../../../lib/networking/mutations/setIntegrationMutation'
 import { apiFetcher } from '../../../lib/networking/networkHelpers'
 import { useGetIntegrationQuery } from '../../../lib/networking/queries/useGetIntegrationQuery'
 import { showSuccessToast } from '../../../lib/toastHelpers'
@@ -86,6 +89,13 @@ export default function Notion(): JSX.Element {
       revalidate()
       messageApi.success('Notion settings updated successfully.')
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === SetIntegrationErrorCode.NotFound
+      ) {
+        return messageApi.error('Notion database not found. Please make sure if you are using database ID instead of page ID.')
+      }
+
       messageApi.error('There was an error updating Notion settings.')
     }
   }

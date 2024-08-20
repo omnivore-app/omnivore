@@ -5,7 +5,7 @@ import { LogoBox } from '../../elements/LogoBox'
 import Link from 'next/link'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Button } from '../../elements/Button'
-import { ArrowSquareUpRight } from 'phosphor-react'
+import { ArrowSquareUpRight } from '@phosphor-icons/react'
 import { useRouter } from 'next/router'
 import { NavMenuFooter } from './Footer'
 
@@ -22,6 +22,7 @@ export const SETTINGS_SECTION_1 = [
 ]
 
 export const SETTINGS_SECTION_2 = [
+  { name: 'Rules', destination: '/settings/rules' },
   { name: 'Integrations', destination: '/settings/integrations' },
   { name: 'Install', destination: '/settings/installation' },
 ]

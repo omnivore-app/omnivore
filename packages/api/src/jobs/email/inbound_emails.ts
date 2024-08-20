@@ -117,6 +117,7 @@ export const forwardEmailJob = async (data: EmailJobData) => {
 
   // forward non-newsletter emails to the registered email address
   const result = await enqueueSendEmail({
+    userId: user.id,
     from: env.sender.message,
     to: user.email,
     subject: `Fwd: ${subject}`,
@@ -248,8 +249,9 @@ export const saveAttachmentJob = async (data: EmailJobData) => {
         status: UploadFileStatus.Completed,
         user: { id: user.id },
       }),
-    undefined,
-    user.id
+    {
+      uid: user.id,
+    }
   )
 
   const uploadFileDetails = await getStorageFileDetails(

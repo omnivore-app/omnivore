@@ -6,7 +6,6 @@ import React from 'react'
 
 export class HighlightsIcon extends React.Component<IconProps> {
   render() {
-    const size = (this.props.size || 26).toString()
     const color = (this.props.color || '#2A2A2A').toString()
 
     return (
@@ -19,30 +18,30 @@ export class HighlightsIcon extends React.Component<IconProps> {
       >
         <g>
           <path
-            d="M3.74023 18.8567H7.57357L17.6361 8.79423C18.1444 8.2859 18.43 7.59646 18.43 6.87757C18.43 6.15868 18.1444 5.46923 17.6361 4.9609C17.1277 4.45257 16.4383 4.16699 15.7194 4.16699C15.0005 4.16699 14.3111 4.45257 13.8027 4.9609L3.74023 15.0234V18.8567Z"
-            fill="#FFD234"
-            stroke="#FFD234"
+            d="M2.91113 18.5169H6.74447L16.807 8.45439C17.3153 7.94606 17.6009 7.25661 17.6009 6.53772C17.6009 5.81883 17.3153 5.12939 16.807 4.62106C16.2986 4.11273 15.6092 3.82715 14.8903 3.82715C14.1714 3.82715 13.482 4.11273 12.9736 4.62106L2.91113 14.6836V18.5169Z"
+            fill={color}
+            stroke={color}
             strokeWidth="1.25"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M12.8447 5.91931L16.6781 9.75265"
-            stroke="#FFD234"
+            d="M12.0153 5.57935L15.8487 9.41268"
+            stroke={color}
             strokeWidth="1.25"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M5.17773 13.5859L9.01107 17.4193"
-            stroke="#FFD234"
+            d="M4.34863 13.2461L8.18197 17.0794"
+            stroke={color}
             strokeWidth="1.25"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M20.9899 15.0234V18.8568H13.3232L17.1566 15.0234H20.9899Z"
-            stroke="#FFD234"
+            d="M20.1611 14.6836V18.5169H12.4944L16.3278 14.6836H20.1611Z"
+            stroke={color}
             strokeWidth="1.25"
             strokeLinecap="round"
             strokeLinejoin="round"

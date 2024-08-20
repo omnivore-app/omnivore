@@ -1,12 +1,12 @@
 import { useRouter } from 'next/router'
-import { HighlighterCircle } from 'phosphor-react'
+import { HighlighterCircle } from '@phosphor-icons/react'
 import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
   LibraryItem,
   LibraryItemNode,
-} from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+} from '../../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -36,8 +36,9 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] =
-    useState<LibraryItem | undefined>(undefined)
+  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const listReducer = (
     state: LibraryItem[],

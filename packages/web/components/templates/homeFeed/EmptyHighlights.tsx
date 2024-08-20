@@ -1,4 +1,4 @@
-import { Book } from 'phosphor-react'
+import { Book } from '@phosphor-icons/react'
 import { VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'

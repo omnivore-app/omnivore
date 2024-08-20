@@ -151,11 +151,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         searchActiveOutline: 'rgb(255, 210, 52)',
 
         // Reader Colors
-        readerBg: 'white',
+        readerBg: '#FAFAFA',
         readerFont: '#3D3D3D',
         readerFontHighContrast: 'black',
         readerTableHeader: '#FFFFFF',
         readerMargin: 'white',
+        readerTextSubtle: '#898989',
 
         // Avatar Fallback color
         avatarBg: '#FFEA9F',
@@ -178,7 +179,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#FFEA9F',
         thBackgroundContrast: '#FFFFFF',
-        thLeftMenuBackground: '#FCFCFC',
+        thLeftMenuBackground: '#F2F2F2',
+        thNavMenuFooter: '#DFDFDF',
         thLibraryBackground: '#FFFFFF',
         thLibrarySearchbox: '#FCFCFC',
         thLibraryMenuPrimary: '#3D3D3D',
@@ -197,7 +199,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thHomeIcon: '#2A2A2A',
 
         thLabelChipForeground: '#2A2A2A',
-        thLabelChipBackground: '#F5F5F5',
+        thLabelChipBackground: '#EDEDED',
         thLabelChipSelectedBorder: 'black',
         thLabelChipUnselectedBorder: '#F5F5F5',
         thLabelOutlineChipBorder: '#D9D9D9',
@@ -216,6 +218,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thTextSubtle: '#1E1E1E',
         thTextSubtle2: '#6A6968',
         thTextSubtle3: '#ADADAD',
+        thTextSubtle4: '#EDEDED',
 
         thBorderColor: '#E1E1E1',
         thBorderSubtle: '#EEEEEE',
@@ -225,6 +228,17 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         thHighContrast: '#3D3D3D',
         thHighlightBar: '#D9D9D9',
+
+        homeCardHover: '#FFFFFF',
+        homeTextTitle: '#2A2A2A',
+        homeTextSource: '#3D3D3D',
+        homeTextBody: '#3D3D3D',
+        homeTextSubtle: '#898989',
+        homeActionIcons: '#898989',
+        homeActionHoverBg: '#DFDFDF',
+        homeDivider: '#D9D9D9',
+
+        backgroundMedium: '#FFFFFF',
 
         thLibraryAISummaryBorder: '#6A6968',
         thLibraryAISummaryBackground: '#343434',
@@ -261,7 +275,7 @@ const darkThemeSpec = {
     colorScheme: 'dark',
   },
   shadows: {
-    cardBoxShadow: '0px 4px 8px rgba(0, 0, 0, 0.50);',
+    cardBoxShadow: '0px 4px 8px rgba(0, 0, 0, 0.35);',
   },
   colors: {
     grayBase: '#252525',
@@ -289,11 +303,12 @@ const darkThemeSpec = {
     error: '#FA5E4A',
 
     // Reader Colors
-    readerBg: '#303030',
+    readerBg: '#2A2A2A',
     readerFont: '#b9b9b9',
     readerFontHighContrast: 'white',
     readerTableHeader: '#FFFFFF',
     readerMargin: '#2A2A2A',
+    readerTextSubtle: '#EDEDED',
 
     avatarBg: '#7B5C3E',
     avatarFont: '#D9D9D9',
@@ -319,12 +334,13 @@ const darkThemeSpec = {
     thBackgroundActive: '#3D3D3D',
     thBackgroundContrast: '#000000',
     thLeftMenuBackground: '#343434',
+    thNavMenuFooter: '#515151',
     thLibraryBackground: '#2A2A2A',
     thLibrarySearchbox: '#3D3D3D',
     thLibraryMenuPrimary: '#EBEBEB',
     thLibraryMenuSecondary: '#EBEBEB',
     thLibraryMenuUnselected: 'white',
-    thLibrarySelectionColor: '#6A6968',
+    thLibrarySelectionColor: '#515151',
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
     thLibraryMultiselectHover: '#6A6968',
@@ -338,7 +354,7 @@ const darkThemeSpec = {
     thHomeIcon: '#FFFFFF',
 
     thLabelChipForeground: '#EBEBEB',
-    thLabelChipBackground: '#2A2A2A',
+    thLabelChipBackground: '#343434',
     thLabelChipSelectedBorder: '#FFEA9F',
     thLabelChipUnselectedBorder: '#2A2A2A',
     thLabelOutlineChipBorder: '#6A696850',
@@ -369,6 +385,17 @@ const darkThemeSpec = {
 
     thHighlightBar: '#6A6968',
 
+    homeCardHover: '#323232',
+    homeTextTitle: '#FFFFFF',
+    homeTextSource: '#D9D9D9',
+    homeTextBody: '#D9D9D9',
+    homeTextSubtle: '#898989',
+    homeActionIcons: '#898989',
+    homeActionHoverBg: '#515151',
+    homeDivider: '#3D3D3D',
+
+    backgroundMedium: '#323232',
+
     thLibraryAISummaryBorder: '#6A6968',
     thLibraryAISummaryBackground: '#343434',
 
@@ -387,26 +414,61 @@ const blackThemeSpec = {
   },
 }
 
+const apolloThemeSpec = {
+  colors: {
+    readerBg: '#474747',
+    readerFont: '#F3F3F3',
+    readerMargin: '#474747',
+    readerFontHighContrast: 'white',
+    readerTableHeader: '#FFFFFF',
+
+    thLeftMenuBackground: '#3D3D3D',
+    thNavMenuFooter: '#515151',
+
+    thLibrarySelectionColor: '#515151',
+    thBackground4: '#51515166', // used on hover of nav menu items
+    thBorderColor: '#6A6968',
+
+    homeCardHover: '#525252',
+    homeDivider: '#6A6968',
+    homeActionHoverBg: '#474747',
+
+    thBackground: '#474747',
+    thBackground2: '#515151',
+    backgroundMedium: '#525252',
+
+    thLibraryMultiselectHover: '#EEE8D5',
+    thLabelChipBackground: '#6A6968',
+  },
+}
+
 const sepiaThemeSpec = {
   colorScheme: {
     colorScheme: 'light',
   },
   colors: {
-    readerBg: '#FBF0D9',
+    readerBg: '#FDF6E3',
     readerFont: '#5F4B32',
     readerMargin: '#F3F3F3',
     readerFontHighContrast: '#0A0806',
     readerTableHeader: '#FFFFFF',
-  },
-}
 
-const apolloThemeSpec = {
-  colors: {
-    readerBg: '#6A6968',
-    readerFont: '#F3F3F3',
-    readerMargin: '#474747',
-    readerFontHighContrast: 'white',
-    readerTableHeader: '#FFFFFF',
+    thLeftMenuBackground: '#F8F1E0',
+    thNavMenuFooter: '#EEE8D5',
+
+    thLibrarySelectionColor: '#EEE8D5',
+    thLabelChipBackground: '#EEE8D5',
+    thBackground4: '#DDD6C166', // used on hover of menu items
+    thBorderColor: '#DDD6C1',
+
+    thBackground: '#FDF6E3',
+
+    homeCardHover: '#EEE8D5',
+    backgroundMedium: '#EEE8D5',
+    homeDivider: '#DDD6C1',
+    homeActionHoverBg: '#DDD6C1',
+
+    thLibraryMultiselectHover: '#EEE8D5',
   },
 }
 
@@ -434,7 +496,7 @@ export const blackTheme = createTheme(ThemeId.Black, {
 export const globalStyles = globalCss({
   body: {
     colorScheme: 'var(--colorScheme-colorScheme)',
-    backgroundColor: '$thBackground',
+    backgroundColor: '$readerBg',
   },
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {

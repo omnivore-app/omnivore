@@ -4,17 +4,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { File, Storage } from '@google-cloud/storage'
+import { RedisDataSource } from '@omnivore/utils'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import Redis from 'ioredis'
 import * as jwt from 'jsonwebtoken'
 import { AzureTextToSpeech } from './azureTextToSpeech'
 import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
 import { OpenAITextToSpeech } from './openaiTextToSpeech'
-import { RealisticTextToSpeech } from './realisticTextToSpeech'
-import { createRedisClient } from './redis'
 import {
   SpeechMark,
   TextToSpeechInput,
@@ -60,11 +58,7 @@ Sentry.GCPFunction.init({
 const MAX_CHARACTER_COUNT = 50000
 const storage = new Storage()
 
-const textToSpeechHandlers = [
-  new OpenAITextToSpeech(),
-  new AzureTextToSpeech(),
-  new RealisticTextToSpeech(),
-]
+const textToSpeechHandlers = [new OpenAITextToSpeech(), new AzureTextToSpeech()]
 
 const synthesizeTextToSpeech = async (
   input: TextToSpeechInput
@@ -115,10 +109,10 @@ const updateSpeech = async (
 }
 
 const getCharacterCountFromRedis = async (
-  redisClient: Redis,
+  redisClient: RedisDataSource,
   uid: string
 ): Promise<number> => {
-  const wordCount = await redisClient.get(`tts:charCount:${uid}`)
+  const wordCount = await redisClient.cacheClient.get(`tts:charCount:${uid}`)
   return wordCount ? parseInt(wordCount) : 0
 }
 
@@ -126,11 +120,11 @@ const getCharacterCountFromRedis = async (
 // which will be used to rate limit the request
 // expires after 1 day
 const updateCharacterCountInRedis = async (
-  redisClient: Redis,
+  redisClient: RedisDataSource,
   uid: string,
   wordCount: number
 ) => {
-  await redisClient.set(
+  await redisClient.cacheClient.set(
     `tts:charCount:${uid}`,
     wordCount.toString(),
     'EX',
@@ -241,11 +235,17 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
     }
 
-    // create redis client
-    const redisClient = createRedisClient(
-      process.env.REDIS_TTS_URL,
-      process.env.REDIS_TTS_CERT
-    )
+    // create redis source
+    const redisDataSource = new RedisDataSource({
+      cache: {
+        url: process.env.REDIS_TTS_URL,
+        cert: process.env.REDIS_TTS_CERT,
+      },
+      mq: {
+        url: process.env.MQ_REDIS_URL,
+        cert: process.env.MQ_REDIS_CERT,
+      },
+    })
 
     try {
       const utteranceInput = req.body as UtteranceInput
@@ -267,7 +267,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // validate character count
       const characterCount =
-        (await getCharacterCountFromRedis(redisClient, claim.uid)) +
+        (await getCharacterCountFromRedis(redisDataSource, claim.uid)) +
         utteranceInput.text.length
       if (characterCount > MAX_CHARACTER_COUNT) {
         return res.status(429).send('RATE_LIMITED')
@@ -284,7 +284,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       // hash ssml to get the cache key
       const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
       // find audio data in cache
-      const cacheResult = await redisClient.get(cacheKey)
+      const cacheResult = await redisDataSource.cacheClient.get(cacheKey)
       if (cacheResult) {
         console.log('Cache hit')
         const { audioDataString, speechMarks }: CacheResult =
@@ -352,7 +352,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       const audioDataString = audioData.toString('hex')
       // save audio data to cache for 72 hours for mainly the newsletters
-      await redisClient.set(
+      await redisDataSource.cacheClient.set(
         cacheKey,
         JSON.stringify({ audioDataString, speechMarks }),
         'EX',
@@ -362,7 +362,11 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('Cache saved')
 
       // update character count
-      await updateCharacterCountInRedis(redisClient, claim.uid, characterCount)
+      await updateCharacterCountInRedis(
+        redisDataSource,
+        claim.uid,
+        characterCount
+      )
 
       res.send({
         idx: utteranceInput.idx,
@@ -373,7 +377,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error('Text to speech streaming error:', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
     } finally {
-      await redisClient.quit()
+      await redisDataSource.shutdown()
       console.log('Redis Client Disconnected')
     }
   }

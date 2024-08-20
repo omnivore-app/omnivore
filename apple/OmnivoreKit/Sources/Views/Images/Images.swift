@@ -53,7 +53,8 @@ public extension Image {
   static var flairNewsletter: Image { Image("flair-newsletter", bundle: .module) }
   static var flairPinned: Image { Image("flair-pinned", bundle: .module) }
   static var flairRecommended: Image { Image("flair-recommended", bundle: .module) }
-  
+  static var flairDigest: Image { Image("flair-digest", bundle: .module) }
+
   static var doubleChevronUp: Image { Image("double_chevron_up", bundle: .module) }
 
 }

@@ -1,68 +1,83 @@
 package app.omnivore.omnivore.feature.reader
 
 import android.util.Log
-import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.Highlight
+import app.omnivore.omnivore.core.database.entities.SavedItem
 import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
-  INTER("Inter", "Inter"),
-  SYSTEM("System Default", "system-ui"),
-  OPEN_DYSLEXIC("Open Dyslexic", "OpenDyslexic"),
-  MERRIWEATHER("Merriweather", "Merriweather"),
-  LORA("Lora", "Lora"),
-  OPEN_SANS("Open Sans", "Open Sans"),
-  ROBOTO("Roboto", "Roboto"),
-  CRIMSON_TEXT("Crimson Text", "Crimson Text"),
-  SOURCE_SERIF_PRO("Source Serif Pro", "Source Serif Pro"),
-  NEWSREADER("Newsreader", "Newsreader"),
-  LEXEND("Lexend", "Lexend"),
-  LXGWWENKAI("LXGW WenKai", "LXGWWenKai"),
-  ATKINSON_HYPERLEGIBLE("Atkinson Hyperlegible", "AtkinsonHyperlegible"),
-  SOURCE_SANS_PRO("Source Sans Pro", "SourceSansPro"),
-  IBM_PLEX_SANS("IBM Plex Sans", "IBMPlexSans"),
-  LITERATA("Literata", "Literata"),
-  FRAUNCES("Fraunces", "Fraunces"),
+    INTER("Inter", "Inter"), SYSTEM("System Default", "system-ui"), OPEN_DYSLEXIC(
+        "Open Dyslexic", "OpenDyslexic"
+    ),
+    MERRIWEATHER("Merriweather", "Merriweather"), LORA("Lora", "Lora"), OPEN_SANS(
+        "Open Sans", "Open Sans"
+    ),
+    ROBOTO("Roboto", "Roboto"), CRIMSON_TEXT(
+        "Crimson Text", "Crimson Text"
+    ),
+    SOURCE_SERIF_PRO("Source Serif Pro", "Source Serif Pro"), NEWSREADER(
+        "Newsreader", "Newsreader"
+    ),
+    LEXEND("Lexend", "Lexend"), LXGWWENKAI(
+        "LXGW WenKai", "LXGWWenKai"
+    ),
+    ATKINSON_HYPERLEGIBLE(
+        "Atkinson Hyperlegible", "AtkinsonHyperlegible"
+    ),
+    SOURCE_SANS_PRO("Source Sans Pro", "SourceSansPro"), IBM_PLEX_SANS(
+        "IBM Plex Sans", "IBMPlexSans"
+    ),
+    LITERATA("Literata", "Literata"), FRAUNCES("Fraunces", "Fraunces"),
 }
 
 enum class ArticleContentStatus(val rawValue: String) {
-  FAILED("FAILED"),
-  PROCESSING("PROCESSING"),
-  SUCCEEDED("SUCCEEDED"),
-  UNKNOWN("UNKNOWN")
+    FAILED("FAILED"), PROCESSING("PROCESSING"), SUCCEEDED("SUCCEEDED"), UNKNOWN("UNKNOWN")
 }
 
 data class ArticleContent(
-  val title: String,
-  val htmlContent: String,
-  val highlights: List<Highlight>,
-  val contentStatus: String, // ArticleContentStatus,
-  val labelsJSONString: String
+    val title: String,
+    val htmlContent: String,
+    val highlights: List<Highlight>,
+    val contentStatus: String, // ArticleContentStatus,
+    val labelsJSONString: String
 ) {
-  fun highlightsJSONString(): String {
-    return Gson().toJson(highlights)
-  }
+    fun highlightsJSONString(): String {
+        return Gson().toJson(highlights)
+    }
 }
 
 data class WebReaderContent(
-  val preferences: WebPreferences,
-  val item: SavedItem,
-  val articleContent: ArticleContent,
+    val preferences: WebPreferences,
+    val rtlText: Boolean,
+    val item: SavedItem,
+    val articleContent: ArticleContent,
 ) {
-  fun styledContent(): String {
-    val savedAt = "\"${item.savedAt}\""
-    val createdAt = "\"${item.createdAt}\""
-    val publishedAt = if (item.publishDate != null) "\"${item.publishDate}\"" else "undefined"
+    fun styledContent(): String {
+        val savedAt = "\"${item.savedAt}\""
+        val createdAt = "\"${item.createdAt}\""
+        val publishedAt = if (item.publishDate != null) "\"${item.publishDate}\"" else "undefined"
 
 
-    val textFontSize = preferences.textFontSize
-    val highlightCssFilePath = "highlight${if (preferences.themeKey == "Dark") "-dark" else ""}.css"
+        val textFontSize = preferences.textFontSize
+        val highlightCssFilePath =
+            "highlight${if (preferences.themeKey == "Dark" || preferences.themeKey == "Black") "-dark" else ""}.css"
 
-    Log.d("theme", "current theme is: ${preferences.themeKey}")
+        val rtlCss = if (rtlText) {
+            """
+            body, html, #_omnivore-htmlContent, p, a, div, span {
+                direction: rtl;
+                text-align: right;
+            }
+            """
+        } else {
+            ""
+        }
 
-    Log.d("sync", "HIGHLIGHTS JSON:  ${articleContent.highlightsJSONString()}")
+        Log.d("theme", "current theme is: ${preferences.themeKey}")
 
-    return """
+        Log.d("sync", "HIGHLIGHTS JSON:  ${articleContent.highlightsJSONString()}")
+
+        return """
           <!DOCTYPE html>
           <html>
             <head>
@@ -70,6 +85,7 @@ data class WebReaderContent(
               <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
                 <style>
                   @import url("$highlightCssFilePath");
+                  $rtlCss
                 </style>
             </head>
             <body>
@@ -118,5 +134,5 @@ data class WebReaderContent(
             </body>
           </html>
     """
-  }
+    }
 }

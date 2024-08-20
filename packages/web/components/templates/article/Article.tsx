@@ -67,8 +67,9 @@ export function Article(props: ArticleProps): JSX.Element {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
   const [lightboxIndex, setlightBoxIndex] = useState(0)
-  const [linkHoverData, setlinkHoverData] =
-    useState<LinkHoverData | undefined>()
+  const [linkHoverData, setlinkHoverData] = useState<
+    LinkHoverData | undefined
+  >()
 
   useEffect(() => {
     ;(async () => {
@@ -97,7 +98,10 @@ export function Article(props: ArticleProps): JSX.Element {
   // Post message to webkit so apple app embeds get progress updates
   // TODO: verify if ios still needs this code...seeems to be duplicated
   useEffect(() => {
-    if (typeof window?.webkit != 'undefined') {
+    if (
+      typeof window?.webkit != 'undefined' &&
+      'messageHandlers' in window.webkit
+    ) {
       window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
         progress: readingProgress,
       })

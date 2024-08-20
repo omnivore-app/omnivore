@@ -4,6 +4,7 @@ import Foundation
   import PostHog
 #endif
 
+@MainActor
 public enum EventTracker {
   #if os(iOS)
     public static var posthog: PHGPostHog? = {

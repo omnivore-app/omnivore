@@ -28,8 +28,9 @@ export const updateLabels = async (data: UpdateLabelsData) => {
           WHERE id = $1`,
         [data.libraryItemId]
       ),
-    undefined,
-    data.userId
+    {
+      uid: data.userId,
+    }
   )
 }
 
@@ -46,7 +47,8 @@ export const updateHighlight = async (data: UpdateHighlightData) => {
           WHERE id = $1`,
         [data.libraryItemId]
       ),
-    undefined,
-    data.userId
+    {
+      uid: data.userId,
+    }
   )
 }

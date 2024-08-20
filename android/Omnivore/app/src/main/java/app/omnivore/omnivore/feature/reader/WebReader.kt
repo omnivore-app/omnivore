@@ -18,9 +18,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.R
@@ -35,18 +34,17 @@ import java.util.*
 fun WebReader(
     styledContent: String,
     webReaderViewModel: WebReaderViewModel,
-    currentTheme: Themes?
+    currentTheme: Themes?,
+    modifier: Modifier = Modifier
 ) {
-    val javascriptActionLoopUUID: UUID by webReaderViewModel.javascriptActionLoopUUIDLiveData.observeAsState(
+    val javascriptActionLoopUUID: UUID by webReaderViewModel.javascriptActionLoopUUIDFlow.collectAsStateWithLifecycle(
             UUID.randomUUID()
         )
     val isDarkMode = isSystemInDarkTheme()
 
-    WebView.setWebContentsDebuggingEnabled(true)
-
     val volumeForScrollState by webReaderViewModel.volumeRockerForScrollState.collectAsStateWithLifecycle()
 
-    Box {
+    Box(modifier) {
         AndroidView(factory = {
             OmnivoreWebView(it).apply {
                 viewModel = webReaderViewModel
@@ -170,6 +168,7 @@ fun WebReader(
                     "utf-8",
                     null
                 )
+                Log.d("HTMLContent", styledContent)
                 requestFocus()
                 setOnKeyListener { _, keyCode, event ->
                     if (event.action == KeyEvent.ACTION_DOWN) {

@@ -3,6 +3,7 @@ import { serialize } from 'cookie'
 import * as jwt from 'jsonwebtoken'
 import { withSentry } from '@sentry/nextjs'
 import { ssoJwtSecret } from '../../../lib/appConfig'
+import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
 
 type AuthPayload = {
   authToken: string
@@ -29,7 +30,7 @@ const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     })
   } else {
     res.writeHead(302, {
-      Location: '/home',
+      Location: DEFAULT_HOME_PATH,
     })
   }
 

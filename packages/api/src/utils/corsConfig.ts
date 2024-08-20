@@ -14,7 +14,10 @@ export const corsConfig = {
     env.client.url,
     'lsp://logseq.io',
     'app://obsidian.md',
+    'https://plugins.amplenote.com',
+    'amplenote-handler://bundle',
     'capacitor://localhost',
     'http://localhost',
   ],
+  maxAge: 86400,
 }

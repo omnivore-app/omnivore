@@ -3,6 +3,8 @@ package app.omnivore.omnivore.feature.reader
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +22,7 @@ import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.core.database.entities.SavedItem
+import app.omnivore.omnivore.core.network.getUriForInternalFile
 import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import com.pspdfkit.annotations.Annotation
@@ -27,6 +30,7 @@ import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.document.download.DownloadJob
 import com.pspdfkit.document.download.DownloadRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,7 +50,8 @@ data class PDFReaderParams(
 @HiltViewModel
 class PDFReaderViewModel @Inject constructor(
   private val dataService: DataService,
-  private val networker: Networker
+  private val networker: Networker,
+  @ApplicationContext private val applicationContext: Context
 ): ViewModel() {
   var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
@@ -55,17 +60,22 @@ class PDFReaderViewModel @Inject constructor(
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
-      loadItemFromDB(slug)
+      loadItemFromDB(slug, context)
       loadItemFromNetwork(slug, context)
     }
   }
 
-  private suspend fun loadItemFromDB(slug: String) {
+
+
+  private suspend fun loadItemFromDB(slug: String, context: Context) {
     withContext(Dispatchers.IO) {
       val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
       persistedItem?.let { item ->
-        item.savedItem.localPDF?.let { localPDF ->
-          val localFile = File(localPDF)
+          Log.d("PDF", " - persistedItem?.let { item -> ${item}")
+          Log.d("PDF", " - item.savedItem.localPDF -> ${item.savedItem.localPDF}")
+
+          val localPdf =  getUriForInternalFile(context,"${item.savedItem.savedItemId}.pdf")
+          val localFile = localPdf.toFile()
 
           if (localFile.exists()) {
             val articleContent = ArticleContent(
@@ -80,10 +90,9 @@ class PDFReaderViewModel @Inject constructor(
               PDFReaderParams(
                 item.savedItem,
                 articleContent,
-                Uri.fromFile(localFile)
+                  localPdf
               )
             )
-          }
         }
       }
     }
@@ -91,7 +100,7 @@ class PDFReaderViewModel @Inject constructor(
 
   private suspend fun loadItemFromNetwork(slug: String, context: Context) {
     withContext(Dispatchers.IO) {
-      val articleQueryResult = networker.savedItem(slug)
+      val articleQueryResult = networker.savedItem(context = applicationContext, slug)
       val article = articleQueryResult.item ?: return@withContext
       val request = DownloadRequest.Builder(context)
         .uri(article.pageURLString)

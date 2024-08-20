@@ -35,6 +35,7 @@ const Modal = styled(Content, {
 export const ModalContent = styled(Modal, {
   top: '50%',
   left: '50%',
+  bg: '$readerBg',
   transform: 'translate(-50%, -50%)',
   width: '90vw',
   maxWidth: '450px',

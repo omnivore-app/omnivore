@@ -1,12 +1,10 @@
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode, useEffect, useState } from 'react'
 import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
-import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
 
 function useScrollDirection() {
   const [scrollDirection, setScrollDirection] = useState('up')
@@ -144,12 +142,6 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
             color={theme.colors.thHighContrast.toString()}
           />
         </Button>
-        <PrimaryDropdown showThemeSection={false}>
-          <CircleUtilityMenuIcon
-            size={25}
-            color={theme.colors.thHighContrast.toString()}
-          />
-        </PrimaryDropdown>
       </HStack>
     </>
   )

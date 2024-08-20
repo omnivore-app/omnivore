@@ -9,16 +9,16 @@ struct AITaskRequest: Decodable {
 
 public struct DigestResult: Codable {
   public let id: String
-  public let title: String
-  public let byline: String
-  public let content: String
-  public let description: String
-  public let urlsToAudio: [String]
-  public let chapters: [DigestChapter]
-  public let speechFiles: [SpeechDocument]
+  public let title: String?
+  public let byline: String?
+  public let content: String?
+  public let description: String?
+  public let urlsToAudio: [String]?
+  public let chapters: [DigestChapter]?
+  public let speechFiles: [SpeechDocument]?
 
-  public let jobState: String
-  public let createdAt: String
+  public let jobState: String?
+  public let createdAt: String?
 }
 
 public struct DigestChapter: Codable {
@@ -26,11 +26,13 @@ public struct DigestChapter: Codable {
   public let id: String
   public let url: String
   public let wordCount: Double
+  public let author: String?
   public let thumbnail: String?
-  public init(title: String, id: String, url: String, wordCount: Double, thumbnail: String?) {
+  public init(title: String, id: String, url: String, wordCount: Double, author: String?, thumbnail: String?) {
     self.title = title
     self.id = id
     self.url = url
+    self.author = author
     self.wordCount = wordCount
     self.thumbnail = thumbnail
   }
@@ -167,9 +169,10 @@ extension DataService {
 
           do {
             let digest = try await networker.urlSession.performRequest(resource: resource)
-            let oldDigest = loadStoredDigest()
 
-            saveDigest(digest)
+            if digest.jobState == "SUCCEEDED" {
+              saveDigest(digest)
+            }
 
             return digest
           } catch {

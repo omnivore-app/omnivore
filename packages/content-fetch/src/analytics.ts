@@ -17,7 +17,7 @@ class PostHogClient implements AnalyticClient {
   }
 
   capture(userIds: string[], { properties, result }: AnalyticEvent) {
-    if (process.env.SEND_ANALYTICS) {
+    if (process.env.SEND_ANALYTICS && result === 'failure') {
       userIds.forEach((userId) => {
         this.client.capture({
           distinctId: userId,

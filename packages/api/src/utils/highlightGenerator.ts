@@ -49,8 +49,6 @@ type FillNodeResponse = {
 }
 
 function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
-  const maxTime = 10_000 // 10 seconds
-  const start = Date.now()
   let textNodeStartingPoint = 0
   let articleText = ''
   let newParagraph = false
@@ -70,13 +68,6 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
   }
 
   function getTextNodes(node: Node) {
-    // If the function takes too long, throw an error
-    if (Date.now() - start > maxTime) {
-      const error = new Error('getTextNodes Timeout')
-      logger.error(error)
-      throw error
-    }
-
     if (!node) return
 
     if (node == startNode) {

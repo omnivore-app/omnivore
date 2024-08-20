@@ -1,6 +1,6 @@
 import { Box, HStack } from '../../../elements/LayoutPrimitives'
 import { TopicTab } from './TopicTab'
-import { CaretLeft, CaretRight } from 'phosphor-react'
+import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import React, { useEffect, useRef, useState } from 'react'
 import { TopicTabData } from '../DiscoverContainer'
 

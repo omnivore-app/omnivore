@@ -2,19 +2,36 @@ import { useState } from 'react'
 import { theme } from '../../tokens/stitches.config'
 import { Box, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
+import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
-import { X } from 'phosphor-react'
-import { LibraryHeaderProps } from './LibraryHeader'
+import { X } from '@phosphor-icons/react'
+import { MultiSelectMode } from './LibraryHeader'
 import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { MarkAsReadIcon } from '../../elements/icons/MarkAsReadIcon'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { MoveToInboxIcon } from '../../elements/icons/MoveToInboxIcon'
 
-export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
+export type MultiSelectProps = {
+  viewer: UserBasicData | undefined
+
+  folder: string | undefined
+  searchTerm: string | undefined
+  applySearchQuery: (searchQuery: string) => void
+
+  numItemsSelected: number
+  multiSelectMode: MultiSelectMode
+  setMultiSelectMode: (mode: MultiSelectMode) => void
+
+  performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
+}
+
+export const MultiSelectControls = (props: MultiSelectProps): JSX.Element => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
   // Don't change on immediate hover, the button has to be blurred at least once
@@ -102,7 +119,7 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
           <SpanBox
             css={{
               display: 'none',
-              fontSize: '14px',
+              fontSize: '11px',
               fontFamily: '$display',
               marginRight: 'auto',
               '@mdDown': {
@@ -112,9 +129,14 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
           >
             {props.numItemsSelected} items
           </SpanBox>
-          <ArchiveButton {...props} />
+          {props.folder !== 'archive' && <ArchiveButton {...props} />}
           <AddLabelsButton setShowLabelsModal={setShowLabelsModal} />
-          <RemoveItemsButton setShowConfirmDelete={setShowConfirmDelete} />
+          {props.folder == 'subscriptions' && (
+            <MoveToLibraryButton {...props} />
+          )}
+          {props.folder !== 'trash' && (
+            <RemoveItemsButton setShowConfirmDelete={setShowConfirmDelete} />
+          )}
           <MarkAsReadButton {...props} />
           {showConfirmDelete && (
             <ConfirmationModal
@@ -146,7 +168,7 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
   )
 }
 
-export const CheckBoxButton = (props: LibraryHeaderProps): JSX.Element => {
+export const CheckBoxButton = (props: MultiSelectProps): JSX.Element => {
   return (
     <Button
       title="Select multiple"
@@ -171,7 +193,7 @@ export const CheckBoxButton = (props: LibraryHeaderProps): JSX.Element => {
   )
 }
 
-export const ArchiveButton = (props: LibraryHeaderProps): JSX.Element => {
+export const ArchiveButton = (props: MultiSelectProps): JSX.Element => {
   const [color, setColor] = useState<string>(
     theme.colors.thTextContrast2.toString()
   )
@@ -206,7 +228,7 @@ export const ArchiveButton = (props: LibraryHeaderProps): JSX.Element => {
   )
 }
 
-export const MarkAsReadButton = (props: LibraryHeaderProps): JSX.Element => {
+export const MarkAsReadButton = (props: MultiSelectProps): JSX.Element => {
   const [color, setColor] = useState<string>(
     theme.colors.thTextContrast2.toString()
   )
@@ -237,6 +259,41 @@ export const MarkAsReadButton = (props: LibraryHeaderProps): JSX.Element => {
       }}
     >
       <MarkAsReadIcon size={20} color={color} />
+    </Button>
+  )
+}
+
+export const MoveToLibraryButton = (props: MultiSelectProps): JSX.Element => {
+  const [color, setColor] = useState<string>(
+    theme.colors.thTextContrast2.toString()
+  )
+  return (
+    <Button
+      title="Move to library"
+      css={{
+        p: '5px',
+        display: 'flex',
+        '&:hover': {
+          bg: '$ctaBlue',
+          borderRadius: '100px',
+          opacity: 1.0,
+        },
+      }}
+      onMouseEnter={(event) => {
+        setColor('white')
+        event.preventDefault()
+      }}
+      onMouseLeave={(event) => {
+        setColor(theme.colors.thTextContrast2.toString())
+        event.preventDefault()
+      }}
+      style="plainIcon"
+      onClick={(e) => {
+        props.performMultiSelectAction(BulkAction.MOVE_TO_FOLDER)
+        e.preventDefault()
+      }}
+    >
+      <MoveToInboxIcon size={20} color={color} />
     </Button>
   )
 }
@@ -321,7 +378,7 @@ export const RemoveItemsButton = (
   )
 }
 
-export const CancelButton = (props: LibraryHeaderProps): JSX.Element => {
+export const CancelButton = (props: MultiSelectProps): JSX.Element => {
   const [color, setColor] = useState<string>(
     theme.colors.thTextContrast2.toString()
   )

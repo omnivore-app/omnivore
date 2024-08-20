@@ -14,7 +14,7 @@ import {
   MutationAddDiscoverFeedArgs,
 } from '../../generated/graphql'
 import { authorized } from '../../utils/gql-utils'
-import { RSS_PARSER_CONFIG } from '../../utils/parser'
+import { rssParserConfig } from '../../utils/parser'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -93,7 +93,7 @@ const addNewSubscription = async (
   userId: string
 ): Promise<AddDiscoverFeedSuccess | AddDiscoverFeedError> => {
   // First things first, we need to validate that this is an actual RSS or ATOM feed.
-  const response = await axios.get(url, RSS_PARSER_CONFIG)
+  const response = await axios.get(url, rssParserConfig())
   const content = response.data
 
   const contentType = response.headers['content-type']

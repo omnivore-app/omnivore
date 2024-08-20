@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.feature.library
 
 import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -35,10 +37,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
-import app.omnivore.omnivore.core.database.entities.TypeaheadCardData
 import app.omnivore.omnivore.feature.reader.PDFReaderActivity
 import app.omnivore.omnivore.feature.reader.WebReaderLoadingContainerActivity
 import app.omnivore.omnivore.feature.savedItemViews.SavedItemCard
@@ -50,9 +52,9 @@ fun SearchView(
     navController: NavHostController,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
-    val isRefreshing: Boolean by viewModel.isRefreshing.observeAsState(false)
-    val typeaheadMode: Boolean by viewModel.typeaheadMode.observeAsState(true)
-    val searchText: String by viewModel.searchTextLiveData.observeAsState("")
+    val isRefreshing: Boolean by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val typeaheadMode: Boolean by viewModel.typeaheadMode.collectAsStateWithLifecycle()
+    val searchText: String by viewModel.searchTextFlow.collectAsState("")
     val actionsMenuItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState(
         null
     )
@@ -151,14 +153,13 @@ fun SearchView(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
-    val searchedCardsData: List<TypeaheadCardData> by viewModel.searchItemsLiveData.observeAsState(
-        listOf()
-    )
+    val searchedCardsData by viewModel.searchItemsFlow.collectAsStateWithLifecycle()
 
     LazyColumn(
         state = listState,
@@ -169,8 +170,9 @@ fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
             .fillMaxSize()
 
     ) {
-        items(searchedCardsData) { cardData ->
+        items(searchedCardsData, key = { it.savedItemId } ) { cardData ->
             TypeaheadSearchCard(
+                modifier = Modifier.animateItemPlacement(),
                 cardData = cardData,
                 onClickHandler = {
                     // val activityClass = if (cardData.isPDF()) PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
@@ -190,9 +192,7 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
-    val cardsData: List<SavedItemWithLabelsAndHighlights> by viewModel.itemsLiveData.observeAsState(
-        listOf()
-    )
+    val cardsData: List<SavedItemWithLabelsAndHighlights> by viewModel.itemsState.collectAsStateWithLifecycle()
 
     LazyColumn(
         state = listState,
@@ -214,12 +214,6 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
                     val intent = Intent(context, activityClass)
                     intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.savedItem.slug)
                     context.startActivity(intent)
-                },
-                actionHandler = {
-                    viewModel.handleSavedItemAction(
-                        cardDataWithLabels.savedItem.savedItemId,
-                        it
-                    )
                 }
             )
         }

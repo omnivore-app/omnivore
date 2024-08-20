@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,12 +87,11 @@ internal fun LibraryView(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    viewModel.snackbarMessage?.let {
-        coroutineScope.launch {
+    LaunchedEffect(viewModel.snackbarMessage) {
+        viewModel.snackbarMessage?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearSnackbarMessage()
         }
@@ -130,7 +130,8 @@ internal fun LibraryView(
         }
 
         LibraryBottomSheetState.EDIT -> {
-            EditBottomSheet(editInfoViewModel,
+            EditBottomSheet(
+                editInfoViewModel,
                 deleteCurrentItem = { viewModel.currentItem.value = null },
                 { viewModel.refresh() },
                 viewModel.currentSavedItemUnderEdit()
@@ -313,13 +314,15 @@ fun EditBottomSheet(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun LibraryViewContent(
     itemsFilter: SavedItemFilter,
     activeLabels: List<SavedItemLabel>,
     sortFilter: SavedItemSortFilter,
-    updateSavedItemFilter:(SavedItemFilter) -> Unit,
+    updateSavedItemFilter: (SavedItemFilter) -> Unit,
     updateSavedItemSortFilter: (SavedItemSortFilter) -> Unit,
     setBottomSheetState: (LibraryBottomSheetState) -> Unit,
     updateAppliedLabels: (List<SavedItemLabel>) -> Unit,
@@ -410,6 +413,7 @@ fun LibraryViewContent(
                         true
                     })
                     SwipeToDismiss(
+                        modifier = Modifier.animateItemPlacement(),
                         state = swipeState,
                         directions = setOf(
                             DismissDirection.StartToEnd, DismissDirection.EndToStart
@@ -469,11 +473,6 @@ fun LibraryViewContent(
                                     val intent = Intent(context, activityClass)
                                     intent.putExtra("SAVED_ITEM_SLUG", currentItem.slug)
                                     context.startActivity(intent)
-                                },
-                                actionHandler = {
-                                    onSavedItemAction(
-                                        currentItem.savedItemId, it
-                                    )
                                 })
                         },
                     )
@@ -530,7 +529,7 @@ fun InfiniteListHandler(
 
     LaunchedEffect(loadMore) {
         snapshotFlow { loadMore.value }.distinctUntilChanged().collect {
-                onLoadMore()
-            }
+            onLoadMore()
+        }
     }
 }

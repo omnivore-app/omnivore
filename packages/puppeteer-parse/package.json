@@ -9,20 +9,12 @@
   ],
   "dependencies": {
     "@omnivore/content-handler": "1.0.0",
-    "@omnivore/readability": "1.0.0",
-    "axios": "^1.4.0",
-    "crypto": "^1.0.1",
-    "dompurify": "^2.4.1",
-    "linkedom": "^0.14.9",
-    "puppeteer-core": "^22.8.0",
-    "puppeteer-extra": "^3.3.4",
-    "puppeteer-extra-plugin-adblocker": "^2.13.5",
-    "puppeteer-extra-plugin-stealth": "^2.11.1",
-    "urlsafe-base64": "^1.0.0"
+    "puppeteer-core": "^22.12.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
-    "@types/dompurify": "^3.0.5",
-    "@types/urlsafe-base64": "^1.0.31",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   },

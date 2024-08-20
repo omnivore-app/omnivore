@@ -1,4 +1,5 @@
 import { Client } from '@notionhq/client'
+import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import axios from 'axios'
 import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
@@ -6,7 +7,7 @@ import { env } from '../../env'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
-import { getItemUrl, ItemEvent } from '../library_item'
+import { findLibraryItemsByIds, getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -72,7 +73,7 @@ interface NotionPage {
         start: string
       }
     }
-    'Last Updated'?: {
+    'Last Updated': {
       date: {
         start: string
       }
@@ -238,13 +239,13 @@ export class NotionClient implements IntegrationClient {
               },
             }
           : undefined,
-        'Last Updated': item.updatedAt
-          ? {
-              date: {
-                start: item.updatedAt as string,
-              },
-            }
-          : undefined,
+        'Last Updated': {
+          date: {
+            start: item.updatedAt
+              ? (item.updatedAt as string)
+              : new Date().toISOString(),
+          },
+        },
         Tags: item.labels
           ? {
               multi_select: item.labels.map((label) => ({
@@ -276,7 +277,9 @@ export class NotionClient implements IntegrationClient {
                     },
                     annotations: {
                       code: true,
-                      color: highlight.color as AnnotationColor,
+                      color: highlight.color
+                        ? (highlight.color as AnnotationColor)
+                        : 'yellow',
                     },
                   },
                 ],
@@ -336,6 +339,41 @@ export class NotionClient implements IntegrationClient {
       return false
     }
 
+    const userId = this.integrationData.userId
+
+    // fetch the original url if not found
+    if (!items[0].originalUrl) {
+      const libraryItems = await findLibraryItemsByIds(
+        items.map((item) => item.id),
+        userId,
+        {
+          select: [
+            'id',
+            'originalUrl',
+            'title',
+            'author',
+            'thumbnail',
+            'siteIcon',
+            'savedAt',
+          ],
+        }
+      )
+
+      items.forEach((item) => {
+        const libraryItem = libraryItems.find((li) => li.id === item.id)
+        if (!libraryItem) {
+          return
+        }
+
+        item.originalUrl = libraryItem.originalUrl
+        item.title = libraryItem.title
+        item.author = libraryItem.author
+        item.thumbnail = libraryItem.thumbnail
+        item.siteIcon = libraryItem.siteIcon
+        item.savedAt = libraryItem.savedAt
+      })
+    }
+
     await Promise.all(
       items.map(async (item) => {
         try {
@@ -377,14 +415,13 @@ export class NotionClient implements IntegrationClient {
     return true
   }
 
-  private findDatabase = async (databaseId: string) => {
+  findDatabase = async (databaseId: string) => {
     return this.client.databases.retrieve({
       database_id: databaseId,
     })
   }
 
-  updateDatabase = async (databaseId: string) => {
-    const database = await this.findDatabase(databaseId)
+  updateDatabase = async (database: GetDatabaseResponse) => {
     // find the title property and update it
     const titleProperty = Object.entries(database.properties).find(
       ([, property]) => property.type === 'title'

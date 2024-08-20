@@ -2,7 +2,7 @@ import { Button } from '../../../components/elements/Button'
 import { useGetNewsletterEmailsQuery } from '../../../lib/networking/queries/useGetNewsletterEmailsQuery'
 import { createNewsletterEmailMutation } from '../../../lib/networking/mutations/createNewsletterEmailMutation'
 import { deleteNewsletterEmailMutation } from '../../../lib/networking/mutations/deleteNewsletterEmailMutation'
-import { Copy } from 'phosphor-react'
+import { Copy } from '@phosphor-icons/react'
 import { theme, styled } from '../../../components/tokens/stitches.config'
 import {
   Box,
@@ -120,17 +120,6 @@ export default function EmailsPage(): JSX.Element {
         headerTitle="Address"
         createTitle="Create a new email address"
         createAction={createEmail}
-        suggestionInfo={{
-          title: 'Subscribe to newsletters with an Omnivore Email Address',
-          message:
-            'Create an Omnivore email address and use it to subscribe to newsletters or send yourself documents. Newsletters and documents will be categorized and added to your library when we receive a message. View all received emails with the "Recently Received Emails" link at the bottom of this page.',
-          docs: 'https://docs.omnivore.app/using/inbox.html',
-          key: '--settings-emails-show-help',
-          CTAText: 'Create an email address',
-          onClickCTA: () => {
-            createEmail()
-          },
-        }}
       >
         {sortedEmailAddresses.length > 0 ? (
           sortedEmailAddresses.map((email, i) => {

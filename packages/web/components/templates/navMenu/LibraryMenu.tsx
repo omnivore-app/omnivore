@@ -2,19 +2,16 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, DotsThree, MagnifyingGlass, X } from 'phosphor-react'
+import { Circle, DotsThree, MagnifyingGlass, X } from '@phosphor-icons/react'
 import {
   Subscription,
   SubscriptionType,
-  useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
 import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
@@ -25,13 +22,13 @@ import { HomeIcon } from '../../elements/icons/HomeIcon'
 import { LibraryIcon } from '../../elements/icons/LibraryIcon'
 import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
 import { CoverImage } from '../../elements/CoverImage'
-import { Shortcut } from '../../../pages/settings/shortcuts'
 import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
 import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { useRouter } from 'next/router'
 import { DiscoverIcon } from '../../elements/icons/DiscoverIcon'
 import { escapeQuotes } from '../../../utils/helper'
+import { Shortcut } from '../../../lib/networking/shortcuts/useShortcuts'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -46,55 +43,6 @@ type LibraryFilterMenuProps = {
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
-  const [labels, setLabels] = usePersistedState<Label[]>({
-    key: 'menu-labels',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const [savedSearches, setSavedSearches] = usePersistedState<SavedSearch[]>({
-    key: 'menu-searches',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const [subscriptions, setSubscriptions] = usePersistedState<Subscription[]>({
-    key: 'menu-subscriptions',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-  const labelsResponse = useGetLabelsQuery()
-  const searchesResponse = useGetSavedSearchQuery()
-  const subscriptionsResponse = useGetSubscriptionsQuery()
-
-  useEffect(() => {
-    if (
-      !labelsResponse.error &&
-      !labelsResponse.isLoading &&
-      labelsResponse.labels
-    ) {
-      setLabels(labelsResponse.labels)
-    }
-  }, [setLabels, labelsResponse])
-
-  useEffect(() => {
-    if (
-      !subscriptionsResponse.error &&
-      !subscriptionsResponse.isLoading &&
-      subscriptionsResponse.subscriptions
-    ) {
-      setSubscriptions(subscriptionsResponse.subscriptions)
-    }
-  }, [setSubscriptions, subscriptionsResponse])
-
-  useEffect(() => {
-    if (
-      !searchesResponse.error &&
-      !searchesResponse.isLoading &&
-      searchesResponse.savedSearches
-    ) {
-      setSavedSearches(searchesResponse.savedSearches)
-    }
-  }, [setSavedSearches, searchesResponse])
-
   return (
     <>
       <Box
@@ -210,10 +158,10 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         filterTerm="in:library use:folders"
         icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
       />
-      <NavButton
+      <NavRedirectButton
         {...props}
         text="Highlights"
-        filterTerm="in:all has:highlights mode:highlights"
+        redirectLocation={'/highlights'}
         icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
       />
       <NavRedirectButton
@@ -233,57 +181,6 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
     isSessionStorage: false,
     initialValue: [],
   })
-
-  // const shortcuts: Shortcut[] = [
-  //   {
-  //     id: '12asdfasdf',
-  //     name: 'Omnivore Blog',
-  //     icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'subscription:"Money Talk"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfsdfgdsfg',
-  //     name: 'Follow the Money | Arne & Harr',
-  //     filter: 'subscription:"Money Talk"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
-  //     name: 'Andrew Kenneson from Center for the Study of Partisanship and Ideology',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'newsletter',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
-  //     name: 'Robert的博客',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfasdfasf',
-  //     name: 'Oldest First',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'search',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfgasdfg',
-  //     name: 'Hockey',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'label',
-  //     label: {
-  //       id: 'sdfsdfsdf',
-  //       name: 'Hockey',
-  //       color: '#E98B8B',
-  //       createdAt: new Date(),
-  //     },
-  //   },
-  // ]
-  //
 
   return (
     <VStack
