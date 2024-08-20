@@ -378,9 +378,21 @@ export const enqueueFetchContentJob = async (
     throw new Error('No queue found')
   }
 
+  // sort the data to make sure the hash is consistent
+  const sortedData = JSON.stringify(data, Object.keys(data).sort())
+  const jobId = `${FETCH_CONTENT_JOB}_${stringToHash(
+    sortedData
+  )}_${JOB_VERSION}`
   const job = await queue.add(FETCH_CONTENT_JOB, data, {
     priority: getJobPriority(FETCH_CONTENT_JOB),
-    attempts: data.priority === 'low' ? 2 : 5,
+    attempts: data.priority === 'low' ? 2 : 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
+    jobId,
+    removeOnComplete: true,
+    removeOnFail: true,
   })
 
   if (!job || !job.id) {
