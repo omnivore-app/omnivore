@@ -212,7 +212,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         title="Labels"
       />
       <DropdownOption
-        onSelect={() => router.push('/settings/settings')}
+        onSelect={() => router.push('/settings/account')}
         title="Settings"
       />
       <DropdownOption
