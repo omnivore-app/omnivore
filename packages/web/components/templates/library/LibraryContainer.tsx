@@ -164,6 +164,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     const items =
       itemsPages?.pages
         .flatMap((ad: LibraryItems) => {
+          if (!ad.edges) {
+            return []
+          }
           return ad.edges.map((it) => ({
             ...it,
             isLoading: it.node.state === 'PROCESSING',
