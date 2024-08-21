@@ -1,7 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { deinitAnalytics } from './analytics'
 import { logoutMutation } from './networking/mutations/logoutMutation'
 
 export const logout = async () => {
+  const queryClient = useQueryClient()
   await logoutMutation()
   try {
     const result = await logoutMutation()
@@ -9,6 +11,7 @@ export const logout = async () => {
       throw new Error('Logout failed')
     }
     deinitAnalytics()
+    queryClient.clear()
     window.location.href = '/login'
   } catch {
     // TODO: display an error message instead
