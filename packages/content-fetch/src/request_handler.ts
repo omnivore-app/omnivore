@@ -67,6 +67,7 @@ const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
 const NO_CACHE_URLS = [
   'https://deviceandbrowserinfo.com/are_you_a_bot',
   'https://deviceandbrowserinfo.com/info_device',
+  'https://jacksonh.org',
 ]
 
 const signToken = promisify(jwt.sign)
@@ -275,6 +276,7 @@ export const processFetchContentJob = async (
     const isBlocked = await isDomainBlocked(redisDataSource, domain)
     if (isBlocked) {
       console.log('domain is blocked', domain)
+      logRecord.error = 'domain is blocked'
 
       return
     }
