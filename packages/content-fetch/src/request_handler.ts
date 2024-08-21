@@ -214,7 +214,7 @@ export const processFetchContentJob = async (
     },
     state,
     labelsToAdd: labels,
-    taskId: taskId,
+    taskId,
     locale,
     timezone,
     rssFeedUrl,
