@@ -8,7 +8,7 @@ import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
-import { logout } from '../../lib/logout'
+import { logout, useLogout } from '../../lib/logout'
 import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
@@ -74,6 +74,8 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       document.removeEventListener('logout', showLogout)
     }
   }, [showLogout])
+
+  const { logout } = useLogout()
 
   return (
     <VStack

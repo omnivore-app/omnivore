@@ -9,7 +9,7 @@ import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { logout } from '../../lib/logout'
+import { logout, useLogout } from '../../lib/logout'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { updateTheme } from '../../lib/themeUpdater'
 import { Priority, useRegisterActions } from 'kbar'
@@ -95,6 +95,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       document.removeEventListener('logout', showLogout)
     }
   }, [showLogout])
+
+  const { logout } = useLogout()
 
   return (
     <>
