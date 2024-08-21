@@ -127,9 +127,28 @@ export default function Home(): JSX.Element {
     }
   }
 
+  const sectionTitle = (section: NavigationSection | undefined) => {
+    switch (section) {
+      case 'home':
+        return 'Home'
+      case 'library':
+        return 'Library'
+      case 'subscriptions':
+        return 'Subscriptions'
+      case 'highlights':
+        return 'Highlights'
+      case 'archive':
+        return 'Archive'
+      case 'trash':
+        return 'Trash'
+    }
+    return ''
+  }
+
   return (
     <NavigationLayout
       section={section ?? 'home'}
+      title={sectionTitle(section)}
       showNavigationMenu={showNavigationMenu}
       setShowNavigationMenu={setShowNavigationMenu}
     >
