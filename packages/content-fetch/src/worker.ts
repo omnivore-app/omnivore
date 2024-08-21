@@ -40,6 +40,10 @@ export const createWorker = (
     {
       connection: redisDataSource.queueRedisClient,
       autorun: true, // start processing jobs immediately
+      limiter: {
+        max: 10, // process up to 10 jobs concurrently
+        duration: 1000, // 1 second
+      },
     }
   )
 
