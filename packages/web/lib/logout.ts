@@ -1,17 +1,27 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { deinitAnalytics } from './analytics'
 import { logoutMutation } from './networking/mutations/logoutMutation'
+import { useCallback } from 'react'
+import { useRouter } from 'next/router'
 
-export const logout = async () => {
-  await logoutMutation()
-  try {
-    const result = await logoutMutation()
-    if (!result) {
-      throw new Error('Logout failed')
+export const useLogout = () => {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const logout = useCallback(async () => {
+    await logoutMutation()
+    try {
+      const result = await logoutMutation()
+      if (!result) {
+        throw new Error('Logout failed')
+      }
+      deinitAnalytics()
+      queryClient.clear()
+      console.log('cleared the query client')
+      router.push('/login')
+    } catch (err) {
+      console.log('error on logout: ', err)
+      router.push('/')
     }
-    deinitAnalytics()
-    window.location.href = '/login'
-  } catch {
-    // TODO: display an error message instead
-    window.location.href = '/'
-  }
+  }, [])
+  return { logout }
 }

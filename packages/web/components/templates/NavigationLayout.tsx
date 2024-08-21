@@ -9,7 +9,7 @@ import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { logout } from '../../lib/logout'
+import { useLogout } from '../../lib/logout'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { useRegisterActions } from 'kbar'
 import { theme } from '../tokens/stitches.config'
@@ -22,6 +22,7 @@ import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
 import { useAddItem } from '../../lib/networking/library_items/useLibraryItems'
 import { useHandleAddUrl } from '../../lib/hooks/useHandleAddUrl'
 import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
+import { useQueryClient } from '@tanstack/react-query'
 
 export type NavigationSection =
   | 'home'
@@ -45,12 +46,18 @@ type NavigationLayoutProps = {
 export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   useApplyLocalTheme()
 
-  const { data: viewerData } = useGetViewer()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
-  const addItem = useAddItem()
+  const {
+    data: viewerData,
+    isFetching,
+    isPending,
+    isError,
+    status,
+  } = useGetViewer()
 
   useRegisterActions(navigationCommands(router))
 
@@ -68,6 +75,12 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   useEffect(() => {
     if (viewerData) {
       setupAnalytics(viewerData)
+    }
+    if (!viewerData && !isPending) {
+      console.log('viewerData: ', viewerData, isFetching, isPending, status)
+      // there was an error loading, so lets log out
+      queryClient.clear()
+      router.push(`/login`)
     }
   }, [viewerData])
 
@@ -95,6 +108,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
     }
   }, [showLogout])
 
+  const { logout } = useLogout()
   // if (isLoading) {
   //   return (
   //     <HStack
