@@ -1,28 +1,30 @@
-import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { theme } from '../../tokens/stitches.config'
-import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
+import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import 'react-markdown-editor-lite/lib/index.css'
 import { v4 as uuidv4 } from 'uuid'
-import { nanoid } from 'nanoid'
-import { HighlightViewItem } from './HighlightViewItem'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { TrashIcon } from '../../elements/icons/TrashIcon'
-import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
-import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
-import { ArticleNotes } from '../../patterns/ArticleNotes'
 import { formattedShortTime } from '../../../lib/dateFormatting'
-import { isDarkTheme } from '../../../lib/themeUpdater'
 import { sortHighlights } from '../../../lib/highlights/sortHighlights'
-import { useGetLibraryItemContent } from '../../../lib/networking/library_items/useLibraryItems'
+import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
   useCreateHighlight,
   useDeleteHighlight,
   useUpdateHighlight,
 } from '../../../lib/networking/highlights/useItemHighlights'
+import {
+  ReadableItem,
+  useGetLibraryItemContent,
+} from '../../../lib/networking/library_items/useLibraryItems'
+import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { isDarkTheme } from '../../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { TrashIcon } from '../../elements/icons/TrashIcon'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { ArticleNotes } from '../../patterns/ArticleNotes'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { theme } from '../../tokens/stitches.config'
+import { HighlightViewItem } from './HighlightViewItem'
+import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 
 type NotebookContentProps = {
   viewer: UserBasicData
@@ -87,6 +89,25 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     [props]
   )
 
+  const deleteNote = useCallback(
+    (noteId: string) => {
+      ;(async () => {
+        const result = await deleteHighlight.mutateAsync({
+          itemId: props.item.id,
+          slug: props.item.slug,
+          highlightId: noteId,
+        })
+        if (result) {
+          noteState.current.note = undefined
+          setNoteText('')
+        } else {
+          setErrorSaving('Error deleting note')
+        }
+      })()
+    },
+    [props, deleteHighlight]
+  )
+
   const createNote = useCallback(
     (text: string) => {
       noteState.current.isCreating = true
@@ -149,9 +170,19 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
 
       setLastChanged(changeTime)
       if (noteState.current.note) {
+        if (noteState.current.note.type === 'NOTE' && text === '') {
+          deleteNote(noteState.current.note.id)
+          return
+        }
+
         updateNote(noteState.current.note, text, changeTime)
         return
       }
+
+      if (text === '') {
+        return
+      }
+
       if (noteState.current.isCreating) {
         if (noteState.current.createStarted) {
           const timeSinceStart =
@@ -164,9 +195,10 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         }
         return
       }
+
       createNote(text)
     },
-    [noteState, createNote, updateNote]
+    [createNote, updateNote, deleteNote]
   )
 
   const deleteDocumentNote = useCallback(() => {
