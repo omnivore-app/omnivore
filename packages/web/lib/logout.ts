@@ -4,8 +4,8 @@ import { logoutMutation } from './networking/mutations/logoutMutation'
 import { useCallback } from 'react'
 
 export const useLogout = () => {
+  const queryClient = useQueryClient()
   const logout = useCallback(async () => {
-    const queryClient = useQueryClient()
     await logoutMutation()
     try {
       const result = await logoutMutation()
