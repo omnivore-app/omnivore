@@ -1,6 +1,4 @@
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useCallback, useEffect, useState } from 'react'
@@ -8,7 +6,7 @@ import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
-import { logout } from '../../lib/logout'
+import { useLogout } from '../../lib/logout'
 import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
@@ -74,6 +72,8 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       document.removeEventListener('logout', showLogout)
     }
   }, [showLogout])
+
+  const { logout } = useLogout()
 
   return (
     <VStack

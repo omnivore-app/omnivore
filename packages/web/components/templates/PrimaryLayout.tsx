@@ -1,20 +1,17 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
 import { ReactNode, useEffect, useState, useCallback } from 'react'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { NextRouter, useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { logout } from '../../lib/logout'
+import { useLogout } from '../../lib/logout'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { updateTheme } from '../../lib/themeUpdater'
 import { Priority, useRegisterActions } from 'kbar'
 import { ThemeId } from '../tokens/stitches.config'
-import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 type PrimaryLayoutProps = {
@@ -95,6 +92,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       document.removeEventListener('logout', showLogout)
     }
   }, [showLogout])
+
+  const { logout } = useLogout()
 
   return (
     <>

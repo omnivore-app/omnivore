@@ -10,7 +10,7 @@ import { gqlEndpoint } from '../../appConfig'
 import { ContentReader, PageType, State } from '../fragments/articleFragment'
 import { Highlight } from '../fragments/highlightFragment'
 import { Label } from '../fragments/labelFragment'
-import { requestHeaders } from '../networkHelpers'
+import { gqlFetcher, requestHeaders } from '../networkHelpers'
 import {
   gqlSearchQuery,
   GQL_BULK_ACTION,
@@ -23,24 +23,6 @@ import {
   GQL_SET_LINK_ARCHIVED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
-import { useState } from 'react'
-
-function gqlFetcher(
-  query: string,
-  variables?: unknown,
-  requiresAuth = true
-): Promise<unknown> {
-  // if (requiresAuth) {
-  //   verifyAuth()
-  // }
-
-  const graphQLClient = new GraphQLClient(gqlEndpoint, {
-    credentials: 'include',
-    mode: 'cors',
-  })
-
-  return graphQLClient.request(query, variables, requestHeaders())
-}
 
 const updateItemStateInCache = (
   queryClient: QueryClient,
@@ -242,7 +224,6 @@ export function useGetLibraryItems(
     // If no folder is specified cache this as `home`
     queryKey,
     queryFn: async ({ queryKey, pageParam, meta }) => {
-      console.log('pageParam and limit', Number(pageParam), limit)
       const cached = queryClient.getQueryData(queryKey) as CachedPagesData
       if (pageParam !== INITIAL_INDEX) {
         // check in the query cache, if there is an item for this page
@@ -260,7 +241,6 @@ export function useGetLibraryItems(
             cached.pages[idx - 1].pageInfo.wasUnchanged
           ) {
             const cachedResult = cached.pages[idx]
-            console.log('found cached page result: ', cachedResult)
             return {
               edges: cachedResult.edges,
               pageInfo: {
