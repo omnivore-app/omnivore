@@ -2,10 +2,10 @@ import { RedisDataSource } from '@omnivore/utils'
 import { JobType } from 'bullmq'
 import express, { Express } from 'express'
 import asyncHandler from 'express-async-handler'
-import { createWorkers, getQueue } from './worker'
+import { createWorker, getQueue, QUEUE } from './worker'
 
 const main = () => {
-  console.log('[worker]: starting workers')
+  console.log('Starting worker...')
 
   const app: Express = express()
   const port = process.env.PORT || 3002
@@ -22,16 +22,7 @@ const main = () => {
     },
   })
 
-  const workers = createWorkers(redisDataSource)
-
-  const closeWorkers = async () => {
-    await Promise.all(
-      workers.map(async (worker) => {
-        await worker.close()
-        console.log('worker closed:', worker.name)
-      })
-    )
-  }
+  const worker = createWorker(redisDataSource)
 
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
@@ -39,9 +30,10 @@ const main = () => {
   app.get(
     '/lifecycle/prestop',
     asyncHandler(async (_req, res) => {
-      console.log('prestop lifecycle hook called.')
-      await closeWorkers()
-      console.log('workers closed')
+      console.log('Prestop lifecycle hook called.')
+
+      await worker.close()
+      console.log('Worker closed')
 
       res.sendStatus(200)
     })
@@ -52,37 +44,31 @@ const main = () => {
     asyncHandler(async (_, res) => {
       let output = ''
 
-      for (const worker of workers) {
-        const queueName = worker.name
-        const queue = await getQueue(
-          redisDataSource.queueRedisClient,
-          queueName
-        )
+      const queue = await getQueue(redisDataSource.queueRedisClient)
 
-        const jobsTypes: Array<JobType> = [
-          'active',
-          'failed',
-          'completed',
-          'prioritized',
-        ]
-        const counts = await queue.getJobCounts(...jobsTypes)
+      const jobsTypes: Array<JobType> = [
+        'active',
+        'failed',
+        'completed',
+        'prioritized',
+      ]
+      const counts = await queue.getJobCounts(...jobsTypes)
 
-        jobsTypes.forEach((metric) => {
-          output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
-          output += `omnivore_queue_messages_${metric}{queue="${queueName}"} ${counts[metric]}\n`
-        })
+      jobsTypes.forEach((metric) => {
+        output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
+        output += `omnivore_queue_messages_${metric}{queue="${QUEUE}"} ${counts[metric]}\n`
+      })
 
-        // Export the age of the oldest prioritized job in the queue
-        const oldestJobs = await queue.getJobs(['prioritized'], 0, 1, true)
-        if (oldestJobs.length > 0) {
-          const currentTime = Date.now()
-          const ageInSeconds = (currentTime - oldestJobs[0].timestamp) / 1000
-          output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
-          output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${queueName}"} ${ageInSeconds}\n`
-        } else {
-          output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
-          output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${queueName}"} ${0}\n`
-        }
+      // Export the age of the oldest prioritized job in the queue
+      const oldestJobs = await queue.getJobs(['prioritized'], 0, 1, true)
+      if (oldestJobs.length > 0) {
+        const currentTime = Date.now()
+        const ageInSeconds = (currentTime - oldestJobs[0].timestamp) / 1000
+        output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
+        output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE}"} ${ageInSeconds}\n`
+      } else {
+        output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
+        output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE}"} ${0}\n`
       }
 
       res.status(200).setHeader('Content-Type', 'text/plain').send(output)
@@ -90,27 +76,27 @@ const main = () => {
   )
 
   const server = app.listen(port, () => {
-    console.log(`[worker]: Workers started`)
+    console.log('Worker started')
   })
 
   const gracefulShutdown = async (signal: string) => {
-    console.log(`[worker]: Received ${signal}, closing server...`)
+    console.log(`Received ${signal}, closing server...`)
     await new Promise<void>((resolve) => {
       server.close((err) => {
-        console.log('[worker]: Express server closed')
+        console.log('Express server closed')
         if (err) {
-          console.log('[worker]: error stopping server', { err })
+          console.log('Error stopping server', { err })
         }
 
         resolve()
       })
     })
 
-    await closeWorkers()
-    console.log('[worker]: Workers closed')
+    await worker.close()
+    console.log('Worker closed')
 
     await redisDataSource.shutdown()
-    console.log('[worker]: Redis connection closed')
+    console.log('Redis connection closed')
 
     process.exit(0)
   }

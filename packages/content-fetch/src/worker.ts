@@ -2,14 +2,11 @@ import { RedisDataSource } from '@omnivore/utils'
 import { Job, Queue, QueueEvents, RedisClient, Worker } from 'bullmq'
 import { JobData, processFetchContentJob } from './request_handler'
 
-const FAST_QUEUE = 'omnivore-content-fetch-queue'
-const SLOW_QUEUE = 'omnivore-content-fetch-slow-queue'
-const RSS_QUEUE = 'omnivore-content-fetch-rss-queue'
-const QUEUE_NAMES = [FAST_QUEUE, SLOW_QUEUE, RSS_QUEUE] as const
+export const QUEUE = 'omnivore-content-fetch-queue'
 
 export const getQueue = async (
   connection: RedisClient,
-  queueName: string
+  queueName = QUEUE
 ): Promise<Queue> => {
   const queue = new Queue(queueName, {
     connection,
@@ -30,27 +27,10 @@ export const getQueue = async (
   return queue
 }
 
-const createWorker = (redisDataSource: RedisDataSource, queueName: string) => {
-  const getLimiter = (queueName: string) => {
-    switch (queueName) {
-      case SLOW_QUEUE:
-        return {
-          max: 5,
-          duration: 1000, // 1 second
-        }
-      case RSS_QUEUE:
-        return {
-          max: 5,
-          duration: 1000, // 1 second
-        }
-      default:
-        return {
-          max: 100,
-          duration: 1000, // 1 second
-        }
-    }
-  }
-
+export const createWorker = (
+  redisDataSource: RedisDataSource,
+  queueName = QUEUE
+) => {
   const worker = new Worker(
     queueName,
     async (job: Job<JobData>) => {
@@ -60,7 +40,6 @@ const createWorker = (redisDataSource: RedisDataSource, queueName: string) => {
     {
       connection: redisDataSource.queueRedisClient,
       autorun: true, // start processing jobs immediately
-      limiter: getLimiter(queueName),
     }
   )
 
@@ -89,10 +68,4 @@ const createWorker = (redisDataSource: RedisDataSource, queueName: string) => {
   })
 
   return worker
-}
-
-export const createWorkers = (redisDataSource: RedisDataSource) => {
-  return QUEUE_NAMES.map((queueName) =>
-    createWorker(redisDataSource, queueName)
-  )
 }

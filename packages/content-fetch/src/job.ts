@@ -38,23 +38,24 @@ const getPriority = (job: SavePageJob): number => {
   // priority 5: jobs that are expected to finish in less than 10 second
   // priority 10: jobs that are expected to finish in less than 10 minutes
   // priority 100: jobs that are expected to finish in less than 1 hour
-  if (job.isRss) {
-    return 10
-  }
   if (job.isImport) {
     return 100
   }
 
-  return job.priority === 'low' ? 10 : 1
+  if (job.isRss) {
+    return job.priority === 'low' ? 10 : 5
+  }
+
+  return job.priority === 'low' ? 5 : 1
 }
 
 const getAttempts = (job: SavePageJob): number => {
-  if (job.isRss || job.isImport) {
-    // we don't want to retry rss or import jobs
+  if (job.isImport) {
+    // we don't want to retry import jobs
     return 1
   }
 
-  return 3
+  return job.isRss ? 2 : 3
 }
 
 const getOpts = (job: SavePageJob): BulkJobOptions => {

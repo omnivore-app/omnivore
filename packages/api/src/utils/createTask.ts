@@ -65,13 +65,7 @@ import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
-import {
-  CONTENT_FETCH_QUEUE,
-  CONTENT_FETCH_RSS_QUEUE,
-  CONTENT_FETCH_SLOW_QUEUE,
-  getQueue,
-  JOB_VERSION,
-} from '../queue-processor'
+import { CONTENT_FETCH_QUEUE, getQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { writeDigest } from '../services/digest'
 import { signFeatureToken } from '../services/features'
@@ -102,18 +96,21 @@ export const getJobPriority = (jobName: string): number => {
     case SYNC_READ_POSITIONS_JOB_NAME:
     case SEND_EMAIL_JOB:
     case UPDATE_HOME_JOB:
-    case FETCH_CONTENT_JOB:
+    case `${FETCH_CONTENT_JOB}_high`:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
     case AI_SUMMARIZE_JOB_NAME:
     case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
+    case `${FETCH_CONTENT_JOB}_low`:
+    case `${FETCH_CONTENT_JOB}_rss_high`:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
     case UPLOAD_CONTENT_JOB:
     case SCORE_LIBRARY_ITEM_JOB:
+    case `${FETCH_CONTENT_JOB}_rss_low`:
       return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
@@ -336,7 +333,7 @@ export interface FetchContentJobData {
     folder?: string
     libraryItemId: string
   }>
-  priority?: 'low' | 'high'
+  priority: 'low' | 'high'
   state?: ArticleSavingRequestStatus
   labels?: Array<CreateLabelInput>
   locale?: string
@@ -360,39 +357,32 @@ export interface FetchContentJobData {
 export const enqueueFetchContentJob = async (
   data: FetchContentJobData
 ): Promise<string> => {
-  const getQueueName = (data: FetchContentJobData) => {
-    if (data.rssFeedUrl) {
-      return CONTENT_FETCH_RSS_QUEUE
-    }
-
-    if (data.priority === 'low') {
-      return CONTENT_FETCH_SLOW_QUEUE
-    }
-
-    return CONTENT_FETCH_QUEUE
-  }
-
-  const queueName = getQueueName(data)
-  const queue = await getQueue(queueName)
+  const queue = await getQueue(CONTENT_FETCH_QUEUE)
   if (!queue) {
     throw new Error('No queue found')
   }
+
+  const jobName = `${FETCH_CONTENT_JOB}${data.rssFeedUrl ? '_rss' : ''}_${
+    data.priority
+  }`
 
   // sort the data to make sure the hash is consistent
   const sortedData = JSON.stringify(data, Object.keys(data).sort())
   const jobId = `${FETCH_CONTENT_JOB}_${stringToHash(
     sortedData
   )}_${JOB_VERSION}`
+  const priority = getJobPriority(jobName)
+
   const job = await queue.add(FETCH_CONTENT_JOB, data, {
-    priority: getJobPriority(FETCH_CONTENT_JOB),
-    attempts: data.priority === 'low' ? 2 : 3,
+    jobId,
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority,
+    attempts: 2,
     backoff: {
       type: 'exponential',
       delay: 2000,
     },
-    jobId,
-    removeOnComplete: true,
-    removeOnFail: true,
   })
 
   if (!job || !job.id) {

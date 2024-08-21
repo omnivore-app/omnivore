@@ -57,7 +57,7 @@ const addRecentSavedItem = async (userId: string) => {
 // default: use normal queue
 const getPriorityByRateLimit = async (
   userId: string
-): Promise<'low' | 'high' | undefined> => {
+): Promise<'low' | 'high'> => {
   const redisClient = redisDataSource.redisClient
   if (redisClient) {
     const oneMinuteAgo = Date.now() - 60 * 1000
@@ -75,6 +75,8 @@ const getPriorityByRateLimit = async (
       logger.error('Failed to get priority by rate limit', { userId, error })
     }
   }
+
+  return 'high'
 }
 
 export const validateUrl = (url: string): URL => {

@@ -35,6 +35,7 @@ interface RefreshFeedRequest {
   fetchContentTypes: FetchContentType[]
   folders: FolderType[]
   refreshContext?: RSSRefreshContext
+  priority?: 'low' | 'high'
 }
 
 export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
@@ -332,7 +333,8 @@ const createTask = async (
 const fetchContentAndCreateItem = async (
   users: UserConfig[],
   feedUrl: string,
-  item: RssFeedItem
+  item: RssFeedItem,
+  priority = 'low' as 'low' | 'high'
 ) => {
   const data: FetchContentJobData = {
     users,
@@ -342,7 +344,7 @@ const fetchContentAndCreateItem = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
-    priority: 'low',
+    priority,
   }
 
   try {
@@ -703,6 +705,7 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     fetchContentTypes,
     folders,
     refreshContext,
+    priority,
   } = request
 
   logger.info('Processing feed', feedUrl, { refreshContext: refreshContext })
@@ -771,7 +774,8 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
       await fetchContentAndCreateItem(
         Array.from(task.users.values()),
         feedUrl,
-        task.item
+        task.item,
+        priority
       )
     }
 
