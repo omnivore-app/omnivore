@@ -1,7 +1,10 @@
 import { Storage } from '@google-cloud/storage'
 import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RedisDataSource } from '@omnivore/utils'
+import axios from 'axios'
 import 'dotenv/config'
+import jwt from 'jsonwebtoken'
+import { promisify } from 'util'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
 
@@ -65,6 +68,14 @@ const NO_CACHE_URLS = [
   'https://deviceandbrowserinfo.com/are_you_a_bot',
   'https://deviceandbrowserinfo.com/info_device',
 ]
+
+const signToken = promisify(jwt.sign)
+
+const IMPORTER_METRICS_COLLECTOR_URL =
+  process.env.IMPORTER_METRICS_COLLECTOR_URL
+const JWT_SECRET = process.env.JWT_SECRET
+
+const MAX_IMPORT_ATTEMPTS = 1
 
 const uploadToBucket = async (filePath: string, data: string) => {
   await storage
@@ -174,9 +185,43 @@ const incrementContentFetchFailure = async (
   }
 }
 
+const sendImportStatusUpdate = async (
+  userId: string,
+  taskId: string,
+  isImported?: boolean
+) => {
+  try {
+    if (!JWT_SECRET || !IMPORTER_METRICS_COLLECTOR_URL) {
+      console.error('JWT_SECRET or IMPORTER_METRICS_COLLECTOR_URL is not set')
+      return
+    }
+
+    console.log('sending import status update')
+    const auth = await signToken({ uid: userId }, JWT_SECRET)
+
+    await axios.post(
+      IMPORTER_METRICS_COLLECTOR_URL,
+      {
+        taskId,
+        status: isImported ? 'imported' : 'failed',
+      },
+      {
+        headers: {
+          Authorization: auth as string,
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      }
+    )
+  } catch (e) {
+    console.error('Failed to send import status update', e)
+  }
+}
+
 export const processFetchContentJob = async (
   redisDataSource: RedisDataSource,
-  data: JobData
+  data: JobData,
+  attemptsMade: number
 ) => {
   const functionStartTime = Date.now()
 
@@ -318,5 +363,12 @@ export const processFetchContentJob = async (
         },
       }
     )
+
+    const lastAttempt = attemptsMade + 1 >= MAX_IMPORT_ATTEMPTS
+    if (logRecord.error && taskId && lastAttempt) {
+      console.log('sending import status update')
+      // send failed to import status to update the metrics for importer
+      await sendImportStatusUpdate(users[0].id, taskId, false)
+    }
   }
 }

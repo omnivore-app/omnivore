@@ -35,7 +35,7 @@ export const createWorker = (
     queueName,
     async (job: Job<JobData>) => {
       // process the job
-      await processFetchContentJob(redisDataSource, job.data)
+      await processFetchContentJob(redisDataSource, job.data, job.attemptsMade)
     },
     {
       connection: redisDataSource.queueRedisClient,
