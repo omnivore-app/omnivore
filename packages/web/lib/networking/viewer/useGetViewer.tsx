@@ -10,6 +10,9 @@ export function useGetViewer() {
     staleTime: Infinity,
     queryFn: async () => {
       const response = (await gqlFetcher(GQL_GET_VIEWER)) as ViewerData
+      if (!response.me) {
+        throw new Error('no user found')
+      }
       return response.me
     },
   })
