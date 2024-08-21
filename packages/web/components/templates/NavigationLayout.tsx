@@ -18,11 +18,6 @@ import { Button } from '../elements/Button'
 import { List } from '@phosphor-icons/react'
 import { LIBRARY_LEFT_MENU_WIDTH } from './navMenu/LibraryLegacyMenu'
 import { AddLinkModal } from './AddLinkModal'
-import { v4 as uuidv4 } from 'uuid'
-import {
-  showErrorToast,
-  showSuccessToastWithAction,
-} from '../../lib/toastHelpers'
 import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
 import { useAddItem } from '../../lib/networking/library_items/useLibraryItems'
 import { useHandleAddUrl } from '../../lib/hooks/useHandleAddUrl'
@@ -39,6 +34,7 @@ export type NavigationSection =
 type NavigationLayoutProps = {
   children: ReactNode
   rightPane?: ReactNode
+  title: string
   section: NavigationSection
   pageMetaDataProps?: PageMetaDataProps
 
@@ -115,10 +111,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       distribution="start"
       alignment="start"
     >
-      {props.pageMetaDataProps ? (
-        <PageMetaData {...props.pageMetaDataProps} />
-      ) : null}
-
+      <PageMetaData path={props.section} title={props.title} />
       <Header
         menuOpen={props.showNavigationMenu}
         toggleMenu={() => {
