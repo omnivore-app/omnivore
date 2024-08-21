@@ -1,12 +1,14 @@
 import { RedisDataSource } from '@omnivore/utils'
 import { Queue } from 'bullmq'
 import { ArticleSavingRequestStatus } from '.'
+import crypto from 'crypto'
 
 const BACKEND_QUEUE = 'omnivore-backend-queue'
 const CONTENT_FETCH_QUEUE = 'omnivore-content-fetch-queue'
 
 export const SEND_EMAIL_JOB = 'send-email'
 const FETCH_CONTENT_JOB = 'fetch-content'
+const JOB_VERSION = 'v001'
 
 interface SendEmailJobData {
   userId: string
@@ -30,6 +32,10 @@ interface FetchContentJobData {
   publishedAt?: string
 }
 
+export const stringToHash = (str: string): string => {
+  return crypto.createHash('md5').update(str).digest('hex')
+}
+
 export const queueEmailJob = async (
   redisDataSource: RedisDataSource,
   data: SendEmailJobData
@@ -49,7 +55,15 @@ export const enqueueFetchContentJob = async (
     connection: redisDataSource.queueRedisClient,
   })
 
+  // sort the data to make sure the hash is consistent
+  const sortedData = JSON.stringify(data, Object.keys(data).sort())
+  const jobId = `${FETCH_CONTENT_JOB}_${stringToHash(
+    sortedData
+  )}_${JOB_VERSION}`
   const job = await queue.add(FETCH_CONTENT_JOB, data, {
+    jobId,
+    removeOnComplete: true,
+    removeOnFail: true,
     priority: 100,
     attempts: 1,
   })
