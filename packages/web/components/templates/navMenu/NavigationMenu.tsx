@@ -157,78 +157,29 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
           />
         }
       />
-      <Button
-        style="articleActionIcon"
-        css={{
-          display: 'flex',
-          width: '100%',
 
-          gap: '10px',
-          maxWidth: '100%',
-          height: '34px',
-          px: '20px',
-
-          fontSize: '15px',
-          fontWeight: 'regular',
-          fontFamily: '$display',
-
-          color: '$thLibraryMenuUnselected',
-
-          '&:hover': {
-            opacity: '1',
-            color: '$thLibraryMenuUnselected',
-            backgroundColor: '$thBackground4',
-          },
-        }}
-        onClick={(event) => {
-          setMoreFolderSectionOpen(!moreFolderSectionOpen)
-          event.preventDefault()
-          event.stopPropagation()
-        }}
-      >
-        <HStack
-          css={{ gap: '10px', width: '100%' }}
-          alignment="center"
-          distribution="start"
-        >
-          {moreFolderSectionOpen ? (
-            <NavMoreButtonUpIcon
-              color={theme.colors.thLibraryMenuPrimary.toString()}
-            />
-          ) : (
-            <NavMoreButtonDownIcon
-              color={theme.colors.thLibraryMenuPrimary.toString()}
-            />
-          )}
-          <SpanBox>More</SpanBox>
-        </HStack>
-      </Button>
-      {moreFolderSectionOpen && (
-        <SpanBox css={{ width: '100%' }}>
-          <NavButton
-            {...props}
-            text="Archive"
-            section="archive"
-            isSelected={props.section == 'archive'}
-            icon={
-              <ArchiveSectionIcon
-                color={theme.colors.thLibraryMenuPrimary.toString()}
-              />
-            }
+      <NavButton
+        {...props}
+        text="Archive"
+        section="archive"
+        isSelected={props.section == 'archive'}
+        icon={
+          <ArchiveSectionIcon
+            color={theme.colors.thLibraryMenuPrimary.toString()}
           />
-          <NavButton
-            {...props}
-            text="Trash"
-            section="trash"
-            isSelected={props.section == 'trash'}
-            icon={
-              <TrashSectionIcon
-                color={theme.colors.thLibraryMenuPrimary.toString()}
-              />
-            }
+        }
+      />
+      <NavButton
+        {...props}
+        text="Trash"
+        section="trash"
+        isSelected={props.section == 'trash'}
+        icon={
+          <TrashSectionIcon
+            color={theme.colors.thLibraryMenuPrimary.toString()}
           />
-        </SpanBox>
-      )}
+        }
+      />
     </VStack>
   )
 }
