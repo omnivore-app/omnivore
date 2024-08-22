@@ -16,10 +16,10 @@ export const getQueue = async (
         delay: 2000, // 2 seconds
       },
       removeOnComplete: {
-        age: 24 * 3600, // keep up to 24 hours
+        age: 3600, // keep up to 1 hour
       },
       removeOnFail: {
-        age: 7 * 24 * 3600, // keep up to 7 days
+        age: 24 * 3600, // keep up to 1 day
       },
     },
   })
