@@ -10,10 +10,9 @@ import * as path from 'path'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
-import { queueEmailJob } from './job'
+import { enqueueFetchContentJob, queueEmailJob } from './job'
 import { importMatterArchive } from './matterHistory'
 import { ImportStatus, updateMetrics } from './metrics'
-import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -94,6 +93,7 @@ const shouldHandle = (data: StorageEvent) => {
 }
 
 const importURL = async (
+  redisDataSource: RedisDataSource,
   userId: string,
   url: URL,
   source: string,
@@ -103,18 +103,17 @@ const importURL = async (
   savedAt?: Date,
   publishedAt?: Date
 ): Promise<string | undefined> => {
-  return createCloudTask(CONTENT_FETCH_URL, {
-    userId,
-    source,
+  return enqueueFetchContentJob(redisDataSource, {
     url: url.toString(),
-    saveRequestId: '',
+    users: [{ id: userId, libraryItemId: '' }],
+    source,
+    taskId,
     state,
     labels: labels?.map((l) => {
       return { name: l }
     }),
-    taskId,
-    savedAt,
-    publishedAt,
+    savedAt: savedAt?.toISOString(),
+    publishedAt: publishedAt?.toISOString(),
   })
 }
 
@@ -194,6 +193,7 @@ const urlHandler = async (
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
     const result = await importURL(
+      ctx.redisDataSource,
       ctx.userId,
       url,
       ctx.source,
