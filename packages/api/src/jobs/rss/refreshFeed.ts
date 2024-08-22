@@ -349,8 +349,9 @@ const fetchContentAndCreateItem = async (
   }
 
   try {
-    const useContentFetchQueue = process.env.USE_CONTENT_FETCH_QUEUE === 'true'
-    if (useContentFetchQueue) {
+    const contentFetchQueueEnabled =
+      process.env.CONTENT_FETCH_QUEUE_ENABLED === 'true'
+    if (contentFetchQueueEnabled) {
       return await enqueueFetchContentJob(data)
     }
 
