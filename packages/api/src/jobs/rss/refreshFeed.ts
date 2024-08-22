@@ -4,6 +4,7 @@ import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { v4 as uuid } from 'uuid'
 import { FetchContentType } from '../../entity/subscription'
+import { env } from '../../env'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
 import { redisDataSource } from '../../redis_data_source'
 import { validateUrl } from '../../services/create_page_save_request'
@@ -13,7 +14,7 @@ import {
   updateSubscriptions,
 } from '../../services/update_subscription'
 import { findActiveUser } from '../../services/user'
-import {
+import createHttpTaskWithToken, {
   enqueueFetchContentJob,
   FetchContentJobData,
 } from '../../utils/createTask'
@@ -348,8 +349,19 @@ const fetchContentAndCreateItem = async (
   }
 
   try {
-    const task = await enqueueFetchContentJob(data)
-    return !!task
+    const useContentFetchQueue = process.env.USE_CONTENT_FETCH_QUEUE === 'true'
+    if (useContentFetchQueue) {
+      return await enqueueFetchContentJob(data)
+    }
+
+    return await createHttpTaskWithToken({
+      queue: 'omnivore-rss-feed-queue',
+      taskHandlerUrl: env.queue.contentFetchGCFUrl,
+      payload: {
+        ...data,
+        priority: 'high', // use one queue for all RSS feeds for now
+      },
+    })
   } catch (error) {
     logger.error('Error while creating task', error)
     return false
