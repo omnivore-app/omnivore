@@ -3,13 +3,12 @@ import crypto from 'crypto'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import { promisify } from 'util'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4, validate } from 'uuid'
 import { ApiKey } from '../entity/api_key'
 import { env } from '../env'
 import { redisDataSource } from '../redis_data_source'
 import { getRepository } from '../repository'
 import { Claims, ClaimsToSet } from '../resolvers/types'
-import { logger } from './logger'
 
 export const OmnivoreAuthorizationHeader = 'Omnivore-Authorization'
 
@@ -24,17 +23,20 @@ export const comparePassword = async (password: string, hash: string) => {
 }
 
 export const generateApiKey = (): string => {
-  // TODO: generate random string key
+  // generate random string key
   return uuidv4()
+}
+
+export const isApiKey = (key: string): boolean => {
+  // check if key in is uuid v4 format
+  return validate(key)
 }
 
 export const hashApiKey = (apiKey: string) => {
   return crypto.createHash('sha256').update(apiKey).digest('hex')
 }
 
-export const claimsFromApiKey = async (key: string): Promise<Claims> => {
-  const hashedKey = hashApiKey(key)
-
+export const claimsFromApiKey = async (hashedKey: string): Promise<Claims> => {
   const apiKeyRepo = getRepository(ApiKey)
 
   const apiKey = await apiKeyRepo
@@ -64,6 +66,34 @@ export const claimsFromApiKey = async (key: string): Promise<Claims> => {
   }
 }
 
+const claimsCacheKey = (hashedKey: string) => `api-key-hash:${hashedKey}`
+
+const getCachedClaims = async (
+  hashedKey: string
+): Promise<Claims | undefined> => {
+  const cache = await redisDataSource.redisClient?.get(
+    claimsCacheKey(hashedKey)
+  )
+  if (!cache) {
+    return undefined
+  }
+
+  return JSON.parse(cache) as Claims
+}
+
+const cacheClaims = async (hashedKey: string, claims: Claims) => {
+  await redisDataSource.redisClient?.set(
+    claimsCacheKey(hashedKey),
+    JSON.stringify(claims),
+    'EX',
+    claims.exp ? claims.exp - claims.iat : 3600 * 24 * 365 // default 1 year
+  )
+}
+
+export const deleteCachedClaims = async (key: string) => {
+  await redisDataSource.redisClient?.del(claimsCacheKey(key))
+}
+
 // verify jwt token first
 // if valid then decode and return claims
 // if expired then throw error
@@ -75,19 +105,20 @@ export const getClaimsByToken = async (
     return undefined
   }
 
-  try {
-    return jwt.verify(token, env.server.jwtSecret) as Claims
-  } catch (e) {
-    if (
-      e instanceof jwt.JsonWebTokenError &&
-      !(e instanceof jwt.TokenExpiredError)
-    ) {
-      logger.info(`not a jwt token, checking api key`, { token })
-      return claimsFromApiKey(token)
+  if (isApiKey(token)) {
+    const hashedKey = hashApiKey(token)
+    const cachedClaims = await getCachedClaims(hashedKey)
+    if (cachedClaims) {
+      return cachedClaims
     }
 
-    throw e
+    const claims = await claimsFromApiKey(hashedKey)
+    await cacheClaims(hashedKey, claims)
+
+    return claims
   }
+
+  return jwt.verify(token, env.server.jwtSecret) as Claims
 }
 
 const verificationTokenKey = (token: string) => `verification:${token}`
