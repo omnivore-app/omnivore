@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import sinon, { SinonFakeTimers } from 'sinon'
 import supertest from 'supertest'
 import { StatusType, User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
@@ -258,7 +259,7 @@ describe('auth router', () => {
     })
 
     context('when token is valid', () => {
-      before(async () => {
+      beforeEach(async () => {
         token = await generateVerificationToken({ id: user.id })
       })
 
@@ -292,8 +293,17 @@ describe('auth router', () => {
     })
 
     context('when token is expired', () => {
+      let clock: SinonFakeTimers
+
       before(async () => {
-        token = await generateVerificationToken({ id: user.id }, -1)
+        clock = sinon.useFakeTimers()
+        token = await generateVerificationToken({ id: user.id })
+        // advance time by 1 hour
+        clock.tick(60 * 60 * 1000)
+      })
+
+      after(() => {
+        clock.restore()
       })
 
       it('redirects to confirm-email page with error code TokenExpired', async () => {
@@ -419,7 +429,7 @@ describe('auth router', () => {
     })
 
     context('when token is valid', () => {
-      before(async () => {
+      beforeEach(async () => {
         token = await generateVerificationToken({ id: user.id })
       })
 
@@ -464,8 +474,17 @@ describe('auth router', () => {
       })
 
       context('when token is expired', () => {
+        let clock: SinonFakeTimers
+
         before(async () => {
-          token = await generateVerificationToken({ id: user.id }, -1)
+          clock = sinon.useFakeTimers()
+          token = await generateVerificationToken({ id: user.id })
+          // advance time by 1 hour
+          clock.tick(60 * 60 * 1000)
+        })
+
+        after(() => {
+          clock.restore()
         })
 
         it('redirects to reset-password page with error code ExpiredToken', async () => {
