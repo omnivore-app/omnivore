@@ -245,8 +245,9 @@ export const importFromIntegrationResolver = authorized<
     authToken,
     integration.importItemState || ImportItemState.Unarchived
   )
-  // update task name in integration
-  await updateIntegration(integration.id, { taskName }, uid)
+  log.info('task created', taskName)
+  // // update task name in integration
+  // await updateIntegration(integration.id, { taskName }, uid)
 
   analytics.capture({
     distinctId: uid,

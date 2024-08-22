@@ -1,8 +1,10 @@
 import { Storage } from '@google-cloud/storage'
 import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RedisDataSource } from '@omnivore/utils'
+import axios from 'axios'
 import 'dotenv/config'
-import { RequestHandler } from 'express'
+import jwt from 'jsonwebtoken'
+import { promisify } from 'util'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
 
@@ -12,7 +14,7 @@ interface UserConfig {
   folder?: string
 }
 
-interface RequestBody {
+export interface JobData {
   url: string
   userId?: string
   saveRequestId: string
@@ -65,7 +67,16 @@ const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
 const NO_CACHE_URLS = [
   'https://deviceandbrowserinfo.com/are_you_a_bot',
   'https://deviceandbrowserinfo.com/info_device',
+  'https://jacksonh.org',
 ]
+
+const signToken = promisify(jwt.sign)
+
+const IMPORTER_METRICS_COLLECTOR_URL =
+  process.env.IMPORTER_METRICS_COLLECTOR_URL
+const JWT_SECRET = process.env.JWT_SECRET
+
+const MAX_IMPORT_ATTEMPTS = 1
 
 const uploadToBucket = async (filePath: string, data: string) => {
   await storage
@@ -175,36 +186,71 @@ const incrementContentFetchFailure = async (
   }
 }
 
-export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
+const sendImportStatusUpdate = async (
+  userId: string,
+  taskId: string,
+  isImported?: boolean
+) => {
+  try {
+    if (!JWT_SECRET || !IMPORTER_METRICS_COLLECTOR_URL) {
+      console.error('JWT_SECRET or IMPORTER_METRICS_COLLECTOR_URL is not set')
+      return
+    }
+
+    console.log('sending import status update')
+    const auth = await signToken({ uid: userId }, JWT_SECRET)
+
+    await axios.post(
+      IMPORTER_METRICS_COLLECTOR_URL,
+      {
+        taskId,
+        status: isImported ? 'imported' : 'failed',
+      },
+      {
+        headers: {
+          Authorization: auth as string,
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      }
+    )
+  } catch (e) {
+    console.error('Failed to send import status update', e)
+  }
+}
+
+export const processFetchContentJob = async (
+  redisDataSource: RedisDataSource,
+  data: JobData,
+  attemptsMade: number
+) => {
   const functionStartTime = Date.now()
 
-  const body = <RequestBody>req.body
-
   // users is used when saving article for multiple users
-  let users = body.users || []
-  const userId = body.userId
+  let users = data.users || []
+  const userId = data.userId
   // userId is used when saving article for a single user
   if (userId) {
     users = [
       {
         id: userId,
-        folder: body.folder,
-        libraryItemId: body.saveRequestId,
+        folder: data.folder,
+        libraryItemId: data.saveRequestId,
       },
     ]
   }
-  const articleSavingRequestId = body.saveRequestId
-  const state = body.state
-  const labels = body.labels
-  const source = body.source || 'puppeteer-parse'
-  const taskId = body.taskId // taskId is used to update import status
-  const url = body.url
-  const locale = body.locale
-  const timezone = body.timezone
-  const rssFeedUrl = body.rssFeedUrl
-  const savedAt = body.savedAt
-  const publishedAt = body.publishedAt
-  const priority = body.priority
+  const articleSavingRequestId = data.saveRequestId
+  const state = data.state
+  const labels = data.labels
+  const source = data.source || 'puppeteer-parse'
+  const taskId = data.taskId // taskId is used to update import status
+  const url = data.url
+  const locale = data.locale
+  const timezone = data.timezone
+  const rssFeedUrl = data.rssFeedUrl
+  const savedAt = data.savedAt
+  const publishedAt = data.publishedAt
+  const priority = data.priority
 
   const logRecord: LogRecord = {
     url,
@@ -214,7 +260,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
     },
     state,
     labelsToAdd: labels,
-    taskId: taskId,
+    taskId,
     locale,
     timezone,
     rssFeedUrl,
@@ -225,25 +271,14 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
 
   console.log(`Article parsing request`, logRecord)
 
-  // create redis source
-  const redisDataSource = new RedisDataSource({
-    cache: {
-      url: process.env.REDIS_URL,
-      cert: process.env.REDIS_CERT,
-    },
-    mq: {
-      url: process.env.MQ_REDIS_URL,
-      cert: process.env.MQ_REDIS_CERT,
-    },
-  })
-
   try {
     const domain = new URL(url).hostname
     const isBlocked = await isDomainBlocked(redisDataSource, domain)
     if (isBlocked) {
       console.log('domain is blocked', domain)
+      logRecord.error = 'domain is blocked'
 
-      return res.sendStatus(200)
+      return
     }
 
     const key = cacheKey(url, locale, timezone)
@@ -312,7 +347,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       logRecord.error = 'unknown error'
     }
 
-    return res.sendStatus(500)
+    throw error
   } finally {
     logRecord.totalTime = Date.now() - functionStartTime
     console.log(`parse-page result`, logRecord)
@@ -331,8 +366,11 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       }
     )
 
-    await redisDataSource.shutdown()
+    const lastAttempt = attemptsMade + 1 >= MAX_IMPORT_ATTEMPTS
+    if (logRecord.error && taskId && lastAttempt) {
+      console.log('sending import status update')
+      // send failed to import status to update the metrics for importer
+      await sendImportStatusUpdate(users[0].id, taskId, false)
+    }
   }
-
-  res.sendStatus(200)
 }

@@ -59,7 +59,10 @@ const run = async () => {
   const connection = new Redis(secrets.REDIS_URL, redisOptions(secrets))
   console.log('set connection: ', connection)
 
-  const rssRefreshFeed = new Queue('omnivore-backend-queue', {
+  const backendQueue = new Queue('omnivore-backend-queue', {
+    connection: connection,
+  })
+  const contentFetchQueue = new Queue('omnivore-content-fetch-queue', {
     connection: connection,
   })
 
@@ -67,7 +70,10 @@ const run = async () => {
   serverAdapter.setBasePath('/ui')
 
   createBullBoard({
-    queues: [new BullMQAdapter(rssRefreshFeed)],
+    queues: [
+      new BullMQAdapter(backendQueue),
+      new BullMQAdapter(contentFetchQueue),
+    ],
     serverAdapter,
   })
 
