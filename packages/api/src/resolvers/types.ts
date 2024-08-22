@@ -24,6 +24,7 @@ export interface Claims {
   exp?: number
   email?: string
   system?: boolean
+  destroyAfterUse?: boolean
 }
 
 export type ClaimsToSet = {

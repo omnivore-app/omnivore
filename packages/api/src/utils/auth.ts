@@ -6,6 +6,7 @@ import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 import { ApiKey } from '../entity/api_key'
 import { env } from '../env'
+import { redisDataSource } from '../redis_data_source'
 import { getRepository } from '../repository'
 import { Claims, ClaimsToSet } from '../resolvers/types'
 import { logger } from './logger'
@@ -89,22 +90,52 @@ export const getClaimsByToken = async (
   }
 }
 
-export const generateVerificationToken = (
+const verificationTokenKey = (token: string) => `verification:${token}`
+
+export const verifyToken = async (token: string): Promise<Claims> => {
+  const redisClient = redisDataSource.redisClient
+  const key = verificationTokenKey(token)
+  if (redisClient) {
+    const cachedToken = await redisClient.get(key)
+    if (!cachedToken) {
+      throw new Error('Token not found')
+    }
+  }
+
+  const claims = jwt.verify(token, env.server.jwtSecret) as Claims
+  if (claims.destroyAfterUse) {
+    await redisClient?.del(key)
+  }
+
+  return claims
+}
+
+export const generateVerificationToken = async (
   user: {
     id: string
     email?: string
   },
-  expireInSeconds = 60 * 60 * 24 // 1 day
-): string => {
+  expireInSeconds = 60, // 1 minute
+  destroyAfterUse = true
+): Promise<string> => {
   const iat = Math.floor(Date.now() / 1000)
   const exp = Math.floor(
     new Date(Date.now() + expireInSeconds * 1000).getTime() / 1000
   )
 
-  return jwt.sign(
-    { uid: user.id, iat, exp, email: user.email },
+  const token = jwt.sign(
+    { uid: user.id, iat, exp, email: user.email, destroyAfterUse },
     env.server.jwtSecret
   )
+
+  await redisDataSource.redisClient?.set(
+    verificationTokenKey(token),
+    user.id,
+    'EX',
+    expireInSeconds
+  )
+
+  return token
 }
 
 export const setAuthInCookie = async (
