@@ -21,6 +21,10 @@ export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
         cursor: 'pointer',
       }}
       onClick={(event) => {
+        if (props.href) {
+          router.push(props.href)
+          return
+        }
         const navReturn = window.localStorage.getItem('nav-return')
         if (navReturn) {
           router.push(navReturn)
