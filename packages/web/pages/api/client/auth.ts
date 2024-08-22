@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { serialize } from 'cookie'
 import * as jwt from 'jsonwebtoken'
-import { withSentry } from '@sentry/nextjs'
 import { ssoJwtSecret } from '../../../lib/appConfig'
 import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
 
@@ -37,4 +36,4 @@ const requestHandler = (req: NextApiRequest, res: NextApiResponse): void => {
   res.end()
 }
 
-export default withSentry(requestHandler)
+export default requestHandler

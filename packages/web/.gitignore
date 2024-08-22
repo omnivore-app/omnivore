@@ -37,3 +37,6 @@ yarn-error.log*
 /storybook-static/
 # Sentry
 .sentryclirc
+
+# Sentry Config File
+.env.sentry-build-plugin

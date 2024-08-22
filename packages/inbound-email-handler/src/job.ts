@@ -49,8 +49,6 @@ const getPriority = (jobType: EmailJobType): number => {
 
 const getOpts = (jobType: EmailJobType): BulkJobOptions => {
   return {
-    removeOnComplete: true,
-    removeOnFail: true,
     attempts: 3,
     priority: getPriority(jobType),
     backoff: {
