@@ -67,7 +67,7 @@ interface SpeakingSectionEvent extends Event {
 }
 
 export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
-  const [highlights, setHighlights] = useState(props.highlights)
+  const [highlights, setHighlights] = useState(props.highlights ?? [])
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
 
