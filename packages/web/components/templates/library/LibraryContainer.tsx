@@ -122,7 +122,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     fetchNextPage,
     fetchPreviousPage,
     hasNextPage,
-    hasPreviousPage,
     error: fetchItemsError,
   } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
 
@@ -797,33 +796,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     [itemsPages, multiSelectMode, checkedItems]
   )
 
-  // return (
-  //   <InfiniteScroll
-  //     dataLength={libraryItems.length}
-  //     next={fetchNextPage}
-  //     hasMore={hasNextPage}
-  //     loader={<h4>Loading...</h4>}
-  //     endMessage={
-  //       <p style={{ textAlign: 'center' }}>
-  //         <b>Yay! You have seen it all</b>
-  //       </p>
-  //     }
-  //   >
-  //     {libraryItems.map((item) => {
-  //       return (
-  //         <Box
-  //           key={item.node.id}
-  //           onClick={() => {
-  //             router.push(`/${viewerData?.profile.username}/${item.node.slug}`)
-  //           }}
-  //         >
-  //           {item.cursor}: {item.node.title}
-  //         </Box>
-  //       )
-  //     })}
-  //   </InfiniteScroll>
-  // )
-
   return (
     <HomeFeedGrid
       folder={props.folder}
@@ -1154,7 +1126,7 @@ export function LibraryItemsLayout(
           </VStack>
         )}
 
-        {props.isValidating && props.items.length == 0 && <TopBarProgress />}
+        {props.isValidating && <TopBarProgress />}
         <div
           onDragEnter={(event) => {
             if (
