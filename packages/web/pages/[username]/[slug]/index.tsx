@@ -479,6 +479,7 @@ export default function Reader(): JSX.Element {
     return <LoadingView />
   }
 
+  console.log('library item: ', libraryItem)
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
