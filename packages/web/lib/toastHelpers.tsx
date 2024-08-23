@@ -147,6 +147,7 @@ const showToastWithAction = (
 }
 
 export const showSuccessToast = (message: string, options?: ToastOptions) => {
+  console.trace('showing success toast')
   return showToast(message, '#55B938', 'success', {
     position: 'bottom-right',
     ...options,
