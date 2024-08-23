@@ -204,7 +204,7 @@ export default function PdfArticleContainer(
           : null
         if (highlightHref) {
           // find the page index if possible
-          const highlight = props.article.highlights.find(
+          const highlight = props.article.highlights?.find(
             (h) => h.id === highlightHref
           )
           if (highlight) {
@@ -252,8 +252,8 @@ export default function PdfArticleContainer(
       })
 
       // Store the highlights in the highlightsRef and apply them to the PDF
-      highlightsRef.current = props.article.highlights
-      for (const highlight of props.article.highlights.filter(
+      highlightsRef.current = props.article.highlights ?? []
+      for (const highlight of (props.article.highlights ?? []).filter(
         (h) => h.type == 'HIGHLIGHT'
       )) {
         const patch = JSON.parse(highlight.patch)
