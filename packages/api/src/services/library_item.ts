@@ -11,7 +11,6 @@ import {
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { appDataSource } from '../data_source'
-import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -37,8 +36,12 @@ import {
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { HighlightEvent } from './highlights'
-import { addLabelsToLibraryItem, LabelEvent } from './labels'
+import { deleteHighlightByLibraryItemId, HighlightEvent } from './highlights'
+import {
+  addLabelsToLibraryItem,
+  deleteLabelsByLibraryItemId,
+  LabelEvent,
+} from './labels'
 
 const columnsToDelete = [
   'user',
@@ -1064,81 +1067,98 @@ export const createOrUpdateLibraryItem = async (
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
-  const newLibraryItem = await authTrx(
-    async (tx) => {
-      const repo = tx.withRepository(libraryItemRepository)
-      // find existing library item by user_id and url for update
-      const existingLibraryItem = await repo.findByUserIdAndUrl(
-        userId,
-        libraryItem.originalUrl,
-        true
-      )
+  let libraryItemCreated: LibraryItem
 
-      if (existingLibraryItem) {
-        const id = existingLibraryItem.id
+  const existingLibraryItem = await authTrx(
+    async (tx) =>
+      tx
+        .withRepository(libraryItemRepository)
+        .findByUserIdAndUrl(userId, libraryItem.originalUrl),
+    { uid: userId }
+  )
 
-        try {
-          // delete labels and highlights if the item was deleted
-          if (existingLibraryItem.state === LibraryItemState.Deleted) {
-            logger.info('Deleting labels and highlights for item', {
-              id,
-            })
-            await tx.getRepository(Highlight).delete({
-              libraryItem: { id: existingLibraryItem.id },
-            })
+  if (existingLibraryItem) {
+    const id = existingLibraryItem.id
 
-            await tx.getRepository(EntityLabel).delete({
-              libraryItemId: existingLibraryItem.id,
-            })
+    try {
+      // delete labels and highlights if the item was deleted
+      if (existingLibraryItem.state === LibraryItemState.Deleted) {
+        logger.info('Deleting labels and highlights for item', {
+          id,
+        })
 
-            libraryItem.labelNames = []
-            libraryItem.highlightAnnotations = []
-          }
-        } catch (error) {
-          // continue to save the item even if we failed to delete labels and highlights
-          logger.error('Failed to delete labels and highlights', error)
+        if (existingLibraryItem.highlightAnnotations?.length) {
+          await deleteHighlightByLibraryItemId(userId, id)
+          existingLibraryItem.highlightAnnotations = []
         }
 
-        // update existing library item
-        const newItem = await repo.save({
+        if (existingLibraryItem.labelNames?.length) {
+          await deleteLabelsByLibraryItemId(userId, id)
+          existingLibraryItem.labelNames = []
+        }
+      }
+    } catch (error) {
+      // continue to save the item even if we failed to delete labels and highlights
+      logger.error('Failed to delete labels and highlights', error)
+    }
+
+    const existingLabels = existingLibraryItem.labelNames || []
+    const newLabels = libraryItem.labelNames || []
+    const combinedLabels = [...new Set([...existingLabels, ...newLabels])]
+
+    const existingHighlights = existingLibraryItem.highlightAnnotations || []
+    const newHighlights = libraryItem.highlightAnnotations || []
+    const combinedHighlights = [...existingHighlights, ...newHighlights]
+
+    // update existing library item
+    libraryItemCreated = await authTrx(
+      async (tx) =>
+        tx.getRepository(LibraryItem).save({
           ...libraryItem,
           id,
           slug: existingLibraryItem.slug, // keep the original slug
-        })
-
-        // delete the new item if it's different from the existing one
-        if (libraryItem.id && libraryItem.id !== id) {
-          await repo.delete(libraryItem.id)
-        }
-
-        return newItem
+          labelNames: combinedLabels,
+          highlightAnnotations: combinedHighlights,
+        }),
+      {
+        uid: userId,
       }
+    )
 
-      // create or update library item
-      return repo.upsertLibraryItemById(libraryItem)
-    },
-    {
-      uid: userId,
+    // delete the new item if it's different from the existing one
+    if (libraryItem.id && libraryItem.id !== id) {
+      await deleteLibraryItemById(libraryItem.id, userId)
     }
-  )
+  } else {
+    // upsert library item
+    libraryItemCreated = await authTrx(
+      async (tx) =>
+        tx
+          .withRepository(libraryItemRepository)
+          .upsertLibraryItemById(libraryItem),
+      {
+        uid: userId,
+      }
+    )
+  }
 
   // set recently saved item in redis if redis is enabled
   if (redisDataSource.redisClient) {
     await setRecentlySavedItemInRedis(
       redisDataSource.redisClient,
       userId,
-      newLibraryItem.originalUrl
+      libraryItemCreated.originalUrl
     )
   }
 
   if (skipPubSub || libraryItem.state === LibraryItemState.Processing) {
-    return newLibraryItem
+    return libraryItemCreated
   }
 
-  const data = deepDelete(newLibraryItem, columnsToDelete)
+  const data = deepDelete(libraryItemCreated, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
-  return newLibraryItem
+  return libraryItemCreated
 }
 
 export const findLibraryItemsByPrefix = async (

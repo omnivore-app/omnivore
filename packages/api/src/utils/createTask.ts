@@ -637,7 +637,7 @@ export const enqueueThumbnailJob = async (
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: getJobPriority(THUMBNAIL_JOB),
     attempts: 1,
-    delay: 5000,
+    delay: 1000,
   })
 }
 
@@ -701,7 +701,7 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
     priority: getJobPriority(TRIGGER_RULE_JOB_NAME),
     attempts: 1,
-    delay: 3000,
+    delay: 500,
   })
 }
 
