@@ -37,7 +37,7 @@ export const useCreateHighlight = () => {
           (item) => {
             return {
               ...item,
-              highlights: [...item.highlights, newHighlight],
+              highlights: [...(item.highlights ?? []), newHighlight],
             }
           }
         )
@@ -72,7 +72,7 @@ export const useDeleteHighlight = () => {
           (item) => {
             return {
               ...item,
-              highlights: item.highlights.filter(
+              highlights: (item.highlights ?? []).filter(
                 (h) => h.id != deletedHighlight.id
               ),
             }
@@ -115,7 +115,9 @@ export const useUpdateHighlight = () => {
             return {
               ...item,
               highlights: [
-                ...item.highlights.filter((h) => h.id != updatedHighlight.id),
+                ...(item.highlights ?? []).filter(
+                  (h) => h.id != updatedHighlight.id
+                ),
                 updatedHighlight,
               ],
             }
@@ -169,7 +171,9 @@ export const useMergeHighlight = () => {
             return {
               ...item,
               highlights: [
-                ...item.highlights.filter((h) => mergedIds.indexOf(h.id) == -1),
+                ...(item.highlights ?? []).filter(
+                  (h) => mergedIds.indexOf(h.id) == -1
+                ),
                 newHighlight,
               ],
             }

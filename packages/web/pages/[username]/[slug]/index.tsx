@@ -470,7 +470,6 @@ export default function Reader(): JSX.Element {
     libraryItem?.slug
   )
 
-  new Error()
   if (
     articleFetchError &&
     'message' in articleFetchError &&
@@ -480,6 +479,7 @@ export default function Reader(): JSX.Element {
     return <LoadingView />
   }
 
+  console.log('library item: ', libraryItem)
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"

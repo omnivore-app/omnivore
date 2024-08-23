@@ -16,10 +16,10 @@ export const getQueue = async (
         delay: 2000, // 2 seconds
       },
       removeOnComplete: {
-        age: 24 * 3600, // keep up to 24 hours
+        age: 3600, // keep up to 1 hour
       },
       removeOnFail: {
-        age: 7 * 24 * 3600, // keep up to 7 days
+        age: 24 * 3600, // keep up to 1 day
       },
     },
   })
@@ -40,12 +40,12 @@ export const createWorker = (
     {
       connection: redisDataSource.queueRedisClient,
       autorun: true, // start processing jobs immediately
-      // process up to 10 jobs in a second
+      // process up to 20 jobs in a second
       limiter: {
-        max: 10,
+        max: 20,
         duration: 1000,
       },
-      concurrency: 2, // process up to 2 jobs concurrently
+      concurrency: 4, // process up to 4 jobs concurrently
     }
   )
 

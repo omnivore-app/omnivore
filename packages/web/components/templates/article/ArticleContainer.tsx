@@ -123,21 +123,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
-  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -388,6 +383,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     )
   }, [props.article.recommendations])
 
+  console.log('props.article', props.article)
+
   return (
     <>
       <Box
@@ -523,7 +520,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         viewer={props.viewer}
         item={props.article}
         scrollToHighlight={highlightHref}
-        highlights={props.article.highlights}
+        highlights={props.article.highlights ?? []}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}
