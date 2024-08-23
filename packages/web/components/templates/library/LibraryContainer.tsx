@@ -374,6 +374,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
           })
           return
         }
+
         showSuccessToast(`Item deleted`, {
           position: 'bottom-right',
         })
@@ -833,7 +834,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       loadMore={fetchNextPage}
       hasMore={hasNextPage ?? false}
       hasData={!!itemsPages}
-      isValidating={isLoading || isFetchingNextPage}
+      isValidating={isLoading || isFetching || isFetchingNextPage}
       fetchItemsError={!!fetchItemsError}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
