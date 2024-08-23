@@ -122,8 +122,13 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     fetchNextPage,
     fetchPreviousPage,
     hasNextPage,
+    status,
     error: fetchItemsError,
   } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
+
+  console.log(
+    `status ${status}, isLoading: ${isLoading}, isFetching: ${isFetching}`
+  )
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -1021,6 +1026,8 @@ export function LibraryItemsLayout(
     initialValue: [],
     isSessionStorage: false,
   })
+
+  console.log('props.isValidating: ', props.isValidating)
 
   return (
     <>
