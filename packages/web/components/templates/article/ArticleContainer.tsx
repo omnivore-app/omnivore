@@ -520,7 +520,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         viewer={props.viewer}
         item={props.article}
         scrollToHighlight={highlightHref}
-        highlights={props.article.highlights}
+        highlights={props.article.highlights ?? []}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
         showHighlightsModal={props.showHighlightsModal}

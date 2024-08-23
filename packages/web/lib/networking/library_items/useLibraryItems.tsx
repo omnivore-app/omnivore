@@ -982,7 +982,7 @@ export type ArticleAttributes = {
   folder: string
   savedByViewer?: boolean
   content: string
-  highlights: Highlight[]
+  highlights?: Highlight[]
   linkId: string
   labels?: Label[]
   state?: State
