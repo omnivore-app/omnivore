@@ -470,7 +470,6 @@ export default function Reader(): JSX.Element {
     libraryItem?.slug
   )
 
-  new Error()
   if (
     articleFetchError &&
     'message' in articleFetchError &&
