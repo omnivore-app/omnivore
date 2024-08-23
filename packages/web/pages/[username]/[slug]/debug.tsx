@@ -101,7 +101,7 @@ export default function Debug(): JSX.Element {
       })
     })
 
-    article.highlights.forEach((highlight, idx) => {
+    article.highlights?.forEach((highlight, idx) => {
       result.push({ name: `highlight[${idx}].id`, value: highlight.id })
       result.push({ name: `highlight[${idx}].type`, value: highlight.type })
       result.push({
