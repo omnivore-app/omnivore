@@ -98,8 +98,6 @@ export const getJobPriority = (jobName: string): number => {
     case UPDATE_HOME_JOB:
     case `${FETCH_CONTENT_JOB}_high`:
       return 1
-    case TRIGGER_RULE_JOB_NAME:
-    case CALL_WEBHOOK_JOB_NAME:
     case AI_SUMMARIZE_JOB_NAME:
     case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
     case `${FETCH_CONTENT_JOB}_low`:
@@ -111,6 +109,8 @@ export const getJobPriority = (jobName: string): number => {
     case UPLOAD_CONTENT_JOB:
     case SCORE_LIBRARY_ITEM_JOB:
     case `${FETCH_CONTENT_JOB}_rss_low`:
+    case TRIGGER_RULE_JOB_NAME:
+    case THUMBNAIL_JOB:
       return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
@@ -118,7 +118,6 @@ export const getJobPriority = (jobName: string): number => {
       return 50
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
-    case THUMBNAIL_JOB:
     case GENERATE_PREVIEW_CONTENT_JOB:
     case PRUNE_TRASH_JOB:
     case EXPIRE_FOLDERS_JOB_NAME:
@@ -638,7 +637,7 @@ export const enqueueThumbnailJob = async (
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: getJobPriority(THUMBNAIL_JOB),
     attempts: 1,
-    removeOnComplete: true,
+    delay: 5000,
   })
 }
 
@@ -702,6 +701,7 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
     priority: getJobPriority(TRIGGER_RULE_JOB_NAME),
     attempts: 1,
+    delay: 3000,
   })
 }
 
