@@ -969,6 +969,7 @@ export type ArticleAttributes = {
   author?: string
   image?: string
   savedAt: string
+  siteName?: string
   createdAt: string
   publishedAt?: string
   description?: string
