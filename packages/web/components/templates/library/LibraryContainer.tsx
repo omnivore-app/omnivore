@@ -119,15 +119,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     isFetchingNextPage,
     isFetching,
     fetchNextPage,
-    fetchPreviousPage,
     hasNextPage,
-    status,
     error: fetchItemsError,
   } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
-
-  console.log(
-    `status ${status}, isLoading: ${isLoading}, isFetching: ${isFetching}`
-  )
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -163,7 +157,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [router.asPath])
 
   const libraryItems = useMemo(() => {
-    console.log('library items: ', itemsPages)
     const items =
       itemsPages?.pages
         .flatMap((ad: LibraryItems) => {
@@ -1026,8 +1019,6 @@ export function LibraryItemsLayout(
     initialValue: [],
     isSessionStorage: false,
   })
-
-  console.log('props.isValidating: ', props.isValidating)
 
   return (
     <>
