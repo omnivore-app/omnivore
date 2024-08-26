@@ -324,17 +324,16 @@ export const buildQueryString = (
               // return only deleted pages within 14 days
               return "(library_item.state = 'DELETED' AND library_item.deleted_at >= NOW() - INTERVAL '14 days')"
             default: {
-              let sql = 'library_item.archived_at IS NULL'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
                   `library_item.folder = :${param}`,
                   { [param]: value }
                 )
-                sql = `(${sql} AND ${folderSql})`
+                return `(library_item.archived_at IS NULL AND ${folderSql})`
               }
 
-              return sql
+              return '(library_item.archived_at IS NULL AND library_item.folder IS NOT NULL)'
             }
           }
         }
@@ -656,7 +655,7 @@ export const createSearchQueryBuilder = (
   const orders: Sort[] = []
   let queryString: string | null = null
 
-  if (args.query) {
+  if (args.query !== null && args.query !== undefined) {
     const searchQuery = parseSearchQuery(args.query)
 
     // build query string and save parameters
