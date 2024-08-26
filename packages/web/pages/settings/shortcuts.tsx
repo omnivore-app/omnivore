@@ -1,13 +1,6 @@
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { styled } from '../../components/tokens/stitches.config'
 import {
   Box,
   VStack,
@@ -18,7 +11,6 @@ import {
 import { StyledText } from '../../components/elements/StyledText'
 import { SubscriptionType } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { CoverImage } from '../../components/elements/CoverImage'
-import { Label } from '../../lib/networking/fragments/labelFragment'
 import { useGetLabels } from '../../lib/networking/labels/useLabels'
 import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 import {
