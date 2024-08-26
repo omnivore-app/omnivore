@@ -13,10 +13,8 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { MenuTrigger } from '../../elements/MenuTrigger'
-import {
-  MetaStyle,
-  timeAgo,
-} from '../../patterns/LibraryCards/LibraryCardStyles'
+import { MetaStyle } from '../../patterns/LibraryCards/LibraryCardStyles'
+import { timeAgo } from '../../../lib/textFormatting'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
 import { NotebookContent } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
@@ -36,9 +34,8 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [currentItem, setCurrentItem] =
+    useState<LibraryItem | undefined>(undefined)
 
   const listReducer = (
     state: LibraryItem[],

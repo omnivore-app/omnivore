@@ -1,23 +1,18 @@
-import { NavigationLayout } from '../templates/NavigationLayout'
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { useFetchMore } from '../../lib/hooks/useFetchMoreScroll'
 import { useCallback, useMemo, useState } from 'react'
 import { useGetHighlights } from '../../lib/networking/queries/useGetHighlights'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { NextRouter, useRouter } from 'next/router'
-import {
-  UserBasicData,
-  useGetViewerQuery,
-} from '../../lib/networking/queries/useGetViewerQuery'
+import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { SetHighlightLabelsModalPresenter } from '../templates/article/SetLabelsModalPresenter'
 import { TrashIcon } from '../elements/icons/TrashIcon'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
-import { deleteHighlightMutation } from '../../lib/networking/mutations/deleteHighlightMutation'
 import { LabelChip } from '../elements/LabelChip'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { timeAgo } from '../patterns/LibraryCards/LibraryCardStyles'
+import { timeAgo } from '../../lib/textFormatting'
 import { HighlightHoverActions } from '../patterns/HighlightHoverActions'
 import {
   autoUpdate,

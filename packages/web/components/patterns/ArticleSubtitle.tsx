@@ -1,6 +1,7 @@
 import { Box, StyledLink } from './../elements/LayoutPrimitives'
 import { StyledText } from './../../components/elements/StyledText'
 import { formattedLongDate } from './../../lib/dateFormatting'
+import { shouldHideUrl } from '../../lib/textFormatting'
 
 type SubtitleStyle = 'footnote' | 'shareSubtitle'
 
@@ -65,15 +66,6 @@ export function ReaderSavedInfo(props: ReaderSavedInfoProps): JSX.Element {
       </StyledText>
     </Box>
   )
-}
-
-function shouldHideUrl(url: string): boolean {
-  const origin = new URL(url).origin
-  const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
-  if (hideHosts.indexOf(origin) != -1) {
-    return true
-  }
-  return false
 }
 
 function articleSubtitle(url: string, author?: string): string | undefined {
