@@ -25,7 +25,7 @@ export const shouldHideUrl = (url: string): boolean => {
 
 const shouldHideSiteName = (siteName: string) => {
   const hideNames = ['storage.googleapis.com', 'omnivore.app']
-  if (hideNames.indexOf(origin) != -1) {
+  if (hideNames.indexOf(siteName) != -1) {
     return true
   }
   return false
