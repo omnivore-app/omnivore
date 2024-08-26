@@ -8,7 +8,6 @@ import {
   HStack,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
-import { Toaster } from 'react-hot-toast'
 import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
@@ -156,9 +155,8 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
-    string | null
-  >(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] =
+    useState<string | null>(null)
   const [showLabelPageHelp, setShowLabelPageHelp] = usePersistedState<boolean>({
     key: `--settings-labels-show-help`,
     initialValue: true,
@@ -262,11 +260,6 @@ export default function LabelsPage(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <HStack css={{ width: '100%', height: '100%' }}>
         <VStack
           css={{

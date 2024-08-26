@@ -33,7 +33,6 @@ import {
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { Toaster } from 'react-hot-toast'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
 import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
@@ -423,7 +422,6 @@ export function HomeContainer(): JSX.Element {
           },
         }}
       >
-        <Toaster />
         <VStack
           distribution="start"
           css={{

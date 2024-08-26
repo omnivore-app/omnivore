@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { Toaster } from 'react-hot-toast'
 
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -48,11 +47,6 @@ export default function DeleteMyAccount(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"

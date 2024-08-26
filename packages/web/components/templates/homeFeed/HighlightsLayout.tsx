@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import { HighlighterCircle } from '@phosphor-icons/react'
 import { useCallback, useEffect, useReducer, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import {
   LibraryItem,
@@ -128,7 +127,6 @@ export function HighlightItemsLayout(
         distribution="start"
         alignment="start"
       >
-        <Toaster />
         <HStack
           css={{
             flexGrow: '0',

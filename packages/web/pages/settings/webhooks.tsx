@@ -1,5 +1,4 @@
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Toaster } from 'react-hot-toast'
 import { VStack } from '../../components/elements/LayoutPrimitives'
 import Link from 'next/link'
 import { StyledText } from '../../components/elements/StyledText'
@@ -7,11 +6,6 @@ import { StyledText } from '../../components/elements/StyledText'
 export default function Webhooks(): JSX.Element {
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"

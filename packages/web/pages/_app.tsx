@@ -29,6 +29,7 @@ import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import React from 'react'
+import { Toaster } from 'react-hot-toast'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,6 +108,7 @@ export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
 
   return (
     <ConditionalCaptchaProvider>
+      <Toaster />
       <PersistQueryClientProvider
         client={queryClient}
         persistOptions={{ persister: asyncStoragePersister }}
