@@ -18,6 +18,7 @@
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.2",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "eslint-plugin-prettier": "^4.0.0"
@@ -28,6 +29,7 @@
     "@omnivore-app/api": "^1.0.4",
     "@omnivore/utils": "1.0.0",
     "@sentry/serverless": "^7.77.0",
+    "archiver": "^7.0.1",
     "csv-stringify": "^6.4.0",
     "dotenv": "^16.0.1",
     "jsonwebtoken": "^8.5.1",
