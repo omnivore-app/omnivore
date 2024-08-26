@@ -222,8 +222,6 @@ const triggerActions = async (
   data: ItemEvent,
   ruleEventType: RuleEventType
 ) => {
-  const actionPromises: Promise<unknown>[] = []
-
   for (const rule of rules) {
     let ast: LiqeQuery
     let results: (ItemEvent | LibraryItem)[]
@@ -276,14 +274,12 @@ const triggerActions = async (
         ruleEventType,
       }
 
-      actionPromises.push(actionFunc(actionObj))
+      try {
+        await actionFunc(actionObj)
+      } catch (error) {
+        logger.error('Error triggering rule action', error)
+      }
     }
-  }
-
-  try {
-    await Promise.all(actionPromises)
-  } catch (error) {
-    logger.error('Error triggering rule actions', error)
   }
 }
 

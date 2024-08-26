@@ -107,7 +107,8 @@ export const createAndAddLabelsToLibraryItem = async (
       newLabels.map((l) => l.id),
       libraryItemId,
       userId,
-      source
+      source,
+      false
     )
   }
 }
@@ -191,7 +192,8 @@ export const addLabelsToLibraryItem = async (
   labelIds: string[],
   libraryItemId: string,
   userId: string,
-  source: LabelSource = 'user'
+  source: LabelSource = 'user',
+  updateLibraryItem = true
 ) => {
   await authTrx(
     async (tx) => {
@@ -224,8 +226,10 @@ export const addLabelsToLibraryItem = async (
     }
   )
 
-  // update labels in library item
-  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  if (updateLibraryItem) {
+    // update labels in library item
+    await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  }
 }
 
 export const saveLabelsInHighlight = async (
@@ -288,6 +292,21 @@ export const deleteLabels = async (
 ) => {
   return authTrx(
     async (t) => t.withRepository(labelRepository).delete(criteria),
+    {
+      uid: userId,
+    }
+  )
+}
+
+export const deleteLabelsByLibraryItemId = async (
+  userId: string,
+  libraryItemId: string
+) => {
+  return authTrx(
+    async (t) =>
+      t.getRepository(EntityLabel).delete({
+        libraryItemId,
+      }),
     {
       uid: userId,
     }

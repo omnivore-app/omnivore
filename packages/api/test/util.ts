@@ -37,7 +37,9 @@ export const stopWorker = async () => {
 }
 
 export const waitUntilJobsDone = async (jobs: Job[]) => {
-  await Promise.all(jobs.map((job) => job.waitUntilFinished(queueEvents)))
+  await Promise.all(
+    jobs.map((job) => job.waitUntilFinished(queueEvents, 10000))
+  )
 }
 
 export const graphqlRequest = (

@@ -404,7 +404,9 @@ describe('Article API', () => {
             archivedAt: new Date(),
             state: LibraryItemState.Archived,
           },
-          user.id
+          user.id,
+          undefined,
+          true
         )
         itemId = item.id
       })
@@ -718,7 +720,12 @@ describe('Article API', () => {
         originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
       }
-      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(
+        itemToSave,
+        user.id,
+        undefined,
+        true
+      )
       itemId = item.id
     })
 
@@ -832,7 +839,9 @@ describe('Article API', () => {
               readingProgressBottomPercent: 100,
               readingProgressTopPercent: 80,
             },
-            user.id
+            user.id,
+            undefined,
+            true
           )
         ).id
       })
@@ -873,7 +882,9 @@ describe('Article API', () => {
           readingProgressBottomPercent: 100,
           readingProgressTopPercent: 80,
         },
-        user.id
+        user.id,
+        undefined,
+        true
       )
       itemId = item.id
 
@@ -948,7 +959,12 @@ describe('Article API', () => {
           siteName: 'Example',
           readingProgressBottomPercent: readingProgressArray[i],
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
 
         // Create some test highlights
@@ -2007,7 +2023,12 @@ describe('Article API', () => {
           slug: '',
           originalUrl: `https://blog.omnivore.app/p/typeahead-search-${i}`,
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
       }
     })
@@ -2081,7 +2102,12 @@ describe('Article API', () => {
           originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
           user,
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
       }
 
@@ -2205,7 +2231,9 @@ describe('Article API', () => {
                 i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
               originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
             },
-            user.id
+            user.id,
+            undefined,
+            true
           )
         }
       })
@@ -2298,7 +2326,9 @@ describe('Article API', () => {
                 i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
               originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
             },
-            user.id
+            user.id,
+            undefined,
+            true
           )
           items.push(item)
         }
@@ -2340,7 +2370,9 @@ describe('Article API', () => {
                 slug: '',
                 originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
               },
-              user.id
+              user.id,
+              undefined,
+              true
             )
 
             items.push(item)
@@ -2394,7 +2426,12 @@ describe('Article API', () => {
         readableContent: '<p>test</p>',
         originalUrl: `https://blog.omnivore.app/p/setFavoriteArticle`,
       }
-      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(
+        itemToSave,
+        user.id,
+        undefined,
+        true
+      )
       articleId = item.id
     })
 
@@ -2445,7 +2482,12 @@ describe('Article API', () => {
           deletedAt: new Date(),
           state: LibraryItemState.Deleted,
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
       }
     })
