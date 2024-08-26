@@ -29,6 +29,7 @@ import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { EXPIRE_FOLDERS_JOB_NAME } from '../jobs/expire_folders'
+import { EXPORT_JOB_NAME } from '../jobs/export'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { GENERATE_PREVIEW_CONTENT_JOB } from '../jobs/generate_preview_content'
 import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
@@ -113,14 +114,13 @@ export const getJobPriority = (jobName: string): number => {
     case THUMBNAIL_JOB:
       return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
-    case EXPORT_ITEM_JOB_NAME:
     case CREATE_DIGEST_JOB:
       return 50
-    case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case GENERATE_PREVIEW_CONTENT_JOB:
     case PRUNE_TRASH_JOB:
     case EXPIRE_FOLDERS_JOB_NAME:
+    case EXPORT_JOB_NAME:
       return 100
 
     default:
@@ -1069,6 +1069,25 @@ export const enqueueExpireFoldersJob = async () => {
       removeOnFail: true,
       priority: getJobPriority(EXPIRE_FOLDERS_JOB_NAME),
       attempts: 3,
+    }
+  )
+}
+
+export const queueExportJob = async (userId: string) => {
+  const queue = await getQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(
+    EXPORT_JOB_NAME,
+    { userId },
+    {
+      jobId: `${EXPORT_JOB_NAME}_${userId}_${JOB_VERSION}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+      priority: getJobPriority(EXPORT_JOB_NAME),
+      attempts: 1,
     }
   )
 }

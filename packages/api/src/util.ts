@@ -87,6 +87,7 @@ export interface BackendEnv {
     integrationExporterUrl: string
     integrationImporterUrl: string
     importerMetricsUrl: string
+    exportTaskHandlerUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -199,6 +200,7 @@ const nullableEnvVars = [
   'INTERCOM_WEB_SECRET',
   'INTERCOM_IOS_SECRET',
   'INTERCOM_ANDROID_SECRET',
+  'EXPORT_TASK_HANDLER_URL',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -300,6 +302,7 @@ export function getEnv(): BackendEnv {
     integrationExporterUrl: parse('INTEGRATION_EXPORTER_URL'),
     integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
     importerMetricsUrl: parse('IMPORTER_METRICS_COLLECTOR_URL'),
+    exportTaskHandlerUrl: parse('EXPORT_TASK_HANDLER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
