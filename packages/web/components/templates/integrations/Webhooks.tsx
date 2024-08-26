@@ -44,7 +44,6 @@ export function Webhooks(): JSX.Element {
     return webhooksList
   }, [webhooks])
 
-  console.log('webhooksList', webhooksList)
   return (
     <VStack
       distribution={'start'}

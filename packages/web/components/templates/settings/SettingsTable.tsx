@@ -1,5 +1,4 @@
 import { Pencil, Trash } from '@phosphor-icons/react'
-import { Toaster } from 'react-hot-toast'
 import { Button } from '../../elements/Button'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
@@ -282,11 +281,6 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <HStack css={{ width: '100%' }} alignment="center">
         <VStack
           alignment="start"

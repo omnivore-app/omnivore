@@ -2,7 +2,6 @@ import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
@@ -1044,8 +1043,6 @@ export function LibraryItemsLayout(
           },
         }}
       >
-        <Toaster />
-
         <SpanBox
           css={{
             alignSelf: 'flex-start',

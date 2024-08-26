@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useReducer,
 } from 'react'
-import { Toaster } from 'react-hot-toast'
 import {
   Box,
   HStack,
@@ -144,11 +143,6 @@ export default function PinnedSearches(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"

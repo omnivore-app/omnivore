@@ -20,9 +20,9 @@ import { CoverImage } from '../../../elements/CoverImage'
 import {
   AuthorInfoStyle,
   MetaStyle,
-  siteName,
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
+import { siteName } from '../../../../lib/textFormatting'
 import { CheckCircle, Circle } from '@phosphor-icons/react'
 import {
   DiscoverItemCardProps,

@@ -1,7 +1,7 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { useCallback, useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from '@phosphor-icons/react'
-import { MetaStyle, timeAgo, TitleStyle } from './LibraryCardStyles'
+import { MetaStyle, TitleStyle } from './LibraryCardStyles'
 import { styled } from '@stitches/react'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { LibraryItemNode } from '../../../lib/networking/library_items/useLibraryItems'
@@ -12,6 +12,7 @@ import { HighlightView } from '../HighlightView'
 import { useRouter } from 'next/router'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { sortHighlights } from '../../../lib/highlights/sortHighlights'
+import { timeAgo } from '../../../lib/textFormatting'
 
 export const GridSeparator = styled(Box, {
   height: '1px',

@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { DownloadSimple, Link, Spinner } from '@phosphor-icons/react'
 import { useCallback, useEffect, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
   Dropdown,
@@ -27,9 +26,7 @@ import {
   Integration,
   useGetIntegrationsQuery,
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 // Styles
 const Header = styled(Box, {
   color: '$utilityTextDefault',
@@ -327,12 +324,6 @@ export default function Integrations(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-
       <VStack css={{ width: '100%', height: '100%' }}>
         <Header css={{ textAlign: 'center', width: '100%' }}>
           Integrations

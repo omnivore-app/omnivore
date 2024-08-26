@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
   Box,
@@ -224,12 +223,6 @@ export default function Account(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
