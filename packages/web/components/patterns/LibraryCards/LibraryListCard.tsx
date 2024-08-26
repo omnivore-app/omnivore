@@ -11,7 +11,7 @@ import {
   MenuStyle,
   FLAIR_ICON_NAMES,
 } from './LibraryCardStyles'
-import { siteName } from '../../../lib/textFormatting'
+import { shouldHideUrl, siteName } from '../../../lib/textFormatting'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/navMenu/LibraryMenu'
 import { LibraryHoverActions } from './LibraryHoverActions'
