@@ -677,10 +677,14 @@ export function useRefreshProcessingItems() {
   return mutation
 }
 
-export const useGetLibraryItemContent = (username: string, slug: string) => {
+export const useGetLibraryItemContent = (
+  username: string | undefined,
+  slug: string | undefined
+) => {
   const queryClient = useQueryClient()
   return useQuery({
     queryKey: ['libraryItem', slug],
+    enabled: !!username && !!slug,
     queryFn: async () => {
       const response = (await gqlFetcher(GQL_GET_LIBRARY_ITEM_CONTENT, {
         slug,
