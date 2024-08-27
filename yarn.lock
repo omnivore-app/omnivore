@@ -31261,9 +31261,9 @@ untildify@^4.0.0:
   integrity sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==
 
 unzip-stream@^0.3.1:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/unzip-stream/-/unzip-stream-0.3.2.tgz#e7bfd887f4c9a284b46978693ba54e0d4f5095df"
-  integrity sha512-oWhfqwjx36ULFG+krfkbtbrc/BeEzaYrlqdEWa5EPNd6x6RerzuNW8aSTM0TtNtrOfUKYdO0TwrlkzrXAE6Olg==
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/unzip-stream/-/unzip-stream-0.3.4.tgz#b4576755061809cf210b776cf26888d6a7823ead"
+  integrity sha512-PyofABPVv+d7fL7GOpusx7eRT9YETY2X04PhwbSipdj6bMxVCFJrr+nm0Mxqbf9hUiTin/UsnuFWBXlDZFy0Cw==
   dependencies:
     binary "^0.3.0"
     mkdirp "^0.5.1"
