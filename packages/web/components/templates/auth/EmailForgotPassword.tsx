@@ -40,9 +40,8 @@ const ForgotPasswordForm = (): JSX.Element => {
 export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
   const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -59,7 +58,7 @@ export function EmailForgotPassword(): JSX.Element {
       <VStack
         alignment="center"
         css={{
-          padding: '16px',
+          padding: '20px',
           minWidth: '340px',
           width: '70vw',
           maxWidth: '576px',

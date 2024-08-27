@@ -4,7 +4,7 @@ const textVariants = {
   style: {
     body: {
       fontSize: '$2',
-      lineHeight: '1.25',
+      lineHeight: '1.50',
     },
     logoTitle: {
       fontFamily: 'Inter',
