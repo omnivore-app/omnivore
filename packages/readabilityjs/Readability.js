@@ -483,7 +483,7 @@ Readability.prototype = {
       node.removeAttribute("class");
     }
 
-    _removeAllEventHandlers(media)
+    this._removeAllEventHandlers(media)
 
     for (node = node.firstElementChild; node; node = node.nextElementSibling) {
       this._cleanElement(node);
