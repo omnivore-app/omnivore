@@ -113,3 +113,14 @@ export const sendPasswordResetEmail = async (user: {
 
   return !!result
 }
+
+export const sendExportCompletedEmail = async (
+  userId: string,
+  urlToDownload: string
+) => {
+  return enqueueSendEmail({
+    userId,
+    subject: 'Your Omnivore export is ready',
+    html: `<p>Your export is ready. You can download it from the following link: <a href="${urlToDownload}">${urlToDownload}</a></p>`,
+  })
+}

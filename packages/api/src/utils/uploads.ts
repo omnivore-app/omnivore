@@ -67,17 +67,17 @@ export const generateUploadSignedUrl = async (
 export const generateDownloadSignedUrl = async (
   filePathName: string,
   config?: {
+    bucketName?: string
     expires?: number
   }
 ): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: 'v4',
     action: 'read',
-    expires: Date.now() + 240 * 60 * 1000, // four hours
-    ...config,
+    expires: config?.expires ?? Date.now() + 240 * 60 * 1000, // four hours
   }
   const [url] = await storage
-    .bucket(bucketName)
+    .bucket(config?.bucketName || bucketName)
     .file(filePathName)
     .getSignedUrl(options)
   logger.info(`generating download signed url: ${url}`)
@@ -116,8 +116,11 @@ export const uploadToBucket = async (
     .save(data, { timeout: 30000, ...options }) // default timeout 30s
 }
 
-export const createGCSFile = (filename: string): File => {
-  return storage.bucket(bucketName).file(filename)
+export const createGCSFile = (
+  filename: string,
+  selectedBucket = bucketName
+): File => {
+  return storage.bucket(selectedBucket).file(filename)
 }
 
 export const downloadFromUrl = async (

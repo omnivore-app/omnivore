@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { Router } from 'express'
+import { jobStateToTaskState } from '../queue-processor'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { queueExportJob } from '../utils/createTask'
@@ -26,7 +27,7 @@ export function exportRouter() {
     try {
       const job = await queueExportJob(userId)
 
-      if (!job) {
+      if (!job || !job.id) {
         logger.error('Failed to queue export job', {
           userId,
         })
@@ -40,8 +41,10 @@ export function exportRouter() {
         jobId: job.id,
       })
 
+      const jobState = await job.getState()
       res.send({
         jobId: job.id,
+        state: jobStateToTaskState(jobState),
       })
     } catch (error) {
       logger.error('Error exporting all items', {
