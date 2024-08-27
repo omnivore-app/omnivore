@@ -1,12 +1,14 @@
 import archiver, { Archiver } from 'archiver'
 import { v4 as uuidv4 } from 'uuid'
-import { LibraryItem } from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { TaskState } from '../generated/graphql'
+import { findExportById, saveExport } from '../services/export'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import {
   findLibraryItemById,
   searchLibraryItems,
 } from '../services/library_item'
-import { sendExportCompletedEmail } from '../services/send_emails'
+import { sendExportJobEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
@@ -14,9 +16,22 @@ import { contentFilePath, createGCSFile } from '../utils/uploads'
 
 export interface ExportJobData {
   userId: string
+  exportId: string
 }
 
 export const EXPORT_JOB_NAME = 'export'
+
+const itemStateMappping = (state: LibraryItemState) => {
+  switch (state) {
+    case LibraryItemState.Archived:
+      return 'Archived'
+    case LibraryItemState.ContentNotFetched:
+    case LibraryItemState.Succeeded:
+      return 'Active'
+    default:
+      return 'Unknown'
+  }
+}
 
 const uploadContent = async (
   userId: string,
@@ -77,7 +92,7 @@ const uploadToBucket = async (
     description: item.description,
     author: item.author,
     url: item.originalUrl,
-    state: item.state,
+    state: itemStateMappping(item.state),
     readingProgress: item.readingProgressBottomPercent,
     thumbnail: item.thumbnail,
     labels: item.labelNames,
@@ -111,124 +126,162 @@ const uploadToBucket = async (
 }
 
 export const exportJob = async (jobData: ExportJobData) => {
-  const { userId } = jobData
-  const user = await findActiveUser(userId)
-  if (!user) {
-    logger.error('user not found', {
-      userId,
-    })
-    return
-  }
-
-  logger.info('exporting all items...', {
-    userId,
-  })
-
-  // export data as a zip file:
-  // exports/{userId}/{date}/{uuid}.zip
-  //  - metadata.json
-  //  - /content
-  //    - {slug}.html
-  //  - /highlights
-  //    - {slug}.md
-  const dateStr = new Date().toISOString()
-  const fileUuid = uuidv4()
-  const fullPath = `exports/${userId}/${dateStr}/${fileUuid}.zip`
-
-  const file = createGCSFile(fullPath)
-
-  // Create a write stream
-  const writeStream = file.createWriteStream({
-    metadata: {
-      contentType: 'application/zip',
-    },
-  })
-
-  // Handle any errors in the streams
-  writeStream.on('error', (err) => {
-    logger.error('Error writing to GCS:', err)
-  })
-
-  writeStream.on('finish', () => {
-    logger.info('File successfully written to GCS')
-  })
-
-  // Initialize archiver for zipping files
-  const archive = archiver('zip', {
-    zlib: { level: 9 }, // Compression level
-  })
-
-  // Handle any archiver errors
-  archive.on('error', (err) => {
-    throw err
-  })
-
-  // Pipe the archiver output to the write stream
-  archive.pipe(writeStream)
+  const { userId, exportId } = jobData
 
   try {
-    // fetch data from the database
-    const batchSize = 20
-    let cursor = 0
-    let hasNext = false
-    do {
-      const items = await searchLibraryItems(
-        {
-          from: cursor,
-          size: batchSize,
-          query: 'in:all',
-          includeContent: false,
-          includeDeleted: false,
-          includePending: false,
-        },
-        userId
-      )
+    const user = await findActiveUser(userId)
+    if (!user) {
+      logger.error('user not found', {
+        userId,
+      })
+      return
+    }
 
-      const size = items.length
-      // write data to the csv file
-      if (size > 0) {
-        cursor = await uploadToBucket(userId, items, cursor, size, archive)
+    const exportTask = await findExportById(exportId, userId)
+    if (!exportTask) {
+      logger.error('export task not found', {
+        userId,
+        exportId,
+      })
+      return
+    }
 
-        hasNext = size === batchSize
-      }
-    } while (hasNext)
-  } catch (err) {
-    logger.error('Error exporting data:', err)
+    await saveExport(userId, {
+      id: exportId,
+      state: TaskState.Running,
+    })
 
-    throw err
-  } finally {
-    // Finalize the archive
-    await archive.finalize()
-  }
+    const emailJob = await sendExportJobEmail(userId, 'started')
+    if (!emailJob) {
+      logger.error('Failed to send export job email', {
+        userId,
+      })
+      return
+    }
 
-  // Ensure that the writeStream has finished
-  await new Promise((resolve, reject) => {
-    writeStream.on('finish', resolve)
-    writeStream.on('error', reject)
-  })
+    logger.info('exporting all items...', {
+      userId,
+    })
 
-  logger.info('export completed', {
-    userId,
-  })
+    // export data as a zip file:
+    // exports/{userId}/{date}/{uuid}.zip
+    //  - metadata.json
+    //  - /content
+    //    - {slug}.html
+    //  - /highlights
+    //    - {slug}.md
+    const dateStr = new Date().toISOString()
+    const fileUuid = uuidv4()
+    const fullPath = `exports/${userId}/${dateStr}/${fileUuid}.zip`
 
-  // generate a temporary signed url for the zip file
-  const [signedUrl] = await file.getSignedUrl({
-    action: 'read',
-    expires: Date.now() + 86400 * 1000, // 15 minutes
-  })
+    const file = createGCSFile(fullPath)
 
-  logger.info('signed url for export:', {
-    userId,
-    signedUrl,
-  })
+    // Create a write stream
+    const writeStream = file.createWriteStream({
+      metadata: {
+        contentType: 'application/zip',
+      },
+    })
 
-  const job = await sendExportCompletedEmail(userId, signedUrl)
-  if (!job) {
-    logger.error('failed to send export completed email', {
+    // Handle any errors in the streams
+    writeStream.on('error', (err) => {
+      logger.error('Error writing to GCS:', err)
+    })
+
+    writeStream.on('finish', () => {
+      logger.info('File successfully written to GCS')
+    })
+
+    // Initialize archiver for zipping files
+    const archive = archiver('zip', {
+      zlib: { level: 9 }, // Compression level
+    })
+
+    // Handle any archiver errors
+    archive.on('error', (err) => {
+      throw err
+    })
+
+    // Pipe the archiver output to the write stream
+    archive.pipe(writeStream)
+
+    try {
+      // fetch data from the database
+      const batchSize = 20
+      let cursor = 0
+      let hasNext = false
+      do {
+        const items = await searchLibraryItems(
+          {
+            from: cursor,
+            size: batchSize,
+            query: 'in:all',
+            includeContent: false,
+            includeDeleted: false,
+            includePending: false,
+          },
+          userId
+        )
+
+        const size = items.length
+        // write data to the csv file
+        if (size > 0) {
+          cursor = await uploadToBucket(userId, items, cursor, size, archive)
+
+          hasNext = size === batchSize
+        }
+      } while (hasNext)
+    } finally {
+      // Finalize the archive
+      await archive.finalize()
+    }
+
+    // Ensure that the writeStream has finished
+    await new Promise((resolve, reject) => {
+      writeStream.on('finish', resolve)
+      writeStream.on('error', reject)
+    })
+
+    logger.info('export completed', {
+      userId,
+    })
+
+    // generate a temporary signed url for the zip file
+    const [signedUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 86400 * 1000, // 15 minutes
+    })
+
+    logger.info('signed url for export:', {
       userId,
       signedUrl,
     })
 
-    throw new Error('failed to send export completed email')
+    await saveExport(userId, {
+      id: exportId,
+      state: TaskState.Succeeded,
+    })
+
+    const job = await sendExportJobEmail(userId, 'completed', signedUrl)
+    if (!job) {
+      logger.error('failed to send export completed email', {
+        userId,
+        signedUrl,
+      })
+    }
+  } catch (error) {
+    logger.error('export failed', error)
+
+    await saveExport(userId, {
+      id: exportId,
+      state: TaskState.Failed,
+    })
+
+    const job = await sendExportJobEmail(userId, 'failed')
+    if (!job) {
+      logger.error('failed to send export failed email', {
+        userId,
+      })
+    }
   }
 }

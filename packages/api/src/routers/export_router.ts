@@ -1,6 +1,8 @@
 import cors from 'cors'
 import express, { Router } from 'express'
 import { jobStateToTaskState } from '../queue-processor'
+import { countExportsWithin24Hours, saveExport } from '../services/export'
+import { sendExportJobEmail } from '../services/send_emails'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { queueExportJob } from '../utils/createTask'
@@ -25,6 +27,17 @@ export function exportRouter() {
     const userId = claims.uid
 
     try {
+      const exportsWithin24Hours = await countExportsWithin24Hours(userId)
+      if (exportsWithin24Hours >= 3) {
+        logger.error('User has reached the limit of exports within 24 hours', {
+          userId,
+          exportsWithin24Hours,
+        })
+        return res.status(400).send({
+          error: 'EXPORT_LIMIT_REACHED',
+        })
+      }
+
       const job = await queueExportJob(userId)
 
       if (!job || !job.id) {
@@ -41,10 +54,17 @@ export function exportRouter() {
         jobId: job.id,
       })
 
+      const taskId = job.id
       const jobState = await job.getState()
+      const state = jobStateToTaskState(jobState)
+      await saveExport(userId, {
+        taskId: job.id,
+        state,
+      })
+
       res.send({
-        jobId: job.id,
-        state: jobStateToTaskState(jobState),
+        taskId,
+        state,
       })
     } catch (error) {
       logger.error('Error exporting all items', {

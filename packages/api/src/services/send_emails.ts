@@ -114,13 +114,39 @@ export const sendPasswordResetEmail = async (user: {
   return !!result
 }
 
-export const sendExportCompletedEmail = async (
+export const sendExportJobEmail = async (
   userId: string,
-  urlToDownload: string
+  state: 'completed' | 'failed' | 'started',
+  urlToDownload?: string
 ) => {
+  let subject = ''
+  let html = ''
+
+  switch (state) {
+    case 'completed':
+      if (!urlToDownload) {
+        throw new Error('urlToDownload is required')
+      }
+
+      subject = 'Your Omnivore export is ready'
+      html = `<p>Your export is ready. You can download it from the following link: <a href="${urlToDownload}">${urlToDownload}</a></p>`
+      break
+    case 'failed':
+      subject = 'Your Omnivore export failed'
+      html = '<p>Your export failed. Please try again later.</p>'
+      break
+    case 'started':
+      subject = 'Your Omnivore export has started'
+      html =
+        '<p>Your export has started. You will receive an email once it is completed.</p>'
+      break
+    default:
+      throw new Error('Invalid state')
+  }
+
   return enqueueSendEmail({
     userId,
-    subject: 'Your Omnivore export is ready',
-    html: `<p>Your export is ready. You can download it from the following link: <a href="${urlToDownload}">${urlToDownload}</a></p>`,
+    subject,
+    html,
   })
 }
