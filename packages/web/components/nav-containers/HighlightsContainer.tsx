@@ -76,9 +76,9 @@ export function HighlightsContainer(): JSX.Element {
       }}
     >
       {!isLoading && highlights.length < 1 && (
-        <Box css={{ width: '100%' }}>
+        <HStack css={{ width: '100%' }} alignment="center">
           <EmptyLibrary folder="highlights" />
-        </Box>
+        </HStack>
       )}
       {highlights.map((highlight) => {
         return (
