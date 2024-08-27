@@ -7,14 +7,13 @@ import { sendExportCompletedEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
-import { createGCSFile, generateDownloadSignedUrl } from '../utils/uploads'
+import { createGCSFile } from '../utils/uploads'
 
 export interface ExportJobData {
   userId: string
 }
 
 export const EXPORT_JOB_NAME = 'export'
-const GCS_BUCKET = 'omnivore-export'
 
 const uploadToBucket = async (
   userId: string,
@@ -92,7 +91,7 @@ export const exportJob = async (jobData: ExportJobData) => {
   const fileUuid = uuidv4()
   const fullPath = `exports/${userId}/${dateStr}/${fileUuid}.zip`
 
-  const file = createGCSFile(GCS_BUCKET, fullPath)
+  const file = createGCSFile(fullPath)
 
   // Create a write stream
   const writeStream = file.createWriteStream({
@@ -103,11 +102,11 @@ export const exportJob = async (jobData: ExportJobData) => {
 
   // Handle any errors in the streams
   writeStream.on('error', (err) => {
-    console.error('Error writing to GCS:', err)
+    logger.error('Error writing to GCS:', err)
   })
 
   writeStream.on('finish', () => {
-    console.log('File successfully written to GCS')
+    logger.info('File successfully written to GCS')
   })
 
   // Initialize archiver for zipping files
@@ -117,7 +116,6 @@ export const exportJob = async (jobData: ExportJobData) => {
 
   // Handle any archiver errors
   archive.on('error', (err) => {
-    console.error('Error zipping files:', err)
     throw err
   })
 
@@ -135,7 +133,7 @@ export const exportJob = async (jobData: ExportJobData) => {
           from: cursor,
           size: batchSize,
           query: 'in:all',
-          includeContent: false,
+          includeContent: true,
           includeDeleted: false,
           includePending: false,
         },
@@ -151,16 +149,28 @@ export const exportJob = async (jobData: ExportJobData) => {
       }
     } while (hasNext)
   } catch (err) {
-    console.error('Error exporting data:', err)
+    logger.error('Error exporting data:', err)
+
+    throw err
   } finally {
     // Finalize the archive
     await archive.finalize()
   }
 
+  // Ensure that the writeStream has finished
+  await new Promise((resolve, reject) => {
+    writeStream.on('finish', resolve)
+    writeStream.on('error', reject)
+  })
+
+  logger.info('export completed', {
+    userId,
+  })
+
   // generate a temporary signed url for the zip file
-  const signedUrl = await generateDownloadSignedUrl(fullPath, {
-    expires: 60 * 60 * 24, // 24 hours
-    bucketName: GCS_BUCKET,
+  const [signedUrl] = await file.getSignedUrl({
+    action: 'read',
+    expires: Date.now() + 86400 * 1000, // 15 minutes
   })
 
   const job = await sendExportCompletedEmail(userId, signedUrl)

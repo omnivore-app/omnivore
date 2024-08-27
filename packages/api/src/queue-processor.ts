@@ -35,6 +35,7 @@ import {
   expireFoldersJob,
   EXPIRE_FOLDERS_JOB_NAME,
 } from './jobs/expire_folders'
+import { exportJob, EXPORT_JOB_NAME } from './jobs/export'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import {
   generatePreviewContent,
@@ -223,6 +224,8 @@ export const createWorker = (connection: ConnectionOptions) =>
             return pruneTrashJob(job.data)
           case EXPIRE_FOLDERS_JOB_NAME:
             return expireFoldersJob()
+          case EXPORT_JOB_NAME:
+            return exportJob(job.data)
           default:
             logger.warning(`[queue-processor] unhandled job: ${job.name}`)
         }

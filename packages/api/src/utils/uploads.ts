@@ -64,6 +64,14 @@ export const generateUploadSignedUrl = async (
   return url
 }
 
+const createSignedUrl = async (file: File): Promise<string> => {
+  const signedUrl = await file.getSignedUrl({
+    action: 'read',
+    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+  })
+  return signedUrl[0]
+}
+
 export const generateDownloadSignedUrl = async (
   filePathName: string,
   config?: {
