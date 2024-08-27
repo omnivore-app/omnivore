@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { Router } from 'express'
+import { TaskState } from '../generated/graphql'
 import { jobStateToTaskState } from '../queue-processor'
 import { countExportsWithin24Hours, saveExport } from '../services/export'
 import { sendExportJobEmail } from '../services/send_emails'
@@ -38,7 +39,11 @@ export function exportRouter() {
         })
       }
 
-      const job = await queueExportJob(userId)
+      const exportTask = await saveExport(userId, {
+        state: TaskState.Pending,
+      })
+
+      const job = await queueExportJob(userId, exportTask.id)
 
       if (!job || !job.id) {
         logger.error('Failed to queue export job', {
@@ -58,7 +63,8 @@ export function exportRouter() {
       const jobState = await job.getState()
       const state = jobStateToTaskState(jobState)
       await saveExport(userId, {
-        taskId: job.id,
+        id: exportTask.id,
+        taskId,
         state,
       })
 

@@ -1073,7 +1073,7 @@ export const enqueueExpireFoldersJob = async () => {
   )
 }
 
-export const queueExportJob = async (userId: string) => {
+export const queueExportJob = async (userId: string, exportId: string) => {
   const queue = await getQueue()
   if (!queue) {
     return undefined
@@ -1081,7 +1081,7 @@ export const queueExportJob = async (userId: string) => {
 
   return queue.add(
     EXPORT_JOB_NAME,
-    { userId },
+    { userId, exportId },
     {
       jobId: `${EXPORT_JOB_NAME}_${userId}_${JOB_VERSION}`,
       removeOnComplete: true,

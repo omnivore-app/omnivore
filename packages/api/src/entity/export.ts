@@ -28,8 +28,8 @@ export class Export {
   @Column('uuid')
   userId!: string
 
-  @Column('text')
-  taskId!: string
+  @Column('text', { nullable: true })
+  taskId?: string
 
   @Column('text')
   state!: string

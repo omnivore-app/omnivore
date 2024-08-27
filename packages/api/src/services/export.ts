@@ -8,8 +8,8 @@ export const saveExport = async (
   exportData: Partial<Export>
 ): Promise<Export> => {
   return getRepository(Export).save({
-    userId,
     ...exportData,
+    userId,
   })
 }
 
