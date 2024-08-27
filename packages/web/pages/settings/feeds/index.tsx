@@ -272,7 +272,7 @@ export default function Rss(): JSX.Element {
               }
               onClick={() => {
                 router.push(
-                  `/home?q=in:inbox rss:"${encodeURIComponent(
+                  `/search?q=in:inbox rss:"${encodeURIComponent(
                     subscription.url
                   )}"`
                 )
