@@ -1,5 +1,5 @@
-import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from '@phosphor-icons/react'
+import { useRouter } from 'next/router'
 import { useMemo, useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
   FetchContentType,
+  Subscription,
   SubscriptionStatus,
   SubscriptionType,
   useGetSubscriptionsQuery,
@@ -32,9 +33,13 @@ import { formatMessage } from '../../../locales/en/messages'
 
 export default function Rss(): JSX.Element {
   const router = useRouter()
-  const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery(
+  const subscriptionsResponse = useGetSubscriptionsQuery(
     SubscriptionType.RSS
   )
+  const subscriptions = subscriptionsResponse.subscriptions as Array<
+    Subscription & { type: SubscriptionType.RSS }
+  >
+  const { isValidating, revalidate } = subscriptionsResponse
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [onEditId, setOnEditId] = useState('')
   const [onEditName, setOnEditName] = useState('')
@@ -266,7 +271,11 @@ export default function Rss(): JSX.Element {
                 </VStack>
               }
               onClick={() => {
-                router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
+                router.push(
+                  `/search?q=in:inbox rss:"${encodeURIComponent(
+                    subscription.url
+                  )}"`
+                )
               }}
               // extraElement={
               //   <HStack

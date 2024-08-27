@@ -1,17 +1,21 @@
+import { Tag } from '@phosphor-icons/react'
+import * as Switch from '@radix-ui/react-switch'
+import { styled } from '@stitches/react'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { styled } from '../../components/tokens/stitches.config'
+import { CoverImage } from '../../components/elements/CoverImage'
+import { FollowingIcon } from '../../components/elements/icons/FollowingIcon'
+import { NewsletterIcon } from '../../components/elements/icons/NewsletterIcon'
 import {
   Box,
-  VStack,
   HStack,
-  SpanBox,
   Separator,
+  SpanBox,
+  VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../components/elements/StyledText'
-import { SubscriptionType } from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { CoverImage } from '../../components/elements/CoverImage'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { useGetLabels } from '../../lib/networking/labels/useLabels'
+import { SubscriptionType } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 import {
   Shortcut,
@@ -19,12 +23,8 @@ import {
   useGetShortcuts,
   useSetShortcuts,
 } from '../../lib/networking/shortcuts/useShortcuts'
-import * as Switch from '@radix-ui/react-switch'
 import { useGetSubscriptions } from '../../lib/networking/subscriptions/useGetSubscriptions'
-import { NewsletterIcon } from '../../components/elements/icons/NewsletterIcon'
-import { FollowingIcon } from '../../components/elements/icons/FollowingIcon'
 import { escapeQuotes } from '../../utils/helper'
-import { Tag } from '@phosphor-icons/react'
 
 function flattenShortcuts(shortcuts: Shortcut[]): string[] {
   let result: string[] = []
@@ -288,7 +288,7 @@ const Subscriptions = (props: ListProps) => {
                             ? `subscription:\"${escapeQuotes(
                                 subscription.name
                               )}\"`
-                            : `rss:\"${subscription.url}\"`,
+                            : `rss:\"${encodeURIComponent(subscription.url)}\"`,
                       }
                       if (checked) {
                         props.dispatchList({
