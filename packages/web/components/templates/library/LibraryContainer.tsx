@@ -956,7 +956,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         {!showItems && props.fetchItemsError && <FetchItemsError />}
         {!showItems && !props.fetchItemsError && props.items.length <= 0 && (
           <EmptyLibrary
-            folder={props.folder}
+            folder={props.folder ?? 'home'}
             onAddLinkClicked={() => {
               props.setShowAddLinkModal(true)
             }}
