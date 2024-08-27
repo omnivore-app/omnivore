@@ -2,18 +2,65 @@ import archiver, { Archiver } from 'archiver'
 import { v4 as uuidv4 } from 'uuid'
 import { LibraryItem } from '../entity/library_item'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
-import { searchLibraryItems } from '../services/library_item'
+import {
+  findLibraryItemById,
+  searchLibraryItems,
+} from '../services/library_item'
 import { sendExportCompletedEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
-import { createGCSFile } from '../utils/uploads'
+import { contentFilePath, createGCSFile } from '../utils/uploads'
 
 export interface ExportJobData {
   userId: string
 }
 
 export const EXPORT_JOB_NAME = 'export'
+
+const uploadContent = async (
+  userId: string,
+  libraryItem: LibraryItem,
+  archive: Archiver
+) => {
+  const filePath = contentFilePath({
+    userId,
+    libraryItemId: libraryItem.id,
+    format: 'readable',
+    savedAt: libraryItem.savedAt,
+    updatedAt: libraryItem.updatedAt,
+  })
+
+  const file = createGCSFile(filePath)
+
+  // check if file is already uploaded
+  const [exists] = await file.exists()
+  if (!exists) {
+    logger.info(`File not found: ${filePath}`)
+
+    // upload the content to GCS
+    const item = await findLibraryItemById(libraryItem.id, userId, {
+      select: ['readableContent'],
+    })
+    if (!item?.readableContent) {
+      logger.error('Item not found', {
+        userId,
+        libraryItemId: libraryItem.id,
+      })
+      return
+    }
+
+    await file.save(item.readableContent, {
+      contentType: 'text/html',
+      private: true,
+    })
+  }
+
+  // append the existing file to the archive
+  archive.append(file.createReadStream(), {
+    name: `content/${libraryItem.slug}.html`,
+  })
+}
 
 const uploadToBucket = async (
   userId: string,
@@ -46,11 +93,8 @@ const uploadToBucket = async (
 
   // Loop through the items and add files to /content and /highlights directories
   for (const item of items) {
-    const slug = item.slug
     // Add content files to /content
-    archive.append(item.readableContent, {
-      name: `content/${slug}.html`,
-    })
+    await uploadContent(userId, item, archive)
 
     if (item.highlightAnnotations?.length) {
       const highlights = await findHighlightsByLibraryItemId(item.id, userId)
@@ -58,7 +102,7 @@ const uploadToBucket = async (
 
       // Add highlight files to /highlights
       archive.append(markdown, {
-        name: `highlights/${slug}.md`,
+        name: `highlights/${item.slug}.md`,
       })
     }
   }
@@ -133,7 +177,7 @@ export const exportJob = async (jobData: ExportJobData) => {
           from: cursor,
           size: batchSize,
           query: 'in:all',
-          includeContent: true,
+          includeContent: false,
           includeDeleted: false,
           includePending: false,
         },
@@ -171,6 +215,11 @@ export const exportJob = async (jobData: ExportJobData) => {
   const [signedUrl] = await file.getSignedUrl({
     action: 'read',
     expires: Date.now() + 86400 * 1000, // 15 minutes
+  })
+
+  logger.info('signed url for export:', {
+    userId,
+    signedUrl,
   })
 
   const job = await sendExportCompletedEmail(userId, signedUrl)
