@@ -1,16 +1,11 @@
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
-import {
-  ArticleContainer,
-  UpdateTitleEvent,
-} from './../../../components/templates/article/ArticleContainer'
+import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { Toaster } from 'react-hot-toast'
 import Script from 'next/script'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -505,8 +500,6 @@ export default function Reader(): JSX.Element {
         id="MathJax-script"
         src="/static/mathjax/tex-mml-chtml.js"
       />
-      <Toaster />
-
       <ReaderHeader
         hideDisplaySettings={false}
         showDisplaySettingsModal={

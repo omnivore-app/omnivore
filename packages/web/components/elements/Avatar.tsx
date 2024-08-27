@@ -1,5 +1,5 @@
 import { styled } from './../tokens/stitches.config'
-import { Root, Image, Fallback } from '@radix-ui/react-avatar'
+import { Root, Fallback } from '@radix-ui/react-avatar'
 
 type AvatarProps = {
   imageURL?: string

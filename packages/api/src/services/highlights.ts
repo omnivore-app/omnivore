@@ -64,7 +64,8 @@ export const createHighlight = async (
   highlight: DeepPartial<Highlight>,
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  updateLibraryItem = true
 ) => {
   const newHighlight = await authTrx(
     async (tx) => {
@@ -90,10 +91,12 @@ export const createHighlight = async (
     userId
   )
 
-  await enqueueUpdateHighlight({
-    libraryItemId,
-    userId,
-  })
+  if (updateLibraryItem) {
+    await enqueueUpdateHighlight({
+      libraryItemId,
+      userId,
+    })
+  }
 
   return newHighlight
 }
@@ -212,6 +215,21 @@ export const deleteHighlightById = async (
   })
 
   return deletedHighlight
+}
+
+export const deleteHighlightByLibraryItemId = async (
+  userId: string,
+  libraryItemId: string
+) => {
+  await authTrx(
+    async (tx) =>
+      tx.getRepository(Highlight).delete({
+        libraryItemId,
+      }),
+    {
+      uid: userId,
+    }
+  )
 }
 
 export const deleteHighlightsByIds = async (

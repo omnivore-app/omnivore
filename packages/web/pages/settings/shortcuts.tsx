@@ -1,55 +1,30 @@
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { NavigationLayout } from '../../components/templates/NavigationLayout'
-
-import { Toaster } from 'react-hot-toast'
+import { Tag } from '@phosphor-icons/react'
+import * as Switch from '@radix-ui/react-switch'
+import { styled } from '@stitches/react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { CoverImage } from '../../components/elements/CoverImage'
+import { FollowingIcon } from '../../components/elements/icons/FollowingIcon'
+import { NewsletterIcon } from '../../components/elements/icons/NewsletterIcon'
 import {
   Box,
-  VStack,
   HStack,
-  SpanBox,
   Separator,
+  SpanBox,
+  VStack,
 } from '../../components/elements/LayoutPrimitives'
-import { LabelChip } from '../../components/elements/LabelChip'
 import { StyledText } from '../../components/elements/StyledText'
-import {
-  Subscription,
-  SubscriptionType,
-  useGetSubscriptionsQuery,
-} from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { DragIcon } from '../../components/elements/icons/DragIcon'
-import { CoverImage } from '../../components/elements/CoverImage'
-import { Label } from '../../lib/networking/fragments/labelFragment'
-import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { CheckSquare, Square, Tag } from '@phosphor-icons/react'
-import { Button } from '../../components/elements/Button'
-import { styled } from '@stitches/react'
-import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
-import { escapeQuotes } from '../../utils/helper'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { useGetLabels } from '../../lib/networking/labels/useLabels'
+import { SubscriptionType } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 import {
   Shortcut,
   ShortcutType,
   useGetShortcuts,
-  useResetShortcuts,
   useSetShortcuts,
 } from '../../lib/networking/shortcuts/useShortcuts'
-import * as Switch from '@radix-ui/react-switch'
 import { useGetSubscriptions } from '../../lib/networking/subscriptions/useGetSubscriptions'
-import { NewsletterIcon } from '../../components/elements/icons/NewsletterIcon'
-import { FollowingIcon } from '../../components/elements/icons/FollowingIcon'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../../components/templates/navMenu/NavigationMenu'
+import { escapeQuotes } from '../../utils/helper'
 
 function flattenShortcuts(shortcuts: Shortcut[]): string[] {
   let result: string[] = []
@@ -313,7 +288,7 @@ const Subscriptions = (props: ListProps) => {
                             ? `subscription:\"${escapeQuotes(
                                 subscription.name
                               )}\"`
-                            : `rss:\"${subscription.url}\"`,
+                            : `rss:\"${encodeURIComponent(subscription.url)}\"`,
                       }
                       if (checked) {
                         props.dispatchList({

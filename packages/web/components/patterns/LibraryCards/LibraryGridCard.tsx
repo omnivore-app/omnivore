@@ -10,11 +10,11 @@ import {
   CardCheckbox,
   LibraryItemMetadata,
   MetaStyle,
-  siteName,
   TitleStyle,
   MenuStyle,
   FLAIR_ICON_NAMES,
 } from './LibraryCardStyles'
+import { siteName } from '../../../lib/textFormatting'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LibraryHoverActions } from './LibraryHoverActions'
 import {

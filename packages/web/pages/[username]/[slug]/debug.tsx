@@ -50,6 +50,8 @@ export default function Debug(): JSX.Element {
       value: article.originalArticleUrl,
     })
     result.push({ name: 'author', value: article.author ?? 'null' })
+    result.push({ name: 'siteName', value: article.siteName ?? 'null' })
+
     result.push({ name: 'image', value: article.image ?? 'null' })
     result.push({ name: 'savedAt', value: article.savedAt })
     result.push({ name: 'createdAt', value: article.createdAt })

@@ -1,7 +1,6 @@
 import { Action } from 'kbar'
 import type { KeyboardCommand } from './useKeyboardShortcuts'
 import type { NextRouter } from 'next/router'
-import { DEFAULT_HOME_PATH } from '../navigations'
 
 export function navigationCommands(router: NextRouter | undefined): Action[] {
   return [

@@ -2,7 +2,6 @@ import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
@@ -120,15 +119,9 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     isFetchingNextPage,
     isFetching,
     fetchNextPage,
-    fetchPreviousPage,
     hasNextPage,
-    status,
     error: fetchItemsError,
   } = useGetLibraryItems(props.folder ?? 'home', props.folder, queryInputs)
-
-  console.log(
-    `status ${status}, isLoading: ${isLoading}, isFetching: ${isFetching}`
-  )
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -164,7 +157,6 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [router.asPath])
 
   const libraryItems = useMemo(() => {
-    console.log('library items: ', itemsPages)
     const items =
       itemsPages?.pages
         .flatMap((ad: LibraryItems) => {
@@ -1028,8 +1020,6 @@ export function LibraryItemsLayout(
     isSessionStorage: false,
   })
 
-  console.log('props.isValidating: ', props.isValidating)
-
   return (
     <>
       <VStack
@@ -1044,8 +1034,6 @@ export function LibraryItemsLayout(
           },
         }}
       >
-        <Toaster />
-
         <SpanBox
           css={{
             alignSelf: 'flex-start',

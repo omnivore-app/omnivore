@@ -16,7 +16,7 @@ import { ArchiveActionIcon } from '../elements/icons/home/ArchiveActionIcon'
 import { RemoveActionIcon } from '../elements/icons/home/RemoveActionIcon'
 import { ShareActionIcon } from '../elements/icons/home/ShareActionIcon'
 import Pagination from '../elements/Pagination'
-import { timeAgo } from '../patterns/LibraryCards/LibraryCardStyles'
+import { timeAgo } from '../../lib/textFormatting'
 import { theme } from '../tokens/stitches.config'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 import { useGetHiddenHomeSection } from '../../lib/networking/queries/useGetHiddenHomeSection'
@@ -33,7 +33,6 @@ import {
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { Toaster } from 'react-hot-toast'
 import useLibraryItemActions from '../../lib/hooks/useLibraryItemActions'
 import { SyncLoader } from 'react-spinners'
 import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
@@ -423,7 +422,6 @@ export function HomeContainer(): JSX.Element {
           },
         }}
       >
-        <Toaster />
         <VStack
           distribution="start"
           css={{

@@ -169,7 +169,13 @@ export const savePage = async (
 
     // merge highlights
     try {
-      await createHighlight(highlight, clientRequestId, user.id)
+      await createHighlight(
+        highlight,
+        clientRequestId,
+        user.id,
+        undefined,
+        false
+      )
     } catch (error) {
       logger.error('Failed to create highlight', {
         highlight,
@@ -189,7 +195,6 @@ export const savePage = async (
 export const parsedContentToLibraryItem = ({
   url,
   userId,
-  originalHtml,
   itemId,
   parsedContent,
   slug,
