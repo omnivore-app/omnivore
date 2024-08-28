@@ -12,7 +12,6 @@ type ProfileLayoutProps = {
 export function AuthLayout(props: ProfileLayoutProps): JSX.Element {
   return (
     <>
-      <MaintenanceBanner />
       <VStack
         alignment="center"
         distribution="center"

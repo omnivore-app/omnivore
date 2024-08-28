@@ -118,7 +118,6 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       alignment="start"
     >
       <PageMetaData path={props.section} title={props.title} />
-      <MaintenanceBanner />
       <Header
         menuOpen={props.showNavigationMenu}
         toggleMenu={() => {

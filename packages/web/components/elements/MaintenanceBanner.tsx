@@ -10,7 +10,7 @@ export const MaintenanceBanner = () => {
   ] = usePersistedState({
     key: 'show-maintenance-mode',
     isSessionStorage: false,
-    initialValue: true,
+    initialValue: false,
   })
   return (
     <>
