@@ -1,7 +1,6 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { ReactNode, useEffect, useState, useCallback } from 'react'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
@@ -19,10 +18,12 @@ import { List } from '@phosphor-icons/react'
 import { LIBRARY_LEFT_MENU_WIDTH } from './navMenu/LibraryLegacyMenu'
 import { AddLinkModal } from './AddLinkModal'
 import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
-import { useAddItem } from '../../lib/networking/library_items/useLibraryItems'
 import { useHandleAddUrl } from '../../lib/hooks/useHandleAddUrl'
 import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 import { useQueryClient } from '@tanstack/react-query'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { CloseButton } from '../elements/CloseButton'
+import { MaintenanceBanner } from '../elements/MaintenanceBanner'
 
 export type NavigationSection =
   | 'home'
@@ -109,15 +110,6 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   }, [showLogout])
 
   const { logout } = useLogout()
-  // if (isLoading) {
-  //   return (
-  //     <HStack
-  //       css={{ width: '100vw', height: '100vh' }}
-  //       distribution="start"
-  //       alignment="start"
-  //     ></HStack>
-  //   )
-  // }
 
   return (
     <HStack
@@ -126,6 +118,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
       alignment="start"
     >
       <PageMetaData path={props.section} title={props.title} />
+      <MaintenanceBanner />
       <Header
         menuOpen={props.showNavigationMenu}
         toggleMenu={() => {
