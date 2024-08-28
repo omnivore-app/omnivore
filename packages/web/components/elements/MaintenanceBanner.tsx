@@ -27,7 +27,7 @@ export const MaintenanceBanner = () => {
           alignment="center"
           distribution="center"
         >
-          Omnivore will be undergoing maintenance for 30 minutes at 04:00 UTC,
+          Omnivore will be undergoing maintenance for 30 minutes at 05:00 UTC,
           during that time the website and APIs will be unavailable.
           <SpanBox css={{ width: '50px' }} />
           <CloseButton
