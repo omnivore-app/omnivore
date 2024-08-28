@@ -77,6 +77,10 @@ const Subtitle = (props: EmptyLibraryProps) => {
   )
   const titleText = (folder: string | undefined) => {
     switch (folder) {
+      case 'home':
+        return 'All your newly saved items and subscriptions will appear in your home section.'
+      case 'inbox':
+        return 'Items you have saved using the mobile apps and browser extensions, along with subscriptions you have moved into your library will appear here'
       case 'highlights':
         return 'Highlight text while reading to start building your highlights library.'
       case 'trash':
@@ -116,6 +120,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
         height: '100%',
         pb: '100px',
         px: '25px',
+        maxWidth: '520px',
         color: '$thLibraryMenuSecondary',
         minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
       }}

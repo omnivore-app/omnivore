@@ -181,8 +181,9 @@ type NavigationContextType = {
   dispatch: React.Dispatch<Action>
 }
 
-const NavigationContext =
-  createContext<NavigationContextType | undefined>(undefined)
+const NavigationContext = createContext<NavigationContextType | undefined>(
+  undefined
+)
 
 export const useNavigation = (): NavigationContextType => {
   const context = useContext(NavigationContext)
