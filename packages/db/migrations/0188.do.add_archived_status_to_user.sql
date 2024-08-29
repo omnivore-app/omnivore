@@ -4,6 +4,6 @@
 
 BEGIN;
 
-ALTER TYPE user_status_type ADD VALUE 'ARCHIVED';
+ALTER TYPE user_status_type ADD VALUE IF NOT EXISTS 'ARCHIVED';
 
 COMMIT;
