@@ -299,12 +299,7 @@ export const processFetchContentJob = async (
       }
 
       if (fetchResult.content && !NO_CACHE_URLS.includes(url)) {
-        const cacheResult = await cacheFetchResult(
-          redisDataSource,
-          key,
-          fetchResult
-        )
-        console.log('cache result', cacheResult)
+        await cacheFetchResult(redisDataSource, key, fetchResult)
       }
     }
 

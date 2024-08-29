@@ -290,7 +290,6 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     const token = req.headers.cookie?.split('auth=')[1]
     if (!token) {
-      console.debug('no token')
       return res.status(401).send('UNAUTHORIZED')
     }
     let uid = ''
@@ -300,12 +299,10 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
       uid = decoded.uid
     } catch (e) {
-      console.debug(e)
       return res.status(401).send('UNAUTHORIZED')
     }
 
     if (!isThumbnailRequest(req.body)) {
-      console.debug('bad request')
       return res.status(400).send('BAD_REQUEST')
     }
 

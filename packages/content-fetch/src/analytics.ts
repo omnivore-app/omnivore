@@ -31,8 +31,6 @@ class PostHogClient implements AnalyticClient {
 
       return
     }
-
-    console.log('analytics', { userIds, result, properties })
   }
 }
 
