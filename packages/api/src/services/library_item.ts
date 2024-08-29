@@ -1039,7 +1039,10 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  if (updatedItem.readingProgressBottomPercent === 100) {
+    // mark item as read
+    await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  }
 
   return updatedItem
 }
@@ -1332,6 +1335,7 @@ export const batchUpdateLibraryItems = async (
   await authTrx(
     async (tx) => {
       const libraryItemIds = await getLibraryItemIds(userId, tx, true)
+      await tx.query(`SET lock_timeout = 10000; -- 10 seconds`)
       await tx.getRepository(LibraryItem).update(libraryItemIds, values)
     },
     {
