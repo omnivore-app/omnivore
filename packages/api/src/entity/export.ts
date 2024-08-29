@@ -1,17 +1,3 @@
-/*
-CREATE TABLE omnivore.export (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-    user_id UUID NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE,
-    task_id TEXT NOT NULL,
-    state TEXT NOT NULL,
-    total_items INT DEFAULT 0,
-    processed_items INT DEFAULT 0,
-    signed_url TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-*/
-
 import {
   Column,
   CreateDateColumn,
