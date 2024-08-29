@@ -378,9 +378,11 @@ export function authRouter() {
         }
       }
 
-      redirectUri = redirectUri
-        ? redirectUri
-        : `${env.client.url}${DEFAULT_HOME_PATH}`
+      if (user.status === StatusType.Archived) {
+        redirectUri = `${env.client.url}/export`
+      }
+
+      redirectUri = redirectUri ?? `${env.client.url}${DEFAULT_HOME_PATH}`
 
       const message = res.get('Message')
       if (message) {
