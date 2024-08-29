@@ -37,24 +37,24 @@ export function userServiceRouter() {
   router.post('/prune', cors<express.Request>(corsConfig), async (req, res) => {
     logger.info('prune soft deleted users')
 
-    // const { message: msgStr, expired } = readPushSubscription(req)
+    const { message: msgStr, expired } = readPushSubscription(req)
 
-    // if (!msgStr) {
-    //   return res.status(200).send('Bad Request')
-    // }
+    if (!msgStr) {
+      return res.status(200).send('Bad Request')
+    }
 
-    // if (expired) {
-    //   logger.info('discarding expired message')
-    //   return res.status(200).send('Expired')
-    // }
+    if (expired) {
+      logger.info('discarding expired message')
+      return res.status(200).send('Expired')
+    }
 
-    // const cleanupMessage = getCleanupMessage(msgStr)
-    // const subTime = cleanupMessage.subDays * 1000 * 60 * 60 * 24 // convert days to milliseconds
+    const cleanupMessage = getCleanupMessage(msgStr)
+    const subTime = cleanupMessage.subDays * 1000 * 60 * 60 * 24 // convert days to milliseconds
 
     try {
       const result = await batchDelete({
         status: StatusType.Deleted,
-        updatedAt: LessThan(new Date(Date.now() - 0)), // subDays ago
+        updatedAt: LessThan(new Date(Date.now() - subTime)), // subDays ago
       })
       logger.info('prune result', result)
 
