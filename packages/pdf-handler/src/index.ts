@@ -45,7 +45,6 @@ const getDocumentUrl = async (
     const [url] = await file.getSignedUrl(options)
     return new URL(url)
   } catch (e) {
-    console.debug('error getting signed url', e)
     return undefined
   }
 }
@@ -100,8 +99,6 @@ export const pdfHandler = Sentry.GCPFunction.wrapHttpFunction(
         console.log('not handling pdf data', data)
         return res.send('ok')
       }
-
-      console.log('handling pdf data', data)
 
       let content,
         title,

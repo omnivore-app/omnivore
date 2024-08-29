@@ -13,8 +13,6 @@ const parseLabels = (labels: string): string[] => {
     // labels follows format: "[""label1"",""label2""]"
     return JSON.parse(labels) as string[]
   } catch (error) {
-    console.debug('invalid labels format', labels)
-
     // labels follows format: "[label1,label2]"
     return labels
       .slice(1, -1)

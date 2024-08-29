@@ -318,13 +318,6 @@ export const createArticleResolver = authorized<
         savedAt,
       })
 
-      log.info('New article saving', {
-        parsedArticle: Object.assign({}, libraryItemToSave, {
-          readableContent: undefined,
-          originalContent: undefined,
-        }),
-      })
-
       if (uploadFileId) {
         const uploadFileData = await setFileUploadComplete(uploadFileId)
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
@@ -461,12 +454,6 @@ export const setBookmarkArticleResolver = authorized<
     },
   })
 
-  log.info('Article unbookmarked', {
-    item: Object.assign({}, deletedLibraryItem, {
-      readableContent: undefined,
-      originalContent: undefined,
-    }),
-  })
   // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
   return {
     bookmarkedArticle: deletedLibraryItem,

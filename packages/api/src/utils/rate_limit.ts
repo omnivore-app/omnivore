@@ -33,7 +33,6 @@ export const apiLimiter = rateLimit({
       const claims = await getClaimsByToken(token)
       return claims ? 60 : 15
     } catch (e) {
-      console.log('non-authenticated request')
       return 15
     }
   },
@@ -53,7 +52,6 @@ export const apiHourLimiter = rateLimit({
       const claims = await getClaimsByToken(token)
       return claims ? 600 : 150
     } catch (e) {
-      console.log('non-authenticated request')
       return 150
     }
   },

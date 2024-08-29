@@ -161,8 +161,6 @@ export const findUserAndPersonalization = async (id: string) => {
 const userCacheKey = (id: string) => `cache:user:${id}`
 
 export const getCachedUser = async (id: string) => {
-  logger.debug(`Getting user from cache: ${id}`)
-
   const user = await redisDataSource.redisClient?.get(userCacheKey(id))
   if (!user) {
     return undefined
@@ -172,8 +170,6 @@ export const getCachedUser = async (id: string) => {
 }
 
 export const cacheUser = async (user: User) => {
-  logger.debug(`Caching user: ${user.id}`)
-
   await redisDataSource.redisClient?.set(
     userCacheKey(user.id),
     JSON.stringify(user),

@@ -214,7 +214,6 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
 
 export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    console.log('Text to speech steaming request body:', req.body)
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
       return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
@@ -314,7 +313,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       // check if audio file already exists
       const [exists] = await audioFile.exists()
       if (exists) {
-        console.debug('Audio file already exists')
         ;[audioData] = await audioFile.download()
         const [speechMarksExists] = await speechMarksFile.exists()
         if (speechMarksExists) {
@@ -341,7 +339,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
           })
         }
 
-        console.debug('saving audio file')
         // upload audio data to GCS
         await audioFile.save(audioData)
         // upload speech marks to GCS

@@ -362,26 +362,6 @@ const main = async () => {
 
   await setupCronJobs()
 
-  const queueEvents = new QueueEvents(BACKEND_QUEUE_NAME, {
-    connection: workerRedisClient,
-  })
-
-  queueEvents.on('added', async (job) => {
-    console.log('added job: ', job.jobId, job.name)
-  })
-
-  queueEvents.on('removed', async (job) => {
-    console.log('removed job: ', job.jobId)
-  })
-
-  queueEvents.on('completed', async (job) => {
-    console.log('completed job: ', job.jobId)
-  })
-
-  queueEvents.on('failed', async (job) => {
-    console.log('failed job: ', job.jobId)
-  })
-
   workerRedisClient.on('error', (error) => {
     console.trace('[queue-processor]: redis worker error', { error })
   })
