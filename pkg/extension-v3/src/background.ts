@@ -57,7 +57,7 @@ browserAPI.action.onClicked.addListener(async (tab) => {
     try {
       const scriptsLoaded = await scriptsAlreadyLoaded(tabId)
       if (!scriptsLoaded) {
-        await browserAPI.scripting.executeScript({
+        await chrome.scripting.executeScript({
           target: { tabId },
           files: ['content.js'],
         })
@@ -65,6 +65,6 @@ browserAPI.action.onClicked.addListener(async (tab) => {
     } catch (err) {
       console.log('[omnivore] error injecting content script: ', err)
     }
-    chrome.tabs.sendMessage(tabId, { message: 'showToolbar' })
+    chrome.tabs.sendMessage(tabId, { message: 'savePage' })
   }
 })

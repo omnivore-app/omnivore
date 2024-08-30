@@ -20,11 +20,7 @@ const sendContentToServiceWorker = async (content: string) => {
   }
 }
 
-// Capture content then send it to the background script
-;(async () => {
-  const clientRequestId = uuidv4()
-  console.log('[omnivore] v3 extension triggered')
-
+const setupToolbar = async (clientRequestId: string) => {
   // toolbar message listener
   chrome.runtime.onMessage.addListener(
     async (request, sender, sendResponse) => {
@@ -53,6 +49,14 @@ const sendContentToServiceWorker = async (content: string) => {
       }
     }
   )
+  await showToolbar(clientRequestId)
+}
+
+const savePage = async () => {
+  const clientRequestId = uuidv4()
+  console.log('[omnivore] v3 extension triggered')
+
+  await setupToolbar(clientRequestId)
 
   const content = await collectPageContent()
   console.log('[omnivore] collected page content: ', content)
@@ -71,4 +75,14 @@ const sendContentToServiceWorker = async (content: string) => {
   } catch (err) {
     console.log('error sending content: ', err)
   }
-})()
+}
+
+// toolbar message listener
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+  switch (request.message) {
+    case 'savePage':
+      await savePage()
+      sendResponse({ success: true })
+      return
+  }
+})
