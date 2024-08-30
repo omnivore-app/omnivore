@@ -19,10 +19,13 @@ import {
   ArticleAttributes,
   Recommendation,
   TextDirection,
+  useRestoreItem,
   useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { State } from '../../../lib/networking/fragments/articleFragment'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -123,22 +126,29 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
-    useState<number | null>(null)
-  const [lineHeightOverride, setLineHeightOverride] =
-    useState<number | null>(null)
-  const [fontFamilyOverride, setFontFamilyOverride] =
-    useState<string | null>(null)
-  const [highContrastTextOverride, setHighContrastTextOverride] =
-    useState<boolean | undefined>(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] =
-    useState<boolean | undefined>(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
+  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] = useState<
+    boolean | undefined
+  >(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
   const [textDirection, setTextDirection] = useState(
     props.textDirection ?? 'LTR'
   )
+
+  const restoreItem = useRestoreItem()
 
   const updateFontSize = useCallback(
     (newFontSize: number) => {
@@ -476,6 +486,47 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               recommendationsWithNotes={recommendationsWithNotes}
             />
           )}
+          {!props.isAppleAppEmbed &&
+            props.article &&
+            props.article.state == State.DELETED && (
+              <VStack
+                css={{
+                  borderRadius: '6px',
+                  m: '20px',
+                  p: '20px',
+                  gap: '10px',
+                  width: '100%',
+                  marginTop: '24px',
+                  bg: 'color(display-p3 0.996 0.71 0 / 0.11)',
+                  lineHeight: '2.0',
+                }}
+                alignment="start"
+                distribution="start"
+              >
+                This item has been deleted. To access all the highlights and
+                content you can restore it. If you do not restore this item it
+                will be removed from your trash after two weeks or when you
+                manually empty your trash.
+                <Button
+                  style="ctaBlue"
+                  onClick={async (event) => {
+                    try {
+                      const item = await restoreItem.mutateAsync({
+                        itemId: props.article.id,
+                        slug: props.article.slug,
+                      })
+                      console.log('restored: ', item)
+                      showSuccessToast('Item restored')
+                    } catch (err) {
+                      console.log('error restoring item: ', err)
+                      showErrorToast('Error restoring item')
+                    }
+                  }}
+                >
+                  Restore item
+                </Button>
+              </VStack>
+            )}
           {/* {userHasFeature(props.viewer, 'ai-summaries') && (
             <AISummary
               libraryItemId={props.article.id}
