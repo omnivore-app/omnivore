@@ -7,11 +7,9 @@ export const getStorageItem = async (singleKey: string) => {
   })
 }
 
-// const setStorage(itemsToSet) {
-//   return new Promise((resolve) => {
-//     browserApi.storage.local.set(itemsToSet, resolve)
-//   })
-// }
+export const setStorage = (itemsToSet: Record<string, string>) => {
+  return chrome.storage.local.set(itemsToSet)
+}
 
 // function removeStorage(itemsToRemove) {
 //   return new Promise((resolve) => {

@@ -1,5 +1,5 @@
 import { ToolbarMessage, ToolbarStatus } from '../types'
-import { getStorageItem } from '../utils'
+import { getStorageItem, setStorage } from '../utils'
 
 const systemIcons: { [key: string]: string } = {
   waiting: '<div class="loading-spinner"></div>',
@@ -269,6 +269,10 @@ const toggleRow = (rowId: string) => {
   }
 }
 
+const noteCacheKey = () => {
+  return `cached-note-${document.location.href}`
+}
+
 //
 // Button functions
 //
@@ -278,7 +282,7 @@ function login() {
   closeToolbarLater()
 }
 
-const addNote = () => {
+const addNote = async () => {
   console.log('[omnivore] adding note')
   cancelAutoDismiss()
 
@@ -287,6 +291,86 @@ const addNote = () => {
     'data-omnivore-client-request-id'
   )
   console.log('client request id: ', clientRequestId)
+
+  const cachedNoteKey = noteCacheKey()
+
+  cancelAutoDismiss()
+  toggleRow('#omnivore-add-note-row')
+
+  const noteArea =
+    currentToastEl?.shadowRoot?.querySelector<HTMLTextAreaElement>(
+      '#omnivore-add-note-textarea'
+    )
+
+  if (noteArea) {
+    if (cachedNoteKey) {
+      const existingNote =
+        ((await getStorageItem(cachedNoteKey)) as string) ?? ''
+      noteArea.value = existingNote
+    }
+
+    if (noteArea.value) {
+      noteArea.select()
+    } else {
+      noteArea.focus()
+    }
+
+    noteArea.addEventListener('input', (event) => {
+      ;(async () => {
+        const note: Record<string, string> = {}
+        note[cachedNoteKey] = (event.target as HTMLTextAreaElement).value
+        await setStorage(note)
+      })()
+    })
+
+    noteArea.onkeydown = (e: KeyboardEvent) => {
+      e.cancelBubble = true
+      e.stopPropagation()
+      // Handle the enter key
+      if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+        updateStatusBox(
+          '#omnivore-add-note-status',
+          'waiting',
+          'Adding note...',
+          undefined
+        )
+
+        // browserApi.runtime.sendMessage({
+        //   action: ACTIONS.AddNote,
+        //   payload: {
+        //     ctx: ctx,
+        //     note: noteArea.value,
+        //   },
+        // })
+      }
+    }
+  }
+
+  const form = currentToastEl?.shadowRoot?.querySelector<HTMLElement>(
+    '#omnivore-add-note-form'
+  )
+
+  if (form) {
+    form.onsubmit = (event) => {
+      updateStatusBox(
+        '#omnivore-add-note-status',
+        'waiting',
+        'Adding note...',
+        undefined
+      )
+
+      // browserApi.runtime.sendMessage({
+      //   action: ACTIONS.AddNote,
+      //   payload: {
+      //     ctx: ctx,
+      //     note: event.target.elements.title.value,
+      //   },
+      // })
+
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  }
 }
 
 const readNow = () => {
