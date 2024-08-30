@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Omnivore",
+  "version": "3.0",
+  "description": "Save content to your Omnivore library.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:4000/*",
+    "https://api-prod.omnivore.app/api/graphql",
+    "https://api-demo.omnivore.app/api/graphql"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/*.svg",
+        "views/toast.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
