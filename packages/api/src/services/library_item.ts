@@ -1039,7 +1039,11 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  const readingProgress = updatedItem.readingProgressBottomPercent
+  if (readingProgress === 0 || readingProgress === 100) {
+    // only send PAGE_UPDATED event if users mark item as read or unread
+    await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  }
 
   return updatedItem
 }

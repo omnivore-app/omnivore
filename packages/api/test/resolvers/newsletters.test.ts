@@ -30,7 +30,7 @@ describe('Newsletters API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
   })
 
   after(async () => {
@@ -65,14 +65,8 @@ describe('Newsletters API', () => {
 
       before(async () => {
         //  create test newsletter emails
-        const newsletterEmail1 = await createNewsletterEmail(
-          user.id,
-          'Test_email_address_1@omnivore.app'
-        )
-        const newsletterEmail2 = await createNewsletterEmail(
-          user.id,
-          'Test_email_address_2@omnivore.app'
-        )
+        const newsletterEmail1 = await createNewsletterEmail(user.id)
+        const newsletterEmail2 = await createNewsletterEmail(user.id)
         newsletterEmails = [newsletterEmail1, newsletterEmail2]
 
         //  create testing subscriptions
@@ -89,7 +83,9 @@ describe('Newsletters API', () => {
       it('responds with newsletter emails sort by created_at desc', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
         expect(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           response.body.data.newsletterEmails.newsletterEmails.map((e: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return {
               ...e,
               createdAt:
@@ -124,10 +120,7 @@ describe('Newsletters API', () => {
 
       before(async () => {
         //  create test newsletter emails
-        newsletterEmail = await createNewsletterEmail(
-          user.id,
-          'Test_email_address_1@omnivore.app'
-        )
+        newsletterEmail = await createNewsletterEmail(user.id)
 
         //  create unsubscribed subscriptions
         await createSubscription(
@@ -190,7 +183,7 @@ describe('Newsletters API', () => {
       const response = await graphqlRequest(query, authToken, {
         input: {
           folder,
-        }
+        },
       }).expect(200)
       const newsletterEmail = await findNewsletterEmailById(
         response.body.data.createNewsletterEmail.newsletterEmail.id
@@ -239,10 +232,7 @@ describe('Newsletters API', () => {
     context('when newsletter email exists', () => {
       before(async () => {
         //  create test newsletter emails
-        const newsletterEmail = await createNewsletterEmail(
-          user.id,
-          'Test_email_address_1@omnivore.app'
-        )
+        const newsletterEmail = await createNewsletterEmail(user.id)
         newsletterEmailId = newsletterEmail.id
       })
 
@@ -254,7 +244,7 @@ describe('Newsletters API', () => {
       it('responds with status code 200', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
         const newsletterEmail = await findNewsletterEmailByAddress(
-          response.body.data.deleteNewsletterEmail.newsletterEmail.id
+          response.body.data.deleteNewsletterEmail.newsletterEmail.address
         )
         expect(newsletterEmail).to.be.null
       })

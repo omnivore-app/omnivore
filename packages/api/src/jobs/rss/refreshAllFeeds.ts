@@ -40,12 +40,11 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
       FROM
         omnivore.subscriptions s
       INNER JOIN
-        omnivore.user u ON u.id = s.user_id
+        omnivore.user u ON u.id = s.user_id AND u.status = $4
       WHERE
         s.type = $1
         AND s.status = $2
         AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
-        AND u.status = $4
       GROUP BY
         url
       `,
