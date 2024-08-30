@@ -289,7 +289,6 @@ export const triggerRule = async (jobData: TriggerRuleJobData) => {
   // get rules by calling api
   const rules = await findEnabledRules(userId, ruleEventType)
   if (rules.length === 0) {
-    console.log('No rules found')
     return false
   }
 

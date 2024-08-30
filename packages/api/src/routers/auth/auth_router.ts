@@ -35,7 +35,7 @@ import {
 } from '../../utils/auth'
 import { corsConfig } from '../../utils/corsConfig'
 import { logger } from '../../utils/logger'
-import { DEFAULT_HOME_PATH } from '../../utils/navigation'
+import { ARCHIVE_ACCOUNT_PATH, DEFAULT_HOME_PATH } from '../../utils/navigation'
 import { hourlyLimiter } from '../../utils/rate_limit'
 import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
@@ -378,9 +378,11 @@ export function authRouter() {
         }
       }
 
-      redirectUri = redirectUri
-        ? redirectUri
-        : `${env.client.url}${DEFAULT_HOME_PATH}`
+      if (user.status === StatusType.Archived) {
+        redirectUri = `${env.client.url}${ARCHIVE_ACCOUNT_PATH}`
+      }
+
+      redirectUri = redirectUri ?? `${env.client.url}${DEFAULT_HOME_PATH}`
 
       const message = res.get('Message')
       if (message) {

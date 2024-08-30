@@ -24,6 +24,7 @@ import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
 import { contentRouter } from './routers/content_router'
 import { digestRouter } from './routers/digest_router'
 import { explainRouter } from './routers/explain_router'
+import { exportRouter } from './routers/export_router'
 import { integrationRouter } from './routers/integration_router'
 import { localDebugRouter } from './routers/local_debug_router'
 import { notificationRouter } from './routers/notification_router'
@@ -106,6 +107,7 @@ export const createApp = (): Express => {
   app.use('/api/tasks', taskRouter())
   app.use('/api/digest', digestRouter())
   app.use('/api/content', contentRouter())
+  app.use('/api/export', exportRouter())
 
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())

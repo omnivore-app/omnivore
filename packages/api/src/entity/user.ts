@@ -23,6 +23,7 @@ export enum StatusType {
   Active = 'ACTIVE',
   Pending = 'PENDING',
   Deleted = 'DELETED',
+  Archived = 'ARCHIVED',
 }
 
 @Entity()

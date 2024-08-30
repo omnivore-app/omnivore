@@ -1,5 +1,5 @@
 import { RedisDataSource } from '@omnivore/utils'
-import { Job, Queue, QueueEvents, RedisClient, Worker } from 'bullmq'
+import { Job, Queue, RedisClient, Worker } from 'bullmq'
 import { JobData, processFetchContentJob } from './request_handler'
 
 export const QUEUE = 'omnivore-content-fetch-queue'
@@ -51,26 +51,6 @@ export const createWorker = (
 
   worker.on('error', (err) => {
     console.error('worker error:', err)
-  })
-
-  const queueEvents = new QueueEvents(queueName, {
-    connection: redisDataSource.queueRedisClient,
-  })
-
-  queueEvents.on('added', (job) => {
-    console.log('added job:', job.jobId, job.name)
-  })
-
-  queueEvents.on('removed', (job) => {
-    console.log('removed job:', job.jobId)
-  })
-
-  queueEvents.on('completed', (job) => {
-    console.log('completed job:', job.jobId)
-  })
-
-  queueEvents.on('failed', (job) => {
-    console.log('failed job:', job.jobId)
   })
 
   return worker

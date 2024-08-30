@@ -38,11 +38,6 @@ interface HTMLInput {
   bucket: string
 }
 
-interface CacheResult {
-  audioDataString: string
-  speechMarks: SpeechMark[]
-}
-
 interface Claim {
   uid: string
   featureName: string | null
@@ -214,7 +209,6 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
 
 export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    console.log('Text to speech steaming request body:', req.body)
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
       return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
@@ -283,20 +277,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
       // hash ssml to get the cache key
       const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
-      // find audio data in cache
-      const cacheResult = await redisDataSource.cacheClient.get(cacheKey)
-      if (cacheResult) {
-        console.log('Cache hit')
-        const { audioDataString, speechMarks }: CacheResult =
-          JSON.parse(cacheResult)
-        res.send({
-          idx: utteranceInput.idx,
-          audioData: audioDataString,
-          speechMarks,
-        })
-        return
-      }
-      console.log('Cache miss')
 
       const bucket = process.env.GCS_UPLOAD_BUCKET
       if (!bucket) {
@@ -314,7 +294,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       // check if audio file already exists
       const [exists] = await audioFile.exists()
       if (exists) {
-        console.debug('Audio file already exists')
         ;[audioData] = await audioFile.download()
         const [speechMarksExists] = await speechMarksFile.exists()
         if (speechMarksExists) {
@@ -341,7 +320,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
           })
         }
 
-        console.debug('saving audio file')
         // upload audio data to GCS
         await audioFile.save(audioData)
         // upload speech marks to GCS
@@ -350,23 +328,14 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
       }
 
-      const audioDataString = audioData.toString('hex')
-      // save audio data to cache for 72 hours for mainly the newsletters
-      await redisDataSource.cacheClient.set(
-        cacheKey,
-        JSON.stringify({ audioDataString, speechMarks }),
-        'EX',
-        3600 * 72,
-        'NX'
-      )
-      console.log('Cache saved')
-
       // update character count
       await updateCharacterCountInRedis(
         redisDataSource,
         claim.uid,
         characterCount
       )
+
+      const audioDataString = audioData.toString('hex')
 
       res.send({
         idx: utteranceInput.idx,

@@ -1039,7 +1039,11 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  const readingProgress = updatedItem.readingProgressBottomPercent
+  if (readingProgress === 0 || readingProgress === 100) {
+    // only send PAGE_UPDATED event if users mark item as read or unread
+    await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  }
 
   return updatedItem
 }
@@ -1749,11 +1753,6 @@ const totalCountCacheKey = (userId: string, args: SearchArgs) => {
 }
 
 export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
-  logger.debug('Getting cached total count:', {
-    userId,
-    args,
-  })
-
   const cacheKey = totalCountCacheKey(userId, args)
   const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
   if (!cachedCount) {
@@ -1770,11 +1769,6 @@ export const setCachedTotalCount = async (
 ) => {
   const cacheKey = totalCountCacheKey(userId, args)
 
-  logger.debug('Setting cached total count:', {
-    cacheKey,
-    count,
-  })
-
   await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
 }
 
@@ -1784,11 +1778,6 @@ export const deleteCachedTotalCount = async (userId: string) => {
   if (!keys || keys.length === 0) {
     return
   }
-
-  logger.debug('Deleting keys:', {
-    keys,
-    userId,
-  })
 
   await redisDataSource.redisClient?.del(keys)
 }

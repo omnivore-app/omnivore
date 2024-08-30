@@ -20,7 +20,7 @@ import showdown from 'showdown'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
-import { Highlight } from '../entity/highlight'
+import { Highlight, HighlightType } from '../entity/highlight'
 import { StatusType } from '../entity/user'
 import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
@@ -864,4 +864,22 @@ export const parseFeed = async (
     logger.error('Error parsing feed', error)
     return null
   }
+}
+
+const formatHighlightQuote = (quote: string): string => {
+  // replace all empty lines with blockquote '>' to preserve paragraphs
+  return quote.replace(/^(?=\n)$|^\s*?\n/gm, '> ')
+}
+
+export const highlightToMarkdown = (highlight: Highlight): string => {
+  if (highlight.highlightType === HighlightType.Highlight && highlight.quote) {
+    const quote = formatHighlightQuote(highlight.quote)
+    const labels = highlight.labels?.map((label) => `#${label.name}`).join(' ')
+    const note = highlight.annotation
+    return `> ${quote} ${labels ? `\n\n${labels}` : ''}${
+      note ? `\n\n${note}` : ''
+    }`
+  }
+
+  return ''
 }

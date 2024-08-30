@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid'
 import { NewsletterEmail } from '../entity/newsletter_email'
+import { StatusType } from '../entity/user'
 import { env } from '../env'
 import {
   CreateNewsletterEmailErrorCode,
@@ -91,7 +92,12 @@ export const findNewsletterEmailByAddress = async (
   const address = parsedAddress(emailAddress)
   return getRepository(NewsletterEmail)
     .createQueryBuilder('newsletter_email')
-    .innerJoinAndSelect('newsletter_email.user', 'user')
+    .innerJoinAndSelect(
+      'newsletter_email.user',
+      'user',
+      'user.status = :status',
+      { status: StatusType.Active }
+    )
     .where('LOWER(address) = :address', { address: address.toLowerCase() })
     .getOne()
 }

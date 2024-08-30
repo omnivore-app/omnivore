@@ -303,7 +303,7 @@ Readability.prototype = {
 
     if (!this._keepClasses) {
       // Remove classes.
-      this._cleanClasses(articleContent);
+      this._cleanElement(articleContent);
     }
   },
 
@@ -456,7 +456,7 @@ Readability.prototype = {
    * @param Element
    * @return void
    */
-  _cleanClasses: function (node) {
+  _cleanElement: function (node) {
     if (node.className && node.className.startsWith && node.className.startsWith('_omnivore')) {
       return;
     }
@@ -483,8 +483,10 @@ Readability.prototype = {
       node.removeAttribute("class");
     }
 
+    this._removeAllEventHandlers(node)
+
     for (node = node.firstElementChild; node; node = node.nextElementSibling) {
-      this._cleanClasses(node);
+      this._cleanElement(node);
     }
   },
 
@@ -546,7 +548,6 @@ Readability.prototype = {
     this._forEachNode(medias, function (media) {
       var src = media.getAttribute("src");
       var poster = media.getAttribute("poster");
-      var srcset = media.getAttribute("srcset");
 
       if (src) {
         media.setAttribute("src", this.toAbsoluteURI(src));
@@ -556,6 +557,20 @@ Readability.prototype = {
         media.setAttribute("poster", this.toAbsoluteURI(poster));
       }
     });
+  },
+
+  // removes all the javascript event handlers from the supplied element
+  _removeAllEventHandlers(element) {
+    const attributes = element.attributes;
+
+    // Iterate in reverse because removing attributes changes the length
+    for (let i = attributes.length - 1; i >= 0; i--) {
+        const attribute = attributes[i];
+        // Check if the attribute starts with "on" (like "onload", "onerror", etc.)
+        if (attribute.name.startsWith('on')) {
+            element.removeAttribute(attribute.name);
+        }
+    }
   },
 
   /** Creates imageproxy links for all article images with href source */

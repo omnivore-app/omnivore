@@ -23,10 +23,10 @@ import { enqueueSendEmail } from '../../utils/createTask'
 import { generateSlug, isUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import {
-  parseEmailAddress,
-  isProbablyArticle,
-  getTitleFromEmailSubject,
   generateUniqueUrl,
+  getTitleFromEmailSubject,
+  isProbablyArticle,
+  parseEmailAddress,
 } from '../../utils/parser'
 import {
   generateUploadFilePathName,
