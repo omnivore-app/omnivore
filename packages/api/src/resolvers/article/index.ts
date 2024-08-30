@@ -405,7 +405,7 @@ export const getArticleResolver = authorized<
           ? qb.andWhere('libraryItem.id = :id', { id: slug })
           : qb.andWhere('libraryItem.slug = :slug', { slug })
 
-        return qb.andWhere('libraryItem.deleted_at IS NULL').getOne()
+        return qb.getOne()
       },
       {
         replicationMode: 'replica',
