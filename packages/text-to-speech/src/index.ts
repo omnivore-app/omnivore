@@ -38,11 +38,6 @@ interface HTMLInput {
   bucket: string
 }
 
-interface CacheResult {
-  audioDataString: string
-  speechMarks: SpeechMark[]
-}
-
 interface Claim {
   uid: string
   featureName: string | null
@@ -282,20 +277,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
       // hash ssml to get the cache key
       const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
-      // find audio data in cache
-      const cacheResult = await redisDataSource.cacheClient.get(cacheKey)
-      if (cacheResult) {
-        console.log('Cache hit')
-        const { audioDataString, speechMarks }: CacheResult =
-          JSON.parse(cacheResult)
-        res.send({
-          idx: utteranceInput.idx,
-          audioData: audioDataString,
-          speechMarks,
-        })
-        return
-      }
-      console.log('Cache miss')
 
       const bucket = process.env.GCS_UPLOAD_BUCKET
       if (!bucket) {
@@ -347,23 +328,14 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
       }
 
-      const audioDataString = audioData.toString('hex')
-      // save audio data to cache for 72 hours for mainly the newsletters
-      await redisDataSource.cacheClient.set(
-        cacheKey,
-        JSON.stringify({ audioDataString, speechMarks }),
-        'EX',
-        3600 * 72,
-        'NX'
-      )
-      console.log('Cache saved')
-
       // update character count
       await updateCharacterCountInRedis(
         redisDataSource,
         claim.uid,
         characterCount
       )
+
+      const audioDataString = audioData.toString('hex')
 
       res.send({
         idx: utteranceInput.idx,
