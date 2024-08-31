@@ -1,4 +1,4 @@
-import { ToolbarMessage, ToolbarStatus } from '../types'
+import { AddNoteInput, ToolbarMessage, ToolbarStatus } from '../types'
 import { getStorageItem, setStorage } from '../utils'
 
 const systemIcons: { [key: string]: string } = {
@@ -20,16 +20,10 @@ const createToastContainer = async (clientRequestId: string) => {
   console.log('===== CREATING TOAST CONTAINER ===== ')
   const file = await fetch(chrome.runtime.getURL('views/toast.html'))
   const html = await file.text()
-  const disableAutoDismiss = await getStorageItem('disableAutoDismiss')
 
   const root = document.createElement('div')
   root.tabIndex = 0
   root.id = 'omnivore-extension-root'
-  if (disableAutoDismiss) {
-    root.setAttribute('data-disable-auto-dismiss', 'true')
-  }
-  root.setAttribute('data-omnivore-client-request-id', clientRequestId)
-  root.setAttribute('data-omnivore-client-request-id', clientRequestId)
   root.attachShadow({ mode: 'open' })
   root.style.opacity = '1.0'
 
@@ -67,6 +61,14 @@ export const showToolbar = async (clientRequestId: string) => {
     currentToastEl = await createToastContainer(clientRequestId)
   }
 
+  const disableAutoDismiss = await getStorageItem('disableAutoDismiss')
+  if (disableAutoDismiss) {
+    currentToastEl?.setAttribute('data-disable-auto-dismiss', 'true')
+  }
+  currentToastEl?.setAttribute(
+    'data-omnivore-client-request-id',
+    clientRequestId
+  )
   ;(currentToastEl as HTMLDivElement)?.focus({
     preventScroll: true,
   })
@@ -79,7 +81,10 @@ const autoDismissTime = async () => {
   return !Number.isNaN(Number(strVal)) ? Number(strVal) : 2500
 }
 
-const updateToolbarStatus = async (status: ToolbarStatus) => {
+export const updateToolbarStatus = async (
+  status: ToolbarStatus,
+  task: string | undefined = undefined
+) => {
   const currentToastEl = document.querySelector('#omnivore-extension-root')
   const statusBox = currentToastEl?.shadowRoot?.querySelector(
     '.omnivore-toast-statusBox'
@@ -97,6 +102,40 @@ const updateToolbarStatus = async (status: ToolbarStatus) => {
       case 'waiting':
         statusBox.innerHTML = systemIcons.waiting
         break
+    }
+  }
+
+  // Set a task specific message
+  if (task) {
+    if (task == 'addNote' && status == 'failure') {
+      updateStatusBox(
+        '#omnivore-add-note-status',
+        'failure',
+        'Error adding note...',
+        undefined
+      )
+    }
+    if (task == 'addNote' && status == 'success') {
+      updateStatusBox(
+        '#omnivore-add-note-status',
+        'success',
+        'Note updated.',
+        2500
+      )
+      setTimeout(() => {
+        toggleRow('#omnivore-add-note-status')
+      }, 3000)
+    }
+    if (task == 'archive') {
+      updateStatusBox(
+        '#omnivore-extra-status',
+        status,
+        status == 'success' ? 'Success' : 'Error',
+        status == 'success' ? 2500 : undefined
+      )
+      if (status == 'success') {
+        closeToolbarLater()
+      }
     }
   }
 }
@@ -147,11 +186,11 @@ const connectButtons = (root: HTMLElement) => {
     // { id: '#omnivore-toast-edit-title-btn', func: editTitle },
     // { id: '#omnivore-toast-edit-labels-btn', func: editLabels },
     { id: '#omnivore-toast-read-now-btn', func: readNow },
-    // { id: '#omnivore-open-menu-btn', func: openMenu },
+    { id: '#omnivore-open-menu-btn', func: openMenu },
     { id: '#omnivore-toast-close-btn', func: closeToolbar },
     { id: '#omnivore-toast-login-btn', func: login },
-    // { id: '#omnivore-toast-archive-btn', func: archive },
-    // { id: '#omnivore-toast-delete-btn', func: deleteItem },
+    { id: '#omnivore-toast-archive-btn', func: archive },
+    { id: '#omnivore-toast-delete-btn', func: deleteItem },
   ]
 
   for (const btnInfo of btns) {
@@ -214,7 +253,8 @@ const updateStatusBox = (
     }
   })()
   if (image && statusBox) {
-    statusBox.innerHTML = `<span style='padding-right: 10px'>${image}</span><span style='line-height: 20px;color: red;text-decoration: none;'>${message}</span>`
+    const color = state == 'failure' ? 'red' : 'unset'
+    statusBox.innerHTML = `<span style='padding-right: 10px'>${image}</span><span style='line-height: 20px;color: ${color};text-decoration: none;'>${message}</span>`
   } else if (statusBox) {
     statusBox.innerHTML = message
   }
@@ -273,13 +313,26 @@ const noteCacheKey = () => {
   return `cached-note-${document.location.href}`
 }
 
+const getClientRequestId = () => {
+  const currentToastEl = document.querySelector('#omnivore-extension-root')
+  const clientRequestId = currentToastEl?.getAttribute(
+    'data-omnivore-client-request-id'
+  )
+  return clientRequestId
+}
+
 //
 // Button functions
 //
 
-function login() {
+const login = () => {
   window.open(new URL(`/login`, process.env.OMNIVORE_URL), '_blank')
   closeToolbarLater()
+}
+
+const openMenu = () => {
+  cancelAutoDismiss()
+  toggleRow('#omnivore-extra-buttons-row')
 }
 
 const addNote = async () => {
@@ -291,6 +344,16 @@ const addNote = async () => {
     'data-omnivore-client-request-id'
   )
   console.log('client request id: ', clientRequestId)
+  if (!clientRequestId) {
+    // TODO: move into an error state
+    updateStatusBox(
+      '#omnivore-add-note-status',
+      'failure',
+      'Error adding note...',
+      undefined
+    )
+    return
+  }
 
   const cachedNoteKey = noteCacheKey()
 
@@ -315,18 +378,17 @@ const addNote = async () => {
       noteArea.focus()
     }
 
-    noteArea.addEventListener('input', (event) => {
-      ;(async () => {
-        const note: Record<string, string> = {}
-        note[cachedNoteKey] = (event.target as HTMLTextAreaElement).value
-        await setStorage(note)
-      })()
+    noteArea.addEventListener('input', async (event) => {
+      const note: Record<string, string> = {}
+      note[cachedNoteKey] = (event.target as HTMLTextAreaElement).value
+      await setStorage(note)
     })
 
-    noteArea.onkeydown = (e: KeyboardEvent) => {
-      e.cancelBubble = true
+    noteArea.onkeydown = async (e: KeyboardEvent) => {
+      //      e.preventDefault()
       e.stopPropagation()
       // Handle the enter key
+      console.log('handling the enter key: ', e.keyCode)
       if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
         updateStatusBox(
           '#omnivore-add-note-status',
@@ -335,13 +397,7 @@ const addNote = async () => {
           undefined
         )
 
-        // browserApi.runtime.sendMessage({
-        //   action: ACTIONS.AddNote,
-        //   payload: {
-        //     ctx: ctx,
-        //     note: noteArea.value,
-        //   },
-        // })
+        await saveNote(clientRequestId, noteArea.value)
       }
     }
   }
@@ -351,7 +407,8 @@ const addNote = async () => {
   )
 
   if (form) {
-    form.onsubmit = (event) => {
+    form.onsubmit = async (event) => {
+      console.log('handling form submit')
       updateStatusBox(
         '#omnivore-add-note-status',
         'waiting',
@@ -359,18 +416,42 @@ const addNote = async () => {
         undefined
       )
 
-      // browserApi.runtime.sendMessage({
-      //   action: ACTIONS.AddNote,
-      //   payload: {
-      //     ctx: ctx,
-      //     note: event.target.elements.title.value,
-      //   },
-      // })
+      if (noteArea) {
+        await saveNote(clientRequestId, noteArea.value)
+      }
 
       event.preventDefault()
       event.stopPropagation()
     }
   }
+}
+
+const archive = async (event: Event) => {
+  const clientRequestId = getClientRequestId()
+  try {
+    await chrome.runtime.sendMessage({
+      action: 'enqueueTask',
+      task: 'archive',
+      clientRequestId,
+    })
+  } catch (err) {
+    console.log('error archiving item')
+  }
+  event.preventDefault()
+}
+
+const deleteItem = async (event: Event) => {
+  const clientRequestId = getClientRequestId()
+  try {
+    await chrome.runtime.sendMessage({
+      action: 'enqueueTask',
+      task: 'delete',
+      clientRequestId,
+    })
+  } catch (err) {
+    console.log('error archiving item')
+  }
+  event.preventDefault()
 }
 
 const readNow = () => {
@@ -402,5 +483,22 @@ const closeToolbar = () => {
   const currentToastEl = document.querySelector('#omnivore-extension-root')
   if (currentToastEl) {
     currentToastEl.remove()
+  }
+}
+
+//
+// API interactions
+//
+
+const saveNote = async (clientRequestId: string, note: string) => {
+  try {
+    await chrome.runtime.sendMessage({
+      action: 'enqueueTask',
+      task: 'addNote',
+      note,
+      clientRequestId,
+    })
+  } catch (err) {
+    console.log('error adding note: ', err)
   }
 }

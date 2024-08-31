@@ -1,7 +1,9 @@
-import { SavePageData } from './types'
+import { ArticleData, SavePageData, SetLinkArchivedData } from './types'
 import { getStorageItem } from './utils'
 
 const apiUrl = process.env.OMNIVORE_GRAPHQL_URL ?? ''
+
+export type ApiResult = 'success' | 'failure' | 'unauthorized'
 
 const gqlRequest = async (query: string) => {
   const apiKey = (await getStorageItem('apiKey')) as string | undefined
@@ -31,8 +33,6 @@ const gqlRequest = async (query: string) => {
     console.log('[omnivore] error making api request: ', query)
   }
 }
-
-export type SavePageRequestResult = 'success' | 'failure' | 'unauthorized'
 
 export async function savePageRequest(input: {
   url: string
@@ -65,10 +65,134 @@ export async function savePageRequest(input: {
     console.log('[omnivore] api: error saving page:', data)
     if (data.savePage.errorCodes.indexOf('UNAUTHORIZED') > -1) {
       console.log('[omnivore] api is not authorized')
+      return { result: 'unauthorized' }
+    }
+    return { result: 'failure' }
+  }
+  return { result: 'success', libraryItemId: data.savePage?.clientRequestId }
+}
+
+export async function addNoteToLibraryItem(input: {
+  libraryItemId: string
+  note: string
+}) {
+  const query = JSON.stringify({
+    query: `query GetArticle(
+      $username: String!
+      $slug: String!
+      $includeFriendsHighlights: Boolean
+    ) {
+      article(username: $username, slug: $slug) {
+        ... on ArticleSuccess {
+          article {
+            highlights(input: { includeFriends: $includeFriendsHighlights }) {
+              ...HighlightFields
+            }
+          }
+        }
+        ... on ArticleError {
+          errorCodes
+        }
+      }
+    }
+    fragment HighlightFields on Highlight {
+      id
+      type
+      annotation
+    }
+    `,
+    variables: {
+      username: 'me',
+      slug: input.libraryItemId,
+      includeFriendsHighlights: false,
+    },
+  })
+
+  const data = (await gqlRequest(query)) as ArticleData
+  if (data.article?.errorCodes?.length) {
+    console.log('[omnivore] api: error getting article:', data)
+    if (data.article.errorCodes.indexOf('UNAUTHORIZED') > -1) {
+      console.log('[omnivore] api is not authorized')
       return 'unauthorized'
     }
     return 'failure'
   }
+
+  console.log('DATA.ARTICLE: ', data.article)
+  const existingNote = data.article?.highlights?.find((h) => h.type == 'NOTE')
+
+  // if (existingNote) {
+  //   const mutation = JSON.stringify({
+  //     query: `
+  //     mutation UpdateHighlight($input: UpdateHighlightInput!) {
+  //       updateHighlight(input: $input) {
+  //         ... on UpdateHighlightSuccess {
+  //           highlight {
+  //             id
+  //           }
+  //         }
+  //         ... on UpdateHighlightError {
+  //           errorCodes
+  //         }
+  //       }
+  //     }
+  //   `,
+  //     variables: {
+  //       input: {
+  //         highlightId: existingNote.id,
+  //         annotation: existingNote.annotation
+  //           ? existingNote.annotation + '\n\n' + note
+  //           : note,
+  //       },
+  //     },
+  //   })
+  //   const result = await gqlRequest(apiUrl, mutation)
+  //   if (
+  //     !result.updateHighlight ||
+  //     result.updateHighlight['errorCodes'] ||
+  //     !result.updateHighlight.highlight
+  //   ) {
+  //     console.log('GQL Error updating note:', result)
+  //     return
+  //   }
+  //   return result.updateHighlight.highlight.id
+  // } else {
+  //   const mutation = JSON.stringify({
+  //     query: `
+  //     mutation CreateHighlight($input: CreateHighlightInput!) {
+  //       createHighlight(input: $input) {
+  //         ... on CreateHighlightSuccess {
+  //           highlight {
+  //             id
+  //           }
+  //         }
+  //         ... on CreateHighlightError {
+  //           errorCodes
+  //         }
+  //       }
+  //     }
+  //   `,
+  //     variables: {
+  //       input: {
+  //         id: noteId,
+  //         shortId: shortId,
+  //         type: 'NOTE',
+  //         articleId: pageId,
+  //         annotation: note,
+  //       },
+  //     },
+  //   })
+  //   const result = await gqlRequest(apiUrl, mutation)
+  //   if (
+  //     !result.createHighlight ||
+  //     result.createHighlight['errorCodes'] ||
+  //     !result.createHighlight.highlight
+  //   ) {
+  //     console.log('GQL Error setting note:', result)
+  //     return
+  //   }
+  //   return result.createHighlight.highlight.id
+  // }
   return 'success'
 }
 
@@ -325,40 +449,43 @@ export async function savePageRequest(input: {
 //   }
 // }
 
-// async function archive(apiUrl, pageId) {
-//   const mutation = JSON.stringify({
-//     query: `mutation SetLinkArchived($input: ArchiveLinkInput!) {
-//       setLinkArchived(input: $input) {
-//         ... on ArchiveLinkSuccess {
-//           linkId
-//           message
-//         }
-//         ... on ArchiveLinkError {
-//           message
-//           errorCodes
-//         }
-//       }
-//     }
-//   `,
-//     variables: {
-//       input: {
-//         linkId: pageId,
-//         archived: true,
-//       },
-//     },
-//   })
+export const archiveLibraryItem = async (
+  libraryItemId: string
+): Promise<ApiResult> => {
+  const mutation = JSON.stringify({
+    query: `mutation SetLinkArchived($input: ArchiveLinkInput!) {
+      setLinkArchived(input: $input) {
+        ... on ArchiveLinkSuccess {
+          linkId
+          message
+        }
+        ... on ArchiveLinkError {
+          message
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        linkId: libraryItemId,
+        archived: true,
+      },
+    },
+  })
 
-//   const data = await gqlRequest(apiUrl, mutation)
-//   if (
-//     !data.setLinkArchived ||
-//     data.setLinkArchived['errorCodes'] ||
-//     !data.setLinkArchived.linkId
-//   ) {
-//     console.log('GQL Error archiving:', data)
-//     throw new Error('Error archiving.')
-//   }
-//   return data.setLinkArchived.linkId
-// }
+  const data = (await gqlRequest(mutation)) as SetLinkArchivedData
+  if (data.setLinkArchived?.errorCodes?.length) {
+    console.log('[omnivore] api: error getting article:', data)
+    if (data.setLinkArchived.errorCodes.indexOf('UNAUTHORIZED') > -1) {
+      console.log('[omnivore] api is not authorized')
+      return 'unauthorized'
+    }
+    return 'failure'
+  }
+
+  return 'success'
+}
 
 // async function deleteItem(apiUrl, pageId) {
 //   const mutation = JSON.stringify({

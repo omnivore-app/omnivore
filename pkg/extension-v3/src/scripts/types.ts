@@ -14,11 +14,46 @@ export interface SavePageResult {
   errorCodes?: string[]
 }
 
+export interface Highlight {
+  id: string
+  type: string
+  annotation: string
+}
+
+export interface ArticleResult {
+  highlights?: Highlight[]
+  errorCodes?: string[]
+}
+export interface ArticleData {
+  article?: ArticleResult
+}
+
+export interface SetLinkArchivedResult {
+  linkId?: string
+  message?: string
+  errorCodes?: string[]
+}
+
+export interface SetLinkArchivedData {
+  setLinkArchived?: SetLinkArchivedResult
+}
+
 export interface SavePageInput {
   url: string
   title: string
   clientRequestId: string
   originalContent: string
+}
+
+export interface AddNoteInput {
+  clientRequestId: string
+  note: string
+}
+
+export interface TaskInput {
+  clientRequestId: string
+  task: 'addNote' | 'archive'
+  note?: string
 }
 
 export function isSavePageResult(obj: any): obj is SavePageResult {
@@ -47,5 +82,21 @@ export function isSavePageInput(obj: any): obj is SavePageInput {
     typeof obj.title === 'string' &&
     typeof obj.clientRequestId === 'string' &&
     typeof obj.originalContent === 'string'
+  )
+}
+
+export function isAddNoteInput(obj: any): obj is AddNoteInput {
+  return (
+    typeof obj === 'object' &&
+    typeof obj.note === 'string' &&
+    typeof obj.clientRequestId === 'string'
+  )
+}
+
+export function isEnqueueTaskMessage(obj: any): obj is TaskInput {
+  return (
+    typeof obj === 'object' &&
+    typeof obj.task === 'string' &&
+    typeof obj.clientRequestId === 'string'
   )
 }
