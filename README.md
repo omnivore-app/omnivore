@@ -66,8 +66,8 @@ The easiest way to get started with local development is to use `docker compose 
 
 Omnivore is written in TypeScript and JavaScript.
 
-- [Node](https://nodejs.org/) -- currently we are using Node.js v18.16
-- [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
+- [Node.js](https://nodejs.org/) (v18.16) and [Yarn](https://classic.yarnpkg.com/lang/en/) -- Versions are managed by [Volta](https://docs.volta.sh/guide/getting-started).
+- [Chromium](https://www.chromium.org/chromium-projects/) -- See below for installation info.
 
 ### Running the web and API services
 
