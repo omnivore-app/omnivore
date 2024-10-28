@@ -27,6 +27,7 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { createExport } from '../../lib/networking/useCreateExport'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -283,6 +284,8 @@ export default function Account(): JSX.Element {
             </form>
           </VStack>
 
+          <ExportSection />
+
           <VStack
             css={{
               padding: '24px',
@@ -388,8 +391,8 @@ export default function Account(): JSX.Element {
               )}
             </form>
           </VStack>
-
-          <DigestSection />
+          {/* 
+          <DigestSection /> */}
 
           <VStack
             css={{
@@ -432,7 +435,7 @@ export default function Account(): JSX.Element {
             {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
           </VStack>
 
-          <BetaFeaturesSection />
+          {/* <BetaFeaturesSection /> */}
 
           <VStack
             css={{
@@ -468,6 +471,48 @@ export default function Account(): JSX.Element {
         />
       ) : null}
     </SettingsLayout>
+  )
+}
+
+const ExportSection = (): JSX.Element => {
+  const doExport = useCallback(async () => {
+    const result = await createExport()
+    if (result) {
+      showSuccessToast('Your export has started.')
+    } else {
+      showErrorToast('There was an error creating your export.')
+    }
+  }, [])
+
+  return (
+    <VStack
+      css={{
+        padding: '24px',
+        width: '100%',
+        height: '100%',
+        bg: '$grayBg',
+        gap: '5px',
+        borderRadius: '5px',
+      }}
+    >
+      <StyledLabel>Export</StyledLabel>
+      <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+        Export all of your data. This can be done once per day and will be
+        delivered to your registered email address. Once your export has started
+        you should receive an email with a link to your data within an hour. The
+        download link will be available for 24 hours.
+      </StyledText>
+      <Button
+        style="ctaDarkYellow"
+        onClick={(event) => {
+          doExport()
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        Export Data
+      </Button>
+    </VStack>
   )
 }
 
