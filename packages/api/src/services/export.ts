@@ -13,6 +13,16 @@ export const saveExport = async (
   })
 }
 
+export const countExportsWithinMinute = async (
+  userId: string
+): Promise<number> => {
+  return getRepository(Export).countBy({
+    userId,
+    createdAt: MoreThan(new Date(Date.now() - 60 * 1000)),
+    state: In([TaskState.Pending, TaskState.Running, TaskState.Succeeded]),
+  })
+}
+
 export const countExportsWithin24Hours = async (
   userId: string
 ): Promise<number> => {
