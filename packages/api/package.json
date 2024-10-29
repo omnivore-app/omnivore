@@ -84,7 +84,7 @@
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
-    "langchain": "^0.1.21",
+    "langchain": "^0.2.19",
     "linkedom": "^0.14.9",
     "lodash": "^4.17.21",
     "luxon": "^3.2.1",
