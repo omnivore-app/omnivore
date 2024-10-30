@@ -127,6 +127,10 @@ const uploadToBucket = async (
 
 export const exportJob = async (jobData: ExportJobData) => {
   const { userId, exportId } = jobData
+  logger.info('starting export job', {
+    userId,
+    exportId,
+  })
 
   try {
     const user = await findActiveUser(userId)
