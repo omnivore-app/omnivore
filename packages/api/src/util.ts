@@ -96,6 +96,7 @@ export interface BackendEnv {
     gcsUploadPrivateBucket: string
     dailyUploadLimit: number
     useLocalStorage: boolean
+    localMinioUrl: string
   }
   sender: {
     message: string
@@ -323,6 +324,7 @@ export function getEnv(): BackendEnv {
       ? parseInt(parse('GCS_UPLOAD_DAILY_LIMIT'), 10)
       : 5, // default to 5
     useLocalStorage: parse('GCS_USE_LOCAL_HOST') == 'true',
+    localMinioUrl: parse('LOCAL_MINIO_URL'),
   }
   const sender = {
     message: parse('SENDER_MESSAGE'),

@@ -20,11 +20,6 @@ export class S3StorageClient implements StorageClient {
     this.s3Client = new S3Client({
       forcePathStyle: true,
       endpoint: urlOverride,
-      region: 'us-east-1',
-      credentials: {
-        accessKeyId: 'minio',
-        secretAccessKey: 'miniominio',
-      },
     })
   }
 
