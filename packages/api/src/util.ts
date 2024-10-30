@@ -73,6 +73,7 @@ export interface BackendEnv {
   }
   dev: {
     isLocal: boolean
+    autoVerify: boolean
   }
   queue: {
     location: string
@@ -94,6 +95,7 @@ export interface BackendEnv {
     gcsUploadSAKeyFilePath: string
     gcsUploadPrivateBucket: string
     dailyUploadLimit: number
+    useLocalStorage: boolean
   }
   sender: {
     message: string
@@ -197,6 +199,7 @@ const nullableEnvVars = [
   'PG_REPLICA_USER',
   'PG_REPLICA_PASSWORD',
   'PG_REPLICA_DB',
+  'AUTO_VERIFY',
   'INTERCOM_WEB_SECRET',
   'INTERCOM_IOS_SECRET',
   'INTERCOM_ANDROID_SECRET',
@@ -288,6 +291,7 @@ export function getEnv(): BackendEnv {
   }
   const dev = {
     isLocal: parse('API_ENV') == 'local',
+    autoVerify: parse('AUTO_VERIFY') === 'true',
   }
   const queue = {
     location: parse('PUPPETEER_QUEUE_LOCATION'),
@@ -318,6 +322,7 @@ export function getEnv(): BackendEnv {
     dailyUploadLimit: parse('GCS_UPLOAD_DAILY_LIMIT')
       ? parseInt(parse('GCS_UPLOAD_DAILY_LIMIT'), 10)
       : 5, // default to 5
+    useLocalStorage: parse('GCS_USE_LOCAL_HOST') == 'true',
   }
   const sender = {
     message: parse('SENDER_MESSAGE'),

@@ -12,11 +12,22 @@ import { sendExportJobEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
-import { contentFilePath, createGCSFile } from '../utils/uploads'
+import { contentFilePath } from '../utils/uploads'
+import { env } from '../env'
+import { File, Storage } from '@google-cloud/storage'
 
 export interface ExportJobData {
   userId: string
   exportId: string
+}
+
+export const storage = env.fileUpload?.gcsUploadSAKeyFilePath
+  ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
+  : new Storage()
+const bucketName = env.fileUpload.gcsUploadBucket
+
+const createGCSFile = (filename: string): File => {
+  return storage.bucket(bucketName).file(filename)
 }
 
 export const EXPORT_JOB_NAME = 'export'

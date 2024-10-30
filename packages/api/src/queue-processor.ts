@@ -56,7 +56,10 @@ import {
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
 } from './jobs/process-youtube-video'
 import { pruneTrashJob, PRUNE_TRASH_JOB } from './jobs/prune_trash'
-import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
+import {
+  REFRESH_ALL_FEEDS_JOB_NAME,
+  refreshAllFeeds,
+} from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import {
@@ -159,17 +162,17 @@ export const createWorker = (connection: ConnectionOptions) =>
     async (job: Job) => {
       const executeJob = async (job: Job) => {
         switch (job.name) {
-          // case 'refresh-all-feeds': {
-          //   const queue = await getQueue()
-          //   const counts = await queue?.getJobCounts('prioritized')
-          //   if (counts && counts.wait > 1000) {
-          //     return
-          //   }
-          //   return await refreshAllFeeds(appDataSource)
-          // }
-          // case 'refresh-feed': {
-          //   return await refreshFeed(job.data)
-          // }
+          case 'refresh-all-feeds': {
+            const queue = await getQueue()
+            const counts = await queue?.getJobCounts('prioritized')
+            if (counts && counts.wait > 1000) {
+              return
+            }
+            return await refreshAllFeeds(appDataSource)
+          }
+          case 'refresh-feed': {
+            return await refreshFeed(job.data)
+          }
           case 'save-page': {
             return savePageJob(job.data, job.attemptsMade)
           }
@@ -257,6 +260,17 @@ const setupCronJobs = async () => {
       priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
+      },
+    }
+  )
+
+  await queue.add(
+    REFRESH_ALL_FEEDS_JOB_NAME,
+    {},
+    {
+      priority: getJobPriority(REFRESH_ALL_FEEDS_JOB_NAME),
+      repeat: {
+        every: 14_400_000, // 4 Hours
       },
     }
   )
