@@ -10,6 +10,7 @@ import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { State } from '../../lib/networking/fragments/articleFragment'
+import { AnnouncementBanner } from '../../components/elements/MaintenanceBanner'
 
 export default function Home(): JSX.Element {
   const router = useRouter()

@@ -3,6 +3,7 @@
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document'
 import { getCssText, globalStyles } from '../components/tokens/stitches.config'
 import { Toaster } from 'react-hot-toast'
+import { AnnouncementBanner } from '../components/elements/MaintenanceBanner'
 
 export default class Document extends NextDocument {
   render() {

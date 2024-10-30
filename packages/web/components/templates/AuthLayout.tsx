@@ -1,5 +1,5 @@
 import { Box, VStack, HStack } from '../elements/LayoutPrimitives'
-import { MaintenanceBanner } from '../elements/MaintenanceBanner'
+import { AnnouncementBanner } from '../elements/MaintenanceBanner'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'

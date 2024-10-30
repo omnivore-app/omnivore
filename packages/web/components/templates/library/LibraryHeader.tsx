@@ -17,6 +17,7 @@ import {
   MultiSelectControls,
   CheckBoxButton,
 } from '../homeFeed/MultiSelectControls'
+import { AnnouncementBanner } from '../../elements/MaintenanceBanner'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -74,6 +75,8 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           },
         }}
       >
+        <AnnouncementBanner />
+
         <LargeHeaderLayout {...props} />
       </VStack>
     </>

@@ -3,6 +3,7 @@ import {
   Box,
   HStack,
   MediumBreakpointBox,
+  SpanBox,
   VStack,
 } from '../elements/LayoutPrimitives'
 import { LoginForm } from './LoginForm'
@@ -10,7 +11,7 @@ import type { LoginFormProps } from './LoginForm'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 
 import featureFullWidthImage from '../../public/static/images/login/login-feature-image-full.png'
-import { MaintenanceBanner } from '../elements/MaintenanceBanner'
+import { AnnouncementBanner } from '../elements/MaintenanceBanner'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
   return (
@@ -20,11 +21,12 @@ export function LoginLayout(props: LoginFormProps): JSX.Element {
         largerLayoutNode={<MediumLoginLayout {...props} />}
       />
 
-      <Box
+      <HStack
         css={{
           position: 'absolute',
           top: 0,
           left: 0,
+          gap: '10px',
           p: '0px 15px 0px 15px',
           height: '68px',
           minHeight: '68px',
@@ -35,9 +37,10 @@ export function LoginLayout(props: LoginFormProps): JSX.Element {
           justifyContent: 'space-between',
           width: '100%',
         }}
+        alignment="start"
       >
         <OmnivoreNameLogo color="#898989" href="/login" />
-      </Box>
+      </HStack>
     </>
   )
 }

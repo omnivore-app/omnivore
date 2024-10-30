@@ -61,6 +61,10 @@ export const createUser = async (input: {
     return [existingUser, profile]
   }
 
+  if (process.env.SIGNUP_CLOSED) {
+    return Promise.reject({ errorCode: SignupErrorCode.AccessDenied })
+  }
+
   if (!validateUsername(input.username)) {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }

@@ -2,41 +2,34 @@ import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { CloseButton } from './CloseButton'
 import { HStack, SpanBox } from './LayoutPrimitives'
 
-export const MaintenanceBanner = () => {
+export const AnnouncementBanner = () => {
   const [
     showMaintenanceMode,
     setShowMaintenanceMode,
     isLoadingShowMaintenanceMode,
   ] = usePersistedState({
-    key: 'show-maintenance-mode',
+    key: 'show-maintenance-mode-03',
     isSessionStorage: false,
-    initialValue: false,
+    initialValue: true,
   })
   return (
     <>
-      {!isLoadingShowMaintenanceMode && showMaintenanceMode && (
-        <HStack
-          css={{
-            p: '5px',
-            width: '100%',
-            position: 'fixed',
-            bg: '#FF5733',
-            color: '#FFFFFF',
-            zIndex: '100',
-          }}
-          alignment="center"
-          distribution="center"
-        >
-          Omnivore will be undergoing maintenance for 30 minutes at 05:00 UTC,
-          during that time the website and APIs will be unavailable.
-          <SpanBox css={{ width: '50px' }} />
-          <CloseButton
-            close={() => {
-              setShowMaintenanceMode(false)
-            }}
-          />
-        </HStack>
-      )}
+      <SpanBox
+        css={{
+          p: '5px',
+          px: '16px',
+          mt: '0px',
+          mb: '10px',
+          bg: '#FF5733',
+          width: '100%',
+          color: '#FFFFFF',
+          zIndex: '100',
+          fontSize: '12px',
+        }}
+      >
+        Omnivore is joining ElevenLabs and will be shutting down the free hosted
+        version. Read more <a href=""> here.</a>
+      </SpanBox>
     </>
   )
 }

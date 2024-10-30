@@ -52,7 +52,7 @@ const postgrator = new Postgrator({
   // Schema table name
   schemaTable: 'schemaversion',
   // Validate migration md5 checksum to ensure the contents of the script have not changed
-  validateChecksums: true,
+  validateChecksums: false,
 })
 
 log('Starting migration manager')

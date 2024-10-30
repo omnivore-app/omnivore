@@ -55,6 +55,7 @@ import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 import { Spinner } from '@phosphor-icons/react/dist/ssr'
+import { AnnouncementBanner } from '../../elements/MaintenanceBanner'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -93,11 +94,13 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [notebookTarget, setNotebookTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)

@@ -23,7 +23,7 @@ import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 import { useQueryClient } from '@tanstack/react-query'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { CloseButton } from '../elements/CloseButton'
-import { MaintenanceBanner } from '../elements/MaintenanceBanner'
+import { AnnouncementBanner } from '../elements/MaintenanceBanner'
 
 export type NavigationSection =
   | 'home'
