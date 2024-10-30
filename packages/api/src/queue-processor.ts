@@ -159,25 +159,25 @@ export const createWorker = (connection: ConnectionOptions) =>
     async (job: Job) => {
       const executeJob = async (job: Job) => {
         switch (job.name) {
-          case 'refresh-all-feeds': {
-            const queue = await getQueue()
-            const counts = await queue?.getJobCounts('prioritized')
-            if (counts && counts.wait > 1000) {
-              return
-            }
-            return await refreshAllFeeds(appDataSource)
-          }
-          case 'refresh-feed': {
-            return await refreshFeed(job.data)
-          }
+          // case 'refresh-all-feeds': {
+          //   const queue = await getQueue()
+          //   const counts = await queue?.getJobCounts('prioritized')
+          //   if (counts && counts.wait > 1000) {
+          //     return
+          //   }
+          //   return await refreshAllFeeds(appDataSource)
+          // }
+          // case 'refresh-feed': {
+          //   return await refreshFeed(job.data)
+          // }
           case 'save-page': {
             return savePageJob(job.data, job.attemptsMade)
           }
-          case 'update-pdf-content': {
-            return updatePDFContentJob(job.data)
-          }
-          case THUMBNAIL_JOB:
-            return findThumbnail(job.data)
+          // case 'update-pdf-content': {
+          //   return updatePDFContentJob(job.data)
+          // }
+          // case THUMBNAIL_JOB:
+          //   return findThumbnail(job.data)
           case TRIGGER_RULE_JOB_NAME:
             return triggerRule(job.data)
           case UPDATE_LABELS_JOB:
@@ -192,12 +192,12 @@ export const createWorker = (connection: ConnectionOptions) =>
             return callWebhook(job.data)
           case EXPORT_ITEM_JOB_NAME:
             return exportItem(job.data)
-          case AI_SUMMARIZE_JOB_NAME:
-            return aiSummarize(job.data)
-          case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
-            return processYouTubeVideo(job.data)
-          case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-            return processYouTubeTranscript(job.data)
+          // case AI_SUMMARIZE_JOB_NAME:
+          //   return aiSummarize(job.data)
+          // case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
+          //   return processYouTubeVideo(job.data)
+          // case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+          //   return processYouTubeTranscript(job.data)
           case EXPORT_ALL_ITEMS_JOB_NAME:
             return exportAllItems(job.data)
           case SEND_EMAIL_JOB:
@@ -210,16 +210,16 @@ export const createWorker = (connection: ConnectionOptions) =>
             return saveNewsletterJob(job.data)
           case FORWARD_EMAIL_JOB:
             return forwardEmailJob(job.data)
-          case CREATE_DIGEST_JOB:
-            return createDigest(job.data)
+          // case CREATE_DIGEST_JOB:
+          //   return createDigest(job.data)
           case UPLOAD_CONTENT_JOB:
             return uploadContentJob(job.data)
-          case UPDATE_HOME_JOB:
-            return updateHome(job.data)
-          case SCORE_LIBRARY_ITEM_JOB:
-            return scoreLibraryItem(job.data)
-          case GENERATE_PREVIEW_CONTENT_JOB:
-            return generatePreviewContent(job.data)
+          // case UPDATE_HOME_JOB:
+          //   return updateHome(job.data)
+          // case SCORE_LIBRARY_ITEM_JOB:
+          //   return scoreLibraryItem(job.data)
+          // case GENERATE_PREVIEW_CONTENT_JOB:
+          //   return generatePreviewContent(job.data)
           case PRUNE_TRASH_JOB:
             return pruneTrashJob(job.data)
           case EXPIRE_FOLDERS_JOB_NAME:
