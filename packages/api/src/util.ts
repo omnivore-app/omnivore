@@ -205,6 +205,7 @@ const nullableEnvVars = [
   'INTERCOM_IOS_SECRET',
   'INTERCOM_ANDROID_SECRET',
   'EXPORT_TASK_HANDLER_URL',
+  'LOCAL_MINIO_URL',
 ] // Allow some vars to be null/empty
 
 const envParser =

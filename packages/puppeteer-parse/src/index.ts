@@ -144,6 +144,49 @@ function getUrl(urlStr: string) {
   return parsed.href
 }
 
+const waitForDOMToSettle = (page: Page, timeoutMs = 60000, debounceMs = 1000) =>
+  page.evaluate(
+    (timeoutMs, debounceMs) => {
+      const debounce = (func: (...args: unknown[]) => void, ms = 1000) => {
+        let timeout: NodeJS.Timeout;
+        return (...args: unknown[]) => {
+          console.log('in debounce, clearing timeout again')
+          clearTimeout(timeout)
+          timeout = setTimeout(() => {
+            func.apply(this, args)
+          }, ms)
+        }
+      }
+      return new Promise<void>((resolve, reject) => {
+        const mainTimeout = setTimeout(() => {
+          observer.disconnect()
+          reject(new Error('Timed out whilst waiting for DOM to settle'))
+        }, timeoutMs)
+
+        const debouncedResolve = debounce(() => {
+          observer.disconnect()
+          clearTimeout(mainTimeout)
+          resolve()
+        }, debounceMs)
+
+        const observer = new MutationObserver(() => {
+          debouncedResolve()
+        })
+
+        const config = {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        }
+
+        observer.observe(document.body, config)
+      })
+    },
+    timeoutMs,
+    debounceMs
+  );
+
+
 async function retrievePage(
   url: string,
   logRecord: Record<string, any>,
@@ -246,15 +289,21 @@ async function retrievePage(
      */
     await page.setRequestInterception(true)
     let requestCount = 0
+    const failedRequests = new Set()
     page.on('request', (request) => {
       ;(async () => {
         if (request.resourceType() === 'font') {
           // Disallow fonts from loading
           return request.abort()
         }
-        if (requestCount++ > 100) {
+        if (requestCount++ > 50) {
           return request.abort()
         }
+
+        if (failedRequests.has(request.url())) {
+          return request.abort()
+        }
+
         if (
           request.resourceType() === 'script' &&
           request.url().toLowerCase().indexOf('mathjax') > -1
@@ -267,15 +316,26 @@ async function retrievePage(
     })
 
     page.on('response', (response) => {
+      if (!response.ok()) {
+        console.log('Failed request', response.url())
+        failedRequests.add(response.url())
+      }
+
       if (response.headers()['content-type'] === 'application/pdf') {
         lastPdfUrl = response.url()
       }
     })
 
+    console.log('Trying to load page, for 30 seconds')
+
     const response = await page.goto(url, {
-      timeout: 30 * 1000,
-      waitUntil: ['networkidle0'],
+      timeout: 90 * 1000,
+      waitUntil: ['load'],
     })
+
+    console.log('Waited for content to load, waiting for DOM to settle.')
+    await waitForDOMToSettle(page)
+
     if (!response) {
       throw new Error('No response from page')
     }

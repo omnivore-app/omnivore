@@ -80,8 +80,8 @@ services:
 
   image-proxy:
     build:
-      context: ../../
-      dockerfile: ./imageproxy/Dockerfile
+      context: ../../imageproxy
+      dockerfile: ./Dockerfile
     container_name: "omnivore-image-proxy"
     ports:
       - "7070:8080"
@@ -97,6 +97,8 @@ services:
       - "9090:8080"
     env_file:
       - .env
+    environment:
+      DBUS_SESSION_BUS_ADDRESS:
     depends_on:
       redis:
         condition: service_healthy
