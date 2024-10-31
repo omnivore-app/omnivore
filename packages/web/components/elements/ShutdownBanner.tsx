@@ -2,15 +2,15 @@ import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { CloseButton } from './CloseButton'
 import { HStack, SpanBox } from './LayoutPrimitives'
 
-export const MaintenanceBanner = () => {
+export const ShutdownBanner = () => {
   const [
     showMaintenanceMode,
     setShowMaintenanceMode,
     isLoadingShowMaintenanceMode,
   ] = usePersistedState({
-    key: 'show-maintenance-mode',
-    isSessionStorage: false,
-    initialValue: false,
+    key: 'show-shutdown-mode',
+    isSessionStorage: true,
+    initialValue: true,
   })
   return (
     <>
@@ -18,17 +18,27 @@ export const MaintenanceBanner = () => {
         <HStack
           css={{
             p: '5px',
-            width: '100%',
-            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            position: 'absolute',
             bg: '#FF5733',
             color: '#FFFFFF',
             zIndex: '100',
+            font: '$inter',
+            gap: '10px',
           }}
-          alignment="center"
+          alignment="start"
           distribution="center"
         >
-          Omnivore will be undergoing maintenance for 30 minutes at 05:00 UTC,
-          during that time the website and APIs will be unavailable.
+          Omnivore is shutting down on Nov. 30th.
+          <a
+            href="https://blog.omnivore.app/p/details-on-omnivore-shutting-down"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Read More
+          </a>
           <SpanBox css={{ width: '50px' }} />
           <CloseButton
             close={() => {

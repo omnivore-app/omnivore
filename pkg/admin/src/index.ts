@@ -17,6 +17,7 @@ import {
   Features,
   EmailAddress,
   Rule,
+  Export,
 } from './db'
 import { compare, hashSync } from 'bcryptjs'
 const readYamlFile = require('read-yaml-file')
@@ -54,6 +55,7 @@ const ADMIN_USER_EMAIL =
       { resource: Features, options: { parent: { name: 'Users' } } },
       { resource: EmailAddress, options: { parent: { name: 'Users' } } },
       { resource: Rule, options: { parent: { name: 'Users' } } },
+      { resource: Export, options: { parent: { name: 'Users' } } },
     ],
   })
 

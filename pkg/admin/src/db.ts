@@ -56,6 +56,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       Features,
       EmailAddress,
       Rule,
+      Export,
     ],
   })
 
@@ -499,4 +500,34 @@ export class Rule extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'failed_at' })
   failedAt?: Date
+}
+
+@Entity({ name: 'export' })
+export class Export extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @Column('uuid')
+  userId!: string
+
+  @Column('text', { nullable: true })
+  taskId?: string
+
+  @Column('text')
+  state!: string
+
+  @Column('int', { default: 0 })
+  totalItems!: number
+
+  @Column('int', { default: 0 })
+  processedItems!: number
+
+  @Column('text', { nullable: true })
+  signedUrl?: string
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
 }
