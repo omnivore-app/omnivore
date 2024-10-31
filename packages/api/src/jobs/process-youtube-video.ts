@@ -281,24 +281,24 @@ export const processYouTubeVideo = async (
     updatedLibraryItem.publishedAt = new Date(video.uploadDate)
   }
 
-  if ('getTranscript' in video && duration > 0 && duration < 1801) {
-    // If the video has a transcript available, put a placehold in and
-    // enqueue a job to process the full transcript
-    const updatedContent = await addTranscriptToReadableContent(
-      libraryItem.originalUrl,
-      libraryItem.readableContent,
-      TRANSCRIPT_PLACEHOLDER_TEXT
-    )
+  // if ('getTranscript' in video && duration > 0 && duration < 1801) {
+  //   // If the video has a transcript available, put a placehold in and
+  //   // enqueue a job to process the full transcript
+  //   const updatedContent = await addTranscriptToReadableContent(
+  //     libraryItem.originalUrl,
+  //     libraryItem.readableContent,
+  //     TRANSCRIPT_PLACEHOLDER_TEXT
+  //   )
 
-    if (updatedContent) {
-      updatedLibraryItem.readableContent = updatedContent
-    }
+  //   if (updatedContent) {
+  //     updatedLibraryItem.readableContent = updatedContent
+  //   }
 
-    await enqueueProcessYouTubeTranscript({
-      videoId,
-      ...jobData,
-    })
-  }
+  //   await enqueueProcessYouTubeTranscript({
+  //     videoId,
+  //     ...jobData,
+  //   })
+  // }
 
   if (updatedLibraryItem !== {}) {
     await updateLibraryItem(
