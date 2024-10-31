@@ -144,11 +144,12 @@ function getUrl(urlStr: string) {
   return parsed.href
 }
 
-const waitForDOMToSettle = (page: Page, timeoutMs = 60000, debounceMs = 1000) =>
+const waitForDOMToSettle = (page: Page, timeoutMs = 2500, debounceMs = 1000) =>
   page.evaluate(
     (timeoutMs, debounceMs) => {
       const debounce = (func: (...args: unknown[]) => void, ms = 1000) => {
-        let timeout: NodeJS.Timeout;
+        let timeout: NodeJS.Timeout
+        console.log(`Debouncing in  ${ms}`)
         return (...args: unknown[]) => {
           console.log('in debounce, clearing timeout again')
           clearTimeout(timeout)
@@ -157,10 +158,13 @@ const waitForDOMToSettle = (page: Page, timeoutMs = 60000, debounceMs = 1000) =>
           }, ms)
         }
       }
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<void>((resolve) => {
         const mainTimeout = setTimeout(() => {
           observer.disconnect()
-          reject(new Error('Timed out whilst waiting for DOM to settle'))
+          console.log(
+            'Timed out whilst waiting for DOM to settle. Using what we have.'
+          )
+          resolve()
         }, timeoutMs)
 
         const debouncedResolve = debounce(() => {
@@ -184,8 +188,7 @@ const waitForDOMToSettle = (page: Page, timeoutMs = 60000, debounceMs = 1000) =>
     },
     timeoutMs,
     debounceMs
-  );
-
+  )
 
 async function retrievePage(
   url: string,
@@ -329,7 +332,7 @@ async function retrievePage(
     console.log('Trying to load page, for 30 seconds')
 
     const response = await page.goto(url, {
-      timeout: 90 * 1000,
+      timeout: 30 * 1000,
       waitUntil: ['load'],
     })
 
