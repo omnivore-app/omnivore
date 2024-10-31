@@ -56,6 +56,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       Features,
       EmailAddress,
       Rule,
+      Export,
     ],
   })
 
