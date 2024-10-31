@@ -72,11 +72,8 @@ services:
     container_name: "omnivore-web"
     ports:
       - "3000:8080"
-    environment:
-      - NEXT_PUBLIC_APP_ENV=prod
-      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
-      - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4000
-      - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
+    env_file:
+      .env
     depends_on:
       api:
         condition: service_healthy
