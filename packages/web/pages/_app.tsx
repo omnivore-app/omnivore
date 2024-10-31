@@ -22,7 +22,6 @@ import {
 } from '../components/elements/KBar'
 import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
-import { posthog } from 'posthog-js'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { QueryClient } from '@tanstack/react-query'
@@ -95,16 +94,6 @@ const ConditionalCaptchaProvider = (props: {
 
 export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
-
-  useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      posthog.capture('$pageview')
-    }
-    router.events.on('routeChangeComplete', handleRouteChange)
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange)
-    }
-  }, [router.events])
 
   return (
     <ConditionalCaptchaProvider>
