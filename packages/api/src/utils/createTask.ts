@@ -1087,7 +1087,11 @@ export const queueExportJob = async (userId: string, exportId: string) => {
       removeOnComplete: true,
       removeOnFail: true,
       priority: getJobPriority(EXPORT_JOB_NAME),
-      attempts: 1,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 60_000,
+      },
     }
   )
 }
