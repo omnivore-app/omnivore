@@ -36,5 +36,3 @@ export const setupAnalytics = (user?: UserBasicData): void => {
     window.Intercom('update', userInfo(user))
   }
 }
-
-export const deinitAnalytics = (): void => {}
