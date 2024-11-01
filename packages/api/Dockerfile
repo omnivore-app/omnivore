@@ -27,6 +27,8 @@ ADD /packages/content-handler ./packages/content-handler
 ADD /packages/liqe ./packages/liqe
 ADD /packages/utils ./packages/utils
 
+ENV NODE_OPTIONS=--max-old-space-size=4096
+
 RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/text-to-speech-handler build
 RUN yarn workspace @omnivore/content-handler build

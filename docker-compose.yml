@@ -99,7 +99,7 @@ services:
       - CLIENT_URL=http://localhost:3000
       - GATEWAY_URL=http://localhost:8080/api
       - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
-      - REDIS_URL='redis://redis:6379'
+      - REDIS_URL=redis://redis:6379
     depends_on:
       migrate:
         condition: service_completed_successfully
