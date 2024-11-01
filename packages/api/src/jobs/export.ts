@@ -253,7 +253,7 @@ export const exportJob = async (jobData: ExportJobData) => {
     // generate a temporary signed url for the zip file
     const [signedUrl] = await file.getSignedUrl({
       action: 'read',
-      expires: Date.now() + 86400 * 1000, // 15 minutes
+      expires: Date.now() + 48 * 60 * 60 * 1000, // 24 hours
     })
 
     logger.info('signed url for export:', {
