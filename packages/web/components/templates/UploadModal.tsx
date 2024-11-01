@@ -293,7 +293,8 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
             title="Upload file"
             onOpenChange={props.onOpenChange}
           />
-          <Dropzone
+          The uploader is currently disabled.
+          {/* <Dropzone
             ref={dropzoneRef}
             onDragEnter={() => {
               setInDragOperation(true)
@@ -447,7 +448,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
                 <input {...getInputProps()} />
               </div>
             )}
-          </Dropzone>
+          </Dropzone> */}
         </VStack>
       </ModalContent>
     </ModalRoot>

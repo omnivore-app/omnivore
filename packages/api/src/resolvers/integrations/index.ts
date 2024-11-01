@@ -219,47 +219,47 @@ export const importFromIntegrationResolver = authorized<
   ImportFromIntegrationError,
   MutationImportFromIntegrationArgs
 >(async (_, { integrationId }, { claims: { uid }, log }) => {
-  const integration = await findIntegration({ id: integrationId }, uid)
+  // const integration = await findIntegration({ id: integrationId }, uid)
 
-  if (!integration) {
-    return {
-      errorCodes: [ImportFromIntegrationErrorCode.Unauthorized],
-    }
-  }
-
-  const authToken = await createIntegrationToken({
-    uid: integration.user.id,
-    token: integration.token,
-  })
-  if (!authToken) {
-    return {
-      errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
-    }
-  }
-
-  // create a task to import all the pages
-  const taskName = await enqueueImportFromIntegration(
-    integration.id,
-    integration.name,
-    integration.syncedAt?.getTime() || 0,
-    authToken,
-    integration.importItemState || ImportItemState.Unarchived
-  )
-  log.info('task created', taskName)
-  // // update task name in integration
-  // await updateIntegration(integration.id, { taskName }, uid)
-
-  analytics.capture({
-    distinctId: uid,
-    event: 'integration_import',
-    properties: {
-      integrationId,
-    },
-  })
-
+  // if (!integration) {
   return {
-    success: true,
+    errorCodes: [ImportFromIntegrationErrorCode.Unauthorized],
   }
+  // }
+
+  // const authToken = await createIntegrationToken({
+  //   uid: integration.user.id,
+  //   token: integration.token,
+  // })
+  // if (!authToken) {
+  //   return {
+  //     errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
+  //   }
+  // }
+
+  // // create a task to import all the pages
+  // const taskName = await enqueueImportFromIntegration(
+  //   integration.id,
+  //   integration.name,
+  //   integration.syncedAt?.getTime() || 0,
+  //   authToken,
+  //   integration.importItemState || ImportItemState.Unarchived
+  // )
+  // log.info('task created', taskName)
+  // // // update task name in integration
+  // // await updateIntegration(integration.id, { taskName }, uid)
+
+  // analytics.capture({
+  //   distinctId: uid,
+  //   event: 'integration_import',
+  //   properties: {
+  //     integrationId,
+  //   },
+  // })
+
+  // return {
+  //   success: true,
+  // }
 })
 
 export const exportToIntegrationResolver = authorized<
