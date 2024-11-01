@@ -62,6 +62,9 @@ const run = async () => {
   const backendQueue = new Queue('omnivore-backend-queue', {
     connection: connection,
   })
+  const exportQueue = new Queue('omnivore-export-queue', {
+    connection: connection,
+  })
   const contentFetchQueue = new Queue('omnivore-content-fetch-queue', {
     connection: connection,
   })
@@ -72,6 +75,7 @@ const run = async () => {
   createBullBoard({
     queues: [
       new BullMQAdapter(backendQueue),
+      new BullMQAdapter(exportQueue),
       new BullMQAdapter(contentFetchQueue),
     ],
     serverAdapter,
