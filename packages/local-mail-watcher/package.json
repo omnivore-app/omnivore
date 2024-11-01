@@ -1,0 +1,40 @@
+{
+  "name": "@omnivore/local-mail-watcher",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --files src/index.ts",
+    "start": "node dist/index.js",
+    "start-watcher": "node dist/watcher.js",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
+    "test:typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.1",
+    "mailparser": "^3.7.1",
+    "axios": "^1.7.7",
+    "express": "^4.21.1",
+    "bullmq": "^5.22.0",
+    "@omnivore/utils": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/html-to-text": "^9.0.2",
+    "@types/jsdom": "^21.1.3",
+    "@types/lodash": "^4.14.201",
+    "@types/mailparser": "^3.4.5",
+    "@types/axios" : "^0.14.4",
+    "@types/node": "^20.8.4",
+    "@types/express": "^5.0.0",
+    "@types/pg": "^8.10.5",
+    "@types/pg-format": "^1.0.3",
+    "@types/urlsafe-base64": "^1.0.28",
+    "@types/uuid": "^9.0.1",
+    "@types/voca": "^1.4.3",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.6.2"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

@@ -97,8 +97,6 @@ services:
       - "9090:8080"
     env_file:
       - .env
-    environment:
-      DBUS_SESSION_BUS_ADDRESS:
     depends_on:
       redis:
         condition: service_healthy
@@ -153,6 +151,18 @@ services:
       /usr/bin/mc policy set public myminio/omnivore;
       exit 0;
       "
+  mail-watch-server:
+    build:
+      context: ../../
+      dockerfile: ./packages/local-mail-watcher/Dockerfile
+    container_name: "omnivore-mail-watch-server"
+    ports:
+      - "4398:8080"
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
 volumes:
   pgdata:
   redis_data:
