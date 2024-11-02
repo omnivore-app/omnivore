@@ -535,13 +535,31 @@ const ExportSection = (): JSX.Element => {
             return (
               <HStack
                 key={item.id}
-                css={{ width: '100% ' }}
+                css={{ width: '100%', height: '55px' }}
                 distribution="start"
+                alignment="center"
               >
                 <SpanBox css={{ width: '180px' }} title={item.createdAt}>
                   {timeAgo(item.createdAt)}
                 </SpanBox>
-                <SpanBox>{item.state}</SpanBox>
+                <SpanBox css={{ width: '180px' }}>{item.state}</SpanBox>
+                {item.totalItems && (
+                  <VStack css={{ width: '180px', height: '50px', pt: '12px' }}>
+                    <ProgressBar
+                      fillPercentage={
+                        ((item.processedItems ?? 0) / item.totalItems) * 100
+                      }
+                      fillColor={theme.colors.omnivoreCtaYellow.toString()}
+                      backgroundColor={theme.colors.grayText.toString()}
+                      borderRadius={'2px'}
+                    />
+                    <StyledText style="footnote" css={{ mt: '0px' }}>
+                      {`${item.processedItems ?? 0} of ${
+                        item.totalItems
+                      } items.`}
+                    </StyledText>
+                  </VStack>
+                )}
                 {item.signedUrl && (
                   <SpanBox css={{ marginLeft: 'auto' }}>
                     <a href={item.signedUrl} target="_blank" rel="noreferrer">

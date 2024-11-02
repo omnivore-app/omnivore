@@ -5,6 +5,8 @@ import { TaskState } from './mutations/exportToIntegrationMutation'
 type Export = {
   id: string
   state: TaskState
+  totalItems?: number
+  processedItems?: number
   createdAt: string
   signedUrl: string
 }

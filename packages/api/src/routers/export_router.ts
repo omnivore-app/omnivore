@@ -3,8 +3,9 @@ import express, { Router } from 'express'
 import { TaskState } from '../generated/graphql'
 import { jobStateToTaskState } from '../queue-processor'
 import {
-  countExportsWithin24Hours,
+  countExportsWithin6Hours,
   countExportsWithinMinute,
+  findExports,
   saveExport,
 } from '../services/export'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
@@ -42,9 +43,9 @@ export function exportRouter() {
         })
       }
 
-      const exportsWithin24Hours = await countExportsWithin24Hours(userId)
+      const exportsWithin24Hours = await countExportsWithin6Hours(userId)
       if (exportsWithin24Hours >= 3) {
-        logger.error('User has reached the limit of exports within 24 hours', {
+        logger.error('User has reached the limit of exports within 6 hours', {
           userId,
           exportsWithin24Hours,
         })
@@ -88,6 +89,38 @@ export function exportRouter() {
       })
     } catch (error) {
       logger.error('Error exporting all items', {
+        userId,
+        error,
+      })
+      return res.status(500).send({
+        error: 'INTERNAL_ERROR',
+      })
+    }
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  router.get('/list', cors<express.Request>(corsConfig), async (req, res) => {
+    const token = getTokenByRequest(req)
+    // get claims from token
+    const claims = await getClaimsByToken(token)
+    if (!claims) {
+      logger.error('Token not found')
+      return res.status(401).send({
+        error: 'UNAUTHORIZED',
+      })
+    }
+
+    // get user by uid from claims
+    const userId = claims.uid
+
+    try {
+      const exports = await findExports(userId)
+
+      res.send({
+        exports,
+      })
+    } catch (error) {
+      logger.error('Error fetching exports', {
         userId,
         error,
       })
