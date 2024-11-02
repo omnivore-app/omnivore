@@ -1,5 +1,7 @@
-FROM node:18.16
+FROM ghcr.io/puppeteer/puppeteer:latest
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
+
+USER root
 
 # Installs latest Chromium package.
 RUN apt-get update && apt-get install -y \
@@ -11,8 +13,10 @@ RUN apt-get update && apt-get install -y \
     make \
     python3
 
+
 WORKDIR /app
 
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 ENV CHROMIUM_PATH /usr/bin/chromium
 ENV LAUNCH_HEADLESS=true
 
@@ -46,4 +50,5 @@ RUN yarn install --pure-lockfile --production
 EXPOSE 8080
 
 CMD ["yarn", "workspace", "@omnivore/content-fetch", "start"]
+
 
