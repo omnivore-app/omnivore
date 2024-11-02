@@ -241,7 +241,7 @@ export const exportJob = async (jobData: ExportJobData) => {
         const size = items.length
         // write data to the csv file
         if (size > 0) {
-          let nextCursor = await uploadToBucket(
+          const nextCursor = await uploadToBucket(
             userId,
             items,
             cursor,
