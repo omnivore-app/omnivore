@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import {
   Box,
+  HStack,
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
@@ -27,7 +28,13 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { createExport } from '../../lib/networking/useCreateExport'
+import {
+  createExport,
+  useGetExports,
+} from '../../lib/networking/useCreateExport'
+import { TaskState } from '../../lib/networking/mutations/exportToIntegrationMutation'
+import { timeAgo } from '../../lib/textFormatting'
+import { Download, DownloadSimple } from '@phosphor-icons/react'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -475,6 +482,8 @@ export default function Account(): JSX.Element {
 }
 
 const ExportSection = (): JSX.Element => {
+  const { data: recentExports } = useGetExports()
+  console.log('recentExports: ', recentExports)
   const doExport = useCallback(async () => {
     const result = await createExport()
     if (result) {
@@ -502,6 +511,12 @@ const ExportSection = (): JSX.Element => {
         you should receive an email with a link to your data within an hour. The
         download link will be available for 24 hours.
       </StyledText>
+      <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+        If you do not receive your completed export within 24hrs please contact{' '}
+        <a href="mailto:feedback@omnivore.app">
+          Contact&nbsp;us via&nbsp;email
+        </a>
+      </StyledText>
       <Button
         style="ctaDarkYellow"
         onClick={(event) => {
@@ -512,6 +527,33 @@ const ExportSection = (): JSX.Element => {
       >
         Export Data
       </Button>
+
+      {recentExports && (
+        <VStack css={{ width: '100% ', mt: '20px' }}>
+          <StyledLabel>Recent exports</StyledLabel>
+          {recentExports.map((item) => {
+            return (
+              <HStack
+                key={item.id}
+                css={{ width: '100% ' }}
+                distribution="start"
+              >
+                <SpanBox css={{ width: '180px' }} title={item.createdAt}>
+                  {timeAgo(item.createdAt)}
+                </SpanBox>
+                <SpanBox>{item.state}</SpanBox>
+                {item.signedUrl && (
+                  <SpanBox css={{ marginLeft: 'auto' }}>
+                    <a href={item.signedUrl} target="_blank" rel="noreferrer">
+                      Download
+                    </a>
+                  </SpanBox>
+                )}
+              </HStack>
+            )
+          })}
+        </VStack>
+      )}
     </VStack>
   )
 }

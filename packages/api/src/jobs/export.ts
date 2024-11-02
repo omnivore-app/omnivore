@@ -175,6 +175,12 @@ export const exportJob = async (jobData: ExportJobData) => {
       userId
     )
 
+    await saveExport(userId, {
+      id: exportId,
+      state: TaskState.Running,
+      totalItems: itemCount,
+    })
+
     logger.info(`exporting ${itemCount} items...`, {
       userId,
     })
@@ -226,6 +232,11 @@ export const exportJob = async (jobData: ExportJobData) => {
       // fetch data from the database
       const batchSize = 20
       for (cursor = 0; cursor < itemCount; cursor += batchSize) {
+        logger.info(`export extracting ${cursor} of ${itemCount}`, {
+          userId,
+          exportId,
+        })
+
         const items = await searchLibraryItems(
           {
             from: cursor,
@@ -242,6 +253,10 @@ export const exportJob = async (jobData: ExportJobData) => {
         // write data to the csv file
         if (size > 0) {
           await uploadToBucket(userId, items, cursor, size, archive)
+          await saveExport(userId, {
+            id: exportId,
+            processedItems: cursor,
+          })
         } else {
           break
         }
@@ -264,7 +279,7 @@ export const exportJob = async (jobData: ExportJobData) => {
     // generate a temporary signed url for the zip file
     const [signedUrl] = await file.getSignedUrl({
       action: 'read',
-      expires: Date.now() + 48 * 60 * 60 * 1000, // 48 hours
+      expires: Date.now() + 168 * 60 * 60 * 1000, // one week
     })
 
     logger.info('signed url for export:', {
@@ -275,6 +290,8 @@ export const exportJob = async (jobData: ExportJobData) => {
     await saveExport(userId, {
       id: exportId,
       state: TaskState.Succeeded,
+      signedUrl,
+      processedItems: itemCount,
     })
 
     const job = await sendExportJobEmail(userId, 'completed', signedUrl)
