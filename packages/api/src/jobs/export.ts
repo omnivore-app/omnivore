@@ -5,6 +5,7 @@ import { TaskState } from '../generated/graphql'
 import { findExportById, saveExport } from '../services/export'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import {
+  countLibraryItems,
   findLibraryItemById,
   searchLibraryItems,
 } from '../services/library_item'
@@ -163,7 +164,17 @@ export const exportJob = async (jobData: ExportJobData) => {
       return
     }
 
-    logger.info('exporting all items...', {
+    const itemCount = await countLibraryItems(
+      {
+        query: 'in:all',
+        includeContent: false,
+        includeDeleted: false,
+        includePending: false,
+      },
+      userId
+    )
+
+    logger.info(`exporting ${itemCount} items...`, {
       userId,
     })
 
@@ -230,8 +241,17 @@ export const exportJob = async (jobData: ExportJobData) => {
         const size = items.length
         // write data to the csv file
         if (size > 0) {
-          cursor = await uploadToBucket(userId, items, cursor, size, archive)
-
+          let nextCursor = await uploadToBucket(
+            userId,
+            items,
+            cursor,
+            size,
+            archive
+          )
+          if (nextCursor == cursor) {
+            break
+          }
+          cursor = nextCursor
           hasNext = size === batchSize
         }
       } while (hasNext)
