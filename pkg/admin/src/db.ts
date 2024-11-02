@@ -507,23 +507,24 @@ export class Export extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @Column('uuid')
-  userId!: string
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, { eager: true })
+  user!: User
 
   @Column('text', { nullable: true })
-  taskId?: string
+  task_id?: string
 
   @Column('text')
   state!: string
 
   @Column('int', { default: 0 })
-  totalItems!: number
+  total_items!: number
 
   @Column('int', { default: 0 })
-  processedItems!: number
+  processed_items!: number
 
   @Column('text', { nullable: true })
-  signedUrl?: string
+  signed_url?: string
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
