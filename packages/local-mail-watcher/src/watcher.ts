@@ -5,7 +5,7 @@ import { sendToEmailApi } from './lib/emailApi'
 import { env } from './env'
 
 chokidar.watch(env.filesystem.filePath).on('add', (path, _event) => {
-  // console.log(event, path)
+  console.log(path)
   const contents = fs.readFileSync(path).toString()
   simpleParser(contents)
     .then((it) => ({
@@ -16,6 +16,12 @@ chokidar.watch(env.filesystem.filePath).on('add', (path, _event) => {
       text: it.text || '',
       headers: it.headers,
     }))
-    .then((emailData) => sendToEmailApi(emailData))
-    .then(() => fs.unlinkSync(path))
+    .then(async (emailData) => {
+      await sendToEmailApi(emailData)
+      console.log('Sent to email API')
+    })
+    .then(() => {
+      fs.unlinkSync(path)
+      console.log('Deleted File')
+    })
 })

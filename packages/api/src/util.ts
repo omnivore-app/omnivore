@@ -98,6 +98,9 @@ export interface BackendEnv {
     useLocalStorage: boolean
     localMinioUrl: string
   }
+  email: {
+    domain: string
+  }
   sender: {
     message: string
     feedback: string
@@ -206,6 +209,7 @@ const nullableEnvVars = [
   'INTERCOM_ANDROID_SECRET',
   'EXPORT_TASK_HANDLER_URL',
   'LOCAL_MINIO_URL',
+  'LOCAL_EMAIL_DOMAIN',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -245,6 +249,7 @@ export function getEnv(): BackendEnv {
     pool: {
       max: parseInt(parse('PG_POOL_MAX'), 10),
     },
+
     replication: parse('PG_REPLICATION') === 'true',
     replica: {
       host: parse('PG_REPLICA_HOST'),
@@ -253,6 +258,9 @@ export function getEnv(): BackendEnv {
       password: parse('PG_REPLICA_PASSWORD'),
       dbName: parse('PG_REPLICA_DB'),
     },
+  }
+  const email = {
+    domain: parse('LOCAL_EMAIL_DOMAIN'),
   }
   const server = {
     jwtSecret: parse('JWT_SECRET'),
@@ -382,6 +390,7 @@ export function getEnv(): BackendEnv {
   return {
     pg,
     client,
+    email,
     server,
     google,
     posthog,
