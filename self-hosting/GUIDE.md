@@ -3,6 +3,9 @@
 - [Docker Compose](#docker-compose)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Cloudflare Tunnel](#cloudflare-tunnel)
+- [Email](#email)
+- - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
+- - [Third Party Services](#third-party-services)
 
 ## Docker Compose
 
@@ -200,6 +203,10 @@ http {
         location / {
             proxy_pass http://omnivore_web;
         }
+        
+        location /mail {
+            proxy_pass http://localhost:4398/mail;
+        }
     }
 }
 ```
@@ -214,3 +221,68 @@ You run a daemon on your host machine, which creates outbound connections to the
 Omnivore is no way affiliated with Cloudflare, it is just the method to which the person writing this guide used, and found pretty painless overall.
 
 [Read More](https://www.cloudflare.com/products/tunnel/)
+
+
+## Emails and Newsletters
+
+Another Feature of Omnivore is the ability to receive Newsletters directly into your Inbox using email. This feature is described more [here](#receiving-newsletter-subscriptions-via-email).
+
+This works by generating an email address, and subscribing to a newsletter using that email address. 
+
+In order to get this working in a self-hosted way we have created a new endpoint that allows you to send an API request with the emails contents.  
+
+We will go over 
+
+#### Receiving Newsletter Subscriptions via Email
+1. On the Omnivore website or app, tap your photo, initial, or avatar in the top right corner to access the profile menu. Select Emails from the menu.
+
+2. Tap Create a New Email Address to add a new email address (e.g. username-123abc@inbox.omnivore.app) to the list.
+
+3. Click the Copy icon next to the email address.
+
+4. Navigate to the signup page for the newsletter you wish to subscribe to.
+
+5. Paste the Omnivore email address into the signup form.
+
+6. New newsletters will be automatically delivered to your Omnivore inbox.
+
+### Docker-mailserver and mail-watcher
+
+### Amazon Simple Email Service and SNS 
+
+### Zapier and other Webhook Services. 
+
+If you are just looking for a simple way to import emails into your Self Hosted Omnivore Account, you can use a service like Zapier to forward the email into the mail-proxy. 
+
+Below is a set of instructions to get this working. 
+
+#### Step 1. Create an Omnivore Email 
+![Email](../docs/guides/images/create-new-email.png)
+
+#### Step 2. Create a Zapier Integration, using Gmail or Equivalent
+You can either use your own email with a filter, or alternatively create a new gmail account exclusively for your Newsletters.
+![Zapier-Email](../docs/guides/images/zapier-email-webhook.png)
+
+#### Step 3. Convert Email into Payload for Webhook. 
+![Zapier-Javascript](../docs/guides/images/zapier-javascript-step.png)
+
+For the to object use the email provided in step 1. 
+
+```javascript
+return { data: JSON.stringify(inputData) }
+```
+
+#### Step 4. Send to Mail Proxy. 
+![Zapier-Proxy](../docs/guides/images/zapier-webhook-step.png)
+* POST Request
+* Use the x-api-key set in your .env file 
+* The data is the output from the previous step. 
+
+#### Email Imported
+
+Following these steps you should see your email imported into Omnivore. 
+
+![imported-email](../docs/guides/images/imported-email.png)
+
+
+
