@@ -543,7 +543,7 @@ const ExportSection = (): JSX.Element => {
                   {timeAgo(item.createdAt)}
                 </SpanBox>
                 <SpanBox css={{ width: '180px' }}>{item.state}</SpanBox>
-                {item.totalItems && (
+                {item.totalItems && item.totalItems > 0 ? (
                   <VStack css={{ width: '180px', height: '50px', pt: '12px' }}>
                     <ProgressBar
                       fillPercentage={
@@ -559,6 +559,8 @@ const ExportSection = (): JSX.Element => {
                       } items.`}
                     </StyledText>
                   </VStack>
+                ) : (
+                  <></>
                 )}
                 {item.signedUrl && (
                   <SpanBox css={{ marginLeft: 'auto' }}>
