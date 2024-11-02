@@ -220,10 +220,10 @@ export const exportJob = async (jobData: ExportJobData) => {
     // Pipe the archiver output to the write stream
     archive.pipe(writeStream)
 
+    let cursor = 0
     try {
       // fetch data from the database
       const batchSize = 20
-      let cursor = 0
       let hasNext = false
       do {
         const items = await searchLibraryItems(
@@ -266,7 +266,7 @@ export const exportJob = async (jobData: ExportJobData) => {
       writeStream.on('error', reject)
     })
 
-    logger.info('export completed', {
+    logger.info(`export completed, exported ${cursor} items`, {
       userId,
     })
 
