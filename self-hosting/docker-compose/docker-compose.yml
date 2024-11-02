@@ -144,7 +144,7 @@ services:
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
+      /bin/bash -c "
       sleep 5;
       until (/usr/bin/mc config host add myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc mb myminio/omnivore;

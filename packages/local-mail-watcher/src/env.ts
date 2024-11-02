@@ -17,7 +17,7 @@ interface WatcherEnv {
 
 const envParser =
   (env: { [key: string]: string | undefined }) =>
-  (varName: string, throwOnUndefined = true): string | undefined => {
+  (varName: string, throwOnUndefined = false): string | undefined => {
     const value = env[varName]
     if (typeof value === 'string' && value) {
       return value
