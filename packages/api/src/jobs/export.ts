@@ -14,6 +14,7 @@ import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
 import { contentFilePath, createGCSFile } from '../utils/uploads'
+import { batch } from 'googleapis/build/src/apis/batch'
 
 export interface ExportJobData {
   userId: string
@@ -224,8 +225,7 @@ export const exportJob = async (jobData: ExportJobData) => {
     try {
       // fetch data from the database
       const batchSize = 20
-      let hasNext = false
-      do {
+      for (cursor = 0; cursor < itemCount; cursor += batchSize) {
         const items = await searchLibraryItems(
           {
             from: cursor,
@@ -241,20 +241,11 @@ export const exportJob = async (jobData: ExportJobData) => {
         const size = items.length
         // write data to the csv file
         if (size > 0) {
-          const nextCursor = await uploadToBucket(
-            userId,
-            items,
-            cursor,
-            size,
-            archive
-          )
-          if (nextCursor == cursor) {
-            break
-          }
-          cursor = nextCursor
-          hasNext = size === batchSize
+          await uploadToBucket(userId, items, cursor, size, archive)
+        } else {
+          break
         }
-      } while (hasNext)
+      }
     } finally {
       // Finalize the archive
       await archive.finalize()
