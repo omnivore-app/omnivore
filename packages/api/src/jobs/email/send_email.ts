@@ -24,6 +24,7 @@ export type SendEmailJobData = Merge<
 >
 
 export const sendEmailJob = async (data: SendEmailJobData) => {
+  logger.info('sending email job:', { data })
   if (!data.to) {
     const user = await findActiveUser(data.userId)
     if (!user) {
