@@ -5,6 +5,7 @@ import { TaskState } from '../generated/graphql'
 import { findExportById, saveExport } from '../services/export'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import {
+  countLibraryItems,
   findLibraryItemById,
   searchLibraryItems,
 } from '../services/library_item'
@@ -163,7 +164,17 @@ export const exportJob = async (jobData: ExportJobData) => {
       return
     }
 
-    logger.info('exporting all items...', {
+    const itemCount = await countLibraryItems(
+      {
+        query: 'in:all',
+        includeContent: false,
+        includeDeleted: false,
+        includePending: false,
+      },
+      userId
+    )
+
+    logger.info(`exporting ${itemCount} items...`, {
       userId,
     })
 
@@ -209,10 +220,10 @@ export const exportJob = async (jobData: ExportJobData) => {
     // Pipe the archiver output to the write stream
     archive.pipe(writeStream)
 
+    let cursor = 0
     try {
       // fetch data from the database
       const batchSize = 20
-      let cursor = 0
       let hasNext = false
       do {
         const items = await searchLibraryItems(
@@ -230,8 +241,17 @@ export const exportJob = async (jobData: ExportJobData) => {
         const size = items.length
         // write data to the csv file
         if (size > 0) {
-          cursor = await uploadToBucket(userId, items, cursor, size, archive)
-
+          const nextCursor = await uploadToBucket(
+            userId,
+            items,
+            cursor,
+            size,
+            archive
+          )
+          if (nextCursor == cursor) {
+            break
+          }
+          cursor = nextCursor
           hasNext = size === batchSize
         }
       } while (hasNext)
@@ -246,14 +266,14 @@ export const exportJob = async (jobData: ExportJobData) => {
       writeStream.on('error', reject)
     })
 
-    logger.info('export completed', {
+    logger.info(`export completed, exported ${cursor} items`, {
       userId,
     })
 
     // generate a temporary signed url for the zip file
     const [signedUrl] = await file.getSignedUrl({
       action: 'read',
-      expires: Date.now() + 48 * 60 * 60 * 1000, // 24 hours
+      expires: Date.now() + 48 * 60 * 60 * 1000, // 48 hours
     })
 
     logger.info('signed url for export:', {
