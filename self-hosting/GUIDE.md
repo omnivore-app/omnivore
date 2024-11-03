@@ -294,6 +294,43 @@ Setting up your own email server is a bit overkill for what we are trying to ach
 
 #### Amazon Simple Email Service and SNS 
 
+Amazon Simple Email Service (SES) has options for email receiving. We can use this to add the email functionality to Omnivore-self hosted. 
+
+##### Step 1. Create Identity
+Create your identity using Amazon SES. This will be your domain. 
+
+![create-identity](../docs/guides/images/ses-add-domain.png)
+
+##### Step 2. Verify the Domain using the CNAME Records.
+![Verify Domain](../docs/guides/images/ses-verify.png)
+
+#### Step 3. Add the MX Record 
+
+See instructions on how to do that [here](https://docs.aws.amazon.com/ses/latest/dg/receiving-email-mx-record.html)
+
+##### Step 4. Create Email-Receiving Ruleset
+![Create Ruleset](../docs/guides/images/ses-verify.png)
+![Create Ruleset](../docs/guides/images/sns-define-incoming-rule.png)
+
+
+##### Step 5. Create SNS Topic Target
+![SNS add action](../docs/guides/images/sns-add-actions-sns-menu.png)
+![SNS add action publish](../docs/guides/images/sns-add-action-publish.png)
+![SNS Create](../docs/guides/images/sns-create-topic.png)
+![SNS Topic Menu](../docs/guides/images/sns-topic-menu.png)
+![SNS publish](../docs/guides/images/sns-publish-menu.png)
+
+
+##### Step 6. Setup Subscription
+In SNS you must setup a subscription to your Omnivore Host.
+![Sns Subscription](../docs/guides/images/sns-create-subscription.png)
+
+
+##### Step 7. Test by sending email to Omnivore Email
+![Email](../docs/guides/images/create-new-email.png)
+![Incoming](../docs/guides/images/testing-incoming-email.png)
+![Received](../docs/guides/images/received-email.png)
+
 #### Zapier and other Webhook Services. 
 
 If you are just looking for a simple way to import emails into your Self Hosted Omnivore Account, you can use a service like Zapier to forward the email into the mail-proxy. 
