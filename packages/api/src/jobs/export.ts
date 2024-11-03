@@ -1,6 +1,10 @@
 import archiver, { Archiver } from 'archiver'
 import { v4 as uuidv4 } from 'uuid'
-import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import {
+  ContentReaderType,
+  LibraryItem,
+  LibraryItemState,
+} from '../entity/library_item'
 import { TaskState } from '../generated/graphql'
 import { findExportById, saveExport } from '../services/export'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
@@ -13,8 +17,14 @@ import { sendExportJobEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
-import { contentFilePath, createGCSFile } from '../utils/uploads'
+import {
+  contentFilePath,
+  createGCSFile,
+  generateUploadFilePathName,
+} from '../utils/uploads'
 import { batch } from 'googleapis/build/src/apis/batch'
+import { getRepository } from '../repository'
+import { UploadFile } from '../entity/upload_file'
 
 export interface ExportJobData {
   userId: string
@@ -79,6 +89,30 @@ const uploadContent = async (
   })
 }
 
+const uploadPdfContent = async (
+  libraryItem: LibraryItem,
+  archive: Archiver
+) => {
+  const upload = await getRepository(UploadFile).findOneBy({
+    id: libraryItem.uploadFileId,
+  })
+  if (!upload || !upload.fileName) {
+    console.log(`upload does not have a filename: ${upload}`)
+    return
+  }
+
+  const filePath = generateUploadFilePathName(upload.id, upload.fileName)
+  const file = createGCSFile(filePath)
+  const [exists] = await file.exists()
+  if (exists) {
+    console.log(`adding PDF file: ${filePath}`)
+    // append the existing file to the archive
+    archive.append(file.createReadStream(), {
+      name: `content/${libraryItem.slug}.pdf`,
+    })
+  }
+}
+
 const uploadToBucket = async (
   userId: string,
   items: Array<LibraryItem>,
@@ -111,7 +145,11 @@ const uploadToBucket = async (
   // Loop through the items and add files to /content and /highlights directories
   for (const item of items) {
     // Add content files to /content
-    await uploadContent(userId, item, archive)
+    if (item.uploadFileId) {
+      await uploadPdfContent(item, archive)
+    } else {
+      await uploadContent(userId, item, archive)
+    }
 
     if (item.highlightAnnotations?.length) {
       const highlights = await findHighlightsByLibraryItemId(item.id, userId)
