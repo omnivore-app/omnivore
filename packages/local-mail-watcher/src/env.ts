@@ -11,6 +11,9 @@ interface WatcherEnv {
     mq: redisConfig
     cache: redisConfig
   }
+  sns: {
+    snsArn: string
+  }
   apiKey: string
   apiEndpoint: string
 }
@@ -47,10 +50,14 @@ export function getEnv(): WatcherEnv {
       cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
     },
   }
+  const sns = {
+    snsArn: parse('SNS_ARN') || '',
+  }
 
   return {
     apiKey: parse('WATCHER_API_KEY')!,
     apiEndpoint: parse('WATCHER_API_ENDPOINT')!,
+    sns,
     filesystem,
     redis
   }
