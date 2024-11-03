@@ -879,6 +879,12 @@ export const highlightToMarkdown = (highlight: Highlight): string => {
     return `> ${quote} ${labels ? `\n\n${labels}` : ''}${
       note ? `\n\n${note}` : ''
     }`
+  } else if (
+    highlight.highlightType == HighlightType.Note &&
+    highlight.annotation
+  ) {
+    const note = highlight.annotation
+    return `${note}\n\n`
   }
 
   return ''
