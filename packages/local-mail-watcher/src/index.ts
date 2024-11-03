@@ -1,9 +1,5 @@
 import { RedisDataSource } from '@omnivore/utils'
-import express, {
-  Express,
-  Request,
-  Response,
-} from 'express'
+import express, { Express, Request, Response } from 'express'
 
 import { env } from './env'
 import { getQueue } from './lib/queue'
@@ -15,6 +11,13 @@ import { convertToMailObject } from './lib/emailApi'
 console.log('Starting worker...')
 
 const app: Express = express()
+
+app.use(express.text({ limit: '50mb' }))
+// Force JSON for SNS
+app.use((req, res, next) => {
+  req.headers['content-type'] = 'application/json'
+  next()
+})
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
@@ -63,23 +66,38 @@ app.get('/_ah/health', (_req: Request, res: Response) => {
 app.post('/mail', addEmailEventToQueue)
 
 app.post('/sns', async (req, res) => {
-  const snsMessage = req.body as SnsMessage
+  const bodyString = req.body as string
+  const snsMessage = JSON.parse(bodyString) as SnsMessage
+
+  console.log(`Received SNS Message`, snsMessage)
+  console.log(`Sns Topic ARN ${snsMessage['TopicArn']}`)
 
   if (snsMessage.TopicArn != env.sns.snsArn) {
+    console.log(`Topic ARN: ${snsMessage.TopicArn} Doesnt Match ${env.sns.snsArn}, failing...`)
     res.status(401).send()
     return
   }
 
   if (snsMessage.Type == 'SubscriptionConfirmation') {
+    console.log('Subscribing to topic')
     await axios.get(snsMessage.SubscribeURL)
     res.status(200).send()
     return
   }
 
-  if (snsMessage.Type == 'Received') {
-    const mailContent = await simpleParser(snsMessage.content)
-    const mail = convertToMailObject(mailContent)
+  if (snsMessage.Type == 'Notification') {
+    const message = JSON.parse(snsMessage.Message) as {
+      notificationType: string
+      content: string
+    }
+    if (message.notificationType != 'Received') {
+      console.log('Not an email, failing...')
+      res.status(400).send()
+    }
 
+    const mailContent = await simpleParser(message.content)
+    const mail = convertToMailObject(mailContent)
+    console.log(mail)
     await (
       await queue
     ).add('save-newsletter', mail, {

@@ -3,4 +3,5 @@ export type SnsMessage = {
   TopicArn: string
   SubscribeURL: string
   content: string
+  Message: string
 }

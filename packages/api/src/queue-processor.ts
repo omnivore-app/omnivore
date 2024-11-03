@@ -179,8 +179,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           // case 'update-pdf-content': {
           //   return updatePDFContentJob(job.data)
           // }
-          // case THUMBNAIL_JOB:
-          //   return findThumbnail(job.data)
+          case THUMBNAIL_JOB:
+            return findThumbnail(job.data)
           case TRIGGER_RULE_JOB_NAME:
             return triggerRule(job.data)
           case UPDATE_LABELS_JOB:
@@ -221,8 +221,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           //   return updateHome(job.data)
           // case SCORE_LIBRARY_ITEM_JOB:
           //   return scoreLibraryItem(job.data)
-          // case GENERATE_PREVIEW_CONTENT_JOB:
-          //   return generatePreviewContent(job.data)
+          case GENERATE_PREVIEW_CONTENT_JOB:
+            return generatePreviewContent(job.data)
           case PRUNE_TRASH_JOB:
             return pruneTrashJob(job.data)
           case EXPIRE_FOLDERS_JOB_NAME:
