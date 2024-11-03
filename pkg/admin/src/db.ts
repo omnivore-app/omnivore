@@ -318,6 +318,9 @@ export class LibraryItem extends BaseEntity {
   @Column({ type: 'text', name: 'original_url' })
   originalUrl!: string
 
+  @Column({ type: 'text', name: 'download_url' })
+  downloadlUrl!: string
+
   @Column('text')
   slug!: string
 
