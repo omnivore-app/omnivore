@@ -248,22 +248,66 @@ We will go over
 
 ### Docker-mailserver and mail-watcher
 
-### Amazon Simple Email Service and SNS 
+One way to get this functionality back is to host your own mail server. In this example we will only be using this mail server as an incoming mailbox to receive emails. I would not recommend this method, as it's largely more effort  than it is worth.  
 
-### Zapier and other Webhook Services. 
+We have used [Docker-mailserver](https://docker-mailserver.github.io) here. A guide on how to set this up is found [here](https://docker-mailserver.github.io/docker-mailserver/latest/examples/tutorials/basic-installation/). 
+
+We have included a docker file `self-hosting/docker-compose/mail/docker-compose-mail`. This file does a few things.
+
+* Setups Docker-mailserver with minimal settings. 
+* Creates a user `user@domain.tld` where `domain.tld` is your email servers domain. 
+* Reroutes all mail from `*@domain.tld` to `user@domain.tld`
+* Watches for any new mail incoming, converts it to a payload for the mail proxy, and forwards it on. 
+
+There are a few environment variables that need to be set. 
+
+```.env
+WATCHER_API_KEY=mail-api-key # The API Key that runs the mail-watcher-api 
+MAIL_FILE_PATH=/var/mail/domain.tld/user/new # where domain.tld is the name of your domain
+WATCHER_API_ENDPOINT=https://omnivore-watch.domain.tld # The hosted watcher api - where mail is proxied to and processed.
+```
+
+Additionally you need to change a few things in the docker-file. 
+
+```
+hostname: mail.domain.tld
+```
+```
+    environment:
+      - DOMAIN="domain.tld"
+```
+```
+docker exec -ti mailserver setup email add user@domain.tld pass123;
+echo '@domain.tld user@domain.tld' > /tmp/docker-mailserver/config/postfix-virtual.cf
+```
+replace domain.tld with your mail servers domain. 
+
+Additionally you need to replace the following environment variables for the API. 
+
+```
+WATCHER_API_KEY=mail-api-key # The same as the one in the mail server.
+LOCAL_EMAIL_DOMAIN=domain.tld # Your email domain.
+```
+
+### Third Party Services
+Setting up your own email server is a bit overkill for what we are trying to achieve. Below are some additional services that can be used to achieve the mail functionality. These are just a few examples, but others will also work.
+
+#### Amazon Simple Email Service and SNS 
+
+#### Zapier and other Webhook Services. 
 
 If you are just looking for a simple way to import emails into your Self Hosted Omnivore Account, you can use a service like Zapier to forward the email into the mail-proxy. 
 
 Below is a set of instructions to get this working. 
 
-#### Step 1. Create an Omnivore Email 
+##### Step 1. Create an Omnivore Email 
 ![Email](../docs/guides/images/create-new-email.png)
 
-#### Step 2. Create a Zapier Integration, using Gmail or Equivalent
+##### Step 2. Create a Zapier Integration, using Gmail or Equivalent
 You can either use your own email with a filter, or alternatively create a new gmail account exclusively for your Newsletters.
 ![Zapier-Email](../docs/guides/images/zapier-email-webhook.png)
 
-#### Step 3. Convert Email into Payload for Webhook. 
+##### Step 3. Convert Email into Payload for Webhook. 
 ![Zapier-Javascript](../docs/guides/images/zapier-javascript-step.png)
 
 For the to object use the email provided in step 1. 
@@ -272,13 +316,13 @@ For the to object use the email provided in step 1.
 return { data: JSON.stringify(inputData) }
 ```
 
-#### Step 4. Send to Mail Proxy. 
+##### Step 4. Send to Mail Proxy. 
 ![Zapier-Proxy](../docs/guides/images/zapier-webhook-step.png)
 * POST Request
 * Use the x-api-key set in your .env file 
 * The data is the output from the previous step. 
 
-#### Email Imported
+##### Email Imported
 
 Following these steps you should see your email imported into Omnivore. 
 
