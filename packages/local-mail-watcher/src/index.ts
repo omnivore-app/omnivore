@@ -7,6 +7,10 @@ import express, {
 
 import { env } from './env'
 import { getQueue } from './lib/queue'
+import { SnsMessage } from './types/SNS'
+import { simpleParser } from 'mailparser'
+import axios from 'axios'
+import { convertToMailObject } from './lib/emailApi'
 
 console.log('Starting worker...')
 
@@ -57,6 +61,40 @@ app.get('/_ah/health', (_req: Request, res: Response) => {
 })
 
 app.post('/mail', addEmailEventToQueue)
+
+app.post('/sns', async (req, res) => {
+  const snsMessage = req.body as SnsMessage
+
+  if (snsMessage.TopicArn != env.sns.snsArn) {
+    res.status(401).send()
+    return
+  }
+
+  if (snsMessage.Type == 'SubscriptionConfirmation') {
+    await axios.get(snsMessage.SubscribeURL)
+    res.status(200).send()
+    return
+  }
+
+  if (snsMessage.Type == 'Received') {
+    const mailContent = await simpleParser(snsMessage.content)
+    const mail = convertToMailObject(mailContent)
+
+    await (
+      await queue
+    ).add('save-newsletter', mail, {
+      priority: 1,
+      attempts: 1,
+      delay: 500,
+    })
+    res.sendStatus(200)
+
+    res.status(200).send()
+    return
+  }
+
+  res.status(400).send()
+})
 
 const port = process.env.PORT || 8080
 const server = app.listen(port, () => {
