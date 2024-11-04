@@ -89,12 +89,15 @@ services:
       - .env
 
   content-fetch:
+    platform: linux/amd64
     build:
       context: ../../
       dockerfile: ./packages/content-fetch/Dockerfile
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
+    environment:
+      - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
     env_file:
       - .env
     depends_on:
