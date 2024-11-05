@@ -30,7 +30,7 @@ These files provide all you need to get Omnivore up and running on your local en
 ### 3. Populate the .env file 
 
 There is a .env.example file located within the docker-compose folder that should give you the necessary environment variables to begin running. 
-You can use these by `mv .env.example.env`
+You can use these by `mv .env.example .env`
 
 The following environment variables should be changed to reflect where you are running your application. 
 
