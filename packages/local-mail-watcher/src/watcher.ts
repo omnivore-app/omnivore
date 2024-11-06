@@ -14,7 +14,9 @@ chokidar.watch(env.filesystem.filePath).on('add', (path, _event) => {
       console.log('Sent to email API')
     })
     .then(() => {
-      fs.unlinkSync(path)
+      if (process.env['DELETE_FILE'] == 'true') {
+        fs.unlinkSync(path)
+      }
       console.log('Deleted File')
     })
 })

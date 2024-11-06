@@ -85,8 +85,9 @@ this from the docker-compose and provide the host, username and password of the 
 Redis is used as a queueing system, and for caching. If you have a Redis Instance already it is possible to remove this from the docker-compose 
 and rely on the hosted Redis. You must replace the redis url for this. 
 
-#### Minio
-Minio is an AWS S3 compatible Object storage service. It allows you to use the S3 Storage API. 
+#### Minio (Self-Host)
+Minio is an AWS S3 compatible Object storage service that you can self-host. It is included in the docker-compose file. 
+It allows you to use the S3 Storage API. 
 
 We also have a small client that creates the necessary buckets (createbuckets). See below: 
 ```bash
@@ -97,7 +98,9 @@ until (/usr/bin/mc config host add myminio http://minio:9000 minio miniominio) d
 
 If you use GCS, or S3 buckets you can do the following:
 
-##### S3: 
+##### S3 (Optional): 
+S3 is an AWS Block Storage Service. You can also use S3 as your storage service, rather than the included MinIO self-host. In order to use S3, you must do the following.
+
 Replace the following with the correct parameters. 
 ```env
 AWS_ACCESS_KEY_ID=minio   # Used for Minio S3 Client
@@ -111,7 +114,7 @@ LOCAL_MINIO_URL=http://localhost:1010
 
 ```
 
-##### GCS: 
+##### GCS (Optional): 
 Remove the following Environment Variable: 
 ```env
 GCS_USE_LOCAL_HOST=true
