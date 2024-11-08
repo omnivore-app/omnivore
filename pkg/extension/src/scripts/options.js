@@ -34,6 +34,40 @@ function clearAPIKey() {
   })
 }
 
+function saveAPIUrl() {
+  var apiUrl = document.getElementById('api-url').value
+  if (!apiUrl) {
+    alert('No API URL specified.')
+    return
+  }
+
+  setStorage({
+    apiUrl: apiUrl,
+  }).then(() => {
+    alert('API URL saved!')
+  })
+}
+
+function loadAPIUrl() {
+  getStorageItem('apiUrl').then((apiUrl) => {
+    if (apiUrl) {
+      document.getElementById('api-url').value = apiUrl
+    } else {
+      alert('No API URL found in storage.')
+    }
+  })
+}
+
+function clearAPIUrl() {
+  document.getElementById('api-url').value = ''
+
+  setStorage({
+    apiUrl: undefined,
+  }).then(() => {
+    alert('API URL cleared!')
+  })
+}
+
 function autoDismissChanged(event) {
   const value = document.getElementById('disable-auto-dismiss').checked
   console.log(
@@ -91,6 +125,15 @@ function handleConsent() {
   document
     .getElementById('clear-api-key-btn')
     .addEventListener('click', clearAPIKey)
+  document
+    .getElementById('save-api-url-btn')
+    .addEventListener('click', saveAPIUrl)
+  document
+    .getElementById('load-api-url-btn')
+    .addEventListener('click', loadAPIUrl)
+  document
+    .getElementById('clear-api-url-btn')
+    .addEventListener('click', clearAPIUrl)
 
   getStorageItem('disableAutoDismiss').then((value) => {
     document.getElementById('disable-auto-dismiss').checked = value
