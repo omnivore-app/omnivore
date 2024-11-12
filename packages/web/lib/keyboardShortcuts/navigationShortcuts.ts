@@ -1,21 +1,60 @@
+import { Action } from 'kbar'
 import type { KeyboardCommand } from './useKeyboardShortcuts'
 import type { NextRouter } from 'next/router'
 
-export function navigationCommands(
-  router: NextRouter | undefined
-): KeyboardCommand[] {
+export function navigationCommands(router: NextRouter | undefined): Action[] {
   return [
     {
-      shortcutKeys: ['g', 'h'],
-      actionDescription: 'Go to Home',
-      shortcutKeyDescription: 'g then h',
-      callback: () => router?.push('/home'),
+      id: 'home',
+      section: 'Navigation',
+      name: 'Go to home',
+      shortcut: ['g', 'h'],
+      keywords: 'go home',
+      perform: () => {
+        console.log('go home')
+        router?.push(`/home`)
+      },
     },
     {
-      shortcutKeys: ['b'],
-      actionDescription: 'Go back',
-      shortcutKeyDescription: 'b',
-      callback: () => {
+      id: 'library',
+      section: 'Navigation',
+      name: 'Go to library',
+      shortcut: ['g', 'l'],
+      keywords: 'go library',
+      perform: () => {
+        console.log('go library')
+        router?.push(`/library`)
+      },
+    },
+    {
+      id: 'subscriptions',
+      section: 'Navigation',
+      name: 'Go to subscriptions',
+      shortcut: ['g', 's'],
+      keywords: 'go subscriptions',
+      perform: () => {
+        console.log('go subscriptions')
+        router?.push(`/subscriptions`)
+      },
+    },
+    {
+      id: 'highlights',
+      section: 'Navigation',
+      name: 'Go to highlights',
+      shortcut: ['g', 'i'],
+      keywords: 'go highlights',
+      perform: () => {
+        console.log('go highlights')
+        router?.push(`/highlights`)
+      },
+    },
+    {
+      id: 'goback',
+      section: 'Navigation',
+      name: 'Go back',
+      shortcut: ['g', 'b'],
+      keywords: 'go back',
+      perform: () => {
         router?.back()
       },
     },

@@ -1,7 +1,7 @@
 import { Job } from 'bullmq'
 import { DataSource } from 'typeorm'
 import { v4 as uuid } from 'uuid'
-import { getBackendQueue, JOB_VERSION } from '../../queue-processor'
+import { getQueue, JOB_VERSION } from '../../queue-processor'
 import { validateUrl } from '../../services/create_page_save_request'
 import { getJobPriority, RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
@@ -40,12 +40,11 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
       FROM
         omnivore.subscriptions s
       INNER JOIN
-        omnivore.user u ON u.id = s.user_id
+        omnivore.user u ON u.id = s.user_id AND u.status = $4
       WHERE
         s.type = $1
         AND s.status = $2
         AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
-        AND u.status = $4
       GROUP BY
         url
       `,
@@ -124,7 +123,7 @@ const updateSubscriptionGroup = async (
 }
 
 export const queueRSSRefreshAllFeedsJob = async () => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return false
   }
@@ -144,7 +143,7 @@ export const queueRSSRefreshFeedJob = async (
   payload: any,
   options = { priority: 'low' as QueuePriority }
 ): Promise<Job | undefined> => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     return undefined
   }

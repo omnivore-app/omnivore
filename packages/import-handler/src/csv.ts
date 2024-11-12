@@ -13,8 +13,6 @@ const parseLabels = (labels: string): string[] => {
     // labels follows format: "[""label1"",""label2""]"
     return JSON.parse(labels) as string[]
   } catch (error) {
-    console.debug('invalid labels format', labels)
-
     // labels follows format: "[label1,label2]"
     return labels
       .slice(1, -1)
@@ -46,7 +44,12 @@ const parseDate = (date: string): Date => {
 
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   // create metrics in redis
-  await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, ctx.source)
+  await createMetrics(
+    ctx.redisDataSource.cacheClient,
+    ctx.userId,
+    ctx.taskId,
+    ctx.source
+  )
 
   const parser = parse({
     headers: true,
@@ -68,7 +71,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
 
       // update total counter
       await updateMetrics(
-        ctx.redisClient,
+        ctx.redisDataSource,
         ctx.userId,
         ctx.taskId,
         ImportStatus.TOTAL
@@ -79,7 +82,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
       ctx.countImported += 1
       // update started counter
       await updateMetrics(
-        ctx.redisClient,
+        ctx.redisDataSource,
         ctx.userId,
         ctx.taskId,
         ImportStatus.STARTED
@@ -96,7 +99,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
       ctx.countFailed += 1
       // update invalid counter
       await updateMetrics(
-        ctx.redisClient,
+        ctx.redisDataSource,
         ctx.userId,
         ctx.taskId,
         ImportStatus.INVALID

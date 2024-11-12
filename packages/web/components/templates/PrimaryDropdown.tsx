@@ -17,6 +17,7 @@ import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
 import { useCurrentTheme } from '../../lib/hooks/useCurrentTheme'
 import { ThemeSelector } from './article/ReaderSettingsControl'
+import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -82,7 +83,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
 }
 
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
+  const { data: viewerData } = useGetViewer()
   const router = useRouter()
 
   const headerDropdownActionHandler = useCallback(
@@ -129,7 +130,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
     <Dropdown
       side="top"
       triggerElement={
-        props.children ?? <TriggerButton name={viewerData?.me?.name} />
+        props.children ?? <TriggerButton name={viewerData?.name} />
       }
       css={{ width: '240px', ml: '15px', bg: '$thNavMenuFooter' }}
     >
@@ -150,16 +151,16 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         }}
       >
         <Avatar
-          imageURL={viewerData?.me?.profile.pictureUrl}
+          imageURL={viewerData?.profile.pictureUrl}
           height="40px"
-          fallbackText={viewerData?.me?.name.charAt(0) ?? ''}
+          fallbackText={viewerData?.name.charAt(0) ?? ''}
         />
         <VStack
           css={{ height: '40px', maxWidth: '240px' }}
           alignment="start"
           distribution="around"
         >
-          {viewerData?.me && (
+          {viewerData && (
             <>
               <StyledText
                 css={{
@@ -173,7 +174,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {viewerData.me.name}
+                {viewerData.name}
               </StyledText>
               <StyledText
                 css={{
@@ -186,7 +187,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {`@${viewerData.me.profile.username}`}
+                {`@${viewerData.profile.username}`}
               </StyledText>
             </>
           )}
@@ -195,32 +196,24 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
       <DropdownSeparator />
       <ThemeSection {...props} />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-install')}
+        onSelect={() => router.push('/settings/installation')}
         title="Install"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-feeds')}
+        onSelect={() => router.push('/settings/feeds')}
         title="Feeds"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-emails')}
+        onSelect={() => router.push('/settings/emails')}
         title="Emails"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-labels')}
+        onSelect={() => router.push('/settings/labels')}
         title="Labels"
       />
       <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-rules')}
-        title="Rules"
-      />
-      <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-api')}
-        title="API Keys"
-      />
-      <DropdownOption
-        onSelect={() => headerDropdownActionHandler('navigate-to-integrations')}
-        title="Integrations"
+        onSelect={() => router.push('/settings/account')}
+        title="Settings"
       />
       <DropdownOption
         onSelect={() => window.open('https://docs.omnivore.app', '_blank')}

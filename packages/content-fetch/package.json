@@ -7,17 +7,20 @@
     "build/src"
   ],
   "dependencies": {
+    "@google-cloud/storage": "^7.0.1",
+    "@omnivore/puppeteer-parse": "^1.0.0",
+    "@omnivore/utils": "1.0.0",
+    "axios": "^0.27.2",
     "bullmq": "^5.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "ioredis": "^5.3.2",
-    "posthog-node": "^3.6.3",
-    "@google-cloud/functions-framework": "^3.0.0",
-    "@google-cloud/storage": "^7.0.1",
-    "@omnivore/puppeteer-parse": "^1.0.0",
-    "@sentry/serverless": "^7.77.0"
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "posthog-node": "^3.6.3"
   },
   "devDependencies": {
+    "@types/express": "^4.17.1",
+    "@types/jsonwebtoken": "^8.5.0",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   },
@@ -26,8 +29,7 @@
     "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "build": "tsc",
-    "start": "node build/src/app.js",
-    "start_gcf": "functions-framework --port=9090 --target=puppeteer"
+    "start": "node build/src/app.js"
   },
   "volta": {
     "extends": "../../package.json"

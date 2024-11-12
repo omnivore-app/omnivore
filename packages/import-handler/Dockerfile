@@ -2,7 +2,6 @@ FROM node:18.16-alpine
 
 WORKDIR /app
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 RUN apk add g++ make python3
 
 ENV PORT 8080
@@ -14,11 +13,14 @@ COPY .eslintrc .
 
 COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/import-handler/package.json ./packages/import-handler/package.json
+COPY /packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile
 
+ADD /packages/utils ./packages/utils
 ADD /packages/import-handler ./packages/import-handler
 ADD /packages/readabilityjs ./packages/readabilityjs
+RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/import-handler build
 
 # After building, fetch the production dependencies

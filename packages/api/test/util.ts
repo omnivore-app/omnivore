@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import supertest from 'supertest'
 import { v4 } from 'uuid'
 import { makeApolloServer } from '../src/apollo'
-import { createWorker, QUEUE_NAME } from '../src/queue-processor'
+import { BACKEND_QUEUE_NAME, createWorker } from '../src/queue-processor'
 import { createApp } from '../src/server'
 import { corsConfig } from '../src/utils/corsConfig'
 
@@ -26,7 +26,7 @@ export const stopApolloServer = async () => {
 
 export const startWorker = (connection: ConnectionOptions) => {
   worker = createWorker(connection)
-  queueEvents = new QueueEvents(QUEUE_NAME, {
+  queueEvents = new QueueEvents(BACKEND_QUEUE_NAME, {
     connection,
   })
 }
@@ -37,7 +37,9 @@ export const stopWorker = async () => {
 }
 
 export const waitUntilJobsDone = async (jobs: Job[]) => {
-  await Promise.all(jobs.map((job) => job.waitUntilFinished(queueEvents)))
+  await Promise.all(
+    jobs.map((job) => job.waitUntilFinished(queueEvents, 10000))
+  )
 }
 
 export const graphqlRequest = (

@@ -14,10 +14,14 @@ import {
   updateSubscriptions,
 } from '../../services/update_subscription'
 import { findActiveUser } from '../../services/user'
-import createHttpTaskWithToken from '../../utils/createTask'
+import createHttpTaskWithToken, {
+  enqueueFetchContentJob,
+  FetchContentJobData,
+} from '../../utils/createTask'
 import { cleanUrl } from '../../utils/helpers'
 import { createThumbnailProxyUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
+import { rssParserConfig } from '../../utils/parser'
 import { RSSRefreshContext } from './refreshAllFeeds'
 
 type FolderType = 'following' | 'inbox'
@@ -32,6 +36,7 @@ interface RefreshFeedRequest {
   fetchContentTypes: FetchContentType[]
   folders: FolderType[]
   refreshContext?: RSSRefreshContext
+  priority?: 'low' | 'high'
 }
 
 export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
@@ -181,15 +186,10 @@ const getThumbnail = (item: RssFeedItem) => {
 export const fetchAndChecksum = async (url: string) => {
   try {
     const response = await axios.get(url, {
+      ...rssParserConfig(),
       responseType: 'arraybuffer',
       timeout: 60_000,
       maxRedirects: 10,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-        Accept:
-          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml, text/html;q=0.4',
-      },
     })
 
     const hash = crypto.createHash('sha256')
@@ -334,9 +334,10 @@ const createTask = async (
 const fetchContentAndCreateItem = async (
   users: UserConfig[],
   feedUrl: string,
-  item: RssFeedItem
+  item: RssFeedItem,
+  priority = 'low' as 'low' | 'high'
 ) => {
-  const payload = {
+  const data: FetchContentJobData = {
     users,
     source: 'rss-feeder',
     url: item.link.trim(),
@@ -344,15 +345,24 @@ const fetchContentAndCreateItem = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
+    priority,
   }
 
   try {
-    const task = await createHttpTaskWithToken({
+    const contentFetchQueueEnabled =
+      process.env.CONTENT_FETCH_QUEUE_ENABLED === 'true'
+    if (contentFetchQueueEnabled) {
+      return await enqueueFetchContentJob(data)
+    }
+
+    return await createHttpTaskWithToken({
       queue: 'omnivore-rss-feed-queue',
       taskHandlerUrl: env.queue.contentFetchGCFUrl,
-      payload,
+      payload: {
+        ...data,
+        priority: 'high', // use one queue for all RSS feeds for now
+      },
     })
-    return !!task
   } catch (error) {
     logger.error('Error while creating task', error)
     return false
@@ -708,6 +718,7 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     fetchContentTypes,
     folders,
     refreshContext,
+    priority,
   } = request
 
   logger.info('Processing feed', feedUrl, { refreshContext: refreshContext })
@@ -776,7 +787,8 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
       await fetchContentAndCreateItem(
         Array.from(task.users.values()),
         feedUrl,
-        task.item
+        task.item,
+        priority
       )
     }
 

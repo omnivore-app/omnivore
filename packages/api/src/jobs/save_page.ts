@@ -140,7 +140,7 @@ const sendImportStatusUpdate = async (
           Authorization: auth as string,
           'Content-Type': 'application/json',
         },
-        timeout: REQUEST_TIMEOUT,
+        timeout: 5000,
       }
     )
   } catch (e) {
@@ -273,7 +273,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         source,
         folder,
-        originalContentUploaded: true,
       },
       user
     )
@@ -289,7 +288,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     throw e
   } finally {
-    const lastAttempt = attemptsMade + 1 === MAX_IMPORT_ATTEMPTS
+    const lastAttempt = attemptsMade + 1 >= MAX_IMPORT_ATTEMPTS
 
     if (taskId && (isSaved || lastAttempt)) {
       logger.info('sending import status update')

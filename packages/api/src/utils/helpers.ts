@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import languages from '@cospired/i18n-iso-languages'
+import { countWords } from 'alfaaz'
 import crypto from 'crypto'
+import { FingerprintGenerator } from 'fingerprint-generator'
 import Redis from 'ioredis'
+import { parseHTML } from 'linkedom'
 import normalizeUrl from 'normalize-url'
 import path from 'path'
 import _ from 'underscore'
 import slugify from 'voca/slugify'
-import wordsCounter from 'word-counting'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { CreateArticleError } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
@@ -175,9 +177,14 @@ export const wait = (ms: number): Promise<void> => {
   })
 }
 
-export const wordsCount = (text: string, isHtml = true): number => {
+export const wordsCount = (text: string, isHtml?: boolean): number => {
   try {
-    return wordsCounter(text, { isHtml }).wordsCount
+    if (isHtml) {
+      const dom = parseHTML(text).window.document
+      text = dom.body.textContent || ''
+    }
+
+    return countWords(text)
   } catch {
     return 0
   }
@@ -280,3 +287,7 @@ export const getClientFromUserAgent = (userAgent: string): string => {
 
 export const lanaugeToCode = (language: string): string =>
   languages.getAlpha2Code(language, 'en') || 'en'
+
+export const generateFingerprint = () => {
+  return new FingerprintGenerator().getFingerprint()
+}

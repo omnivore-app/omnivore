@@ -1,4 +1,4 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { ArticleAttributes } from '../../../lib/networking/library_items/useLibraryItems'
 import { Button } from '../../elements/Button'
 import { HStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
@@ -11,6 +11,7 @@ import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -35,29 +36,14 @@ export function VerticalArticleActionsMenu(
         }}
       >
         <Button
-          title="Edit labels (l)"
-          style="articleActionIcon"
-          onClick={() => props.articleActionHandler('setLabels')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            '@media (max-width: 300px)': {
-              display: 'none',
-            },
-          }}
-        >
-          <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
-        </Button>
-
-        <Button
           title="Open notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
           css={{
-            display: 'flex',
+            display: 'none',
             alignItems: 'center',
-            '@media (max-width: 300px)': {
-              display: 'none',
+            '@media (min-width: 500px)': {
+              display: 'flex',
             },
           }}
         >
@@ -72,10 +58,10 @@ export function VerticalArticleActionsMenu(
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
           css={{
-            display: 'flex',
+            display: 'none',
             alignItems: 'center',
-            '@mdDown': {
-              display: 'none',
+            '@media (min-width: 420px)': {
+              display: 'flex',
             },
           }}
         >
@@ -83,6 +69,21 @@ export function VerticalArticleActionsMenu(
             size={24}
             color={theme.colors.thHighContrast.toString()}
           />
+        </Button>
+
+        <Button
+          title="Edit labels (l)"
+          style="articleActionIcon"
+          onClick={() => props.articleActionHandler('setLabels')}
+          css={{
+            display: 'none',
+            alignItems: 'center',
+            '@media (min-width: 400px)': {
+              display: 'flex',
+            },
+          }}
+        >
+          <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
         <Button
@@ -94,15 +95,12 @@ export function VerticalArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
-            '@mdDown': {
-              display: 'none',
-            },
           }}
         >
           <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
-        {!props.article?.isArchived ? (
+        {props.article?.state !== State.ARCHIVED ? (
           <Button
             title="Archive (e)"
             style="articleActionIcon"
@@ -110,9 +108,6 @@ export function VerticalArticleActionsMenu(
             css={{
               display: 'flex',
               alignItems: 'center',
-              '@media (max-width: 300px)': {
-                display: 'none',
-              },
             }}
           >
             <ArchiveIcon
@@ -128,9 +123,6 @@ export function VerticalArticleActionsMenu(
             css={{
               display: 'flex',
               alignItems: 'center',
-              '@media (max-width: 300px)': {
-                display: 'none',
-              },
             }}
           >
             <UnarchiveIcon
@@ -155,6 +147,7 @@ export function VerticalArticleActionsMenu(
         </Button>
 
         <ReaderDropdownMenu
+          libraryItem={props.article}
           triggerElement={
             <CircleUtilityMenuIcon
               size={24}

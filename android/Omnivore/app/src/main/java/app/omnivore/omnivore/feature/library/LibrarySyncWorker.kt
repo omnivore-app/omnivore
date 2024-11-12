@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.text.intl.Locale
@@ -31,7 +32,6 @@ import java.time.Instant
 import java.util.TimeZone
 import java.util.UUID
 import java.util.regex.Pattern
-
 @HiltWorker
 class LibrarySyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -39,76 +39,18 @@ class LibrarySyncWorker @AssistedInject constructor(
     private val libraryRepository: LibraryRepository,
     private val datastoreRepository: DatastoreRepository,
 ) : CoroutineWorker(appContext, workerParams) {
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(
-            NOTIFICATION_ID,
-            createNotification()
-        )
-    }
-
-    companion object {
-        const val NOTIFICATION_CHANNEL_ID = "LIBRARY_SYNC_WORKER_CHANNEL"
-        const val NOTIFICATION_CHANNEL_NAME = "Sync library"
-        const val NOTIFICATION_ID = 2
-    }
 
     override suspend fun doWork(): Result {
-        try {
-            setForeground(createForegroundInfo())
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return Result.failure()
-        }
-
-        return withContext(Dispatchers.IO) {
-            try {
+        return try {
+            withContext(Dispatchers.IO) {
                 performItemSync()
                 loadUsingSearchAPI()
+                Log.d("LibrarySyncWorker", "Library sync completed successfully")
                 Result.success()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Result.failure()
             }
-        }
-    }
-
-    private fun createForegroundInfo(): ForegroundInfo {
-        val notification = createNotification()
-        return ForegroundInfo(NOTIFICATION_ID, notification)
-    }
-
-    private fun createNotification(): Notification {
-        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel()
-        } else {
-            ""
-        }
-
-        return NotificationCompat.Builder(applicationContext, channelId)
-            .setContentTitle("Syncing library items")
-            .setContentText("Your library is being synced")
-            .setSmallIcon(R.drawable.ic_notification)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
-    }
-
-    private fun createNotificationChannel(): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = NOTIFICATION_CHANNEL_NAME
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                channelName,
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Notification channel for library syncing"
-            }
-
-            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-
-            return NOTIFICATION_CHANNEL_ID
-        } else {
-            return ""
+        } catch (e: Exception) {
+            Log.e("LibrarySyncWorker", "Unexpected error in LibrarySyncWorker", e)
+            Result.failure()
         }
     }
 
@@ -130,7 +72,7 @@ class LibrarySyncWorker @AssistedInject constructor(
 
         if (result.hasError) {
             result.errorString?.let { errorString ->
-                println("SYNC ERROR: $errorString")
+                Log.e("LibrarySyncWorker", "SYNC ERROR: $errorString")
             }
         }
 

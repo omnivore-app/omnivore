@@ -1,6 +1,4 @@
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useCallback, useEffect, useState } from 'react'
@@ -8,12 +6,13 @@ import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
-import { logout } from '../../lib/logout'
+import { useLogout } from '../../lib/logout'
 import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
 import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 import Link from 'next/link'
 import { CaretLeft } from '@phosphor-icons/react'
+import { DEFAULT_HOME_PATH } from '../../lib/navigations'
 
 type SettingsLayoutProps = {
   title?: string
@@ -32,7 +31,7 @@ const ReturnButton = (): JSX.Element => {
         },
       }}
     >
-      <Link href="/l/home">
+      <Link href={DEFAULT_HOME_PATH}>
         <HStack
           css={{
             pl: '20px',
@@ -60,7 +59,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
 
-  useKeyboardShortcuts(navigationCommands(router))
   applyStoredTheme()
 
   const showLogout = useCallback(() => {
@@ -74,6 +72,8 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       document.removeEventListener('logout', showLogout)
     }
   }, [showLogout])
+
+  const { logout } = useLogout()
 
   return (
     <VStack

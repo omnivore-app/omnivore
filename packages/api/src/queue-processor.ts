@@ -35,6 +35,7 @@ import {
   expireFoldersJob,
   EXPIRE_FOLDERS_JOB_NAME,
 } from './jobs/expire_folders'
+import { exportJob, EXPORT_JOB_NAME } from './jobs/export'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import {
   generatePreviewContent,
@@ -55,7 +56,10 @@ import {
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
 } from './jobs/process-youtube-video'
 import { pruneTrashJob, PRUNE_TRASH_JOB } from './jobs/prune_trash'
-import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
+import {
+  REFRESH_ALL_FEEDS_JOB_NAME,
+  refreshAllFeeds,
+} from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import {
@@ -82,7 +86,11 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
 
-export const QUEUE_NAME = 'omnivore-backend-queue'
+export const BACKEND_QUEUE_NAME = 'omnivore-backend-queue'
+export const CONTENT_FETCH_QUEUE = 'omnivore-content-fetch-queue'
+export const DISCOVER_QUEUE = 'omnivore-discover-queue'
+
+
 export const JOB_VERSION = 'v001'
 
 const jobLatency = new client.Histogram({
@@ -94,8 +102,8 @@ const jobLatency = new client.Histogram({
 
 registerMetric(jobLatency)
 
-export const getBackendQueue = async (
-  name = QUEUE_NAME
+export const getQueue = async (
+  name = BACKEND_QUEUE_NAME
 ): Promise<Queue | undefined> => {
   if (!redisDataSource.workerRedisClient) {
     throw new Error('Can not create queues, redis is not initialized')
@@ -109,10 +117,10 @@ export const getBackendQueue = async (
         delay: 2000, // 2 seconds
       },
       removeOnComplete: {
-        age: 24 * 3600, // keep up to 24 hours
+        age: 3600, // keep up to 1 hour
       },
       removeOnFail: {
-        age: 7 * 24 * 3600, // keep up to 7 days
+        age: 24 * 3600, // keep up to 1 day
       },
     },
   })
@@ -124,7 +132,7 @@ export const createJobId = (jobName: string, userId: string) =>
   `${jobName}_${userId}_${JOB_VERSION}`
 
 export const getJob = async (jobId: string, queueName?: string) => {
-  const queue = await getBackendQueue(queueName)
+  const queue = await getQueue(queueName)
   if (!queue) {
     return
   }
@@ -152,12 +160,12 @@ export const jobStateToTaskState = (
 
 export const createWorker = (connection: ConnectionOptions) =>
   new Worker(
-    QUEUE_NAME,
+    BACKEND_QUEUE_NAME,
     async (job: Job) => {
       const executeJob = async (job: Job) => {
         switch (job.name) {
           case 'refresh-all-feeds': {
-            const queue = await getBackendQueue()
+            const queue = await getQueue()
             const counts = await queue?.getJobCounts('prioritized')
             if (counts && counts.wait > 1000) {
               return
@@ -170,9 +178,9 @@ export const createWorker = (connection: ConnectionOptions) =>
           case 'save-page': {
             return savePageJob(job.data, job.attemptsMade)
           }
-          case 'update-pdf-content': {
-            return updatePDFContentJob(job.data)
-          }
+          // case 'update-pdf-content': {
+          //   return updatePDFContentJob(job.data)
+          // }
           case THUMBNAIL_JOB:
             return findThumbnail(job.data)
           case TRIGGER_RULE_JOB_NAME:
@@ -189,12 +197,12 @@ export const createWorker = (connection: ConnectionOptions) =>
             return callWebhook(job.data)
           case EXPORT_ITEM_JOB_NAME:
             return exportItem(job.data)
-          case AI_SUMMARIZE_JOB_NAME:
-            return aiSummarize(job.data)
-          case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
-            return processYouTubeVideo(job.data)
-          case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-            return processYouTubeTranscript(job.data)
+          // case AI_SUMMARIZE_JOB_NAME:
+          //   return aiSummarize(job.data)
+          // case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
+          //   return processYouTubeVideo(job.data)
+          // case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+          //   return processYouTubeTranscript(job.data)
           case EXPORT_ALL_ITEMS_JOB_NAME:
             return exportAllItems(job.data)
           case SEND_EMAIL_JOB:
@@ -207,20 +215,22 @@ export const createWorker = (connection: ConnectionOptions) =>
             return saveNewsletterJob(job.data)
           case FORWARD_EMAIL_JOB:
             return forwardEmailJob(job.data)
-          case CREATE_DIGEST_JOB:
-            return createDigest(job.data)
+          // case CREATE_DIGEST_JOB:
+          //   return createDigest(job.data)
           case UPLOAD_CONTENT_JOB:
             return uploadContentJob(job.data)
-          case UPDATE_HOME_JOB:
-            return updateHome(job.data)
-          case SCORE_LIBRARY_ITEM_JOB:
-            return scoreLibraryItem(job.data)
+          // case UPDATE_HOME_JOB:
+          //   return updateHome(job.data)
+          // case SCORE_LIBRARY_ITEM_JOB:
+          //   return scoreLibraryItem(job.data)
           case GENERATE_PREVIEW_CONTENT_JOB:
             return generatePreviewContent(job.data)
           case PRUNE_TRASH_JOB:
             return pruneTrashJob(job.data)
           case EXPIRE_FOLDERS_JOB_NAME:
             return expireFoldersJob()
+          case EXPORT_JOB_NAME:
+            return exportJob(job.data)
           default:
             logger.warning(`[queue-processor] unhandled job: ${job.name}`)
         }
@@ -239,7 +249,7 @@ export const createWorker = (connection: ConnectionOptions) =>
   )
 
 const setupCronJobs = async () => {
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     logger.error('Unable to setup cron jobs. Queue is not available.')
     return
@@ -252,6 +262,17 @@ const setupCronJobs = async () => {
       priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
+      },
+    }
+  )
+
+  await queue.add(
+    REFRESH_ALL_FEEDS_JOB_NAME,
+    {},
+    {
+      priority: getJobPriority(REFRESH_ALL_FEEDS_JOB_NAME),
+      repeat: {
+        every: 14_400_000, // 4 Hours
       },
     }
   )
@@ -278,7 +299,7 @@ const main = async () => {
   })
 
   app.get('/metrics', async (_, res) => {
-    const queue = await getBackendQueue()
+    const queue = await getQueue()
     if (!queue) {
       res.sendStatus(400)
       return
@@ -295,7 +316,7 @@ const main = async () => {
 
     jobsTypes.forEach((metric, idx) => {
       output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
-      output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
+      output += `omnivore_queue_messages_${metric}{queue="${BACKEND_QUEUE_NAME}"} ${counts[metric]}\n`
     })
 
     if (redisDataSource.redisClient) {
@@ -311,7 +332,7 @@ const main = async () => {
       )
       if (cursor != '0') {
         output += `# TYPE omnivore_read_position_messages gauge\n`
-        output += `omnivore_read_position_messages{queue="${QUEUE_NAME}"} ${10_001}\n`
+        output += `omnivore_read_position_messages{queue="${BACKEND_QUEUE_NAME}"} ${10_001}\n`
       } else if (batch) {
         output += `# TYPE omnivore_read_position_messages gauge\n`
         output += `omnivore_read_position_messages{} ${batch.length}\n`
@@ -324,10 +345,10 @@ const main = async () => {
       const currentTime = Date.now()
       const ageInSeconds = (currentTime - oldestJobs[0].timestamp) / 1000
       output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
-      output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${ageInSeconds}\n`
+      output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${BACKEND_QUEUE_NAME}"} ${ageInSeconds}\n`
     } else {
       output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
-      output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${0}\n`
+      output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${BACKEND_QUEUE_NAME}"} ${0}\n`
     }
 
     const metrics = await getMetrics()
@@ -356,26 +377,6 @@ const main = async () => {
   const worker = createWorker(workerRedisClient)
 
   await setupCronJobs()
-
-  const queueEvents = new QueueEvents(QUEUE_NAME, {
-    connection: workerRedisClient,
-  })
-
-  queueEvents.on('added', async (job) => {
-    console.log('added job: ', job.jobId, job.name)
-  })
-
-  queueEvents.on('removed', async (job) => {
-    console.log('removed job: ', job.jobId)
-  })
-
-  queueEvents.on('completed', async (job) => {
-    console.log('completed job: ', job.jobId)
-  })
-
-  queueEvents.on('failed', async (job) => {
-    console.log('failed job: ', job.jobId)
-  })
 
   workerRedisClient.on('error', (error) => {
     console.trace('[queue-processor]: redis worker error', { error })

@@ -36,11 +36,11 @@
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^7.0.1",
+    "@omnivore/utils": "1.0.0",
     "@sentry/serverless": "^7.77.0",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "html-to-text": "^8.2.1",
-    "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.12",
     "microsoft-cognitiveservices-speech-sdk": "1.30",

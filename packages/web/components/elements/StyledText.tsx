@@ -4,7 +4,7 @@ const textVariants = {
   style: {
     body: {
       fontSize: '$2',
-      lineHeight: '1.25',
+      lineHeight: '1.50',
     },
     logoTitle: {
       fontFamily: 'Inter',
@@ -39,11 +39,10 @@ const textVariants = {
     },
     settingsSection: {
       fontWeight: '600',
-      fontSize: '17px',
+      fontSize: '22px',
       fontFamily: '$inter',
       color: '$grayText',
       m: '0px',
-      my: '15px',
       marginBlockStart: '0px',
       marginBlockEnd: '0px',
     },

@@ -27,6 +27,7 @@ import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
 import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
+  countLibraryItems,
   createLibraryItems,
   createOrUpdateLibraryItem,
   CreateOrUpdateLibraryItemArgs,
@@ -403,7 +404,9 @@ describe('Article API', () => {
             archivedAt: new Date(),
             state: LibraryItemState.Archived,
           },
-          user.id
+          user.id,
+          undefined,
+          true
         )
         itemId = item.id
       })
@@ -430,7 +433,6 @@ describe('Article API', () => {
     before(async () => {
       const itemToCreate: CreateOrUpdateLibraryItemArgs = {
         title: 'test title',
-        originalContent: '<p>test</p>',
         slug: realSlug,
         readingProgressTopPercent: 100,
         user,
@@ -441,7 +443,6 @@ describe('Article API', () => {
         itemToCreate,
         user.id,
         undefined,
-        true,
         true
       )
       itemId = item.id
@@ -647,8 +648,8 @@ describe('Article API', () => {
 
     context('when the source is rss-feeder and url is from youtube.com', () => {
       const source = 'rss-feeder'
-      const stub = sinon.stub(createTask, 'enqueueParseRequest')
-      const stub2 = sinon.stub(createTask, 'enqueueProcessYouTubeVideo')
+      const stub = sinon.stub(createTask, 'enqueueFetchContentJob')
+      sinon.stub(createTask, 'enqueueProcessYouTubeVideo')
 
       before(() => {
         url = 'https://www.youtube.com/watch?v=123'
@@ -679,7 +680,11 @@ describe('Article API', () => {
     const url = 'https://blog.omnivore.app/new-url-1'
 
     before(() => {
-      sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
+      sinon.replace(
+        createTask,
+        'enqueueFetchContentJob',
+        sinon.fake.resolves('')
+      )
     })
 
     beforeEach(() => {
@@ -715,7 +720,12 @@ describe('Article API', () => {
         originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
       }
-      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(
+        itemToSave,
+        user.id,
+        undefined,
+        true
+      )
       itemId = item.id
     })
 
@@ -829,7 +839,9 @@ describe('Article API', () => {
               readingProgressBottomPercent: 100,
               readingProgressTopPercent: 80,
             },
-            user.id
+            user.id,
+            undefined,
+            true
           )
         ).id
       })
@@ -870,7 +882,9 @@ describe('Article API', () => {
           readingProgressBottomPercent: 100,
           readingProgressTopPercent: 80,
         },
-        user.id
+        user.id,
+        undefined,
+        true
       )
       itemId = item.id
 
@@ -945,7 +959,12 @@ describe('Article API', () => {
           siteName: 'Example',
           readingProgressBottomPercent: readingProgressArray[i],
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
 
         // Create some test highlights
@@ -1309,7 +1328,6 @@ describe('Article API', () => {
             item,
             user.id,
             undefined,
-            true,
             true
           )
           items.push(savedItem)
@@ -2005,7 +2023,12 @@ describe('Article API', () => {
           slug: '',
           originalUrl: `https://blog.omnivore.app/p/typeahead-search-${i}`,
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
       }
     })
@@ -2079,7 +2102,12 @@ describe('Article API', () => {
           originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
           user,
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
       }
 
@@ -2203,7 +2231,9 @@ describe('Article API', () => {
                 i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
               originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
             },
-            user.id
+            user.id,
+            undefined,
+            true
           )
         }
       })
@@ -2296,7 +2326,9 @@ describe('Article API', () => {
                 i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
               originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
             },
-            user.id
+            user.id,
+            undefined,
+            true
           )
           items.push(item)
         }
@@ -2338,7 +2370,9 @@ describe('Article API', () => {
                 slug: '',
                 originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
               },
-              user.id
+              user.id,
+              undefined,
+              true
             )
 
             items.push(item)
@@ -2392,7 +2426,12 @@ describe('Article API', () => {
         readableContent: '<p>test</p>',
         originalUrl: `https://blog.omnivore.app/p/setFavoriteArticle`,
       }
-      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(
+        itemToSave,
+        user.id,
+        undefined,
+        true
+      )
       articleId = item.id
     })
 
@@ -2443,7 +2482,12 @@ describe('Article API', () => {
           deletedAt: new Date(),
           state: LibraryItemState.Deleted,
         }
-        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(
+          itemToSave,
+          user.id,
+          undefined,
+          true
+        )
         items.push(item)
       }
     })
@@ -2454,19 +2498,16 @@ describe('Article API', () => {
     })
 
     it('empties the trash', async () => {
-      let response = await graphqlRequest(
-        searchQuery('in:trash'),
-        authToken
-      ).expect(200)
-      expect(response.body.data.search.pageInfo.totalCount).to.eql(5)
-
       await graphqlRequest(emptyTrashQuery(), authToken).expect(200)
 
-      response = await graphqlRequest(
-        searchQuery('in:trash'),
-        authToken
-      ).expect(200)
-      expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
+      const count = await countLibraryItems(
+        {
+          query: 'in:trash',
+          includeDeleted: true,
+        },
+        user.id
+      )
+      expect(count).to.eql(0)
     })
   })
 })

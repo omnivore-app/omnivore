@@ -1,5 +1,5 @@
 import { BulkActionType } from '../generated/graphql'
-import { getBackendQueue } from '../queue-processor'
+import { getQueue } from '../queue-processor'
 import { batchUpdateLibraryItems } from '../services/library_item'
 import { logger } from '../utils/logger'
 
@@ -18,7 +18,7 @@ export const BULK_ACTION_JOB_NAME = 'bulk-action'
 export const bulkAction = async (data: BulkActionData) => {
   const { userId, action, query, labelIds, args, batchSize, count } = data
 
-  const queue = await getBackendQueue()
+  const queue = await getQueue()
   if (!queue) {
     throw new Error('Queue not initialized')
   }
@@ -27,6 +27,7 @@ export const bulkAction = async (data: BulkActionData) => {
   for (let offset = 0; offset < count; offset += batchSize) {
     const searchArgs = {
       size: batchSize,
+      includePending: true,
       query: `(${query}) AND updated:*..${now}`, // only process items that have not been updated
     }
 

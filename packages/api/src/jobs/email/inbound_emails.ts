@@ -23,10 +23,10 @@ import { enqueueSendEmail } from '../../utils/createTask'
 import { generateSlug, isUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import {
-  parseEmailAddress,
-  isProbablyArticle,
-  getTitleFromEmailSubject,
   generateUniqueUrl,
+  getTitleFromEmailSubject,
+  isProbablyArticle,
+  parseEmailAddress,
 } from '../../utils/parser'
 import {
   generateUploadFilePathName,
@@ -117,6 +117,7 @@ export const forwardEmailJob = async (data: EmailJobData) => {
 
   // forward non-newsletter emails to the registered email address
   const result = await enqueueSendEmail({
+    userId: user.id,
     from: env.sender.message,
     to: user.email,
     subject: `Fwd: ${subject}`,

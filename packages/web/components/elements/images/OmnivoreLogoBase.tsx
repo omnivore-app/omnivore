@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
+import { Box } from '../LayoutPrimitives'
 export type OmnivoreLogoBaseProps = {
   color?: string
   href?: string
@@ -8,35 +10,37 @@ export type OmnivoreLogoBaseProps = {
 }
 
 export function OmnivoreLogoBase(props: OmnivoreLogoBaseProps): JSX.Element {
-  const href = props.href || '/home'
   const router = useRouter()
 
   return (
-    <Link
-      passHref
-      href={href}
+    <Box
       style={{
         textDecoration: 'none',
         display: 'flex',
         alignItems: 'center',
+        cursor: 'pointer',
       }}
       onClick={(event) => {
+        if (props.href) {
+          router.push(props.href)
+          return
+        }
         const navReturn = window.localStorage.getItem('nav-return')
         if (navReturn) {
-          window.location.assign(navReturn)
+          router.push(navReturn)
           return
         }
         const query = window.sessionStorage.getItem('q')
         if (query) {
-          window.location.assign(`/l/home?${query}`)
+          router.push(`${DEFAULT_HOME_PATH}?${query}`)
         } else {
-          window.location.replace(`/l/home`)
+          router.push(DEFAULT_HOME_PATH)
         }
       }}
       tabIndex={-1}
       aria-label="Omnivore logo"
     >
       {props.children}
-    </Link>
+    </Box>
   )
 }

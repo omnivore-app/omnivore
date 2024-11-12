@@ -33,7 +33,17 @@ export type Subscription = {
   failedAt?: string
 
   fetchContentType?: FetchContentType
-}
+} & (
+  | {
+      type: SubscriptionType.NEWSLETTER
+      unsubscribeMailTo?: string
+      unsubscribeHttpUrl?: string
+    }
+  | {
+      type: SubscriptionType.RSS
+      url: string
+    }
+)
 
 type SubscriptionsQueryResponse = {
   error: any

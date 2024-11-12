@@ -1,33 +1,8 @@
-import { styled } from '@stitches/react'
-import { AddToLibraryActionIcon } from '../../components/elements/icons/home/AddToLibraryActionIcon'
-import { ArchiveActionIcon } from '../../components/elements/icons/home/ArchiveActionIcon'
-import { CommentActionIcon } from '../../components/elements/icons/home/CommentActionIcon'
-import { RemoveActionIcon } from '../../components/elements/icons/home/RemoveActionIcon'
-import { ShareActionIcon } from '../../components/elements/icons/home/ShareActionIcon'
 import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
-import {
-  HStack,
-  SpanBox,
-  VStack,
-} from './../../components/elements/LayoutPrimitives'
-
-import * as HoverCard from '@radix-ui/react-hover-card'
+import { SpanBox, VStack } from './../../components/elements/LayoutPrimitives'
 import { Button } from '../../components/elements/Button'
-import {
-  HomeItem,
-  HomeItemSource,
-  HomeItemSourceType,
-  HomeSection,
-  useGetHomeItems,
-} from '../../lib/networking/queries/useGetHome'
-import { timeAgo } from '../../components/patterns/LibraryCards/LibraryCardStyles'
-import { theme } from '../../components/tokens/stitches.config'
-import { useRouter } from 'next/router'
-import {
-  SubscriptionType,
-  useGetSubscriptionsQuery,
-} from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useCallback, useMemo } from 'react'
+import { useGetHomeItems } from '../../lib/networking/queries/useGetHome'
+import { useCallback } from 'react'
 import { refreshHomeMutation } from '../../lib/networking/mutations/refreshHome'
 
 export default function DebugHome(): JSX.Element {
@@ -38,9 +13,6 @@ export default function DebugHome(): JSX.Element {
   const refreshHome = useCallback(() => {
     ;(async () => {
       refreshHomeMutation()
-      if (homeData?.mutate) {
-        homeData.mutate()
-      }
     })()
   }, [])
 

@@ -1,26 +1,52 @@
-import { ContentHandler, PreHandleResult } from '../content-handler'
 import axios from 'axios'
 import _ from 'underscore'
+import { ContentHandler, PreHandleResult } from '../content-handler'
 
 const YOUTUBE_URL_MATCH =
-  /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
+  /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/|shorts\/|playlist\?list=)?)([\w-]+)(\S+)?$/
 
 export const getYoutubeVideoId = (url: string) => {
   const u = new URL(url)
-  const videoId = u.searchParams.get('v')
-  if (!videoId) {
-    const match = url.toString().match(YOUTUBE_URL_MATCH)
-    if (match === null || match.length < 6 || !match[5]) {
-      return undefined
-    }
-    return match[5]
-  }
-  return videoId
+  return u.searchParams.get('v')
 }
 
 export const getYoutubePlaylistId = (url: string) => {
   const u = new URL(url)
   return u.searchParams.get('list')
+}
+
+export const getEmbedData = (url: string) => {
+  const BaseUrl = 'https://www.youtube.com'
+  const embedBaseUrl = 'https://www.youtube.com/embed'
+
+  const match = url.match(YOUTUBE_URL_MATCH)
+  if (match === null || match.length < 6) {
+    console.error('Invalid youtube url', url)
+    throw new Error(`Invalid youtube url: ${url}`)
+  }
+
+  const playlistId = getYoutubePlaylistId(url)
+  if (playlistId) {
+    return {
+      src: `${embedBaseUrl}/videoseries?list=${playlistId}`,
+      url: `${BaseUrl}/playlist?list=${playlistId}`,
+    }
+  }
+
+  const type = match[4]
+  const id = match[5]
+  if (type === '/shorts/') {
+    return {
+      src: `${embedBaseUrl}/${id}`,
+      url: `${BaseUrl}/shorts/${id}`,
+    }
+  }
+
+  const videoId = getYoutubeVideoId(url) || id
+  return {
+    src: `${embedBaseUrl}/${videoId}`,
+    url: `${BaseUrl}/watch?v=${videoId}`,
+  }
 }
 
 export const escapeTitle = (title: string) => {
@@ -38,21 +64,15 @@ export class YoutubeHandler extends ContentHandler {
   }
 
   async preHandle(url: string): Promise<PreHandleResult> {
-    const BaseUrl = 'https://www.youtube.com'
-    const embedBaseUrl = 'https://www.youtube.com/embed'
-    let urlToEncode: string
-    let src: string
-    const playlistId = getYoutubePlaylistId(url)
-    if (playlistId) {
-      urlToEncode = `${BaseUrl}/playlist?list=${playlistId}`
-      src = `${embedBaseUrl}/videoseries?list=${playlistId}`
-    } else {
-      const videoId = getYoutubeVideoId(url)
-      if (!videoId) {
-        return {}
-      }
-      urlToEncode = `${BaseUrl}/watch?v=${videoId}`
-      src = `${embedBaseUrl}/${videoId}`
+    let src, urlToEncode
+
+    try {
+      const embedData = getEmbedData(url)
+      src = embedData.src
+      urlToEncode = embedData.url
+    } catch (error) {
+      console.error('Error getting embed data', error)
+      return {}
     }
 
     const oembedUrl =

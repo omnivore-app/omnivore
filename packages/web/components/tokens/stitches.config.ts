@@ -453,10 +453,10 @@ const sepiaThemeSpec = {
     readerFontHighContrast: '#0A0806',
     readerTableHeader: '#FFFFFF',
 
-    thLeftMenuBackground: '#EEE8D5',
-    thNavMenuFooter: '#DDD6C1',
+    thLeftMenuBackground: '#F8F1E0',
+    thNavMenuFooter: '#EEE8D5',
 
-    thLibrarySelectionColor: '#DDD6C1',
+    thLibrarySelectionColor: '#EEE8D5',
     thLabelChipBackground: '#EEE8D5',
     thBackground4: '#DDD6C166', // used on hover of menu items
     thBorderColor: '#DDD6C1',
@@ -496,7 +496,7 @@ export const blackTheme = createTheme(ThemeId.Black, {
 export const globalStyles = globalCss({
   body: {
     colorScheme: 'var(--colorScheme-colorScheme)',
-    backgroundColor: '$thBackground',
+    backgroundColor: '$readerBg',
   },
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {

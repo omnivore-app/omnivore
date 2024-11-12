@@ -1,5 +1,5 @@
-import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from '@phosphor-icons/react'
+import { useRouter } from 'next/router'
 import { useMemo, useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
   FetchContentType,
+  Subscription,
   SubscriptionStatus,
   SubscriptionType,
   useGetSubscriptionsQuery,
@@ -32,9 +33,13 @@ import { formatMessage } from '../../../locales/en/messages'
 
 export default function Rss(): JSX.Element {
   const router = useRouter()
-  const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery(
+  const subscriptionsResponse = useGetSubscriptionsQuery(
     SubscriptionType.RSS
   )
+  const subscriptions = subscriptionsResponse.subscriptions as Array<
+    Subscription & { type: SubscriptionType.RSS }
+  >
+  const { isValidating, revalidate } = subscriptionsResponse
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [onEditId, setOnEditId] = useState('')
   const [onEditName, setOnEditName] = useState('')
@@ -127,17 +132,6 @@ export default function Rss(): JSX.Element {
       createTitle="Add a feed"
       createAction={() => {
         router.push('/settings/feeds/add')
-      }}
-      suggestionInfo={{
-        title: 'Add RSS and Atom feeds to your Omnivore account',
-        message:
-          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every four hours, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
-        docs: 'https://docs.omnivore.app/using/feeds.html',
-        key: '--settings-feeds-show-help',
-        CTAText: 'Add a feed',
-        onClickCTA: () => {
-          router.push('/settings/feeds/add')
-        },
       }}
     >
       {sortedSubscriptions.length === 0 ? (
@@ -277,7 +271,11 @@ export default function Rss(): JSX.Element {
                 </VStack>
               }
               onClick={() => {
-                router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
+                router.push(
+                  `/search?q=in:inbox rss:"${encodeURIComponent(
+                    subscription.url
+                  )}"`
+                )
               }}
               // extraElement={
               //   <HStack

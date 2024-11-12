@@ -1,7 +1,4 @@
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo } from 'react'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { LibraryItemNode } from '../../../lib/networking/library_items/useLibraryItems'
 import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { RecommendedFlairIcon } from '../../elements/icons/RecommendedFlairIcon'
 import { PinnedFlairIcon } from '../../elements/icons/PinnedFlairIcon'
@@ -9,8 +6,7 @@ import { FavoriteFlairIcon } from '../../elements/icons/FavoriteFlairIcon'
 import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
 import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-
-dayjs.extend(relativeTime)
+import { timeAgo } from '../../../lib/textFormatting'
 
 export const MenuStyle = {
   display: 'flex',
@@ -69,26 +65,6 @@ export const AuthorInfoStyle = {
   textOverflow: 'ellipsis',
 }
 
-export const timeAgo = (date: string | undefined): string => {
-  if (!date) {
-    return ''
-  }
-  return dayjs(date).fromNow()
-}
-
-const shouldHideUrl = (url: string): boolean => {
-  try {
-    const origin = new URL(url).origin
-    const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
-    if (hideHosts.indexOf(origin) != -1) {
-      return true
-    }
-  } catch {
-    console.log('invalid url item', url)
-  }
-  return false
-}
-
 export const FLAIR_ICON_NAMES = [
   'favorite',
   'pinned',
@@ -140,35 +116,12 @@ type FlairIconProps = {
   children: React.ReactNode
 }
 
-export function FlairIcon(
-  props: FlairIconProps
-): JSX.Element {
+export function FlairIcon(props: FlairIconProps): JSX.Element {
   return (
     <SpanBox title={props.title} css={{ lineHeight: '1' }}>
       {props.children}
     </SpanBox>
   )
-}
-
-export const siteName = (
-  originalArticleUrl: string,
-  itemUrl: string,
-  siteName?: string
-): string => {
-  if (siteName) {
-    return siteName
-  }
-
-  if (shouldHideUrl(originalArticleUrl)) {
-    return ''
-  }
-  try {
-    return new URL(originalArticleUrl).hostname.replace(/^www\./, '')
-  } catch {}
-  try {
-    return new URL(itemUrl).hostname.replace(/^www\./, '')
-  } catch {}
-  return ''
 }
 
 type LibraryItemMetadataProps = {
@@ -179,11 +132,7 @@ type LibraryItemMetadataProps = {
 export function LibraryItemMetadata(
   props: LibraryItemMetadataProps
 ): JSX.Element {
-  const highlightCount = useMemo(() => {
-    return (
-      props.item.highlights?.filter((h) => h.type == 'HIGHLIGHT').length ?? 0
-    )
-  }, [props.item.highlights])
+  const highlightCount = props.item.highlightsCount ?? 0
 
   return (
     <HStack css={{ gap: '5px', alignItems: 'center' }}>

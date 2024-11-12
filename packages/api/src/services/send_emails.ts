@@ -10,7 +10,7 @@ export const sendNewAccountVerificationEmail = async (user: {
   email: string
 }): Promise<boolean> => {
   // generate confirmation link
-  const token = generateVerificationToken({ id: user.id })
+  const token = await generateVerificationToken({ id: user.id })
   const link = `${env.client.url}/auth/confirm-email/${token}`
   // send email
   const dynamicTemplateData = {
@@ -18,6 +18,7 @@ export const sendNewAccountVerificationEmail = async (user: {
   }
 
   const result = await enqueueSendEmail({
+    userId: user.id,
     to: user.email,
     dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.confirmationTemplateId,
@@ -70,7 +71,10 @@ export const sendAccountChangeEmail = async (user: {
   email: string
 }): Promise<boolean> => {
   // generate verification link
-  const token = generateVerificationToken({ id: user.id, email: user.email })
+  const token = await generateVerificationToken({
+    id: user.id,
+    email: user.email,
+  })
   const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
@@ -78,6 +82,7 @@ export const sendAccountChangeEmail = async (user: {
   }
 
   const result = await enqueueSendEmail({
+    userId: user.id,
     to: user.email,
     dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.verificationTemplateId,
@@ -92,7 +97,7 @@ export const sendPasswordResetEmail = async (user: {
   email: string
 }): Promise<boolean> => {
   // generate link
-  const token = generateVerificationToken({ id: user.id })
+  const token = await generateVerificationToken({ id: user.id })
   const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
@@ -100,10 +105,48 @@ export const sendPasswordResetEmail = async (user: {
   }
 
   const result = await enqueueSendEmail({
+    userId: user.id,
     to: user.email,
     dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.resetPasswordTemplateId,
   })
 
   return !!result
+}
+
+export const sendExportJobEmail = async (
+  userId: string,
+  state: 'completed' | 'failed' | 'started',
+  urlToDownload?: string
+) => {
+  let subject = ''
+  let html = ''
+
+  switch (state) {
+    case 'completed':
+      if (!urlToDownload) {
+        throw new Error('urlToDownload is required')
+      }
+
+      subject = 'Your Omnivore export is ready'
+      html = `<p>Your export is ready. You can download it from the following link: <a href="${urlToDownload}">${urlToDownload}</a></p>`
+      break
+    case 'failed':
+      subject = 'Your Omnivore export failed'
+      html = '<p>Your export failed. Please try again later.</p>'
+      break
+    case 'started':
+      subject = 'Your Omnivore export has started'
+      html =
+        '<p>Your export has started. You will receive an email once it is completed.</p>'
+      break
+    default:
+      throw new Error('Invalid state')
+  }
+
+  return enqueueSendEmail({
+    userId,
+    subject,
+    html,
+  })
 }

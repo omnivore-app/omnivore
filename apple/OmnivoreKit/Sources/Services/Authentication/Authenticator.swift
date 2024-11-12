@@ -44,6 +44,7 @@ public final class Authenticator: ObservableObject {
     isLoggedIn = false
   }
 
+  @MainActor
   public func logout(dataService: DataService, isAccountDeletion: Bool = false) {
     dataService.resetLocalStorage()
 

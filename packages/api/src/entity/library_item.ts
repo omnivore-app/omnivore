@@ -58,7 +58,7 @@ export class LibraryItem {
   @Column('text')
   originalUrl!: string
 
-  @Column('text', { nullable: true })
+  @Column('text', { nullable: true, select: false })
   downloadUrl?: string | null
 
   @Column('text')
@@ -135,15 +135,8 @@ export class LibraryItem {
   @Column('enum', { enum: ContentReaderType, default: ContentReaderType.WEB })
   contentReader!: ContentReaderType
 
-  @Column('text', { nullable: true })
-  originalContent?: string | null
-
   @Column('text')
   readableContent!: string
-
-  // NOT SUPPORTED IN TYPEORM
-  // @Column('vector', { nullable: true })
-  // embedding?: number[]
 
   @Column('text', { nullable: true })
   textContentHash?: string | null
@@ -190,13 +183,13 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   recommenderNames?: string[] | null
 
-  @Column('jsonb')
+  @Column('jsonb', { select: false })
   links?: any | null
 
   @Column('text')
   feedContent?: string | null
 
-  @Column('text')
+  @Column('text', { select: false })
   previewContentType?: string | null
 
   @Column('text')
@@ -208,18 +201,18 @@ export class LibraryItem {
   @Column('text')
   highlightAnnotations?: string[]
 
-  @Column('timestamptz')
+  @Column('timestamptz', { select: false })
   seenAt?: Date
 
-  @Column('ltree')
+  @Column('ltree', { select: false })
   topic?: string
 
-  @Column('timestamptz')
+  @Column('timestamptz', { select: false })
   digestedAt?: Date
 
-  @Column('float')
+  @Column('float', { select: false })
   score?: number
 
-  @Column('text')
+  @Column('text', { select: false })
   previewContent?: string
 }

@@ -11,7 +11,6 @@ import {
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { appDataSource } from '../data_source'
-import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -30,13 +29,19 @@ import {
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge, PickTuple } from '../util'
-import { enqueueBulkUploadContentJob } from '../utils/createTask'
-import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
-import { logError, logger } from '../utils/logger'
+import {
+  deepDelete,
+  setRecentlySavedItemInRedis,
+  stringToHash,
+} from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { contentFilePath, downloadFromBucket } from '../utils/uploads'
-import { HighlightEvent } from './highlights'
-import { addLabelsToLibraryItem, LabelEvent } from './labels'
+import { deleteHighlightByLibraryItemId, HighlightEvent } from './highlights'
+import {
+  addLabelsToLibraryItem,
+  deleteLabelsByLibraryItemId,
+  LabelEvent,
+} from './labels'
 
 const columnsToDelete = [
   'user',
@@ -45,7 +50,6 @@ const columnsToDelete = [
   'links',
   'textContentHash',
   'readableContent',
-  'originalContent',
   'feedContent',
 ] as const
 type ColumnsToDeleteType = typeof columnsToDelete[number]
@@ -136,7 +140,7 @@ const readingProgressDataSource = new ReadingProgressDataSource()
 export const batchGetLibraryItems = async (ids: readonly string[]) => {
   // select all columns except content
   const select = getColumns(libraryItemRepository).filter(
-    (select) => ['originalContent', 'readableContent'].indexOf(select) === -1
+    (select) => select !== 'readableContent'
   )
   const items = await authTrx(
     async (tx) =>
@@ -320,17 +324,16 @@ export const buildQueryString = (
               // return only deleted pages within 14 days
               return "(library_item.state = 'DELETED' AND library_item.deleted_at >= NOW() - INTERVAL '14 days')"
             default: {
-              let sql = 'library_item.archived_at IS NULL'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
                   `library_item.folder = :${param}`,
                   { [param]: value }
                 )
-                sql = `(${sql} AND ${folderSql})`
+                return `(library_item.archived_at IS NULL AND ${folderSql})`
               }
 
-              return sql
+              return '(library_item.archived_at IS NULL AND library_item.folder IS NOT NULL)'
             }
           }
         }
@@ -638,12 +641,13 @@ export const createSearchQueryBuilder = (
 ) => {
   const queryBuilder = em.createQueryBuilder(LibraryItem, 'library_item')
 
-  // select all columns except content
+  // exclude content if not requested
   const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
       (select) =>
-        select !== 'originalContent' && // exclude original content
-        (args.includeContent || select !== 'readableContent') // exclude content if not requested
+        args.includeContent ||
+        ['readableContent', 'feedContent', 'previewContent'].indexOf(select) ===
+          -1
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -651,7 +655,7 @@ export const createSearchQueryBuilder = (
   const orders: Sort[] = []
   let queryString: string | null = null
 
-  if (args.query) {
+  if (args.query !== null && args.query !== undefined) {
     const searchQuery = parseSearchQuery(args.query)
 
     // build query string and save parameters
@@ -692,7 +696,10 @@ export const createSearchQueryBuilder = (
   }
 
   // default order by saved at descending
-  if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+  if (
+    orders.length === 0 ||
+    orders.every((order) => order.by.startsWith('rank')) // if only rank orders are present, add saved at order
+  ) {
     orders.push({
       by: 'library_item.saved_at',
       order: SortOrder.DESCENDING,
@@ -762,9 +769,7 @@ export const findRecentLibraryItems = async (
   offset?: number
 ) => {
   const selectColumns = getColumns(libraryItemRepository)
-    .filter(
-      (column) => column !== 'readableContent' && column !== 'originalContent'
-    )
+    .filter((column) => column !== 'readableContent')
     .map((column) => `library_item.${column}`)
 
   return authTrx(
@@ -794,20 +799,27 @@ export const findLibraryItemsByIds = async (
   userId?: string,
   options?: {
     select?: (keyof LibraryItem)[]
+    relations?: Array<'labels' | 'highlights'>
   }
 ) => {
-  const selectColumns =
-    options?.select?.map((column) => `library_item.${column}`) ||
-    getColumns(libraryItemRepository)
-      .filter((column) => column !== 'originalContent')
-      .map((column) => `library_item.${column}`)
+  const selectColumns = (
+    options?.select || getColumns(libraryItemRepository)
+  ).map((column) => `library_item.${column}`)
   return authTrx(
-    async (tx) =>
-      tx
+    async (tx) => {
+      const qb = tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
         .where('library_item.id IN (:...ids)', { ids })
-        .getMany(),
+
+      if (options?.relations) {
+        options.relations.forEach((relation) => {
+          qb.leftJoinAndSelect(`library_item.${relation}`, relation)
+        })
+      }
+
+      return qb.getMany()
+    },
     {
       uid: userId,
       replicationMode: 'replica',
@@ -963,6 +975,7 @@ export const updateLibraryItem = async (
     EntityType.ITEM,
     {
       ...data,
+      updatedAt: new Date(),
       id,
     } as ItemEvent,
     userId
@@ -1012,7 +1025,8 @@ export const updateLibraryItemReadingProgress = async (
         reading_progress_top_percent as "readingProgressTopPercent",
         reading_progress_bottom_percent as "readingProgressBottomPercent",
         reading_progress_highest_read_anchor as "readingProgressHighestReadAnchor",
-        read_at as "readAt"
+        read_at as "readAt",
+        updated_at as "updatedAt"
       `,
         [id, topPercent, bottomPercent, anchorIndex]
       ),
@@ -1025,7 +1039,11 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  const readingProgress = updatedItem.readingProgressBottomPercent
+  if (readingProgress === 0 || readingProgress === 100) {
+    // only send PAGE_UPDATED event if users mark item as read or unread
+    await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
+  }
 
   return updatedItem
 }
@@ -1050,110 +1068,100 @@ export const createOrUpdateLibraryItem = async (
   libraryItem: CreateOrUpdateLibraryItemArgs,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false,
-  originalContentUploaded = false
+  skipPubSub = false
 ): Promise<LibraryItem> => {
-  let originalContent: string | null = null
-  if (libraryItem.originalContent) {
-    originalContent = libraryItem.originalContent
+  let libraryItemCreated: LibraryItem
 
-    // remove original content from the item
-    delete libraryItem.originalContent
-  }
+  const existingLibraryItem = await authTrx(
+    async (tx) =>
+      tx
+        .withRepository(libraryItemRepository)
+        .findByUserIdAndUrl(userId, libraryItem.originalUrl),
+    { uid: userId }
+  )
 
-  const newLibraryItem = await authTrx(
-    async (tx) => {
-      const repo = tx.withRepository(libraryItemRepository)
-      // find existing library item by user_id and url for update
-      const existingLibraryItem = await repo.findByUserIdAndUrl(
-        userId,
-        libraryItem.originalUrl,
-        true
-      )
+  if (existingLibraryItem) {
+    const id = existingLibraryItem.id
 
-      if (existingLibraryItem) {
-        const id = existingLibraryItem.id
+    try {
+      // delete labels and highlights if the item was deleted
+      if (existingLibraryItem.state === LibraryItemState.Deleted) {
+        logger.info('Deleting labels and highlights for item', {
+          id,
+        })
 
-        try {
-          // delete labels and highlights if the item was deleted
-          if (existingLibraryItem.state === LibraryItemState.Deleted) {
-            logger.info('Deleting labels and highlights for item', {
-              id,
-            })
-            await tx.getRepository(Highlight).delete({
-              libraryItem: { id: existingLibraryItem.id },
-            })
-
-            await tx.getRepository(EntityLabel).delete({
-              libraryItemId: existingLibraryItem.id,
-            })
-
-            libraryItem.labelNames = []
-            libraryItem.highlightAnnotations = []
-          }
-        } catch (error) {
-          // continue to save the item even if we failed to delete labels and highlights
-          logger.error('Failed to delete labels and highlights', error)
+        if (existingLibraryItem.highlightAnnotations?.length) {
+          await deleteHighlightByLibraryItemId(userId, id)
+          existingLibraryItem.highlightAnnotations = []
         }
 
-        // update existing library item
-        const newItem = await repo.save({
+        if (existingLibraryItem.labelNames?.length) {
+          await deleteLabelsByLibraryItemId(userId, id)
+          existingLibraryItem.labelNames = []
+        }
+      }
+    } catch (error) {
+      // continue to save the item even if we failed to delete labels and highlights
+      logger.error('Failed to delete labels and highlights', error)
+    }
+
+    const existingLabels = existingLibraryItem.labelNames || []
+    const newLabels = libraryItem.labelNames || []
+    const combinedLabels = [...new Set([...existingLabels, ...newLabels])]
+
+    const existingHighlights = existingLibraryItem.highlightAnnotations || []
+    const newHighlights = libraryItem.highlightAnnotations || []
+    const combinedHighlights = [...existingHighlights, ...newHighlights]
+
+    // update existing library item
+    libraryItemCreated = await authTrx(
+      async (tx) =>
+        tx.getRepository(LibraryItem).save({
           ...libraryItem,
           id,
           slug: existingLibraryItem.slug, // keep the original slug
-        })
-
-        // delete the new item if it's different from the existing one
-        if (libraryItem.id && libraryItem.id !== id) {
-          await repo.delete(libraryItem.id)
-        }
-
-        return newItem
+          labelNames: combinedLabels,
+          highlightAnnotations: combinedHighlights,
+        }),
+      {
+        uid: userId,
       }
+    )
 
-      // create or update library item
-      return repo.upsertLibraryItemById(libraryItem)
-    },
-    {
-      uid: userId,
+    // delete the new item if it's different from the existing one
+    if (libraryItem.id && libraryItem.id !== id) {
+      await deleteLibraryItemById(libraryItem.id, userId)
     }
-  )
+  } else {
+    // upsert library item
+    libraryItemCreated = await authTrx(
+      async (tx) =>
+        tx
+          .withRepository(libraryItemRepository)
+          .upsertLibraryItemById(libraryItem),
+      {
+        uid: userId,
+      }
+    )
+  }
 
   // set recently saved item in redis if redis is enabled
   if (redisDataSource.redisClient) {
     await setRecentlySavedItemInRedis(
       redisDataSource.redisClient,
       userId,
-      newLibraryItem.originalUrl
+      libraryItemCreated.originalUrl
     )
   }
 
   if (skipPubSub || libraryItem.state === LibraryItemState.Processing) {
-    return newLibraryItem
+    return libraryItemCreated
   }
 
-  const data = deepDelete(newLibraryItem, columnsToDelete)
+  const data = deepDelete(libraryItemCreated, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
-  // upload original content to GCS in a job if it's not already uploaded
-  if (originalContent && !originalContentUploaded) {
-    try {
-      await enqueueUploadOriginalContent(
-        userId,
-        newLibraryItem.id,
-        newLibraryItem.savedAt,
-        originalContent
-      )
-
-      logger.info('Queued to upload original content in GCS', {
-        id: newLibraryItem.id,
-      })
-    } catch (error) {
-      logError(error)
-    }
-  }
-
-  return newLibraryItem
+  return libraryItemCreated
 }
 
 export const findLibraryItemsByPrefix = async (
@@ -1181,7 +1189,7 @@ export const findLibraryItemsByPrefix = async (
   )
 }
 
-export const countBySavedAt = async (
+export const countByCreatedAt = async (
   userId: string,
   startDate = new Date(0),
   endDate = new Date()
@@ -1191,7 +1199,7 @@ export const countBySavedAt = async (
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.saved_at between :startDate and :endDate', {
+        .andWhere('library_item.created_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
@@ -1245,7 +1253,7 @@ export const batchUpdateLibraryItems = async (
     const queryBuilder = getQueryBuilder(userId, em)
 
     if (forUpdate) {
-      queryBuilder.setLock('pessimistic_write')
+      queryBuilder.setLock('pessimistic_read')
     }
 
     const libraryItems = await queryBuilder
@@ -1383,7 +1391,7 @@ export const deleteLibraryItemsByUserId = async (userId: string) => {
 }
 
 export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
-  const batchSize = 1000
+  const batchSize = 20
 
   const qb = libraryItemRepository.createQueryBuilder().where(criteria)
   const countSql = queryBuilderToRawSql(qb.select('COUNT(1)'))
@@ -1737,40 +1745,39 @@ export const filterItemEvents = (
   throw new Error('Unexpected state.')
 }
 
-export const enqueueUploadOriginalContent = async (
-  userId: string,
-  libraryItemId: string,
-  savedAt: Date,
-  originalContent: string
-) => {
-  const filePath = contentFilePath({
-    userId,
-    libraryItemId,
-    savedAt,
-    format: 'original',
-  })
-  await enqueueBulkUploadContentJob([
-    {
-      userId,
-      libraryItemId,
-      filePath,
-      format: 'original',
-      content: originalContent,
-    },
-  ])
+const totalCountCacheKey = (userId: string, args: SearchArgs) => {
+  // sort the args to make sure the cache key is consistent
+  const sortedArgs = JSON.stringify(args, Object.keys(args).sort())
+
+  return `cache:library_items_count:${userId}:${stringToHash(sortedArgs)}`
 }
 
-export const downloadOriginalContent = async (
+export const getCachedTotalCount = async (userId: string, args: SearchArgs) => {
+  const cacheKey = totalCountCacheKey(userId, args)
+  const cachedCount = await redisDataSource.redisClient?.get(cacheKey)
+  if (!cachedCount) {
+    return undefined
+  }
+
+  return parseInt(cachedCount, 10)
+}
+
+export const setCachedTotalCount = async (
   userId: string,
-  libraryItemId: string,
-  savedAt: Date
+  args: SearchArgs,
+  count: number
 ) => {
-  return downloadFromBucket(
-    contentFilePath({
-      userId,
-      libraryItemId,
-      savedAt,
-      format: 'original',
-    })
-  )
+  const cacheKey = totalCountCacheKey(userId, args)
+
+  await redisDataSource.redisClient?.set(cacheKey, count, 'EX', 600)
+}
+
+export const deleteCachedTotalCount = async (userId: string) => {
+  const keyPattern = `cache:library_items_count:${userId}:*`
+  const keys = await redisDataSource.redisClient?.keys(keyPattern)
+  if (!keys || keys.length === 0) {
+    return
+  }
+
+  await redisDataSource.redisClient?.del(keys)
 }

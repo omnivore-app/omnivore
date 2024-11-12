@@ -151,13 +151,11 @@ const ViewRecentEmailModal = (
 
 export default function RecentEmails(): JSX.Element {
   const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
-  const [viewingEmailText, setViewingEmailText] = useState<
-    RecentEmail | undefined
-  >(undefined)
+  const [viewingEmailText, setViewingEmailText] =
+    useState<RecentEmail | undefined>(undefined)
 
-  const [viewingEmailHtml, setViewingEmailHtml] = useState<
-    RecentEmail | undefined
-  >(undefined)
+  const [viewingEmailHtml, setViewingEmailHtml] =
+    useState<RecentEmail | undefined>(undefined)
 
   applyStoredTheme()
 
@@ -170,14 +168,6 @@ export default function RecentEmails(): JSX.Element {
       pageId="recent-emails"
       pageInfoLink="https://docs.omnivore.app/using/inbox.html"
       headerTitle="Recently Received Emails"
-      suggestionInfo={{
-        title:
-          'View original emails that have been recently received in your Omnivore inbox.',
-        message:
-          "Your 30 most recent emails are stored below. You can click on each email to view its original content or it's text content. If an email was not correctly classified as an article you can mark it as an article and it will be added to your library.",
-        docs: 'https://docs.omnivore.app/using/inbox.html',
-        key: '--settings-recent-emails-show-help',
-      }}
     >
       {sortedRecentEmails.length > 0 ? (
         sortedRecentEmails.map((recentEmail: RecentEmail, i) => {

@@ -29,12 +29,14 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   comparePassword,
-  getClaimsByToken,
+  generateVerificationToken,
   hashPassword,
   setAuthInCookie,
+  verifyToken,
 } from '../../utils/auth'
 import { corsConfig } from '../../utils/corsConfig'
 import { logger } from '../../utils/logger'
+import { ARCHIVE_ACCOUNT_PATH, DEFAULT_HOME_PATH } from '../../utils/navigation'
 import { hourlyLimiter } from '../../utils/rate_limit'
 import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
@@ -373,11 +375,15 @@ export function authRouter() {
             decodeURIComponent(redirectUri)
           )
         } else {
-          redirectUri = `${env.client.url}/home`
+          redirectUri = `${env.client.url}${DEFAULT_HOME_PATH}`
         }
       }
 
-      redirectUri = redirectUri ? redirectUri : `${env.client.url}/home`
+      if (user.status === StatusType.Archived) {
+        redirectUri = `${env.client.url}${ARCHIVE_ACCOUNT_PATH}`
+      }
+
+      redirectUri = redirectUri ?? `${env.client.url}${DEFAULT_HOME_PATH}`
 
       const message = res.get('Message')
       if (message) {
@@ -539,7 +545,7 @@ export function authRouter() {
       try {
         // hash password
         const hashedPassword = await hashPassword(password)
-        await createUser({
+        const [user] = await createUser({
           email: trimmedEmail,
           provider: 'EMAIL',
           sourceUserId: trimmedEmail,
@@ -548,12 +554,17 @@ export function authRouter() {
           pictureUrl,
           bio,
           password: hashedPassword,
-          pendingConfirmation: true,
+          pendingConfirmation: !env.dev.autoVerify,
         })
 
-        res.redirect(
-          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
-        )
+        if (env.dev.autoVerify) {
+          const token = await generateVerificationToken({ id: user.id })
+          res.redirect(`${env.client.url}/auth/confirm-email/${token}`)
+        } else {
+          res.redirect(
+            `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
+          )
+        }
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
@@ -579,13 +590,7 @@ export function authRouter() {
 
       try {
         // verify token
-        const claims = await getClaimsByToken(token)
-        if (!claims) {
-          return res.redirect(
-            `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
-          )
-        }
-
+        const claims = await verifyToken(token)
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
@@ -707,20 +712,14 @@ export function authRouter() {
       const { token, password } = req.body
 
       try {
-        // verify token
-        const claims = await getClaimsByToken(token)
-        if (!claims) {
-          return res.redirect(
-            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_TOKEN`
-          )
-        }
-
         if (!password || password.length < 8) {
           return res.redirect(
             `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_PASSWORD`
           )
         }
 
+        // verify token
+        const claims = await verifyToken(token)
         const user = await getRepository(User).findOneBy({
           id: claims.uid,
         })

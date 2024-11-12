@@ -89,7 +89,6 @@ export const saveEmail = async (
       user: { id: input.userId },
       slug,
       readableContent: content,
-      originalContent: input.originalContent,
       description: metadata?.description || parseResult.parsedContent?.excerpt,
       title: input.title,
       author: input.author,
@@ -106,7 +105,9 @@ export const saveEmail = async (
       state: LibraryItemState.Succeeded,
       siteIcon,
       siteName: parseResult.parsedContent?.siteName ?? undefined,
-      wordCount: wordsCount(content),
+      wordCount: parseResult.parsedContent?.textContent
+        ? wordsCount(parseResult.parsedContent.textContent)
+        : wordsCount(content, true),
       subscription: input.author,
       folder: input.folder,
       labelNames: labels.map((label) => label.name),

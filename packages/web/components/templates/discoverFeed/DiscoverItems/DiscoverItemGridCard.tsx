@@ -19,9 +19,9 @@ import { CoverImage } from '../../../elements/CoverImage'
 import {
   AuthorInfoStyle,
   MetaStyle,
-  siteName,
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
+import { siteName } from '../../../../lib/textFormatting'
 import {
   DiscoverItemCardProps,
   DiscoverItemSubCardProps,

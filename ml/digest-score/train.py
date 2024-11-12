@@ -1,17 +1,11 @@
-import pandas as pd
 import os
+import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-from sklearn.linear_model import SGDClassifier
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-
-from sklearn.preprocessing import StandardScaler
-
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
-from sklearn.utils import shuffle
+import xgboost as xgb
+from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
-from sklearn2pmml import PMMLPipeline, sklearn2pmml
 
 from google.cloud import storage
 from google.cloud.exceptions import PreconditionFailed
@@ -23,13 +17,6 @@ import pyarrow.feather as feather
 
 from features.user_history import FEATURE_COLUMNS
 
-DB_PARAMS = {
-    'dbname': os.getenv('DB_NAME') or 'omnivore',
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'host': os.getenv('DB_HOST') or 'localhost',
-    'port': os.getenv('DB_PORT') or '5432'
-}
 
 def parquet_to_dataframe(file_path):
     table = pq.read_table(file_path)
@@ -122,58 +109,15 @@ def prepare_data(df):
 
     return X, Y
 
-def train_random_forest_model(X, Y):
-    model = RandomForestClassifier(
-        class_weight={0: 1, 1: 10}, 
-        n_estimators=10, 
-        max_depth=10, 
-        random_state=42
-    )
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+def train_xgb_model(X, Y):
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+    model = xgb.XGBClassifier(max_depth=7, n_estimators=5)
+    model.fit(X_train, y_train)
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X_scaled, Y, test_size=0.3, random_state=42)
-
-    pipeline = PMMLPipeline([
-        ("scaler", scaler),
-        ("classifier", model)
-    ])
-
-    pipeline.fit(X_train, Y_train)
-
-    Y_pred = pipeline.predict(X_test)
-    print_classification_report(Y_test, Y_pred)
-    print_feature_importance(X, model)
-
-    return pipeline
-
-
-def print_feature_importance(X, rf):
-    # Get feature importances
-    importances = rf.feature_importances_
-
-    # Get the indices of the features sorted by importance
-    indices = np.argsort(importances)[::-1]
-
-    # Print the feature ranking
-    print("Feature ranking:")
-
-    for f in range(X.shape[1]):
-        print(f"{f + 1}. feature {indices[f]} ({importances[indices[f]]:.4f}) - {X.columns[indices[f]]}")
-
-
-
-def print_classification_report(Y_test, Y_pred):
-    report = classification_report(Y_test, Y_pred, target_names=['Not Clicked', 'Clicked'], output_dict=True)
-    print("Classification Report:")
-    print(f"Accuracy: {report['accuracy']:.4f}")
-    print(f"Precision (Not Clicked): {report['Not Clicked']['precision']:.4f}")
-    print(f"Recall (Not Clicked): {report['Not Clicked']['recall']:.4f}")
-    print(f"F1-Score (Not Clicked): {report['Not Clicked']['f1-score']:.4f}")
-    print(f"Precision (Clicked): {report['Clicked']['precision']:.4f}")
-    print(f"Recall (Clicked): {report['Clicked']['recall']:.4f}")
-    print(f"F1-Score (Clicked): {report['Clicked']['f1-score']:.4f}")
+    y_pred = model.predict(X_test)
+    print(classification_report(y_test, y_pred))
+    return model
 
 
 def main():
@@ -181,24 +125,23 @@ def main():
     num_days_history = os.getenv('NUM_DAYS_HISTORY')
     gcs_bucket_name = os.getenv('GCS_BUCKET')
 
-    raw_data_path = f'raw_library_items_${execution_date}.parquet'
+    raw_data_path = f'raw_library_items_{execution_date}.parquet'
     user_history_path = 'features_user_features.pkl'
     pipeline_path = 'predict_read_pipeline-v002.pkl'
+    model_path  = 'predict_read_model-v003.pkl'
 
     download_from_gcs(gcs_bucket_name, f'data/features/user_features.pkl', user_history_path)
     download_from_gcs(gcs_bucket_name, f'data/raw/library_items_{execution_date}.parquet', raw_data_path)
 
-    sampled_raw_df = load_and_sample_library_items_from_parquet(raw_data_path, 0.10)
+    sampled_raw_df = load_and_sample_library_items_from_parquet(raw_data_path, 0.95)
     user_history = load_dataframes_from_pickle(user_history_path)
 
     merged_df = merge_user_preference_data(sampled_raw_df, user_history)
 
-    print("created merged data", merged_df.columns)
-
     X, Y = prepare_data(merged_df)
-    random_forest_pipeline = train_random_forest_model(X, Y)
-    save_to_pickle(random_forest_pipeline, pipeline_path)
-    upload_to_gcs(gcs_bucket_name, pipeline_path, f'data/models/{pipeline_path}')
+    xgb_model = train_xgb_model(X, Y)
+    save_to_pickle(xgb_model, model_path)
+    upload_to_gcs(gcs_bucket_name, model_path, f'data/models/{model_path}')
 
 
 if __name__ == "__main__":

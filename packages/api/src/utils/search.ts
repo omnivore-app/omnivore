@@ -17,7 +17,7 @@ export const parseSearchQuery = (query: string): LiqeQuery => {
 
   // by default we want to search in the inbox if no in: is specified
   if (!searchQuery.includes('in:')) {
-    searchQuery = `(${searchQuery}) in:inbox`
+    searchQuery = `in:inbox (${searchQuery})`
   }
 
   return parse(searchQuery)

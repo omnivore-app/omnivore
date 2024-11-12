@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
+import * as httpContext from 'express-http-context2'
 import { isError } from 'lodash'
 import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -11,6 +12,7 @@ import {
   EXISTING_NEWSLETTER_FOLDER,
   NewsletterEmail,
 } from '../entity/newsletter_email'
+import { Post } from '../entity/post'
 import { PublicItem } from '../entity/public_item'
 import { Recommendation } from '../entity/recommendation'
 import {
@@ -27,7 +29,16 @@ import {
   User,
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures } from '../services/features'
+import {
+  findUserFeatures,
+  getFeaturesCache,
+  setFeaturesCache,
+} from '../services/features'
+import {
+  countLibraryItems,
+  getCachedTotalCount,
+  setCachedTotalCount,
+} from '../services/library_item'
 import { Merge } from '../util'
 import { isBase64Image, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
@@ -41,6 +52,7 @@ import {
   emptyTrashResolver,
   fetchContentResolver,
   PartialLibraryItem,
+  PartialPageInfo,
 } from './article'
 import {
   addDiscoverFeedResolver,
@@ -60,11 +72,6 @@ import {
   updateFolderPolicyResolver,
 } from './folder_policy'
 import { highlightsResolver } from './highlight'
-import {
-  hiddenHomeSectionResolver,
-  homeResolver,
-  refreshHomeResolver,
-} from './home'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -151,6 +158,13 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
+import {
+  createPostResolver,
+  deletePostResolver,
+  postResolver,
+  postsResolver,
+  updatePostResolver,
+} from './posts'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -314,10 +328,12 @@ export const functionResolvers = {
     fetchContent: fetchContentResolver,
     exportToIntegration: exportToIntegrationResolver,
     replyToEmail: replyToEmailResolver,
-    refreshHome: refreshHomeResolver,
     createFolderPolicy: createFolderPolicyResolver,
     updateFolderPolicy: updateFolderPolicyResolver,
     deleteFolderPolicy: deleteFolderPolicyResolver,
+    createPost: createPostResolver,
+    updatePost: updatePostResolver,
+    deletePost: deletePostResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -349,22 +365,34 @@ export const functionResolvers = {
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
     integration: integrationResolver,
-    home: homeResolver,
     subscription: subscriptionResolver,
-    hiddenHomeSection: hiddenHomeSectionResolver,
     highlights: highlightsResolver,
     folderPolicies: folderPoliciesResolver,
+    posts: postsResolver,
+    post: postResolver,
   },
   User: {
     async intercomHash(user: User) {
-      if (env.intercom.secretKey) {
-        const userIdentifier = user.id.toString()
+      let secret: string
 
-        return createHmac('sha256', env.intercom.secretKey)
-          .update(userIdentifier)
-          .digest('hex')
+      const client = httpContext.get('client') as string
+      switch (client.toLowerCase()) {
+        case 'ios':
+          secret = env.intercom.iosSecret
+          break
+        case 'android':
+          secret = env.intercom.androidSecret
+          break
+        default:
+          secret = env.intercom.webSecret
       }
-      return undefined
+
+      if (!secret) {
+        return undefined
+      }
+
+      const userIdentifier = user.id
+      return createHmac('sha256', secret).update(userIdentifier).digest('hex')
     },
     async features(_: User, __: Record<string, unknown>, ctx: ResolverContext) {
       if (!ctx.claims?.uid) {
@@ -382,7 +410,16 @@ export const functionResolvers = {
         return undefined
       }
 
-      return findUserFeatures(ctx.claims.uid)
+      const userId = ctx.claims.uid
+      const cachedFeatures = await getFeaturesCache(userId)
+      if (cachedFeatures) {
+        return cachedFeatures
+      }
+
+      const features = await findUserFeatures(userId)
+      await setFeaturesCache(userId, features)
+
+      return features
     },
     picture: (user: UserEntity) => user.profile.pictureUrl,
     // not implemented yet
@@ -418,7 +455,7 @@ export const functionResolvers = {
       return article.originalUrl
     },
     hasContent(article: LibraryItem) {
-      return !!article.originalContent && !!article.readableContent
+      return !!article.readableContent
     },
     publishedAt(article: LibraryItem) {
       return validatedDate(article.publishedAt || undefined)
@@ -434,7 +471,7 @@ export const functionResolvers = {
       if (article.wordCount) return article.wordCount
 
       return article.readableContent
-        ? wordsCount(article.readableContent)
+        ? wordsCount(article.readableContent, true)
         : undefined
     },
     async labels(article: LibraryItem, _: unknown, ctx: ResolverContext) {
@@ -501,7 +538,9 @@ export const functionResolvers = {
     },
     wordsCount(item: LibraryItem) {
       if (item.wordCount) return item.wordCount
-      return item.readableContent ? wordsCount(item.readableContent) : undefined
+      return item.readableContent
+        ? wordsCount(item.readableContent, true)
+        : undefined
     },
     siteIcon(item: LibraryItem) {
       if (item.siteIcon && !isBase64Image(item.siteIcon)) {
@@ -536,40 +575,34 @@ export const functionResolvers = {
 
       return ctx.dataLoaders.highlights.load(item.id)
     },
-    async content(item: PartialLibraryItem, _: unknown, ctx: ResolverContext) {
-      // convert html to the requested format if requested
-      if (
-        item.format &&
-        item.format !== ArticleFormat.Html &&
-        item.readableContent
-      ) {
-        let highlights: Highlight[] = []
-        // load highlights if needed
-        if (
-          item.format === ArticleFormat.HighlightedMarkdown &&
-          item.highlightAnnotations?.length
-        ) {
-          highlights = await ctx.dataLoaders.highlights.load(item.id)
-        }
-
-        try {
-          ctx.log.info(`Converting content to: ${item.format}`)
-
-          // convert html to the requested format
-          const converter = contentConverter(item.format)
-          if (converter) {
-            return converter(item.readableContent, highlights)
-          }
-        } catch (error) {
-          ctx.log.error('Error converting content', error)
-        }
-      }
-
-      return item.readableContent
-    },
     isArchived: (item: LibraryItem) => !!item.archivedAt,
     pageType: (item: LibraryItem) => item.itemType,
+    highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
+    content: (item: LibraryItem) => item.readableContent,
+  },
+  PageInfo: {
+    async totalCount(
+      pageInfo: PartialPageInfo,
+      _: unknown,
+      ctx: ResolverContext
+    ) {
+      if (pageInfo.totalCount) return pageInfo.totalCount
+
+      if (pageInfo.searchLibraryItemArgs && ctx.claims) {
+        const args = pageInfo.searchLibraryItemArgs
+        const userId = ctx.claims.uid
+        const cachedCount = await getCachedTotalCount(userId, args)
+        if (cachedCount) return cachedCount
+
+        const count = await countLibraryItems(args, userId)
+        await setCachedTotalCount(userId, args, count)
+
+        return count
+      }
+
+      return 0
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
@@ -779,6 +812,35 @@ export const functionResolvers = {
     name: (recommendation: Recommendation) => recommendation.group.name,
     recommendedAt: (recommendation: Recommendation) => recommendation.createdAt,
   },
+  Post: {
+    async author(post: Post, _: never, ctx: ResolverContext) {
+      const author = await ctx.dataLoaders.users.load(post.userId)
+      return author?.name
+    },
+    ownedByViewer(post: Post, _: never, ctx: ResolverContext) {
+      return post.userId === ctx.claims?.uid
+    },
+    async libraryItems(
+      post: { libraryItemIds: string[] },
+      _: never,
+      ctx: ResolverContext
+    ) {
+      const items = await ctx.dataLoaders.libraryItems.loadMany(
+        post.libraryItemIds
+      )
+      return items.filter((item) => !!item)
+    },
+    async highlights(
+      post: { highlightIds: string[] },
+      _: never,
+      ctx: ResolverContext
+    ) {
+      const highlights = await ctx.dataLoaders.highlights.loadMany(
+        post.highlightIds
+      )
+      return highlights.filter((highlight) => !!highlight)
+    },
+  },
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('LogOut'),
   ...resultResolveTypeResolver('GoogleSignup'),
@@ -877,4 +939,9 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('CreateFolderPolicy'),
   ...resultResolveTypeResolver('UpdateFolderPolicy'),
   ...resultResolveTypeResolver('DeleteFolderPolicy'),
+  ...resultResolveTypeResolver('Posts'),
+  ...resultResolveTypeResolver('Post'),
+  ...resultResolveTypeResolver('CreatePost'),
+  ...resultResolveTypeResolver('UpdatePost'),
+  ...resultResolveTypeResolver('DeletePost'),
 }

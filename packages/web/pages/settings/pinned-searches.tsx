@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useReducer,
 } from 'react'
-import { Toaster } from 'react-hot-toast'
 import {
   Box,
   HStack,
@@ -15,13 +14,13 @@ import {
 import { StyledText } from '../../components/elements/StyledText'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { CheckSquare, Circle, Square } from '@phosphor-icons/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { escapeQuotes } from '../../utils/helper'
+import { useGetLabels } from '../../lib/networking/labels/useLabels'
+import { useGetSavedSearches } from '../../lib/networking/savedsearches/useSavedSearches'
 
 export type PinnedSearch = {
   type: 'saved-search' | 'label'
@@ -34,8 +33,8 @@ const PINNED_SEARCHES_KEY = `--library-pinned-searches`
 type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
 export default function PinnedSearches(): JSX.Element {
-  const { labels } = useGetLabelsQuery()
-  const { savedSearches } = useGetSavedSearchQuery()
+  const { data: labels } = useGetLabels()
+  const { data: savedSearches } = useGetSavedSearches()
   const [hidePinnedSearches, setHidePinnedSearches] = usePersistedState({
     key: '--library-hide-pinned-searches',
     initialValue: false,
@@ -103,7 +102,7 @@ export default function PinnedSearches(): JSX.Element {
     if (pinnedSearches.state == 'INITIAL') {
       return { labelItems: [], savedSearchItems: [] }
     }
-    const labelItems = labels.map((label) => {
+    const labelItems = labels?.map((label) => {
       return {
         label,
         isSelected: !!pinnedSearches.items.find(
@@ -144,11 +143,6 @@ export default function PinnedSearches(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
@@ -244,7 +238,7 @@ export default function PinnedSearches(): JSX.Element {
                 <StyledText style="modalTitle" css={{ mt: '20px' }}>
                   Labels
                 </StyledText>
-                {items.labelItems.map((item) => {
+                {items.labelItems?.map((item) => {
                   return (
                     <LabelButton
                       label={item.label}

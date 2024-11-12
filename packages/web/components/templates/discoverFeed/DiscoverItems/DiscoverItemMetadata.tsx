@@ -1,6 +1,6 @@
 import { HStack } from '../../../elements/LayoutPrimitives'
-import { timeAgo } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
+import { DiscoverFeedItem } from '../../../../lib/networking/queries/useGetDiscoverFeedItems'
+import { timeAgo } from '../../../../lib/textFormatting'
 
 type DiscoverItemMetadataProps = {
   item: DiscoverFeedItem

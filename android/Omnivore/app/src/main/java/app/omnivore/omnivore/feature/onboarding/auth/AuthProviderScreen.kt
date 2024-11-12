@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -27,28 +26,25 @@ import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.feature.onboarding.auth.provider.AppleAuthButton
 import app.omnivore.omnivore.feature.onboarding.auth.provider.GoogleAuthButton
 import app.omnivore.omnivore.navigation.Routes
-import com.google.android.gms.common.GoogleApiAvailability
 
 @Composable
 fun AuthProviderScreen(
     welcomeNavController: NavHostController,
     viewModel: OnboardingViewModel
 ) {
-    val isGoogleAuthAvailable: Boolean =
-        GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LocalContext.current) == 0
 
     Row(
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth().padding(bottom = 64.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 64.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.width(500.dp)
         ) {
-            if (isGoogleAuthAvailable) {
-                GoogleAuthButton(viewModel)
-            }
+            GoogleAuthButton(viewModel)
 
             AppleAuthButton(viewModel)
 
@@ -66,7 +62,10 @@ fun AuthProviderScreen(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Text(text = stringResource(R.string.welcome_screen_action_continue_with_email), modifier = Modifier.padding(vertical = 6.dp))
+                Text(
+                    text = stringResource(R.string.welcome_screen_action_continue_with_email),
+                    modifier = Modifier.padding(vertical = 6.dp)
+                )
             }
 
             Spacer(modifier = Modifier.weight(1.0F))
@@ -80,7 +79,7 @@ fun AuthProviderScreen(
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
-            ){
+            ) {
                 Text(
                     text = stringResource(R.string.welcome_screen_action_self_hosting_options),
                     textDecoration = TextDecoration.Underline

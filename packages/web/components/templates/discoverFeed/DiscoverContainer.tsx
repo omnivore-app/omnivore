@@ -37,10 +37,6 @@ export function DiscoverContainer(): JSX.Element {
   const { feeds, revalidate, isValidating } = useGetDiscoverFeeds()
   const topics = [
     {
-      title: 'Popular',
-      subTitle: 'Stories that are popular on Omnivore right now...',
-    },
-    {
       title: 'All',
       subTitle: 'All the discover stories...',
     },
@@ -95,7 +91,7 @@ export function DiscoverContainer(): JSX.Element {
     }
     setPage(page + 1)
   }, [page, isLoading])
-  useFetchMore(handleFetchMore)
+  // useFetchMore(handleFetchMore)
 
   const handleSaveDiscover = async (
     discoverArticleId: string,
@@ -171,7 +167,7 @@ export function DiscoverContainer(): JSX.Element {
     if (window) {
       setLayoutType(
         JSON.parse(
-          window.localStorage.getItem('libraryLayout') || 'GRID_LAYOUT'
+          window.localStorage.getItem('libraryLayout') || '"GRID_LAYOUT"'
         )
       )
     }
@@ -207,16 +203,8 @@ export function DiscoverContainer(): JSX.Element {
         discoverVisibility={discoverVisibility}
         setDiscoverVisibility={setDiscoverVisibility}
       />
-      <HStack css={{ width: '100%', height: '100%' }}>
-        <LibraryFilterMenu
-          setShowAddLinkModal={setShowAddLinkModal}
-          searchTerm={'NONE'} // This is done to stop the library filter menu actually having a highlight. Hacky.
-          applySearchQuery={(searchQuery: string) => {
-            router?.push(`/home?q=${searchQuery}`)
-          }}
-          showFilterMenu={showFilterMenu}
-          setShowFilterMenu={setShowFilterMenu}
-        />
+      <HStack css={{ paddingLeft: '25px', width: '100%', height: '100%' }}>
+
         <DiscoverItemFeed
           visibility={discoverVisibility}
           layout={layoutType}

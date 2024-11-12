@@ -60,11 +60,10 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
         css={{
           pt: '15px',
           top: '0',
-          right: '0',
-          left: LIBRARY_LEFT_MENU_WIDTH,
           zIndex: 5,
+          paddingLeft: '25px',
           position: 'fixed',
-          bg: '$thLibraryBackground',
+          bg: '$thBackground',
           '@mdDown': {
             left: '0px',
             pt: '0px',

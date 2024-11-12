@@ -52,9 +52,8 @@ const LoginForm = (): JSX.Element => {
 
 export function EmailLogin(): JSX.Element {
   const router = useRouter()
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
   const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -71,7 +70,7 @@ export function EmailLogin(): JSX.Element {
       <VStack
         alignment="center"
         css={{
-          padding: '16px',
+          padding: '20px',
           minWidth: '340px',
           width: '70vw',
           maxWidth: '576px',

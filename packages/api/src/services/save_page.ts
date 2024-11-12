@@ -71,7 +71,6 @@ export type SavePageArgs = Merge<
     feedContent?: string
     previewImage?: string
     author?: string
-    originalContentUploaded?: boolean
   }
 >
 
@@ -149,8 +148,7 @@ export const savePage = async (
     itemToSave,
     user.id,
     undefined,
-    isImported,
-    input.originalContentUploaded
+    isImported
   )
   clientRequestId = newItem.id
 
@@ -171,7 +169,13 @@ export const savePage = async (
 
     // merge highlights
     try {
-      await createHighlight(highlight, clientRequestId, user.id)
+      await createHighlight(
+        highlight,
+        clientRequestId,
+        user.id,
+        undefined,
+        false
+      )
     } catch (error) {
       logger.error('Failed to create highlight', {
         highlight,
@@ -191,7 +195,6 @@ export const savePage = async (
 export const parsedContentToLibraryItem = ({
   url,
   userId,
-  originalHtml,
   itemId,
   parsedContent,
   slug,
@@ -240,7 +243,6 @@ export const parsedContentToLibraryItem = ({
     id: itemId || undefined,
     slug,
     user: { id: userId },
-    originalContent: originalHtml,
     readableContent: parsedContent?.content || '',
     description: parsedContent?.excerpt,
     previewContent: parsedContent?.excerpt,
@@ -273,7 +275,9 @@ export const parsedContentToLibraryItem = ({
     siteName: parsedContent?.siteName,
     itemLanguage: parsedContent?.language,
     siteIcon: parsedContent?.siteIcon,
-    wordCount: wordsCount(parsedContent?.textContent || ''),
+    wordCount: parsedContent?.textContent
+      ? wordsCount(parsedContent.textContent)
+      : wordsCount(parsedContent?.content || '', true),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
     folder: folder || 'inbox',

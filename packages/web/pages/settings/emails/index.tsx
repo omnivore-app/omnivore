@@ -80,9 +80,8 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } =
     useGetNewsletterEmailsQuery()
-  const [confirmDeleteEmailId, setConfirmDeleteEmailId] = useState<
-    undefined | string
-  >(undefined)
+  const [confirmDeleteEmailId, setConfirmDeleteEmailId] =
+    useState<undefined | string>(undefined)
 
   applyStoredTheme()
 
@@ -121,17 +120,6 @@ export default function EmailsPage(): JSX.Element {
         headerTitle="Address"
         createTitle="Create a new email address"
         createAction={createEmail}
-        suggestionInfo={{
-          title: 'Subscribe to newsletters with an Omnivore Email Address',
-          message:
-            'Create an Omnivore email address and use it to subscribe to newsletters or send yourself documents. Newsletters and documents will be categorized and added to your library when we receive a message. View all received emails with the "Recently Received Emails" link at the bottom of this page.',
-          docs: 'https://docs.omnivore.app/using/inbox.html',
-          key: '--settings-emails-show-help',
-          CTAText: 'Create an email address',
-          onClickCTA: () => {
-            createEmail()
-          },
-        }}
       >
         {sortedEmailAddresses.length > 0 ? (
           sortedEmailAddresses.map((email, i) => {

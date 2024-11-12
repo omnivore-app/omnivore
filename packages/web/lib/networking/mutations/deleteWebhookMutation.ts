@@ -15,8 +15,8 @@ export async function deleteWebhookMutation(
   id: string
 ): Promise<any | undefined> {
   const mutation = gql`
-    mutation {
-      deleteWebhook(id: "${id}") {
+    mutation DeleteWebhook($id: ID!) {
+      deleteWebhook(id: $id) {
         ... on DeleteWebhookSuccess {
           webhook {
             id
@@ -30,7 +30,7 @@ export async function deleteWebhookMutation(
   `
 
   try {
-    const data = (await gqlFetcher(mutation)) as DeleteWebhookResult
+    const data = (await gqlFetcher(mutation, { id })) as DeleteWebhookResult
     return data.errorCodes ? undefined : data.deleteWebhook.webhook.id
   } catch (error) {
     console.log('deleteWebhookMutation error', error)

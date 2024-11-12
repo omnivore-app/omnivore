@@ -14,8 +14,18 @@ import {
   MutationAddDiscoverFeedArgs,
 } from '../../generated/graphql'
 import { authorized } from '../../utils/gql-utils'
-import { RSS_PARSER_CONFIG } from '../../utils/parser'
-import { EntityType } from '../../pubsub'
+import { enqueueDiscoverJob } from '../../utils/createTask'
+
+const RSS_PARSER_CONFIG = {
+  timeout: 5000, // 5 seconds
+  headers: {
+    // some rss feeds require user agent
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    Accept:
+      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4, text/html;q=0.2',
+  },
+}
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -154,7 +164,7 @@ export const addDiscoverFeedResolver = authorized<
   AddDiscoverFeedSuccess,
   AddDiscoverFeedError,
   MutationAddDiscoverFeedArgs
->(async (_, { input: { url } }, { uid, log, pubsub }) => {
+>(async (_, { input: { url } }, { uid, log }) => {
   try {
     const existingFeed = (await appDataSource.query(
       'SELECT id from omnivore.discover_feed where link = $1',
@@ -167,11 +177,7 @@ export const addDiscoverFeedResolver = authorized<
 
     const result = await addNewSubscription(url, uid)
     if (result.__typename == 'AddDiscoverFeedSuccess') {
-      await pubsub.entityCreated(
-        EntityType.DISCOVER_FEED,
-        { id: result.feed.id, feed: result.feed },
-        uid
-      )
+      await enqueueDiscoverJob({ id: result.feed.id, feed: result.feed })
     }
 
     return result

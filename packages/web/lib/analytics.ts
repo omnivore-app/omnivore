@@ -23,6 +23,7 @@ const initAnalytics = (user?: UserBasicData): void => {
     posthog.init(posthogApiKey, {
       api_host: `${webBaseURL}/collect`,
       autocapture: false,
+      person_profiles: 'identified_only',
       disable_session_recording: false,
       advanced_disable_decide: true,
       advanced_disable_feature_flags: true,

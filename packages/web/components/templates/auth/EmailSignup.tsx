@@ -150,7 +150,7 @@ export function EmailSignup(): JSX.Element {
         <VStack
           alignment="center"
           css={{
-            padding: '16px',
+            padding: '20px',
             minWidth: '340px',
             width: '70vw',
             maxWidth: '576px',

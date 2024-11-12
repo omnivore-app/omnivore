@@ -30,6 +30,9 @@ export class Integration {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
+  @Column('uuid', { name: 'user_id' })
+  userId!: string
+
   @Column('varchar', { length: 40 })
   name!: string
 

@@ -1,8 +1,8 @@
 import { Highlight } from './networking/fragments/highlightFragment'
 import { ArticleReadingProgressMutationInput } from './networking/mutations/articleReadingProgressMutation'
-import { CreateHighlightInput } from './networking/mutations/createHighlightMutation'
 import { MergeHighlightInput } from './networking/mutations/mergeHighlightMutation'
 import { UpdateHighlightInput } from './networking/mutations/updateHighlightMutation'
+import { CreateHighlightInput } from './networking/highlights/useItemHighlights'
 
 export type ArticleMutations = {
   createHighlightMutation: (

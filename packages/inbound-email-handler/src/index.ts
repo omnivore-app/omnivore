@@ -55,6 +55,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           console.log('no data or name for ', part)
         }
       }
+
       const headers = parseHeaders(parsed.headers)
 
       // original sender email address
@@ -89,7 +90,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         // check if it is a subscription or google confirmation email
         const isGoogleConfirmation = isGoogleConfirmationEmail(from, subject)
         if (isGoogleConfirmation || isSubscriptionConfirmationEmail(subject)) {
-          console.debug('handleConfirmation', from, subject)
+          console.log('handleConfirmation', from, subject)
           // we need to parse the confirmation code from the email
           if (isGoogleConfirmation) {
             await handleGoogleConfirmationEmail(
@@ -114,7 +115,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           return res.send('ok')
         }
         if (attachments.length > 0) {
-          console.debug('handle attachments', from, to, subject)
+          console.log('handle attachments', from, to, subject)
           // save the attachments as articles
           await handleAttachments(
             redisDataSource,

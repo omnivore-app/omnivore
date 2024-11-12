@@ -1,12 +1,4 @@
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-import { Toaster } from 'react-hot-toast'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import {
   Box,
@@ -19,22 +11,23 @@ import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { styled, theme } from '../../components/tokens/stitches.config'
 import { userHasFeature } from '../../lib/featureFlag'
+import { useGetLibraryItems } from '../../lib/networking/library_items/useLibraryItems'
 import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMutation'
+import { optInFeature } from '../../lib/networking/mutations/optIntoFeatureMutation'
+import { scheduleDigest } from '../../lib/networking/mutations/scheduleDigest'
+import { updateDigestConfigMutation } from '../../lib/networking/mutations/updateDigestConfigMutation'
 import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import {
   DigestChannel,
   useGetUserPersonalization,
 } from '../../lib/networking/queries/useGetUserPersonalization'
-import { updateDigestConfigMutation } from '../../lib/networking/mutations/updateDigestConfigMutation'
-import { scheduleDigest } from '../../lib/networking/mutations/scheduleDigest'
-import { optInFeature } from '../../lib/networking/mutations/optIntoFeatureMutation'
+import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
+import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { createExport } from '../../lib/networking/useCreateExport'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -99,15 +92,16 @@ export default function Account(): JSX.Element {
     isUsernameValidationLoading,
   ])
 
-  const { itemsPages, isValidating } = useGetLibraryItemsQuery('', {
+  const { data: itemsPages, isLoading } = useGetLibraryItems('search', 'all', {
     limit: 0,
-    searchQuery: 'in:all',
+    searchQuery: '',
     sortDescending: false,
+    includeCount: true,
   })
 
   const libraryCount = useMemo(() => {
-    return itemsPages?.find(() => true)?.search.pageInfo.totalCount
-  }, [itemsPages, isValidating])
+    return itemsPages?.pages.find(() => true)?.pageInfo.totalCount
+  }, [itemsPages, isLoading])
 
   useEffect(() => {
     if (viewerData?.me?.profile.username) {
@@ -230,12 +224,6 @@ export default function Account(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
@@ -295,6 +283,8 @@ export default function Account(): JSX.Element {
               </Button>
             </form>
           </VStack>
+
+          <ExportSection />
 
           <VStack
             css={{
@@ -401,8 +391,8 @@ export default function Account(): JSX.Element {
               )}
             </form>
           </VStack>
-
-          <DigestSection />
+          {/* 
+          <DigestSection /> */}
 
           <VStack
             css={{
@@ -415,7 +405,7 @@ export default function Account(): JSX.Element {
             }}
           >
             <StyledLabel>Account Storage</StyledLabel>
-            {!isValidating && (
+            {!isLoading && (
               <>
                 <ProgressBar
                   fillPercentage={((libraryCount ?? 0) / ACCOUNT_LIMIT) * 100}
@@ -445,7 +435,7 @@ export default function Account(): JSX.Element {
             {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
           </VStack>
 
-          <BetaFeaturesSection />
+          {/* <BetaFeaturesSection /> */}
 
           <VStack
             css={{
@@ -481,6 +471,48 @@ export default function Account(): JSX.Element {
         />
       ) : null}
     </SettingsLayout>
+  )
+}
+
+const ExportSection = (): JSX.Element => {
+  const doExport = useCallback(async () => {
+    const result = await createExport()
+    if (result) {
+      showSuccessToast('Your export has started.')
+    } else {
+      showErrorToast('There was an error creating your export.')
+    }
+  }, [])
+
+  return (
+    <VStack
+      css={{
+        padding: '24px',
+        width: '100%',
+        height: '100%',
+        bg: '$grayBg',
+        gap: '5px',
+        borderRadius: '5px',
+      }}
+    >
+      <StyledLabel>Export</StyledLabel>
+      <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+        Export all of your data. This can be done once per day and will be
+        delivered to your registered email address. Once your export has started
+        you should receive an email with a link to your data within an hour. The
+        download link will be available for 24 hours.
+      </StyledText>
+      <Button
+        style="ctaDarkYellow"
+        onClick={(event) => {
+          doExport()
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        Export Data
+      </Button>
+    </VStack>
   )
 }
 

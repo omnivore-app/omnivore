@@ -206,7 +206,10 @@ Readability.prototype = {
     unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar|tl_article_header|mvp(-post)*-(add-story|soc(-mob)*-wrap)|w-condition-invisible|rich-text-block main w-richtext|rich-text-block_ataglance at-a-glance test w-richtext|PostsPage-commentsSection|hide-text|text-blurple|bottom-wrapper/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
-      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection|highlight--with-header`, 'i')
+      return new RegExp(
+        `and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection|highlight--with-header|header-anchor-post`,
+        'i'
+      )
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners|player|commentOnSelection/i,
@@ -300,7 +303,7 @@ Readability.prototype = {
 
     if (!this._keepClasses) {
       // Remove classes.
-      this._cleanClasses(articleContent);
+      this._cleanElement(articleContent);
     }
   },
 
@@ -453,7 +456,7 @@ Readability.prototype = {
    * @param Element
    * @return void
    */
-  _cleanClasses: function (node) {
+  _cleanElement: function (node) {
     if (node.className && node.className.startsWith && node.className.startsWith('_omnivore')) {
       return;
     }
@@ -480,8 +483,10 @@ Readability.prototype = {
       node.removeAttribute("class");
     }
 
+    this._removeAllEventHandlers(node)
+
     for (node = node.firstElementChild; node; node = node.nextElementSibling) {
-      this._cleanClasses(node);
+      this._cleanElement(node);
     }
   },
 
@@ -543,7 +548,6 @@ Readability.prototype = {
     this._forEachNode(medias, function (media) {
       var src = media.getAttribute("src");
       var poster = media.getAttribute("poster");
-      var srcset = media.getAttribute("srcset");
 
       if (src) {
         media.setAttribute("src", this.toAbsoluteURI(src));
@@ -553,6 +557,20 @@ Readability.prototype = {
         media.setAttribute("poster", this.toAbsoluteURI(poster));
       }
     });
+  },
+
+  // removes all the javascript event handlers from the supplied element
+  _removeAllEventHandlers(element) {
+    const attributes = element.attributes;
+
+    // Iterate in reverse because removing attributes changes the length
+    for (let i = attributes.length - 1; i >= 0; i--) {
+        const attribute = attributes[i];
+        // Check if the attribute starts with "on" (like "onload", "onerror", etc.)
+        if (attribute.name.startsWith('on')) {
+            element.removeAttribute(attribute.name);
+        }
+    }
   },
 
   /** Creates imageproxy links for all article images with href source */
@@ -2004,6 +2022,7 @@ Readability.prototype = {
     metadata.byline = jsonld.byline ||
       values["dc:creator"] ||
       values["dcterm:creator"] ||
+      values["og:article:author"] ||
       values["author"];
 
     // get description

@@ -15,7 +15,6 @@ import {
   HStack,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
-import { Toaster } from 'react-hot-toast'
 import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { StyledText } from '../../components/elements/StyledText'
@@ -32,13 +31,15 @@ import {
 } from '../../components/elements/DropdownElements'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import CheckboxComponent from '../../components/elements/Checkbox'
-import { updateFilterMutation } from '../../lib/networking/mutations/updateFilterMutation'
-import { saveFilterMutation } from '../../lib/networking/mutations/saveFilterMutation'
 import { inRange } from 'lodash'
-import { deleteFilterMutation } from '../../lib/networking/mutations/deleteFilterMutation'
+import {
+  useCreateSavedSearch,
+  useDeleteSavedSearch,
+  useGetSavedSearches,
+  useUpdateSavedSearch,
+} from '../../lib/networking/savedsearches/useSavedSearches'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -150,20 +151,24 @@ const Input = styled('input', { ...inputStyles })
 const TextArea = styled('textarea', { ...inputStyles })
 
 export default function SavedSearchesPage(): JSX.Element {
-  const { savedSearches, isLoading } = useGetSavedSearchQuery()
+  const { data: savedSearches, isLoading } = useGetSavedSearches()
+  const deleteSavedSearch = useDeleteSavedSearch()
+  const createSavedSearch = useCreateSavedSearch()
+  const updateSavedSearch = useUpdateSavedSearch()
+
   const [nameInputText, setNameInputText] = useState<string>('')
   const [queryInputText, setQueryInputText] = useState<string>('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveSavedSearchId, setConfirmRemoveSavedSearchId] = useState<
-    string | null
-  >(null)
+  const [confirmRemoveSavedSearchId, setConfirmRemoveSavedSearchId] =
+    useState<string | null>(null)
   const [draggedElementId, setDraggedElementId] = useState<string | null>(null)
-  const [draggedElementPosition, setDraggedElementPosition] = useState<{
-    x: number
-    y: number
-  } | null>(null)
+  const [draggedElementPosition, setDraggedElementPosition] =
+    useState<{
+      x: number
+      y: number
+    } | null>(null)
   const [sortedSavedSearch, setSortedSavedSearch] = useState<SavedSearch[]>([])
 
   // Some theming stuff here.
@@ -194,9 +199,9 @@ export default function SavedSearchesPage(): JSX.Element {
     setEditingId(null)
   }
 
-  async function createSavedSearch(): Promise<void> {
+  async function doCreateSavedSearch(): Promise<void> {
     try {
-      const savedFilter = await saveFilterMutation({
+      const savedFilter = await createSavedSearch.mutateAsync({
         name: nameInputText,
         filter: queryInputText,
         category: 'Search',
@@ -213,7 +218,7 @@ export default function SavedSearchesPage(): JSX.Element {
     }
   }
 
-  async function updateSavedSearch(id: string): Promise<void> {
+  async function doUpdateSavedSearch(id: string): Promise<void> {
     resetSavedSearchState()
 
     const changedSortedSearch = sortedSavedSearch?.find((it) => it.id == id)
@@ -221,10 +226,12 @@ export default function SavedSearchesPage(): JSX.Element {
       changedSortedSearch.name = nameInputText
       changedSortedSearch.filter = queryInputText
       setSortedSavedSearch(sortedSavedSearch)
-      await updateFilterMutation({
-        id,
-        name: nameInputText,
-        filter: queryInputText,
+      await updateSavedSearch.mutateAsync({
+        input: {
+          id,
+          name: nameInputText,
+          filter: queryInputText,
+        },
       })
     }
   }
@@ -239,14 +246,14 @@ export default function SavedSearchesPage(): JSX.Element {
     }
   }
 
-  async function onDeleteSavedSearch(id: string): Promise<void> {
-    const currentElement = sortedSavedSearch?.find((it) => it.id == id)
+  async function onDeleteSavedSearch(searchId: string): Promise<void> {
+    const currentElement = sortedSavedSearch?.find((it) => it.id == searchId)
     if (currentElement) {
-      await deleteFilterMutation(id)
+      await deleteSavedSearch.mutateAsync({ searchId })
 
       setSortedSavedSearch(
         sortedSavedSearch
-          .filter((it) => it.id !== id)
+          .filter((it) => it.id !== searchId)
           .map((it) => {
             return {
               ...it,
@@ -262,7 +269,7 @@ export default function SavedSearchesPage(): JSX.Element {
     return
   }
 
-  async function deleteSavedSearch(id: string): Promise<void> {
+  async function doDeleteSavedSearch(id: string): Promise<void> {
     setConfirmRemoveSavedSearchId(id)
   }
 
@@ -306,10 +313,14 @@ export default function SavedSearchesPage(): JSX.Element {
           })
           ?.sort((l, r) => l.position - r.position)
         setSortedSavedSearch(newlyOrdered)
-        return updateFilterMutation({
-          ...currentElement,
-          position: correctedIdx,
-        })
+        return (
+          await updateSavedSearch.mutateAsync({
+            input: {
+              ...currentElement,
+              position: correctedIdx,
+            },
+          })
+        )?.id
       }
     }
 
@@ -318,11 +329,6 @@ export default function SavedSearchesPage(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <HStack css={{ width: '100%', height: '100%' }}>
         <VStack
           css={{
@@ -409,14 +415,14 @@ export default function SavedSearchesPage(): JSX.Element {
                   editingId={editingId}
                   setEditingId={setEditingId}
                   isCreateMode={isCreateMode}
-                  deleteSavedSearch={deleteSavedSearch}
+                  deleteSavedSearch={doDeleteSavedSearch}
                   nameInputText={nameInputText}
                   queryInputText={queryInputText}
                   setNameInputText={setNameInputText}
                   setQueryInputText={setQueryInputText}
                   setIsCreateMode={setIsCreateMode}
-                  createSavedSearch={createSavedSearch}
-                  updateSavedSearch={updateSavedSearch}
+                  createSavedSearch={doCreateSavedSearch}
+                  updateSavedSearch={doUpdateSavedSearch}
                   onEditPress={onEditPress}
                   resetState={resetSavedSearchState}
                   draggedElementId={draggedElementId}
@@ -429,14 +435,14 @@ export default function SavedSearchesPage(): JSX.Element {
                   editingId={editingId}
                   setEditingId={setEditingId}
                   isCreateMode={isCreateMode}
-                  deleteSavedSearch={deleteSavedSearch}
+                  deleteSavedSearch={doDeleteSavedSearch}
                   nameInputText={nameInputText}
                   queryInputText={queryInputText}
                   setNameInputText={setNameInputText}
                   setQueryInputText={setQueryInputText}
                   setIsCreateMode={setIsCreateMode}
-                  createSavedSearch={createSavedSearch}
-                  updateSavedSearch={updateSavedSearch}
+                  createSavedSearch={doCreateSavedSearch}
+                  updateSavedSearch={doUpdateSavedSearch}
                   onEditPress={onEditPress}
                   resetState={resetSavedSearchState}
                   draggedElementId={draggedElementId}
@@ -465,9 +471,9 @@ export default function SavedSearchesPage(): JSX.Element {
                   setQueryInputText: setQueryInputText,
                   setIsCreateMode: setIsCreateMode,
                   resetState: resetSavedSearchState,
-                  updateSavedSearch,
-                  deleteSavedSearch,
-                  createSavedSearch,
+                  updateSavedSearch: doUpdateSavedSearch,
+                  deleteSavedSearch: doDeleteSavedSearch,
+                  createSavedSearch: doCreateSavedSearch,
                   draggedElementId,
                   setDraggedElementId,
                   onEditPress,
@@ -579,14 +585,16 @@ function GenericTableCard(
     editingId === savedSearch?.id || (isCreateMode && !savedSearch)
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
   const DEFAULT_STYLE = { position: null }
-  const [style, setStyle] = useState<
-    Partial<{
-      position: string | null
-      top: string
-      left: string
-      maxWidth: string
-    }>
-  >(DEFAULT_STYLE)
+  const updateSavedSearchFunc = useUpdateSavedSearch()
+  const [style, setStyle] =
+    useState<
+      Partial<{
+        position: string | null
+        top: string
+        left: string
+        maxWidth: string
+      }>
+    >(DEFAULT_STYLE)
   const handleEdit = () => {
     editingId && updateSavedSearch(editingId)
     setEditingId(null)
@@ -697,7 +705,9 @@ function GenericTableCard(
   }, [draggedElementId, onMouseMove])
 
   const setVisibility = async () => {
-    await updateFilterMutation({ ...savedSearch, visible: !isVisible })
+    await updateSavedSearchFunc.mutateAsync({
+      input: { ...savedSearch, visible: !isVisible },
+    })
     setIsVisible(!isVisible)
   }
 

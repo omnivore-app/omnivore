@@ -4,9 +4,7 @@ import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
-  enqueueGeneratePreviewContentJob,
   enqueueProcessYouTubeVideo,
-  enqueueScoreJob,
   enqueueThumbnailJob,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
@@ -78,11 +76,6 @@ export const createPubSubClient = (): PubsubClient => {
           })
         }
 
-        await enqueueScoreJob({
-          userId,
-          libraryItemId: data.id,
-        })
-
         const hasThumbnail = (
           data: any
         ): data is { thumbnail: string | null } => {
@@ -97,25 +90,6 @@ export const createPubSubClient = (): PubsubClient => {
             logger.info('Thumbnail job created', { id: job?.id })
           } catch (e) {
             logger.error('Failed to enqueue thumbnail job', e)
-          }
-        }
-
-        const hasPreviewContent = (
-          data: any
-        ): data is { previewContent: string | null } => {
-          return 'previewContent' in data
-        }
-
-        // generate preview content if it is less than 180 characters
-        if (
-          !hasPreviewContent(data) ||
-          (data.previewContent && data.previewContent.length < 180)
-        ) {
-          try {
-            const job = await enqueueGeneratePreviewContentJob(data.id, userId)
-            logger.info('Generate preview job created', { id: job?.id })
-          } catch (e) {
-            logger.error('Failed to enqueue generate preview job', e)
           }
         }
       }

@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import sinon, { SinonFakeTimers } from 'sinon'
 import supertest from 'supertest'
 import { StatusType, User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
@@ -258,8 +259,8 @@ describe('auth router', () => {
     })
 
     context('when token is valid', () => {
-      before(() => {
-        token = generateVerificationToken({ id: user.id })
+      beforeEach(async () => {
+        token = await generateVerificationToken({ id: user.id })
       })
 
       it('set auth token in cookie', async () => {
@@ -292,8 +293,17 @@ describe('auth router', () => {
     })
 
     context('when token is expired', () => {
-      before(() => {
-        token = generateVerificationToken({ id: user.id }, -1)
+      let clock: SinonFakeTimers
+
+      before(async () => {
+        clock = sinon.useFakeTimers()
+        token = await generateVerificationToken({ id: user.id })
+        // advance time by 1 hour
+        clock.tick(60 * 60 * 1000)
+      })
+
+      after(() => {
+        clock.restore()
       })
 
       it('redirects to confirm-email page with error code TokenExpired', async () => {
@@ -305,9 +315,9 @@ describe('auth router', () => {
     })
 
     context('when user is not found', () => {
-      before(() => {
+      before(async () => {
         const nonExistsUserId = generateFakeUuid()
-        token = generateVerificationToken({ id: nonExistsUserId })
+        token = await generateVerificationToken({ id: nonExistsUserId })
       })
 
       it('redirects to confirm-email page with error code UserNotFound', async () => {
@@ -419,8 +429,8 @@ describe('auth router', () => {
     })
 
     context('when token is valid', () => {
-      before(() => {
-        token = generateVerificationToken({ id: user.id })
+      beforeEach(async () => {
+        token = await generateVerificationToken({ id: user.id })
       })
 
       context('when password is not empty', () => {
@@ -464,8 +474,17 @@ describe('auth router', () => {
       })
 
       context('when token is expired', () => {
-        before(() => {
-          token = generateVerificationToken({ id: user.id }, -1)
+        let clock: SinonFakeTimers
+
+        before(async () => {
+          clock = sinon.useFakeTimers()
+          token = await generateVerificationToken({ id: user.id })
+          // advance time by 1 hour
+          clock.tick(60 * 60 * 1000)
+        })
+
+        after(() => {
+          clock.restore()
         })
 
         it('redirects to reset-password page with error code ExpiredToken', async () => {
@@ -491,6 +510,7 @@ describe('auth router', () => {
       return request
         .post(`${route}/create-account`)
         .set('X-OmnivoreClient', client)
+        .set('User-Agent', 'chrome')
         .set('Cookie', [`pendingUserAuth=${pendingUserAuth}`])
         .send({
           name,

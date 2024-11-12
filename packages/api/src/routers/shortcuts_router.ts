@@ -2,15 +2,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import cors from 'cors'
 import express from 'express'
-import { env } from '../env'
-import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
-import { corsConfig } from '../utils/corsConfig'
-import { logger } from '../utils/logger'
 import {
+  cacheShortcuts,
   getShortcuts,
+  getShortcutsCache,
   resetShortcuts,
   setShortcuts,
 } from '../services/user_personalization'
+import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
+import { corsConfig } from '../utils/corsConfig'
+import { logger } from '../utils/logger'
 
 export function shortcutsRouter() {
   const router = express.Router()
@@ -32,9 +33,19 @@ export function shortcutsRouter() {
     }
 
     try {
-      const shortcuts = await getShortcuts(claims.uid)
+      const userId = claims.uid
+      const cachedShortcuts = await getShortcutsCache(userId)
+      if (cachedShortcuts) {
+        return res.send({
+          shortcuts: cachedShortcuts,
+        })
+      }
+
+      const shortcuts = await getShortcuts(userId)
+      await cacheShortcuts(userId, shortcuts)
+
       return res.send({
-        shortcuts: shortcuts ?? [],
+        shortcuts,
       })
     } catch (e) {
       logger.info('error getting shortcuts', e)
@@ -61,9 +72,12 @@ export function shortcutsRouter() {
     }
 
     try {
-      const shortcuts = await setShortcuts(claims.uid, req.body.shortcuts)
+      const userId = claims.uid
+      const shortcuts = await setShortcuts(userId, req.body.shortcuts)
+      await cacheShortcuts(userId, shortcuts)
+
       return res.send({
-        shortcuts: shortcuts ?? [],
+        shortcuts,
       })
     } catch (e) {
       logger.info('error settings shortcuts', e)
@@ -89,11 +103,14 @@ export function shortcutsRouter() {
     }
 
     try {
-      const success = await resetShortcuts(claims.uid)
+      const userId = claims.uid
+      const success = await resetShortcuts(userId)
       if (success) {
-        const shortcuts = await getShortcuts(claims.uid)
+        const shortcuts = await getShortcuts(userId)
+        await cacheShortcuts(userId, shortcuts)
+
         return res.send({
-          shortcuts: shortcuts ?? [],
+          shortcuts,
         })
       }
     } catch (e) {

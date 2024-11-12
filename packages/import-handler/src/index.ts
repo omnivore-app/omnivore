@@ -1,18 +1,18 @@
 import { Storage } from '@google-cloud/storage'
 import { Readability } from '@omnivore/readability'
+import { RedisDataSource } from '@omnivore/utils'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
-import Redis from 'ioredis'
+import 'dotenv/config'
 import * as jwt from 'jsonwebtoken'
 import { Stream } from 'node:stream'
 import * as path from 'path'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
+import { enqueueFetchContentJob, queueEmailJob } from './job'
 import { importMatterArchive } from './matterHistory'
 import { ImportStatus, updateMetrics } from './metrics'
-import { createRedisClient } from './redis'
-import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -56,7 +56,7 @@ export type ImportContext = {
   countFailed: number
   urlHandler: UrlHandler
   contentHandler: ContentHandler
-  redisClient: Redis
+  redisDataSource: RedisDataSource
   taskId: string
   source: string
 }
@@ -93,6 +93,7 @@ const shouldHandle = (data: StorageEvent) => {
 }
 
 const importURL = async (
+  redisDataSource: RedisDataSource,
   userId: string,
   url: URL,
   source: string,
@@ -102,69 +103,54 @@ const importURL = async (
   savedAt?: Date,
   publishedAt?: Date
 ): Promise<string | undefined> => {
-  return createCloudTask(CONTENT_FETCH_URL, {
-    userId,
-    source,
+  return enqueueFetchContentJob(redisDataSource, {
     url: url.toString(),
-    saveRequestId: '',
+    users: [{ id: userId, libraryItemId: '' }],
+    source,
+    taskId,
     state,
     labels: labels?.map((l) => {
       return { name: l }
     }),
-    taskId,
-    savedAt,
-    publishedAt,
+    savedAt: savedAt?.toISOString(),
+    publishedAt: publishedAt?.toISOString(),
   })
 }
 
-const createEmailCloudTask = async (userId: string, payload: unknown) => {
-  if (!process.env.JWT_SECRET) {
-    throw 'Envrionment not setup correctly'
-  }
-
-  const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
-  const authToken = (await signToken(
-    { uid: userId, exp },
-    process.env.JWT_SECRET
-  )) as string
-  const headers = {
-    'Omnivore-Authorization': authToken,
-  }
-
-  return createCloudTask(
-    emailUserUrl(),
-    payload,
-    headers,
-    'omnivore-email-queue'
-  )
-}
-
-const sendImportFailedEmail = async (userId: string) => {
-  return createEmailCloudTask(userId, {
+const sendImportFailedEmail = async (
+  redisDataSource: RedisDataSource,
+  userId: string
+) => {
+  return queueEmailJob(redisDataSource, {
+    userId,
     subject: 'Your Omnivore import failed.',
-    body: `There was an error importing your file. Please ensure you uploaded the correct file type, if you need help, please email feedback@omnivore.app`,
+    html: `There was an error importing your file. Please ensure you uploaded the correct file type, if you need help, please email feedback@omnivore.app`,
   })
 }
 
 export const sendImportStartedEmail = async (
+  redisDataSource: RedisDataSource,
   userId: string,
   urlsEnqueued: number,
   urlsFailed: number
 ) => {
-  return createEmailCloudTask(userId, {
+  return queueEmailJob(redisDataSource, {
+    userId,
     subject: 'Your Omnivore import has started',
-    body: `We have started processing ${urlsEnqueued} URLs. ${urlsFailed} URLs are invalid.`,
+    html: `We have started processing ${urlsEnqueued} URLs. ${urlsFailed} URLs are invalid.`,
   })
 }
 
 export const sendImportCompletedEmail = async (
+  redisDataSource: RedisDataSource,
   userId: string,
   urlsImported: number,
   urlsFailed: number
 ) => {
-  return createEmailCloudTask(userId, {
+  return queueEmailJob(redisDataSource, {
+    userId,
     subject: 'Your Omnivore import has finished',
-    body: `We have finished processing ${
+    html: `We have finished processing ${
       urlsImported + urlsFailed
     } URLs. ${urlsImported} URLs have been added to your library. ${urlsFailed} URLs failed to be parsed.`,
   })
@@ -207,6 +193,7 @@ const urlHandler = async (
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
     const result = await importURL(
+      ctx.redisDataSource,
       ctx.userId,
       url,
       ctx.source,
@@ -297,7 +284,10 @@ const contentHandler = async (
   return Promise.resolve()
 }
 
-const handleEvent = async (data: StorageEvent, redisClient: Redis) => {
+const handleEvent = async (
+  data: StorageEvent,
+  redisDataSource: RedisDataSource
+) => {
   if (shouldHandle(data)) {
     const handler = handlerForFile(data.name)
     if (!handler) {
@@ -328,7 +318,7 @@ const handleEvent = async (data: StorageEvent, redisClient: Redis) => {
       countFailed: 0,
       urlHandler,
       contentHandler,
-      redisClient,
+      redisDataSource,
       taskId: data.name,
       source: importSource(data.name),
     }
@@ -336,9 +326,14 @@ const handleEvent = async (data: StorageEvent, redisClient: Redis) => {
     await handler(ctx, stream)
 
     if (ctx.countImported > 0) {
-      await sendImportStartedEmail(userId, ctx.countImported, ctx.countFailed)
+      await sendImportStartedEmail(
+        ctx.redisDataSource,
+        userId,
+        ctx.countImported,
+        ctx.countFailed
+      )
     } else {
-      await sendImportFailedEmail(userId)
+      await sendImportFailedEmail(ctx.redisDataSource, userId)
     }
   }
 }
@@ -363,19 +358,26 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       const pubSubMessage = req.body.message.data as string
       const obj = getStorageEvent(pubSubMessage)
       if (obj) {
-        // create redis client
-        const redisClient = createRedisClient(
-          process.env.REDIS_URL,
-          process.env.REDIS_CERT
-        )
+        // create redis source
+        const redisDataSource = new RedisDataSource({
+          cache: {
+            url: process.env.REDIS_URL,
+            cert: process.env.REDIS_CERT,
+          },
+          mq: {
+            url: process.env.MQ_REDIS_URL,
+            cert: process.env.MQ_REDIS_CERT,
+          },
+        })
+
         try {
-          await handleEvent(obj, redisClient)
+          await handleEvent(obj, redisDataSource)
         } catch (err) {
           console.log('error handling event', { err, obj })
           throw err
         } finally {
           // close redis client
-          await redisClient.quit()
+          await redisDataSource.shutdown()
         }
       }
     } else {
@@ -413,14 +415,32 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(400).send('Bad Request')
     }
 
-    const redisClient = createRedisClient(
-      process.env.REDIS_URL,
-      process.env.REDIS_CERT
-    )
-    // update metrics
-    await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
+    // create redis source
+    const redisDataSource = new RedisDataSource({
+      cache: {
+        url: process.env.REDIS_URL,
+        cert: process.env.REDIS_CERT,
+      },
+      mq: {
+        url: process.env.MQ_REDIS_URL,
+        cert: process.env.MQ_REDIS_CERT,
+      },
+    })
 
-    await redisClient.quit()
+    try {
+      // update metrics
+      await updateMetrics(
+        redisDataSource,
+        userId,
+        req.body.taskId,
+        req.body.status
+      )
+    } catch (error) {
+      console.error('Error updating metrics', error)
+      return res.status(500).send('Error updating metrics')
+    } finally {
+      await redisDataSource.shutdown()
+    }
 
     res.send('ok')
   }

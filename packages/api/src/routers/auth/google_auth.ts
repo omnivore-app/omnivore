@@ -6,6 +6,7 @@ import { env, homePageURL } from '../../env'
 import { LoginErrorCode } from '../../generated/graphql'
 import { userRepository } from '../../repository/user'
 import { logger } from '../../utils/logger'
+import { ARCHIVE_ACCOUNT_PATH, DEFAULT_HOME_PATH } from '../../utils/navigation'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { DecodeTokenResult } from './auth_types'
 import { createPendingUserToken, createWebAuthToken } from './jwt_helpers'
@@ -131,7 +132,6 @@ export async function handleGoogleWebAuth(
     const user = await userRepository.findOneBy({
       email,
       source: 'GOOGLE',
-      status: StatusType.Active,
     })
     const userId = user?.id
 
@@ -157,12 +157,18 @@ export async function handleGoogleWebAuth(
       }
     }
 
+    let redirectURL = `${baseURL()}${
+      user.status === StatusType.Archived
+        ? ARCHIVE_ACCOUNT_PATH
+        : DEFAULT_HOME_PATH
+    }`
+
     const authToken = await createWebAuthToken(userId)
     if (authToken) {
-      const ssoToken = createSsoToken(authToken, `${baseURL()}/home`)
-      const redirectURL = isVercel
-        ? ssoRedirectURL(ssoToken)
-        : `${baseURL()}/home`
+      if (isVercel) {
+        const ssoToken = createSsoToken(authToken, redirectURL)
+        redirectURL = ssoRedirectURL(ssoToken)
+      }
 
       return {
         authToken,

@@ -10,6 +10,7 @@ public enum GoogleAuthResponse {
 }
 
 extension Authenticator {
+  @MainActor
   public func handleGoogleAuth(presentingVC: PlatformViewController?) async -> GoogleAuthResponse {
     let idToken = await withCheckedContinuation { continuation in
       googleSignIn(presenting: presentingVC) { continuation.resume(returning: $0) }

@@ -108,7 +108,6 @@ export function pageRouter() {
           id: clientRequestId,
           user: { id: claims.uid },
           title,
-          originalContent: '',
           itemType: PageType.File,
           uploadFile: { id: uploadFileData.id },
           slug: generateSlug(uploadFilePathName),

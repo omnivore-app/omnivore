@@ -29,10 +29,14 @@ struct MainApp: App {
       WindowGroup {
         RootView(
           intercomProvider: AppKeys.sharedInstance?.intercom != nil ? IntercomProvider(
-            registerIntercomUser: { Intercom.registerUser(withUserId: $0) },
+            registerIntercomUser: { userId in
+              let userAttributes = ICMUserAttributes()
+              userAttributes.userId = userId
+              Intercom.loginUser(with: userAttributes)
+            },
             setIntercomUserHash: { Intercom.setUserHash($0) },
             unregisterIntercomUser: Intercom.logout,
-            showIntercomMessenger: Intercom.presentMessenger
+            showIntercomMessenger: Intercom.present
           ) : nil
         )
       }

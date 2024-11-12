@@ -17,7 +17,7 @@ export function HeaderText(props: HeaderTextProps): JSX.Element {
             fontWeight: '750',
             whiteSpace: 'nowrap',
             lineHeight: '75px',
-            marginTop: '10px',
+            marginTop: '100px',
             color: '$thLibraryMenuPrimary',
           }}
         >

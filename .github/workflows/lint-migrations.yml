@@ -16,7 +16,9 @@ jobs:
         run: |
           modified_migrations=$(git diff --diff-filter=d --name-only main 'packages/db/migrations/*.do.*.sql')
           echo "$modified_migrations"
+          echo "text<<EOF" >> $GITHUB_OUTPUT
           echo "file_names=$modified_migrations" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         id: modified-migrations
       - uses: sbdchd/squawk-action@v1
         with:

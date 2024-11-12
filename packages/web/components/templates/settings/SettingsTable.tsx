@@ -1,5 +1,4 @@
 import { Pencil, Trash } from '@phosphor-icons/react'
-import { Toaster } from 'react-hot-toast'
 import { Button } from '../../elements/Button'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
@@ -8,8 +7,6 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
 import { SettingsLayout } from '../SettingsLayout'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { FeatureHelpBox } from '../../elements/FeatureHelpBox'
 
 // Styles
 export const Header = styled(Box, {
@@ -25,8 +22,6 @@ type SettingsTableProps = {
 
   createTitle?: string
   createAction?: () => void
-
-  suggestionInfo: SuggestionInfo
 
   children: React.ReactNode
 }
@@ -61,16 +56,6 @@ type MoreOptionsProps = {
   dropdownItems?: JSX.Element
   editTitle?: string
   onEdit?: () => void
-}
-
-type SuggestionInfo = {
-  title: string
-  message: string
-  docs: string
-  key: string
-
-  CTAText?: string
-  onClickCTA?: () => void
 }
 
 const MoreOptions = (props: MoreOptionsProps) => (
@@ -294,18 +279,8 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 }
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
-  const [showSuggestion, setShowSuggestion] = usePersistedState<boolean>({
-    key: props.suggestionInfo.key,
-    initialValue: !!props.suggestionInfo,
-  })
-
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
       <HStack css={{ width: '100%' }} alignment="center">
         <VStack
           alignment="start"
@@ -327,19 +302,6 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
             },
           }}
         >
-          {props.suggestionInfo && showSuggestion && (
-            <FeatureHelpBox
-              helpTitle={props.suggestionInfo.title}
-              helpMessage={props.suggestionInfo.message}
-              docsMessage={'Read the Docs'}
-              docsDestination={props.suggestionInfo.docs}
-              onDismiss={() => {
-                setShowSuggestion(false)
-              }}
-              helpCTAText={props.suggestionInfo.CTAText}
-              onClickCTA={props.suggestionInfo.onClickCTA}
-            />
-          )}
           <Box
             css={{
               width: '100%',

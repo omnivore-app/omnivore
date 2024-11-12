@@ -12,7 +12,7 @@
     "body-parser": "^1.20.2",
     "bullmq": "^4.6.0",
     "connect-ensure-login": "^0.1.1",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "express-session": "^1.17.2",
     "ioredis": "^5.3.2",
     "passport": "^0.6.0",

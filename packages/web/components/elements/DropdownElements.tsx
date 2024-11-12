@@ -6,6 +6,7 @@ import {
   Trigger,
   Arrow,
   Label,
+  Portal,
 } from '@radix-ui/react-dropdown-menu'
 import { PopperContentProps } from '@radix-ui/react-popover'
 import { CSS } from '@stitches/react'
@@ -181,24 +182,26 @@ export function Dropdown(
       >
         {triggerElement}
       </DropdownTrigger>
-      <DropdownContent
-        css={css}
-        onInteractOutside={() => {
-          // remove focus from dropdown
-          ;(document.activeElement as HTMLElement).blur()
-        }}
-        side={side}
-        sideOffset={sideOffset}
-        align={align ? align : 'center'}
-        alignOffset={alignOffset}
-        onCloseAutoFocus={(event) => {
-          event.preventDefault()
-        }}
-      >
-        {labelText && <StyledLabel>{labelText}</StyledLabel>}
-        {children}
-        <StyledArrow />
-      </DropdownContent>
+      <Portal>
+        <DropdownContent
+          css={css}
+          onInteractOutside={() => {
+            // remove focus from dropdown
+            ;(document.activeElement as HTMLElement).blur()
+          }}
+          side={side}
+          sideOffset={sideOffset}
+          align={align ? align : 'center'}
+          alignOffset={alignOffset}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault()
+          }}
+        >
+          {labelText && <StyledLabel>{labelText}</StyledLabel>}
+          {children}
+          <StyledArrow />
+        </DropdownContent>
+      </Portal>
     </Root>
   )
 }

@@ -1,23 +1,22 @@
 import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
 import 'antd/dist/antd.compact.css'
 import { useCallback, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
 import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
 import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
 import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import {
   Rule,
   RuleAction,
   RuleActionType,
   RuleEventType,
-  useGetRulesQuery
+  useGetRulesQuery,
 } from '../../lib/networking/queries/useGetRulesQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { useGetLabels } from '../../lib/networking/labels/useLabels'
 
 type CreateRuleModalProps = {
   isModalOpen: boolean
@@ -131,7 +130,7 @@ type CreateActionModalProps = {
 
 const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
   const [form] = Form.useForm()
-  const { labels } = useGetLabelsQuery()
+  const { data: labels } = useGetLabels()
   const { integrations } = useGetIntegrationsQuery()
 
   const integrationOptions = ['NOTION', 'READWISE']
@@ -181,9 +180,8 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     }
   }
 
-  const [actionType, setActionType] = useState<RuleActionType | undefined>(
-    undefined
-  )
+  const [actionType, setActionType] =
+    useState<RuleActionType | undefined>(undefined)
 
   return (
     <Modal
@@ -232,7 +230,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
             ]}
           >
             <Select mode="multiple">
-              {labels.map((label) => {
+              {labels?.map((label) => {
                 return (
                   <Select.Option key={label.id} value={label.id}>
                     {label.name}
@@ -302,11 +300,10 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
 
 export default function Rules(): JSX.Element {
   const { rules, revalidate } = useGetRulesQuery()
-  const { labels } = useGetLabelsQuery()
+  const { data: labels } = useGetLabels()
   const [isCreateRuleModalOpen, setIsCreateRuleModalOpen] = useState(false)
-  const [createActionRule, setCreateActionRule] = useState<Rule | undefined>(
-    undefined
-  )
+  const [createActionRule, setCreateActionRule] =
+    useState<Rule | undefined>(undefined)
 
   const dataSource = useMemo(() => {
     return rules.map((rule: Rule) => {
@@ -435,12 +432,6 @@ export default function Rules(): JSX.Element {
 
   return (
     <SettingsLayout>
-      <Toaster
-        containerStyle={{
-          top: '5rem',
-        }}
-      />
-
       <CreateRuleModal
         revalidate={revalidate}
         isModalOpen={isCreateRuleModalOpen}
