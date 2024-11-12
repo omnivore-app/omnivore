@@ -141,7 +141,7 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
       <NavButton
         {...props}
         text="Discover"
-        section="discover"
+        section="l/discover"
         isSelected={props.section == 'discover'}
         icon={
           <DiscoverIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
