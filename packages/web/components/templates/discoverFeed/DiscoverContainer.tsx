@@ -85,7 +85,7 @@ export function DiscoverContainer(): JSX.Element {
     hasMore,
     setPage,
     page,
-  } = useGetDiscoverFeedItems(topics[1], selectedFeed, 10,discoverVisibility == 'SHOW_ALL')
+  } = useGetDiscoverFeedItems(topics[0], selectedFeed, 10,discoverVisibility == 'SHOW_ALL')
   const handleFetchMore = useCallback(() => {
     if (isLoading || !hasMore) {
       return
