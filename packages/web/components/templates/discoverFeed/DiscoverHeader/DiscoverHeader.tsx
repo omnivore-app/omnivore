@@ -37,35 +37,16 @@ export type DiscoverHeaderProps = {
   setDiscoverVisibility: (discoverVisibility: DiscoverVisibilityType) => void
 }
 
-function DiscoverHeaderSpace() {
-  return (
-    <Box
-      css={{
-        height: '910px',
-        display: 'block',
-        bg: '$grayBase',
-        '@media (max-width: 930px)': {
-          height: '710px',
-        },
-      }}
-    ></Box>
-  )
-}
-
 export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
   return (
     <>
       <VStack
-        alignment="center"
-        distribution="start"
         css={{
           pt: '15px',
           top: '0',
-          width: '100%',
           zIndex: 5,
-          textAlign: 'left',
-          justifyContent: 'flex-start',
           position: 'fixed',
+          width: 'calc(100% - 325px)',
           bg: '$readerBg',
           '@mdDown': {
             left: '0px',
@@ -78,9 +59,6 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
         <SmallHeaderLayout {...props} />
       </VStack>
 
-      {/* This spacer is put in to push library content down
-      below the fixed header height. */}
-      <DiscoverHeaderSpace />
     </>
   )
 }

@@ -58,6 +58,7 @@ export function TopicBar(props: TopicBarProps): JSX.Element {
         height: '38px',
         width: 'calc(100% - 80px)',
         bg: '$thLibrarySearchbox',
+
         borderRadius: '6px',
         border: '2px solid transparent',
         boxShadow:

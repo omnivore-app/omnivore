@@ -12,39 +12,30 @@ import { DiscoverHideHiddenIcon } from "../../../elements/icons/DiscoverHideHidd
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
     <HStack
-      alignment="center"
+      alignment="start"
       distribution="start"
       css={{
-        width: '100%',
         height: '100%',
-        pl: '25px',
+        width: '100%',
         boxSizing: 'border-box',
         '@mdDown': {
           display: 'none',
         },
       }}
     >
-      <VStack alignment={'center'} distribution={'center'}>
+      <VStack css={{width: '100%'}} alignment={'start'} distribution={'center'}>
         <HStack
           alignment="center"
           distribution={'start'}
           css={{
             gap: '10px',
-            width: '95%',
+            width: '100%',
+
             '@mdDown': {
               width: '95%',
               display: 'none',
             },
 
-            '@media (min-width: 930px)': {
-              width: '635px',
-            },
-            '@media (min-width: 1280px)': {
-              width: '975px',
-            },
-            '@media (min-width: 1600px)': {
-              width: '1315px',
-            },
           }}
         >
           <TopicBar
@@ -94,15 +85,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             '@mdDown': {
               width: '95%',
             },
-            '@media (min-width: 930px)': {
-              width: '635px',
-            },
-            '@media (min-width: 1280px)': {
-              width: '975px',
-            },
-            '@media (min-width: 1600px)': {
-              width: '1315px',
-            },
+
           }}
         >
           <PinnedFeeds items={props.feeds} selected={props.selectedFeedFilter} applyFeedFilter={props.applyFeedFilter} />

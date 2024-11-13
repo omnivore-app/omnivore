@@ -59,10 +59,10 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
       css={{
         pl: '0px',
         padding: '0px',
-        width: '100%',
         height: '100%',
         opacity: props.hidden ? 0.5 : 1,
         minHeight: '270px',
+        maxWidth: '400px',
         background: 'white',
         borderRadius: '5px',
         borderWidth: '1px',

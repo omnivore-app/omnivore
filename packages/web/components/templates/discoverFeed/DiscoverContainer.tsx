@@ -182,7 +182,10 @@ export function DiscoverContainer(): JSX.Element {
     <VStack
       css={{
         height: '100%',
-        width: 'unset',
+        width: '100%',
+        pl: '25px',
+        pr: '25px',
+        flexGrow: 1,
       }}
     >
       <DiscoverHeader

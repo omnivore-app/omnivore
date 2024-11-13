@@ -41,6 +41,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
         gridAutoRows: 'auto',
         borderRadius: '6px',
         gridGap: props.layout == 'LIST_LAYOUT' ? '10px' : '20px',
+        gridTemplateColumns: props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(auto-fill, minmax(280px, 1fr))',
         marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',
@@ -59,21 +60,6 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
 
-        '@media (min-width: 930px)': {
-          width: '630px',
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
-        },
-        '@media (min-width: 1280px)': {
-          width: '970px',
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-        },
-        '@media (min-width: 1600px)': {
-          width: '1310px',
-          gridTemplateColumns:
-            props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
-        },
       }}
     >
       {discoverItems.map((linkedItem) => {

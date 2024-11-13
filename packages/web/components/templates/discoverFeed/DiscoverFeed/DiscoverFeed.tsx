@@ -31,12 +31,8 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
         distribution="start"
         css={{
           height: '100%',
+          width: '100%',
           minHeight: '100vh',
-          pl: '25px',
-          '@media (max-width: 930px)': {
-            pl: '0px',
-          },
-
         }}
       >
         <Toaster />
@@ -45,7 +41,7 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
           distribution={'start'}
           css={{
             gap: '10px',
-            width: '95%',
+            width: '100%',
             display: 'block',
             '@mdDown': {
               width: '95%',
@@ -54,15 +50,15 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
             '@media (max-width: 930px)': {
               display: 'none',
             },
-            '@media (min-width: 930px)': {
-              width: '630px',
-            },
-            '@media (min-width: 1280px)': {
-              width: '970px',
-            },
-            '@media (min-width: 1600px)': {
-              width: '1310px',
-            },
+            // '@media (min-width: 930px)': {
+            //   width: '630px',
+            // },
+            // '@media (min-width: 1280px)': {
+            //   width: '970px',
+            // },
+            // '@media (min-width: 1600px)': {
+            //   width: '1310px',
+            // },
           }}
         >
           <HeaderText
