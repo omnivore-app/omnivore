@@ -25,7 +25,6 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
       }}
     >
       <>
-        <MenuHeaderButton {...props} />
         <SmallTopicBar {...props} />
       </>
     </HStack>

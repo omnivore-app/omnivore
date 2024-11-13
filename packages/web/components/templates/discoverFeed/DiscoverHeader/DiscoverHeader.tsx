@@ -61,9 +61,8 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
           pt: '15px',
           top: '0',
           zIndex: 5,
-          paddingLeft: '25px',
           position: 'fixed',
-          bg: '$thBackground',
+          bg: '$readerBg',
           '@mdDown': {
             left: '0px',
             pt: '0px',

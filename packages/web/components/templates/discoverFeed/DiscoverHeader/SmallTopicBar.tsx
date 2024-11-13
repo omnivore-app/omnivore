@@ -66,7 +66,6 @@ export function SmallTopicBar(props: TopicBarProps): JSX.Element {
             overflow: 'hidden',
             position: 'relative',
             flexGrow: '1',
-            width: '0px',
           }}
         >
           <CaretLeft

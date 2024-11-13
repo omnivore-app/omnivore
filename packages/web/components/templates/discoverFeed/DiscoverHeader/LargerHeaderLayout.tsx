@@ -17,6 +17,8 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
       css={{
         width: '100%',
         height: '100%',
+        pl: '25px',
+        boxSizing: 'border-box',
         '@mdDown': {
           display: 'none',
         },
@@ -34,13 +36,13 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
               display: 'none',
             },
             '@media (min-width: 930px)': {
-              width: '660px',
+              width: '635px',
             },
             '@media (min-width: 1280px)': {
-              width: '1000px',
+              width: '975px',
             },
             '@media (min-width: 1600px)': {
-              width: '1340px',
+              width: '1315px',
             },
           }}
         >
@@ -93,13 +95,13 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
               display: 'none',
             },
             '@media (min-width: 930px)': {
-              width: '660px',
+              width: '635px',
             },
             '@media (min-width: 1280px)': {
-              width: '1000px',
+              width: '975px',
             },
             '@media (min-width: 1600px)': {
-              width: '1340px',
+              width: '1315px',
             },
           }}
         >

@@ -58,17 +58,17 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
         '@media (min-width: 930px)': {
-          width: '660px',
+          width: '630px',
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(2, 1fr)',
         },
         '@media (min-width: 1280px)': {
-          width: '1000px',
+          width: '970px',
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
         },
         '@media (min-width: 1600px)': {
-          width: '1340px',
+          width: '1310px',
           gridTemplateColumns:
             props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(4, 1fr)',
         },

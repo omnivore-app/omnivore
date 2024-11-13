@@ -50,13 +50,13 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
               display: 'none',
             },
             '@media (min-width: 930px)': {
-              width: '660px',
+              width: '630px',
             },
             '@media (min-width: 1280px)': {
-              width: '1000px',
+              width: '970px',
             },
             '@media (min-width: 1600px)': {
-              width: '1340px',
+              width: '1310px',
             },
           }}
         >
