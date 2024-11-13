@@ -1,9 +1,9 @@
-import { mergeMap, Observable, OperatorFunction } from 'rxjs'
+import { mergeMap, Observable, tap } from 'rxjs'
 import { sqlClient } from './db'
 import { OmnivoreFeed } from '../../types/Feeds'
 import { fromPromise } from 'rxjs/internal/observable/innerFrom'
 
-export const getRssFeeds$ = fromPromise(
+export const getRssFeeds$: Observable<OmnivoreFeed> = fromPromise(
   (async (): Promise<OmnivoreFeed[]> => {
     const { rows } = (await sqlClient.query(
       `SELECT * FROM omnivore.discover_feed WHERE title != 'OMNIVORE_COMMUNITY'`
@@ -11,4 +11,7 @@ export const getRssFeeds$ = fromPromise(
 
     return rows
   })()
-).pipe(mergeMap((it) => it))
+).pipe(
+  tap(console.log),
+  mergeMap((it) => it as Observable<OmnivoreFeed>)
+)

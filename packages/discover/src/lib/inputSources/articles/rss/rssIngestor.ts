@@ -17,7 +17,7 @@ import { OmnivoreContentFeed, OmnivoreFeed } from '../../../../types/Feeds'
 import { newFeeds$ } from './newFeedIngestor'
 import { exponentialBackOff, onErrorContinue } from '../../../utils/reactive'
 
-const REFRESH_DELAY_MS = 3_600_000
+const REFRESH_DELAY_MS = /*3_600_000*/ 300000;
 const getRssFeed = async (
   feed: OmnivoreFeed
 ): Promise<OmnivoreContentFeed | null> => {
@@ -48,6 +48,8 @@ export const rss$ = (() => {
     onErrorContinue(
       mergeMap((it) => rssToArticles(it).pipe(exponentialBackOff(5)))
     ),
+    tap((it: OmnivoreArticle) => console.log(it.title)),
+    tap((it: OmnivoreArticle) => console.log(it.publishedAt, lastUpdatedTime)),
     filter((it: OmnivoreArticle) => it.publishedAt > lastUpdatedTime),
     finalize(() => {
       lastUpdatedTime = new Date()
@@ -67,15 +69,4 @@ export const rss$ = (() => {
     )
   )
 
-  // return fromArrayLike([
-  //   {
-  //     id: 'ABC',
-  //     description:
-  //       'Though AI companies said they put some guardrails in place, researchers were able to easily create images related to claims of election fraud.',
-  //     image: 'string',
-  //     link: 'https://www.wired.com/story/genai-images-election-fraud/',
-  //     title: 'AI Tools Are Still Generating Misleading Election Images',
-  //     type: 'RSS',
-  //   },
-  // ])
 })()
