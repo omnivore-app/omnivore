@@ -35,6 +35,7 @@ export function DiscoverContainer(): JSX.Element {
   const [discoverVisibility, setDiscoverVisibility] = usePersistedState<DiscoverVisibilityType>({ key: 'discoverVisibility', initialValue:'SHOW_ALL' })
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const { feeds, revalidate, isValidating } = useGetDiscoverFeeds()
+
   const topics = [
     {
       title: 'All',
@@ -91,7 +92,7 @@ export function DiscoverContainer(): JSX.Element {
     }
     setPage(page + 1)
   }, [page, isLoading])
-  // useFetchMore(handleFetchMore)
+  useFetchMore(handleFetchMore)
 
   const handleSaveDiscover = async (
     discoverArticleId: string,
