@@ -8,7 +8,7 @@ import {
   timer,
 } from 'rxjs'
 import axios from 'axios'
-import { fromArrayLike, fromPromise } from 'rxjs/internal/observable/innerFrom'
+import { fromPromise } from 'rxjs/internal/observable/innerFrom'
 import { OmnivoreArticle } from '../../../../types/OmnivoreArticle'
 import converters from './rssConverters/converters'
 import { filter, finalize } from 'rxjs/operators'
