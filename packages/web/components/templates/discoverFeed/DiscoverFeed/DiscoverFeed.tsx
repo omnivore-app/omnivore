@@ -32,6 +32,11 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
         css={{
           height: '100%',
           minHeight: '100vh',
+          pl: '25px',
+          '@media (max-width: 930px)': {
+            pl: '0px',
+          },
+
         }}
       >
         <Toaster />

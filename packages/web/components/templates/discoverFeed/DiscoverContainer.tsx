@@ -203,7 +203,7 @@ export function DiscoverContainer(): JSX.Element {
         discoverVisibility={discoverVisibility}
         setDiscoverVisibility={setDiscoverVisibility}
       />
-      <HStack css={{ paddingLeft: '25px', width: '100%', height: '100%' }}>
+      <HStack css={{  width: '100%', height: '100%' }}>
 
         <DiscoverItemFeed
           visibility={discoverVisibility}

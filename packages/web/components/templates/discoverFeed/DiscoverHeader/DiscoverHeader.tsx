@@ -41,10 +41,11 @@ function DiscoverHeaderSpace() {
   return (
     <Box
       css={{
-        height: '90px',
+        height: '910px',
+        display: 'block',
         bg: '$grayBase',
         '@media (max-width: 930px)': {
-          height: '70px',
+          height: '710px',
         },
       }}
     ></Box>
@@ -60,7 +61,10 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
         css={{
           pt: '15px',
           top: '0',
+          width: '100%',
           zIndex: 5,
+          textAlign: 'left',
+          justifyContent: 'flex-start',
           position: 'fixed',
           bg: '$readerBg',
           '@mdDown': {

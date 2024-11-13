@@ -13,7 +13,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
     <HStack
       alignment="center"
-      distribution="center"
+      distribution="start"
       css={{
         width: '100%',
         height: '100%',
@@ -35,6 +35,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
               width: '95%',
               display: 'none',
             },
+
             '@media (min-width: 930px)': {
               width: '635px',
             },
@@ -92,7 +93,6 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             paddingBottom: '5px',
             '@mdDown': {
               width: '95%',
-              display: 'none',
             },
             '@media (min-width: 930px)': {
               width: '635px',

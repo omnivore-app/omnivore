@@ -47,6 +47,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
         paddingBottom: '0px',
         '@media (max-width: 930px)': {
           gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
+          paddingTop: '120px',
         },
         '@xlgDown': {
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
@@ -57,6 +58,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
           margin: props.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
           borderRadius: props.layout == 'LIST_LAYOUT' ? 0 : undefined,
         },
+
         '@media (min-width: 930px)': {
           width: '630px',
           gridTemplateColumns:
