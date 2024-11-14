@@ -1,10 +1,12 @@
-import { concatMap, mergeMap, Observable, tap } from 'rxjs'
+import { concatMap, from, mergeMap, Observable, of, tap } from 'rxjs'
 import { sqlClient } from './db'
 import { OmnivoreFeed } from '../../types/Feeds'
 import { fromPromise, fromArrayLike } from 'rxjs/internal/observable/innerFrom'
 
-export const getRssFeeds$: Observable<OmnivoreFeed> = fromArrayLike(['restart']).pipe(
-  mergeMap(() =>
+export const getRssFeeds$: Observable<OmnivoreFeed> = fromArrayLike([
+  'restart',
+]).pipe(
+  concatMap(() =>
     fromPromise(
       (async (): Promise<OmnivoreFeed[]> => {
         const { rows } = (await sqlClient.query(
@@ -15,6 +17,6 @@ export const getRssFeeds$: Observable<OmnivoreFeed> = fromArrayLike(['restart'])
       })()
     )
   ),
-  tap(() => console.log('test')),
-  tap(console.log)
+  tap(console.log),
+  mergeMap((it: OmnivoreFeed[]) => fromArrayLike(it))
 )
