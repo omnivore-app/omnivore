@@ -15,6 +15,7 @@ export const getRssFeeds$: Observable<OmnivoreFeed> = fromArrayLike([]).pipe(
       })()
     )
   ),
+  tap(() => console.log('test')),
   tap(console.log),
   mergeMap((it) => it as Observable<OmnivoreFeed>)
 )
