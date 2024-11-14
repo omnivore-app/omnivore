@@ -3,7 +3,7 @@ import { sqlClient } from './db'
 import { OmnivoreFeed } from '../../types/Feeds'
 import { fromPromise, fromArrayLike } from 'rxjs/internal/observable/innerFrom'
 
-export const getRssFeeds$: Observable<OmnivoreFeed> = fromArrayLike([]).pipe(
+export const getRssFeeds$: Observable<OmnivoreFeed> = fromArrayLike(['restart']).pipe(
   mergeMap(() =>
     fromPromise(
       (async (): Promise<OmnivoreFeed[]> => {
