@@ -48,9 +48,6 @@ export const rss$ = (() => {
     onErrorContinue(
       mergeMap((it) => rssToArticles(it).pipe(exponentialBackOff(5)))
     ),
-    tap((it: OmnivoreArticle) => console.log(it.title)),
-    tap((it: OmnivoreArticle) => console.log(it.publishedAt, lastUpdatedTime)),
-    filter((it: OmnivoreArticle) => it.publishedAt > lastUpdatedTime),
     finalize(() => {
       lastUpdatedTime = new Date()
       console.log(lastUpdatedTime)
