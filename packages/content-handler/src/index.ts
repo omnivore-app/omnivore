@@ -60,13 +60,13 @@ const validateUrlString = (url: string): boolean => {
 }
 
 const contentHandlers: ContentHandler[] = [
+  new WiredHandler(),
   new ArsTechnicaHandler(),
   new TheAtlanticHandler(),
   new AppleNewsHandler(),
   new BloombergHandler(),
   new DerstandardHandler(),
   new ImageHandler(),
-  new WiredHandler(),
   new MediumHandler(),
   new PdfHandler(),
   new ScrapingBeeHandler(),
