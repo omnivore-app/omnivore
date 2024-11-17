@@ -4,7 +4,7 @@ import { Button } from '../../../elements/Button'
 import { theme } from '../../../tokens/stitches.config'
 import {
   BookmarkSimple,
-  Browsers, Eye, EyeSlash,
+  Book, Eye, EyeSlash,
   MinusCircle,
   PlusCircle
 } from "@phosphor-icons/react"
@@ -13,6 +13,7 @@ import React from 'react'
 import { SaveDiscoverArticleOutput } from '../../../../lib/networking/mutations/saveDiscoverArticle'
 import { DiscoverFeedItem } from '../../../../lib/networking/queries/useGetDiscoverFeedItems'
 import { BrowserIcon } from '../../../elements/icons/BrowserIcon'
+import { isTouchScreenDevice } from '../../../../lib/deviceType'
 
 type DiscoverHoverActionsProps = {
   viewer?: UserBasicData
@@ -42,7 +43,7 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
         overflow: 'clip',
 
         height: '33px',
-        width: '112.5px',
+        width: props.savedId ? '150px' : '112.5px',
         bg: '$thBackground',
         display: 'flex',
 
@@ -67,7 +68,6 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
         }
         style="hoverActionIcon"
         onClick={(event) => {
-          console.log(props)
           if (!props.savedUrl) {
             props
               .handleLinkSubmission(props.item.id, timeZone, locale)
@@ -114,8 +114,9 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
         </div>
       </Button>
 
+
       <Button
-        title="Go to Original Article (O)"
+        title="Go to Original Article"
         style="hoverActionIcon"
         onClick={(event) => {
           // OK So we go to the original article.
@@ -129,6 +130,25 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           color={theme.colors.thNotebookSubtle.toString()}
         />
       </Button>
+
+      {props.savedId != undefined && (
+        <Button
+          title="Go to Reader View"
+          style="hoverActionIcon"
+          onClick={(event) => {
+            // OK So we go to the original article.
+            window.location.href = props.savedUrl!
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+        >
+          <Book
+            size={21}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        </Button>)
+      }
+
       <Button
         title={ props.hidden ? 'Article Item (H)' : 'Hide Article (H)' }
         style="hoverActionIcon"

@@ -85,7 +85,7 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
         setIsHovered(false)
       }}
     >
-      {!isTouchScreenDevice() && (
+
         <Box
           ref={refs.setFloating}
           style={{ ...floatingStyles, zIndex: 3 }}
@@ -105,7 +105,6 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
             hideDiscoverItem={props.setItemHidden}
           />
         </Box>
-      )}
       <DiscoverGridCardContent
         {...props}
         savedId={props.savedId}
@@ -127,7 +126,7 @@ const DiscoverGridCardContent = (
   const originText = siteName(props.item.url, props.item.url)
 
   const goToUrl = () => {
-    if (props.savedUrl) {
+    if (props.savedUrl && !isTouchScreenDevice()) {
       window.location.href = props.savedUrl
     }
   }

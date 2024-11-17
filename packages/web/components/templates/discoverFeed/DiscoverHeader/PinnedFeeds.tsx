@@ -30,7 +30,7 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
         // overflowX: 'scroll',
       }}
     >
-      {[{ title: "All Feeds", id:"All Feeds" },  ...props.items.map(({visibleName, id}) => ({ title: visibleName, id }))].map((it) => {
+      {[{ title: "All Feeds", id:"All Feeds" }, ...props.items.map(({visibleName, id}) => ({ title: visibleName, id }))].map((it) => {
         const style =
           it.id == props.selected ? 'ctaPill' : 'ctaPillUnselected'
         return (
