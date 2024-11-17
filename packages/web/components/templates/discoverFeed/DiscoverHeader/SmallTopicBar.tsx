@@ -73,7 +73,7 @@ export function SmallTopicBar(props: TopicBarProps): JSX.Element {
           <HStack
             alignment={'start'}
             distribution={'start'}
-            css={{ pl: '0px', pr: '15px', overflow: 'hidden', overflow: 'scroll',
+            css={{ pl: '0px', pr: '15px', overflow: 'scroll',
               '::-webkit-scrollbar': {
                 display: 'none',
               },
