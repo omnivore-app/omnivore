@@ -1,4 +1,6 @@
 import { ContentHandler, PreHandleResult } from '../content-handler'
+import axios from 'axios'
+import { parseHTML } from 'linkedom'
 
 export class MediumHandler extends ContentHandler {
   constructor() {
@@ -17,7 +19,14 @@ export class MediumHandler extends ContentHandler {
     try {
       const res = new URL(url)
       res.searchParams.delete('source')
-      return Promise.resolve({ url: res.toString() })
+
+      const response = await axios.get(res.toString())
+      const dom = parseHTML(response.data).document
+      return {
+        title: dom.title,
+        content: response.data as string,
+        url: res.toString(),
+      }
     } catch (error) {
       console.error('error prehandling medium url', error)
       throw error
