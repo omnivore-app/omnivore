@@ -85,6 +85,7 @@ export function DiscoverContainer(): JSX.Element {
     hasMore,
     setPage,
     page,
+    hideDiscoverArticleMutation
   } = useGetDiscoverFeedItems(topics[0], selectedFeed, 10,discoverVisibility == 'SHOW_ALL')
   const handleFetchMore = useCallback(() => {
     if (isLoading || !hasMore) {
@@ -216,6 +217,7 @@ export function DiscoverContainer(): JSX.Element {
           handleLinkSubmission={handleSaveDiscover}
           items={discoverItems ?? []}
           viewer={viewer.viewerData?.me}
+          hideDiscoverArticle={hideDiscoverArticleMutation}
         />
         {showAddLinkModal && (
           <AddLinkModal

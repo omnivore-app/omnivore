@@ -4,11 +4,11 @@ import { DiscoverGridCard } from './DiscoverItemGridCard'
 import { DiscoverItemListCard } from './DiscoverItemListCard'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { deleteDiscoverArticleMutation } from "../../../../lib/networking/mutations/deleteDiscoverArticle"
-import { hideDiscoverArticleMutation } from "../../../../lib/networking/mutations/hideDiscoverArticle"
 import { showErrorToast, showSuccessToast } from "../../../../lib/toastHelpers"
 import { useState } from "react"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 import { DiscoverVisibilityType } from "../DiscoverContainer"
+import { HideDiscoverArticleOutput } from '../../../../lib/networking/queries/useGetDiscoverFeeds'
 
 export type DiscoverItemCardProps = {
   item: DiscoverFeedItem
@@ -16,7 +16,7 @@ export type DiscoverItemCardProps = {
   visibility: DiscoverVisibilityType
   viewer?: UserBasicData
   isHovered?: boolean
-  hideDiscoverItem(item: DiscoverFeedItem): void
+  hideDiscoverItem(item: DiscoverFeedItem, setHidden: boolean): Promise<HideDiscoverArticleOutput | undefined>
   handleLinkSubmission: (
     link: string,
     timezone: string,
@@ -56,14 +56,11 @@ export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element | nu
   }
 
   const setHiddenDiscoverItem = (item: DiscoverFeedItem, setHidden: boolean) : Promise<void> => {
-    return hideDiscoverArticleMutation({ discoverArticleId: item.id, setHidden })
+    return props.hideDiscoverItem(item, setHidden)
       .then(it => {
         if (it?.hideDiscoverArticle.id) {
           showSuccessToast(`Discover Article ${setHidden ? 'Hidden' : 'Unhidden'}`, { position: 'bottom-right' })
           setArticleHidden(setHidden)
-          if (props.visibility == 'HIDE_HIDDEN') {
-            props.hideDiscoverItem(item)
-          }
         } else {
           showErrorToast('Unable to hide Article', { position: 'bottom-right' })
         }

@@ -6,6 +6,10 @@ import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 import { DiscoverVisibilityType } from "../DiscoverContainer"
 import { useEffect, useState } from "react"
+import {
+  HideDiscoverArticleInput,
+  HideDiscoverArticleOutput
+} from '../../../../lib/networking/queries/useGetDiscoverFeeds'
 
 type DiscoverItemsProps = {
   items: DiscoverFeedItem[]
@@ -17,14 +21,17 @@ type DiscoverItemsProps = {
     timezone: string,
     locale: string
   ) => Promise<SaveDiscoverArticleOutput | undefined>
+  hideDiscoverArticle: (
+    input: HideDiscoverArticleInput
+  ) => Promise<HideDiscoverArticleOutput | undefined>
 }
 
 export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
   const [discoverItems, setDiscoveryItems] = useState(props.items);
 
-  const hideDiscoverItem = (item: DiscoverFeedItem) => {
-    const hiddenDiscoveryList = discoverItems.filter(it => it.id != item.id);
-    setDiscoveryItems(hiddenDiscoveryList);
+  const hideDiscoverItem = (item: DiscoverFeedItem, setHidden: boolean) => {
+
+    return props.hideDiscoverArticle({ discoverArticleId: item.id, setHidden});
   }
 
   useEffect(() => {

@@ -8,6 +8,10 @@ import { HeaderText } from "../DiscoverHeader/HeaderText"
 import React from "react"
 import { DiscoverVisibilityType, TopicTabData } from "../DiscoverContainer"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
+import {
+  HideDiscoverArticleInput,
+  HideDiscoverArticleOutput
+} from '../../../../lib/networking/queries/useGetDiscoverFeeds'
 
 type DiscoverItemFeedProps = {
   items: DiscoverFeedItem[]
@@ -22,7 +26,11 @@ type DiscoverItemFeedProps = {
     timezone: string,
     locale: string
   ) => Promise<SaveDiscoverArticleOutput | undefined>
+  hideDiscoverArticle: (
+    input: HideDiscoverArticleInput
+  ) => Promise<HideDiscoverArticleOutput | undefined>
 }
+
 export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
   return (
     <>
