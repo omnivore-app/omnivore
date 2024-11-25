@@ -36,7 +36,7 @@ The following environment variables should be changed to reflect where you are r
 
 | Environment Variable             | Description                                    | Local Parameter         |
 |----------------------------------|------------------------------------------------|-------------------------|
-| BASE URL                         | The URL of the Front End of the Application.   | http://localhost:3000   |
+| BASE_URL                         | The URL of the Front End of the Application.   | http://localhost:3000   |
 | SERVER_BASE_URL                  | The URL of the API Server.                     | http://localhost:4000   |
 | HIGHLIGHTS_BASE_URL              | The URL of the Front end of the Application    | http://localhost:3000   |
 | NEXT_PUBLIC_BASE_URL             | Same as above BASE URL, but for NEXT           | http://localhost:3000   |
