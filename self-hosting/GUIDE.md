@@ -34,14 +34,17 @@ You can use these by `mv .env.example .env`
 
 The following environment variables should be changed to reflect where you are running your application. 
 
-| Environment Variable             | Description                                    | Local Parameter         |
-|----------------------------------|------------------------------------------------|-------------------------|
-| BASE URL                         | The URL of the Front End of the Application.   | http://localhost:3000   |
-| SERVER_BASE_URL                  | The URL of the API Server.                     | http://localhost:4000   |
-| HIGHLIGHTS_BASE_URL              | The URL of the Front end of the Application    | http://localhost:3000   |
-| NEXT_PUBLIC_BASE_URL             | Same as above BASE URL, but for NEXT           | http://localhost:3000   |
-| NEXT_PUBLIC_SERVER_BASE_URL      | Same as above SERVER_BASE_URL, but for NEXT    | http://localhost:4000   |
-| NEXT_PUBLIC_HIGHLIGHTS_BASE_URL  | Same as above HIGHLIGHTS_BASE_URL but for NEXT | http://localhost:3000   |
+| Environment Variable            | Description                                    | Local Parameter       |
+|---------------------------------|------------------------------------------------|-----------------------|
+| BASE URL                        | The URL of the Front End of the Application.   | http://localhost:3000 |
+| SERVER_BASE_URL                 | The URL of the API Server.                     | http://localhost:4000 |
+| HIGHLIGHTS_BASE_URL             | The URL of the Front end of the Application    | http://localhost:3000 |
+| NEXT_PUBLIC_BASE_URL            | Same as above BASE URL, but for NEXT           | http://localhost:3000 |
+| NEXT_PUBLIC_SERVER_BASE_URL     | Same as above SERVER_BASE_URL, but for NEXT    | http://localhost:4000 |
+| NEXT_PUBLIC_HIGHLIGHTS_BASE_URL | Same as above HIGHLIGHTS_BASE_URL but for NEXT | http://localhost:3000 |
+| CLIENT_URL                      | The URL of the Front end of the Application    | http://localhost:3000 |
+| IMAGEPROXY_URL                  | Service that proxies images to avoid blocking  | http://localhost:7070 |
+
 
 Additionally, when doing a docker-compose build, if you are hosting this application you must change the args in the `docker-compose` file. 
 
