@@ -89,7 +89,6 @@ services:
       - .env
 
   content-fetch:
-    platform: linux/amd64
     build:
       context: ../../
       dockerfile: ./packages/content-fetch/Dockerfile
