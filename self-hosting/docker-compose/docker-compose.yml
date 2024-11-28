@@ -43,6 +43,7 @@ services:
       test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
       interval: 15s
       timeout: 90s
+      retries: 6
     env_file:
       - .env
     depends_on:
