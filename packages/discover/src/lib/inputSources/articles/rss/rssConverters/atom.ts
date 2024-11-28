@@ -66,7 +66,7 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
         site: new URL(article.link['@_href']).host,
         publishedAt: new Date(article.published ?? Date.now()),
         type: 'rss',
-        feedId: feed.title,
+        feedId: feed.id,
       }
     })
   )
