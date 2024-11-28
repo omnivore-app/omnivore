@@ -16,7 +16,7 @@ import { onErrorContinue } from '../utils/reactive'
 
 const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   const { rows } = await sqlClient.query(
-    'SELECT slug FROM omnivore.discover_feed_articles WHERE slug = $1 and feed_id = "$2"',
+    `SELECT slug FROM omnivore.discover_feed_articles WHERE slug = $1 and feed_id = '$2'`,
     [articleSlug, feedId]
   )
   return rows && rows.length === 0
