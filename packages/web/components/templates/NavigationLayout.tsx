@@ -21,9 +21,6 @@ import useWindowDimensions from '../../lib/hooks/useGetWindowDimensions'
 import { useHandleAddUrl } from '../../lib/hooks/useHandleAddUrl'
 import { useGetViewer } from '../../lib/networking/viewer/useGetViewer'
 import { useQueryClient } from '@tanstack/react-query'
-import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { CloseButton } from '../elements/CloseButton'
-import { ShutdownBanner } from '../elements/ShutdownBanner'
 
 export type NavigationSection =
   | 'home'
@@ -207,7 +204,6 @@ const Header = (props: HeaderProps): JSX.Element => {
         height: '58px',
       }}
     >
-      <ShutdownBanner />
       <Button
         style="plainIcon"
         onClick={(event) => {

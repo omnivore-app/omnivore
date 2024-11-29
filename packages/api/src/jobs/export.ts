@@ -5,6 +5,7 @@ import { TaskState } from '../generated/graphql'
 import { findExportById, saveExport } from '../services/export'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import {
+  countLibraryItems,
   findLibraryItemById,
   searchLibraryItems,
 } from '../services/library_item'
@@ -12,17 +13,11 @@ import { sendExportJobEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
-import { contentFilePath } from '../utils/uploads'
 import { env } from '../env'
 import { storage } from '../repository/storage/storage'
 import { File } from '../repository/storage/StorageClient'
 import { Readable } from 'stream'
-import {
-  contentFilePath,
-  createGCSFile,
-  generateUploadFilePathName,
-} from '../utils/uploads'
-import { batch } from 'googleapis/build/src/apis/batch'
+import { contentFilePath, generateUploadFilePathName } from '../utils/uploads'
 import { getRepository } from '../repository'
 import { UploadFile } from '../entity/upload_file'
 
@@ -67,7 +62,7 @@ const uploadContent = async (
   const file = createGCSFile(filePath)
 
   // check if file is already uploaded
-  const [exists] = await file.exists()
+  const exists = await file.exists()
   if (!exists) {
     logger.info(`File not found: ${filePath}`)
 
@@ -107,17 +102,19 @@ const uploadPdfContent = async (
     id: libraryItem.uploadFileId,
   })
   if (!upload || !upload.fileName) {
-    console.log(`upload does not have a filename: ${upload}`)
+    console.log(
+      `upload does not have a filename: ${upload?.fileName ?? 'empty'}`
+    )
     return
   }
 
   const filePath = generateUploadFilePathName(upload.id, upload.fileName)
   const file = createGCSFile(filePath)
-  const [exists] = await file.exists()
+  const exists = await file.exists()
   if (exists) {
     console.log(`adding PDF file: ${filePath}`)
     // append the existing file to the archive
-    archive.append(file.createReadStream(), {
+    archive.append(await file.download(), {
       name: `content/${libraryItem.slug}.pdf`,
     })
   }
@@ -279,7 +276,7 @@ export const exportJob = async (jobData: ExportJobData) => {
 
     // Pipe the archiver output to the write stream
     archive.pipe(writeStream)
-
+    let cursor = 0
     try {
       // fetch data from the database
       const batchSize = 20
@@ -326,7 +323,7 @@ export const exportJob = async (jobData: ExportJobData) => {
     })
 
     // generate a temporary signed url for the zip file
-    const [signedUrl] = await file.getSignedUrl({
+    const signedUrl = await storage.signedUrl(bucketName, fullPath, {
       action: 'read',
       expires: Date.now() + 168 * 60 * 60 * 1000, // one week
     })
