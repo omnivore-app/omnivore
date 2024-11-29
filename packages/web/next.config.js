@@ -46,10 +46,6 @@ const moduleExports = {
       )
     }
     rewrites.push({
-      source: '/collect/:match*',
-      destination: 'https://app.posthog.com/:match*',
-    })
-    rewrites.push({
       source: '/home',
       destination: '/l/home',
     })

@@ -13,6 +13,7 @@ import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 import Link from 'next/link'
 import { CaretLeft } from '@phosphor-icons/react'
 import { DEFAULT_HOME_PATH } from '../../lib/navigations'
+import { ShutdownBanner } from '../elements/ShutdownBanner'
 
 type SettingsLayoutProps = {
   title?: string
@@ -82,6 +83,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       css={{ width: '100%', height: '100%', minHeight: '100vh' }}
     >
       <PageMetaData path="settings" title="Settings" />
+      <ShutdownBanner />
       <VStack css={{ width: '100%', height: '100%' }}>
         <Box
           css={{

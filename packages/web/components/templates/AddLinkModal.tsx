@@ -62,17 +62,17 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
         }}
       >
         <VStack distribution="start" css={{ gap: '20px' }}>
-          <TabBar
+          {/* <TabBar
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
             onOpenChange={props.onOpenChange}
-          />
+          /> */}
           <Box css={{ width: '100%' }}>
             {selectedTab == 'link' && <AddLinkTab {...props} />}
-            {selectedTab == 'feed' && <AddFeedTab {...props} />}
+            {/* {selectedTab == 'feed' && <AddFeedTab {...props} />}
             {selectedTab == 'opml' && <UploadOPMLTab />}
             {selectedTab == 'pdf' && <UploadPDFTab />}
-            {selectedTab == 'import' && <UploadImportTab {...props} />}
+            {selectedTab == 'import' && <UploadImportTab {...props} />} */}
           </Box>
         </VStack>
       </ModalContent>
@@ -531,52 +531,52 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
       const allFiles = [...uploadFiles, ...addedFiles]
 
       setUploadFiles(allFiles)
-        ; (async () => {
-          for (const file of addedFiles) {
-            try {
-              const uploadInfo = await uploadSignedUrlForFile(file)
-              if (!uploadInfo.uploadSignedUrl) {
-                const message = uploadInfo.message || 'No upload URL available'
-                showErrorToast(message, { duration: 10000 })
-                file.status = 'error'
-                setUploadFiles([...allFiles])
-                return
-              }
-
-              const uploadResult = await axios.request({
-                method: 'PUT',
-                url: uploadInfo.uploadSignedUrl,
-                data: file.file,
-                withCredentials: false,
-                headers: {
-                  'Content-Type': file.file.type,
-                },
-                onUploadProgress: (p) => {
-                  if (!p.total) {
-                    console.warn('No total available for upload progress')
-                    return
-                  }
-                  const progress = (p.loaded / p.total) * 100
-                  file.progress = progress
-
-                  setUploadFiles([...allFiles])
-                },
-              })
-
-              file.progress = 100
-              file.status = 'success'
-              file.openUrl = uploadInfo.requestId
-                ? `/article/sr/${uploadInfo.requestId}`
-                : undefined
-              file.message = uploadInfo.message
-
-              setUploadFiles([...allFiles])
-            } catch (error) {
+      ;(async () => {
+        for (const file of addedFiles) {
+          try {
+            const uploadInfo = await uploadSignedUrlForFile(file)
+            if (!uploadInfo.uploadSignedUrl) {
+              const message = uploadInfo.message || 'No upload URL available'
+              showErrorToast(message, { duration: 10000 })
               file.status = 'error'
               setUploadFiles([...allFiles])
+              return
             }
+
+            const uploadResult = await axios.request({
+              method: 'PUT',
+              url: uploadInfo.uploadSignedUrl,
+              data: file.file,
+              withCredentials: false,
+              headers: {
+                'Content-Type': file.file.type,
+              },
+              onUploadProgress: (p) => {
+                if (!p.total) {
+                  console.warn('No total available for upload progress')
+                  return
+                }
+                const progress = (p.loaded / p.total) * 100
+                file.progress = progress
+
+                setUploadFiles([...allFiles])
+              },
+            })
+
+            file.progress = 100
+            file.status = 'success'
+            file.openUrl = uploadInfo.requestId
+              ? `/article/sr/${uploadInfo.requestId}`
+              : undefined
+            file.message = uploadInfo.message
+
+            setUploadFiles([...allFiles])
+          } catch (error) {
+            file.status = 'error'
+            setUploadFiles([...allFiles])
           }
-        })()
+        }
+      })()
     },
     [uploadFiles]
   )
@@ -681,7 +681,14 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                   </VStack>
                 </DragnDropIndicator>
               </DragnDropStyle>
-              <VStack css={{ width: '100%', mt: '10px', gap: '5px', overflowY: 'auto' }}>
+              <VStack
+                css={{
+                  width: '100%',
+                  mt: '10px',
+                  gap: '5px',
+                  overflowY: 'auto',
+                }}
+              >
                 {uploadFiles.map((file) => {
                   return (
                     <HStack
@@ -694,7 +701,7 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                         padding: '15px',
                         gap: '10px',
                         color: '$thTextContrast',
-                        overflow: "hidden"
+                        overflow: 'hidden',
                       }}
                       alignment="center"
                       distribution="start"
