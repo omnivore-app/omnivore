@@ -158,28 +158,26 @@ http {
 
      upstream omnivore_imageproxy {
     	ip_hash;
-    	server 127.0.0.1:1010;
+    	server 127.0.0.1:7070;
      }
 
     upstream omnivore_bucket {
     	ip_hash;
-    	server 127.0.0.1:7070;
+    	server 127.0.0.1:1010;
     }
 
     server {
         listen 80;
-        return 301 https://$host$request_uri
+        return 301 https://$host$request_uri;
     }
 
     server {
-        listen 443;
+        listen 443 ssl;
         server_name  omnivore.domain.com;
 
 
-        ssl_certification   /path/to/cert.crt;
+        ssl_certificate   /path/to/cert.crt;
         ssl_certificate_key /path/to/cert.key;
-
-        ssl on;
         ssl_session_cache builtin:1000 shared:SSL:10m;
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
@@ -202,6 +200,7 @@ http {
 
         # ImageProxy
         location /images {
+            rewrite ^/images/(.*)$ /$1 break;
             proxy_pass http://omnivore_imageproxy;
         }
 
@@ -209,12 +208,14 @@ http {
         location / {
             proxy_pass http://omnivore_web;
         }
-        
+
+        # Mail Proxy
         location /mail {
             proxy_pass http://localhost:4398/mail;
         }
     }
 }
+
 ```
 
 ## Cloudflare Tunnel
