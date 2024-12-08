@@ -39,7 +39,7 @@ import {
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
-  () => import(`./../../../components/templates/article/${(process.env.USE_NATIVE_PDF == 'false' ||  process.env.USE_NATIVE_PDF == undefined) ? 'PDF' : 'Native' }PdfArticleContainer`),
+  () => import(`./../../../components/templates/article/NativePdfArticleContainer`),
   { ssr: false }
 )
 
