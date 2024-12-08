@@ -144,6 +144,52 @@ function getUrl(urlStr: string) {
   return parsed.href
 }
 
+const waitForDOMToSettle = (page: Page, timeoutMs = 5000, debounceMs = 1000) =>
+  page.evaluate(
+    (timeoutMs, debounceMs) => {
+      const debounce = (func: (...args: unknown[]) => void, ms = 1000) => {
+        let timeout: NodeJS.Timeout
+        console.log(`Debouncing in  ${ms}`)
+        return (...args: unknown[]) => {
+          console.log('in debounce, clearing timeout again')
+          clearTimeout(timeout)
+          timeout = setTimeout(() => {
+            func.apply(this, args)
+          }, ms)
+        }
+      }
+      return new Promise<void>((resolve) => {
+        const mainTimeout = setTimeout(() => {
+          observer.disconnect()
+          console.log(
+            'Timed out whilst waiting for DOM to settle. Using what we have.'
+          )
+          resolve()
+        }, timeoutMs)
+
+        const debouncedResolve = debounce(() => {
+          observer.disconnect()
+          clearTimeout(mainTimeout)
+          resolve()
+        }, debounceMs)
+
+        const observer = new MutationObserver(() => {
+          debouncedResolve()
+        })
+
+        const config = {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        }
+
+        observer.observe(document.body, config)
+      })
+    },
+    timeoutMs,
+    debounceMs
+  )
+
 async function retrievePage(
   url: string,
   logRecord: Record<string, any>,
@@ -177,86 +223,97 @@ async function retrievePage(
     }
 
     // set timezone for the page
-    if (timezone) {
-      await page.emulateTimezone(timezone)
-    }
-
-    const client = await page.createCDPSession()
-
-    const downloadPath = path.resolve('./download_dir/')
-    await client.send('Page.setDownloadBehavior', {
-      behavior: 'allow',
-      downloadPath,
-    })
-
-    // intercept request when response headers was received
-    await client.send('Network.setRequestInterception', {
-      patterns: [
-        {
-          urlPattern: '*',
-          resourceType: 'Document',
-          interceptionStage: 'HeadersReceived',
-        },
-      ],
-    })
-
-    client.on(
-      'Network.requestIntercepted',
-      (e: Protocol.Network.RequestInterceptedEvent) => {
-        ;(async () => {
-          const headers = e.responseHeaders || {}
-
-          const [contentType] = (
-            headers['content-type'] ||
-            headers['Content-Type'] ||
-            ''
-          )
-            .toLowerCase()
-            .split(';')
-          const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
-            interceptionId: e.interceptionId,
-          }
-
-          if (
-            e.responseStatusCode &&
-            e.responseStatusCode >= 200 &&
-            e.responseStatusCode < 300
-          ) {
-            // We only check content-type on success responses
-            // as it doesn't matter what the content type is for things
-            // like redirects
-            if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
-              obj['errorReason'] = 'BlockedByClient'
-            }
-          }
-
-          try {
-            await client.send('Network.continueInterceptedRequest', obj)
-          } catch {
-            // ignore
-          }
-        })()
+    if (process.env['USE_FIREFOX'] !== 'true') {
+      if (timezone) {
+        await page.emulateTimezone(timezone)
       }
-    )
+
+      const client = await page.createCDPSession()
+
+      const downloadPath = path.resolve('./download_dir/')
+      await client.send('Page.setDownloadBehavior', {
+        behavior: 'allow',
+        downloadPath,
+      })
+
+      // intercept request when response headers was received
+      await client.send('Network.setRequestInterception', {
+        patterns: [
+          {
+            urlPattern: '*',
+            resourceType: 'Document',
+            interceptionStage: 'HeadersReceived',
+          },
+        ],
+      })
+
+      client.on(
+        'Network.requestIntercepted',
+        (e: Protocol.Network.RequestInterceptedEvent) => {
+          ;(async () => {
+            const headers = e.responseHeaders || {}
+
+            const [contentType] = (
+              headers['content-type'] ||
+              headers['Content-Type'] ||
+              ''
+            )
+              .toLowerCase()
+              .split(';')
+            const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
+              interceptionId: e.interceptionId,
+            }
+
+            if (
+              e.responseStatusCode &&
+              e.responseStatusCode >= 200 &&
+              e.responseStatusCode < 300
+            ) {
+              // We only check content-type on success responses
+              // as it doesn't matter what the content type is for things
+              // like redirects
+              if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
+                obj['errorReason'] = 'BlockedByClient'
+              }
+            }
+
+            try {
+              await client.send('Network.continueInterceptedRequest', obj)
+            } catch {
+              // ignore
+            }
+          })()
+        }
+      )
+    }
 
     /*
      * Disallow MathJax from running in Puppeteer and modifying the document,
      * we shall instead run it in our frontend application to transform any
      * mathjax content when present.
      */
-    await page.setRequestInterception(true)
+
     let requestCount = 0
+    const failedRequests = new Set()
+    page.removeAllListeners('request')
     page.on('request', (request) => {
       ;(async () => {
-        if (request.resourceType() === 'font') {
+        if (request.isInterceptResolutionHandled()) return
+        // since .requestType() is not FF compatible, look for font files.
+        if (request.url().toLowerCase().includes('.woff2')) {
           // Disallow fonts from loading
           return request.abort()
         }
+
         if (requestCount++ > 100) {
           return request.abort()
         }
+
+        if (failedRequests.has(request.url())) {
+          return request.abort()
+        }
+
         if (
-          request.resourceType() === 'script' &&
           request.url().toLowerCase().indexOf('mathjax') > -1
         ) {
           return request.abort()
@@ -265,17 +322,32 @@ async function retrievePage(
         await request.continue()
       })()
     })
+    await page.setRequestInterception(true)
+
 
     page.on('response', (response) => {
+      if (!response.ok()) {
+        console.log('Failed request', response.url())
+        failedRequests.add(response.url())
+      }
+
       if (response.headers()['content-type'] === 'application/pdf') {
         lastPdfUrl = response.url()
       }
     })
 
+    console.log('Trying to load page, for 30 seconds')
+
     const response = await page.goto(url, {
       timeout: 30 * 1000,
-      waitUntil: ['networkidle0'],
+      waitUntil: ['load'],
     })
+
+    console.log('Waited for content to load, waiting for DOM to settle.')
+    await waitForDOMToSettle(page)
+    // Just wait for a few seconds to allow the dom to resolve.
+    // await new Promise((r) => setTimeout(r, 2500))
+
     if (!response) {
       throw new Error('No response from page')
     }

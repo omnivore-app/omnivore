@@ -120,7 +120,10 @@
     "voca": "^1.4.0",
     "winston": "^3.3.3",
     "yaml": "^2.4.1",
-    "youtubei": "^1.5.4"
+    "youtubei": "^1.5.4",
+    "@aws-sdk/client-s3": "^3.679.0",
+    "@aws-sdk/s3-request-presigner": "^3.679.0",
+    "@aws-sdk/lib-storage": "^3.679.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
