@@ -25,10 +25,10 @@ RUN yarn install --pure-lockfile && \
     rm -rf /app/packages/api/node_modules /app/node_modules && \
     yarn install --pure-lockfile --production
 
-FROM node:18.16 AS runner
+FROM node:18.16-alpine AS runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
-RUN apt-get update && apt-get install -y netcat-openbsd && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add netcat-openbsd && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
