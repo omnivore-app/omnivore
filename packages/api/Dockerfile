@@ -2,26 +2,27 @@ FROM node:18.16 AS builder
 
 WORKDIR /app
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 # Объединение RUN команд и очистка кеша apt-get
 RUN apt-get update && apt-get install -y g++ make python3 && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Копирование всех необходимых файлов и директорий за один раз
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
+COPY packages ./packages
 
-COPY /packages/api/package.json ./packages/api/package.json
-COPY /packages/utils/package.json ./packages/utils/package.json
+# Удаление ненужных директорий
+RUN find packages -mindepth 1 -type d \
+    ! -regex '^packages/\(api\|readabilityjs\|text-to-speech\|content-handler\|liqe\|utils\)\(/.*\)?' \
+    -exec rm -rf {} +
 
-RUN yarn install --pure-lockfile
-
-COPY /packages/api ./packages/api
-COPY /packages/utils ./packages/utils
-
-RUN yarn workspace @omnivore/utils build && \
-    yarn workspace @omnivore/api build
-
-# Установка только production зависимостей
-RUN rm -rf /app/packages/api/node_modules /app/node_modules && \
+RUN yarn install --pure-lockfile && \
+    yarn workspace @omnivore/utils build && \
+    yarn workspace @omnivore/text-to-speech-handler build && \
+    yarn workspace @omnivore/content-handler build && \
+    yarn workspace @omnivore/liqe build && \
+    yarn workspace @omnivore/api build && \
+    rm -rf /app/packages/api/node_modules /app/node_modules && \
     yarn install --pure-lockfile --production
 
 FROM node:18.16 AS runner
@@ -31,14 +32,22 @@ RUN apt-get update && apt-get install -y netcat-openbsd && apt-get clean && rm -
 
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV PORT=8080
 
+# Копирование всех необходимых файлов и директорий за один раз
 COPY --from=builder /app/packages/api/dist /app/packages/api/dist
+COPY --from=builder /app/packages/readabilityjs/ /app/packages/readabilityjs/
+COPY --from=builder /app/packages/api/package.json /app/packages/api/package.json
 COPY --from=builder /app/packages/api/node_modules /app/packages/api/node_modules
 COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/packages/text-to-speech/ /app/packages/text-to-speech/
+COPY --from=builder /app/packages/content-handler/ /app/packages/content-handler/
+COPY --from=builder /app/packages/liqe/ /app/packages/liqe/
 COPY --from=builder /app/packages/utils/ /app/packages/utils/
+
 EXPOSE 8080
 
 CMD ["yarn", "workspace", "@omnivore/api", "start"]
