@@ -4,14 +4,12 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-# Объединение RUN команд и очистка кеша apt-get
 RUN apt-get update && apt-get install -y g++ make python3 && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Копирование всех необходимых файлов и директорий за один раз
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
 COPY packages ./packages
 
-# Удаление ненужных директорий
+# Remove all except needed packages
 RUN find packages -mindepth 1 -type d \
     ! -regex '^packages/\(api\|readabilityjs\|text-to-speech\|content-handler\|liqe\|utils\)\(/.*\)?' \
     -exec rm -rf {} +
@@ -36,7 +34,6 @@ ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV PORT=8080
 
-# Копирование всех необходимых файлов и директорий за один раз
 COPY --from=builder /app/packages/api/dist /app/packages/api/dist
 COPY --from=builder /app/packages/readabilityjs/ /app/packages/readabilityjs/
 COPY --from=builder /app/packages/api/package.json /app/packages/api/package.json
