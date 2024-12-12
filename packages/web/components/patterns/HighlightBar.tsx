@@ -45,7 +45,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
         borderRadius: '5px',
         border: '1px solid $thHighlightBar',
         boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.15)`,
-
+        zIndex: 999,
         ...(props.displayAtBottom && {
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
         }),
