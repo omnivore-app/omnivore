@@ -510,12 +510,12 @@ export const saveArticleReadingProgressResolver = authorized<
       }
     }
 
-    if (env.redis.cache && env.redis.mq) {
-      if (force) {
-        // clear any cached values.
-        await clearCachedReadingPosition(uid, id)
-      }
+    if (env.redis.cache && force) {
+      // clear any cached values.
+      await clearCachedReadingPosition(uid, id)
+    }
 
+    if (env.redis.cache && env.redis.mq && !force) {
       // If redis caching and queueing are available we delay this write
       const updatedProgress =
         await dataSources.readingProgress.updateReadingProgress(uid, id, {

@@ -178,9 +178,9 @@ export const createWorker = (connection: ConnectionOptions) =>
           case 'save-page': {
             return savePageJob(job.data, job.attemptsMade)
           }
-          // case 'update-pdf-content': {
-          //   return updatePDFContentJob(job.data)
-          // }
+          case 'update-pdf-content': {
+            return updatePDFContentJob(job.data)
+          }
           case THUMBNAIL_JOB:
             return findThumbnail(job.data)
           case TRIGGER_RULE_JOB_NAME:

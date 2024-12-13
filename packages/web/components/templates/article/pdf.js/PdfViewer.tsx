@@ -32,6 +32,8 @@ export type PdfArticleContainerProps = {
   sidebarActive: boolean
 
   articleMutations: ArticleMutations
+
+  saveLatestPage: boolean
 }
 
 export default function PdfViewer(props: PdfArticleContainerProps) {
@@ -372,11 +374,13 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
               props.containerRef.current.clientHeight) /
             props.containerRef.current.scrollHeight
 
+          console.log(currentPageNum, props.saveLatestPage)
           await props.articleMutations.articleReadingProgressMutation({
             id: props.article.id,
             readingProgressTopPercent: bottomProgress * 100,
             readingProgressPercent: bottomProgress * 100,
             readingProgressAnchorIndex: currentPageNum + 1,
+            force: !props.saveLatestPage // Force will overwrite, even if it's a previous page num.
           })
         }
       }, 2500)
