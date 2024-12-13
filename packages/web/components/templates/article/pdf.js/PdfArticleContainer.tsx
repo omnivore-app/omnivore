@@ -56,7 +56,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
     const pdfjsViewer = await import('pdfjs-dist/web/pdf_viewer.mjs')
 
     pdfJSLib.GlobalWorkerOptions.workerSrc =
-      window.location.origin + '/pdfjs-dist/build/pdf.worker.min.mjs'
+      window.location.origin + '/pdfjs-dist/pdf.worker.min.mjs'
 
     const eventBus = new pdfjsViewer.EventBus()
     const pdfLinkService = new pdfjsViewer.PDFLinkService({
@@ -70,7 +70,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
     const pdfScriptingManager = new pdfjsViewer.PDFScriptingManager({
       eventBus,
       sandboxBundleSrc:
-        window.location.origin + '/pdfjs-dist/build/pdf.sandbox.mjs',
+        window.location.origin + '/pdfjs-dist/pdf.sandbox.mjs',
     })
 
     const pdfViewer = new pdfjsViewer.PDFViewer({
