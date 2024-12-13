@@ -43,6 +43,8 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
   const [pageCount, setTotalPageCount] = useState<number>(0)
   const [showSearch, setShowSearch] = useState(false)
   const [showToolbar, setShowToolbar] = useState(true)
+  const [saveLatestPage, setSaveLatestPage] = useState(true);
+
   const [sidebarActive, setSidebarActive] = useState<boolean>(false)
 
   const createHighlight = useCreateHighlight()
@@ -69,8 +71,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
 
     const pdfScriptingManager = new pdfjsViewer.PDFScriptingManager({
       eventBus,
-      sandboxBundleSrc:
-        window.location.origin + '/pdfjs-dist/pdf.sandbox.mjs',
+      sandboxBundleSrc: window.location.origin + '/pdfjs-dist/pdf.sandbox.mjs',
     })
 
     const pdfViewer = new pdfjsViewer.PDFViewer({
@@ -100,11 +101,19 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
 
   useEffect(() => {
     // Uses the existing mechanism to hide the reader toolbar from pspdfkit
-    document.addEventListener('pdfReaderUpdateSettings', () => {
+    const updateReaderSettings = () => {
       const show = localStorage.getItem('reader-show-pdf-tool-bar')
       const showBar = show ? JSON.parse(show) == true : false
       setShowToolbar(showBar)
-    })
+
+      const latestPage = localStorage.getItem('reader-remember-latest-page')
+      const latestPageSave = latestPage ? JSON.parse(latestPage) == true : false
+      setSaveLatestPage(latestPageSave)
+    }
+
+    document.addEventListener('pdfReaderUpdateSettings', updateReaderSettings)
+    updateReaderSettings();
+
     ;(async () => {
       const pdfViewer = await createPdfViewer()
       const pdfDocument = await loadPdfDocument()
@@ -174,6 +183,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
           containerRef={containerRef}
           eventBus={eventBus}
           sidebarActive={sidebarActive}
+          saveLatestPage={saveLatestPage}
           pdfViewer={pdfViewer}
           articleMutations={{
             createHighlightMutation: async (input: CreateHighlightInput) => {
