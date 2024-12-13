@@ -34,14 +34,17 @@ You can use these by `mv .env.example .env`
 
 The following environment variables should be changed to reflect where you are running your application. 
 
-| Environment Variable             | Description                                    | Local Parameter         |
-|----------------------------------|------------------------------------------------|-------------------------|
-| BASE URL                         | The URL of the Front End of the Application.   | http://localhost:3000   |
-| SERVER_BASE_URL                  | The URL of the API Server.                     | http://localhost:4000   |
-| HIGHLIGHTS_BASE_URL              | The URL of the Front end of the Application    | http://localhost:3000   |
-| NEXT_PUBLIC_BASE_URL             | Same as above BASE URL, but for NEXT           | http://localhost:3000   |
-| NEXT_PUBLIC_SERVER_BASE_URL      | Same as above SERVER_BASE_URL, but for NEXT    | http://localhost:4000   |
-| NEXT_PUBLIC_HIGHLIGHTS_BASE_URL  | Same as above HIGHLIGHTS_BASE_URL but for NEXT | http://localhost:3000   |
+| Environment Variable            | Description                                    | Local Parameter       |
+|---------------------------------|------------------------------------------------|-----------------------|
+| BASE URL                        | The URL of the Front End of the Application.   | http://localhost:3000 |
+| SERVER_BASE_URL                 | The URL of the API Server.                     | http://localhost:4000 |
+| HIGHLIGHTS_BASE_URL             | The URL of the Front end of the Application    | http://localhost:3000 |
+| NEXT_PUBLIC_BASE_URL            | Same as above BASE URL, but for NEXT           | http://localhost:3000 |
+| NEXT_PUBLIC_SERVER_BASE_URL     | Same as above SERVER_BASE_URL, but for NEXT    | http://localhost:4000 |
+| NEXT_PUBLIC_HIGHLIGHTS_BASE_URL | Same as above HIGHLIGHTS_BASE_URL but for NEXT | http://localhost:3000 |
+| CLIENT_URL                      | The URL of the Front end of the Application    | http://localhost:3000 |
+| IMAGEPROXY_URL                  | Service that proxies images to avoid blocking  | http://localhost:7070 |
+
 
 Additionally, when doing a docker-compose build, if you are hosting this application you must change the args in the `docker-compose` file. 
 
@@ -136,83 +139,7 @@ Nginx is a reverse proxy that receives requests, and directs them to the correct
 
 We have included an example Nginx Configuration that redirects traffic from http (80) to https (443), and then directs traffic to the correct service based on the request path. 
 
-```nginx
-events {}
-
-http {
-    sendfile    on;
-    keepalive_timeout 60;
-
-     upstream omnivore_web {
-    	ip_hash;
-    	server 127.0.0.1:3000;
-     }
-
-     upstream omnivore_backend {
-    	ip_hash;
-    	server 127.0.0.1:4000;
-     }
-
-     upstream omnivore_imageproxy {
-    	ip_hash;
-    	server 127.0.0.1:1010;
-     }
-
-    upstream omnivore_bucket {
-    	ip_hash;
-    	server 127.0.0.1:7070;
-    }
-
-    server {
-        listen 80;
-        return 301 https://$host$request_uri
-    }
-
-    server {
-        listen 443;
-        server_name  omnivore.domain.com;
-
-
-        ssl_certification   /path/to/cert.crt;
-        ssl_certificate_key /path/to/cert.key;
-
-        ssl on;
-        ssl_session_cache builtin:1000 shared:SSL:10m;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
-        ssl_prefer_server_ciphers on;
-
-        # Override for authentication on the frontend
-        location /api/client/auth {
-            proxy_pass http://omnivore_web;
-        }
-
-        # API
-        location /api {
-            proxy_pass http://omnivore_backend;
-        }
-
-        # Minio
-        location /bucket {
-            proxy_pass http://omnivore_bucket;
-        }
-
-        # ImageProxy
-        location /images {
-            proxy_pass http://omnivore_imageproxy;
-        }
-
-        # FrontEnd application
-        location / {
-            proxy_pass http://omnivore_web;
-        }
-        
-        location /mail {
-            proxy_pass http://localhost:4398/mail;
-        }
-    }
-}
-```
+[Link to nginx.conf here](../self-hosting/nginx/nginx.conf)
 
 ## Cloudflare Tunnel
 Cloudflare tunnels is an easy way to expose a service running on a local machine to the internet without a publicly routable IP Address. 

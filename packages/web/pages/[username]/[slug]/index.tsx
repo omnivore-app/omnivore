@@ -21,7 +21,6 @@ import { VerticalArticleActionsMenu } from '../../../components/templates/articl
 import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
-import { posthog } from 'posthog-js'
 import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
 import {
   ArticleReadingProgressMutationInput,
@@ -40,7 +39,7 @@ import {
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
-  () => import('./../../../components/templates/article/PdfArticleContainer'),
+  () => import(`./../../../components/templates/article/pdf.js/PdfArticleContainer`),
   { ssr: false }
 )
 
@@ -269,17 +268,6 @@ export default function Reader(): JSX.Element {
       document.removeEventListener('goPreviousOrHome', goPreviousOrHome)
     }
   }, [actionHandler, goNextOrHome, goPreviousOrHome])
-
-  useEffect(() => {
-    if (libraryItem && viewerData) {
-      posthog.capture('link_read', {
-        link: libraryItem.id,
-        slug: libraryItem.slug,
-        reader: libraryItem.contentReader,
-        url: libraryItem.originalArticleUrl,
-      })
-    }
-  }, [libraryItem, viewerData])
 
   useRegisterActions(
     [

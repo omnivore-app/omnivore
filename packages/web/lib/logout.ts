@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { deinitAnalytics } from './analytics'
 import { logoutMutation } from './networking/mutations/logoutMutation'
 import { useCallback } from 'react'
 import { useRouter } from 'next/router'
@@ -14,7 +13,6 @@ export const useLogout = () => {
       if (!result) {
         throw new Error('Logout failed')
       }
-      deinitAnalytics()
       queryClient.clear()
       console.log('cleared the query client')
       router.push('/login')

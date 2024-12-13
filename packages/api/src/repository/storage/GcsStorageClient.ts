@@ -1,4 +1,10 @@
-import { SignedUrlParameters, StorageClient, File } from './StorageClient'
+import {
+  SignedUrlParameters,
+  StorageClient,
+  File,
+  SaveOptions,
+  SaveData,
+} from './StorageClient'
 import { Storage, File as GCSFile } from '@google-cloud/storage'
 
 export class GcsStorageClient implements StorageClient {
@@ -24,12 +30,23 @@ export class GcsStorageClient implements StorageClient {
         const [metadata] = await gcsFile.getMetadata()
         return metadata.md5Hash
       },
+      createWriteStream: (saveOptions: SaveOptions) =>
+        gcsFile.createWriteStream({
+          metadata: { contentType: saveOptions.contentType },
+        }),
+      save: (saveData: SaveData, saveOptions: SaveOptions) =>
+        gcsFile.save(saveData, saveOptions),
+      key: gcsFile.name,
     }
   }
 
   downloadFile(bucket: string, filePath: string): Promise<File> {
     const file = this.storage.bucket(bucket).file(filePath)
     return Promise.resolve(this.convertFileToGeneric(file))
+  }
+
+  createFile(bucket: string, filePath: string): File {
+    return this.convertFileToGeneric(this.storage.bucket(bucket).file(filePath))
   }
 
   async getFilesFromPrefix(bucket: string, prefix: string): Promise<File[]> {

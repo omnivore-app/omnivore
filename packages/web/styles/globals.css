@@ -23,6 +23,10 @@ body {
   box-sizing: border-box;
 }
 
+.pdfViewer > * {
+    box-sizing: content-box;
+}
+
 div#appleid-signin {
   min-width: 300px;
   min-height: 40px;

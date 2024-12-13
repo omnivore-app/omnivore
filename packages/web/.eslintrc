@@ -21,6 +21,7 @@
   "ignorePatterns": ["next.config.js", "jest.config.js"],
   "rules": {
     "functional/no-mixed-type": 0,
-    "react/react-in-jsx-scope": 0
+    "react/react-in-jsx-scope": 0,
+    "@typescript-eslint/ban-ts-comment" : 0
   }
 }

@@ -10,7 +10,12 @@ export class RawContentHandler extends ContentHandler {
 
   shouldPreHandle(url: string): boolean {
     const u = new URL(url)
-    const hostnames = ['medium.com', 'fastcompany.com', 'fortelabs.com']
+    const hostnames = [
+      'medium.com',
+      'fastcompany.com',
+      'fortelabs.com',
+      'theverge.com',
+    ]
 
     return hostnames.some((h) => u.hostname.endsWith(h))
   }

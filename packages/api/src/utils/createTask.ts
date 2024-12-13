@@ -76,6 +76,7 @@ import { stringToHash } from './helpers'
 import { logError, logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
 import { DISCOVER_FEED_ADDED_NAME, DiscoverFeedAddedJobData } from '../jobs/discover_feed_added'
+import { EXPORT_QUEUE_NAME } from '../export-processor'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -1087,7 +1088,7 @@ export const enqueueExpireFoldersJob = async () => {
 }
 
 export const queueExportJob = async (userId: string, exportId: string) => {
-  const queue = await getQueue()
+  const queue = await getQueue(EXPORT_QUEUE_NAME)
   if (!queue) {
     return undefined
   }
@@ -1100,7 +1101,11 @@ export const queueExportJob = async (userId: string, exportId: string) => {
       removeOnComplete: true,
       removeOnFail: true,
       priority: getJobPriority(EXPORT_JOB_NAME),
-      attempts: 1,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 60_000,
+      },
     }
   )
 }

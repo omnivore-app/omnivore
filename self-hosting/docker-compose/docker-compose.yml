@@ -45,6 +45,7 @@ services:
       test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
       interval: 15s
       timeout: 90s
+      retries: 6
     env_file:
       - .env
     depends_on:
@@ -68,9 +69,10 @@ services:
       dockerfile: ./packages/web/Dockerfile-self
       args:
         - APP_ENV=prod
-        - BASE_URL=https://omnivore.podginator.com
-        - SERVER_BASE_URL=https://omnivore-api.podginator.com
-        - HIGHLIGHTS_BASE_URL=https://omnivore.podginator.com
+        - BASE_URL=http://localhost:3000
+        - SERVER_BASE_URL=http://localhost:4000
+        - HIGHLIGHTS_BASE_URL=http://localhost:3000
+        - USE_NATIVE_PDF=true
     container_name: "omnivore-web"
     ports:
       - "3000:8080"
@@ -91,7 +93,6 @@ services:
       - .env
 
   content-fetch:
-    platform: linux/amd64
     build:
       context: ../../
       dockerfile: ./packages/content-fetch/Dockerfile
