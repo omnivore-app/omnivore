@@ -48,6 +48,7 @@ describe('open a PDF with metadata set', () => {
     const parsed = await parsePdf(
       new URL('file://' + __dirname + '/data/welcome_to_your_library.pdf')
     )
+
     expect(parsed.title).to.eq('Welcome to your Omnivore Library')
     expect(parsed.author).to.eq('Jackson Harper')
     expect(parsed.description).to.eq('This is the description of my PDF')
