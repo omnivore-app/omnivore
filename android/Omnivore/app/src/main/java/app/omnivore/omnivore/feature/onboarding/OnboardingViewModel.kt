@@ -176,6 +176,12 @@ class OnboardingViewModel @Inject constructor(
         resetPendingEmailUserCreds()
     }
 
+    fun baseUrl() = runBlocking {
+        datastoreRepository.getString(omnivoreSelfHostedApiServer) ?: Constants.apiURL
+    }
+
+    private fun serverUrl() = "${baseUrl()}/api/graphql"
+
     fun validateUsername(potentialUsername: String) {
         validateUsernameJob?.cancel()
 
@@ -209,7 +215,7 @@ class OnboardingViewModel @Inject constructor(
             }
 
             val apolloClient =
-                ApolloClient.Builder().serverUrl("${Constants.apiURL}/api/graphql").build()
+                ApolloClient.Builder().serverUrl(serverUrl()).build()
 
             try {
                 val response = apolloClient.query(
