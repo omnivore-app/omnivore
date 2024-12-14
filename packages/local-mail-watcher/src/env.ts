@@ -59,7 +59,7 @@ export function getEnv(): WatcherEnv {
     apiEndpoint: parse('WATCHER_API_ENDPOINT')!,
     sns,
     filesystem,
-    redis
+    redis,
   }
 }
 

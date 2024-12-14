@@ -7,7 +7,7 @@ import { env } from './env'
 chokidar.watch(env.filesystem.filePath).on('add', (path, _event) => {
   console.log(path)
   const contents = fs.readFileSync(path).toString()
-  simpleParser(contents)
+  void simpleParser(contents)
     .then(convertToMailObject)
     .then(async (emailData) => {
       await sendToEmailApi(emailData)

@@ -1,4 +1,4 @@
-FROM ghcr.io/puppeteer/puppeteer:latest
+FROM node:22.12
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 USER root

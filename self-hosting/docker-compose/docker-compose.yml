@@ -69,9 +69,9 @@ services:
       dockerfile: ./packages/web/Dockerfile-self
       args:
         - APP_ENV=prod
-        - BASE_URL=http://localhost:3000
-        - SERVER_BASE_URL=http://localhost:4000
-        - HIGHLIGHTS_BASE_URL=http://localhost:3000
+        - BASE_URL=https://omnivore.podginator.com
+        - SERVER_BASE_URL=https://omnivore-api.podginator.com
+        - HIGHLIGHTS_BASE_URL=https://omnivore.podginator.com
         - USE_NATIVE_PDF=true
     container_name: "omnivore-web"
     ports:

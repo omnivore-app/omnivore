@@ -307,16 +307,32 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
     }
 
     if (props.containerRef?.current) {
-      props.containerRef.current.addEventListener(
-        'mouseup',
-        detectHighlightedText
-      )
+      const isTouch = isTouchScreenDevice()
+
+      if (!isTouch) {
+        props.containerRef.current.addEventListener(
+          'mouseup',
+          detectHighlightedText
+        )
+      }
+
+      if (isTouch) {
+        props.containerRef.current.addEventListener(
+          'touchend',
+          detectHighlightedText
+        )
+      }
     }
 
     return () => {
       if (props.containerRef && props.containerRef.current) {
         props.containerRef?.current.removeEventListener(
           'mouseup',
+          detectHighlightedText
+        )
+
+        props.containerRef.current.addEventListener(
+          'touchend',
           detectHighlightedText
         )
       }
@@ -374,7 +390,6 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
               props.containerRef.current.clientHeight) /
             props.containerRef.current.scrollHeight
 
-          console.log(currentPageNum, props.saveLatestPage)
           await props.articleMutations.articleReadingProgressMutation({
             id: props.article.id,
             readingProgressTopPercent: bottomProgress * 100,

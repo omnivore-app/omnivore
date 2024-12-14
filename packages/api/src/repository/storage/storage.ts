@@ -4,4 +4,4 @@ import { GcsStorageClient } from './GcsStorageClient'
 
 export const storage = env.fileUpload.useLocalStorage
   ? new S3StorageClient(env.fileUpload.localMinioUrl)
-  : new GcsStorageClient(env.fileUpload?.gcsUploadSAKeyFilePath)
+  : new GcsStorageClient(env.fileUpload?.gcsUploadSAKeyFilePath ?? undefined)

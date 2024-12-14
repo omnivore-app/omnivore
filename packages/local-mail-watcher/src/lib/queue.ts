@@ -25,5 +25,3 @@ export const getQueue = async (
   await queue.waitUntilReady()
   return queue
 }
-
-

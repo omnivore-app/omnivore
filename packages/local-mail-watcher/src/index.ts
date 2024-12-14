@@ -73,7 +73,9 @@ app.post('/sns', async (req, res) => {
   console.log(`Sns Topic ARN ${snsMessage['TopicArn']}`)
 
   if (snsMessage.TopicArn != env.sns.snsArn) {
-    console.log(`Topic ARN: ${snsMessage.TopicArn} Doesnt Match ${env.sns.snsArn}, failing...`)
+    console.log(
+      `Topic ARN: ${snsMessage.TopicArn} Doesnt Match ${env.sns.snsArn}, failing...`
+    )
     res.status(401).send()
     return
   }
