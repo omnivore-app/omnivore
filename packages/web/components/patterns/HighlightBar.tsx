@@ -48,6 +48,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
         zIndex: 999,
         ...(props.displayAtBottom && {
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
+          left: `calc(50% - ${(props.isNewHighlight ? 295 : 323) / 2}px)`
         }),
         ...(props.displayAtBottom && {
           '@smDown': {

@@ -119,6 +119,9 @@ export default function PdfToolbar(props: PdfArticleToolbarProps): JSX.Element {
             css={{
               borderTopLeftRadius: '10px',
               borderBottomLeftRadius: '10px',
+              '@media only screen and (min-device-width: 20em) and (max-device-width: 30em)': {
+                display: 'none'
+              }
             }}
           >
             <CaretLeft />
@@ -135,6 +138,9 @@ export default function PdfToolbar(props: PdfArticleToolbarProps): JSX.Element {
               borderTopRightRadius: '10px',
               borderBottomRightRadius: '10px',
               backgroundColor: '$thBackground5',
+              '@media only screen and (min-device-width: 20em) and (max-device-width: 30em)': {
+                display: 'none'
+              }
             }}
           >
             <CaretRight />

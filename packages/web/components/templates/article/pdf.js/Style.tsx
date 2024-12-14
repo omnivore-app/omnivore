@@ -35,6 +35,12 @@ export const PageInput = styled('input', {
   borderLeft: '0px',
   borderRight: '1px',
   backgroundColor: '$thBackground5',
+  '@media only screen and (min-device-width: 20em) and (max-device-width: 30em)': {
+    paddingLeft: '1px',
+    paddingRight: '1px',
+    width: '20px',
+    border: '0px',
+  }
 })
 
 export const SearchInput = styled('input', {
