@@ -1,5 +1,4 @@
 import { Box, VStack, HStack } from '../elements/LayoutPrimitives'
-import { ShutdownBanner } from '../elements/ShutdownBanner'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'

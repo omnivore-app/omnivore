@@ -151,24 +151,7 @@ is done fetching your content you will see it in your library.
 
 ## How to deploy to your own server
 
-Omnivore was originally designed to be deployed on GCP and takes advantage
-of some of GCP's PaaS features. We are working to make Omnivore more portable
-so you can easily run the service on your own infrastructure. You can track
-progress here: <https://github.com/omnivore-app/omnivore/issues/25>
-
-To deploy Omnivore on your own hardware you will need to deploy three
-dockerized services and configure access to a postgres service. To handle
-PDF documents you will need to configure access to a Google Cloud Storage
-bucket.
-
-- `packages/api` - the backend API service
-- `packages/web` - the web frontend (can easily be deployed to vercel)
-- `packages/puppeteer-parse` - the content fetching service (can easily
-  be deployed as an AWS lambda or GCP Cloud Function)
-
-Additionally, you will need to run our database migrations to initialize
-your database. These are dockerized and can be run with the
-`packages/db` service.
+A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
 ## License
 
