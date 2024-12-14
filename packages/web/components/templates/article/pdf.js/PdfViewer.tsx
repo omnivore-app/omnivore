@@ -311,12 +311,22 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
         'mouseup',
         detectHighlightedText
       )
+
+      props.containerRef.current.addEventListener(
+        'touchend',
+        detectHighlightedText
+      )
     }
 
     return () => {
       if (props.containerRef && props.containerRef.current) {
         props.containerRef?.current.removeEventListener(
           'mouseup',
+          detectHighlightedText
+        )
+
+        props.containerRef.current.addEventListener(
+          'touchend',
           detectHighlightedText
         )
       }
