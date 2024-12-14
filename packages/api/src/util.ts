@@ -209,6 +209,7 @@ const nullableEnvVars = [
   'INTERCOM_ANDROID_SECRET',
   'EXPORT_TASK_HANDLER_URL',
   'LOCAL_MINIO_URL',
+  'GCS_USE_LOCAL_HOST',
   'LOCAL_EMAIL_DOMAIN',
 ] // Allow some vars to be null/empty
 
