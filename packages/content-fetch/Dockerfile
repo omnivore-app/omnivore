@@ -1,4 +1,4 @@
-FROM node:18.16
+FROM node:22.12
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 # Installs latest Chromium package.

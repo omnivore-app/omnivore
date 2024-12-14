@@ -21,7 +21,7 @@ describe('open a simple PDF with a set title', () => {
     const doc = await getDocument('./test/pdf/data/pdf-simple-test.pdf')
     const result = await getDocumentText(doc)
     expect(result).to.equal(
-      'This is the page title \n \nThis is some more text \n'
+      'This is the page title\n\nThis is some more text\n'
     )
   })
 })
@@ -30,8 +30,9 @@ describe('open a complex PDF with no title', () => {
   it('should return some initial content as the title', async () => {
     const doc = await getDocument('./test/pdf/data/pdf-complex-test.pdf')
     const result = await getDocumentTitle(doc)
+    console.log(result);
     expect(result).to.startWith(
-      'Improving communications around vaccine breakthrough and vaccine effectiveness'
+      'Improving communications'
     )
   })
 

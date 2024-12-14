@@ -313,9 +313,7 @@ async function retrievePage(
           return request.abort()
         }
 
-        if (
-          request.url().toLowerCase().indexOf('mathjax') > -1
-        ) {
+        if (request.url().toLowerCase().indexOf('mathjax') > -1) {
           return request.abort()
         }
 
@@ -323,7 +321,6 @@ async function retrievePage(
       })()
     })
     await page.setRequestInterception(true)
-
 
     page.on('response', (response) => {
       if (!response.ok()) {

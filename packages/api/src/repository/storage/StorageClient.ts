@@ -20,7 +20,7 @@ export type File = {
   publicUrl: () => string
   download: () => Promise<Buffer>
   exists: () => Promise<boolean>
-  save: (saveData: SaveData, saveOptions: SaveOptions) => Promise<void>,
+  save: (saveData: SaveData, saveOptions: SaveOptions) => Promise<void>
   createWriteStream: (saveOptions: SaveOptions) => Writable
   getMetadataMd5: () => Promise<string | undefined>
   bucket: string
