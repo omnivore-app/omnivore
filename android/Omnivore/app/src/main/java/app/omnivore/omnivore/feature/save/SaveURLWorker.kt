@@ -16,6 +16,7 @@ import androidx.work.WorkerParameters
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
+import app.omnivore.omnivore.core.datastore.omnivoreSelfHostedApiServer
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
 import app.omnivore.omnivore.utils.Constants
@@ -59,11 +60,16 @@ class SaveURLWorker @AssistedInject constructor(
         }
     }
 
+    suspend fun baseUrl() =
+        datastoreRepository.getString(omnivoreSelfHostedApiServer) ?: Constants.apiURL
+
+    private suspend fun serverUrl() = "${baseUrl()}/api/graphql"
+
     private suspend fun saveURL(url: String): Boolean {
         val authToken = datastoreRepository.getString(omnivoreAuthToken) ?: return false
 
         val apolloClient = ApolloClient.Builder()
-            .serverUrl("${Constants.apiURL}/api/graphql")
+            .serverUrl(serverUrl())
             .addHttpHeader("Authorization", value = authToken)
             .build()
 

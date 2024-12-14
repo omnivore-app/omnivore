@@ -13,6 +13,7 @@ import {
 } from '../auth_types'
 import { decodeGoogleToken } from '../google_auth'
 import { createPendingUserToken, suggestedUsername } from '../jwt_helpers'
+import { env } from '../../../env'
 
 export async function createMobileSignUpResponse(
   isAndroid: boolean,
@@ -66,7 +67,7 @@ export async function createMobileEmailSignUpResponse(
       name: name.trim(),
       username: username.trim().toLowerCase(),
       password: hashedPassword,
-      pendingConfirmation: true,
+      pendingConfirmation: !env.dev.autoVerify,
     })
 
     return {

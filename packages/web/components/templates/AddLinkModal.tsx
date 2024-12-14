@@ -62,17 +62,16 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
         }}
       >
         <VStack distribution="start" css={{ gap: '20px' }}>
-          {/* <TabBar
+          <TabBar
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
             onOpenChange={props.onOpenChange}
-          /> */}
+          />
           <Box css={{ width: '100%' }}>
             {selectedTab == 'link' && <AddLinkTab {...props} />}
-            {/* {selectedTab == 'feed' && <AddFeedTab {...props} />}
+            {selectedTab == 'feed' && <AddFeedTab {...props} />}
             {selectedTab == 'opml' && <UploadOPMLTab />}
             {selectedTab == 'pdf' && <UploadPDFTab />}
-            {selectedTab == 'import' && <UploadImportTab {...props} />} */}
           </Box>
         </VStack>
       </ModalContent>
@@ -550,6 +549,7 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
               withCredentials: false,
               headers: {
                 'Content-Type': file.file.type,
+                'origin': 'http://localhost:3000'
               },
               onUploadProgress: (p) => {
                 if (!p.total) {

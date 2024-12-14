@@ -10,12 +10,10 @@ import type { LoginFormProps } from './LoginForm'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 
 import featureFullWidthImage from '../../public/static/images/login/login-feature-image-full.png'
-import { ShutdownBanner } from '../elements/ShutdownBanner'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
   return (
     <>
-      <ShutdownBanner />
       <MediumBreakpointBox
         smallerLayoutNode={<MobileLoginLayout {...props} />}
         largerLayoutNode={<MediumLoginLayout {...props} />}

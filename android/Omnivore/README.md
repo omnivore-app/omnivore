@@ -1,5 +1,12 @@
 # Omnivore - Android
 
+## Setup with gradle
+
+In case you do not have Android Studio and you do not want to install it, you may want to use gradlew scripts to build the application.
+
+`./gradlew assembleDebug` should create `./app/build/outputs/apk/debug/app-debug.apk`
+
+
 ## Setup
 
 From the root directory run the following command:

@@ -1,7 +1,7 @@
 # Note this docker file is meant for local testing
 # and not for production.
 
-FROM node:18.16-alpine as builder
+FROM node:22.12-alpine as builder
 ENV NODE_OPTIONS=--max-old-space-size=8192
 ARG APP_ENV
 ARG BASE_URL
@@ -12,7 +12,7 @@ ENV NEXT_PUBLIC_BASE_URL=$BASE_URL
 ENV NEXT_PUBLIC_SERVER_BASE_URL=$SERVER_BASE_URL
 ENV NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=$HIGHLIGHTS_BASE_URL
 
-RUN apk add g++ make python3
+RUN apk add g++ make python3 py3-setuptools
 
 WORKDIR /app
 
@@ -32,7 +32,7 @@ RUN echo "module.exports = {}" > ./packages/web/next.config.js
 RUN yarn workspace @omnivore/web build
 
 
-FROM node:18.16-alpine as runner
+FROM node:22.12-alpine as builder
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 ENV NODE_ENV production

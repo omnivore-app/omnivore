@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import axios from 'axios'
 import { ContentReaderType } from '../entity/library_item'
 import { env } from '../env'
 import { PageType } from '../generated/graphql'
 import { ContentFormat } from '../jobs/upload_content'
 import { logger } from './logger'
+import { storage } from '../repository/storage/storage'
 
 export const contentReaderForLibraryItem = (
   itemType: string,
@@ -31,14 +31,12 @@ export const contentReaderForLibraryItem = (
  * the default app engine service account on the IAM page. We also need to
  * enable IAM related APIs on the project.
  */
-export const storage = env.fileUpload?.gcsUploadSAKeyFilePath
-  ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
-  : new Storage()
+
 const bucketName = env.fileUpload.gcsUploadBucket
 const maxContentLength = 10 * 1024 * 1024 // 10MB
 
 export const countOfFilesWithPrefix = async (prefix: string) => {
-  const [files] = await storage.bucket(bucketName).getFiles({ prefix })
+  const files = await storage.getFilesFromPrefix(bucketName, prefix)
   return files.length
 }
 
@@ -48,40 +46,29 @@ export const generateUploadSignedUrl = async (
   selectedBucket?: string
 ): Promise<string> => {
   // These options will allow temporary uploading of file with requested content type
-  const options: GetSignedUrlConfig = {
+  const options = {
     version: 'v4',
-    action: 'write',
+    action: 'write' as const,
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
     contentType: contentType,
   }
   logger.info('signed url for: ', options)
 
-  // Get a v4 signed URL for uploading file
-  const [url] = await storage
-    .bucket(selectedBucket || bucketName)
-    .file(filePathName)
-    .getSignedUrl(options)
-  return url
+  return storage.signedUrl(selectedBucket || bucketName, filePathName, options)
 }
 
 export const generateDownloadSignedUrl = async (
   filePathName: string,
   config?: {
-    bucketName?: string
     expires?: number
   }
 ): Promise<string> => {
-  const options: GetSignedUrlConfig = {
-    version: 'v4',
-    action: 'read',
-    expires: config?.expires ?? Date.now() + 240 * 60 * 1000, // four hours
+  const options = {
+    action: 'read' as const,
+    expires: Date.now() + 240 * 60 * 1000, // four hours
+    ...config,
   }
-  const [url] = await storage
-    .bucket(config?.bucketName || bucketName)
-    .file(filePathName)
-    .getSignedUrl(options)
-  logger.info(`generating download signed url: ${url}`)
-  return url
+  return storage.signedUrl(bucketName, filePathName, options)
 }
 
 export const getStorageFileDetails = async (
@@ -89,10 +76,10 @@ export const getStorageFileDetails = async (
   fileName: string
 ): Promise<{ md5Hash: string; fileUrl: string }> => {
   const filePathName = generateUploadFilePathName(id, fileName)
-  const file = storage.bucket(bucketName).file(filePathName)
-  const [metadata] = await file.getMetadata()
+  const file = await storage.downloadFile(bucketName, filePathName)
+  const metadataMd5 = await file.getMetadataMd5()
   // GCS returns MD5 Hash in base64 encoding, we convert it here to hex string
-  const md5Hash = Buffer.from(metadata.md5Hash || '', 'base64').toString('hex')
+  const md5Hash = Buffer.from(metadataMd5 || '', 'base64').toString('hex')
 
   return { md5Hash, fileUrl: file.publicUrl() }
 }
@@ -110,17 +97,10 @@ export const uploadToBucket = async (
   options?: { contentType?: string; public?: boolean; timeout?: number },
   selectedBucket?: string
 ): Promise<void> => {
-  await storage
-    .bucket(selectedBucket || bucketName)
-    .file(filePath)
-    .save(data, { timeout: 30000, ...options }) // default timeout 30s
-}
-
-export const createGCSFile = (
-  filename: string,
-  selectedBucket = bucketName
-): File => {
-  return storage.bucket(selectedBucket).file(filename)
+  await storage.upload(selectedBucket || bucketName, filePath, data, {
+    timeout: 30000,
+    ...options,
+  })
 }
 
 export const downloadFromUrl = async (
@@ -154,16 +134,14 @@ export const uploadToSignedUrl = async (
 }
 
 export const isFileExists = async (filePath: string): Promise<boolean> => {
-  const [exists] = await storage.bucket(bucketName).file(filePath).exists()
+  const file = await storage.downloadFile(bucketName, filePath)
+  const exists = await file.exists()
   return exists
 }
 
 export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
-  const file = storage.bucket(bucketName).file(filePath)
-
-  // Download the file contents
-  const [data] = await file.download()
-  return data
+  const file = await storage.downloadFile(bucketName, filePath)
+  return file.download()
 }
 
 export const contentFilePath = ({

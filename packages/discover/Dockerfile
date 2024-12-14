@@ -1,4 +1,4 @@
- FROM node:18.16 as builder
+ FROM node:22.12 as builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY /packages/discover/tsconfig.json ./packages/discover/tsconfig.json
 RUN yarn install --pure-lockfile
 RUN yarn workspace @omnivore/discover build
 
-FROM node:18.16 as runner
+FROM node:22.12 as runner
 
 WORKDIR /app
 

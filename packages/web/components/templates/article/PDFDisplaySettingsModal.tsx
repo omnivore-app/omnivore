@@ -59,6 +59,17 @@ function PDFSettings(props: SettingsProps): JSX.Element {
     initialValue: true,
     isSessionStorage: false,
   })
+  const [rememberLatestPage, setLatestPage] = usePersistedState({
+    key: 'reader-remember-latest-page',
+    initialValue: true,
+    isSessionStorage: false,
+  })
+
+  const [useNativeReader, setUseNativeReader] = usePersistedState({
+    key: 'reader-use-native-reader',
+    initialValue: false,
+    isSessionStorage: false,
+  })
 
   return (
     <VStack
@@ -86,6 +97,7 @@ function PDFSettings(props: SettingsProps): JSX.Element {
             Show Tool Bar
           </StyledText>
         </Label>
+
         <SwitchRoot
           id="show-menu-bar"
           checked={showPDFToolBar}
@@ -97,6 +109,72 @@ function PDFSettings(props: SettingsProps): JSX.Element {
           <SwitchThumb />
         </SwitchRoot>
       </HStack>
+
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="remember-latest-page" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            Remember last page visited
+          </StyledText>
+        </Label>
+
+        <SwitchRoot
+          id="remember-latest-page"
+          checked={rememberLatestPage}
+          onCheckedChange={(checked: boolean) => {
+            setLatestPage(checked)
+            document.dispatchEvent(new Event('pdfReaderUpdateSettings'))
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
+
+        <HStack
+          css={{
+            width: '100%',
+            pr: '30px',
+            alignItems: 'center',
+            '&:hover': {
+              opacity: 0.8,
+            },
+            '&[data-state="on"]': {
+              bg: '$thBackground',
+            },
+          }}
+          alignment="start"
+          distribution="between"
+        >
+          <Label htmlFor="use-native-reader" css={{ width: '100%' }}>
+            <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+              Use Browsers Native PDF Reader
+            </StyledText>
+          </Label>
+
+          <SwitchRoot
+            id="use-native-reader"
+            checked={useNativeReader}
+            onCheckedChange={(checked: boolean) => {
+              setUseNativeReader(checked)
+              document.dispatchEvent(new Event('pdfReaderUpdateSettings'))
+            }}
+          >
+            <SwitchThumb />
+          </SwitchRoot>
+        </HStack>
 
       {/* <HStack
         css={{

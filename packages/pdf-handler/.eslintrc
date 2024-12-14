@@ -2,5 +2,10 @@
   "extends": "../../.eslintrc",
   "parserOptions": {
     "project": "tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-unsafe-assignment": 0,
+    "@typescript-eslint/no-unsafe-argument": 0,
+    "@typescript-eslint/restrict-template-expressions": 0
   }
 }

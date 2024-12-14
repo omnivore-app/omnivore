@@ -305,7 +305,7 @@ export const processFetchContentJob = async (
 
     const savedDate = savedAt ? new Date(savedAt) : new Date()
     const { finalUrl, title, content, contentType } = fetchResult
-    if (content) {
+    if (content && process.env['SKIP_UPLOAD_ORIGINAL'] !== 'true') {
       await uploadOriginalContent(users, content, savedDate.getTime())
     }
 

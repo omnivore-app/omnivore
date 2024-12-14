@@ -36,7 +36,7 @@
     "bullmq": "^5.1.4",
     "concurrently": "^7.0.0",
     "dotenv": "^8.2.0",
-    "pdfjs-dist": "^2.9.359"
+    "pdfjs-dist": "^2.16.105"
   },
   "volta": {
     "extends": "../../package.json"

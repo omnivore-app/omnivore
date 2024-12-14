@@ -11,6 +11,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "semi": [2, "never"]
+    "semi": [2, "never"],
+    "@typescript-eslint/no-unnecessary-type-assertion": [0, "never"]
   }
 }
