@@ -1,18 +1,14 @@
-FROM node:18.16-alpine AS build
+FROM node:22.12-alpine AS build
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 # Installs latest Chromium package and other dependencies.
-RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
-&& echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
-&& echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories  \
-&& apk -U upgrade \
+RUN apk -U upgrade \
 && apk add --no-cache \
-    g++@edge \
-    make@edge \
-    python3 && \
-    node && \
-    yarn && \
-    rm -rf /var/cache/apk/*
+    g++ \
+    make \
+    python3 \
+    py3-pip && \
+    rm -rf /var/cache/apk/* 
 
 WORKDIR /app
 
@@ -41,7 +37,7 @@ RUN yarn workspace @omnivore/utils build && \
     yarn install --pure-lockfile --production
 
 # Running stage
-FROM node:18.16-alpine
+FROM node:22.12-alpine
 
 RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
 && echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
