@@ -57,7 +57,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
-          node-version: 18.16
+          node-version: 22.12.0
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(source ~/.nvm/nvm.sh && yarn cache dir)"

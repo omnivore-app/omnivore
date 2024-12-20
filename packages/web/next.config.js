@@ -1,7 +1,7 @@
 const ContentSecurityPolicy = `
   default-src 'self';
   base-uri 'self';
-  connect-src 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://proxy-prod.omnivore-image-cache.app https://accounts.google.com https://proxy-demo.omnivore-image-cache.app https://storage.googleapis.com https://widget.intercom.io https://api-iam.intercom.io https://static.intercomassets.com https://downloads.intercomcdn.com https://platform.twitter.com wss://nexus-websocket-a.intercom.io wss://nexus-websocket-b.intercom.io wss://nexus-europe-websocket.intercom.io wss://nexus-australia-websocket.intercom.io https://uploads.intercomcdn.com https://tools.applemediaservices.com wss://www.tiktok.com *.sentry.io;
+  connect-src 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://proxy-prod.omnivore-image-cache.app https://accounts.google.com https://proxy-demo.omnivore-image-cache.app https://storage.googleapis.com https://widget.intercom.io https://api-iam.intercom.io https://static.intercomassets.com https://downloads.intercomcdn.com https://platform.twitter.com wss://nexus-websocket-a.intercom.io wss://nexus-websocket-b.intercom.io wss://nexus-europe-websocket.intercom.io wss://nexus-australia-websocket.intercom.io https://uploads.intercomcdn.com https://tools.applemediaservices.com wss://www.tiktok.com *.sentry.io 127.0.0.1 http://localhost:1010; 
   font-src 'self' data: https://cdn.jsdelivr.net https://js.intercomcdn.com https://fonts.intercomcdn.com;
   form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://getpocket.com/auth/authorize https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://www.notion.so https://api.notion.com;
   frame-ancestors 'none';

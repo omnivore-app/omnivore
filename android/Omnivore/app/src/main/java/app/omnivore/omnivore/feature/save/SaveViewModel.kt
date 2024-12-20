@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
+import app.omnivore.omnivore.core.datastore.omnivoreSelfHostedApiServer
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
 import app.omnivore.omnivore.utils.Constants
@@ -71,6 +72,12 @@ class SaveViewModel @Inject constructor(
     return null
   }
 
+  fun baseUrl() = runBlocking {
+        datastoreRepo.getString(omnivoreSelfHostedApiServer) ?: Constants.apiURL
+  }
+
+  private fun serverUrl() = "${baseUrl()}/api/graphql"
+
   fun saveURL(url: String) {
     viewModelScope.launch {
       isLoading = true
@@ -86,7 +93,7 @@ class SaveViewModel @Inject constructor(
       }
 
       val apolloClient = ApolloClient.Builder()
-        .serverUrl("${Constants.apiURL}/api/graphql")
+        .serverUrl(serverUrl())
         .addHttpHeader("Authorization", value = authToken)
         .build()
 

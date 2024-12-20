@@ -3,8 +3,10 @@ import puppeteer from 'puppeteer-extra'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
-puppeteer.use(StealthPlugin())
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
+if (process.env['USE_FIREFOX'] != 'true') {
+  puppeteer.use(StealthPlugin())
+  puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
+}
 
 let browserInstance: Browser | null = null
 
@@ -51,15 +53,22 @@ export const getBrowser = async (): Promise<Browser> => {
       isMobile: false,
       width: 1920,
     },
-    executablePath: process.env.CHROMIUM_PATH,
+    ignoreHTTPSErrors: true,
+    executablePath:
+      process.env.USE_FIREFOX == 'true'
+        ? process.env.FIREFOX_PATH
+        : process.env.CHROMIUM_PATH,
     // run in shell mode if headless
-    headless: process.env.LAUNCH_HEADLESS === 'true' ? 'shell' : false,
-    timeout: 10_000, // 10 seconds
-    dumpio: true, // show console logs in the terminal
+    headless: true,
+    browser: process.env['USE_FIREFOX'] == 'true' ? 'firefox' : 'chrome',
+    product: process.env['USE_FIREFOX'] == 'true' ? 'firefox' : 'chrome',
+    timeout: 30000,
+    dumpio: true,
+
     // filter out targets
     targetFilter: (target: Target) =>
       target.type() !== 'other' || !!target.url(),
-  })) as Browser
+  })) as unknown as Browser
 
   const version = await browserInstance.version()
   console.log('Browser started', version)

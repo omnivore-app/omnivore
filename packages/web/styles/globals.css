@@ -23,6 +23,14 @@ body {
   box-sizing: border-box;
 }
 
+.pdfViewer > * {
+    box-sizing: content-box;
+}
+
+.pdfViewer .canvasWrapper {
+    box-shadow: 3px 3px 8px #0000001a;
+}
+
 div#appleid-signin {
   min-width: 300px;
   min-height: 40px;

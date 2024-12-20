@@ -113,7 +113,9 @@ const createRandomEmailAddress = (userName: string, length: number): string => {
   when rand is sdfsdf-: jacksonh-sdfsdf-e@inbox.omnivore.app
   when rand is abcdef: jacksonh-abcdefe@inbox.omnivore.app
    */
-  return `${userName}-${nanoid(length)}e@${inbox}.omnivore.app`
+  return `${userName}-${nanoid(length)}e@${
+    env.email.domain || `@${inbox}.omnivore.app`
+  }`
 }
 
 export const findNewsletterEmailById = async (

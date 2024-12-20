@@ -29,6 +29,7 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   comparePassword,
+  generateVerificationToken,
   hashPassword,
   setAuthInCookie,
   verifyToken,
@@ -544,7 +545,7 @@ export function authRouter() {
       try {
         // hash password
         const hashedPassword = await hashPassword(password)
-        await createUser({
+        const [user] = await createUser({
           email: trimmedEmail,
           provider: 'EMAIL',
           sourceUserId: trimmedEmail,
@@ -553,12 +554,17 @@ export function authRouter() {
           pictureUrl,
           bio,
           password: hashedPassword,
-          pendingConfirmation: true,
+          pendingConfirmation: !env.dev.autoVerify,
         })
 
-        res.redirect(
-          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
-        )
+        if (env.dev.autoVerify) {
+          const token = await generateVerificationToken({ id: user.id })
+          res.redirect(`${env.client.url}/auth/confirm-email/${token}`)
+        } else {
+          res.redirect(
+            `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
+          )
+        }
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
