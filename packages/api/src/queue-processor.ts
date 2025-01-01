@@ -197,10 +197,13 @@ export const createWorker = (connection: ConnectionOptions) =>
             return exportItem(job.data)
           // case AI_SUMMARIZE_JOB_NAME:
           //   return aiSummarize(job.data)
-          // case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
-          //   return processYouTubeVideo(job.data)
-          // case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-          //   return processYouTubeTranscript(job.data)
+          case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
+            return processYouTubeVideo(job.data)
+          case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+            if (process.env['OPENAI_API_KEY']) {
+              return processYouTubeTranscript(job.data)
+            }
+            break
           case EXPORT_ALL_ITEMS_JOB_NAME:
             return exportAllItems(job.data)
           case SEND_EMAIL_JOB:
