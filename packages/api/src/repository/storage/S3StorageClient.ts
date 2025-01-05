@@ -39,7 +39,7 @@ export class S3StorageClient implements StorageClient {
     }
 
     publicUrl() {
-      return `${this.s3Client.urlOverride ?? ''}/${this.bucket}/${this.key}`
+      return `${this.s3Client.localUrl ?? ''}/${this.bucket}/${this.key}`
     }
 
     async download(): Promise<Buffer> {
@@ -90,13 +90,22 @@ export class S3StorageClient implements StorageClient {
   }
 
   private s3Client: S3Client
-  private urlOverride: string | undefined
+  private signingS3Client: S3Client
 
-  constructor(urlOverride: string | undefined) {
+  private urlOverride: string | undefined
+  private localUrl: string | undefined
+
+  constructor(localUrl: string | undefined, urlOverride: string | undefined) {
+    this.localUrl = localUrl
     this.urlOverride = urlOverride
     this.s3Client = new S3Client({
       forcePathStyle: true,
       endpoint: urlOverride,
+    })
+
+    this.signingS3Client = new S3Client({
+      forcePathStyle: true,
+      endpoint: localUrl,
     })
   }
 
@@ -139,7 +148,7 @@ export class S3StorageClient implements StorageClient {
       getMetadataMd5: () => Promise.resolve(s3File.ETag),
       createWriteStream: (saveOptions: SaveOptions) =>
         this.createS3UploadStream(bucket, key, saveOptions),
-      publicUrl: () => `${this.urlOverride ?? ''}/${bucket}/${key}`,
+      publicUrl: () => `${this.localUrl ?? ''}/${bucket}/${key}`,
       bucket,
       key,
     }
@@ -201,7 +210,7 @@ export class S3StorageClient implements StorageClient {
             new stream.PassThrough(),
           getMetadataMd5: () => Promise.resolve(key),
           bucket: bucket,
-          publicUrl: () => `${this.urlOverride ?? ''}/${bucket}/${key ?? ''}`,
+          publicUrl: () => `${this.localUrl ?? ''}/${bucket}/${key ?? ''}`,
         }
       })
   }
@@ -223,7 +232,7 @@ export class S3StorageClient implements StorageClient {
           })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const url = await getSignedUrl(this.s3Client, command, {
+    const url = await getSignedUrl(this.signingS3Client, command, {
       expiresIn: 900,
     })
 

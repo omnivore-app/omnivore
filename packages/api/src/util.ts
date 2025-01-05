@@ -97,6 +97,7 @@ export interface BackendEnv {
     dailyUploadLimit: number
     useLocalStorage: boolean
     localMinioUrl: string
+    internalMinioUrl: string
   }
   email: {
     domain: string
@@ -335,6 +336,7 @@ export function getEnv(): BackendEnv {
       : 5, // default to 5
     useLocalStorage: parse('GCS_USE_LOCAL_HOST') == 'true',
     localMinioUrl: parse('LOCAL_MINIO_URL'),
+    internalMinioUrl: parse('AWS_S3_ENDPOINT_URL'),
   }
   const sender = {
     message: parse('SENDER_MESSAGE'),
