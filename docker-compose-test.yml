@@ -45,6 +45,7 @@ services:
       - PG_DB=omnivore_test
       - PG_PORT=5432
       - PG_POOL_MAX=20
+      - AWS_S3_ENDPOINT_URL=http://minio:1010
       - IMAGE_PROXY_SECRET=some-secret
       - JWT_SECRET=some_secret
       - SSO_JWT_SECRET=some_sso_secret
