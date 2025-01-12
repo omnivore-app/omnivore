@@ -24,9 +24,9 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
       - name: Build the backend docker image
         run: |
-          docker build . --file packages/api/Dockerfile --tag "ghcr.io/omnivore-app/backend:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/backend:latest
-          docker push ghcr.io/omnivore-app/backend:${GITHUB_SHA}
+          docker build . --file packages/api/Dockerfile --tag "ghcr.io/circumspace/backend:${GITHUB_SHA}" --tag ghcr.io/circumspace/backend:latest
+          docker push ghcr.io/circumspace/backend:${GITHUB_SHA}
       - name: Build the content-fetch docker image
         run: |
-          docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/omnivore-app/content-fetch:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/content-fetch:latest
-          docker push ghcr.io/omnivore-app/content-fetch:${GITHUB_SHA}
+          docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/circumspace/content-fetch:${GITHUB_SHA}" --tag ghcr.io/circumspace/content-fetch:latest
+          docker push ghcr.io/circumspace/content-fetch:${GITHUB_SHA}

@@ -1,18 +1,18 @@
 📝 **Guidelines for Contribution**
 
-Hello there! When contributing to Omnivore, it's essential to maintain a style consistent with the file you're editing. You can quickly check if your code aligns with our style by running `yarn lint`. Your attention to detail here is appreciated! 😊
+Hello there! When contributing to ~~Omnivore~~ Panvore, it's essential to maintain a style consistent with the file you're editing. You can quickly check if your code aligns with our style by running `yarn lint`. Your attention to detail here is appreciated! 😊
 
 📜 **License**
 
-Omnivore is proudly licensed under the [AGPL license](https://github.com/omnivore-app/omnivore/blob/main/LICENSE). Let's keep our code open and accessible to all!
+~~Omnivore~~ Panvore is proudly licensed under the [AGPL license](https://github.com/circumspace/omnivore/blob/main/LICENSE). Let's keep our code open and accessible to all!
 
 🤝 **CLA (Contributor License Agreement)**
 
-We kindly request all contributors to adhere to Omnivore's CLA, which you can review and accept at [Omnivore's CLA](https://cla-assistant.io/omnivore-app/omnivore). Your commitment to this agreement is much appreciated.
+~~We kindly request all contributors to adhere to ~~Omnivore~~ Panvore's CLA, which you can review and accept at [~~Omnivore~~ Panvore's CLA](https://cla-assistant.io/circumspace/omnivore). Your commitment to this agreement is much appreciated.~~
 
 👩‍💻 **Code Review**
 
-Before merging any pull request, we require a code review from one of our trusted [CODEOWNERS](https://github.com/omnivore-app/omnivore/blob/main/.github/CODEOWNERS). It ensures the quality and integrity of our codebase.
+Before merging any pull request, we require a code review from one of our trusted [CODEOWNERS](https://github.com/circumspace/omnivore/blob/main/.github/CODEOWNERS). It ensures the quality and integrity of our codebase.
 
 🧪 **Testing**
 
@@ -26,4 +26,4 @@ We take quality seriously! Pull requests automatically undergo testing using Git
 
 Once your pull request passes the tests, it'll be promptly reviewed, merged, and deployed by one of our diligent maintainers. We usually deploy changes around ten times a day, so your contributions will go live quickly! 🚀
 
-Thank you for being part of the Omnivore community. Let's keep coding, collaborating, and creating something amazing together! 🌟
+Thank you for being part of the ~~Omnivore~~ Panvore community. Let's keep coding, collaborating, and creating something amazing together! 🌟
