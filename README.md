@@ -1,16 +1,13 @@
-# Omnivore
+# ~~Omnivore~~ Panvore
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/omnivore-app/omnivore/run-tests.yaml?branch=main)](https://github.com/omnivore-app/omnivore/actions/workflows/run-tests.yaml)
-[![Discord](https://img.shields.io/discord/844965259462311966?label=Join%20our%20Discord)](https://discord.gg/h2z5rppzz9)
-[![Mastodon Follow](https://img.shields.io/mastodon/follow/109458738600914558?domain=https%3A%2F%2Fpkm.social)](https://pkm.social/@omnivore)
-[![Twitter Follow](https://img.shields.io/twitter/follow/omnivoreapp)](https://twitter.com/OmnivoreApp)
-![GitHub](https://img.shields.io/github/license/omnivore-app/omnivore)
+![GitHub](https://img.shields.io/github/license/circumspace/omnivore)
 
 <img align="right" src="https://avatars.githubusercontent.com/u/70113176?s=400&u=506b21d9f019f3160963c010ef363667fb24c7c9&v=4" height="150px" alt="Omnivore Logo">
 
-[Omnivore](https://omnivore.app) is a complete, open source read-it-later solution for people who like text.
+[~~Omnivore~~ Panvore](https://omnivore.app) is a complete, open source read-it-later solution for people who like text.
 
-We built Omnivore because we love reading and we want it to be more social. Join us!
+We built ~~Omnivore~~ Panvore because we love reading and we want it to be more social. Join us!
 
 - Highlighting, notes, search, and sharing
 - Full keyboard navigation
@@ -30,15 +27,9 @@ We built Omnivore because we love reading and we want it to be more social. Join
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
 
-We also have a free hosted version of Omnivore at [omnivore.app](https://omnivore.app/) -- try it now!
+We also have a free hosted version of ~~Omnivore~~ Panvore at [omnivore.app](https://omnivore.app/) -- try it now!
 
 <img width="981" alt="web-screenshot-listview" src="https://github.com/omnivore-app/omnivore/assets/75189/df7c797a-4255-42f4-a686-ad94866cb580">
-
-## Join us on Discord! :speech_balloon:
-
-We're building our community on Discord. [Join us!](https://discord.gg/h2z5rppzz9)
-
-Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
 
 ## Shoutouts :tada:
 
@@ -64,7 +55,7 @@ The easiest way to get started with local development is to use `docker compose 
 
 ### Requirements for development
 
-Omnivore is written in TypeScript and JavaScript.
+~~Omnivore~~ Panvore is written in TypeScript and JavaScript.
 
 - [Node.js](https://nodejs.org/) (v18.16) and [Yarn](https://classic.yarnpkg.com/lang/en/) -- Versions are managed by [Volta](https://docs.volta.sh/guide/getting-started).
 - [Chromium](https://www.chromium.org/chromium-projects/) -- See below for installation info.
@@ -155,4 +146,4 @@ A guide for running a self hosted server can be found [here](./self-hosting/GUID
 
 ## License
 
-Omnivore and our extensions to Readability.js are under the AGPL-3.0 license.
+~~Omnivore~~ Panvore and our extensions to Readability.js are under the AGPL-3.0 license.
