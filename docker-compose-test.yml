@@ -59,6 +59,7 @@ services:
       - GAUTH_SECRET='notset'
       - SEGMENT_WRITE_KEY='test'
       - PUBSUB_VERIFICATION_TOKEN='123456'
+      - AWS_S3_ENDPOINT_URL=http://minio:1010
     depends_on:
       migrate-test:
         condition: service_completed_successfully
