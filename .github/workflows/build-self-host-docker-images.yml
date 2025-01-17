@@ -44,6 +44,10 @@ jobs:
         run: |
           docker build --file packages/db/Dockerfile . --tag "ghcr.io/omnivore-app/sh-migrate:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-migrate:latest
           docker push ghcr.io/omnivore-app/sh-migrate:${GITHUB_SHA}
+      - name: Build the web docker image
+        run: |
+          docker build --file packages/web/Dockerfile-self . --tag "ghcr.io/omnivore-app/sh-web:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-web:latest
+          docker push ghcr.io/omnivore-app/sh-web:${GITHUB_SHA}
       - name: Build the image-proxy docker image
         run: |
           cp imageproxy/start_imageproxy.sh .
