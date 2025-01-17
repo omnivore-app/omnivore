@@ -47,6 +47,7 @@ jobs:
       - name: Build the image-proxy docker image
         run: |
           cp imageproxy/start_imageproxy.sh .
+          chmod +x start_imageproxy.sh
           docker build --file imageproxy/Dockerfile . --tag "ghcr.io/omnivore-app/sh-image-proxy:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-image-proxy:latest
           docker push ghcr.io/omnivore-app/sh-image-proxy:${GITHUB_SHA}
       - name: Build the mail-watch-server docker image
