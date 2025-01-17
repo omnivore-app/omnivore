@@ -308,7 +308,7 @@ export const processYouTubeVideo = async (
     })
   }
 
-  if (updatedLibraryItem !== {}) {
+  if (Object.keys(updatedLibraryItem).length > 0) {
     await updateLibraryItem(
       jobData.libraryItemId,
       updatedLibraryItem,

@@ -23,6 +23,7 @@ RUN yarn install --pure-lockfile && \
     rm -rf /app/packages/api/node_modules /app/node_modules && \
     yarn install --pure-lockfile --production
 
+
 FROM node:22.12-alpine AS runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
