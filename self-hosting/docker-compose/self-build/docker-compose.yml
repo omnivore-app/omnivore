@@ -167,6 +167,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+
 volumes:
   pgdata:
   redis_data:

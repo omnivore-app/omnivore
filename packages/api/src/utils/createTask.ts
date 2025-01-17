@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 // Imports the Google Cloud Tasks library.
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
-import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
@@ -74,9 +73,10 @@ import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logError, logger } from './logger'
-import View = google.cloud.tasks.v2.Task.View
 import { DISCOVER_FEED_ADDED_NAME, DiscoverFeedAddedJobData } from '../jobs/discover_feed_added'
 import { EXPORT_QUEUE_NAME } from '../export-processor'
+import { google } from '@google-cloud/tasks/build/protos/protos/protos'
+import View = google.cloud.tasks.v2.Task.View
 
 // Instantiates a client.
 const client = new CloudTasksClient()
