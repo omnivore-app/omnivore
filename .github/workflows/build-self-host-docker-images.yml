@@ -14,6 +14,11 @@ on:
 jobs:
   build-self-hostdocker-images:
     name: Build self-host docker images
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
