@@ -73,7 +73,7 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { logger } from './utils/logger'
 import { getQueue } from './queue-processor'
 
-export const EXPORT_QUEUE_NAME = 'omnivore-export-queue'
+export const EXPORT_QUEUE_NAME =  process.env['EXPORT_QUEUE_NAME'] ?? 'omnivore-export-queue'
 
 export const createWorker = (connection: ConnectionOptions) =>
   new Worker(
