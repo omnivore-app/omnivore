@@ -6,6 +6,7 @@
 - [Email](#email)
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
 - - [Third Party Services](#third-party-services)
+- [YouTube Transcripts](#youtube-transcripts)
 
 ## Docker Compose
 
@@ -294,6 +295,27 @@ return { data: JSON.stringify(inputData) }
 Following these steps you should see your email imported into Omnivore. 
 
 ![imported-email](../docs/guides/images/imported-email.png)
+
+
+## Youtube Transcripts
+
+Omnivore has the ability to process Youtube Transcripts, using OpenAI to add the necessary grammar, and structure. 
+
+### Guide: 
+
+This features requires the following Environment Variables 
+
+| Environment Variable                      | Description                                                                                   | 
+|-------------------------------------------|-----------------------------------------------------------------------------------------------|
+| YOUTUBE_TRANSCRIPT_PROMPT                 | The Prompt sent to Open AI to format the Transcript. Default provided in .env.example         |
+| YOUTUBE_MAXIMUM_VIDEO_DURATION_TRANSCRIPT | The duration in seconds of the maximum length allowed to be processed. Defaults to 30 minutes. |
+| OPENAI_API_KEY                            | The Open AI Key required to send the video to be formatted.                                   |
+
+To learn more about setting up the OpenAI Api key, read here: https://openai.com/index/openai-api/
+
+### Future Releases
+
+In future releases we would like to be able to open this up to use different LLMs, such as Anthropic, Mistral, Bedrock, or any of the other myriad LLM Services.
 
 
 
