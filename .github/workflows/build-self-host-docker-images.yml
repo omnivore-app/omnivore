@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - self-host-updates
     paths-ignore:
       - 'apple/**'
       - 'android/**'

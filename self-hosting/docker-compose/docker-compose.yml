@@ -13,17 +13,13 @@ services:
   postgres:
     <<: *postgres-common
     container_name: "omnivore-postgres"
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
       - .env
 
   migrate:
-    build:
-      context: ../../
-      dockerfile: ./packages/db/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-migrate:latest"
     container_name: "omnivore-migrate"
     command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     env_file:
@@ -33,9 +29,7 @@ services:
         condition: service_healthy
 
   api:
-    build:
-      context: ../../
-      dockerfile: ./packages/api/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-backend:latest"
     container_name: "omnivore-api"
     ports:
       - "4000:8080"
@@ -51,9 +45,7 @@ services:
         condition: service_completed_successfully
 
   queue-processor:
-    build:
-      context: ../../
-      dockerfile: ./packages/api/queue-processor/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-queue-processor:latest"
     container_name: "omnivore-queue-processor"
     env_file:
       - .env
@@ -81,9 +73,7 @@ services:
         condition: service_healthy
 
   image-proxy:
-    build:
-      context: ../../imageproxy
-      dockerfile: ./Dockerfile
+    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
     container_name: "omnivore-image-proxy"
     ports:
       - "7070:8080"
@@ -91,9 +81,7 @@ services:
       - .env
 
   content-fetch:
-    build:
-      context: ../../
-      dockerfile: ./packages/content-fetch/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
@@ -156,9 +144,7 @@ services:
       exit 0;
       "
   mail-watch-server:
-    build:
-      context: ../../
-      dockerfile: ./packages/local-mail-watcher/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
     container_name: "omnivore-mail-watch-server"
     ports:
       - "4398:8080"
