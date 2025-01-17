@@ -37,7 +37,7 @@ export const apiLimiter = rateLimit({
     }
   },
   keyGenerator: (req) => {
-    return getTokenByRequest(req) || req.ip
+    return getTokenByRequest(req) || req.ip || ''
   },
   store: getStore('api-rate-limit'),
 })
@@ -56,7 +56,7 @@ export const apiHourLimiter = rateLimit({
     }
   },
   keyGenerator: (req) => {
-    return getTokenByRequest(req) || req.ip
+    return getTokenByRequest(req) || req.ip || ''
   },
   store: getStore('api-hour-rate-limit'),
 })

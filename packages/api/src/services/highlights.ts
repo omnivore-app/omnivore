@@ -1,4 +1,4 @@
-import { diff_match_patch } from 'diff-match-patch'
+import { diff_match_patch, patch_obj } from 'diff-match-patch'
 import { DeepPartial, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
@@ -14,7 +14,7 @@ import { deepDelete } from '../utils/helpers'
 import { ItemEvent } from './library_item'
 
 const columnsToDelete = ['user', 'sharedAt', 'libraryItem'] as const
-type ColumnsToDeleteType = typeof columnsToDelete[number]
+type ColumnsToDeleteType = (typeof columnsToDelete)[number]
 export type HighlightEvent = Merge<
   Omit<DeepPartial<Highlight>, ColumnsToDeleteType>,
   EntityEvent
@@ -40,7 +40,7 @@ export const batchGetHighlightsFromLibraryItemIds = async (
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
-  const patches = dmp.patch_fromText(patch)
+  const patches = dmp.patch_fromText(patch) as unknown as patch_obj[]
   return patches[0].start1 || undefined
 }
 
