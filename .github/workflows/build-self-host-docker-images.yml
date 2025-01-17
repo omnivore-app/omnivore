@@ -1,9 +1,12 @@
 name: Build Docker Images
 on:
+  # For testing purposes.
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
-      - self-host-updates
     paths-ignore:
       - 'apple/**'
       - 'android/**'
