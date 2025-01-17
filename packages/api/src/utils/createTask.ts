@@ -74,8 +74,7 @@ import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logError, logger } from './logger'
 import { EXPORT_QUEUE_NAME } from '../export-processor'
-import { google } from '@google-cloud/tasks/build/protos/protos/protos'
-import View = google.cloud.tasks.v2.Task.View
+import View = protos.google.cloud.tasks.v2.Task.View
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -285,7 +284,7 @@ export const createAppEngineTask = async ({
 
 export const getTask = async (
   taskName: string
-): Promise<google.cloud.tasks.v2.ITask> => {
+): Promise<protos.google.cloud.tasks.v2.ITask> => {
   // If we are in local environment
   if (env.dev.isLocal) {
     return { name: taskName } as protos.google.cloud.tasks.v2.ITask
@@ -307,7 +306,7 @@ export const getTask = async (
 
 export const deleteTask = async (
   taskName: string
-): Promise<google.protobuf.IEmpty | null> => {
+): Promise<protos.google.protobuf.IEmpty | null> => {
   // If we are in local environment
   if (env.dev.isLocal) {
     return taskName
