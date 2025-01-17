@@ -4,6 +4,8 @@
     "project": "tsconfig.json"
   },
   "rules": {
+    "@typescript-eslint/no-unsafe-assignment": 0,
+    "@typescript-eslint/no-unnecessary-type-assertion": 0,
     "@typescript-eslint/no-floating-promises": [
       "error",
       {

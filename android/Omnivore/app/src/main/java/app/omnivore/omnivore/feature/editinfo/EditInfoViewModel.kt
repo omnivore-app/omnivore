@@ -10,6 +10,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
+import app.omnivore.omnivore.core.datastore.omnivoreSelfHostedApiServer
 import app.omnivore.omnivore.graphql.generated.UpdatePageMutation
 import app.omnivore.omnivore.graphql.generated.type.UpdatePageInput
 import app.omnivore.omnivore.utils.Constants
@@ -48,6 +49,12 @@ class EditInfoViewModel @Inject constructor(
     datastoreRepo.getString(omnivoreAuthToken)
   }
 
+  fun baseUrl() = runBlocking {
+        datastoreRepo.getString(omnivoreSelfHostedApiServer) ?: Constants.apiURL
+  }
+
+  private fun serverUrl() = "${baseUrl()}/api/graphql"
+
   fun editInfo(itemId: String, title: String, author: String?, description: String?) {
     viewModelScope.launch {
       isLoading = true
@@ -62,7 +69,7 @@ class EditInfoViewModel @Inject constructor(
       }
 
       val apolloClient = ApolloClient.Builder()
-        .serverUrl("${Constants.apiURL}/api/graphql")
+        .serverUrl(serverUrl())
         .addHttpHeader("Authorization", value = authToken)
         .build()
 

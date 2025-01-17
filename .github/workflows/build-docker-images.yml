@@ -30,3 +30,4 @@ jobs:
         run: |
           docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/omnivore-app/content-fetch:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/content-fetch:latest
           docker push ghcr.io/omnivore-app/content-fetch:${GITHUB_SHA}
+   
