@@ -1,5 +1,5 @@
 FROM node:22.12-alpine AS build
-LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
+LABEL org.opencontainers.image.source="https://github.com/circumspace/panvore"
 
 # Installs latest Chromium package and other dependencies.
 RUN apk -U upgrade \
@@ -8,7 +8,7 @@ RUN apk -U upgrade \
     make \
     python3 \
     py3-pip && \
-    rm -rf /var/cache/apk/* 
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
