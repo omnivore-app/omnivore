@@ -23,7 +23,7 @@ env:
 jobs:
   run-code-tests:
     name: Run Codebase tests
-    runs-on: ${{ github.repository_owner == 'omnivore-app' && 'ubuntu-latest-m' || 'ubuntu-latest' }}
+    runs-on: ${{ github.repository_owner == 'circumspace' && 'ubuntu-latest-m' || 'ubuntu-latest' }}
     services:
       postgres:
         image: ankane/pgvector
