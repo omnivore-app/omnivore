@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.9",
+    "jsonwebtoken": "^9.0.2",
     "@google-recaptcha/react": "^1.0.3",
     "@phosphor-icons/react": "^2.1.5",
     "@radix-ui/react-avatar": "^0.1.1",
@@ -76,6 +77,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
+    "@types/jsonwebtoken": "^9.0.7",
     "@next/bundle-analyzer": "^13.2.1",
     "@storybook/addon-actions": "^6.4.22",
     "@storybook/addon-essentials": "^6.4.22",

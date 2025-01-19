@@ -128,6 +128,7 @@
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/addressparser": "^1.0.1",
+    "@types/lodash": "^4.17.14",
     "@types/analytics-node": "^3.1.7",
     "@types/archiver": "^6.0.2",
     "@types/bcryptjs": "^2.4.2",
@@ -171,11 +172,10 @@
     "postgrator": "^4.2.0",
     "sinon": "^14.0.0",
     "sinon-chai": "^3.7.0",
-    "ts-node-dev": "^1.1.8"
+    "ts-node-dev": "^1.1.8",
+    "typescript": "5.7.3"
   },
-  "engines": {
-    "node": "22.12.0"
-  },
+
   "volta": {
     "extends": "../../package.json"
   }

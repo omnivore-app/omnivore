@@ -64,6 +64,7 @@ export const createApp = (): Express => {
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
+  // @ts-ignore
   app.use(compression())
 
   // set to true if behind a reverse proxy/load balancer

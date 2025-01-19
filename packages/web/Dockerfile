@@ -32,7 +32,7 @@ RUN echo "module.exports = {}" > ./packages/web/next.config.js
 RUN yarn workspace @omnivore/web build
 
 
-FROM node:22.12-alpine as builder
+FROM node:22.12-alpine as runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 ENV NODE_ENV production

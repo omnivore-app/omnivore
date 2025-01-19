@@ -212,6 +212,7 @@ const nullableEnvVars = [
   'LOCAL_MINIO_URL',
   'GCS_USE_LOCAL_HOST',
   'LOCAL_EMAIL_DOMAIN',
+  'AWS_S3_ENDPOINT_URL',
 ] // Allow some vars to be null/empty
 
 const envParser =

@@ -52,7 +52,7 @@ const columnsToDelete = [
   'readableContent',
   'feedContent',
 ] as const
-type ColumnsToDeleteType = typeof columnsToDelete[number]
+type ColumnsToDeleteType = (typeof columnsToDelete)[number]
 type ItemBaseEvent = Merge<
   Omit<DeepPartial<LibraryItem>, ColumnsToDeleteType>,
   {

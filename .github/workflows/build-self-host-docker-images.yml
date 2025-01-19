@@ -1,0 +1,62 @@
+name: Build Self-Hosting Docker Images
+on:
+  push:
+    branches:
+      - main
+      - self-host-updates
+    paths-ignore:
+      - 'apple/**'
+      - 'android/**'
+
+jobs:
+  build-self-hostdocker-images:
+    name: Build self-host docker images
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Login to GitHub container registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+      - name: Build the backend docker image
+        run: |
+          docker build . --file packages/api/Dockerfile --tag "ghcr.io/circumspace/sh-backend:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-backend:latest
+          docker push ghcr.io/circumspace/sh-backend:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-backend:latest
+      - name: Build the content-fetch docker image
+        run: |
+          docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/circumspace/sh-content-fetch:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-content-fetch:latest
+          docker push ghcr.io/circumspace/sh-content-fetch:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-content-fetch:latest
+      - name: Build the queue-processor docker image.
+        run: |
+          docker build . --file packages/api/queue-processor/Dockerfile --tag "ghcr.io/circumspace/sh-queue-processor:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-queue-processor:latest
+          docker push ghcr.io/circumspace/sh-queue-processor:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-queue-processor:latest
+      - name: Build the migrate docker image
+        run: |
+          docker build --file packages/db/Dockerfile . --tag "ghcr.io/circumspace/sh-migrate:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-migrate:latest
+          docker push ghcr.io/circumspace/sh-migrate:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-migrate:latest
+      - name: Build the image-proxy docker image
+        run: |
+          cp imageproxy/start_imageproxy.sh .
+          chmod +x start_imageproxy.sh
+          docker build --file imageproxy/Dockerfile . --tag "ghcr.io/circumspace/sh-image-proxy:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-image-proxy:latest
+          docker push ghcr.io/circumspace/sh-image-proxy:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-image-proxy:latest
+      - name: Build the mail-watch-server docker image
+        run: |
+          docker build --file packages/local-mail-watcher/Dockerfile . --tag "ghcr.io/circumspace/sh-local-mail-watcher:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-local-mail-watcher:latest
+          docker push ghcr.io/circumspace/sh-local-mail-watcher:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-local-mail-watcher:latest
