@@ -72,13 +72,53 @@ services:
         - HIGHLIGHTS_BASE_URL=http://localhost:3000
         - USE_NATIVE_PDF=true
     container_name: "omnivore-web"
-    ports:
-      - "3000:8080"
     env_file:
       .env
     depends_on:
       api:
         condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'envsubst < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf.tmp && mv /etc/nginx/nginx.conf.tmp /etc/nginx/nginx.conf && while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${BASE_URL}
+    depends_on:
+      - web
+      - api
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${BASE_URL}
+    entrypoint: "/bin/sh -c '\
+      trap exit TERM; \
+      while :; do \
+        certbot certonly --webroot \
+          --webroot-path /var/www/certbot \
+          --email admin@$${DOMAIN} \
+          --agree-tos --no-eff-email \
+          --force-renewal \
+          -d $${DOMAIN} \
+          || true; \
+        sleep 12h & wait $$!; \
+      done;'"
+    depends_on:
+      - nginx
 
   image-proxy:
     build:
