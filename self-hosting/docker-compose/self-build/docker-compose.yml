@@ -105,7 +105,7 @@ services:
     env_file:
       - .env
     environment:
-      - DOMAIN=${BASE_URL}
+      - DOMAIN=${FQDN}
     entrypoint: "/bin/sh -c '\
       trap exit TERM; \
       while :; do \
