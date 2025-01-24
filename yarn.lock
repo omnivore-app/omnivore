@@ -16145,11 +16145,6 @@ fecha@^4.2.0:
   resolved "https://registry.yarnpkg.com/fecha/-/fecha-4.2.1.tgz#0a83ad8f86ef62a091e22bb5a039cd03d23eecce"
   integrity sha512-MMMQ0ludy/nBs1/o0zVOiKTpG7qMbonKUzjJgQFEuvq6INZ1OraKPRAWkBq5vlKLOUMpmNYG1JoN3oDPUQ9m3Q==
 
-fflate@^0.4.8:
-  version "0.4.8"
-  resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.4.8.tgz#f90b82aefbd8ac174213abb338bd7ef848f0f5ae"
-  integrity sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==
-
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
@@ -25883,15 +25878,6 @@ postgres@^3.4.0:
   resolved "https://registry.yarnpkg.com/postgres/-/postgres-3.4.3.tgz#52a0712cd6c2dae5e9f8c35b5c7b33434caa66ed"
   integrity sha512-iHJn4+M9vbTdHSdDzNkC0crHq+1CUdFhx+YqCE+SqWxPjm+Zu63jq7yZborOBF64c8pc58O5uMudyL1FQcHacA==
 
-posthog-js@^1.158.3:
-  version "1.158.3"
-  resolved "https://registry.yarnpkg.com/posthog-js/-/posthog-js-1.158.3.tgz#4926a3a37001a3b059f79223fc9874adb14fa000"
-  integrity sha512-5JMrvwL5wjeuwfT8+2CC/lDXWs4aIJuRo/ImQsMQo5CtLfTZyqQbK+Jp5PvrXxh/h92nXiNvlpTShFRcLRv+pg==
-  dependencies:
-    fflate "^0.4.8"
-    preact "^10.19.3"
-    web-vitals "^4.0.1"
-
 posthog-node@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/posthog-node/-/posthog-node-3.6.3.tgz#4d3a2a4385e01c4d9e91d01dbde104e60285853d"
@@ -25899,11 +25885,6 @@ posthog-node@^3.6.3:
   dependencies:
     axios "^1.6.2"
     rusha "^0.8.14"
-
-preact@^10.19.3:
-  version "10.23.2"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.23.2.tgz#52deec92796ae0f0cc6b034d9c66e0fbc1b837dc"
-  integrity sha512-kKYfePf9rzKnxOAKDpsWhg/ysrHPqT+yQ7UW4JjdnqjFIeNUnNcEJvhuA8fDenxAGWzUqtd51DfVg7xp/8T9NA==
 
 prebuild-install@^7.1.1:
   version "7.1.1"
@@ -29441,9 +29422,9 @@ stopwords-iso@^1.1.0:
   integrity sha512-I6GPS/E0zyieHehMRPQcqkiBMJKGgLta+1hREixhoLPqEA0AlVFiC43dl8uPpmkkeRdDMzYRWFWk5/l9x7nmNg==
 
 store2@^2.12.0:
-  version "2.13.2"
-  resolved "https://registry.yarnpkg.com/store2/-/store2-2.13.2.tgz#01ad8802ca5b445b9c316b55e72645c13a3cd7e3"
-  integrity sha512-CMtO2Uneg3SAz/d6fZ/6qbqqQHi2ynq6/KzMD/26gTkiEShCcpqFfTHgOxsE0egAq6SX3FmN4CeSqn8BzXQkJg==
+  version "2.14.4"
+  resolved "https://registry.yarnpkg.com/store2/-/store2-2.14.4.tgz#81b313abaddade4dcd7570c5cc0e3264a8f7a242"
+  integrity sha512-srTItn1GOvyvOycgxjAnPA63FZNwy0PTyUBFMHRM+hVFltAeoh0LmNBz9SZqUS9mMqGk8rfyWyXn3GH5ReJ8Zw==
 
 storybook-addon-next-router@^3.1.1:
   version "3.1.1"
@@ -31972,11 +31953,6 @@ web-streams-polyfill@^3.2.1:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz#2073b91a2fdb1fbfbd401e7de0ac9f8214cecb4b"
   integrity sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==
-
-web-vitals@^4.0.1:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-4.2.3.tgz#270c4baecfbc6ec6fc15da1989e465e5f9b94fb7"
-  integrity sha512-/CFAm1mNxSmOj6i0Co+iGFJ58OS4NRGVP+AWS/l509uIK5a1bSoIVaHz/ZumpHTfHSZBpgrJ+wjfpAOrTHok5Q==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
