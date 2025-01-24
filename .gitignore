@@ -71,3 +71,5 @@ data.json
 *.apk
 
 tsconfig.tsbuildinfo
+*.ini
+nginx.prod.conf
