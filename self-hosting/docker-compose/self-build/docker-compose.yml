@@ -103,8 +103,6 @@ services:
       - ./cloudflare.ini:/etc/letsencrypt/cloudflare.ini:ro
     env_file:
       - .env
-    environment:
-      - DOMAIN=${FQDN}
     entrypoint: "/bin/sh -c '\
       trap exit TERM; \
       while :; do \
