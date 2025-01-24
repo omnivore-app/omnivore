@@ -95,12 +95,13 @@ services:
     depends_on:
       - web
       - api
+      - certbot
 
   certbot:
-    image: certbot/certbot
+    image: certbot/dns-cloudflare
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
+      - ./cloudflare.ini:/etc/letsencrypt/cloudflare.ini:ro
     env_file:
       - .env
     environment:
@@ -108,8 +109,8 @@ services:
     entrypoint: "/bin/sh -c '\
       trap exit TERM; \
       while :; do \
-        certbot certonly --webroot \
-          --webroot-path /var/www/certbot \
+        certbot certonly --dns-cloudflare \
+          --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
           --email admin@$${DOMAIN} \
           --agree-tos --no-eff-email \
           --force-renewal \
@@ -117,8 +118,6 @@ services:
           || true; \
         sleep 12h & wait $$!; \
       done;'"
-    depends_on:
-      - nginx
 
   image-proxy:
     build:
