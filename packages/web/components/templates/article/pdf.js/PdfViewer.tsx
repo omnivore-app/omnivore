@@ -58,8 +58,13 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
     []
   )
 
+  const removeAllHighlightsNotAtScale = (scaleId: string) => {
+    const highlights = document.querySelectorAll(`.canvasWrapper .highlight:not(.scale${scaleId})`)
+    highlights.forEach((highlight) => highlight.remove())
+  }
+
   const addHighlightToPage = useCallback(
-    (page: PDFPageView, highlight: Highlight) => {
+    (page: PDFPageView, highlight: Highlight,) => {
       const scale = page.viewport.scale
       const element = document.createElement('div')
       element.id = highlight.id
@@ -68,7 +73,7 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
 
       boundingRects.forEach((rect: number[]) => {
         const svgElement = document.createElement('svg')
-        svgElement.className = 'highlight'
+        svgElement.className = `highlight scale${scale.toString().replace('.','')}`
         svgElement.setAttribute('viewBox', '0 0 1 1')
         svgElement.style.borderRadius = '0px'
         svgElement.style.background = colorMap[color]
@@ -352,7 +357,8 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
   useEffect(() => {
     const render = (data: { source: PDFPageView }) => {
       const page = data.source
-      if (page) {
+      if (page && highlights) {
+        removeAllHighlightsNotAtScale(page.viewport.scale.toString().replace('.',''))
         highlights
           ?.filter((it) => it.highlightPositionAnchorIndex == page.id)
           .forEach((it) => addHighlightToPage(page as PDFPageView, it))
@@ -360,6 +366,8 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
     }
     const setPage = (e: { pageNumber: number }) =>
       setCurrentPageNum(e.pageNumber)
+
+
 
     if (props.eventBus && props.pdfViewer) {
       props.eventBus.on('textlayerrendered', render)
@@ -370,6 +378,7 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
       if (props.eventBus) {
         props.eventBus.off('textlayerrendered', render)
         props.eventBus.off('pagechanging', setPage)
+
       }
     }
   }, [props.eventBus, props.pdfViewer, highlights, addHighlightToPage])
