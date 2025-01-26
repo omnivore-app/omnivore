@@ -103,7 +103,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
     // Uses the existing mechanism to hide the reader toolbar from pspdfkit
     const updateReaderSettings = () => {
       const show = localStorage.getItem('reader-show-pdf-tool-bar')
-      const showBar = show ? JSON.parse(show) == true : false
+      const showBar = show ? JSON.parse(show) == true : true
       setShowToolbar(showBar)
 
       const latestPage = localStorage.getItem('reader-remember-latest-page')
