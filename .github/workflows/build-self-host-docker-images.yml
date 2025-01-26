@@ -1,12 +1,9 @@
 name: Build Self-Hosting Docker Images
 on:
-  # For testing purposes.
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
+      - self-host-updates
     paths-ignore:
       - 'apple/**'
       - 'android/**'
@@ -33,31 +30,33 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
       - name: Build the backend docker image
         run: |
-          docker build . --file packages/api/Dockerfile --tag "ghcr.io/omnivore-app/sh-backend:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-backend:latest
-          docker push ghcr.io/omnivore-app/sh-backend:${GITHUB_SHA}
+          docker build . --file packages/api/Dockerfile --tag "ghcr.io/circumspace/sh-backend:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-backend:latest
+          docker push ghcr.io/circumspace/sh-backend:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-backend:latest
       - name: Build the content-fetch docker image
         run: |
-          docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/omnivore-app/sh-content-fetch:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-content-fetch:latest
-          docker push ghcr.io/omnivore-app/sh-content-fetch:${GITHUB_SHA}
+          docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/circumspace/sh-content-fetch:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-content-fetch:latest
+          docker push ghcr.io/circumspace/sh-content-fetch:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-content-fetch:latest
       - name: Build the queue-processor docker image.
         run: |
-          docker build . --file packages/api/queue-processor/Dockerfile --tag "ghcr.io/omnivore-app/sh-queue-processor:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-queue-processor:latest
-          docker push ghcr.io/omnivore-app/sh-queue-processor:${GITHUB_SHA}
-      - name: Build the web docker image
-        run: |
-          docker build --file packages/web/Dockerfile . --tag "ghcr.io/omnivore-app/sh-web:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-web:latest
-          docker push ghcr.io/omnivore-app/sh-web:${GITHUB_SHA}
+          docker build . --file packages/api/queue-processor/Dockerfile --tag "ghcr.io/circumspace/sh-queue-processor:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-queue-processor:latest
+          docker push ghcr.io/circumspace/sh-queue-processor:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-queue-processor:latest
       - name: Build the migrate docker image
         run: |
-          docker build --file packages/db/Dockerfile . --tag "ghcr.io/omnivore-app/sh-migrate:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-migrate:latest
-          docker push ghcr.io/omnivore-app/sh-migrate:${GITHUB_SHA}
+          docker build --file packages/db/Dockerfile . --tag "ghcr.io/circumspace/sh-migrate:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-migrate:latest
+          docker push ghcr.io/circumspace/sh-migrate:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-migrate:latest
       - name: Build the image-proxy docker image
         run: |
-          docker build --file imageproxy/Dockerfile . --tag "ghcr.io/omnivore-app/sh-image-proxy:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-image-proxy:latest
-          docker push ghcr.io/omnivore-app/sh-image-proxy:${GITHUB_SHA}
+          cp imageproxy/start_imageproxy.sh .
+          chmod +x start_imageproxy.sh
+          docker build --file imageproxy/Dockerfile . --tag "ghcr.io/circumspace/sh-image-proxy:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-image-proxy:latest
+          docker push ghcr.io/circumspace/sh-image-proxy:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-image-proxy:latest
       - name: Build the mail-watch-server docker image
         run: |
-          docker build --file packages/local-mail-watcher/Dockerfile . --tag "ghcr.io/omnivore-app/sh-local-mail-watcher:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-local-mail-watcher:latest
-          docker push ghcr.io/omnivore-app/sh-local-mail-watcher:${GITHUB_SHA}
-    
-        
+          docker build --file packages/local-mail-watcher/Dockerfile . --tag "ghcr.io/circumspace/sh-local-mail-watcher:${GITHUB_SHA}" --tag ghcr.io/circumspace/sh-local-mail-watcher:latest
+          docker push ghcr.io/circumspace/sh-local-mail-watcher:${GITHUB_SHA}
+          docker push ghcr.io/circumspace/sh-local-mail-watcher:latest

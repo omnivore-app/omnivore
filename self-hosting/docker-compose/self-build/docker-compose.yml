@@ -13,13 +13,17 @@ services:
   postgres:
     <<: *postgres-common
     container_name: "omnivore-postgres"
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
       - .env
 
   migrate:
-    image: "ghcr.io/circumspace/sh-migrate:latest"
+    build:
+      context: ../../../
+      dockerfile: ./packages/db/Dockerfile
     container_name: "omnivore-migrate"
     command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     env_file:
@@ -29,7 +33,9 @@ services:
         condition: service_healthy
 
   api:
-    image: "ghcr.io/circumspace/sh-backend:latest"
+    build:
+      context: ../../../
+      dockerfile: ./packages/api/Dockerfile
     container_name: "omnivore-api"
     ports:
       - "4000:8080"
@@ -45,7 +51,9 @@ services:
         condition: service_completed_successfully
 
   queue-processor:
-    image: "ghcr.io/circumspace/sh-queue-processor:latest"
+    build:
+      context: ../../../
+      dockerfile: ./packages/api/queue-processor/Dockerfile
     container_name: "omnivore-queue-processor"
     env_file:
       - .env
@@ -55,7 +63,7 @@ services:
 
   web:
     build:
-      context: ../../
+      context: ../../../
       dockerfile: ./packages/web/Dockerfile-self
       args:
         - APP_ENV=prod
@@ -73,7 +81,9 @@ services:
         condition: service_healthy
 
   image-proxy:
-    image: "ghcr.io/circumspace/sh-image-proxy:latest"
+    build:
+      context: ../../../imageproxy
+      dockerfile: ./Dockerfile
     container_name: "omnivore-image-proxy"
     ports:
       - "7070:8080"
@@ -81,7 +91,9 @@ services:
       - .env
 
   content-fetch:
-    image: "ghcr.io/circumspace/sh-content-fetch:latest"
+    build:
+      context: ../../../
+      dockerfile: ./packages/content-fetch/Dockerfile
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
@@ -144,7 +156,9 @@ services:
       exit 0;
       "
   mail-watch-server:
-    image: "ghcr.io/circumspace/sh-image-proxy:latest"
+    build:
+      context: ../../../
+      dockerfile: ./packages/local-mail-watcher/Dockerfile
     container_name: "omnivore-mail-watch-server"
     ports:
       - "4398:8080"
@@ -153,7 +167,10 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+
 volumes:
   pgdata:
   redis_data:
   minio_data:
+

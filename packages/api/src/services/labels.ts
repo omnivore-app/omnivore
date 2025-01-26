@@ -16,7 +16,7 @@ import { deepDelete } from '../utils/helpers'
 import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
 const columnsToDelete = ['description', 'createdAt'] as const
-type ColumnsToDeleteType = typeof columnsToDelete[number]
+type ColumnsToDeleteType = (typeof columnsToDelete)[number]
 export type LabelEvent = Merge<
   Omit<DeepPartial<Label>, ColumnsToDeleteType>,
   EntityEvent

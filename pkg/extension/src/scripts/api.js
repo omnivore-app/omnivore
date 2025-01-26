@@ -1,8 +1,9 @@
 function gqlRequest(apiUrl, query) {
-  return getStorageItem('apiKey')
-    .then((apiKey) => {
+  return Promise.all([getStorageItem('apiKey'), getStorageItem('apiUrl')])
+    .then(([apiKey, savedUrl]) => {
       const auth = apiKey ? { Authorization: apiKey } : {}
-      return fetch(apiUrl, {
+      const url = savedUrl ? `${savedUrl}/graphql` : apiUrl
+      return fetch(url, {
         method: 'POST',
         redirect: 'follow',
         credentials: 'include',
