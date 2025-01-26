@@ -1,13 +1,12 @@
-version: '3'
 x-postgres:
   &postgres-common
   image: "ankane/pgvector:v0.5.1"
   user: postgres
   healthcheck:
-    test: "exit 0"
-    interval: 2s
-    timeout: 12s
-    retries: 3
+    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
 
 services:
   postgres:
@@ -116,29 +115,33 @@ services:
       - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - redis_data:/data
 
   minio:
     image: minio/minio
-    expose:
-      - 1010
+    container_name: "omnivore-minio"
     ports:
-      - "1010:9000"
+      - "9000:9000"
     healthcheck:
-      test: [ "CMD", "mc", "ready", "local" ]
-      interval: 5s
-      timeout: 1s
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       - "MINIO_ACCESS_KEY=minio"
       - "MINIO_SECRET_KEY=miniominio"
-      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+      - "AWS_S3_ENDPOINT_URL=http://minio:9000"
     command: server /data
     volumes:
       - minio_data:/data
 
   createbuckets:
     image: minio/mc
+    container_name: "omnivore-createbuckets"
     environment:
       - MINIO_ACCESS_KEY=minio
       - MINIO_SECRET_KEY=miniominio
@@ -146,7 +149,8 @@ services:
       - ENDPOINT=http://minio:9000
       - AWS_S3_ENDPOINT_URL=http://minio:9000
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     entrypoint: >
       /bin/bash -c "
       sleep 5;
@@ -155,6 +159,7 @@ services:
       /usr/bin/mc policy set public myminio/omnivore;
       exit 0;
       "
+
   mail-watch-server:
     build:
       context: ../../../
@@ -168,9 +173,7 @@ services:
       redis:
         condition: service_healthy
 
-
 volumes:
   pgdata:
   redis_data:
   minio_data:
-

@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - fix-compose
     paths-ignore:
       - 'apple/**'
       - 'android/**'
@@ -18,7 +19,7 @@ env:
   NEXT_PUBLIC_BASE_URL: http://localhost:3000
   NEXT_PUBLIC_SERVER_BASE_URL: http://localhost:4000
   NEXT_PUBLIC_HIGHLIGHTS_BASE_URL: http://localhost:3000
-  AWS_S3_ENDPOINT_URL: http://minio:1010
+  AWS_S3_ENDPOINT_URL: http://minio:9000
 
 jobs:
   run-code-tests:

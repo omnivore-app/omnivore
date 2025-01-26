@@ -11,6 +11,7 @@ ENV NEXT_PUBLIC_APP_ENV=$APP_ENV
 ENV NEXT_PUBLIC_BASE_URL=$BASE_URL
 ENV NEXT_PUBLIC_SERVER_BASE_URL=$SERVER_BASE_URL
 ENV NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=$HIGHLIGHTS_BASE_URL
+ENV HIDE_HOSTS=$HIDE_HOSTS
 
 RUN apk add g++ make python3 py3-setuptools
 
@@ -33,7 +34,7 @@ RUN yarn workspace @omnivore/web build
 
 
 FROM node:22.12-alpine as runner
-LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
+LABEL org.opencontainers.image.source="https://github.com/circumspace/panvore"
 
 ENV NODE_ENV production
 ENV PORT=8080

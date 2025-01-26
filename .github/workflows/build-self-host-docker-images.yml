@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - self-host-updates
+      - fix-compose
     paths-ignore:
       - 'apple/**'
       - 'android/**'

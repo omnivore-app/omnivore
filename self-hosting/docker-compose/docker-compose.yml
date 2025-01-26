@@ -109,10 +109,8 @@ services:
 
   minio:
     image: minio/minio
-    expose:
-      - 1010
     ports:
-      - "1010:9000"
+      - "1050:9000"
     healthcheck:
       test: [ "CMD", "mc", "ready", "local" ]
       interval: 5s
@@ -120,7 +118,7 @@ services:
     environment:
       - "MINIO_ACCESS_KEY=minio"
       - "MINIO_SECRET_KEY=miniominio"
-      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+      - "AWS_S3_ENDPOINT_URL=http://minio:9000"
     command: server /data
     volumes:
       - minio_data:/data
@@ -143,6 +141,7 @@ services:
       /usr/bin/mc policy set public myminio/omnivore;
       exit 0;
       "
+
   mail-watch-server:
     image: "ghcr.io/circumspace/sh-image-proxy:latest"
     container_name: "omnivore-mail-watch-server"

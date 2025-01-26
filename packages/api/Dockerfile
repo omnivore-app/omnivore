@@ -4,8 +4,9 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
+# ADD ../wait-for-it.sh wait-for-it.sh
+# RUN chmod +x wait-for-it.sh
 RUN apt-get update && apt-get install -y g++ make python3 && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
 COPY packages ./packages
 
@@ -25,7 +26,7 @@ RUN yarn install --pure-lockfile && \
 
 
 FROM node:22.12-alpine AS runner
-LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
+LABEL org.opencontainers.image.source="https://github.com/circumspace/panvore"
 
 RUN apk update && apk add netcat-openbsd && rm -rf /var/cache/apk/*
 
@@ -45,7 +46,6 @@ COPY --from=builder /app/packages/text-to-speech/ /app/packages/text-to-speech/
 COPY --from=builder /app/packages/content-handler/ /app/packages/content-handler/
 COPY --from=builder /app/packages/liqe/ /app/packages/liqe/
 COPY --from=builder /app/packages/utils/ /app/packages/utils/
-
 EXPOSE 8080
 
 CMD ["yarn", "workspace", "@omnivore/api", "start"]

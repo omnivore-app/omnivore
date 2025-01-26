@@ -2,7 +2,7 @@ FROM ghcr.io/willnorris/imageproxy:main as build
 
 # Above imageproxy image is built from scratch image and is barebones
 # Switching over to ubuntu base image to allow us to debug better.
-FROM ubuntu:bionic
+FROM ubuntu:noble
 
 WORKDIR /app
 
@@ -17,4 +17,3 @@ COPY start_imageproxy.sh .
 ENTRYPOINT ["/app/start_imageproxy.sh"]
 
 EXPOSE 8080
-
