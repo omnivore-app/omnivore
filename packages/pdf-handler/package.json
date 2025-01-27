@@ -27,7 +27,7 @@
     "mocha": "^10.0.0"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/functions-framework": "3.4.5",
     "@google-cloud/pubsub": "^4.0.0",
     "@google-cloud/storage": "^7.0.1",
     "@omnivore/utils": "1.0.0",
@@ -36,7 +36,7 @@
     "bullmq": "^5.1.4",
     "concurrently": "^7.0.0",
     "dotenv": "^8.2.0",
-    "pdfjs-dist": "^2.9.359"
+    "pdfjs-dist": "^2.16.105"
   },
   "volta": {
     "extends": "../../package.json"

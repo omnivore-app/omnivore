@@ -1,10 +1,6 @@
 import archiver, { Archiver } from 'archiver'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  ContentReaderType,
-  LibraryItem,
-  LibraryItemState,
-} from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { TaskState } from '../generated/graphql'
 import { findExportById, saveExport } from '../services/export'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
@@ -17,18 +13,23 @@ import { sendExportJobEmail } from '../services/send_emails'
 import { findActiveUser } from '../services/user'
 import { logger } from '../utils/logger'
 import { highlightToMarkdown } from '../utils/parser'
-import {
-  contentFilePath,
-  createGCSFile,
-  generateUploadFilePathName,
-} from '../utils/uploads'
-import { batch } from 'googleapis/build/src/apis/batch'
+import { env } from '../env'
+import { storage } from '../repository/storage/storage'
+import { File } from '../repository/storage/StorageClient'
+import { Readable } from 'stream'
+import { contentFilePath, generateUploadFilePathName } from '../utils/uploads'
 import { getRepository } from '../repository'
 import { UploadFile } from '../entity/upload_file'
 
 export interface ExportJobData {
   userId: string
   exportId: string
+}
+
+const bucketName = env.fileUpload.gcsUploadBucket
+
+const createGCSFile = (filename: string): File => {
+  return storage.createFile(bucketName, filename)
 }
 
 export const EXPORT_JOB_NAME = 'export'
@@ -61,7 +62,7 @@ const uploadContent = async (
   const file = createGCSFile(filePath)
 
   // check if file is already uploaded
-  const [exists] = await file.exists()
+  const exists = await file.exists()
   if (!exists) {
     logger.info(`File not found: ${filePath}`)
 
@@ -81,10 +82,14 @@ const uploadContent = async (
       contentType: 'text/html',
       private: true,
     })
+    archive.append(Readable.from(item.readableContent), {
+      name: `content/${libraryItem.slug}.html`,
+    })
   }
 
   // append the existing file to the archive
-  archive.append(file.createReadStream(), {
+  const content = await file.download()
+  archive.append(Readable.from(content.toString()), {
     name: `content/${libraryItem.slug}.html`,
   })
 }
@@ -97,17 +102,19 @@ const uploadPdfContent = async (
     id: libraryItem.uploadFileId,
   })
   if (!upload || !upload.fileName) {
-    console.log(`upload does not have a filename: ${upload}`)
+    console.log(
+      `upload does not have a filename: ${upload?.fileName ?? 'empty'}`
+    )
     return
   }
 
   const filePath = generateUploadFilePathName(upload.id, upload.fileName)
   const file = createGCSFile(filePath)
-  const [exists] = await file.exists()
+  const exists = await file.exists()
   if (exists) {
     console.log(`adding PDF file: ${filePath}`)
     // append the existing file to the archive
-    archive.append(file.createReadStream(), {
+    archive.append(await file.download(), {
       name: `content/${libraryItem.slug}.pdf`,
     })
   }
@@ -238,18 +245,23 @@ export const exportJob = async (jobData: ExportJobData) => {
 
     // Create a write stream
     const writeStream = file.createWriteStream({
-      metadata: {
-        contentType: 'application/zip',
-      },
+      contentType: 'application/zip',
+    })
+
+    const finishedPromise = new Promise<void>((resolve, reject) => {
+      if (writeStream.closed) {
+        resolve()
+      }
+      writeStream.on('finish', () => {
+        logger.info('File successfully written to GCS')
+        resolve()
+      })
+      writeStream.on('error', reject)
     })
 
     // Handle any errors in the streams
     writeStream.on('error', (err) => {
       logger.error('Error writing to GCS:', err)
-    })
-
-    writeStream.on('finish', () => {
-      logger.info('File successfully written to GCS')
     })
 
     // Initialize archiver for zipping files
@@ -264,7 +276,6 @@ export const exportJob = async (jobData: ExportJobData) => {
 
     // Pipe the archiver output to the write stream
     archive.pipe(writeStream)
-
     let cursor = 0
     try {
       // fetch data from the database
@@ -305,17 +316,14 @@ export const exportJob = async (jobData: ExportJobData) => {
     }
 
     // Ensure that the writeStream has finished
-    await new Promise((resolve, reject) => {
-      writeStream.on('finish', resolve)
-      writeStream.on('error', reject)
-    })
+    await finishedPromise
 
     logger.info(`export completed, exported ${cursor} items`, {
       userId,
     })
 
     // generate a temporary signed url for the zip file
-    const [signedUrl] = await file.getSignedUrl({
+    const signedUrl = await storage.signedUrl(bucketName, fullPath, {
       action: 'read',
       expires: Date.now() + 168 * 60 * 60 * 1000, // one week
     })

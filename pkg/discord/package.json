@@ -14,7 +14,7 @@
     "@google-cloud/pubsub": "^4.0.0",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
-    "typescript": "^5.4.2",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^7.1.1"
   },
   "author": "",

@@ -1,0 +1,62 @@
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: mail.domain.tld
+    env_file: mailserver.env
+    # More information about the mail-server ports:
+    # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/
+    ports:
+      - "25:25"    # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
+      - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+      - "465:465"  # ESMTP (implicit TLS)
+      - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+      - "993:993"  # IMAP4 (implicit TLS)
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    stop_grace_period: 1m
+    # Uncomment if using `ENABLE_FAIL2BAN=1`:
+    # cap_add:
+    #   - NET_ADMIN
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+  docker:
+    image: docker:latest
+    container_name: setup-email
+    environment:
+      - DOMAIN="domain.tld"
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+    depends_on:
+      mailserver:
+        condition: service_started
+    tty: true
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5; 
+      docker exec -ti mailserver setup email add user@domain.tld pass123;
+      echo '@domain.tld user@domain.tld' > /tmp/docker-mailserver/config/postfix-virtual.cf
+      exit 0
+      "
+  watcher:
+    build:
+      context: ../../../
+      dockerfile: ./packages/local-mail-watcher/Dockerfile-watcher
+    container_name: "omnivore-mail-watch"
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+    env_file:
+      - .env.mail
+    depends_on:
+      docker:
+        condition: service_completed_successfully

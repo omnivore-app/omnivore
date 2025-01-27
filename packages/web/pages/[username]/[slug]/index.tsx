@@ -39,7 +39,16 @@ import {
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
-  () => import('./../../../components/templates/article/PdfArticleContainer'),
+  () =>
+    import(
+      `./../../../components/templates/article/pdf.js/PdfArticleContainer`
+    ),
+  { ssr: false }
+)
+
+const NativePdfArticleContainer = dynamic<PdfArticleContainerProps>(
+  () =>
+    import(`./../../../components/templates/article/NativePdfArticleContainer`),
   { ssr: false }
 )
 
@@ -52,6 +61,7 @@ export default function Reader(): JSX.Element {
   const router = useRouter()
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
+  const [useNativePdfReader, setUseNativePdfReader] = useState(false)
   const { data: viewerData } = useGetViewer()
   const readerSettings = useReaderSettings()
   const archiveItem = useArchiveItem()
@@ -222,6 +232,28 @@ export default function Reader(): JSX.Element {
       updateItemReadStatus,
     ]
   )
+
+  useEffect(() => {
+    const updateReaderSettings = () => {
+      const native = localStorage.getItem('reader-use-native-reader')
+      const nativeReader = native ? JSON.parse(native) == true : false
+      setUseNativePdfReader(nativeReader)
+    }
+
+    if (window) {
+      updateReaderSettings()
+      document.addEventListener('pdfReaderUpdateSettings', updateReaderSettings)
+    }
+
+    return () => {
+      if (window) {
+        document.removeEventListener(
+          'pdfReaderUpdateSettings',
+          updateReaderSettings
+        )
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const archive = () => {
@@ -529,14 +561,24 @@ export default function Reader(): JSX.Element {
           />
         ) : null}
       </VStack>
-      {libraryItem && viewerData && libraryItem.contentReader == 'PDF' && (
-        <PdfArticleContainerNoSSR
-          article={libraryItem}
-          showHighlightsModal={showHighlightsModal}
-          setShowHighlightsModal={setShowHighlightsModal}
-          viewer={viewerData}
-        />
-      )}
+      {libraryItem &&
+        viewerData &&
+        libraryItem.contentReader == 'PDF' &&
+        (useNativePdfReader ? (
+          <NativePdfArticleContainer
+            article={libraryItem}
+            showHighlightsModal={showHighlightsModal}
+            setShowHighlightsModal={setShowHighlightsModal}
+            viewer={viewerData}
+          />
+        ) : (
+          <PdfArticleContainerNoSSR
+            article={libraryItem}
+            showHighlightsModal={showHighlightsModal}
+            setShowHighlightsModal={setShowHighlightsModal}
+            viewer={viewerData}
+          />
+        ))}
       {libraryItem && viewerData && libraryItem.contentReader == 'WEB' && (
         <VStack
           id="article-wrapper"

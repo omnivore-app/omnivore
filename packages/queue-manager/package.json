@@ -22,7 +22,7 @@
     "mocha": "^10.0.0"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/functions-framework": "3.4.5",
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/tasks": "^4.0.0",
     "@sentry/serverless": "^7.77.0",
