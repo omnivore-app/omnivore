@@ -39,6 +39,7 @@ import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 import { ZhihuHandler } from './websites/zhihu-handler'
 import { TikTokHandler } from './websites/tiktok-handler'
+import { WiredHandler } from './websites/wired-handler'
 import { RawContentHandler } from './websites/raw-handler'
 
 const validateUrlString = (url: string): boolean => {
@@ -60,6 +61,7 @@ const validateUrlString = (url: string): boolean => {
 }
 
 const contentHandlers: ContentHandler[] = [
+  new WiredHandler(),
   new ArsTechnicaHandler(),
   new TheAtlanticHandler(),
   new AppleNewsHandler(),

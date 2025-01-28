@@ -6,14 +6,14 @@ export const useFetchMore = (fetchNextPage: () => void, delay = 500): void => {
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   useEffect(() => {
-    const callbackInternal = (): void => {
+    const callbackInternal = (isInitial = false): void => {
       const { scrollTop, scrollHeight, clientHeight } =
         window.document.documentElement
       const direction = scrollTop > lastScrollTop ? 'down' : 'up'
       setLastScrollTop(scrollTop)
 
       if (
-        direction == 'down' &&
+        (direction == 'down' || isInitial) &&
         scrollTop + clientHeight >= scrollHeight - scrollHeight / 3
       ) {
         fetchNextPage()
@@ -29,14 +29,19 @@ export const useFetchMore = (fetchNextPage: () => void, delay = 500): void => {
         return
       }
       if (typeof throttleTimeout.current === 'undefined') {
-        throttleTimeout.current = setTimeout(callbackInternal, delay)
+        throttleTimeout.current = setTimeout(() => callbackInternal(true), delay)
       }
     }
 
+
     window.addEventListener('scroll', handleScroll)
+    window.addEventListener('wheel', handleScroll)
+
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('wheel', handleScroll)
+
     }
   }, [fetchNextPage, delay, first, setFirst])
 }

@@ -11,7 +11,6 @@ export type TopicBarProps = {
 }
 export function SmallTopicBar(props: TopicBarProps): JSX.Element {
   const [overflowing, setOverflowing] = useState(false)
-  let scrollToken: NodeJS.Timer | null = null
   const topicParent = useRef<HTMLDivElement>(null)
   const topicChild = useRef<HTMLDivElement>(null)
 
@@ -37,18 +36,11 @@ export function SmallTopicBar(props: TopicBarProps): JSX.Element {
     }
   }, [])
 
-  const scroll = (rightOrLeft: 'right' | 'left') => () => {
-    const offset = rightOrLeft == 'right' ? +1 : -1
-    scrollToken = setInterval(() => {
-      if (topicChild.current) {
-        topicChild.current.scrollLeft += offset
-      }
-    })
-  }
-
-  const clearScroll = () => {
-    clearInterval(scrollToken as NodeJS.Timeout)
-    scrollToken = null
+  const scroll = (rightOrLeft: 'right' | 'left', interval = 1) => () => {
+    const offset = rightOrLeft == 'right' ? +interval : -interval
+    if (topicChild.current) {
+      topicChild.current.scrollLeft += offset
+    }
   }
 
   return (
@@ -66,7 +58,6 @@ export function SmallTopicBar(props: TopicBarProps): JSX.Element {
             overflow: 'hidden',
             position: 'relative',
             flexGrow: '1',
-            width: '0px',
           }}
         >
           <CaretLeft
@@ -77,13 +68,17 @@ export function SmallTopicBar(props: TopicBarProps): JSX.Element {
               minWidth: '40px',
               width: '40px',
             }}
-            onMouseEnter={scroll('left')}
-            onMouseLeave={clearScroll}
+            onClick={scroll('left', 20)}
           />
           <HStack
             alignment={'start'}
             distribution={'start'}
-            css={{ pl: '15px', pr: '15px', overflow: 'hidden' }}
+            css={{ pl: '0px', pr: '15px', overflow: 'scroll',
+              '::-webkit-scrollbar': {
+                display: 'none',
+              },
+              msOverflowStyle: 'none',
+              scrollbarWidth: 'none', }}
             ref={topicChild}
           >
             {(props.topics ?? []).map((topic) => {
@@ -107,8 +102,7 @@ export function SmallTopicBar(props: TopicBarProps): JSX.Element {
               minWidth: '40px',
               width: '40px',
             }}
-            onMouseEnter={scroll('right')}
-            onMouseLeave={clearScroll}
+            onClick={scroll('right', 20)}
           />
         </HStack>
       </HStack>
