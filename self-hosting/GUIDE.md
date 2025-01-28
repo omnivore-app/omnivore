@@ -28,6 +28,7 @@ The Docker-compose file and necessary environment variables are found in the sel
 
 These files provide all you need to get Omnivore up and running on your local environment. 
 
+This will pull some premade images. If you want to build these images yourself, you can use the file found in self-hosting/docker-compose/self-build. You might want to do this if you are making development adjustments.  
 ### 3. Populate the .env file 
 
 There is a .env.example file located within the docker-compose folder that should give you the necessary environment variables to begin running. 
