@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - self-host-updates
+      - multi-arch-builds
     paths-ignore:
       - 'apple/**'
       - 'android/**'
@@ -19,46 +20,60 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: 'Login to GitHub container registry'
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
-      - name: Build the backend docker image
-        run: |
-          docker build . --file packages/api/Dockerfile --tag "ghcr.io/omnivore-app/sh-backend:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-backend:latest
-          docker push ghcr.io/omnivore-app/sh-backend:${GITHUB_SHA}
-          docker push ghcr.io/omnivore-app/sh-backend:latest
-      - name: Build the content-fetch docker image
-        run: |
-          docker build --file packages/content-fetch/Dockerfile . --tag "ghcr.io/omnivore-app/sh-content-fetch:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-content-fetch:latest
-          docker push ghcr.io/omnivore-app/sh-content-fetch:${GITHUB_SHA}
-          docker push ghcr.io/omnivore-app/sh-content-fetch:latest
-      - name: Build the queue-processor docker image.
-        run: |
-          docker build . --file packages/api/queue-processor/Dockerfile --tag "ghcr.io/omnivore-app/sh-queue-processor:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-queue-processor:latest
-          docker push ghcr.io/omnivore-app/sh-queue-processor:${GITHUB_SHA}
-          docker push ghcr.io/omnivore-app/sh-queue-processor:latest
-      - name: Build the migrate docker image
-        run: |
-          docker build --file packages/db/Dockerfile . --tag "ghcr.io/omnivore-app/sh-migrate:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-migrate:latest
-          docker push ghcr.io/omnivore-app/sh-migrate:${GITHUB_SHA}
-          docker push ghcr.io/omnivore-app/sh-migrate:latest
-      - name: Build the image-proxy docker image
-        run: |
-          cp imageproxy/start_imageproxy.sh .
-          chmod +x start_imageproxy.sh
-          docker build --file imageproxy/Dockerfile . --tag "ghcr.io/omnivore-app/sh-image-proxy:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-image-proxy:latest
-          docker push ghcr.io/omnivore-app/sh-image-proxy:${GITHUB_SHA}
-          docker push ghcr.io/omnivore-app/sh-image-proxy:latest
-      - name: Build the mail-watch-server docker image
-        run: |
-          docker build --file packages/local-mail-watcher/Dockerfile . --tag "ghcr.io/omnivore-app/sh-local-mail-watcher:${GITHUB_SHA}" --tag ghcr.io/omnivore-app/sh-local-mail-watcher:latest
-          docker push ghcr.io/omnivore-app/sh-local-mail-watcher:${GITHUB_SHA}
-          docker push ghcr.io/omnivore-app/sh-local-mail-watcher:latest
-    
-        
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: sh-backend:latest,sh-backend:${GITHUB_SHA}
+          file: packages/api/Dockerfile
+      - name: Build and push content-fetch
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: sh-content-fetch:latest,sh-content-fetch:${GITHUB_SHA}
+          file: packages/content-fetch/Dockerfile
+      - name: Build and push queue-processor
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: sh-queue-processor:latest,sh-queue-processor:${GITHUB_SHA}
+          file: packages/api/queue-processor/Dockerfile
+      - name: Build and push migrate
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: sh-migrate:latest,sh-migrate:${GITHUB_SHA}
+          file: packages/db/Dockerfile
+      - name: Build and push image-proxy
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: sh-image-proxy:latest,sh-image-proxy:${GITHUB_SHA}
+          file: imageproxy/Dockerfile
+      - name: Build and push local-mail-watcher
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: sh-local-mail-watcher:latest,sh-local-mail-watcher:${GITHUB_SHA}
+          file: packages/local-mail-watcher/Dockerfile
