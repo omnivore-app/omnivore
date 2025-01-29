@@ -40,40 +40,40 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: sh-backend:latest,sh-backend:${GITHUB_SHA}
+          tags: sh-backend:latest,sh-backend:${{ github.sha }}
           file: packages/api/Dockerfile
       - name: Build and push content-fetch
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: sh-content-fetch:latest,sh-content-fetch:${GITHUB_SHA}
+          tags: sh-content-fetch:latest,sh-content-fetch:${{ github.sha }}
           file: packages/content-fetch/Dockerfile
       - name: Build and push queue-processor
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: sh-queue-processor:latest,sh-queue-processor:${GITHUB_SHA}
+          tags: sh-queue-processor:latest,sh-queue-processor:${{ github.sha }}
           file: packages/api/queue-processor/Dockerfile
       - name: Build and push migrate
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: sh-migrate:latest,sh-migrate:${GITHUB_SHA}
+          tags: sh-migrate:latest,sh-migrate:${{ github.sha }}
           file: packages/db/Dockerfile
       - name: Build and push image-proxy
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: sh-image-proxy:latest,sh-image-proxy:${GITHUB_SHA}
+          tags: sh-image-proxy:latest,sh-image-proxy:${{ github.sha }}
           file: imageproxy/Dockerfile
       - name: Build and push local-mail-watcher
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: sh-local-mail-watcher:latest,sh-local-mail-watcher:${GITHUB_SHA}
+          tags: sh-local-mail-watcher:latest,sh-local-mail-watcher:${{ github.sha }}
           file: packages/local-mail-watcher/Dockerfile
