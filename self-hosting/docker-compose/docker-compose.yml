@@ -144,7 +144,7 @@ services:
       exit 0;
       "
   mail-watch-server:
-    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
+    image: "ghcr.io/omnivore-app/sh-local-mail-watcher:latest"
     container_name: "omnivore-mail-watch-server"
     ports:
       - "4398:8080"
