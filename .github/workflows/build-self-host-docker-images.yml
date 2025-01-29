@@ -63,6 +63,10 @@ jobs:
           push: true
           tags: ghcr.io/omnivore-app/sh-migrate:latest,ghcr.io/omnivore-app/sh-migrate:${{ github.sha }}
           file: packages/db/Dockerfile
+      - name: Copy files for image proxy.
+        run: |
+          cp imageproxy/start_imageproxy.sh .
+          chmod +x start_imageproxy.sh
       - name: Build and push image-proxy
         uses: docker/build-push-action@v6
         with:
