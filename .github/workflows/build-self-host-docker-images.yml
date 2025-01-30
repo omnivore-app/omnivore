@@ -51,8 +51,8 @@ jobs:
           push: true
           tags: ghcr.io/omnivore-app/sh-queue-processor:latest,ghcr.io/omnivore-app/sh-queue-processor:${{ github.sha }}
           file: packages/api/queue-processor/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/queue-processor:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/queue-processor:latest,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:latest
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:latest,mode=max
 
       - name: Build and push image-proxy
         uses: docker/build-push-action@v6
