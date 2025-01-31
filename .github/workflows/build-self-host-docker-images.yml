@@ -34,26 +34,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push backend
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/omnivore-app/sh-backend:latest,ghcr.io/omnivore-app/sh-backend:${{ github.sha }}
-          file: packages/api/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-backend:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-backend:latest,mode=max
-
-      - name: Build and push queue-processor
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/omnivore-app/sh-queue-processor:latest,ghcr.io/omnivore-app/sh-queue-processor:${{ github.sha }}
-          file: packages/api/queue-processor/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:latest,mode=max
-
       - name: Build and push image-proxy
         uses: docker/build-push-action@v6
         with:
@@ -62,8 +42,8 @@ jobs:
           tags: ghcr.io/omnivore-app/sh-image-proxy:latest,ghcr.io/omnivore-app/sh-image-proxy:${{ github.sha }}
           context: imageproxy/
           file: imageproxy/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-image-proxy:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-image-proxy:latest,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-image-proxy:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-image-proxy:${{ github.sha }},mode=max
 
       - name: Build and push content-fetch
         uses: docker/build-push-action@v6
@@ -72,8 +52,8 @@ jobs:
           push: true
           tags: ghcr.io/omnivore-app/sh-content-fetch:latest,ghcr.io/omnivore-app/sh-content-fetch:${{ github.sha }}
           file: packages/content-fetch/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-content-fetch:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-content-fetch:latest,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-content-fetch:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-content-fetch:${{ github.sha }},mode=max
 
       - name: Build and push migrate
         uses: docker/build-push-action@v6
@@ -82,8 +62,8 @@ jobs:
           push: true
           tags: ghcr.io/omnivore-app/sh-migrate:latest,ghcr.io/omnivore-app/sh-migrate:${{ github.sha }}
           file: packages/db/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-migrate:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-migrate:latest,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-migrate:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-migrate:${{ github.sha }},mode=max
 
       - name: Build and push local-mail-watcher
         uses: docker/build-push-action@v6
@@ -92,7 +72,29 @@ jobs:
           push: true
           tags: ghcr.io/omnivore-app/sh-local-mail-watcher:latest,ghcr.io/omnivore-app/sh-local-mail-watcher:${{ github.sha }}
           file: packages/local-mail-watcher/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:latest
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:latest,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:${{ github.sha }},mode=max
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-backend:latest,ghcr.io/omnivore-app/sh-backend:${{ github.sha }}
+          file: packages/api/Dockerfile
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-backend:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-backend:${{ github.sha }},mode=max
+
+      - name: Build and push queue-processor
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-queue-processor:latest,ghcr.io/omnivore-app/sh-queue-processor:${{ github.sha }}
+          file: packages/api/queue-processor/Dockerfile
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:${{ github.sha }},mode=max
+
+
 
 
