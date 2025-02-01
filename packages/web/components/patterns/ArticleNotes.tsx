@@ -54,6 +54,7 @@ export function ArticleNotes(props: NoteSectionProps): JSX.Element {
       setText={props.setText}
       saveText={saveText}
       fillBackground={false}
+      isExpanded
     />
   )
 }
@@ -104,6 +105,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       setText={props.setText}
       saveText={saveText}
       fillBackground={true}
+      isExpanded={false}
     />
   )
 }
@@ -116,6 +118,7 @@ type MarkdownNote = {
   text: string | undefined
   setText: (text: string) => void
   fillBackground: boolean | undefined
+  isExpanded: boolean
 
   saveText: (text: string) => void
 }
@@ -204,11 +207,12 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
           'block-quote',
           'link',
           'auto-resize',
+          'mode-toggle',
           'save',
         ]}
         style={{
           width: '100%',
-          height: '180px',
+          height: props.isExpanded ? '360px' : '180px',
         }}
         renderHTML={(text: string) => mdParser.render(text)}
         onChange={handleEditorChange}
