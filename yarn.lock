@@ -610,13 +610,13 @@
     tslib "^2.6.2"
 
 "@aws-sdk/lib-storage@^3.679.0":
-  version "3.730.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/lib-storage/-/lib-storage-3.730.0.tgz#9bb5b1fdc6319b712489d26a4ecdcbfecbd4c1ac"
-  integrity sha512-ExVT939XDg1yx7UZLSKVWNp38t9ID1zWXF4BTs02aSwWz5APloctqsLjKXy6DPwVOhfi6yovaM/KzYW9kcZe+Q==
+  version "3.741.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/lib-storage/-/lib-storage-3.741.0.tgz#1f8dcdf0638e2107e5cc7f675cb6ddfb2d48a5a9"
+  integrity sha512-bbX3m5kdoa0zgo1DqyIDasolE8v/mo0X43unqW6g5hfMPI375X9QAFpn0bVmmcBQ62ixV8BO3aZLAPSZb1/IqQ==
   dependencies:
-    "@smithy/abort-controller" "^4.0.0"
-    "@smithy/middleware-endpoint" "^4.0.0"
-    "@smithy/smithy-client" "^4.0.0"
+    "@smithy/abort-controller" "^4.0.1"
+    "@smithy/middleware-endpoint" "^4.0.2"
+    "@smithy/smithy-client" "^4.1.2"
     buffer "5.6.0"
     events "3.3.0"
     stream-browserify "3.0.0"
@@ -6074,7 +6074,7 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.3.tgz#282046f03e886e352b2d5f5da5eb755e01457f3f"
   integrity sha512-DE427ROAphMQzU4ENbliGYrBSYPXF+TtLg9S8vzeA+OF4ZKzoDdzfL8sxuMUGS/lgRhM6j1URSk9ghf7Xo1tyA==
 
-"@smithy/abort-controller@^4.0.0", "@smithy/abort-controller@^4.0.1":
+"@smithy/abort-controller@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@smithy/abort-controller/-/abort-controller-4.0.1.tgz#7c5e73690c4105ad264c2896bd1ea822450c3819"
   integrity sha512-fiUIYgIgRjMWznk6iLJz35K2YxSLHzLBA/RC6lBrKfQ8fHbPfvk7Pk9UvpKoHgJjI18MnbPuEju53zcVy6KF1g==
@@ -8207,6 +8207,14 @@
   resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-9.0.7.tgz#e49b96c2b29356ed462e9708fc73b833014727d2"
   integrity sha512-ugo316mmTYBl2g81zDFnZ7cfxlut3o+/EQdaP7J8QN2kY6lJ22hmQYCK5EHcJHbrW+dkCGSCPgbG8JtYj6qSrg==
   dependencies:
+    "@types/node" "*"
+
+"@types/jsonwebtoken@^9.0.7":
+  version "9.0.8"
+  resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-9.0.8.tgz#313490052801edfb031bb32b6bbd77cc9f230852"
+  integrity sha512-7fx54m60nLFUVYlxAB1xpe9CBWX2vSrk50Y6ogRJ1v5xxtba7qXTg5BgYDN5dq+yuQQ9HaVlHJyAAt1/mxryFg==
+  dependencies:
+    "@types/ms" "*"
     "@types/node" "*"
 
 "@types/liftoff@^2.5.1":
@@ -19401,7 +19409,7 @@ jsonwebtoken@^8.5.1:
     ms "^2.1.1"
     semver "^5.6.0"
 
-jsonwebtoken@^9.0.0:
+jsonwebtoken@^9.0.0, jsonwebtoken@^9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-9.0.2.tgz#65ff91f4abef1784697d40952bb1998c504caaf3"
   integrity sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==
@@ -24053,6 +24061,13 @@ pbkdf2@^3.1.2:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+pdfjs-dist@4.10.38:
+  version "4.10.38"
+  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.10.38.tgz#3ee698003790dc266cc8b55c0e662ccb9ae18f53"
+  integrity sha512-/Y3fcFrXEAsMjJXeL9J8+ZG9U01LbuWaYypvDW2ycW1jL269L3js3DVBjDJ0Up9Np1uqDXsDrRihHANhZOlwdQ==
+  optionalDependencies:
+    "@napi-rs/canvas" "^0.1.65"
+
 pdfjs-dist@^2.16.105:
   version "2.16.105"
   resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-2.16.105.tgz#937b9c4a918f03f3979c88209d84c1ce90122c2a"
@@ -24060,13 +24075,6 @@ pdfjs-dist@^2.16.105:
   dependencies:
     dommatrix "^1.0.3"
     web-streams-polyfill "^3.2.1"
-
-pdfjs-dist@^4.9.155:
-  version "4.10.38"
-  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.10.38.tgz#3ee698003790dc266cc8b55c0e662ccb9ae18f53"
-  integrity sha512-/Y3fcFrXEAsMjJXeL9J8+ZG9U01LbuWaYypvDW2ycW1jL269L3js3DVBjDJ0Up9Np1uqDXsDrRihHANhZOlwdQ==
-  optionalDependencies:
-    "@napi-rs/canvas" "^0.1.65"
 
 peberminta@^0.9.0:
   version "0.9.0"
