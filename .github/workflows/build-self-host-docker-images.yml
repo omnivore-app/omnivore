@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - web-image
     paths-ignore:
       - 'apple/**'
       - 'android/**'
