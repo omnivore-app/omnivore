@@ -3,6 +3,7 @@
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document'
 import { getCssText, globalStyles } from '../components/tokens/stitches.config'
 import { Toaster } from 'react-hot-toast'
+import Script from 'next/script'
 
 export default class Document extends NextDocument {
   render() {
@@ -18,6 +19,7 @@ export default class Document extends NextDocument {
           <link rel="manifest" href="/manifest.webmanifest" />
           <script async src="/static/scripts/intercom.js" />
           <script async src="/static/scripts/inject-sw.js" />
+          <Script strategy={"beforeInteractive"} src={"/env.js"} />
 
           {/* prefetch (not preload) fonts that will be used by the reader */}
           <link rel="prefetch" href="/static/fonts/Lora/Lora-Regular.ttf" />
