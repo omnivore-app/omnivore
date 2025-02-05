@@ -34,6 +34,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Build and push web
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-web:latest,ghcr.io/omnivore-app/sh-web:${{ github.sha }}
+          file: packages/web/Dockerfile-self
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web:${{ github.sha }}
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web:${{ github.sha }},mode=max
+
       - name: Build and push image-proxy
         uses: docker/build-push-action@v6
         with:

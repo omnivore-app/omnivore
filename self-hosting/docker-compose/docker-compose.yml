@@ -54,15 +54,7 @@ services:
         condition: service_started
 
   web:
-    build:
-      context: ../../
-      dockerfile: ./packages/web/Dockerfile-self
-      args:
-        - APP_ENV=prod
-        - BASE_URL=http://localhost:3000
-        - SERVER_BASE_URL=http://localhost:4000
-        - HIGHLIGHTS_BASE_URL=http://localhost:3000
-        - USE_NATIVE_PDF=true
+    image: "ghcr.io/omnivore-app/sh-web:latest"
     container_name: "omnivore-web"
     ports:
       - "3000:8080"
