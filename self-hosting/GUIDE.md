@@ -42,36 +42,16 @@ The following environment variables should be changed to reflect where you are r
 | BASE URL                        | The URL of the Front End of the Application.   | http://localhost:3000 |
 | SERVER_BASE_URL                 | The URL of the API Server.                     | http://localhost:4000 |
 | HIGHLIGHTS_BASE_URL             | The URL of the Front end of the Application    | http://localhost:3000 |
-| NEXT_PUBLIC_BASE_URL            | Same as above BASE URL, but for NEXT           | http://localhost:3000 |
-| NEXT_PUBLIC_SERVER_BASE_URL     | Same as above SERVER_BASE_URL, but for NEXT    | http://localhost:4000 |
-| NEXT_PUBLIC_HIGHLIGHTS_BASE_URL | Same as above HIGHLIGHTS_BASE_URL but for NEXT | http://localhost:3000 |
 | CLIENT_URL                      | The URL of the Front end of the Application    | http://localhost:3000 |
 | IMAGEPROXY_URL                  | Service that proxies images to avoid blocking  | http://localhost:7070 |
 
 
-Additionally, when doing a docker-compose build, if you are hosting this application you must change the args in the `docker-compose` file. 
-
-```yaml
-web:
-    build:
-    context: ../../
-    dockerfile: ./packages/web/Dockerfile-self
-args:
-  - APP_ENV=prod
-  - BASE_URL=http://localhost:3000
-  - SERVER_BASE_URL=http://localhost:4000
-  - HIGHLIGHTS_BASE_URL=http://localhost:3000
-```
-
 They are the same as the listed environment variables above. 
 
-### 4. Build the docker images. 
 
-Running `docker compose build` will go through and build all the necessary docker images. 
+### 4. Start the service. 
 
-### 5. Start the service. 
-
-Running `docker compose up` will start the services.
+Running `docker compose up` will pull the images from the github, and then start the services. 
 
 During the first deployment omnivore-migrate will go through and set up the necessary Postgres tables. 
 This will also create a demo user with email: demo@omnivore.app, password: demo_password. 
@@ -301,7 +281,7 @@ Following these steps you should see your email imported into Omnivore.
 
 ## Youtube Transcripts
 
-Omnivore has the ability to process Youtube Transcripts, using OpenAI to add the necessary grammar, and structure. 
+Omnivore has the ability to process YouTube Transcripts, using OpenAI to add the necessary grammar, and structure. 
 
 ### Guide: 
 
