@@ -4,6 +4,7 @@
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Cloudflare Tunnel](#cloudflare-tunnel)
 - [Email](#email)
+- - [IMap Watcher](#imap-watcher)
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
 - - [Third Party Services](#third-party-services)
 - [YouTube Transcripts](#youtube-transcripts)
@@ -158,6 +159,61 @@ We will go over
 5. Paste the Omnivore email address into the signup form.
 
 6. New newsletters will be automatically delivered to your Omnivore inbox.
+
+### IMap Watcher
+
+One of the easiest ways to get this functionality up and running is to use an existing email box, such as gmail. 
+
+We have included a docker file `self-hosting/docker-compose/mail/imap-parser/docker-compose-imap`. 
+
+There are a few environment variables that need to be set to make this work.
+
+| Environment Variable | Description                                                                                          | .env example                      |
+|----------------------|------------------------------------------------------------------------------------------------------|-----------------------------------|
+| WATCHER_API_KEY      | The API Key for the Watcher Service.                                                                 | api-key                           |
+| WATCHER_API_ENDPOINT | The URL of the Watcher Server.                                                                       | https://omnivore-watch.domain.tld |
+| IMAP_USER            | The IMAP User, in the gmail case this will be your email                                             | email-address@emailserver.com     |
+| IMAP_PASSWORD        | For gmail, this will be an application password. for other services this will be your email-password | password                          |
+| IMAP_HOST            | The IMAP Host, for gmail this will be imap.gmail.com                                                 | imap.host.com                     |
+| IMAP_PORT            | The IMAP Port, usually 993                                                                           | 993                               |
+| OMNIVORE_EMAIL       | The email address that Omnivore Creates                                                              | uuid@omnivore.tld                 |
+
+We will show how to set this up with a gmail account below. The steps should be similar for different email services. 
+
+#### GMail: How to
+
+##### Step 1. Create an Omnivore Email
+![Email](../docs/guides/images/create-new-email.png)
+
+This is the email address that you will use for the .env.imap file, `OMNIVORE_EMAIL`
+
+##### Step 2. Enable imap on GMail. 
+Note: For this step, I would recommend creating a separate email account rather than using your own email account. This functionality works by tracking which emails have already been opened, and automatically opens emails. 
+
+![Email Imap](../docs/guides/images/enable-imap.png)
+
+This is located in your gmail settings. 
+
+##### Step 3. Enable Application Passwords for Email. 
+For gmail, the password we need to use is an application password. In order to use these, we first have to enable multi-factor authentication for this account. 
+
+![2fa](../docs/guides/images/enable-2fa.png)
+
+Then follow the link here: https://myaccount.google.com/apppasswords to create an application password. 
+
+![app-pass](../docs/guides/images/create-app-password.png)
+
+![app-pass](../docs/guides/images/create-app-password-2.png)
+
+This will be the password for the `IMAP_PASSWORD`. 
+
+#### Step 4. Run docker compose up 
+`cd self-hosting/docker-compose/mail/imap-parser`
+`docker compose -f docker-compose-imap.yml build`
+`docker compose -f docker-compose-imap.yml up`
+
+#### Step 5. Emails are sent to Omnivore 
+![inc-gmail](../docs/guides/images/incoming-gmail.png)
 
 ### Docker-mailserver and mail-watcher
 
