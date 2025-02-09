@@ -1,0 +1,39 @@
+{
+  "name": "@omnivore/imap-mail-watcher",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --files src/index.ts",
+    "start": "node dist/watcher.js",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
+    "test:typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@omnivore/utils": "1.0.0",
+    "axios": "^1.7.7",
+    "imapflow": "^1.0.181",
+    "mailparser": "^3.7.1"
+  },
+  "devDependencies": {
+    "@types/imapflow": "^1.0.19",
+    "@types/axios": "^0.14.4",
+    "@types/express": "^5.0.0",
+    "rxjs": "^7.8.1",
+    "@types/html-to-text": "^9.0.2",
+    "@types/jsdom": "^21.1.3",
+    "@types/mailparser": "^3.4.5",
+    "@types/node": "^22.10.7",
+    "@types/pg": "^8.10.5",
+    "@types/pg-format": "^1.0.3",
+    "@types/urlsafe-base64": "^1.0.28",
+    "@types/uuid": "^9.0.1",
+    "@types/voca": "^1.4.3",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.7.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
