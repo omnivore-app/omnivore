@@ -82,7 +82,7 @@
     "highlightjs": "^9.16.2",
     "html-entities": "^2.3.2",
     "image-size": "^1.0.2",
-    "intercom-client": "^3.1.4",
+    "intercom-client": "^6.0.0",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
