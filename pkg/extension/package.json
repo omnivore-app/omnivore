@@ -25,7 +25,7 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.0.9",
     "uuid": "^8.3.2"
   }
 }
