@@ -30,7 +30,7 @@ We built Omnivore because we love reading and we want it to be more social. Join
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
 
-We also have a free hosted version of Omnivore at [omnivore.app](https://omnivore.app/) -- try it now!
+A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
 <img width="981" alt="web-screenshot-listview" src="https://github.com/omnivore-app/omnivore/assets/75189/df7c797a-4255-42f4-a686-ad94866cb580">
 
@@ -52,6 +52,7 @@ Omnivore takes advantage of some great open source software:
 - [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
 - [Apollo GraphQL](https://www.apollographql.com/) - We generate our GraphQL queries on Android using Apollo GraphQL.
 - [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
+- [PDF.js](https://github.com/mozilla/pdf.js) - PDF.js is used to have open source pdf functionality. 
 - And many more awesome libraries, just checkout our package files to see what we are using.
 
 ## Importing Libraries
