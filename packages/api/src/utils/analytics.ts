@@ -21,18 +21,17 @@ class PostHogClient implements AnalyticClient {
   }
 
   capture({ distinctId, event, properties }: AnalyticEvent) {
-    // get client from request context
-    const client = httpContext.get<string>('client') || 'other'
-
-    this.client.capture({
-      distinctId,
-      event,
-      properties: {
-        ...properties,
-        client,
-        env: env.server.apiEnv,
-      },
-    })
+    // // get client from request context
+    // const client = httpContext.get<string>('client') || 'other'
+    // this.client.capture({
+    //   distinctId,
+    //   event,
+    //   properties: {
+    //     ...properties,
+    //     client,
+    //     env: env.server.apiEnv,
+    //   },
+    // })
   }
 
   async shutdownAsync() {

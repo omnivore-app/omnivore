@@ -115,13 +115,13 @@ export const createUser = async (input: {
   const customAttributes: { source_user_id: string } = {
     source_user_id: user.sourceUserId,
   }
-  await IntercomClient?.contacts.createUser({
+  await IntercomClient?.contacts.create({
     email: user.email,
-    externalId: user.id,
+    external_id: user.id,
     name: user.name,
     avatar: profile.pictureUrl || undefined,
-    customAttributes: customAttributes,
-    signedUpAt: Math.floor(Date.now() / 1000),
+    custom_attributes: customAttributes,
+    signed_up_at: Math.floor(Date.now() / 1000),
   })
 
   const pubsubClient = createPubSubClient()

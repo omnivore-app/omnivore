@@ -13,12 +13,22 @@ export const saveExport = async (
   })
 }
 
-export const countExportsWithin24Hours = async (
+export const countExportsWithinMinute = async (
   userId: string
 ): Promise<number> => {
   return getRepository(Export).countBy({
     userId,
-    createdAt: MoreThan(new Date(Date.now() - 24 * 60 * 60 * 1000)),
+    createdAt: MoreThan(new Date(Date.now() - 60 * 1000)),
+    state: In([TaskState.Pending, TaskState.Running, TaskState.Succeeded]),
+  })
+}
+
+export const countExportsWithin6Hours = async (
+  userId: string
+): Promise<number> => {
+  return getRepository(Export).countBy({
+    userId,
+    createdAt: MoreThan(new Date(Date.now() - 6 * 60 * 60 * 1000)),
     state: In([TaskState.Pending, TaskState.Running, TaskState.Succeeded]),
   })
 }
@@ -30,5 +40,16 @@ export const findExportById = async (
   return getRepository(Export).findOneBy({
     id,
     userId,
+  })
+}
+
+export const findExports = async (userId: string): Promise<Export[] | null> => {
+  return getRepository(Export).find({
+    where: {
+      userId,
+    },
+    order: {
+      createdAt: 'DESC',
+    },
   })
 }

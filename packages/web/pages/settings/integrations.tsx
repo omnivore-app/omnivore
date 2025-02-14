@@ -237,42 +237,42 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
-      {
-        icon: '/static/icons/pocket.svg',
-        title: 'Pocket',
-        subText:
-          'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import. The import is a one-time process and can only be performed once per-account.',
-        button: {
-          text: pocket ? 'Disconnect' : 'Import',
-          icon: isImporting(pocket) ? (
-            <Spinner size={16} />
-          ) : (
-            <Link size={16} weight={'bold'} />
-          ),
-          style: pocket ? 'ctaWhite' : 'ctaDarkYellow',
-          action: () => {
-            pocket
-              ? deleteIntegration(pocket.id)
-              : redirectToIntegration('POCKET', ImportItemState.Unarchived)
-          },
-          disabled: isImporting(pocket),
-          isDropdown: !pocket,
-          dropdownOptions: [
-            {
-              text: 'Import All',
-              action: () => {
-                redirectToIntegration('POCKET', ImportItemState.All)
-              },
-            },
-            {
-              text: 'Import Unarchived',
-              action: () => {
-                redirectToIntegration('POCKET', ImportItemState.Unarchived)
-              },
-            },
-          ],
-        },
-      },
+      // {
+      //   icon: '/static/icons/pocket.svg',
+      //   title: 'Pocket',
+      //   subText:
+      //     'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import. The import is a one-time process and can only be performed once per-account.',
+      //   button: {
+      //     text: pocket ? 'Disconnect' : 'Import',
+      //     icon: isImporting(pocket) ? (
+      //       <Spinner size={16} />
+      //     ) : (
+      //       <Link size={16} weight={'bold'} />
+      //     ),
+      //     style: pocket ? 'ctaWhite' : 'ctaDarkYellow',
+      //     action: () => {
+      //       pocket
+      //         ? deleteIntegration(pocket.id)
+      //         : redirectToIntegration('POCKET', ImportItemState.Unarchived)
+      //     },
+      //     disabled: isImporting(pocket),
+      //     isDropdown: !pocket,
+      //     dropdownOptions: [
+      //       {
+      //         text: 'Import All',
+      //         action: () => {
+      //           redirectToIntegration('POCKET', ImportItemState.All)
+      //         },
+      //       },
+      //       {
+      //         text: 'Import Unarchived',
+      //         action: () => {
+      //           redirectToIntegration('POCKET', ImportItemState.Unarchived)
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
 
       // {
       //   icon: '/static/icons/webhooks.svg',
@@ -301,22 +301,22 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
-      {
-        icon: '/static/icons/notion.png',
-        title: 'Notion',
-        subText:
-          'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
-        button: {
-          text: notion ? 'Settings' : 'Connect',
-          icon: <Link size={16} weight={'bold'} />,
-          style: notion ? 'ctaWhite' : 'ctaDarkYellow',
-          action: () => {
-            notion
-              ? router.push('/settings/integrations/notion')
-              : redirectToIntegration('NOTION')
-          },
-        },
-      },
+      // {
+      //   icon: '/static/icons/notion.png',
+      //   title: 'Notion',
+      //   subText:
+      //     'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
+      //   button: {
+      //     text: notion ? 'Settings' : 'Connect',
+      //     icon: <Link size={16} weight={'bold'} />,
+      //     style: notion ? 'ctaWhite' : 'ctaDarkYellow',
+      //     action: () => {
+      //       notion
+      //         ? router.push('/settings/integrations/notion')
+      //         : redirectToIntegration('NOTION')
+      //     },
+      //   },
+      // },
     ]
 
     setIntegrationsArray(integrationsArray)

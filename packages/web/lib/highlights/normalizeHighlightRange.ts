@@ -16,6 +16,7 @@ export function extendRangeToWordBoundaries(range: Range): void {
 
 function disableWordSnap(str: string): boolean {
   // For CJK languages we don't attempt word snapping
+  // @ts-ignore
   if (str.match(/[\u3131-\uD79D]/ugi)) {
     return true
   }

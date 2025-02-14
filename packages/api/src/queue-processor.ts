@@ -56,7 +56,10 @@ import {
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
 } from './jobs/process-youtube-video'
 import { pruneTrashJob, PRUNE_TRASH_JOB } from './jobs/prune_trash'
-import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
+import {
+  REFRESH_ALL_FEEDS_JOB_NAME,
+  refreshAllFeeds,
+} from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import {
@@ -192,12 +195,15 @@ export const createWorker = (connection: ConnectionOptions) =>
             return callWebhook(job.data)
           case EXPORT_ITEM_JOB_NAME:
             return exportItem(job.data)
-          case AI_SUMMARIZE_JOB_NAME:
-            return aiSummarize(job.data)
+          // case AI_SUMMARIZE_JOB_NAME:
+          //   return aiSummarize(job.data)
           case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
             return processYouTubeVideo(job.data)
           case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-            return processYouTubeTranscript(job.data)
+            if (process.env['OPENAI_API_KEY']) {
+              return processYouTubeTranscript(job.data)
+            }
+            break
           case EXPORT_ALL_ITEMS_JOB_NAME:
             return exportAllItems(job.data)
           case SEND_EMAIL_JOB:
@@ -210,14 +216,14 @@ export const createWorker = (connection: ConnectionOptions) =>
             return saveNewsletterJob(job.data)
           case FORWARD_EMAIL_JOB:
             return forwardEmailJob(job.data)
-          case CREATE_DIGEST_JOB:
-            return createDigest(job.data)
+          // case CREATE_DIGEST_JOB:
+          //   return createDigest(job.data)
           case UPLOAD_CONTENT_JOB:
             return uploadContentJob(job.data)
-          case UPDATE_HOME_JOB:
-            return updateHome(job.data)
-          case SCORE_LIBRARY_ITEM_JOB:
-            return scoreLibraryItem(job.data)
+          // case UPDATE_HOME_JOB:
+          //   return updateHome(job.data)
+          // case SCORE_LIBRARY_ITEM_JOB:
+          //   return scoreLibraryItem(job.data)
           case GENERATE_PREVIEW_CONTENT_JOB:
             return generatePreviewContent(job.data)
           case PRUNE_TRASH_JOB:
@@ -257,6 +263,17 @@ const setupCronJobs = async () => {
       priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
+      },
+    }
+  )
+
+  await queue.add(
+    REFRESH_ALL_FEEDS_JOB_NAME,
+    {},
+    {
+      priority: getJobPriority(REFRESH_ALL_FEEDS_JOB_NAME),
+      repeat: {
+        every: 14_400_000, // 4 Hours
       },
     }
   )

@@ -73,6 +73,7 @@ export interface BackendEnv {
   }
   dev: {
     isLocal: boolean
+    autoVerify: boolean
   }
   queue: {
     location: string
@@ -94,6 +95,12 @@ export interface BackendEnv {
     gcsUploadSAKeyFilePath: string
     gcsUploadPrivateBucket: string
     dailyUploadLimit: number
+    useLocalStorage: boolean
+    localMinioUrl: string
+    internalMinioUrl: string
+  }
+  email: {
+    domain: string
   }
   sender: {
     message: string
@@ -197,10 +204,15 @@ const nullableEnvVars = [
   'PG_REPLICA_USER',
   'PG_REPLICA_PASSWORD',
   'PG_REPLICA_DB',
+  'AUTO_VERIFY',
   'INTERCOM_WEB_SECRET',
   'INTERCOM_IOS_SECRET',
   'INTERCOM_ANDROID_SECRET',
   'EXPORT_TASK_HANDLER_URL',
+  'LOCAL_MINIO_URL',
+  'GCS_USE_LOCAL_HOST',
+  'LOCAL_EMAIL_DOMAIN',
+  'AWS_S3_ENDPOINT_URL',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -240,6 +252,7 @@ export function getEnv(): BackendEnv {
     pool: {
       max: parseInt(parse('PG_POOL_MAX'), 10),
     },
+
     replication: parse('PG_REPLICATION') === 'true',
     replica: {
       host: parse('PG_REPLICA_HOST'),
@@ -248,6 +261,9 @@ export function getEnv(): BackendEnv {
       password: parse('PG_REPLICA_PASSWORD'),
       dbName: parse('PG_REPLICA_DB'),
     },
+  }
+  const email = {
+    domain: parse('LOCAL_EMAIL_DOMAIN'),
   }
   const server = {
     jwtSecret: parse('JWT_SECRET'),
@@ -288,6 +304,7 @@ export function getEnv(): BackendEnv {
   }
   const dev = {
     isLocal: parse('API_ENV') == 'local',
+    autoVerify: parse('AUTO_VERIFY') === 'true',
   }
   const queue = {
     location: parse('PUPPETEER_QUEUE_LOCATION'),
@@ -318,6 +335,9 @@ export function getEnv(): BackendEnv {
     dailyUploadLimit: parse('GCS_UPLOAD_DAILY_LIMIT')
       ? parseInt(parse('GCS_UPLOAD_DAILY_LIMIT'), 10)
       : 5, // default to 5
+    useLocalStorage: parse('GCS_USE_LOCAL_HOST') == 'true',
+    localMinioUrl: parse('LOCAL_MINIO_URL'),
+    internalMinioUrl: parse('AWS_S3_ENDPOINT_URL'),
   }
   const sender = {
     message: parse('SENDER_MESSAGE'),
@@ -374,6 +394,7 @@ export function getEnv(): BackendEnv {
   return {
     pg,
     client,
+    email,
     server,
     google,
     posthog,

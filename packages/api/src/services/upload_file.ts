@@ -137,7 +137,7 @@ export const uploadFile = async (
         itemType,
         uploadFile: { id: uploadFileData.id },
         slug: generateSlug(uploadFilePathName),
-        state: LibraryItemState.Processing,
+        state: LibraryItemState.Succeeded,
         contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
       },
       uid

@@ -30,20 +30,26 @@ const baseURLRecords: BaseURLRecords = {
 
 function serverBaseURL(env: AppEnvironment): string {
   const value = baseURLRecords[appEnv].serverBaseURL
-  if (value.length == 0) {
-    throw new Error(
-      `Couldn't find environment variable for server base url in ${env} environment`
+  if (value.length == 0 && global.window) {
+    const windowEnv = (window as any).omnivoreEnv
+    console.warn(
+      `Couldn't find environment variable for server base url in ${env} environment, using ${windowEnv.SERVER_BASE_URL}`
     )
+
+    return windowEnv.SERVER_BASE_URL ?? ''
   }
   return value
 }
 
 function webURL(env: AppEnvironment): string {
   const value = baseURLRecords[appEnv].webBaseURL
-  if (value.length == 0) {
-    throw new Error(
-      `Couldn't find environment variable for web base url in ${env} environment`
+  if (value.length == 0 && global.window) {
+    const windowEnv = (window as any).omnivoreEnv
+    console.warn(
+      `Couldn't find environment variable for base url in ${env} environment, using ${windowEnv.BASE_URL}`
     )
+
+    return windowEnv.BASE_URL ?? ''
   }
   return value
 }
@@ -69,8 +75,6 @@ export const appleAuthRedirectURI =
     : `${baseURLRecords[appEnv].serverBaseURL}/api/auth/vercel/apple-redirect`
 
 export const intercomAppID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID
-
-export const posthogApiKey = process.env.NEXT_PUBLIC_POSTHOG_API_KEY
 
 export const googleID =
   appEnv == 'prod'

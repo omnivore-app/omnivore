@@ -9,7 +9,6 @@
   "keywords": [],
   "license": "Apache-2.0",
   "scripts": {
-    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
     "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
@@ -34,7 +33,7 @@
   },
   "dependencies": {
     "@fast-csv/parse": "^5.0.0",
-    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/functions-framework": "3.4.5",
     "@google-cloud/storage": "^7.0.1",
     "@omnivore/readability": "1.0.0",
     "@omnivore/utils": "1.0.0",

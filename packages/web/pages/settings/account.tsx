@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/elements/Button'
 import {
   Box,
+  HStack,
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
@@ -27,6 +28,13 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import {
+  createExport,
+  useGetExports,
+} from '../../lib/networking/useCreateExport'
+import { TaskState } from '../../lib/networking/mutations/exportToIntegrationMutation'
+import { timeAgo } from '../../lib/textFormatting'
+import { Download, DownloadSimple } from '@phosphor-icons/react'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -283,6 +291,8 @@ export default function Account(): JSX.Element {
             </form>
           </VStack>
 
+          <ExportSection />
+
           <VStack
             css={{
               padding: '24px',
@@ -388,8 +398,8 @@ export default function Account(): JSX.Element {
               )}
             </form>
           </VStack>
-
-          <DigestSection />
+          {/* 
+          <DigestSection /> */}
 
           <VStack
             css={{
@@ -432,7 +442,7 @@ export default function Account(): JSX.Element {
             {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
           </VStack>
 
-          <BetaFeaturesSection />
+          {/* <BetaFeaturesSection /> */}
 
           <VStack
             css={{
@@ -468,6 +478,103 @@ export default function Account(): JSX.Element {
         />
       ) : null}
     </SettingsLayout>
+  )
+}
+
+const ExportSection = (): JSX.Element => {
+  const { data: recentExports } = useGetExports()
+  console.log('recentExports: ', recentExports)
+  const doExport = useCallback(async () => {
+    const result = await createExport()
+    if (result) {
+      showSuccessToast('Your export has started.')
+    } else {
+      showErrorToast('There was an error creating your export.')
+    }
+  }, [])
+
+  return (
+    <VStack
+      css={{
+        padding: '24px',
+        width: '100%',
+        height: '100%',
+        bg: '$grayBg',
+        gap: '5px',
+        borderRadius: '5px',
+      }}
+    >
+      <StyledLabel>Export</StyledLabel>
+      <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+        Export all of your data. This can be done once per day and will be
+        delivered to your registered email address. Once your export has started
+        you should receive an email with a link to your data within an hour. The
+        download link will be available for 24 hours.
+      </StyledText>
+      <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+        If you do not receive your completed export within 24hrs please contact{' '}
+        <a href="mailto:feedback@omnivore.app">
+          Contact&nbsp;us via&nbsp;email
+        </a>
+      </StyledText>
+      <Button
+        style="ctaDarkYellow"
+        onClick={(event) => {
+          doExport()
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        Export Data
+      </Button>
+
+      {recentExports && (
+        <VStack css={{ width: '100% ', mt: '20px' }}>
+          <StyledLabel>Recent exports</StyledLabel>
+          {recentExports.map((item) => {
+            return (
+              <HStack
+                key={item.id}
+                css={{ width: '100%', height: '55px' }}
+                distribution="start"
+                alignment="center"
+              >
+                <SpanBox css={{ width: '180px' }} title={item.createdAt}>
+                  {timeAgo(item.createdAt)}
+                </SpanBox>
+                <SpanBox css={{ width: '180px' }}>{item.state}</SpanBox>
+                {item.totalItems && item.totalItems > 0 ? (
+                  <VStack css={{ width: '180px', height: '50px', pt: '12px' }}>
+                    <ProgressBar
+                      fillPercentage={
+                        ((item.processedItems ?? 0) / item.totalItems) * 100
+                      }
+                      fillColor={theme.colors.omnivoreCtaYellow.toString()}
+                      backgroundColor={theme.colors.grayText.toString()}
+                      borderRadius={'2px'}
+                    />
+                    <StyledText style="footnote" css={{ mt: '0px' }}>
+                      {`${item.processedItems ?? 0} of ${
+                        item.totalItems
+                      } items.`}
+                    </StyledText>
+                  </VStack>
+                ) : (
+                  <></>
+                )}
+                {item.signedUrl && (
+                  <SpanBox css={{ marginLeft: 'auto' }}>
+                    <a href={item.signedUrl} target="_blank" rel="noreferrer">
+                      Download
+                    </a>
+                  </SpanBox>
+                )}
+              </HStack>
+            )
+          })}
+        </VStack>
+      )}
+    </VStack>
   )
 }
 

@@ -17,7 +17,14 @@ export default class MDEditorSavePlugin extends PluginComponent {
     return (
       <Button
         style="plainIcon"
-        css={{ display: 'flex', pr: '5px' }}
+        css={{
+          alignItems: 'center',
+          display: 'flex',
+          height: '28px',
+          justifyContent: 'center',
+          lineHeight: '28px',
+          minWidth: '24px',
+        }}
         onClick={(event) => {
           document.dispatchEvent(new Event('saveMarkdownNote'))
           event.preventDefault()

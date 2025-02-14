@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 // Imports the Google Cloud Tasks library.
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
-import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
@@ -74,7 +73,8 @@ import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logError, logger } from './logger'
-import View = google.cloud.tasks.v2.Task.View
+import { EXPORT_QUEUE_NAME } from '../export-processor'
+import View = protos.google.cloud.tasks.v2.Task.View
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -284,7 +284,7 @@ export const createAppEngineTask = async ({
 
 export const getTask = async (
   taskName: string
-): Promise<google.cloud.tasks.v2.ITask> => {
+): Promise<protos.google.cloud.tasks.v2.ITask> => {
   // If we are in local environment
   if (env.dev.isLocal) {
     return { name: taskName } as protos.google.cloud.tasks.v2.ITask
@@ -306,7 +306,7 @@ export const getTask = async (
 
 export const deleteTask = async (
   taskName: string
-): Promise<google.protobuf.IEmpty | null> => {
+): Promise<protos.google.protobuf.IEmpty | null> => {
   // If we are in local environment
   if (env.dev.isLocal) {
     return taskName
@@ -1074,7 +1074,7 @@ export const enqueueExpireFoldersJob = async () => {
 }
 
 export const queueExportJob = async (userId: string, exportId: string) => {
-  const queue = await getQueue()
+  const queue = await getQueue(EXPORT_QUEUE_NAME)
   if (!queue) {
     return undefined
   }
@@ -1087,7 +1087,11 @@ export const queueExportJob = async (userId: string, exportId: string) => {
       removeOnComplete: true,
       removeOnFail: true,
       priority: getJobPriority(EXPORT_JOB_NAME),
-      attempts: 1,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 60_000,
+      },
     }
   )
 }

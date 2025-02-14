@@ -281,7 +281,15 @@ export const processYouTubeVideo = async (
     updatedLibraryItem.publishedAt = new Date(video.uploadDate)
   }
 
-  if ('getTranscript' in video && duration > 0 && duration < 1801) {
+  if (
+    'getTranscript' in video &&
+    duration > 0 &&
+    duration <
+      Number(
+        process.env['YOUTUBE_MAXIMUM_VIDEO_DURATION_TRANSCRIPT'] ?? 1801
+      ) &&
+    process.env['OPENAI_API_KEY']
+  ) {
     // If the video has a transcript available, put a placehold in and
     // enqueue a job to process the full transcript
     const updatedContent = await addTranscriptToReadableContent(
@@ -300,7 +308,7 @@ export const processYouTubeVideo = async (
     })
   }
 
-  if (updatedLibraryItem !== {}) {
+  if (Object.keys(updatedLibraryItem).length > 0) {
     await updateLibraryItem(
       jobData.libraryItemId,
       updatedLibraryItem,

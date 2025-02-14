@@ -23,7 +23,7 @@
     "nock": "^13.3.1"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/functions-framework": "3.4.5",
     "@sentry/serverless": "^7.77.0",
     "axios": "^1.4.0",
     "dotenv": "^16.0.1",

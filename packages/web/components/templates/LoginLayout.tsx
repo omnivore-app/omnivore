@@ -10,7 +10,6 @@ import type { LoginFormProps } from './LoginForm'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 
 import featureFullWidthImage from '../../public/static/images/login/login-feature-image-full.png'
-import { MaintenanceBanner } from '../elements/MaintenanceBanner'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
   return (

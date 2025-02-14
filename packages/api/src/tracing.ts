@@ -9,7 +9,6 @@ import { NodeTracerProvider } from '@opentelemetry/node'
 import { BatchSpanProcessor } from '@opentelemetry/tracing'
 import { EventEmitter } from 'events'
 import { GraphQLInstrumentation } from '@opentelemetry/instrumentation-graphql'
-import { setSpan } from '@opentelemetry/api/build/src/trace/context-utils'
 
 const provider: NodeTracerProvider = new NodeTracerProvider()
 
@@ -46,6 +45,8 @@ if (
 }
 
 if (exporter !== undefined) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   provider.addSpanProcessor(new BatchSpanProcessor(exporter))
   console.info('tracing initialized')
 }
@@ -78,7 +79,7 @@ export async function traceAs<A>(
   const childSpan = async (): Promise<A> => {
     const span = tracer.startSpan(spanName, { attributes })
     const result = await api.context.with(
-      setSpan(api.context.active(), span),
+      api.trace.setSpan(api.context.active(), span),
       fn
     )
     span.end()

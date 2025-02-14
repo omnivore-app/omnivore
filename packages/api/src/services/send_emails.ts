@@ -144,6 +144,12 @@ export const sendExportJobEmail = async (
       throw new Error('Invalid state')
   }
 
+  logger.info('enqueing email job:', {
+    userId,
+    subject,
+    html,
+  })
+
   return enqueueSendEmail({
     userId,
     subject,

@@ -1,10 +1,10 @@
-import { Client } from 'intercom-client'
+import * as intercom from 'intercom-client'
 import { env } from '../env'
 
 export const IntercomClient =
   env.server.apiEnv && !env.dev.isLocal
-    ? new Client({
-        tokenAuth: { token: env.intercom.token },
+    ? new intercom.IntercomClient({
+        token: env.intercom.token,
       })
     : null
 
@@ -16,8 +16,8 @@ export async function createIntercomEvent(
     return
   }
   return IntercomClient.events.create({
-    eventName: eventName,
-    userId: userId,
-    createdAt: Math.floor(Date.now() / 1000), // this is mandatory for events
+    event_name: eventName,
+    user_id: userId,
+    created_at: Math.floor(Date.now() / 1000), // this is mandatory for events
   })
 }

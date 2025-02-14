@@ -56,6 +56,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       Features,
       EmailAddress,
       Rule,
+      Export,
     ],
   })
 
@@ -317,6 +318,9 @@ export class LibraryItem extends BaseEntity {
   @Column({ type: 'text', name: 'original_url' })
   originalUrl!: string
 
+  @Column({ type: 'text', name: 'download_url' })
+  downloadlUrl!: string
+
   @Column('text')
   slug!: string
 
@@ -499,4 +503,35 @@ export class Rule extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'failed_at' })
   failedAt?: Date
+}
+
+@Entity({ name: 'export' })
+export class Export extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, { eager: true })
+  user!: User
+
+  @Column('text', { nullable: true })
+  task_id?: string
+
+  @Column('text')
+  state!: string
+
+  @Column('int', { default: 0 })
+  total_items!: number
+
+  @Column('int', { default: 0 })
+  processed_items!: number
+
+  @Column('text', { nullable: true })
+  signed_url?: string
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
 }

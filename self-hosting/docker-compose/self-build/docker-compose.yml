@@ -1,0 +1,176 @@
+version: '3'
+x-postgres:
+  &postgres-common
+  image: "ankane/pgvector:v0.5.1"
+  user: postgres
+  healthcheck:
+    test: "exit 0"
+    interval: 2s
+    timeout: 12s
+    retries: 3
+
+services:
+  postgres:
+    <<: *postgres-common
+    container_name: "omnivore-postgres"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  migrate:
+    build:
+      context: ../../../
+      dockerfile: ./packages/db/Dockerfile
+    container_name: "omnivore-migrate"
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../../../
+      dockerfile: ./packages/api/Dockerfile
+    container_name: "omnivore-api"
+    ports:
+      - "4000:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 15s
+      timeout: 90s
+      retries: 6
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  queue-processor:
+    build:
+      context: ../../../
+      dockerfile: ./packages/api/queue-processor/Dockerfile
+    container_name: "omnivore-queue-processor"
+    env_file:
+      - .env
+    depends_on:
+      api:
+        condition: service_started
+
+  web:
+    build:
+      context: ../../../
+      dockerfile: ./packages/web/Dockerfile-self
+      args:
+        - APP_ENV=prod
+        - BASE_URL=http://localhost:3000
+        - SERVER_BASE_URL=http://localhost:4000
+        - HIGHLIGHTS_BASE_URL=http://localhost:3000
+        - USE_NATIVE_PDF=true
+    container_name: "omnivore-web"
+    ports:
+      - "3000:8080"
+    env_file:
+      .env
+    depends_on:
+      api:
+        condition: service_healthy
+
+  image-proxy:
+    build:
+      context: ../../../imageproxy
+      dockerfile: ./Dockerfile
+    container_name: "omnivore-image-proxy"
+    ports:
+      - "7070:8080"
+    env_file:
+      - .env
+
+  content-fetch:
+    build:
+      context: ../../../
+      dockerfile: ./packages/content-fetch/Dockerfile
+    container_name: "omnivore-content-fetch"
+    ports:
+      - "9090:8080"
+    environment:
+      - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  redis:
+    image: "redis:7.2.4"
+    container_name: "omnivore-redis"
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio
+    expose:
+      - 1010
+    ports:
+      - "1010:9000"
+    healthcheck:
+      test: [ "CMD", "mc", "ready", "local" ]
+      interval: 5s
+      timeout: 1s
+    environment:
+      - "MINIO_ACCESS_KEY=minio"
+      - "MINIO_SECRET_KEY=miniominio"
+      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+    command: server /data
+    volumes:
+      - minio_data:/data
+
+  createbuckets:
+    image: minio/mc
+    environment:
+      - MINIO_ACCESS_KEY=minio
+      - MINIO_SECRET_KEY=miniominio
+      - BUCKET_NAME=omnivore
+      - ENDPOINT=http://minio:9000
+      - AWS_S3_ENDPOINT_URL=http://minio:9000
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/bash -c "
+      sleep 5;
+      until (/usr/bin/mc config host add myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
+      /usr/bin/mc mb myminio/omnivore;
+      /usr/bin/mc policy set public myminio/omnivore;
+      exit 0;
+      "
+  mail-watch-server:
+    build:
+      context: ../../../
+      dockerfile: ./packages/local-mail-watcher/Dockerfile
+    container_name: "omnivore-mail-watch-server"
+    ports:
+      - "4398:8080"
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+
+volumes:
+  pgdata:
+  redis_data:
+  minio_data:
+
