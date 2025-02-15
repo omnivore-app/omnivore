@@ -60,7 +60,7 @@ public extension AppEnvironment {
   var environmentConfigured: Bool {
     if self == .custom {
       guard
-        let sharedDefaults = UserDefaults(suiteName: "group.app.omnnivoreapp"),
+        let sharedDefaults = UserDefaults(suiteName: "group.app.omnivoreapp"),
         let str = sharedDefaults.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue),
         let url = URL(string: str) 
       else {
@@ -100,7 +100,7 @@ public extension AppEnvironment {
       return URL(string: "http://localhost:4000")!
     case .custom:
       guard
-        let sharedDefaults = UserDefaults(suiteName: "group.app.omnnivoreapp"),
+        let sharedDefaults = UserDefaults(suiteName: "group.app.omnivoreapp"),
         let str = sharedDefaults.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue),
         let url = URL(string: str)
       else {
@@ -120,7 +120,7 @@ public extension AppEnvironment {
       return URL(string: "http://localhost:3000")!
     case .custom:
       guard
-        let sharedDefaults = UserDefaults(suiteName: "group.app.omnnivoreapp"),
+        let sharedDefaults = UserDefaults(suiteName: "group.app.omnivoreapp"),
         let str = sharedDefaults.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue),
         let url = URL(string: str)
       else {
@@ -140,7 +140,7 @@ public extension AppEnvironment {
       return URL(string: "http://localhost:8080")!
     case .custom:
       guard
-        let sharedDefaults = UserDefaults(suiteName: "group.app.omnnivoreapp"),
+        let sharedDefaults = UserDefaults(suiteName: "group.app.omnivoreapp"),
         let str = sharedDefaults.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue),
         let url = URL(string: str)
       else {
