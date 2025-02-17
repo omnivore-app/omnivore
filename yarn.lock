@@ -2616,10 +2616,10 @@
     teeny-request "^9.0.0"
     uuid "^8.0.0"
 
-"@google-cloud/tasks@^4.0.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/tasks/-/tasks-4.1.0.tgz#c5905bc76cb0d949cb7b45bff18f155927e52210"
-  integrity sha512-9n6Aw0JZS/c6dqP1wmK9tmzwqayS/E62BM1rOtzDhwYeWhtAhFsdXjCDZZ9+H+kGOrpsLf+4NPIs5lu5mQvapg==
+"@google-cloud/tasks@^5.5.2":
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/@google-cloud/tasks/-/tasks-5.5.2.tgz#bb6d5db9d4abb40617e54845dd5270c814d558ff"
+  integrity sha512-F934h4rI3OLlEVgzthDzE5RDQqT2brlq+BeD15eHNBi4sGMTdaz/b4y3eMFxJvB2hZk5mEKlLnsb9Pt2EcmNSQ==
   dependencies:
     google-gax "^4.0.4"
 
