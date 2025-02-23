@@ -11,6 +11,7 @@
     "url": "https://omnivore.app/"
   },
   "homepage_url": "https://omnivore.app/",
+  "content_security_policy": "default-src 'none'; child-src 'none'; manifest-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; connect-src *; frame-src 'none'; font-src 'none'; img-src data:; script-src 'self'; script-src-elem 'self' 'unsafe-inline'; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline'; style-src-attr 'none'; base-uri 'none'; form-action 'none'; block-all-mixed-content; upgrade-insecure-requests; report-uri https://api.jeurissen.co/reports/csp/webext/omnivore/",
   "icons": {
     "16": "/images/extension/icon-16.png",
     "24": "/images/extension/icon-24.png",
@@ -23,31 +24,9 @@
   "permissions": [
     "activeTab",
     "storage",
-
-  ],
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-  ],
-  "host_permissions": [
-    "http://localhost:4000/*",
-    "https://api-prod.omnivore.app/api/graphql",
-    "https://api-demo.omnivore.app/api/graphql"
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "images/*.svg",
-        "views/toast.html"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
+    "contextMenus",
+    "https://*/**",
+    "http://*/**"
   ],
   "background": {
     "page": "/views/background.html",
