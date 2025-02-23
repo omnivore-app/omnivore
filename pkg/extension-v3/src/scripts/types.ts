@@ -52,8 +52,18 @@ export interface AddNoteInput {
 
 export interface TaskInput {
   clientRequestId: string
-  task: 'addNote' | 'archive'
-  note?: string
+  libraryItemId?: string | undefined
+  task: 'addNote' | 'archive' | 'editTitle' | 'delete' | 'updateLabelCache' | 'setLabels'
+  title?: string | undefined
+  note?: string | undefined
+  labels?: string[] | undefined
+}
+
+export interface Label {
+  id: string
+  name: string
+  color: string
+  selected: 'on' | 'off'
 }
 
 export function isSavePageResult(obj: any): obj is SavePageResult {

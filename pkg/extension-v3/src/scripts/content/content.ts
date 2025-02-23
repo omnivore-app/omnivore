@@ -3,8 +3,9 @@ import {
   showLoggedOutToolbar,
   showToolbar,
   startToolbarDismiss,
-  updateToolbarStatus,
+  updateToolbarStatus
 } from './toolbar'
+import { editLabels } from './labels'
 
 const collectPageContent = async (): Promise<string> => {
   const mainContent = document.documentElement.outerHTML
@@ -26,12 +27,16 @@ const handleToolbarMessage = async (
       break
     case 'updateToolbar':
       updateToolbarStatus(request.status, request.task)
+
       sendResponse({ success: true })
       break
     case 'startToolbarDismiss':
       startToolbarDismiss(request as ToolbarMessage)
       sendResponse({ success: true })
       return
+    case 'updateLabelCache':
+      editLabels()
+      break
     default:
       sendResponse({ success: false })
       return

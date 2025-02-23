@@ -1,12 +1,12 @@
-import { ArticleData, SavePageData, SetLinkArchivedData } from './types'
-import { getStorageItem } from './utils'
-
-const apiUrl = process.env.OMNIVORE_GRAPHQL_URL ?? ''
+import { ArticleData, Label, SavePageData, SetLinkArchivedData } from './types'
+import { getStorageItem, setStorage } from './utils'
+import { v4 as uuidv4 } from 'uuid'
+import { nanoid } from 'nanoid'
 
 export type ApiResult = 'success' | 'failure' | 'unauthorized'
 
 const gqlRequest = async (query: string) => {
-  const apiKey = (await getStorageItem('apiKey')) as string | undefined
+  const apiKey = (await getStorageItem('omnivoreApiKey')) as string | undefined
   let headers = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -16,7 +16,12 @@ const gqlRequest = async (query: string) => {
   }
 
   try {
-    const response = await fetch(apiUrl, {
+    const apiUrl= (await getStorageItem('omnivoreApiUrl')) as string | undefined
+      ?? process.env.OMNIVORE_GRAPHQL_URL
+      ?? ''
+
+    console.log(apiUrl)
+    const response = await fetch(`${apiUrl}/api/graphql`, {
       method: 'POST',
       redirect: 'follow',
       credentials: 'include',
@@ -121,194 +126,194 @@ export async function addNoteToLibraryItem(input: {
   console.log('DATA.ARTICLE: ', data.article)
   const existingNote = data.article?.highlights?.find((h) => h.type == 'NOTE')
 
-  // if (existingNote) {
-  //   const mutation = JSON.stringify({
-  //     query: `
-  //     mutation UpdateHighlight($input: UpdateHighlightInput!) {
-  //       updateHighlight(input: $input) {
-  //         ... on UpdateHighlightSuccess {
-  //           highlight {
-  //             id
-  //           }
-  //         }
-  //         ... on UpdateHighlightError {
-  //           errorCodes
-  //         }
-  //       }
-  //     }
-  //   `,
-  //     variables: {
-  //       input: {
-  //         highlightId: existingNote.id,
-  //         annotation: existingNote.annotation
-  //           ? existingNote.annotation + '\n\n' + note
-  //           : note,
-  //       },
-  //     },
-  //   })
-  //   const result = await gqlRequest(apiUrl, mutation)
-  //   if (
-  //     !result.updateHighlight ||
-  //     result.updateHighlight['errorCodes'] ||
-  //     !result.updateHighlight.highlight
-  //   ) {
-  //     console.log('GQL Error updating note:', result)
-  //     return
-  //   }
-  //   return result.updateHighlight.highlight.id
-  // } else {
-  //   const mutation = JSON.stringify({
-  //     query: `
-  //     mutation CreateHighlight($input: CreateHighlightInput!) {
-  //       createHighlight(input: $input) {
-  //         ... on CreateHighlightSuccess {
-  //           highlight {
-  //             id
-  //           }
-  //         }
-  //         ... on CreateHighlightError {
-  //           errorCodes
-  //         }
-  //       }
-  //     }
-  //   `,
-  //     variables: {
-  //       input: {
-  //         id: noteId,
-  //         shortId: shortId,
-  //         type: 'NOTE',
-  //         articleId: pageId,
-  //         annotation: note,
-  //       },
-  //     },
-  //   })
-  //   const result = await gqlRequest(apiUrl, mutation)
-  //   if (
-  //     !result.createHighlight ||
-  //     result.createHighlight['errorCodes'] ||
-  //     !result.createHighlight.highlight
-  //   ) {
-  //     console.log('GQL Error setting note:', result)
-  //     return
-  //   }
-  //   return result.createHighlight.highlight.id
-  // }
+  if (existingNote) {
+    const mutation = JSON.stringify({
+      query: `
+      mutation UpdateHighlight($input: UpdateHighlightInput!) {
+        updateHighlight(input: $input) {
+          ... on UpdateHighlightSuccess {
+            highlight {
+              id
+            }
+          }
+          ... on UpdateHighlightError {
+            errorCodes
+          }
+        }
+      }
+    `,
+      variables: {
+        input: {
+          highlightId: existingNote.id,
+          annotation: existingNote.annotation
+            ? existingNote.annotation + '\n\n' + input.note
+            : input.note,
+        },
+      },
+    })
+    const result = await gqlRequest(mutation)
+    if (
+      !result.updateHighlight ||
+      result.updateHighlight['errorCodes'] ||
+      !result.updateHighlight.highlight
+    ) {
+      console.log('GQL Error updating note:', result)
+      return
+    }
+    return result.updateHighlight.highlight.id
+  } else {
+    const noteId = uuidv4()
+    const shortId = nanoid(8)
+    const mutation = JSON.stringify({
+      query: `
+      mutation CreateHighlight($input: CreateHighlightInput!) {
+        createHighlight(input: $input) {
+          ... on CreateHighlightSuccess {
+            highlight {
+              id
+            }
+          }
+          ... on CreateHighlightError {
+            errorCodes
+          }
+        }
+      }
+    `,
+      variables: {
+        input: {
+          id: noteId,
+          shortId: shortId,
+          type: 'NOTE',
+          articleId: input.libraryItemId,
+          annotation: input.note,
+        },
+      },
+    })
+    const result = await gqlRequest(mutation)
+    if (
+      !result.createHighlight ||
+      result.createHighlight['errorCodes'] ||
+      !result.createHighlight.highlight
+    ) {
+      console.log('GQL Error setting note:', result)
+      return 'failure'
+    }
+    return 'success'
+  }
+}
+
+export async function updateLabelsCache(): Promise<Label[]> {
+  const query = JSON.stringify({
+    query: `query GetLabels {
+      labels {
+        ... on LabelsSuccess {
+          labels {
+            ...LabelFields
+          }
+        }
+        ... on LabelsError {
+          errorCodes
+        }
+      }
+    }
+    fragment LabelFields on Label {
+      id
+      name
+      color
+      description
+      createdAt
+    }
+    `,
+  })
+
+  const data = await gqlRequest(query)
+  if (!data.labels || data.labels['errorCodes'] || !data.labels['labels']) {
+    console.log('GQL Error updating label cache response:', data, data)
+    console.log(!data.labels, data.labels['errorCodes'], !data.labels['labels'])
+    return []
+  }
+
+  await setStorage({
+    labels: data.labels.labels,
+    labelsLastUpdated: new Date().toISOString(),
+  })
+
+  return data.labels.labels
+}
+
+export async function updatePageTitle(pageId: string, title: string) {
+  const mutation = JSON.stringify({
+    query: `mutation UpdatePage($input: UpdatePageInput!) {
+      updatePage(input: $input) {
+        ... on UpdatePageSuccess {
+          updatedPage {
+            id
+          }
+        }
+        ... on UpdatePageError {
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        pageId,
+        title,
+      },
+    },
+  })
+
+  const data = await gqlRequest(mutation)
+  console.log(data);
+  if (
+    !data.updatePage ||
+    data.updatePage['errorCodes'] ||
+    !data.updatePage['updatedPage']
+  ) {
+    console.log('GQL Error updating page:', data)
+    throw new Error('Error updating title.')
+  }
   return 'success'
 }
 
-// async function updateLabelsCache(apiUrl, tab) {
-//   const query = JSON.stringify({
-//     query: `query GetLabels {
-//       labels {
-//         ... on LabelsSuccess {
-//           labels {
-//             ...LabelFields
-//           }
-//         }
-//         ... on LabelsError {
-//           errorCodes
-//         }
-//       }
-//     }
-//     fragment LabelFields on Label {
-//       id
-//       name
-//       color
-//       description
-//       createdAt
-//     }
-//     `,
-//   })
+export async function setLabels(pageId: string, labels: string[]) {
+  const mutation = JSON.stringify({
+    query: `mutation SetLabels($input: SetLabelsInput!) {
+      setLabels(input: $input) {
+        ... on SetLabelsSuccess {
+          labels {
+            id
+            name
+            color
+          }
+        }
+        ... on SetLabelsError {
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        pageId,
+        labelIds: labels,
+      },
+    },
+  })
 
-//   const data = await gqlRequest(apiUrl, query)
-//   if (!data.labels || data.labels['errorCodes'] || !data.labels['labels']) {
-//     console.log('GQL Error updating label cache response:', data, data)
-//     console.log(!data.labels, data.labels['errorCodes'], !data.labels['labels'])
-//     return []
-//   }
+  const data = await gqlRequest(mutation)
+  if (
+    !data.setLabels ||
+    data.setLabels['errorCodes'] ||
+    !data.setLabels['labels']
+  ) {
+    console.log('GQL Error setting labels:', data)
+    throw new Error('Error setting labels.')
+  }
 
-//   await setStorage({
-//     labels: data.labels.labels,
-//     labelsLastUpdated: new Date().toISOString(),
-//   })
-
-//   return data.labels.labels
-// }
-
-// async function updatePageTitle(apiUrl, pageId, title) {
-//   const mutation = JSON.stringify({
-//     query: `mutation UpdatePage($input: UpdatePageInput!) {
-//       updatePage(input: $input) {
-//         ... on UpdatePageSuccess {
-//           updatedPage {
-//             id
-//           }
-//         }
-//         ... on UpdatePageError {
-//           errorCodes
-//         }
-//       }
-//     }
-//   `,
-//     variables: {
-//       input: {
-//         pageId,
-//         title,
-//       },
-//     },
-//   })
-
-//   const data = await gqlRequest(apiUrl, mutation)
-//   if (
-//     !data.updatePage ||
-//     data.updatePage['errorCodes'] ||
-//     !data.updatePage['updatedPage']
-//   ) {
-//     console.log('GQL Error updating page:', data)
-//     throw new Error('Error updating title.')
-//   }
-//   return data.updatePage.updatePage
-// }
-
-// async function setLabels(apiUrl, pageId, labels) {
-//   const mutation = JSON.stringify({
-//     query: `mutation SetLabels($input: SetLabelsInput!) {
-//       setLabels(input: $input) {
-//         ... on SetLabelsSuccess {
-//           labels {
-//             id
-//             name
-//             color
-//           }
-//         }
-//         ... on SetLabelsError {
-//           errorCodes
-//         }
-//       }
-//     }
-//   `,
-//     variables: {
-//       input: {
-//         pageId,
-//         labels,
-//       },
-//     },
-//   })
-
-//   const data = await gqlRequest(apiUrl, mutation)
-//   if (
-//     !data.setLabels ||
-//     data.setLabels['errorCodes'] ||
-//     !data.setLabels['labels']
-//   ) {
-//     console.log('GQL Error setting labels:', data)
-//     throw new Error('Error setting labels.')
-//   }
-
-//   await appendLabelsToCache(data.setLabels.labels)
-
-//   return data.setLabels.labels
-// }
+  return data.setLabels.labels
+}
 
 // async function appendLabelsToCache(labels) {
 //   const cachedLabels = await getStorageItem('labels')
@@ -487,37 +492,37 @@ export const archiveLibraryItem = async (
   return 'success'
 }
 
-// async function deleteItem(apiUrl, pageId) {
-//   const mutation = JSON.stringify({
-//     query: `mutation SetBookmarkArticle($input: SetBookmarkArticleInput!) {
-//       setBookmarkArticle(input: $input) {
-//         ... on SetBookmarkArticleSuccess {
-//           bookmarkedArticle {
-//             id
-//           }
-//         }
-//         ... on SetBookmarkArticleError {
-//           errorCodes
-//         }
-//       }
-//     }
-//   `,
-//     variables: {
-//       input: {
-//         articleID: pageId,
-//         bookmark: false,
-//       },
-//     },
-//   })
+export async function deleteItem(pageId: string) {
+  const mutation = JSON.stringify({
+    query: `mutation SetBookmarkArticle($input: SetBookmarkArticleInput!) {
+      setBookmarkArticle(input: $input) {
+        ... on SetBookmarkArticleSuccess {
+          bookmarkedArticle {
+            id
+          }
+        }
+        ... on SetBookmarkArticleError {
+          errorCodes
+        }
+      }
+    }
+  `,
+    variables: {
+      input: {
+        articleID: pageId,
+        bookmark: false,
+      },
+    },
+  })
 
-//   const data = await gqlRequest(apiUrl, mutation)
-//   if (
-//     !data.setBookmarkArticle ||
-//     data.setBookmarkArticle['errorCodes'] ||
-//     !data.setBookmarkArticle.bookmarkedArticle
-//   ) {
-//     console.log('GQL Error deleting:', data)
-//     throw new Error('Error deleting.')
-//   }
-//   return data.setBookmarkArticle.bookmarkedArticle
-// }
+  const data = await gqlRequest(mutation)
+  if (
+    !data.setBookmarkArticle ||
+    data.setBookmarkArticle['errorCodes'] ||
+    !data.setBookmarkArticle.bookmarkedArticle
+  ) {
+    console.log('GQL Error deleting:', data)
+    throw new Error('Error deleting.')
+  }
+  return 'success'
+}

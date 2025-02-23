@@ -1,5 +1,6 @@
-import { AddNoteInput, ToolbarMessage, ToolbarStatus } from '../types'
+import { ToolbarMessage, ToolbarStatus } from '../types'
 import { getStorageItem, setStorage } from '../utils'
+import { editLabels } from './labels'
 
 const systemIcons: { [key: string]: string } = {
   waiting: '<div class="loading-spinner"></div>',
@@ -126,6 +127,41 @@ export const updateToolbarStatus = async (
         toggleRow('#omnivore-add-note-status')
       }, 3000)
     }
+    if (task == 'setLabels' && status == 'success') {
+      updateStatusBox(
+        '#omnivore-edit-labels-status',
+        'success',
+        'Labels Updated',
+        2500
+      )
+    }
+    if (task == 'setLabels' && status == 'failure') {
+      updateStatusBox(
+        '#omnivore-edit-labels-status',
+        'failure',
+        'Error Updating Labels...',
+        2500
+      )
+    }
+    if (task == 'editTitle' && status == 'failure') {
+      updateStatusBox(
+        '#omnivore-add-note-status',
+        'failure',
+        'Error updating title...',
+        undefined
+      )
+    }
+    if (task == 'editTitle' && status == 'success') {
+      updateStatusBox(
+        'omnivore-edit-title-status',
+        'success',
+        'Title updated.',
+        2500
+      )
+      setTimeout(() => {
+        toggleRow('#omnivore-edit-title-status')
+      }, 3000)
+    }
     if (task == 'archive') {
       updateStatusBox(
         '#omnivore-extra-status',
@@ -140,7 +176,7 @@ export const updateToolbarStatus = async (
   }
 }
 
-const cancelAutoDismiss = () => {
+export const cancelAutoDismiss = () => {
   const currentToastEl = document.querySelector('#omnivore-extension-root')
   if (currentToastEl) {
     currentToastEl.setAttribute('data-disable-auto-dismiss', 'true')
@@ -183,8 +219,8 @@ export const startToolbarDismiss = async (message: ToolbarMessage) => {
 const connectButtons = (root: HTMLElement) => {
   const btns = [
     { id: '#omnivore-toast-add-note-btn', func: addNote },
-    // { id: '#omnivore-toast-edit-title-btn', func: editTitle },
-    // { id: '#omnivore-toast-edit-labels-btn', func: editLabels },
+    { id: '#omnivore-toast-edit-title-btn', func: editTitle },
+    { id: '#omnivore-toast-edit-labels-btn', func: editLabels },
     { id: '#omnivore-toast-read-now-btn', func: readNow },
     { id: '#omnivore-open-menu-btn', func: openMenu },
     { id: '#omnivore-toast-close-btn', func: closeToolbar },
@@ -196,6 +232,7 @@ const connectButtons = (root: HTMLElement) => {
   for (const btnInfo of btns) {
     const btn = root.shadowRoot?.querySelector(btnInfo.id)
     if (btn) {
+      console.log(btnInfo.id)
       btn.addEventListener('click', btnInfo.func)
     }
   }
@@ -219,6 +256,58 @@ const connectButtons = (root: HTMLElement) => {
   }
 }
 
+function editTitle() {
+  cancelAutoDismiss()
+  toggleRow('#omnivore-edit-title-row')
+  let currentToastEl =
+    document.querySelector<HTMLElement>('#omnivore-extension-root') ?? undefined
+
+  if (!currentToastEl) {
+    console.log('no statusBox to update')
+    return
+  }
+
+  const titleArea = currentToastEl?.shadowRoot?.querySelector<HTMLTextAreaElement>(
+    '#omnivore-edit-title-textarea'
+  )
+
+  if (titleArea) {
+    titleArea.focus()
+
+    titleArea.onkeydown = (e) => {
+      e.cancelBubble = true
+    }
+  }
+
+  const formElement =  currentToastEl?.shadowRoot?.querySelector<HTMLFormElement>(
+    '#omnivore-edit-title-form'
+  );
+
+  if (!formElement) {
+    console.log('no form to update')
+    return
+  }
+
+ formElement.onsubmit = (event) => {
+    updateStatusBox(
+      '#omnivore-edit-title-status',
+      'waiting',
+      'Updating title...',
+      undefined
+    )
+
+   const title = titleArea?.value ?? ''
+
+    chrome.runtime.sendMessage({
+      action: 'enqueueTask',
+      task: 'editTitle',
+      clientRequestId: getClientRequestId(),
+      title
+    })
+    event.preventDefault()
+  }
+}
+
 export const showLoggedOutToolbar = () => {
   cancelAutoDismiss()
   updateToolbarStatus('failure')
@@ -232,7 +321,7 @@ export const showLoggedOutToolbar = () => {
   )
 }
 
-const updateStatusBox = (
+export const updateStatusBox = (
   boxId: string,
   state: ToolbarStatus | undefined,
   message: string,
@@ -283,7 +372,7 @@ const disableAllButtons = () => {
   })
 }
 
-const toggleRow = (rowId: string) => {
+export const toggleRow = (rowId: string) => {
   let currentToastEl = document.querySelector('#omnivore-extension-root')
 
   if (!currentToastEl) {
@@ -313,7 +402,7 @@ const noteCacheKey = () => {
   return `cached-note-${document.location.href}`
 }
 
-const getClientRequestId = () => {
+export const getClientRequestId = () => {
   const currentToastEl = document.querySelector('#omnivore-extension-root')
   const clientRequestId = currentToastEl?.getAttribute(
     'data-omnivore-client-request-id'
@@ -454,7 +543,7 @@ const deleteItem = async (event: Event) => {
   event.preventDefault()
 }
 
-const readNow = () => {
+const readNow = async () => {
   cancelAutoDismiss()
 
   let currentToastEl = document.querySelector('#omnivore-extension-root')
@@ -466,7 +555,7 @@ const readNow = () => {
   window.open(
     new URL(
       `/article?url=${encodeURI(document.location.href)}`,
-      process.env.OMNIVORE_URL
+      (await getStorageItem("omnivoreUrl")) as string,
     ),
     '_blank'
   )

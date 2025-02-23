@@ -1,6 +1,8 @@
 import {
   addNoteToLibraryItem,
   archiveLibraryItem,
+  deleteItem, setLabels, updateLabelsCache,
+  updatePageTitle
 } from './scripts/omnivore-api'
 import { TaskInput } from './scripts/types'
 
@@ -57,6 +59,11 @@ export class TaskQueue {
           success = true
           break
         }
+        case 'delete': {
+          await deleteItem(this.libraryItemId)
+          success = true
+          break
+        }
         case 'addNote': {
           await addNoteToLibraryItem({
             note: task.note || '',
@@ -64,6 +71,29 @@ export class TaskQueue {
           })
           success = true
           break
+        }
+        case 'setLabels':
+          await setLabels(this.libraryItemId, task.labels ?? [])
+          success = true;
+          break
+        case 'editTitle': {
+          if (!task.title || !this.libraryItemId) {
+            throw new Error("Title not set, or library item not yet saved.")
+          }
+
+          await updatePageTitle(this.libraryItemId, task.title)
+          success = true
+          break;
+        }
+        case 'updateLabelCache': {
+          await updateLabelsCache()
+          if (this.tabId) {
+            chrome.tabs.sendMessage(this.tabId, {
+              message: 'updateLabelCache',
+              status: 'success',
+              task: task.task,
+            })
+          }
         }
       }
       if (success && this.tabId) {

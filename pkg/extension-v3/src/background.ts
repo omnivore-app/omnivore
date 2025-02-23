@@ -50,13 +50,8 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     }
   } else if (message.action == 'enqueueTask' && isEnqueueTaskMessage(message)) {
     const taskQueue = taskQueues[message.clientRequestId]
-    console.log('appending to task queue: ', taskQueue)
-    // const result = await addNoteToLibraryItem({
-    //   clientRequestId: message.clientRequestId,
-    //   note: message.note,
-    // })
     console.log('enqueing task message: ', message)
-    taskQueue.enqueue(message)
+    taskQueue.enqueue({ ...message, libraryItemId: message.clientRequestId })
   }
   return true
 })

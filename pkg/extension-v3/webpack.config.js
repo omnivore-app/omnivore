@@ -1,15 +1,9 @@
 const path = require('path')
-const DotenvPlugin = require('dotenv-webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
-const env = process.env.EXT_ENV || 'demo'
-const dotenvPath = __dirname + '/.env.' + env
-
 module.exports = {
-  mode: /* process.env.EXT_ENV === 'production' ? 'production' : */ 'development',
-  devtool:
-    /* process.env.EXT_ENV === 'production' ? undefined : */ 'source-map',
+  mode: 'production',
   entry: {
     background: './src/background.ts',
     toolbar: './src/scripts/content/toolbar.ts',
@@ -29,13 +23,10 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'extension'),
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new DotenvPlugin({
-      path: dotenvPath,
-    }),
     new CopyWebpackPlugin({
       patterns: [
         { from: 'src/manifest.json', to: 'manifest.json' },

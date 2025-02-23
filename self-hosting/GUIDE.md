@@ -3,6 +3,7 @@
 - [Docker Compose](#docker-compose)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Cloudflare Tunnel](#cloudflare-tunnel)
+- [Web Extensions](#web-extensions)
 - [Email](#email)
 - - [IMap Watcher](#imap-watcher)
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
@@ -135,6 +136,40 @@ You run a daemon on your host machine, which creates outbound connections to the
 Omnivore is no way affiliated with Cloudflare, it is just the method to which the person writing this guide used, and found pretty painless overall.
 
 [Read More](https://www.cloudflare.com/products/tunnel/)
+
+## Web Extensions
+The web extensions have been updated to support self-hosting - The manifest version 2 of these could be enabled to work with Self-hosting, but required some manual code changes.
+
+The extension has been updated for Manifest v3, and to hopefully ease the difficulty of making it work with Self-Hosted versions.
+
+These extensions have been sent for submission to the Chrome and Firefox webstore, but are awaiting approval. In the mean-time, a guide about how to install these manually is provided. 
+
+### Chrome
+
+1. Navigate to the Chrome extension page at Chrome://extensions
+   ![Extensions PAge](../docs/guides/images/1-extension-page.png)
+
+2. Enable Developer mode on the Extensions page using the toggle.
+   ![Extensions Developer](../docs/guides/images/2-developer-mode.png)
+3. Use the Load Unpacked Option to load the extension from source. 
+   ![Extension Unpacked](../docs/guides/images/3-load-unpacked.png)
+4. Navigate to the source folder, found at pkg/extension-v3/extension
+   ![Source](../docs/guides/images/4-folder.png)
+   ![Source](../docs/guides/images/5-folders.png)
+5. The extension should have been installed. Go to the details page on the newly installed extension
+![Installed](../docs/guides/images/6-installed.png)
+6. Navigate to the options page, using the "Extensions Options" button. You should see the following page.
+![Extension Options](../docs/guides/images/7-options.png)
+![Extension Options](../docs/guides/images/8-options-page.png)
+7. Generate an API Key using Omnivore.
+   ![API Options](../docs/guides/images/9-omnivore-settings.png)
+   ![API Options](../docs/guides/images/10-omnivore-api-keys.png)
+   ![API Options](../docs/guides/images/11-generate-key.png)
+   ![API Options](../docs/guides/images/12-copy-key.png)
+8. Update the settings with the hosted options
+   ![API Options](../docs/guides/images/13-update-settings.png)
+
+
 
 
 ## Emails and Newsletters

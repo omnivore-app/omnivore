@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "browser extension for omnivore",
   "scripts": {
-    "build": "env EXT_ENV=local webpack --mode production",
+    "build": "env webpack --mode production",
     "watch": "webpack --mode development --watch"
   },
   "devDependencies": {
