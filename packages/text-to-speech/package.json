@@ -45,7 +45,7 @@
     "jsonwebtoken": "^9.0.2",
     "linkedom": "^0.14.12",
     "microsoft-cognitiveservices-speech-sdk": "1.30",
-    "natural": "^6.2.0",
+    "natural": "^8.0.1",
     "nodemon": "^2.0.15",
     "underscore": "^1.13.4"
   },
