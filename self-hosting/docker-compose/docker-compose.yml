@@ -49,9 +49,7 @@ services:
         condition: service_completed_successfully
 
   queue-processor:
-    build:
-      context: ../../
-      dockerfile: ./packages/api/queue-processor/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-queue-processor:latest"
     container_name: "omnivore-queue-processor"
     env_file:
       - .env
@@ -79,9 +77,7 @@ services:
         condition: service_healthy
 
   image-proxy:
-    build:
-      context: ../../imageproxy
-      dockerfile: ./Dockerfile
+    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
     container_name: "omnivore-image-proxy"
     ports:
       - "7070:8080"
@@ -89,9 +85,7 @@ services:
       - .env
 
   content-fetch:
-    build:
-      context: ../../
-      dockerfile: ./packages/content-fetch/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
