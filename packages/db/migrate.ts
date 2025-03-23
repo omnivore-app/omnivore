@@ -89,6 +89,10 @@ const postgresMigration = postgrator
   .migrate(targetMigration)
   .then(logAppliedMigrations)
   .catch((error) => {
+    if (error.message.includes('already exists')) {
+      log('Schema already exists, continuing...', chalk.yellow)
+      return []
+    }
     log(
       `${chalk.red('Postgres migration failed: ')}${error.message}`,
       chalk.red
