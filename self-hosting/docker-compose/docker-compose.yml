@@ -22,9 +22,6 @@ services:
 
   migrate:
     image: "ghcr.io/omnivore-app/sh-migrate:latest"
-    build:
-      context: .
-      dockerfile: ./packages/db/Dockerfile
     container_name: "omnivore-migrate"
     command: '/bin/sh ./packages/db/setup.sh'
     env_file:
@@ -146,6 +143,15 @@ services:
       - omnivore-network
     depends_on:
       - nginx
+  webhook:
+    image: almir/webhook
+    container_name: omnivore-webhook
+    volumes:
+      - ~/projects/omnivore/scripts/hooks.json:/etc/webhook/hooks.json
+    ports:
+      - "9000:9000"
+    networks:
+      - omnivore-network
 
 networks:
   omnivore-network:
