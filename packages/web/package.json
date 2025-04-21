@@ -28,7 +28,7 @@
     "@radix-ui/react-id": "^0.1.1",
     "@radix-ui/react-popover": "1.0.7",
     "@radix-ui/react-progress": "^1.0.1",
-    "@radix-ui/react-separator": "^0.1.0",
+    "@radix-ui/react-separator": "^1.1.4",
     "@radix-ui/react-slider": "^1.1.0",
     "@radix-ui/react-switch": "^1.0.1",
     "@react-native-async-storage/async-storage": "^1.24.0",
