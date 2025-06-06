@@ -2,12 +2,14 @@
  * Utility functions for handling base64 encoding/decoding
  */
 
-// Import types from our declaration file
-import '../types/node-buffer';
+// Node.js Buffer is globally available
+// Only import type information - no runtime import
+// This will be removed during compilation
+import type {} from '../types/node-buffer';
 
 /**
  * Decodes a base64 string to UTF-8 text
- * Uses Node.js Buffer but with type safety
+ * Uses Node.js Buffer with type safety
  */
 export function decodeBase64(base64String: string): string {
   try {
