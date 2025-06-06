@@ -28,6 +28,7 @@ import { sanitizeDirectiveTransformer } from './directives'
 import { env } from './env'
 import { createPubSubClient } from './pubsub'
 import { functionResolvers } from './resolvers/function_resolvers'
+import { nostrResolvers } from './resolvers/nostr_resolver';
 import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
@@ -57,6 +58,7 @@ const pubsub = createPubSubClient()
 const resolvers = {
   ...functionResolvers,
   ...ScalarResolvers,
+  ...nostrResolvers,
 }
 
 const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({

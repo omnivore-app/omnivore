@@ -170,6 +170,12 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         redirectLocation={'/discover'}
         icon={<DiscoverIcon color={theme.colors.discover.toString()} />}
       />
+      <NavRedirectButton
+        {...props}
+        text="Nostr Library"
+        redirectLocation={'/nostr-library'}
+        icon={<DiscoverIcon color={theme.colors.thHomeIcon.toString()} />} // Placeholder icon
+      />
     </VStack>
   )
 }

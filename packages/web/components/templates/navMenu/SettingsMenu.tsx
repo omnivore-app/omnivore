@@ -24,6 +24,7 @@ export const SETTINGS_SECTION_1 = [
 export const SETTINGS_SECTION_2 = [
   { name: 'Rules', destination: '/settings/rules' },
   { name: 'Integrations', destination: '/settings/integrations' },
+  { name: 'Nostr', destination: '/settings/nostr' },
   { name: 'Install', destination: '/settings/installation' },
 ]
 
