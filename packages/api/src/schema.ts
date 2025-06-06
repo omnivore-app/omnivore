@@ -21,6 +21,12 @@ const schema = gql`
     FORBIDDEN
   }
 
+  # Add near other enums in packages/api/src/schema.ts
+  enum NostrPublishType {
+    PUBLIC
+    PRIVATE
+  }
+
   enum SortOrder {
     ASCENDING
     DESCENDING
@@ -76,7 +82,71 @@ const schema = gql`
     pageInfo: PageInfo!
   }
 
+  # Add near other result types
+  type SaveArticleToNostrSuccess {
+    nostrEventIdKind30000: ID
+    nostrEventIdKind30001: ID
+    message: String!
+  }
+
+  enum SaveArticleToNostrErrorCode {
+    ARTICLE_NOT_FOUND
+    NOSTR_PUBLISH_ERROR
+    NOSTR_SIGNING_ERROR
+    UNAUTHORIZED
+    BAD_REQUEST # For invalid articleId or publishAs
+  }
+
+  type SaveArticleToNostrError {
+    errorCodes: [SaveArticleToNostrErrorCode!]!
+    message: String
+  }
+
+  union SaveArticleToNostrResult = SaveArticleToNostrSuccess | SaveArticleToNostrError
+
   # User
+
+  # Potentially near other Article types
+  type NostrArticle {
+    id: ID! # Nostr event ID of the kind:30000 event
+    omnivoreId: String # From the ['omnivore_id'] tag
+    url: String!
+    title: String!
+    content: String # Decrypted content from kind:30001
+    author: String
+    description: String # From kind:30000 description tag
+    imageUrl: String # From kind:30000 image tag
+    tags: [String!] # From kind:30000 't' tags
+    publishedToNostrAt: Int! # created_at of the kind:30000 event
+    isPrivate: Boolean!
+    # Add other fields from Nostr event as needed
+  }
+
+  type NostrArticleEdge {
+    cursor: String! # Could be the event timestamp or ID for pagination
+    node: NostrArticle!
+  }
+
+  type GetNostrArticlesSuccess {
+    edges: [NostrArticleEdge!]!
+    # pageInfo: PageInfo # Full pagination can be a future improvement
+    message: String
+  }
+
+  enum GetNostrArticlesErrorCode {
+    NOSTR_FETCH_ERROR
+    NOSTR_DECRYPTION_ERROR
+    UNAUTHORIZED
+    BAD_REQUEST # For invalid filters
+  }
+
+  type GetNostrArticlesError {
+    errorCodes: [GetNostrArticlesErrorCode!]!
+    message: String
+  }
+
+  union GetNostrArticlesResult = GetNostrArticlesSuccess | GetNostrArticlesError
+
   type User {
     id: ID!
     name: String!
@@ -3574,6 +3644,7 @@ const schema = gql`
     createPost(input: CreatePostInput!): CreatePostResult!
     updatePost(input: UpdatePostInput!): UpdatePostResult!
     deletePost(id: ID!): DeletePostResult!
+    saveArticleToNostr(articleId: ID!, publishAs: NostrPublishType!): SaveArticleToNostrResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -3640,6 +3711,7 @@ const schema = gql`
     folderPolicies: FolderPoliciesResult!
     posts(userId: ID!, after: String, first: Int): PostsResult!
     post(id: ID!): PostResult!
+    getNostrArticles(filterJson: JSON): GetNostrArticlesResult!
   }
 
   schema {
