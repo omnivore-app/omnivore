@@ -19,4 +19,5 @@ declare global {
   const Buffer: BufferConstructor;
 }
 
+// This empty export makes TypeScript treat this file as a module
 export {};
