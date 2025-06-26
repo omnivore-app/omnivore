@@ -50,6 +50,27 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  tts:
+    build:
+      context: ../../../
+      dockerfile: ./packages/api/Dockerfile
+    container_name: "omnivore-tts"
+    command: ["yarn", "workspace", "@omnivore/text-to-speech-handler", "start_streaming"]
+    ports:
+      - "5000:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 15s
+      timeout: 90s
+      retries: 6
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
   queue-processor:
     build:
       context: ../../../
