@@ -1,3 +1,5 @@
+I'm currently working on a reading tool that would resemble Omnivore in some aspects and I'd like to call it Readivore. You don't seem to be using domain names and adding new commits to this repo. Would it be possible to transfer the domain names readivore.com and readivore.app to me please?
+
 # Omnivore
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/omnivore-app/omnivore/run-tests.yaml?branch=main)](https://github.com/omnivore-app/omnivore/actions/workflows/run-tests.yaml)
