@@ -22,10 +22,7 @@ export const useHandleAddUrl = () => {
         return Promise.resolve()
       })
       
-      // Navigate to library after successful save
-      setTimeout(() => {
-        router.push('/home')
-      }, 1000)
+      // Navigation to /home is handled via the toast action callback
     } else {
       showErrorToast('Error saving url', { position: 'bottom-right' })
       throw new Error('Failed to save URL')
