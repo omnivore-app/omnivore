@@ -11,7 +11,7 @@ import {
   QueueEvents,
   Worker,
 } from 'bullmq'
-import express, { Express } from 'express'
+import express, { Application, Express } from 'express'
 import client from 'prom-client'
 import { appDataSource } from './data_source'
 import { env } from './env'
@@ -108,7 +108,12 @@ export const getQueue = async (
   }
 
   const backendQueue = new Queue(name, {
-    connection: redisDataSource.workerRedisClient,
+    connection: {
+      host: redisDataSource.workerRedisClient?.options.host,
+      port: redisDataSource.workerRedisClient?.options.port,
+      password: redisDataSource.workerRedisClient?.options.password,
+      db: redisDataSource.workerRedisClient?.options.db,
+    },
     defaultJobOptions: {
       backoff: {
         type: 'exponential',
@@ -282,7 +287,7 @@ const setupCronJobs = async () => {
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
 
-  const app: Express = express()
+  const app: Application = express()
   const port = process.env.PORT || 3002
 
   redisDataSource.setOptions({
@@ -291,7 +296,9 @@ const main = async () => {
   })
 
   // respond healthy to auto-scaler.
-  app.get('/_ah/health', (req, res) => res.sendStatus(200))
+  app.get('/_ah/health', (_req, res) => {
+    res.sendStatus(200)
+  })
 
   app.get('/lifecycle/prestop', async (req, res) => {
     logger.info('prestop lifecycle hook called.')
@@ -375,7 +382,12 @@ const main = async () => {
     throw '[queue-processor] error redis is not initialized'
   }
 
-  const worker = createWorker(workerRedisClient)
+  const worker = createWorker({
+    host: workerRedisClient.options.host,
+    port: workerRedisClient.options.port,
+    password: workerRedisClient.options.password,
+    db: workerRedisClient.options.db,
+  })
 
   await setupCronJobs()
 

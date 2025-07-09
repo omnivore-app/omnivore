@@ -40,12 +40,13 @@ export function userServiceRouter() {
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
-      return res.status(200).send('Bad Request')
+      res.status(200).send('Bad Request')
+      return
     }
 
     if (expired) {
-      logger.info('discarding expired message')
-      return res.status(200).send('Expired')
+      res.status(200).send('Expired')
+      return
     }
 
     const cleanupMessage = getCleanupMessage(msgStr)
@@ -58,11 +59,13 @@ export function userServiceRouter() {
       })
       logger.info('prune result', result)
 
-      return res.sendStatus(200)
+      res.sendStatus(200)
+      return
     } catch (error) {
       logger.error('error prune users', error)
 
-      return res.sendStatus(500)
+      res.sendStatus(500)
+      return
     }
   })
 

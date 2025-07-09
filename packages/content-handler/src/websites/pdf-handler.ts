@@ -13,6 +13,34 @@ export class PdfHandler extends ContentHandler {
   }
 
   async preHandle(url: string): Promise<PreHandleResult> {
-    return Promise.resolve({ contentType: 'application/pdf' })
+    // Extract a meaningful title from the PDF URL
+    const u = new URL(url)
+    const pathname = u.pathname
+    const filename = pathname.split('/').pop() || 'document'
+    const title =
+      filename.replace('.pdf', '').replace(/[_-]/g, ' ').trim() ||
+      'PDF Document'
+
+    // Provide minimal HTML content for PDFs
+    const content = `
+      <html>
+        <head>
+          <title>${title}</title>
+          <meta property="og:title" content="${title}" />
+          <meta property="og:type" content="article" />
+        </head>
+        <body>
+          <div>
+            <h1>${title}</h1>
+            <p><a href="${url}" target="_blank">View PDF</a></p>
+          </div>
+        </body>
+      </html>`
+
+    return Promise.resolve({
+      contentType: 'application/pdf',
+      title,
+      content,
+    })
   }
 }

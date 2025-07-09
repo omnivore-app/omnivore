@@ -13,12 +13,14 @@ export function integrationRouter() {
   router.post(
     '/:name/auth',
     cors<express.Request>(corsConfig),
-    async (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response): Promise<void> => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const token = (req.cookies.auth as string) || req.headers.authorization
+
       const claims = await getClaimsByToken(token)
       if (!claims) {
-        return res.status(401).send('UNAUTHORIZED')
+        res.status(401).send('UNAUTHORIZED')
+        return
       }
 
       const integrationClient = getIntegrationClient(req.params.name, '')

@@ -45,7 +45,7 @@ export const libraryItemRepository = appDataSource
         .into(LibraryItem)
         .values(convertToLibraryItem(item))
         .orUpdate(overwrites, ['id'], {
-          skipUpdateIfNoValuesChanged: true,
+          skipUpdateIfNoValuesChanged: false, // Disable skipUpdateIfNoValuesChanged to avoid complex WHERE clause
         })
         .returning(getColumns(this))
         .execute()

@@ -39,87 +39,95 @@ export function pageRouter() {
 
   // Create a page from an uploaded PDF document
   router.options('/pdf', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
-  router.put('/pdf', cors<express.Request>(corsConfig), async (req, res) => {
-    const token = req?.cookies?.auth || req?.headers?.authorization
-    if (!token || !jwt.verify(token, env.server.jwtSecret)) {
-      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
-    }
-    const claims = jwt.decode(token) as Claims
-
-    // Get the content type from the query params
-    const { url, clientRequestId } = req.query
-    const contentType = req.headers['content-type']
-    logger.info(
-      `creating page from pdf ${url} ${contentType} ${clientRequestId}`
-    )
-
-    if (
-      !isString(url) ||
-      !isString(contentType) ||
-      !isString(clientRequestId)
-    ) {
-      logger.info('creating page from pdf failed', {
-        url,
-        contentType,
-        clientRequestId,
-      })
-      return res.status(400).send({ errorCode: 'BAD_DATA' })
-    }
-
-    if (!validateUuid(clientRequestId)) {
-      logger.info('creating page from pdf failed  invalid uuid')
-      return res.status(400).send({ errorCode: 'BAD_DATA' })
-    }
-
-    const title = titleForFilePath(url)
-    const fileName = fileNameForFilePath(url)
-    const uploadFileData = await authTrx(
-      (t) =>
-        t.getRepository(UploadFile).save({
-          url,
-          userId: claims.uid,
-          fileName,
-          status: UploadFileStatus.Initialized,
-          contentType: 'application/pdf',
-        }),
-      {
-        uid: claims.uid,
+  router.put(
+    '/pdf',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const token = req?.cookies?.auth || req?.headers?.authorization
+      if (!token || !jwt.verify(token, env.server.jwtSecret)) {
+        res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        return
       }
-    )
+      const claims = jwt.decode(token) as Claims
 
-    const uploadFilePathName = generateUploadFilePathName(
-      uploadFileData.id,
-      fileName
-    )
-
-    const signedUrl = await generateUploadSignedUrl(
-      uploadFilePathName,
-      'application/pdf'
-    )
-
-    const item = await findLibraryItemByUrl(url, claims.uid)
-
-    if (item) {
-      await restoreLibraryItem(item.id, claims.uid)
-    } else {
-      await createOrUpdateLibraryItem(
-        {
-          originalUrl: signedUrl,
-          id: clientRequestId,
-          user: { id: claims.uid },
-          title,
-          itemType: PageType.File,
-          uploadFile: { id: uploadFileData.id },
-          slug: generateSlug(uploadFilePathName),
-          state: LibraryItemState.Processing,
-        },
-        claims.uid
+      // Get the content type from the query params
+      const { url, clientRequestId } = req.query
+      const contentType = req.headers['content-type']
+      logger.info(
+        `creating page from pdf ${url} ${contentType} ${clientRequestId}`
       )
-    }
 
-    logger.info(`redirecting to signed URL: ${signedUrl}`)
-    return res.redirect(signedUrl)
-  })
+      if (
+        !isString(url) ||
+        !isString(contentType) ||
+        !isString(clientRequestId)
+      ) {
+        logger.info('creating page from pdf failed', {
+          url,
+          contentType,
+          clientRequestId,
+        })
+        res.status(400).send({ errorCode: 'BAD_DATA' })
+        return
+      }
+
+      if (!validateUuid(clientRequestId)) {
+        logger.info('creating page from pdf failed  invalid uuid')
+        res.status(400).send({ errorCode: 'BAD_DATA' })
+        return
+      }
+
+      const title = titleForFilePath(url)
+      const fileName = fileNameForFilePath(url)
+      const uploadFileData = await authTrx(
+        (t) =>
+          t.getRepository(UploadFile).save({
+            url,
+            userId: claims.uid,
+            fileName,
+            status: UploadFileStatus.Initialized,
+            contentType: 'application/pdf',
+          }),
+        {
+          uid: claims.uid,
+        }
+      )
+
+      const uploadFilePathName = generateUploadFilePathName(
+        uploadFileData.id,
+        fileName
+      )
+
+      const signedUrl = await generateUploadSignedUrl(
+        uploadFilePathName,
+        'application/pdf'
+      )
+
+      const item = await findLibraryItemByUrl(url, claims.uid)
+
+      if (item) {
+        await restoreLibraryItem(item.id, claims.uid)
+      } else {
+        await createOrUpdateLibraryItem(
+          {
+            originalUrl: signedUrl,
+            id: clientRequestId,
+            user: { id: claims.uid },
+            title,
+            itemType: PageType.File,
+            uploadFile: { id: uploadFileData.id },
+            slug: generateSlug(uploadFilePathName),
+            state: LibraryItemState.Processing,
+          },
+          claims.uid
+        )
+      }
+
+      logger.info(`redirecting to signed URL: ${signedUrl}`)
+      res.redirect(signedUrl)
+      return
+    }
+  )
 
   // Add recommended pages to a user's library
   router.options(
@@ -129,10 +137,11 @@ export function pageRouter() {
   router.post(
     '/recommend',
     cors<express.Request>(corsConfig),
-    async (req, res) => {
+    async (req: express.Request, res: express.Response): Promise<void> => {
       const token = getTokenByRequest(req)
       if (!token || !jwt.verify(token, env.server.jwtSecret)) {
-        return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        return
       }
       const claims = jwt.decode(token) as Claims
 
@@ -143,7 +152,8 @@ export function pageRouter() {
         highlightIds?: string[]
       }
       if (!userId || !itemId || !recommendation) {
-        return res.status(400).send({ errorCode: 'BAD_DATA' })
+        res.status(400).send({ errorCode: 'BAD_DATA' })
+        return
       }
 
       const item = await findLibraryItemById(itemId, claims.uid, {
@@ -152,7 +162,8 @@ export function pageRouter() {
         },
       })
       if (!item) {
-        return res.status(404).send({ errorCode: 'NOT_FOUND' })
+        res.status(404).send({ errorCode: 'NOT_FOUND' })
+        return
       }
 
       const recommendedItem = await addRecommendation(
@@ -163,10 +174,12 @@ export function pageRouter() {
       )
       if (!recommendedItem) {
         logger.error('Failed to add recommendation to page')
-        return res.sendStatus(500)
+        res.sendStatus(500)
+        return
       }
 
-      return res.send('OK')
+      res.send('OK')
+      return
     }
   )
 

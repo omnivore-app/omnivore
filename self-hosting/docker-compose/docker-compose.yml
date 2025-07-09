@@ -1,3 +1,4 @@
+version: '3'
 x-postgres:
   &postgres-common
   image: "ankane/pgvector:v0.5.1"
@@ -16,45 +17,33 @@ services:
       - pgdata:/var/lib/postgresql/data
     env_file:
       - .env
-    restart: unless-stopped
-    networks:
-      - omnivore-network
 
   migrate:
     image: "ghcr.io/omnivore-app/sh-migrate:latest"
     container_name: "omnivore-migrate"
-    command: '/bin/sh ./packages/db/setup.sh'
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     env_file:
       - .env
     depends_on:
       postgres:
         condition: service_healthy
     restart: "no"
-    networks:
-      - omnivore-network
 
   api:
     image: "ghcr.io/omnivore-app/sh-backend:latest"
     container_name: "omnivore-api"
-    expose:
-      - 8080
+    ports:
+      - "4000:8080"
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
       interval: 15s
       timeout: 90s
       retries: 6
     env_file:
       - .env
     depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    restart: unless-stopped
-    networks:  
-      - omnivore-network
 
   queue-processor:
     image: "ghcr.io/omnivore-app/sh-queue-processor:latest"
@@ -64,33 +53,33 @@ services:
     depends_on:
       api:
         condition: service_started
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - omnivore-network    
 
   web:
     image: "ghcr.io/omnivore-app/sh-web:latest"
     container_name: "omnivore-web"
-    expose:
-      - 8080
+    ports:
+      - "3000:8080"
     env_file:
-      - .env
+      .env
     depends_on:
       api:
         condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - omnivore-network
+
+  image-proxy:
+    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
+    container_name: "omnivore-image-proxy"
+    ports:
+      - "7070:8080"
+    env_file:
+      - .env
 
   content-fetch:
     image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
     container_name: "omnivore-content-fetch"
-    expose:
-      - 8080
+    ports:
+      - "9090:8080"
     environment:
-      - USE_FIREFOX=true
+      - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
     env_file:
       - .env
     depends_on:
@@ -98,65 +87,104 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - omnivore-network
 
   redis:
     image: "redis:7.2.4"
     container_name: "omnivore-redis"
     expose:
       - 6379
+    ports:
+      - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     volumes:
       - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - omnivore-network
-  nginx:
-    image: nginx:alpine
-    container_name: "omnivore-nginx"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - web
-      - api
-    networks:
-      - omnivore-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: omnivore-cloudflared
-    command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN} 
-    restart: unless-stopped
-    networks:
-      - omnivore-network
-    depends_on:
-      - nginx
-  webhook:
-    image: almir/webhook
-    container_name: omnivore-webhook
-    volumes:
-      - ~/projects/omnivore/scripts/hooks.json:/etc/webhook/hooks.json
-    ports:
-      - "9000:9000"
-    networks:
-      - omnivore-network
+  minio:
+      image: minio/minio
+      container_name: "omnivore-minio"
+      ports:
+        - "9000:9000"  # API port
+        - "9001:9001"  # Console port
+      healthcheck:
+        test: ["CMD", "mc", "ready", "local"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+      environment:
+        - MINIO_ROOT_USER=minio
+        - MINIO_ROOT_PASSWORD=miniominio
+      command: server /data --console-address ":9001"
+      volumes:
+        - minio_data:/data
 
-networks:
-  omnivore-network:
-    driver: bridge
+  createbuckets:
+      image: minio/mc
+      depends_on:
+        minio:
+          condition: service_healthy
+      environment:
+        - MINIO_ROOT_USER=minio
+        - MINIO_ROOT_PASSWORD=miniominio
+        - BUCKET_NAME=omnivore-lepq
+      entrypoint: >
+        /bin/sh -c "
+        /usr/bin/mc config host add myminio http://minio:9000 minio miniominio;
+        /usr/bin/mc mb myminio/${BUCKET_NAME} --ignore-existing;
+        /usr/bin/mc anonymous set download myminio/${BUCKET_NAME};
+        /usr/bin/mc policy set public myminio/${BUCKET_NAME};
+        exit 0;
+        "
+  mail-watch-server:
+    image: "ghcr.io/omnivore-app/sh-local-mail-watcher:latest"
+    container_name: "omnivore-mail-watch-server"
+    ports:
+      - "4398:8080"
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: "omnivore-nginx"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/conf.d:/etc/nginx/conf.d:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - web
+  #     - api
+      
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: omnivore-cloudflared
+  #   command: tunnel run
+  #   environment:
+  #     - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN} 
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - nginx
+  
+  # webhook:
+  #   image: almir/webhook
+  #   container_name: omnivore-webhook
+  #   volumes:
+  #     - ./webhook/hooks.json:/etc/webhook/hooks.json
+  #   ports:
+  #     - "9000:9000" # Change this to a port that is not in use
 
 volumes:
   pgdata:
+    name: omnivore-pgdata
   redis_data:
+    name: omnivore-redis-data
+  minio_data:
+    name: omnivore-minio-data
+
+networks:
+  default:
+    name: omnivore-network

@@ -4,7 +4,10 @@
     "files": true
   },
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "express": ["./node_modules/@types/express"]
+    }
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["./src/generated"]

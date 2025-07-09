@@ -21,97 +21,112 @@ type PruneMessage = {
 export function linkServiceRouter() {
   const router = express.Router()
 
-  router.post('/create', async (req, res) => {
-    const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', { msgStr, expired })
+  router.post(
+    '/create',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const { message: msgStr, expired } = readPushSubscription(req)
+      logger.info('read pubsub message', { msgStr, expired })
 
-    if (!msgStr) {
-      res.status(400).send('Bad Request')
-      return
-    }
+      if (!msgStr) {
+        res.status(400).send('Bad Request')
+        return
+      }
 
-    if (expired) {
-      logger.info('discarding expired message')
-      res.status(200).send('Expired')
-      return
-    }
+      if (expired) {
+        logger.info('discarding expired message')
+        res.status(200).send('Expired')
+        return
+      }
 
-    const data = JSON.parse(msgStr)
-    if (!('url' in data) || !('userId' in data)) {
-      logger.info('No file url or userId found in message')
-      res.status(400).send('Bad Request')
-      return
-    }
-    const msg = data as CreateLinkRequestMessage
+      const data = JSON.parse(msgStr)
+      if (!('url' in data) || !('userId' in data)) {
+        logger.info('No file url or userId found in message')
+        res.status(400).send('Bad Request')
+        return
+      }
+      const msg = data as CreateLinkRequestMessage
 
-    const user = await userRepository.findById(msg.userId)
-    if (!user) {
-      return res.status(400).send('Bad Request')
-    }
+      const user = await userRepository.findById(msg.userId)
+      if (!user) {
+        res.status(400).send('Bad Request')
+        return
+      }
 
-    try {
-      const request = await createPageSaveRequest({
-        user,
-        url: msg.url,
-      })
+      try {
+        const request = await createPageSaveRequest({
+          user,
+          url: msg.url,
+        })
 
-      res.status(200).send(request)
-    } catch (err) {
-      logger.info('create link failed', err)
-      res.status(500).send(err)
-    }
-  })
-
-  router.post('/pruneTrash', async (req, res) => {
-    const { message: msgStr, expired } = readPushSubscription(req)
-
-    if (expired) {
-      logger.info('discarding expired message')
-      return res.status(200).send('Expired')
-    }
-
-    // default to prune trash items older than 14 days
-    let ttlInDays = 14
-
-    if (msgStr) {
-      const pruneMessage = JSON.parse(msgStr) as PruneMessage
-
-      if (pruneMessage.ttlInDays) {
-        ttlInDays = pruneMessage.ttlInDays
+        res.status(200).send(request)
+      } catch (err) {
+        logger.info('create link failed', err)
+        res.status(500).send(err)
       }
     }
+  )
 
-    try {
-      const job = await enqueuePruneTrashJob(ttlInDays)
-      logger.info('enqueue prune trash job', { id: job?.id })
+  router.post(
+    '/pruneTrash',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const { message: msgStr, expired } = readPushSubscription(req)
 
-      return res.sendStatus(200)
-    } catch (error) {
-      logger.error('error prune items', error)
+      if (expired) {
+        logger.info('discarding expired message')
+        res.status(200).send('Expired')
+      }
 
-      return res.sendStatus(500)
+      // default to prune trash items older than 14 days
+      let ttlInDays = 14
+
+      if (msgStr) {
+        const pruneMessage = JSON.parse(msgStr) as PruneMessage
+
+        if (pruneMessage.ttlInDays) {
+          ttlInDays = pruneMessage.ttlInDays
+        }
+      }
+
+      try {
+        const job = await enqueuePruneTrashJob(ttlInDays)
+        logger.info('enqueue prune trash job', { id: job?.id })
+
+        res.sendStatus(200)
+        return
+      } catch (error) {
+        logger.error('error prune items', error)
+
+        res.sendStatus(500)
+        return
+      }
     }
-  })
+  )
 
-  router.post('/expireFolders', async (req, res) => {
-    const { expired } = readPushSubscription(req)
+  router.post(
+    '/expireFolders',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const { expired } = readPushSubscription(req)
 
-    if (expired) {
-      logger.info('discarding expired message')
-      return res.status(200).send('Expired')
+      if (expired) {
+        logger.info('discarding expired message')
+        res.status(200).send('Expired')
+        return
+      }
+
+      try {
+        const job = await enqueueExpireFoldersJob()
+        logger.info('enqueue job', { id: job?.id })
+
+        res.sendStatus(200)
+        return
+      } catch (error) {
+        logger.error('error expire folders', error)
+
+        res.sendStatus(500)
+        return
+      }
     }
-
-    try {
-      const job = await enqueueExpireFoldersJob()
-      logger.info('enqueue job', { id: job?.id })
-
-      return res.sendStatus(200)
-    } catch (error) {
-      logger.error('error expire folders', error)
-
-      return res.sendStatus(500)
-    }
-  })
+  )
 
   return router
 }

@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import { FingerprintGenerator } from 'fingerprint-generator'
 import Redis from 'ioredis'
 import { parseHTML } from 'linkedom'
-import normalizeUrl from 'normalize-url'
+// normalize-url is ESM-only; loaded dynamically in fileNameForFilePath
 import path from 'path'
 import _ from 'underscore'
 import slugify from 'voca/slugify'
@@ -139,16 +139,14 @@ export const validatedDate = (
   }
 }
 
-export const fileNameForFilePath = (urlStr: string): string => {
-  const url = normalizeUrl(new URL(urlStr).href, {
-    stripHash: true,
-    stripWWW: false,
-  })
-  const fileName = decodeURI(path.basename(new URL(url).pathname)).replace(
-    /[^a-zA-Z0-9-_.]/g,
-    ''
-  )
-  return fileName
+export const fileNameForFilePath = (rawUrl: string): string => {
+  const u = new URL(rawUrl)
+  // remove the fragment (hash) and query
+  u.hash = ''
+  u.search = ''
+  // grab basename, decode & sanitize
+  const name = decodeURI(path.basename(u.pathname))
+  return name.replace(/[^a-zA-Z0-9-_.]/g, '')
 }
 
 export const titleForFilePath = (url: string): string => {
@@ -225,12 +223,23 @@ export const cleanUrl = (url: string) => {
     // https://twitter.com/omnivore/status/1673218959624093698?s=12&t=R91quPajs0E53Yds-fhv2g
     trackingParams.push('s', 't')
   }
-  return normalizeUrl(url, {
-    stripHash: true,
-    stripWWW: false,
-    removeQueryParameters: trackingParams,
-    removeTrailingSlash: false,
+  const urlObj = new URL(url)
+  urlObj.hash = '' // Remove hash
+  if (!urlObj.hostname.startsWith('www.')) {
+    urlObj.hostname = 'www.' + urlObj.hostname // Ensure www is not stripped
+  }
+  trackingParams.forEach((param) => {
+    if (typeof param === 'string') {
+      urlObj.searchParams.delete(param)
+    } else if (param instanceof RegExp) {
+      for (const key of Array.from(urlObj.searchParams.keys())) {
+        if (param.test(key)) {
+          urlObj.searchParams.delete(key)
+        }
+      }
+    }
   })
+  return urlObj.toString().replace(/\/$/, '') // Remove trailing slash if present
 }
 
 export const deepDelete = <T, K extends keyof T>(

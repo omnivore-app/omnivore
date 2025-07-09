@@ -28,158 +28,171 @@ export function emailAttachmentRouter() {
   const router = express.Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/upload', async (req, res) => {
-    logger.info('email-attachment/upload')
+  router.post(
+    '/upload',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      logger.info('email-attachment/upload')
 
-    const { email, fileName, contentType } = req.body as {
-      email: string
-      fileName: string
-      contentType: string
-    }
-
-    const token = req?.headers?.authorization
-    if (!(await getClaimsByToken(token))) {
-      return res.status(401).send('UNAUTHORIZED')
-    }
-
-    const newsletterEmail = await findNewsletterEmailByAddress(email)
-    if (!newsletterEmail || !newsletterEmail.user) {
-      return res.status(401).send('UNAUTHORIZED')
-    }
-
-    const user = newsletterEmail.user
-
-    analytics.capture({
-      distinctId: user.id,
-      event: 'email_attachment_upload',
-      properties: {
-        env: env.server.apiEnv,
-      },
-    })
-
-    try {
-      const uploadFileData = await authTrx(
-        (tx) =>
-          tx.getRepository(UploadFile).save({
-            url: '',
-            fileName,
-            status: UploadFileStatus.Initialized,
-            contentType,
-            user: { id: user.id },
-          }),
-        {
-          uid: user.id,
-        }
-      )
-
-      if (uploadFileData.id) {
-        const uploadFilePathName = generateUploadFilePathName(
-          uploadFileData.id,
-          fileName
-        )
-        const uploadSignedUrl = await generateUploadSignedUrl(
-          uploadFilePathName,
-          contentType
-        )
-        res.send({
-          id: uploadFileData.id,
-          url: uploadSignedUrl,
-        })
-      } else {
-        res.status(400).send('BAD REQUEST')
+      const { email, fileName, contentType } = req.body as {
+        email: string
+        fileName: string
+        contentType: string
       }
-    } catch (err) {
-      logger.error(err)
-      return res.status(500).send('INTERNAL_SERVER_ERROR')
+
+      const token = req?.headers?.authorization
+      if (!(await getClaimsByToken(token))) {
+        res.status(401).send('UNAUTHORIZED')
+      }
+
+      const newsletterEmail = await findNewsletterEmailByAddress(email)
+      if (!newsletterEmail || !newsletterEmail.user) {
+        res.status(401).send('UNAUTHORIZED')
+        return
+      }
+
+      const user = newsletterEmail.user
+
+      analytics.capture({
+        distinctId: user.id,
+        event: 'email_attachment_upload',
+        properties: {
+          env: env.server.apiEnv,
+        },
+      })
+
+      try {
+        const uploadFileData = await authTrx(
+          (tx) =>
+            tx.getRepository(UploadFile).save({
+              url: '',
+              fileName,
+              status: UploadFileStatus.Initialized,
+              contentType,
+              user: { id: user.id },
+            }),
+          {
+            uid: user.id,
+          }
+        )
+
+        if (uploadFileData.id) {
+          const uploadFilePathName = generateUploadFilePathName(
+            uploadFileData.id,
+            fileName
+          )
+          const uploadSignedUrl = await generateUploadSignedUrl(
+            uploadFilePathName,
+            contentType
+          )
+          res.send({
+            id: uploadFileData.id,
+            url: uploadSignedUrl,
+          })
+        } else {
+          res.status(400).send('BAD REQUEST')
+        }
+      } catch (err) {
+        logger.error(err)
+        res.status(500).send('INTERNAL_SERVER_ERROR')
+      }
     }
-  })
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/create-article', async (req, res) => {
-    logger.info('email-attachment/create-article')
+  router.post(
+    '/create-article',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      logger.info('email-attachment/create-article')
 
-    const { email, uploadFileId, subject, receivedEmailId } = req.body as {
-      email: string
-      uploadFileId: string
-      subject: string
-      receivedEmailId: string
-    }
-
-    const token = req?.headers?.authorization
-    if (!(await getClaimsByToken(token))) {
-      return res.status(401).send('UNAUTHORIZED')
-    }
-
-    const newsletterEmail = await findNewsletterEmailByAddress(email)
-    if (!newsletterEmail || !newsletterEmail.user) {
-      return res.status(401).send('UNAUTHORIZED')
-    }
-
-    const user = newsletterEmail.user
-
-    analytics.capture({
-      distinctId: user.id,
-      event: 'email_attachment_create_article',
-      properties: {
-        env: env.server.apiEnv,
-      },
-    })
-
-    try {
-      const uploadFile = await findUploadFileById(uploadFileId)
-      if (!uploadFile) {
-        return res.status(400).send('BAD REQUEST')
+      const { email, uploadFileId, subject, receivedEmailId } = req.body as {
+        email: string
+        uploadFileId: string
+        subject: string
+        receivedEmailId: string
       }
 
-      const uploadFileDetails = await getStorageFileDetails(
-        uploadFileId,
-        uploadFile.fileName
-      )
-
-      const uploadFileData = await setFileUploadComplete(uploadFileId, user.id)
-      if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
-        return res.status(400).send('BAD REQUEST')
+      const token = req?.headers?.authorization
+      if (!(await getClaimsByToken(token))) {
+        res.status(401).send('UNAUTHORIZED')
       }
 
-      const uploadFilePathName = generateUploadFilePathName(
-        uploadFileId,
-        uploadFile.fileName
-      )
-
-      const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFilePathName}`
-      const uploadFileHash = uploadFileDetails.md5Hash
-      const itemType =
-        uploadFile.contentType === 'application/pdf'
-          ? PageType.File
-          : PageType.Book
-      const title = subject || uploadFileData.fileName
-      const itemToCreate: CreateOrUpdateLibraryItemArgs = {
-        originalUrl: uploadFileUrlOverride,
-        itemType,
-        textContentHash: uploadFileHash,
-        uploadFile: { id: uploadFileData.id },
-        title,
-        readableContent: '',
-        slug: generateSlug(title),
-        state: LibraryItemState.Succeeded,
-        user: { id: user.id },
-        contentReader:
-          itemType === PageType.File
-            ? ContentReaderType.PDF
-            : ContentReaderType.EPUB,
+      const newsletterEmail = await findNewsletterEmailByAddress(email)
+      if (!newsletterEmail || !newsletterEmail.user) {
+        res.status(401).send('UNAUTHORIZED')
+        return
       }
 
-      const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
+      const user = newsletterEmail.user
 
-      // update received email type
-      await updateReceivedEmail(receivedEmailId, 'article', user.id)
+      analytics.capture({
+        distinctId: user.id,
+        event: 'email_attachment_create_article',
+        properties: {
+          env: env.server.apiEnv,
+        },
+      })
 
-      res.send({ id: item.id })
-    } catch (err) {
-      logger.info(err)
-      res.status(500).send(err)
+      try {
+        const uploadFile = await findUploadFileById(uploadFileId)
+        if (!uploadFile) {
+          res.status(400).send('BAD REQUEST')
+          return
+        }
+
+        const uploadFileDetails = await getStorageFileDetails(
+          uploadFileId,
+          uploadFile.fileName
+        )
+
+        const uploadFileData = await setFileUploadComplete(
+          uploadFileId,
+          user.id
+        )
+        if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
+          res.status(400).send('BAD REQUEST')
+          return
+        }
+
+        const uploadFilePathName = generateUploadFilePathName(
+          uploadFileId,
+          uploadFile.fileName
+        )
+
+        const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFilePathName}`
+        const uploadFileHash = uploadFileDetails.md5Hash
+        const itemType =
+          uploadFile.contentType === 'application/pdf'
+            ? PageType.File
+            : PageType.Book
+        const title = subject || uploadFileData.fileName
+        const itemToCreate: CreateOrUpdateLibraryItemArgs = {
+          originalUrl: uploadFileUrlOverride,
+          itemType,
+          textContentHash: uploadFileHash,
+          uploadFile: { id: uploadFileData.id },
+          title,
+          readableContent: '',
+          slug: generateSlug(title),
+          state: LibraryItemState.Succeeded,
+          user: { id: user.id },
+          contentReader:
+            itemType === PageType.File
+              ? ContentReaderType.PDF
+              : ContentReaderType.EPUB,
+        }
+
+        const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
+
+        // update received email type
+        await updateReceivedEmail(receivedEmailId, 'article', user.id)
+
+        res.send({ id: item.id })
+      } catch (err) {
+        logger.info(err)
+        res.status(500).send(err)
+      }
     }
-  })
+  )
 
   return router
 }

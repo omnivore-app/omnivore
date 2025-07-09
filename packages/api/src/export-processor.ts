@@ -111,7 +111,9 @@ const main = async () => {
   })
 
   // respond healthy to auto-scaler.
-  app.get('/_ah/health', (req, res) => res.sendStatus(200))
+  app.get('/_ah/health', (_req, res) => {
+    res.sendStatus(200)
+  })
 
   app.get('/lifecycle/prestop', async (req, res) => {
     logger.info('prestop lifecycle hook called.')
@@ -134,7 +136,12 @@ const main = async () => {
     throw '[export-processor] error redis is not initialized'
   }
 
-  const worker = createWorker(workerRedisClient)
+  const worker = createWorker({
+    host: workerRedisClient.options.host,
+    port: workerRedisClient.options.port,
+    password: workerRedisClient.options.password,
+    db: workerRedisClient.options.db,
+  })
 
   workerRedisClient.on('error', (error) => {
     console.trace('[export-processor]: redis worker error', { error })

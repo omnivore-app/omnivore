@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid'
+// import { nanoid } from 'nanoid'
 import { DeepPartial, In } from 'typeorm'
 import { LibraryItem } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
@@ -66,7 +66,7 @@ export const addRecommendation = async (
       const highlights = item.highlights
         ?.filter((highlight) => highlightIds?.includes(highlight.id))
         .map((highlight) => ({
-          shortId: nanoid(8),
+          shortId: crypto.randomUUID().slice(0, 8),
           createdAt: new Date(),
           libraryItem: { id: recommendedItem?.id },
           user: { id: userId },

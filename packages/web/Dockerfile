@@ -28,7 +28,7 @@ RUN yarn install --pure-lockfile
 ADD /packages/web ./packages/web
 
 # We want an empty next.config.js when running in docker
-RUN echo "module.exports = {}" > ./packages/web/next.config.js
+# RUN echo "module.exports = {}" > ./packages/web/next.config.js
 RUN yarn workspace @omnivore/web build
 
 

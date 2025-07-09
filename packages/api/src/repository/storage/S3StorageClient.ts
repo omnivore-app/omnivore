@@ -98,14 +98,24 @@ export class S3StorageClient implements StorageClient {
   constructor(localUrl: string | undefined, urlOverride: string | undefined) {
     this.localUrl = localUrl
     this.urlOverride = urlOverride
+
+    const credentials = {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'minioadmin',
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'minioadmin123',
+    }
+
     this.s3Client = new S3Client({
       forcePathStyle: true,
       endpoint: urlOverride,
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials,
     })
 
     this.signingS3Client = new S3Client({
       forcePathStyle: true,
       endpoint: localUrl,
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials,
     })
   }
 

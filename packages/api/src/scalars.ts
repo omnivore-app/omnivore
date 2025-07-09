@@ -13,19 +13,20 @@ export class SanitizedString extends GraphQLScalarType {
     pattern?: string
   ) {
     super({
-      // Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ as per graphql-js
       name: `SanitizedString_${allowedTags}_${maxLength}_${minLength}_${pattern}`.replace(
         /\W/g,
         ''
       ),
       description: 'Source string that was sanitized',
 
-      serialize(value: string) {
-        return value
+      serialize(value: unknown) {
+        return String(value)
       },
 
-      // invoked when a query is passed as a JSON object (for example, when Apollo Client makes a request
-      parseValue(value) {
+      parseValue(value: unknown) {
+        if (typeof value !== 'string') {
+          throw new Error('Value must be a string')
+        }
         checkLength(value)
         if (pattern && !new RegExp(pattern).test(value)) {
           throw new Error(`Specified value does not match pattern`)
@@ -33,9 +34,8 @@ export class SanitizedString extends GraphQLScalarType {
         return sanitize(value, { allowedTags: allowedTags || [] })
       },
 
-      // invoked when a query is passed as a string
       parseLiteral(ast) {
-        const value = type.parseLiteral(ast, {})
+        const value = type.parseLiteral(ast, {}) as string
         checkLength(value)
         if (pattern && !new RegExp(pattern).test(value)) {
           throw new Error(`Specified value does not match pattern`)
@@ -44,7 +44,7 @@ export class SanitizedString extends GraphQLScalarType {
       },
     })
 
-    function checkLength(value: any) {
+    function checkLength(value: string) {
       if (maxLength && maxLength < value.length) {
         throw new Error(
           `Specified value cannot be longer than ${maxLength} characters`
@@ -62,16 +62,39 @@ export class SanitizedString extends GraphQLScalarType {
 const ScalarResolvers = {
   Date: new GraphQLScalarType({
     name: 'Date',
-    description: 'Date',
-    serialize(value) {
-      const timestamp = Date.parse(value)
-      if (!isNaN(timestamp)) {
-        return new Date(timestamp).toJSON()
-      } else {
-        throw new Error(
-          `Date resolver error - value provided is not a valid date: ${value}`
-        )
+    description: 'Date custom scalar type',
+    serialize(value: unknown) {
+      if (value instanceof Date) {
+        return value.toISOString()
       }
+      if (typeof value === 'string') {
+        const date = new Date(value)
+        if (!isNaN(date.getTime())) {
+          return date.toISOString()
+        }
+      }
+      throw new Error(`Date resolver error - invalid date value: ${value}`)
+    },
+    parseValue(value: unknown) {
+      if (value instanceof Date) {
+        return value
+      }
+      if (typeof value === 'string') {
+        const date = new Date(value)
+        if (!isNaN(date.getTime())) {
+          return date
+        }
+      }
+      throw new Error('Invalid date value')
+    },
+    parseLiteral(ast) {
+      if (ast.kind === 'StringValue') {
+        const date = new Date(ast.value)
+        if (!isNaN(date.getTime())) {
+          return date
+        }
+      }
+      throw new Error('Invalid date literal')
     },
   }),
 }

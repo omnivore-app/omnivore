@@ -43,7 +43,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
   const [pageCount, setTotalPageCount] = useState<number>(0)
   const [showSearch, setShowSearch] = useState(false)
   const [showToolbar, setShowToolbar] = useState(true)
-  const [saveLatestPage, setSaveLatestPage] = useState(true);
+  const [saveLatestPage, setSaveLatestPage] = useState(true)
 
   const [sidebarActive, setSidebarActive] = useState<boolean>(false)
 
@@ -89,14 +89,30 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
 
   const loadPdfDocument = async (): Promise<PDFDocumentProxy> => {
     const pdfJsLib = await pdfJS
+
+    // Add logging to debug the URL
+    console.log('Loading PDF from URL:', props.article.url)
+
+    // Add URL validation and transformation if needed
+    const pdfUrl = props.article.url.startsWith('http')
+      ? props.article.url
+      : `${window.location.origin}${props.article.url}`
+
     const loadingTask = pdfJsLib.getDocument({
-      url: props.article.url,
+      url: pdfUrl,
       cMapUrl: window.location.origin + '/pdfjs-dist/cmaps/',
       cMapPacked: true,
       enableXfa: true,
+      // Add withCredentials if needed for authenticated requests
+      withCredentials: true,
     })
 
-    return loadingTask.promise
+    try {
+      return await loadingTask.promise
+    } catch (error) {
+      console.error('Failed to load PDF:', error)
+      throw error
+    }
   }
 
   useEffect(() => {
@@ -112,7 +128,7 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
     }
 
     document.addEventListener('pdfReaderUpdateSettings', updateReaderSettings)
-    updateReaderSettings();
+    updateReaderSettings()
 
     ;(async () => {
       const pdfViewer = await createPdfViewer()
@@ -128,8 +144,13 @@ export default function PdfArticleContainer(props: PdfArticleContainerProps) {
       // be set to 0. We do a 200 ms timeout to avoid this bug.
       setTimeout(() => {
         pdfViewer.currentScale = 1
+        // Ensure pageNumber is valid (1-indexed, not 0)
+        const pageNumber = Math.max(
+          1,
+          props.article.readingProgressAnchorIndex || 1
+        )
         pdfViewer.scrollPageIntoView({
-          pageNumber: props.article.readingProgressAnchorIndex,
+          pageNumber: pageNumber,
         })
       }, 200)
 

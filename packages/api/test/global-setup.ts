@@ -12,7 +12,12 @@ export const mochaGlobalSetup = async () => {
     console.log('redis connection created')
 
     if (redisDataSource.workerRedisClient) {
-      startWorker(redisDataSource.workerRedisClient)
+      startWorker({
+        host: redisDataSource.workerRedisClient.options.host,
+        port: redisDataSource.workerRedisClient.options.port,
+        password: redisDataSource.workerRedisClient.options.password,
+        db: redisDataSource.workerRedisClient.options.db,
+      })
       console.log('worker started')
     }
   }

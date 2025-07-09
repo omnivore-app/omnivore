@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
+import { htmlToSpeechFile } from '../../../text-to-speech/src/htmlToSsml'
 import cors from 'cors'
 import express from 'express'
 import { userRepository } from '../repository/user'
@@ -15,28 +15,32 @@ export function aiSummariesRouter() {
   router.get(
     '/library-item/:libraryItemId/:idx',
     cors<express.Request>(corsConfig),
-    async (req, res) => {
+    async (req: express.Request, res: express.Response): Promise<void> => {
       const token = req?.cookies?.auth || req?.headers?.authorization
       const claims = await getClaimsByToken(token)
       if (!claims) {
-        return res.status(401).send('UNAUTHORIZED')
+        res.status(401).send('UNAUTHORIZED')
+        return
       }
 
       const { uid } = claims
       const user = await userRepository.findById(uid)
       if (!user) {
-        return res.status(400).send('Bad Request')
+        res.status(400).send('Bad Request')
+        return
       }
 
       const libraryItemId = req.params.libraryItemId
       console.log('params: ', req.params)
       if (!libraryItemId) {
-        return res.status(400).send('Bad request - no library item id provided')
+        res.status(400).send('Bad request - no library item id provided')
+        return
       }
 
       const idx = req.params.idx
       if (!idx) {
-        return res.status(400).send('Bad request - no idx provided')
+        res.status(400).send('Bad request - no idx provided')
+        return
       }
 
       const result = await getAISummary({
@@ -45,7 +49,7 @@ export function aiSummariesRouter() {
         libraryItemId: req.params.libraryItemId,
       })
 
-      return res.send({
+      res.send({
         summary: result?.summary,
       })
     }

@@ -48,138 +48,161 @@ export function digestRouter() {
 
   router.options('/v1', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
   // v1 version of create digest api
-  router.post('/v1', cors<express.Request>(corsConfig), async (req, res) => {
-    const token = getTokenByRequest(req)
+  router.post(
+    '/v1',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const token = getTokenByRequest(req)
 
-    let userId: string
-    try {
-      // get claims from token
-      const claims = await getClaimsByToken(token)
-      if (!claims) {
-        logger.info('Token not found')
-        return res.status(401).send({
+      let userId: string
+      try {
+        // get claims from token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          logger.info('Token not found')
+          res.status(401).send({
+            error: 'UNAUTHORIZED',
+          })
+          return
+        }
+
+        // get user by uid from claims
+        if (!claims) {
+          res.status(401).send({
+            error: 'UNAUTHORIZED',
+          })
+          return
+        }
+        userId = claims.uid
+      } catch (error) {
+        logger.info('Error while getting claims from token', error)
+        res.status(401).send({
           error: 'UNAUTHORIZED',
         })
+        return
       }
 
-      // get user by uid from claims
-      userId = claims.uid
-    } catch (error) {
-      logger.info('Error while getting claims from token', error)
-      return res.status(401).send({
-        error: 'UNAUTHORIZED',
-      })
-    }
+      try {
+        const feature = await findGrantedFeatureByName(
+          FeatureName.AIDigest,
+          userId
+        )
+        if (!feature) {
+          logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+          res.status(403).send({
+            error: 'FORBIDDEN',
+          })
+          return
+        }
 
-    try {
-      const feature = await findGrantedFeatureByName(
-        FeatureName.AIDigest,
-        userId
-      )
-      if (!feature) {
-        logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-        return res.status(403).send({
-          error: 'FORBIDDEN',
+        const data = req.body as CreateDigestRequest
+        logger.info(`Creating digest: ${JSON.stringify(data)}`)
+
+        // check if job is running
+        // if yes then return 202 accepted
+        // else enqueue job
+        const digest = await getDigest(userId)
+        if (digest?.jobState === TaskState.Running) {
+          logger.info(`Digest job is running: ${userId}`)
+          res.status(202).send(digest)
+          return
+        }
+
+        // remove existing digest jobs
+        await removeDigestJobs(userId)
+
+        // enqueue job and return job id
+        const result = await enqueueCreateDigest(
+          {
+            userId,
+            voices: data.voices,
+            language: data.language,
+            rate: data.rate,
+            libraryItemIds: data.libraryItemIds,
+          },
+          data.schedule
+        )
+
+        // return job id
+        res.status(201).send(result)
+        return
+      } catch (error) {
+        logger.error('Error while enqueuing create digest task', error)
+        res.status(500).send({
+          error: 'INTERNAL_SERVER_ERROR',
         })
+        return
       }
-
-      const data = req.body as CreateDigestRequest
-      logger.info(`Creating digest: ${JSON.stringify(data)}`)
-
-      // check if job is running
-      // if yes then return 202 accepted
-      // else enqueue job
-      const digest = await getDigest(userId)
-      if (digest?.jobState === TaskState.Running) {
-        logger.info(`Digest job is running: ${userId}`)
-        return res.status(202).send(digest)
-      }
-
-      // remove existing digest jobs
-      await removeDigestJobs(userId)
-
-      // enqueue job and return job id
-      const result = await enqueueCreateDigest(
-        {
-          userId,
-          voices: data.voices,
-          language: data.language,
-          rate: data.rate,
-          libraryItemIds: data.libraryItemIds,
-        },
-        data.schedule
-      )
-
-      // return job id
-      return res.status(201).send(result)
-    } catch (error) {
-      logger.error('Error while enqueuing create digest task', error)
-      return res.status(500).send({
-        error: 'INTERNAL_SERVER_ERROR',
-      })
     }
-  })
+  )
 
   // v1 version of get digest api
-  router.get('/v1', cors<express.Request>(corsConfig), async (req, res) => {
-    const token = getTokenByRequest(req)
+  router.get(
+    '/v1',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const token = getTokenByRequest(req)
 
-    let userId: string
-    try {
       // get claims from token
-      const claims = await getClaimsByToken(token)
-      if (!claims) {
-        logger.info('Token not found')
-        return res.status(401).send({
+      let claims
+      try {
+        claims = await getClaimsByToken(token)
+        if (!claims) {
+          logger.info('Token not found')
+          res.status(401).send({
+            error: 'UNAUTHORIZED',
+          })
+          return
+        }
+      } catch (error) {
+        logger.info('Error while getting claims from token', error)
+        res.status(401).send({
           error: 'UNAUTHORIZED',
         })
+        return
       }
 
-      // get user by uid from claims
-      userId = claims.uid
-    } catch (error) {
-      logger.info('Error while getting claims from token', error)
-      return res.status(401).send({
-        error: 'UNAUTHORIZED',
-      })
-    }
+      const userId = claims.uid
+      try {
+        const feature = await findGrantedFeatureByName(
+          FeatureName.AIDigest,
+          userId
+        )
+        if (!feature) {
+          logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+          res.status(403).send({
+            error: 'FORBIDDEN',
+          })
+          return
+        }
 
-    try {
-      const feature = await findGrantedFeatureByName(
-        FeatureName.AIDigest,
-        userId
-      )
-      if (!feature) {
-        logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-        return res.status(403).send({
-          error: 'FORBIDDEN',
-        })
-      }
+        // get the digest from redis
+        const digest = await getDigest(userId)
+        if (!digest) {
+          logger.info(`Digest not found: ${userId}`)
+          res.status(404).send({
+            error: 'NOT_FOUND',
+          })
+          return
+        }
 
-      // get the digest from redis
-      const digest = await getDigest(userId)
-      if (!digest) {
-        logger.info(`Digest not found: ${userId}`)
-        return res.status(404).send({
-          error: 'NOT_FOUND',
-        })
-      }
+        if (digest.jobState === TaskState.Failed) {
+          logger.error(`Digest job failed: ${userId}`)
+          res.status(500).send({
+            error: 'INTERNAL_SERVER_ERROR',
+          })
+          return
+        }
 
-      if (digest.jobState === TaskState.Failed) {
-        logger.error(`Digest job failed: ${userId}`)
-        return res.status(500).send({
+        res.send(digest)
+      } catch (error) {
+        logger.error('Error while getting digest', error)
+        res.status(500).send({
           error: 'INTERNAL_SERVER_ERROR',
         })
       }
-
-      return res.send(digest)
-    } catch (error) {
-      logger.error('Error while getting digest', error)
-      return res.status(500).send({
-        error: 'INTERNAL_SERVER_ERROR',
-      })
     }
-  })
+  )
 
   router.options(
     '/v1/feedback',
@@ -192,24 +215,28 @@ export function digestRouter() {
     async (req, res) => {
       const token = getTokenByRequest(req)
 
+      // Initialize userId with a type but no value yet
       let userId: string
+
       try {
         // get claims from token
         const claims = await getClaimsByToken(token)
         if (!claims) {
           logger.info('Token not found')
-          return res.status(401).send({
+          res.status(401).send({
             error: 'UNAUTHORIZED',
           })
+          return // Add return to prevent further execution
         }
 
         // get user by uid from claims
         userId = claims.uid
       } catch (error) {
         logger.info('Error while getting claims from token', error)
-        return res.status(401).send({
+        res.status(401).send({
           error: 'UNAUTHORIZED',
         })
+        return // Add return to prevent further execution
       }
 
       try {
@@ -219,17 +246,19 @@ export function digestRouter() {
         )
         if (!feature) {
           logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-          return res.status(403).send({
+          res.status(403).send({
             error: 'FORBIDDEN',
           })
+          return // Add return to prevent further execution
         }
 
         // get feedback from request body
         if (!isFeedback(req.body)) {
           logger.info('Invalid feedback format')
-          return res.status(400).send({
+          res.status(400).send({
             error: 'INVALID_REQUEST_BODY',
           })
+          return // Add return to prevent further execution
         }
 
         const feedback = req.body
@@ -247,13 +276,13 @@ export function digestRouter() {
           },
         })
 
-        // return success
-        return res.send({
+        //  success
+        res.send({
           success: true,
         })
       } catch (error) {
         logger.error('Error while saving feedback', error)
-        return res.status(500).send({
+        res.status(500).send({
           error: 'INTERNAL_SERVER_ERROR',
         })
       }
@@ -268,28 +297,20 @@ export function digestRouter() {
   router.post(
     '/v1/move',
     cors<express.Request>(corsConfig),
-    async (req, res) => {
+    async (req: express.Request, res: express.Response): Promise<void> => {
       const token = getTokenByRequest(req)
 
-      let userId: string
-      try {
-        // get claims from token
-        const claims = await getClaimsByToken(token)
-        if (!claims) {
-          logger.info('Token not found')
-          return res.status(401).send({
-            error: 'UNAUTHORIZED',
-          })
-        }
-
-        // get user by uid from claims
-        userId = claims.uid
-      } catch (error) {
-        logger.info('Error while getting claims from token', error)
-        return res.status(401).send({
+      // get claims from token
+      const claims = await getClaimsByToken(token)
+      if (!claims) {
+        logger.info('Token not found')
+        res.status(401).send({
           error: 'UNAUTHORIZED',
         })
+        return
       }
+
+      const userId = claims.uid
 
       try {
         const feature = await findGrantedFeatureByName(
@@ -299,18 +320,20 @@ export function digestRouter() {
         )
         if (!feature) {
           logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-          return res.status(403).send({
+          res.status(403).send({
             error: 'FORBIDDEN',
           })
+          return
         }
 
         // get the digest from redis
         const digest = await getDigest(userId)
         if (!digest) {
           logger.info(`Digest not found: ${userId}`)
-          return res.status(404).send({
+          res.status(404).send({
             error: 'NOT_FOUND',
           })
+          return
         }
 
         // move digest to library
@@ -321,7 +344,7 @@ export function digestRouter() {
         })
       } catch (error) {
         logger.error('Error while moving digest to library', error)
-        return res.status(500).send({
+        res.status(500).send({
           error: 'INTERNAL_SERVER_ERROR',
         })
       }
@@ -329,50 +352,61 @@ export function digestRouter() {
   )
 
   // v1 version of delete digest api
-  router.delete('/v1', cors<express.Request>(corsConfig), async (req, res) => {
-    const token = getTokenByRequest(req)
-    // get claims from token
-    const claims = await getClaimsByToken(token)
-    if (!claims) {
-      logger.error('Token not found')
-      return res.status(401).send({
-        error: 'UNAUTHORIZED',
-      })
-    }
-
-    // get user by uid from claims
-    const userId = claims.uid
-
-    try {
-      const feature = await findGrantedFeatureByName(
-        FeatureName.AIDigest,
-        userId
-      )
-      if (!feature) {
-        logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
-        return res.status(403).send({
-          error: 'FORBIDDEN',
+  router.delete(
+    '/v1',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const token = getTokenByRequest(req)
+      // get claims from token
+      const claims = await getClaimsByToken(token)
+      if (!claims) {
+        logger.error('Token not found')
+        res.status(401).send({
+          error: 'UNAUTHORIZED',
         })
       }
 
-      // cancel and remove the digest job
-      await removeDigestJobs(userId)
-      logger.info(`Digest job removed: ${userId}`)
+      // get user by uid from claims
+      if (!claims) {
+        logger.error('Claims are undefined')
+        res.status(401).send({
+          error: 'UNAUTHORIZED',
+        })
+        return
+      }
+      const userId = claims.uid
 
-      // delete digest
-      await deleteDigest(userId)
-      logger.info(`Digest deleted: ${userId}`)
+      try {
+        const feature = await findGrantedFeatureByName(
+          FeatureName.AIDigest,
+          userId
+        )
+        if (!feature) {
+          logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+          res.status(403).send({
+            error: 'FORBIDDEN',
+          })
+        }
 
-      res.send({
-        success: true,
-      })
-    } catch (error) {
-      logger.error('Error while deleting digest', error)
-      return res.status(500).send({
-        error: 'INTERNAL_SERVER_ERROR',
-      })
+        // cancel and remove the digest job
+        await removeDigestJobs(userId)
+        logger.info(`Digest job removed: ${userId}`)
+
+        // delete digest
+        await deleteDigest(userId)
+        logger.info(`Digest deleted: ${userId}`)
+
+        res.send({
+          success: true,
+        })
+      } catch (error) {
+        logger.error('Error while deleting digest', error)
+        res.status(500).send({
+          error: 'INTERNAL_SERVER_ERROR',
+        })
+      }
     }
-  })
+  )
 
   return router
 }

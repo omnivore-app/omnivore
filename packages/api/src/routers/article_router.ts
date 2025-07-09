@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
+import { htmlToSpeechFile } from '../../../text-to-speech/src/htmlToSsml'
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
@@ -29,62 +29,80 @@ export function articleRouter() {
   const router = express.Router()
 
   router.options('/save', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
-  router.post('/save', cors<express.Request>(corsConfig), async (req, res) => {
-    const { url } = req.body as {
-      url?: string
-    }
-    if (!url) {
-      return res.status(400).send({ errorCode: 'BAD_DATA' })
-    }
+  router.post(
+    '/save',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const { url } = req.body as {
+        url?: string
+      }
+      if (!url) {
+        res.status(400).send({ errorCode: 'BAD_DATA' })
+        return
+      }
 
-    const token = req?.cookies?.auth || req?.headers?.authorization
-    const claims = await getClaimsByToken(token)
-    if (!claims) {
-      return res.status(401).send('UNAUTHORIZED')
-    }
+      const token = req?.cookies?.auth || req?.headers?.authorization
+      const claims = await getClaimsByToken(token)
+      if (!claims) {
+        res.status(401).send('UNAUTHORIZED')
+        return
+      }
 
-    const { uid } = claims
-    const user = await userRepository.findById(uid)
-    if (!user) {
-      return res.status(400).send('Bad Request')
-    }
+      const { uid } = claims
+      const user = await userRepository.findById(uid)
+      if (!user) {
+        res.status(400).send('Bad Request')
+        return
+      }
 
-    if (isSiteBlockedForParse(url)) {
-      return res
-        .status(400)
-        .send({ errorCode: CreateArticleErrorCode.NotAllowedToParse })
-    }
+      if (!url) {
+        res.status(400).send({ errorCode: 'BAD_DATA' })
+        return
+      }
 
-    try {
-      const result = await createPageSaveRequest({ user, url })
+      if (isSiteBlockedForParse(url)) {
+        res
+          .status(400)
+          .send({ errorCode: CreateArticleErrorCode.NotAllowedToParse })
+        return
+      }
 
-      return res.send({
-        articleSavingRequestId: result.id,
-        url: result.originalUrl,
-      })
-    } catch (error) {
-      logger.error('Error saving article:', error)
-      return res.status(500).send({ errorCode: 'INTERNAL_ERROR' })
+      try {
+        const result = await createPageSaveRequest({ user, url })
+
+        res.send({
+          articleSavingRequestId: result.id,
+          url: result.originalUrl,
+        })
+        return
+      } catch (error) {
+        logger.error('Error saving article:', error)
+        res.status(500).send({ errorCode: 'INTERNAL_ERROR' })
+        return
+      }
     }
-  })
+  )
 
   router.get(
     '/:id/:outputFormat',
     cors<express.Request>(corsConfig),
-    async (req, res) => {
+    async (req: express.Request, res: express.Response): Promise<void> => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
       const { voice, secondaryVoice, language } = req.query as SpeechInput
       if (!articleId || outputFormats.indexOf(outputFormat) === -1) {
-        return res.status(400).send('Invalid data')
+        res.status(400).send('Invalid data')
+        return
       }
       const token = req.cookies?.auth || req.headers?.authorization
       if (!token || !jwt.verify(token, env.server.jwtSecret)) {
-        return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        return
       }
       const { uid } = jwt.decode(token) as Claims
       if (!uid) {
-        return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        return
       }
       logger.info(`Get article speech in ${outputFormat} format`, {
         params: req.params,
@@ -99,7 +117,8 @@ export function articleRouter() {
           select: ['title', 'readableContent', 'itemLanguage'],
         })
         if (!item) {
-          return res.status(404).send('Page not found')
+          res.status(404).send('Page not found')
+          return
         }
 
         const speechFile = htmlToSpeechFile({
@@ -111,10 +130,12 @@ export function articleRouter() {
             language: language || item.itemLanguage || undefined,
           },
         })
-        return res.send({ ...speechFile, pageId: articleId })
+        res.send({ ...speechFile, pageId: articleId })
+        return
       } catch (error) {
         logger.error('Error getting article speech:', error)
         res.status(500).send({ errorCode: 'INTERNAL_ERROR' })
+        return
       }
     }
   )

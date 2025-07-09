@@ -446,7 +446,8 @@ export const scanFeedsResolver = authorized<
     const content = response.data as string
     // check if the content is html or xml
     const contentType = response.headers['Content-Type']
-    const isHtml = contentType?.includes('text/html')
+    const isHtml =
+      typeof contentType === 'string' && contentType.includes('text/html')
     if (isHtml) {
       // this is an html page, parse rss feed links
       const dom = parseHTML(content).document

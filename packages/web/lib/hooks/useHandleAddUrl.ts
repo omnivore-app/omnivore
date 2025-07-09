@@ -17,12 +17,18 @@ export const useHandleAddUrl = () => {
     })
     console.log('result: ', result)
     if (result) {
-      showSuccessToastWithAction('Item saving', 'Read now', async () => {
-        router.push(`/article?url=${encodeURIComponent(url)}`)
+      showSuccessToastWithAction('Item saved', 'View in library', async () => {
+        router.push('/home')
         return Promise.resolve()
       })
+      
+      // Navigate to library after successful save
+      setTimeout(() => {
+        router.push('/home')
+      }, 1000)
     } else {
       showErrorToast('Error saving url', { position: 'bottom-right' })
+      throw new Error('Failed to save URL')
     }
-  }, [])
+  }, [router, addItem])
 }

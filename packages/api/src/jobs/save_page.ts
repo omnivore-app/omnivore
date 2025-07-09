@@ -20,7 +20,21 @@ import {
   uploadToSignedUrl,
 } from '../utils/uploads'
 
-const signToken = promisify(jwt.sign)
+const signToken = (
+  payload: string | object | Buffer,
+  secret: jwt.Secret,
+  options?: jwt.SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, token) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(token as string)
+      }
+    })
+  })
+}
 
 const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
@@ -81,42 +95,79 @@ const uploadPdf = async (
   userId: string,
   articleSavingRequestId: string
 ) => {
-  const result = await uploadFile(
-    {
+  logger.info('starting pdf upload process', {
+    url,
+    userId,
+    articleSavingRequestId,
+  })
+
+  try {
+    const result = await uploadFile(
+      {
+        url,
+        contentType: 'application/pdf',
+        clientRequestId: articleSavingRequestId,
+        createPageEntry: true,
+      },
+      userId
+    )
+
+    logger.info('upload file result', {
+      result,
+      uploadSignedUrl: result.uploadSignedUrl,
+      createdPageId: result.createdPageId,
+    })
+
+    if (!result.uploadSignedUrl || !result.createdPageId) {
+      throw new Error('Missing upload signed URL or created page ID')
+    }
+
+    logger.info('downloading content from source', {
+      sourceUrl: url,
+      timeout: REQUEST_TIMEOUT,
+    })
+
+    const data = await downloadFromUrl(url, REQUEST_TIMEOUT)
+
+    if (!data || data.length === 0) {
+      throw new Error('Downloaded PDF data is empty')
+    }
+
+    logger.info('downloaded content successfully', {
+      sourceUrl: url,
+      contentSize: data.length,
+    })
+
+    const uploadSignedUrl = result.uploadSignedUrl
+    const contentType = 'application/pdf'
+
+    logger.info('attempting upload to signed url', {
+      uploadSignedUrl,
+      contentType,
+      dataSize: data.length,
+    })
+
+    await uploadToSignedUrl(uploadSignedUrl, data, contentType, REQUEST_TIMEOUT)
+
+    logger.info('pdf upload completed successfully', {
       url,
-      contentType: 'application/pdf',
-      clientRequestId: articleSavingRequestId,
-      createPageEntry: true,
-    },
-    userId
-  )
-  if (!result.uploadSignedUrl || !result.createdPageId) {
-    throw new Error('error while getting upload id and signed url')
-  }
+      uploadFileId: result.id,
+      itemId: result.createdPageId,
+    })
 
-  logger.info('downloading content', {
-    url,
-  })
-
-  const data = await downloadFromUrl(url, REQUEST_TIMEOUT)
-
-  const uploadSignedUrl = result.uploadSignedUrl
-  const contentType = 'application/pdf'
-  logger.info('uploading to signed url', {
-    uploadSignedUrl,
-    contentType,
-  })
-  await uploadToSignedUrl(uploadSignedUrl, data, contentType, REQUEST_TIMEOUT)
-
-  logger.info('pdf uploaded successfully', {
-    url,
-    uploadFileId: result.id,
-    itemId: result.createdPageId,
-  })
-
-  return {
-    uploadFileId: result.id,
-    itemId: result.createdPageId,
+    return {
+      uploadFileId: result.id,
+      itemId: result.createdPageId,
+    }
+  } catch (error) {
+    logger.error('PDF upload process failed', {
+      url,
+      userId,
+      articleSavingRequestId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    throw error
   }
 }
 
@@ -127,7 +178,7 @@ const sendImportStatusUpdate = async (
 ) => {
   try {
     logger.info('sending import status update')
-    const auth = await signToken({ uid: userId }, JWT_SECRET)
+    const auth = await signToken({ uid: userId }, JWT_SECRET, {})
 
     await axios.post(
       IMPORTER_METRICS_COLLECTOR_URL,
@@ -149,6 +200,7 @@ const sendImportStatusUpdate = async (
 }
 
 export const savePageJob = async (data: Data, attemptsMade: number) => {
+  ;``
   const {
     userId,
     articleSavingRequestId,
@@ -192,6 +244,10 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         userId,
         articleSavingRequestId
       )
+
+      if (!uploadResult) {
+        throw new Error('error while uploading pdf')
+      }
 
       const result = await saveFile(
         {

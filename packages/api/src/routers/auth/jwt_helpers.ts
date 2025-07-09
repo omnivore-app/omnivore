@@ -9,7 +9,21 @@ import {
   PendingUserTokenPayload,
 } from './auth_types'
 
-const signToken = promisify(jwt.sign)
+const signToken = (
+  payload: string | object | Buffer,
+  secret: jwt.Secret,
+  options?: jwt.SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, token) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(token as string)
+      }
+    })
+  })
+}
 
 type MobileAuthPayload = {
   authToken: string

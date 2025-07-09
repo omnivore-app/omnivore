@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import * as lw from '@google-cloud/logging-winston'
-import * as Sentry from '@sentry/node'
-import { json, urlencoded } from 'body-parser'
-import compression from 'compression'
+// Use built-in express body parsing middleware to avoid requiring ESM-only body-parser
+// import compression from 'compression'
 import cookieParser from 'cookie-parser'
-import express, { Express } from 'express'
+import type {
+  Express,
+  Application,
+  Request,
+  Response,
+  NextFunction,
+} from 'express'
 import * as httpContext from 'express-http-context2'
 import promBundle from 'express-prom-bundle'
 import { createServer } from 'http'
@@ -52,38 +52,44 @@ import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
 
 const PORT = process.env.PORT || 4000
 
-export const createApp = (): Express => {
-  const app = express()
+export const createApp = async (): Promise<Application> => {
+  // Dynamically import Express to avoid static require() of ES module
+  const expressModule = await import('express')
+  const expressFn = expressModule.default ?? expressModule
+  const app: Application = expressFn()
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  Sentry.init(sentryConfig)
-  app.use(Sentry.Handlers.requestHandler())
-  app.use(Sentry.Handlers.tracingHandler())
+  // Initialize Sentry dynamically to avoid static require() of ES module
+  const Sentry = await import('@sentry/node')
+  const { CaptureConsole } = await import('@sentry/integrations')
+  const sentryRuntimeConfig = {
+    ...sentryConfig,
+    // integrations: [
+    //   new Sentry.Integrations.OnUncaughtException(),
+    //   new CaptureConsole({ levels: ['error'] }),
+    // ],
+  }
+  // Sentry.init(sentryRuntimeConfig)
+  // app.use(Sentry.Handlers.requestHandler())
+  // app.use(Sentry.Handlers.tracingHandler())
 
   app.use(cookieParser())
-  app.use(json({ limit: '100mb' }))
-  app.use(urlencoded({ limit: '100mb', extended: true }))
-  // @ts-ignore
-  app.use(compression())
+  // Body parsing using dynamically loaded Express
+  app.use(expressFn.json({ limit: '100mb' }))
+  app.use(expressFn.urlencoded({ limit: '100mb', extended: true }))
+  // app.use(compression())
 
-  // set to true if behind a reverse proxy/load balancer
   app.set('trust proxy', env.server.trustProxy)
 
-  // Apply the rate limiting middleware to API calls only
   app.use('/api/', apiLimiter, apiHourLimiter)
 
-  // set client info in the request context
   app.use(httpContext.middleware)
-  app.use('/api/', (req, res, next) => {
-    // get client info from user agent
+  app.use('/api/', (req: Request, _res: Response, next: NextFunction) => {
     const userAgent = req.header('User-Agent')
     if (userAgent) {
       const client = getClientFromUserAgent(userAgent)
       httpContext.set('client', client)
     }
 
-    // get client info from header
     const client = req.header('X-OmnivoreClient')
     if (client) {
       httpContext.set('client', client)
@@ -92,8 +98,9 @@ export const createApp = (): Express => {
     next()
   })
 
-  // respond healthy to auto-scaler.
-  app.get('/_ah/health', (req, res) => res.sendStatus(200))
+  app.get('/_ah/health', (_req: Request, res: Response) => {
+    res.sendStatus(200)
+  })
 
   app.use('/api/auth', authLimiter, authRouter())
   app.use('/api/mobile-auth', authLimiter, mobileAuthRouter())
@@ -130,8 +137,7 @@ export const createApp = (): Express => {
     throw new Error('Sentry TEST error!')
   })
 
-  // The error handler must be before any other error middleware and after all routes
-  app.use(Sentry.Handlers.errorHandler())
+  // app.use(Sentry.Handlers.errorHandler())
 
   const metricsMiddleware = promBundle({
     includeMethod: true,
@@ -148,7 +154,7 @@ export const createApp = (): Express => {
   // add the prometheus middleware to all routes
   app.use(metricsMiddleware)
 
-  app.get('/metrics', async (req, res) => {
+  app.get('/metrics', async (_req: Request, res: Response) => {
     res.setHeader('Content-Type', prom.register.contentType)
     res.end(await prom.register.metrics())
   })
@@ -157,10 +163,20 @@ export const createApp = (): Express => {
 }
 
 const main = async (): Promise<void> => {
-  console.log('starting with log levels', config.syslog.levels)
-  // If creating the DB entities fails, we want this to throw
-  // so the container will be restarted and not come online
-  // as healthy.
+  // console.log('starting with log levels', config.syslog.levels)
+  // // Local dev can skip DB initialization
+  // if (env.dev.isLocal) {
+  //   console.warn('[api]: Skipping DB initialization in local development')
+  // } else {
+  //   // If creating the DB entities fails, we want this to throw
+  //   // so the container will be restarted and not come online as healthy.
+  //   await appDataSource.initialize()
+  // }
+
+  console.log(
+    `[api]: Initializing DB connection${env.dev.isLocal ? ' (local mode)' : ''}`
+  )
+
   await appDataSource.initialize()
 
   // redis is optional for the API server
@@ -168,22 +184,29 @@ const main = async (): Promise<void> => {
     await redisDataSource.initialize()
   }
 
-  const app = createApp()
+  const app = await createApp()
   const httpServer = createServer(app)
-  const apollo = makeApolloServer(app, httpServer)
-  await apollo.start()
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+  const apolloServer = await makeApolloServer(app as Express, httpServer)
+  await apolloServer.start()
+  // Disable ApolloServer's internal body parser since express.json() is applied globally
+  apolloServer.applyMiddleware({
+    app,
+    path: '/api/graphql',
+    cors: corsConfig,
+    bodyParserConfig: false,
+  })
 
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
     const transport = buildLoggerTransport('express')
-    const mw = await lw.express.makeMiddleware(mwLogger, transport)
+    const lwPkg = await import('@google-cloud/logging-winston')
+    const mw = await lwPkg.express.makeMiddleware(mwLogger, transport)
     app.use(mw)
   }
 
-  const listener = httpServer.listen({ port: PORT }, async () => {
+  const listener = httpServer.listen({ port: PORT }, () => {
     const logger = buildLogger('app.dispatch')
-    logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
+    logger.notice(`🚀 Server ready at ${apolloServer.graphqlPath}`)
   })
 
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.
@@ -195,40 +218,53 @@ const main = async (): Promise<void> => {
   listener.headersTimeout = 640 * 1000 // 10s more than above
   listener.timeout = 640 * 1000 // match headersTimeout
 
-  const gracefulShutdown = async (signal: string) => {
+  const gracefulShutdown = async (signal: string): Promise<void> => {
     console.log(`[api]: Received ${signal}, closing server...`)
-    await apollo.stop()
-    console.log('[api]: Express server stopped')
+    try {
+      await apolloServer.stop()
+      console.log('[api]: Express server stopped')
 
-    await analytics.shutdownAsync()
-    console.log('[api]: Posthog events flushed')
+      // await analytics.shutdownAsync()
+      console.log('[api]: Posthog events flushed')
 
-    // Shutdown redis before DB because the quit sequence can
-    // cause appDataSource to get reloaded in the callback
-    await redisDataSource.shutdown()
-    console.log('[api]: Redis connection closed.')
+      // Shutdown redis before DB because the quit sequence can
+      // cause appDataSource to get reloaded in the callback
+      if (env.redis.cache.url) {
+        await redisDataSource.shutdown()
+        console.log('[api]: Redis connection closed.')
+      }
 
-    await appDataSource.destroy()
-    console.log('[api]: DB connection closed.')
+      if (!env.dev.isLocal) {
+        await appDataSource.destroy()
+        console.log('[api]: DB connection closed.')
+      }
 
-    process.exit(0)
+      // Close the HTTP server
+      await new Promise<void>((resolve) => {
+        listener.close(() => resolve())
+      })
+      console.log('[api]: HTTP server closed.')
+
+      process.exit(0)
+    } catch (error) {
+      console.error('[api]: Error during shutdown:', error)
+      process.exit(1)
+    }
   }
 
   process.on('SIGINT', () => gracefulShutdown('SIGINT'))
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 
-  process.on('uncaughtException', function (err) {
-    // Handle the error safely
+  process.on('uncaughtException', (err: Error) => {
     logger.error('Uncaught exception', err)
   })
 
   process.on('unhandledRejection', (reason, promise) => {
-    // Handle the error safely
     logger.error('Unhandled Rejection at: Promise', { promise, reason })
   })
 }
 
-// only call main if the file was called from the CLI and wasn't required from another module
-if (require.main === module) {
-  main()
-}
+main().catch((err) => {
+  console.error('Error starting server:', err)
+  process.exit(1)
+})

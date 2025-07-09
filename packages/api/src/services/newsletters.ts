@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid'
+// import { nanoid } from 'nanoid'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { StatusType } from '../entity/user'
 import { env } from '../env'
@@ -106,14 +106,17 @@ const createRandomEmailAddress = (userName: string, length: number): string => {
   // format: hongbo-sduhfsjh1e@inbox.omnivore.app
   const inbox =
     'inbox' + (env.server.apiEnv === 'prod' ? '' : `-${env.server.apiEnv}`)
-  /* nanoid can generate a random string ending with -
-  which is not allowed as a last character in email address.
-  So we append a 'e' to all random strings.
+  /* Using a native solution to generate a random string.
+  Ensure the random string does not end with a '-' by appending 'e'.
 
   when rand is sdfsdf-: jacksonh-sdfsdf-e@inbox.omnivore.app
   when rand is abcdef: jacksonh-abcdefe@inbox.omnivore.app
    */
-  return `${userName}-${nanoid(length)}e@${
+  const randomString = Array.from({ length }, () =>
+    Math.random().toString(36).charAt(2)
+  ).join('')
+
+  return `${userName}-${randomString}e@${
     env.email.domain || `@${inbox}.omnivore.app`
   }`
 }

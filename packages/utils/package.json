@@ -12,9 +12,10 @@
   "devDependencies": {
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.0",
+    "@types/cookie": "^0.5.4",
+    "@types/node": "^22.10.7",
     "chai": "^4.3.6",
     "eslint-plugin-prettier": "^4.0.0",
-    "@types/node": "^22.10.7",
     "mocha": "^10.0.0",
     "typescript": "^5.7.3"
   },
