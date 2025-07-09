@@ -2,8 +2,17 @@ import { Redis } from 'ioredis'
 
 export const createRedisClient = (url?: string, cert?: string) => {
   if (!url) {
-    console.log('No Redis URL provided, Redis client not created')
-    return null
+    console.log('No Redis URL provided, returning a dummy Redis client')
+    return {
+      on: () => {},
+      off: () => {},
+      quit: async () => {},
+     disconnect: () => {},
+     get: async () => null,
+     set: async () => 'OK',
+     del: async () => 0,
+     // Add other Redis methods as needed, all no-op or returning safe defaults
+    } as unknown as Redis
   }
 
   return new Redis(url, {
