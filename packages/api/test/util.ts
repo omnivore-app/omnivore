@@ -1,23 +1,33 @@
 import { ConnectionOptions, Job, QueueEvents, Worker } from 'bullmq'
-import { createServer } from 'http'
-import { nanoid } from 'nanoid'
-import supertest from 'supertest'
+import { createServer, Server } from 'http'
+// import { nanoid } from 'nanoid'
+import supertest, { SuperTest, Test } from 'supertest'
 import { v4 } from 'uuid'
 import { makeApolloServer } from '../src/apollo'
 import { BACKEND_QUEUE_NAME, createWorker } from '../src/queue-processor'
 import { createApp } from '../src/server'
 import { corsConfig } from '../src/utils/corsConfig'
 
-const app = createApp()
-const httpServer = createServer(app)
-const apollo = makeApolloServer(app, httpServer)
-export const request = supertest(app)
+import express from 'express'
+import { ApolloServer } from 'apollo-server-express'
+
+let app: express.Application
+let httpServer: Server
+let apollo: ApolloServer
+export let request: ReturnType<typeof supertest>
+
 let worker: Worker
 let queueEvents: QueueEvents
 
 export const startApolloServer = async () => {
+  const expressApp = await createApp()
+  app = expressApp
+  httpServer = createServer(app)
+  apollo = await makeApolloServer(app as any, httpServer)
+  request = supertest(app)
+
   await apollo.start()
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+  void apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 }
 
 export const stopApolloServer = async () => {
@@ -60,7 +70,7 @@ export const generateFakeUuid = () => {
 }
 
 export const generateFakeShortId = () => {
-  return nanoid(8)
+  return crypto.randomUUID().slice(0, 8)
 }
 
 export const loginAndGetAuthToken = async (email: string) => {

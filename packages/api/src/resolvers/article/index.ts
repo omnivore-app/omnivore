@@ -955,7 +955,10 @@ export const fetchContentResolver = authorized<
   }
 
   // if the content is not fetched yet, create a page save request
-  if (item.state === LibraryItemState.ContentNotFetched) {
+  if (
+    item.state === LibraryItemState.ContentNotFetched ||
+    item.state === LibraryItemState.Processing
+  ) {
     try {
       await createPageSaveRequest({
         user: item.user,

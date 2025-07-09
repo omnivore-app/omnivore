@@ -1,4 +1,4 @@
-import * as privateIpLib from 'private-ip'
+// private-ip was ESM-only; use a simple RFC1918 private IP check instead
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import {
@@ -32,7 +32,15 @@ interface PageSaveRequest {
 
 const SAVING_CONTENT = 'Your link is being saved...'
 
-const isPrivateIP = privateIpLib.default
+const isPrivateIP = (host: string): boolean => {
+  // IPv4 private ranges: 10.0.0.0/8
+  if (/^10\./.test(host)) return true
+  // 172.16.0.0/12
+  if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(host)) return true
+  // 192.168.0.0/16
+  if (/^192\.168\./.test(host)) return true
+  return false
+}
 
 const recentSavedItemKey = (userId: string) => `recent-saved-item:${userId}`
 
@@ -161,24 +169,60 @@ export const createPageSaveRequest = async ({
   priority = priority || (await getPriorityByRateLimit(userId))
 
   // enqueue task to parse item
-  await enqueueFetchContentJob({
-    url,
-    users: [
-      {
-        folder,
-        id: userId,
-        libraryItemId: libraryItem.id,
-      },
-    ],
-    priority,
-    state,
-    labels,
-    locale,
-    timezone,
-    savedAt: savedAt?.toISOString(),
-    publishedAt: publishedAt?.toISOString(),
-    rssFeedUrl: subscription,
-  })
+  try {
+    const contentFetchQueueEnabled =
+      process.env.CONTENT_FETCH_QUEUE_ENABLED === 'true'
+    if (contentFetchQueueEnabled) {
+      await enqueueFetchContentJob({
+        url,
+        users: [
+          {
+            folder,
+            id: userId,
+            libraryItemId: libraryItem.id,
+          },
+        ],
+        priority,
+        state,
+        labels,
+        locale,
+        timezone,
+        savedAt: savedAt?.toISOString(),
+        publishedAt: publishedAt?.toISOString(),
+        rssFeedUrl: subscription,
+      })
+    } else {
+      // Fallback to direct HTTP task creation for development/local environments
+      const createHttpTaskWithToken = (await import('../utils/createTask'))
+        .default
+      await createHttpTaskWithToken({
+        taskHandlerUrl:
+          process.env.CONTENT_FETCH_URL || 'http://localhost:3002',
+        payload: {
+          url,
+          users: [
+            {
+              folder,
+              id: userId,
+              libraryItemId: libraryItem.id,
+            },
+          ],
+          priority,
+          state,
+          labels,
+          locale,
+          timezone,
+          savedAt: savedAt?.toISOString(),
+          publishedAt: publishedAt?.toISOString(),
+          rssFeedUrl: subscription,
+        },
+      })
+    }
+  } catch (error) {
+    logger.error('Failed to enqueue fetch content job', { error, url, userId })
+    // Don't throw error to avoid blocking the save request
+    // The item will remain in processing state and can be retried later
+  }
 
   return libraryItem
 }

@@ -7,9 +7,7 @@ import {
   LabelsSuccess,
 } from '../../../types/OmnivoreSchema'
 
-const API_URL =
-  process.env.OMNIVORE_API_URL ?? 'https://omnivore.lepq.io/api'
-  
+const API_URL = process.env.OMNIVORE_API_URL ?? 'https://omnivore.lepq.io/api'
 
 export class OmnivoreClient {
   username: string

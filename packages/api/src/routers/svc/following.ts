@@ -52,94 +52,106 @@ const FOLDER = 'following'
 export function followingServiceRouter() {
   const router = express.Router()
 
-  router.post('/save', async (req, res) => {
-    if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
-      logger.info('query does not include valid token')
-      return res.sendStatus(403)
-    }
+  router.post(
+    '/save',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
+        logger.info('query does not include valid token')
+        res.sendStatus(403)
+        return
+      }
 
-    if (!isSaveFollowingItemRequest(req.body)) {
-      logger.error('Invalid request body', req.body)
-      return res.status(400).send('INVALID_REQUEST_BODY')
-    }
+      if (!isSaveFollowingItemRequest(req.body)) {
+        logger.error('Invalid request body', req.body)
+        res.status(400).send('INVALID_REQUEST_BODY')
+        return
+      }
 
-    if (
-      req.body.addedToFollowingFrom === 'feed' &&
-      req.body.userIds.length > 0
-    ) {
-      const userId = req.body.userIds[0]
-      logger.info('saving feed item', userId)
+      if (!isSaveFollowingItemRequest(req.body)) {
+        logger.error('Invalid request body', req.body)
+        res.status(400).send('INVALID_REQUEST_BODY')
+        return
+      }
 
-      const feedUrl = req.body.addedToFollowingBy
-      const thumbnail =
-        req.body.thumbnail && createThumbnailProxyUrl(req.body.thumbnail)
-      const url = cleanUrl(req.body.url)
+      if (
+        req.body.addedToFollowingFrom === 'feed' &&
+        req.body.userIds.length > 0
+      ) {
+        const userId = req.body.userIds[0]
+        logger.info('saving feed item', userId)
 
-      const preparedDocument: PreparedDocumentInput = {
-        document: req.body.feedContent || '',
-        pageInfo: {
+        const feedUrl = req.body.addedToFollowingBy
+        const thumbnail =
+          req.body.thumbnail && createThumbnailProxyUrl(req.body.thumbnail)
+        const url = cleanUrl(req.body.url)
+
+        const preparedDocument: PreparedDocumentInput = {
+          document: req.body.feedContent || '',
+          pageInfo: {
+            title: req.body.title,
+            author: req.body.author,
+            canonicalUrl: url,
+            contentType: req.body.previewContentType,
+            description: req.body.description,
+            previewImage: thumbnail,
+          },
+        }
+        let parsedResult: ParsedContentPuppeteer | undefined
+
+        // parse the content if we have a preview content
+        if (req.body.feedContent) {
+          parsedResult = await parsePreparedContent(url, preparedDocument)
+        }
+
+        const { pathname } = new URL(url)
+        const croppedPathname = decodeURIComponent(
+          pathname
+            .split('/')
+            [pathname.split('/').length - 1].split('.')
+            .slice(0, -1)
+            .join('.')
+        ).replace(/_/gi, ' ')
+
+        const slug = generateSlug(
+          parsedResult?.parsedContent?.title || croppedPathname
+        )
+        const itemToSave = parsedContentToLibraryItem({
+          url,
           title: req.body.title,
-          author: req.body.author,
+          parsedContent: parsedResult?.parsedContent || null,
+          userId,
+          slug,
+          croppedPathname,
+          itemType: parsedResult?.pageType || PageType.Unknown,
           canonicalUrl: url,
-          contentType: req.body.previewContentType,
-          description: req.body.description,
-          previewImage: thumbnail,
-        },
+          folder: FOLDER,
+          rssFeedUrl: feedUrl,
+          preparedDocument,
+          savedAt: req.body.savedAt,
+          publishedAt: req.body.publishedAt,
+          state: ArticleSavingRequestStatus.ContentNotFetched,
+        })
+
+        const newItem = await createOrUpdateLibraryItem(itemToSave, userId)
+        logger.info('feed item saved in following')
+
+        // save RSS label in the item
+        await createAndSaveLabelsInLibraryItem(
+          newItem.id,
+          userId,
+          [{ name: 'RSS' }],
+          feedUrl
+        )
+
+        logger.info('RSS label added to the item')
+
+        res.sendStatus(200)
+        return
       }
-      let parsedResult: ParsedContentPuppeteer | undefined
 
-      // parse the content if we have a preview content
-      if (req.body.feedContent) {
-        parsedResult = await parsePreparedContent(url, preparedDocument)
-      }
-
-      const { pathname } = new URL(url)
-      const croppedPathname = decodeURIComponent(
-        pathname
-          .split('/')
-          [pathname.split('/').length - 1].split('.')
-          .slice(0, -1)
-          .join('.')
-      ).replace(/_/gi, ' ')
-
-      const slug = generateSlug(
-        parsedResult?.parsedContent?.title || croppedPathname
-      )
-      const itemToSave = parsedContentToLibraryItem({
-        url,
-        title: req.body.title,
-        parsedContent: parsedResult?.parsedContent || null,
-        userId,
-        slug,
-        croppedPathname,
-        itemType: parsedResult?.pageType || PageType.Unknown,
-        canonicalUrl: url,
-        folder: FOLDER,
-        rssFeedUrl: feedUrl,
-        preparedDocument,
-        savedAt: req.body.savedAt,
-        publishedAt: req.body.publishedAt,
-        state: ArticleSavingRequestStatus.ContentNotFetched,
-      })
-
-      const newItem = await createOrUpdateLibraryItem(itemToSave, userId)
-      logger.info('feed item saved in following')
-
-      // save RSS label in the item
-      await createAndSaveLabelsInLibraryItem(
-        newItem.id,
-        userId,
-        [{ name: 'RSS' }],
-        feedUrl
-      )
-
-      logger.info('RSS label added to the item')
-
-      return res.sendStatus(200)
+      res.sendStatus(200)
     }
-
-    res.sendStatus(200)
-  })
+  )
 
   return router
 }

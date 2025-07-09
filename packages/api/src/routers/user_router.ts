@@ -12,55 +12,62 @@ import { sendEmail } from '../utils/sendEmail'
 export function userRouter() {
   const router = express.Router()
 
-  router.post('/email', cors<express.Request>(corsConfig), async (req, res) => {
-    logger.info('email to-user router')
-    const token = getTokenByRequest(req)
+  router.post(
+    '/email',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      logger.info('email to-user router')
+      const token = getTokenByRequest(req)
 
-    let claims
-    try {
-      claims = await getClaimsByToken(token)
-      if (!claims) {
-        logger.info('failed to authorize')
-        return res.status(401).send('UNAUTHORIZED')
+      let claims
+      try {
+        claims = await getClaimsByToken(token)
+        if (!claims) {
+          logger.info('failed to authorize')
+          res.status(401).send('UNAUTHORIZED')
+          return
+        }
+      } catch (e) {
+        logger.info('failed to authorize', e)
+        res.status(401).send('UNAUTHORIZED')
+        return
       }
-    } catch (e) {
-      logger.info('failed to authorize', e)
-      return res.status(401).send('UNAUTHORIZED')
-    }
 
-    const from = env.sender.message
-    const { body, subject } = req.body as {
-      body?: string
-      subject?: string
-    }
-    if (!subject || !body || !from) {
-      logger.error('Bad Request', { subject, body, from })
-      res.status(400).send('Bad Request')
-      return
-    }
-    try {
-      const user = await userRepository.findById(claims.uid)
-      if (!user) {
+      const from = env.sender.message
+      const { body, subject } = req.body as {
+        body?: string
+        subject?: string
+      }
+      if (!subject || !body || !from) {
+        logger.error('Bad Request', { subject, body, from })
         res.status(400).send('Bad Request')
         return
       }
-      const result = await sendEmail({
-        from: env.sender.message,
-        to: user.email,
-        subject: subject,
-        text: body,
-      })
-      if (!result) {
-        logger.error('Email not sent to user')
+      try {
+        const user = await userRepository.findById(claims.uid)
+        if (!user) {
+          res.status(400).send('Bad Request')
+          return
+        }
+        const result = await sendEmail({
+          from: env.sender.message,
+          to: user.email,
+          subject: subject,
+          text: body,
+        })
+        if (!result) {
+          logger.error('Email not sent to user')
+          res.status(500).send('Failed to send email')
+          return
+        }
+        res.status(200).send('Email sent to user')
+      } catch (e) {
+        logger.info(e)
         res.status(500).send('Failed to send email')
         return
       }
-      res.status(200).send('Email sent to user')
-    } catch (e) {
-      logger.info(e)
-      res.status(500).send('Email sent to user')
     }
-  })
+  )
 
   return router
 }

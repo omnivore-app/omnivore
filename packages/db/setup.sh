@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Check if PGDATA is empty
+if [ -z "$(ls -A $PGDATA 2>/dev/null)" ]; then
+    echo "PGDATA is empty. Performing basebackup..."
+    pg_basebackup -h $PG_HOST -D $PGDATA -U replicator -Fp -Xs -P -R
+    echo "Basebackup completed."
+else
+    echo "PGDATA is not empty. Skipping basebackup and proceeding with normal standby start."
+fi
+
 psql --host $PG_HOST --username $POSTGRES_USER --command "CREATE DATABASE $PG_DB;" || true
 echo "create $PG_DB database"
 
@@ -21,6 +30,14 @@ echo "granted omnivore_user to app_user"
 if [ -z "${NO_DEMO_USER}" ]; then
     USER_ID=$(uuidgen)
     PASSWORD='$2a$10$41G6b1BDUdxNjH1QFPJYDOM29EE0C9nTdjD1FoseuQ8vZU1NWtrh6'
-    psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command "INSERT INTO omnivore.user (id, source, email, source_user_id, name, password) VALUES ('$USER_ID', 'EMAIL', 'demo@omnivore.app', 'demo@omnivore.app', 'Demo User', '$PASSWORD'); INSERT INTO omnivore.user_profile (user_id, username) VALUES ('$USER_ID', 'demo_user');"
+    psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command "
+        INSERT INTO omnivore.user (id, source, email, source_user_id, name, password) 
+        VALUES ('$USER_ID', 'EMAIL', 'demo@omnivore.app', 'demo@omnivore.app', 'Demo User', '$PASSWORD')
+        ON CONFLICT (email) DO NOTHING;
+        
+        INSERT INTO omnivore.user_profile (user_id, username) 
+        SELECT id, 'demo_user' FROM omnivore.user WHERE email = 'demo@omnivore.app'
+        ON CONFLICT (username) DO NOTHING;
+    "
     echo "created demo user with email: demo@omnivore.app, password: demo_password"
 fi

@@ -9,7 +9,7 @@ interface WatcherEnv {
   }
   omnivoreEmail: string
   apiKey: string
-  apiEndpoint: string,
+  apiEndpoint: string
   waitTime: number
 }
 

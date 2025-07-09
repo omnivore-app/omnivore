@@ -3,7 +3,7 @@
 // Imports the Google Cloud Tasks library.
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import axios from 'axios'
-import { nanoid } from 'nanoid'
+// import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import { ImportItemState } from '../entity/integration'
@@ -404,7 +404,7 @@ export const enqueueReminder = async (
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    return nanoid()
+    return crypto.randomUUID()
   }
 
   const createdTasks = await createHttpTaskWithToken({
@@ -583,7 +583,7 @@ export const enqueueImportFromIntegration = async (
           })
       }, 0)
     }
-    return nanoid()
+    return crypto.randomUUID()
   }
 
   const createdTasks = await createHttpTaskWithToken({

@@ -8,31 +8,36 @@ import { logger } from '../../utils/logger'
 export function rssFeedRouter() {
   const router = express.Router()
 
-  router.post('/fetchAll', async (req, res) => {
-    logger.info('fetch all rss feeds')
+  router.post(
+    '/fetchAll',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      logger.info('fetch all rss feeds')
 
-    try {
-      const { message: msgStr, expired } = readPushSubscription(req)
-      logger.info(`read pubsub message`, { msgStr, expired })
+      try {
+        const { message: msgStr, expired } = readPushSubscription(req)
+        logger.info(`read pubsub message`, { msgStr, expired })
 
-      if (expired) {
-        logger.info('discarding expired message')
-        return res.status(200).send('Expired')
+        if (expired) {
+          logger.info('discarding expired message')
+          res.status(200).send('Expired')
+          return
+        }
+
+        if (redisDataSource.workerRedisClient) {
+          await queueRSSRefreshAllFeedsJob()
+        } else {
+          logger.info('unable to fetchAll feeds, redis is not configured')
+          res.status(500).send('Expired')
+          return
+        }
+      } catch (error) {
+        logger.error('error fetching rss feeds', error)
+        res.status(500).send('Internal Server Error')
       }
 
-      if (redisDataSource.workerRedisClient) {
-        await queueRSSRefreshAllFeedsJob()
-      } else {
-        logger.info('unable to fetchAll feeds, redis is not configured')
-        return res.status(500).send('Expired')
-      }
-    } catch (error) {
-      logger.error('error fetching rss feeds', error)
-      return res.status(500).send('Internal Server Error')
+      res.send('OK')
     }
-
-    res.send('OK')
-  })
+  )
 
   return router
 }

@@ -105,9 +105,32 @@ export const articleSavingRequestResolver = authorized<
     if (!libraryItem) {
       return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
     }
+
+    // Handle processing timeouts - if item has been processing for too long, retry
     if (isParsingTimeout(libraryItem)) {
-      libraryItem.state = LibraryItemState.Succeeded
+      try {
+        // Retry the content fetch for stuck items
+        await createPageSaveRequest({
+          user: libraryItem.user,
+          url: libraryItem.originalUrl,
+          articleSavingRequestId: libraryItem.id,
+          priority: 'high',
+        })
+
+        log.info('Retrying content fetch for stuck item', {
+          itemId: libraryItem.id,
+          url: libraryItem.originalUrl,
+        })
+      } catch (error) {
+        log.error('Failed to retry content fetch for stuck item', {
+          error,
+          itemId: libraryItem.id,
+        })
+        // Continue with marking as succeeded to avoid infinite processing
+        libraryItem.state = LibraryItemState.Succeeded
+      }
     }
+
     return {
       articleSavingRequest: libraryItem,
     }

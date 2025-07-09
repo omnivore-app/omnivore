@@ -3,11 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-base-to-string */
 
-import { preParseContent } from '@omnivore/content-handler'
+import { preParseContent } from '../../../content-handler/src/index'
 import { Readability } from '@omnivore/readability'
 import addressparser from 'addressparser'
 import axios from 'axios'
-import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
+import createDOMPurify, { UponSanitizeElementHookEvent } from 'dompurify'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
 import * as jwt from 'jsonwebtoken'
@@ -45,7 +45,21 @@ interface Feed {
   description?: string
 }
 
-const signToken = promisify(jwt.sign)
+const signToken = (
+  payload: string | object | Buffer,
+  secret: jwt.Secret,
+  options?: jwt.SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, token) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(token as string)
+      }
+    })
+  })
+}
 
 const axiosInstance = axios.create({
   timeout: 5000,
@@ -94,7 +108,7 @@ export const rssParserConfig = () => {
 /** Hook that prevents DOMPurify from removing youtube iframes */
 const domPurifySanitizeHook = (
   node: Element,
-  data: SanitizeElementHookEvent
+  data: UponSanitizeElementHookEvent
 ): void => {
   if (data.tagName === 'iframe') {
     const urlRegex = /^(https?:)?\/\/www\.youtube(-nocookie)?\.com\/embed\//i
@@ -177,7 +191,7 @@ const parseOriginalContent = (document: Document): PageType => {
 const getPurifiedContent = (html: string): Document => {
   const newWindow = parseHTML('')
   const DOMPurify = createDOMPurify(newWindow)
-  DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+  // DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
   const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
   return parseHTML(clean).document
 }
@@ -377,7 +391,7 @@ export const parsePreparedContent = async (
     const newHtml = newDocumentElement.outerHTML
     const newWindow = parseHTML('')
     const DOMPurify = createDOMPurify(newWindow)
-    DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+    // DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
     const cleanHtml = DOMPurify.sanitize(newHtml, DOM_PURIFY_CONFIG)
     parsedContent.content = cleanHtml
 

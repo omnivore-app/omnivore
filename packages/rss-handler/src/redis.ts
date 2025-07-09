@@ -1,7 +1,12 @@
 import { Redis } from 'ioredis'
 
 export const createRedisClient = (url?: string, cert?: string) => {
-  return new Redis(url || 'redis://localhost:6379', {
+  if (!url) {
+    console.log('No Redis URL provided, Redis client not created')
+    return null
+  }
+
+  return new Redis(url, {
     connectTimeout: 10000, // 10 seconds
     tls: cert
       ? {

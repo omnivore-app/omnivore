@@ -12,7 +12,21 @@ import { Claims, ClaimsToSet } from '../resolvers/types'
 
 export const OmnivoreAuthorizationHeader = 'Omnivore-Authorization'
 
-const signToken = promisify(jwt.sign)
+const signToken = (
+  payload: string | object | Buffer,
+  secret: jwt.Secret,
+  options?: jwt.SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, token) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(token as string)
+      }
+    })
+  })
+}
 
 export const hashPassword = async (password: string, salt = 10) => {
   return bcrypt.hash(password, salt)

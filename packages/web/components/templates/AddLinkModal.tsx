@@ -80,14 +80,19 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
 }
 
 const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   const addLink = useCallback(
     async (link: string) => {
-      await props.handleLinkSubmission(link, timeZone, locale)
-      props.onOpenChange(false)
+      try {
+        await props.handleLinkSubmission(link, timeZone, locale)
+        // Only close modal after successful submission
+        props.onOpenChange(false)
+      } catch (error) {
+        setErrorMessage('Failed to save link. Please try again.')
+        console.error('Link submission error:', error)
+      }
     },
     [props, errorMessage, setErrorMessage]
   )
@@ -103,9 +108,8 @@ const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
 }
 
 const AddFeedTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   const subscribe = useCallback(
     async (feedUrl: string) => {
@@ -549,7 +553,6 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
               withCredentials: false,
               headers: {
                 'Content-Type': file.file.type,
-                'origin': 'http://localhost:3000'
               },
               onUploadProgress: (p) => {
                 if (!p.total) {

@@ -71,3 +71,4 @@ data.json
 *.apk
 
 tsconfig.tsbuildinfo
+self-hosting/docker-compose/mail/mail-server/docker-data/

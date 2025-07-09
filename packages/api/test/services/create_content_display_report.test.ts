@@ -1,4 +1,5 @@
-import chai, { expect } from 'chai'
+import * as chai from 'chai'
+import { expect } from 'chai'
 import 'mocha'
 import sinonChai from 'sinon-chai'
 import { LibraryItem } from '../../src/entity/library_item'

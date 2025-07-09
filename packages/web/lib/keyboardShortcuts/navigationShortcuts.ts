@@ -12,7 +12,12 @@ export function navigationCommands(router: NextRouter | undefined): Action[] {
       keywords: 'go home',
       perform: () => {
         console.log('go home')
-        router?.push(`/home`)
+
+        if (router?.pathname === '/home') {
+          router?.reload()
+        } else {
+          router?.push(`/home`)
+        }
       },
     },
     {

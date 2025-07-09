@@ -1,4 +1,4 @@
-import normalizeUrl from 'normalize-url'
+// import normalizeUrl from 'normalize-url'
 
 const BLOCKED_SITES = [
   'https://mail.google.com/',
@@ -22,5 +22,10 @@ export const isSiteBlockedForParse = (urlToParse: string): boolean => {
   return isBlocked
 }
 
-const getHost = (url: string): string =>
-  new URL(normalizeUrl(url, { stripWWW: true })).host
+const getHost = (url: string): string => {
+  const normalizedUrl =
+    url.startsWith('http://') || url.startsWith('https://')
+      ? url
+      : `http://${url}`
+  return new URL(normalizedUrl).host.replace(/^www\./, '')
+}

@@ -1,0 +1,80 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    volumes:
+      - ./packages/api:/app/packages/api
+      - ./packages/db:/app/packages/db
+      - ./packages/shared:/app/packages/shared
+      - /app/packages/api/node_modules
+      - /app/packages/db/node_modules
+      - /app/packages/shared/node_modules
+    command: yarn workspace @omnivore/api start
+    environment:
+      - NODE_ENV=development
+
+  queue-processor:
+    build:
+      context: .
+      dockerfile: packages/api/queue-processor/Dockerfile
+    volumes:
+      - ./packages/queue-processor:/app/packages/queue-processor
+      - ./packages/shared:/app/packages/shared
+      - /app/packages/queue-processor/node_modules
+      - /app/packages/shared/node_modules
+    command: yarn dev
+    environment:
+      - NODE_ENV=development
+
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: packages/web/Dockerfile-self
+  #   volumes:
+  #     - ./packages/web:/app/packages/web
+  #     - ./packages/shared:/app/packages/shared
+  #     - /app/packages/web/node_modules
+  #     - /app/packages/shared/node_modules
+  #   command: yarn dev
+  #   environment:
+  #     - NODE_ENV=development
+
+  image-proxy:
+    build:
+      context: ./imageproxy
+      dockerfile: Dockerfile
+    volumes:
+      - ./packages/image-proxy:/app/packages/image-proxy
+      - /app/packages/image-proxy/node_modules
+    command: yarn dev
+    environment:
+      - NODE_ENV=development
+
+  # content-fetch:
+  #   build:
+  #     context: .
+  #     dockerfile: packages/content-fetch/Dockerfile
+  #   volumes:
+  #     - ./packages/content-fetch:/app/packages/content-fetch
+  #     - ./packages/shared:/app/packages/shared
+  #     - /app/packages/content-fetch/node_modules
+  #     - /app/packages/shared/node_modules
+  #   command: yarn workspace @omnivore/content-fetch start
+  #   environment:
+  #     - NODE_ENV=development
+  #     - USE_FIREFOX=true
+
+  mail-watch-server:
+    build:
+      context: .
+      dockerfile: packages/local-mail-watcher/Dockerfile
+    volumes:
+      - ./packages/local-mail-watcher:/app/packages/local-mail-watcher
+      - ./packages/shared:/app/packages/shared
+      - /app/packages/local-mail-watcher/node_modules
+      - /app/packages/shared/node_modules
+    command: yarn dev
+    environment:
+      - NODE_ENV=development

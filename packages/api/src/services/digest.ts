@@ -1,4 +1,4 @@
-import { SpeechFile } from '@omnivore/text-to-speech-handler'
+import { SpeechFile } from '../../../text-to-speech/src/htmlToSsml'
 import { TaskState } from '../generated/graphql'
 import { redisDataSource } from '../redis_data_source'
 import { logger } from '../utils/logger'

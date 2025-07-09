@@ -34,9 +34,9 @@ class PostHogClient implements AnalyticClient {
     // })
   }
 
-  async shutdownAsync() {
-    return this.client.shutdownAsync()
-  }
+  // async shutdownAsync() {
+  //   return this.client.shutdownAsync()
+  // }
 }
 
 export const analytics = new PostHogClient(env.posthog.apiKey || 'test')

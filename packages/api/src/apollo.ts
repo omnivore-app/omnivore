@@ -50,8 +50,22 @@ import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
+import { TypeSource } from '@graphql-tools/utils'
 
-const signToken = promisify(jwt.sign)
+const signToken = (
+  payload: string | object | Buffer,
+  secret: jwt.Secret,
+  options?: jwt.SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, token) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(token as string)
+    })
+  })
+}
 const pubsub = createPubSubClient()
 
 const resolvers = {
@@ -59,10 +73,10 @@ const resolvers = {
   ...ScalarResolvers,
 }
 
-const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
+const contextFunc = async ({
   req,
   res,
-}) => {
+}: ExpressContext): Promise<ResolverContext> => {
   logger.info(`handling gql request`, {
     query: req.body.query,
     variables: req.body.variables,
@@ -85,7 +99,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     return em.query('SELECT * from omnivore.set_claims($1, $2)', [uid, dbRole])
   }
 
-  const ctx = {
+  const ctx: ResolverContext = {
     log: logger,
     claims,
     pubsub,
@@ -98,7 +112,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     setAuth: async (
       claims: ClaimsToSet,
       secret: string = env.server.jwtSecret
-    ) => await setAuthInCookie(claims, res, secret),
+    ) => await setAuthInCookie(claims, res as any, secret),
     setClaims,
     authTrx: <TResult>(
       cb: (em: EntityManager) => TResult,
@@ -138,18 +152,18 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   return ctx
 }
 
-export function makeApolloServer(
+export async function makeApolloServer(
   app: Express,
   httpServer: http.Server
-): ApolloServer {
+): Promise<ApolloServer> {
   let schema = makeExecutableSchema({
     resolvers,
-    typeDefs,
+    typeDefs: typeDefs as TypeSource,
   })
 
   schema = sanitizeDirectiveTransformer(schema)
 
-  const promExporter: PluginDefinition = createPrometheusExporterPlugin({
+  const promExporter = await createPrometheusExporterPlugin({
     app,
     hostnameLabel: false,
     defaultMetrics: false,

@@ -298,13 +298,13 @@ export const processFetchContentJob = async (
         throw error
       }
 
-      if (fetchResult.content && !NO_CACHE_URLS.includes(url)) {
+      if (fetchResult?.content && !NO_CACHE_URLS.includes(url)) {
         await cacheFetchResult(redisDataSource, key, fetchResult)
       }
     }
 
     const savedDate = savedAt ? new Date(savedAt) : new Date()
-    const { finalUrl, title, content, contentType } = fetchResult
+    const { finalUrl, title, content, contentType } = fetchResult || {}
     if (content && process.env['SKIP_UPLOAD_ORIGINAL'] !== 'true') {
       await uploadOriginalContent(users, content, savedDate.getTime())
     }
@@ -314,7 +314,7 @@ export const processFetchContentJob = async (
       data: {
         userId: user.id,
         url,
-        finalUrl,
+        finalUrl: finalUrl || url,
         articleSavingRequestId: user.libraryItemId,
         state,
         labels,

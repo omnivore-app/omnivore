@@ -61,7 +61,21 @@ export interface SignupRequest {
   recaptchaToken?: string
 }
 
-const signToken = promisify(jwt.sign)
+const signToken = (
+  payload: string | object | Buffer,
+  secret: jwt.Secret,
+  options?: jwt.SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, token) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(token as string)
+      }
+    })
+  })
+}
 
 const cookieParams = {
   httpOnly: true,
@@ -246,44 +260,47 @@ export function authRouter() {
     )
   })
 
-  router.get('/google-login/login', async (req, res) => {
-    const { code } = req.query
+  router.get(
+    '/google-login/login',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      const { code } = req.query
 
-    const userData = await validateGoogleUser(`${code}`)
+      const userData = await validateGoogleUser(`${code}`)
 
-    if (!userData || !userData.email || !userData.id) {
-      return { errorCodes: [SignupErrorCode.GoogleAuthError] }
-    }
-
-    const user = await userRepository.findOneBy({ email: userData.email })
-
-    // eslint-disable-next @typescript-eslint/ban-ts-comment
-    const secret = (await signToken(
-      { email: userData.email },
-      env.server.jwtSecret,
-      // @ts-ignore
-      {
-        expiresIn: 300,
+      if (!userData || !userData.email || !userData.id) {
+        res.redirect(
+          `${env.client.url}/login?errorCodes=${SignupErrorCode.GoogleAuthError}`
+        )
+        return
       }
-    )) as string
 
-    if (!user) {
-      return res.redirect(
-        `${env.client.url}/join?email=${userData.email}&name=${userData.name}&sourceUserId=${userData.id}&pictureUrl=${userData.picture}&secret=${secret}`
+      const user = await userRepository.findOneBy({ email: userData.email })
+
+      const secret = await signToken(
+        { email: userData.email },
+        env.server.jwtSecret as string,
+        { expiresIn: '5m' }
       )
-    }
 
-    if (user.source !== RegistrationType.Google) {
-      const errorCodes = [LoginErrorCode.WrongSource]
-      return res.redirect(
-        `${env.client.url}/${
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (req.params as any)?.action
-        }?errorCodes=${errorCodes}`
-      )
-    }
+      if (!user) {
+        res.redirect(
+          `${env.client.url}/join?email=${userData.email}&name=${userData.name}&sourceUserId=${userData.id}&pictureUrl=${userData.picture}&secret=${secret}`
+        )
+        return
+      }
 
-    const query = `
+      if (user.source !== RegistrationType.Google) {
+        const errorCodes = [LoginErrorCode.WrongSource]
+        res.redirect(
+          `${env.client.url}/${
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (req.params as any)?.action
+          }?errorCodes=${errorCodes}`
+        )
+        return
+      }
+
+      const query = `
     mutation googleLogin{
       googleLogin(input: {
         secret: "${secret}",
@@ -303,49 +320,53 @@ export function authRouter() {
       }
     }`
 
-    const result = await axios.post(env.server.gateway_url + '/graphql', {
-      query,
-    })
-    const { data } = result.data
+      const result = await axios.post(env.server.gateway_url + '/graphql', {
+        query,
+      })
+      const { data } = result.data
 
-    if (data.googleLogin.__typename === 'LoginError') {
-      if (data.googleLogin.errorCodes.includes(LoginErrorCode.UserNotFound)) {
-        return res.redirect(`${env.client.url}/login`)
+      if (data.googleLogin.__typename === 'LoginError') {
+        if (data.googleLogin.errorCodes.includes(LoginErrorCode.UserNotFound)) {
+          res.redirect(`${env.client.url}/login`)
+          return
+        }
+
+        const errorCodes = data.googleLogin.errorCodes.join(',')
+        res.redirect(
+          `${env.client.url}/${
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (req.params as any)?.action
+          }?errorCodes=${errorCodes}`
+        )
+        return
       }
 
-      const errorCodes = data.googleLogin.errorCodes.join(',')
-      return res.redirect(
-        `${env.client.url}/${
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (req.params as any)?.action
-        }?errorCodes=${errorCodes}`
-      )
+      if (!result.headers['set-cookie']) {
+        res.redirect(
+          `${env.client.url}/${
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (req.params as any)?.action
+          }?errorCodes=unknown`
+        )
+        return
+      }
+
+      analytics.capture({
+        distinctId: user.id,
+        event: 'login',
+        properties: {
+          method: 'google',
+          email: user.email,
+          username: user.profile.username,
+          env: env.server.apiEnv,
+        },
+      })
+
+      res.setHeader('set-cookie', result.headers['set-cookie'])
+
+      await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
     }
-
-    if (!result.headers['set-cookie']) {
-      return res.redirect(
-        `${env.client.url}/${
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (req.params as any)?.action
-        }?errorCodes=unknown`
-      )
-    }
-
-    analytics.capture({
-      distinctId: user.id,
-      event: 'login',
-      properties: {
-        method: 'google',
-        email: user.email,
-        username: user.profile.username,
-        env: env.server.apiEnv,
-      },
-    })
-
-    res.setHeader('set-cookie', result.headers['set-cookie'])
-
-    await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
-  })
+  )
 
   async function handleSuccessfulLogin(
     req: express.Request,

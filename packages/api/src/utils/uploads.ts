@@ -52,7 +52,26 @@ export const generateUploadSignedUrl = async (
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
     contentType: contentType,
   }
-  logger.info('signed url for: ', options)
+  logger.info(
+    'signed url for: ',
+    options,
+    { selectedBucket, bucketName },
+    filePathName
+  )
+
+  console.log(
+    'signed url for: ',
+    options,
+    { selectedBucket, bucketName },
+    filePathName
+  )
+  const signedURL = await storage.signedUrl(
+    selectedBucket || bucketName,
+    filePathName,
+    options
+  )
+
+  logger.info('signed url: ', signedURL)
 
   return storage.signedUrl(selectedBucket || bucketName, filePathName, options)
 }
@@ -107,6 +126,7 @@ export const downloadFromUrl = async (
   contentObjUrl: string,
   timeout?: number
 ) => {
+  logger.info('downloading from url: ', contentObjUrl)
   // download the content as stream and max 10MB
   const response = await axios.get<Buffer>(contentObjUrl, {
     responseType: 'stream',
@@ -123,14 +143,28 @@ export const uploadToSignedUrl = async (
   contentType: string,
   timeout?: number
 ) => {
+  logger.info('uploading to signed url: ', uploadSignedUrl)
   // upload the stream to the signed url
-  await axios.put(uploadSignedUrl, data, {
-    headers: {
-      'Content-Type': contentType,
-    },
-    maxBodyLength: maxContentLength,
-    timeout,
-  })
+  try {
+    const response = await axios.put(uploadSignedUrl, data, {
+      headers: {
+        'Content-Type': contentType,
+        'Content-Length': data.length,
+      },
+      maxBodyLength: maxContentLength,
+      timeout,
+    })
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to upload to signed URL: ${response.status}`)
+    }
+  } catch (error) {
+    logger.error('Error uploading to signed URL:', {
+      uploadSignedUrl,
+      error: error instanceof Error ? error.message : error,
+    })
+    throw new Error('Failed to upload to signed URL')
+  }
 }
 
 export const isFileExists = async (filePath: string): Promise<boolean> => {

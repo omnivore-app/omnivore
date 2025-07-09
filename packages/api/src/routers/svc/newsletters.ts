@@ -84,81 +84,95 @@ export function newsletterServiceRouter() {
   })
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/create', async (req, res) => {
-    logger.info('create newsletter in the library')
+  router.post(
+    '/create',
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      logger.info('create newsletter in the library')
 
-    try {
-      const { message, expired } = readPushSubscription(req)
-      if (!message) {
-        return res.status(200).send('Bad Request')
-      }
+      try {
+        const { message, expired } = readPushSubscription(req)
+        if (!message) {
+          res.status(400).send('Bad Request')
+          return
+        }
 
-      if (expired) {
-        logger.info('discards expired message', { message })
-        return res.status(200).send('Expired')
-      }
+        if (expired) {
+          logger.info('discards expired message', { message })
+          res.status(200).send('Expired')
+          return
+        }
 
-      const data = JSON.parse(message) as unknown
-      if (!isNewsletterMessage(data)) {
-        logger.error('invalid newsletter message', { data })
-        return res.status(200).send('Invalid Message')
-      }
+        const data = JSON.parse(message) as unknown
+        if (!isNewsletterMessage(data)) {
+          logger.error('invalid newsletter message', { data })
+          res.status(200).send('Invalid Message')
+          return
+        }
 
-      // get user from newsletter email
-      const newsletterEmail = await findNewsletterEmailByAddress(data.email)
-      if (!newsletterEmail) {
-        logger.info(`newsletter email not found: ${data.email}`)
-        return res.status(200).send('Not Found')
-      }
+        // get user from newsletter email
+        const newsletterEmail = await findNewsletterEmailByAddress(data.email)
+        if (!newsletterEmail) {
+          logger.info(`newsletter email not found: ${data.email}`)
+          res.status(200).send('Not Found')
+          return
+        }
 
-      if (isUrl(data.title)) {
-        // save url if the title is a parsable url
-        const result = await saveUrlFromEmail(
-          data.title,
+        if (isUrl(data.title)) {
+          // save url if the title is a parsable url
+          const result = await saveUrlFromEmail(
+            data.title,
+            data.receivedEmailId,
+            newsletterEmail.user.id
+          )
+          if (!result) {
+            res.status(500).send('Error saving url from email')
+            return
+          }
+        } else {
+          // do not subscribe if subscription already exists and is unsubscribed
+          const existingSubscription = await getSubscriptionByName(
+            data.author,
+            newsletterEmail.user.id
+          )
+          if (
+            existingSubscription?.status === SubscriptionStatus.Unsubscribed
+          ) {
+            logger.info(`newsletter already unsubscribed: ${data.author}`)
+            res.status(200).send('newsletter already unsubscribed')
+            return
+          }
+
+          // save newsletter instead
+          const result = await saveNewsletter(data, newsletterEmail)
+          if (!result) {
+            logger.info('Error creating newsletter link from data', data)
+
+            res.status(500).send('Error creating newsletter link')
+            return
+          }
+        }
+
+        // update received email type
+        await updateReceivedEmail(
           data.receivedEmailId,
+          'article',
           newsletterEmail.user.id
         )
-        if (!result) {
-          return res.status(500).send('Error saving url from email')
-        }
-      } else {
-        // do not subscribe if subscription already exists and is unsubscribed
-        const existingSubscription = await getSubscriptionByName(
-          data.author,
-          newsletterEmail.user.id
-        )
-        if (existingSubscription?.status === SubscriptionStatus.Unsubscribed) {
-          logger.info(`newsletter already unsubscribed: ${data.author}`)
-          return res.status(200).send('newsletter already unsubscribed')
+      } catch (e) {
+        logger.error(e)
+        if (e instanceof SyntaxError) {
+          // when message is not a valid json string
+          res.status(400).send(e)
+          return
         }
 
-        // save newsletter instead
-        const result = await saveNewsletter(data, newsletterEmail)
-        if (!result) {
-          logger.info('Error creating newsletter link from data', data)
-
-          return res.status(500).send('Error creating newsletter link')
-        }
+        res.status(500).send(e)
+        return
       }
 
-      // update received email type
-      await updateReceivedEmail(
-        data.receivedEmailId,
-        'article',
-        newsletterEmail.user.id
-      )
-    } catch (e) {
-      logger.error(e)
-      if (e instanceof SyntaxError) {
-        // when message is not a valid json string
-        return res.status(400).send(e)
-      }
-
-      return res.status(500).send(e)
+      res.status(200).send('newsletter created')
     }
-
-    res.status(200).send('newsletter created')
-  })
+  )
 
   return router
 }
