@@ -17,11 +17,11 @@ COPY .eslintrc .
 
 COPY /packages/web/package.json ./packages/web/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 ADD /packages/web ./packages/web
 
 COPY ./packages/web/next.config.self.js ./packages/web/next.config.js
-RUN yarn workspace @omnivore/web build
+RUN yarn workspace @omnivore/web build --network-timeout=300000
 
 
 FROM node:22.12-alpine as runner

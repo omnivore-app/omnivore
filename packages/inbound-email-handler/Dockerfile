@@ -13,7 +13,8 @@ COPY /packages/inbound-email-handler/package.json ./packages/inbound-email-handl
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
+
 
 ADD /packages/inbound-email-handler ./packages/inbound-email-handler
 ADD /packages/content-handler ./packages/content-handler
@@ -25,7 +26,8 @@ RUN yarn workspace @omnivore/inbound-email-handler build
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/inbound-email-handler/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
+
 
 EXPOSE 8080
 

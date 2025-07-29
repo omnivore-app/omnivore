@@ -15,7 +15,8 @@ COPY /packages/imap-mail-watcher/package.json ./packages/imap-mail-watcher/packa
 COPY /packages/imap-mail-watcher/tsconfig.json ./packages/imap-mail-watcher/tsconfig.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
+
 
 ADD /packages/utils ./packages/utils
 

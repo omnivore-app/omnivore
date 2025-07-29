@@ -10,7 +10,7 @@ COPY .eslintrc .
 
 COPY /packages/rss-handler/package.json ./packages/rss-handler/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 
 ADD /packages/rss-handler ./packages/rss-handler
 RUN yarn workspace @omnivore/rss-handler build
@@ -18,7 +18,7 @@ RUN yarn workspace @omnivore/rss-handler build
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/rss-handler/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
 
 EXPOSE 8080
 

@@ -10,7 +10,8 @@ COPY .eslintrc .
 
 COPY /packages/integration-handler/package.json ./packages/integration-handler/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
+
 
 COPY /packages/integration-handler ./packages/integration-handler
 RUN yarn workspace @omnivore/integration-handler build
@@ -18,7 +19,8 @@ RUN yarn workspace @omnivore/integration-handler build
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/integration-handler/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
+
 
 EXPOSE 8080
 
