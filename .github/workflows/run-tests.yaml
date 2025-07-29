@@ -1,11 +1,5 @@
 name: Run tests
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'apple/**'
-      - 'android/**'
   pull_request:
     branches:
       - main
