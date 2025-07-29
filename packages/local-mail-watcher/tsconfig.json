@@ -4,6 +4,7 @@
   "include": ["./src/**/*"],
   "compilerOptions": {
     "outDir": "dist",
+    "types": [],
     "typeRoots": ["./../../node_modules/pgvector/types"]
   }
 }

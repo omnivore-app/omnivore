@@ -15,7 +15,8 @@ COPY /packages/local-mail-watcher/package.json ./packages/local-mail-watcher/pac
 COPY /packages/local-mail-watcher/tsconfig.json ./packages/local-mail-watcher/tsconfig.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
+
 
 ADD /packages/utils ./packages/utils
 

@@ -1,5 +1,5 @@
 import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
-import 'antd/dist/antd.compact.css'
+import 'antd/dist/reset.css'
 import { useCallback, useMemo, useState } from 'react'
 import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'

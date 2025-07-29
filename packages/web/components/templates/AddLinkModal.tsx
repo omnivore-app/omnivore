@@ -618,7 +618,9 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
           console.log('onDropRejected: ', fileRejections, event)
           alert('You can only upload PDF files to your Omnivore Library.')
           setInDragOperation(false)
-          event.preventDefault()
+          if (event instanceof MouseEvent) {
+            event.preventDefault()
+          }
         }}
         preventDropOnDocument={true}
         noClick={true}

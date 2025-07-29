@@ -18,7 +18,7 @@ COPY /packages/content-handler/package.json ./packages/content-handler/package.j
 COPY /packages/liqe/package.json ./packages/liqe/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 
 ADD /packages/readabilityjs ./packages/readabilityjs
 ADD /packages/api ./packages/api
@@ -36,7 +36,7 @@ RUN yarn workspace @omnivore/api build
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
 
 FROM node:22.12 as runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"

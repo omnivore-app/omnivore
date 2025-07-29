@@ -1,5 +1,5 @@
 import { Button, Form, FormProps, Input, message, Space, Spin } from 'antd'
-import 'antd/dist/antd.compact.css'
+import 'antd/dist/reset.css'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'

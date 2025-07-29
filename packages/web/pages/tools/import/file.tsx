@@ -1,4 +1,4 @@
-import 'antd/dist/antd.compact.css'
+import 'antd/dist/reset.css'
 import { ChangeEvent, useState } from 'react'
 import { SyncLoader } from 'react-spinners'
 import { Button } from '../../../components/elements/Button'

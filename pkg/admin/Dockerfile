@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json .
 COPY yarn.lock .
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout=300000
 
 COPY . .
 RUN NODE_ENV=production yarn build

@@ -19,7 +19,7 @@ COPY /packages/db/package.json ./packages/db/package.json
 COPY /packages/liqe/package.json ./packages/liqe/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 
 COPY /packages/readabilityjs ./packages/readabilityjs
 COPY /packages/api ./packages/api
@@ -37,7 +37,7 @@ RUN yarn workspace @omnivore/api build
 
 RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
 
 FROM node:22.12-alpine as runner
 
