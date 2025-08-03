@@ -22,7 +22,7 @@ COPY /packages/content-handler/package.json ./packages/content-handler/package.j
 COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 
 COPY /packages/content-fetch ./packages/content-fetch
 COPY /packages/content-handler ./packages/content-handler
@@ -34,7 +34,8 @@ RUN yarn workspace @omnivore/utils build && \
     yarn workspace @omnivore/puppeteer-parse build && \
     yarn workspace @omnivore/content-fetch build && \
     rm -rf /app/packages/content-fetch/node_modules /app/node_modules && \
-    yarn install --pure-lockfile --production
+    yarn install --pure-lockfile --production --network-timeout=300000
+
 
 # Running stage
 FROM node:22.12-alpine

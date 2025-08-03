@@ -14,7 +14,8 @@ COPY /packages/discover/src ./packages/discover/src
 COPY /packages/discover/package.json ./packages/discover/package.json
 COPY /packages/discover/tsconfig.json ./packages/discover/tsconfig.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
+
 RUN yarn workspace @omnivore/discover build
 
 FROM node:22.12 as runner

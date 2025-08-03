@@ -14,7 +14,7 @@ COPY /packages/discord/src ./packages/discord/src
 COPY /packages/discord/package.json ./packages/discord/package.json
 COPY /packages/discord/tsconfig.json ./packages/discord/tsconfig.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 RUN yarn workspace @omnivore/discord build
 
 FROM node:22.12 as runner

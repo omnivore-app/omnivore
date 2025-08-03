@@ -142,15 +142,13 @@ services:
     entrypoint: >
       /bin/bash -c "
       sleep 5;
-      until (/usr/bin/mc config host add myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
+      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc mb myminio/omnivore;
-      /usr/bin/mc policy set public myminio/omnivore;
+      /usr/bin/mc anonymous set public myminio/omnivore;
       exit 0;
       "
   mail-watch-server:
-    build:
-      context: ../../
-      dockerfile: ./packages/local-mail-watcher/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-local-mail-watcher:latest"
     container_name: "omnivore-mail-watch-server"
     ports:
       - "4398:8080"

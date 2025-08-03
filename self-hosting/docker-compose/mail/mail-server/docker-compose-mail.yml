@@ -50,7 +50,7 @@ services:
       "
   watcher:
     build:
-      context: ../../../
+      context: ../../../../
       dockerfile: ./packages/local-mail-watcher/Dockerfile-watcher
     container_name: "omnivore-mail-watch"
     volumes:

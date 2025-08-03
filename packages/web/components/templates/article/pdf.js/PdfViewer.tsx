@@ -47,6 +47,8 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
   const [clickedHighlight, setClickedHighlight] =
     useState<Highlight | null>(null)
   const [currentPageNum, setCurrentPageNum] = useState(1)
+  const [scaling, setScaling] = useState(false)
+  const [startScale, setStartScale] = useState(0)
 
   const colorMap: Record<string, string> = useMemo(
     () => ({
@@ -311,14 +313,85 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
       }
     }
 
+    const handleWheelZoom = (ev: WheelEvent) => {
+        // For pinch to zoom on the trackpad, it counts as the ctrl key being set.
+        // This also means that zooms with a normal mouse wheel + ctrl will also zoom the pdf.
+        const isPinch = ev.ctrlKey
+        if (isPinch && props.pdfViewer) {
+          ev.preventDefault();
+          ev.stopPropagation()
+          const currentScale = props.pdfViewer.currentScale
+          let scale = currentScale - (ev.deltaY * 0.01)
+          scale = scale > 5 ? 5 : scale;
+          scale = scale < 0.1 ? 0.1 : scale;
+
+          props.pdfViewer.currentScale = scale
+        }
+      }
+
+    const pinchStart = (event: TouchEvent) => {
+      if (event.touches.length == 2) {
+        event.preventDefault()
+        event.stopPropagation()
+        const dist = Math.hypot(
+          event.touches[0].pageX - event.touches[1].pageX,
+          event.touches[0].pageY - event.touches[1].pageY);
+
+        setStartScale(dist)
+        setScaling(true)
+
+      }
+    }
+
+    const pinchZoom = (e: TouchEvent) => {
+      if (scaling) {
+        const dist = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY);
+
+        if (props.pdfViewer) {
+          const scaled = (dist / startScale)
+          props.pdfViewer.updateScale({
+            scaleFactor: scaled,
+            origin: [e.touches[0].pageX, e.touches[0].pageY]
+          })
+        }
+
+        setStartScale(dist)
+
+      }
+    }
+
+
+    const pinchEnd = () => {
+      setScaling(false)
+    }
+
     if (props.containerRef?.current) {
       const isTouch = isTouchScreenDevice()
+
+      props.containerRef.current.addEventListener(
+        'touchstart',
+        pinchStart
+      )
+
+      props.containerRef.current.addEventListener(
+        'touchend',
+        pinchEnd
+      )
+
+      props.containerRef.current.addEventListener(
+        'touchmove',
+        pinchZoom
+      )
 
       if (!isTouch) {
         props.containerRef.current.addEventListener(
           'mouseup',
           detectHighlightedText
         )
+        props.containerRef.current.addEventListener('wheel', handleWheelZoom)
+
       }
 
       if (isTouch) {
@@ -336,10 +409,28 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
           detectHighlightedText
         )
 
-        props.containerRef.current.addEventListener(
+        props.containerRef.current.removeEventListener(
           'touchend',
           detectHighlightedText
         )
+
+        props.containerRef.current.removeEventListener(
+          'touchstart',
+          pinchStart
+        )
+
+        props.containerRef.current.removeEventListener(
+          'touchend',
+          pinchEnd
+        )
+
+        props.containerRef.current.removeEventListener(
+          'touchmove',
+          pinchZoom
+        )
+
+        props.containerRef.current.removeEventListener('wheel', handleWheelZoom)
+
       }
     }
   }, [
@@ -349,6 +440,8 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
     props.pdfViewer,
     setHighlights,
     highlights,
+    scaling,
+    startScale
   ])
 
   // When a page zooms, it internally re-renders using pdf.js. We add a function

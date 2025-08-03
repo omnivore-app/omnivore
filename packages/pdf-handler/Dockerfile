@@ -12,7 +12,7 @@ COPY .eslintrc .
 COPY /packages/pdf-handler/package.json ./packages/pdf-handler/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 
 ADD /packages/pdf-handler ./packages/pdf-handler
 ADD /packages/utils ./packages/utils
@@ -22,7 +22,7 @@ RUN yarn workspace @omnivore/pdf-handler build
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/pdf-handler/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
 
 EXPOSE 8080
 

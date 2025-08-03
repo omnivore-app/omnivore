@@ -3,7 +3,9 @@
 - [Docker Compose](#docker-compose)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Cloudflare Tunnel](#cloudflare-tunnel)
+- [Web Extensions](#web-extensions)
 - [Email](#email)
+- - [IMap Watcher](#imap-watcher)
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
 - - [Third Party Services](#third-party-services)
 - [YouTube Transcripts](#youtube-transcripts)
@@ -41,36 +43,16 @@ The following environment variables should be changed to reflect where you are r
 | BASE URL                        | The URL of the Front End of the Application.   | http://localhost:3000 |
 | SERVER_BASE_URL                 | The URL of the API Server.                     | http://localhost:4000 |
 | HIGHLIGHTS_BASE_URL             | The URL of the Front end of the Application    | http://localhost:3000 |
-| NEXT_PUBLIC_BASE_URL            | Same as above BASE URL, but for NEXT           | http://localhost:3000 |
-| NEXT_PUBLIC_SERVER_BASE_URL     | Same as above SERVER_BASE_URL, but for NEXT    | http://localhost:4000 |
-| NEXT_PUBLIC_HIGHLIGHTS_BASE_URL | Same as above HIGHLIGHTS_BASE_URL but for NEXT | http://localhost:3000 |
 | CLIENT_URL                      | The URL of the Front end of the Application    | http://localhost:3000 |
 | IMAGEPROXY_URL                  | Service that proxies images to avoid blocking  | http://localhost:7070 |
 
 
-Additionally, when doing a docker-compose build, if you are hosting this application you must change the args in the `docker-compose` file. 
-
-```yaml
-web:
-    build:
-    context: ../../
-    dockerfile: ./packages/web/Dockerfile-self
-args:
-  - APP_ENV=prod
-  - BASE_URL=http://localhost:3000
-  - SERVER_BASE_URL=http://localhost:4000
-  - HIGHLIGHTS_BASE_URL=http://localhost:3000
-```
-
 They are the same as the listed environment variables above. 
 
-### 4. Build the docker images. 
 
-Running `docker compose build` will go through and build all the necessary docker images. 
+### 4. Start the service. 
 
-### 5. Start the service. 
-
-Running `docker compose up` will start the services.
+Running `docker compose up` will pull the images from the github, and then start the services. 
 
 During the first deployment omnivore-migrate will go through and set up the necessary Postgres tables. 
 This will also create a demo user with email: demo@omnivore.app, password: demo_password. 
@@ -154,6 +136,40 @@ Omnivore is no way affiliated with Cloudflare, it is just the method to which th
 
 [Read More](https://www.cloudflare.com/products/tunnel/)
 
+## Web Extensions
+The web extensions have been updated to support self-hosting - The manifest version 2 of these could be enabled to work with Self-hosting, but required some manual code changes.
+
+The extension has been updated for Manifest v3, and to hopefully ease the difficulty of making it work with Self-Hosted versions.
+
+These extensions have been sent for submission to the Chrome and Firefox webstore, but are awaiting approval. In the mean-time, a guide about how to install these manually is provided. 
+
+### Chrome
+
+1. Navigate to the Chrome extension page at Chrome://extensions
+   ![Extensions PAge](../docs/guides/images/1-extension-page.png)
+
+2. Enable Developer mode on the Extensions page using the toggle.
+   ![Extensions Developer](../docs/guides/images/2-developer-mode.png)
+3. Use the Load Unpacked Option to load the extension from source. 
+   ![Extension Unpacked](../docs/guides/images/3-load-unpacked.png)
+4. Navigate to the source folder, found at pkg/extension-v3/extension
+   ![Source](../docs/guides/images/4-folder.png)
+   ![Source](../docs/guides/images/5-folders.png)
+5. The extension should have been installed. Go to the details page on the newly installed extension
+![Installed](../docs/guides/images/6-installed.png)
+6. Navigate to the options page, using the "Extensions Options" button. You should see the following page.
+![Extension Options](../docs/guides/images/7-options.png)
+![Extension Options](../docs/guides/images/8-options-page.png)
+7. Generate an API Key using Omnivore.
+   ![API Options](../docs/guides/images/9-omnivore-settings.png)
+   ![API Options](../docs/guides/images/10-omnivore-api-keys.png)
+   ![API Options](../docs/guides/images/11-generate-key.png)
+   ![API Options](../docs/guides/images/12-copy-key.png)
+8. Update the settings with the hosted options
+   ![API Options](../docs/guides/images/13-update-settings.png)
+
+
+
 
 ## Emails and Newsletters
 
@@ -177,6 +193,61 @@ We will go over
 5. Paste the Omnivore email address into the signup form.
 
 6. New newsletters will be automatically delivered to your Omnivore inbox.
+
+### IMap Watcher
+
+One of the easiest ways to get this functionality up and running is to use an existing email box, such as gmail. 
+
+We have included a docker file `self-hosting/docker-compose/mail/imap-parser/docker-compose-imap`. 
+
+There are a few environment variables that need to be set to make this work.
+
+| Environment Variable | Description                                                                                          | .env example                      |
+|----------------------|------------------------------------------------------------------------------------------------------|-----------------------------------|
+| WATCHER_API_KEY      | The API Key for the Watcher Service.                                                                 | api-key                           |
+| WATCHER_API_ENDPOINT | The URL of the Watcher Server.                                                                       | https://omnivore-watch.domain.tld |
+| IMAP_USER            | The IMAP User, in the gmail case this will be your email                                             | email-address@emailserver.com     |
+| IMAP_PASSWORD        | For gmail, this will be an application password. for other services this will be your email-password | password                          |
+| IMAP_HOST            | The IMAP Host, for gmail this will be imap.gmail.com                                                 | imap.host.com                     |
+| IMAP_PORT            | The IMAP Port, usually 993                                                                           | 993                               |
+| OMNIVORE_EMAIL       | The email address that Omnivore Creates                                                              | uuid@omnivore.tld                 |
+
+We will show how to set this up with a gmail account below. The steps should be similar for different email services. 
+
+#### GMail: How to
+
+##### Step 1. Create an Omnivore Email
+![Email](../docs/guides/images/create-new-email.png)
+
+This is the email address that you will use for the .env.imap file, `OMNIVORE_EMAIL`
+
+##### Step 2. Enable imap on GMail. 
+Note: For this step, I would recommend creating a separate email account rather than using your own email account. This functionality works by tracking which emails have already been opened, and automatically opens emails. 
+
+![Email Imap](../docs/guides/images/enable-imap.png)
+
+This is located in your gmail settings. 
+
+##### Step 3. Enable Application Passwords for Email. 
+For gmail, the password we need to use is an application password. In order to use these, we first have to enable multi-factor authentication for this account. 
+
+![2fa](../docs/guides/images/enable-2fa.png)
+
+Then follow the link here: https://myaccount.google.com/apppasswords to create an application password. 
+
+![app-pass](../docs/guides/images/create-app-password.png)
+
+![app-pass](../docs/guides/images/create-app-password-2.png)
+
+This will be the password for the `IMAP_PASSWORD`. 
+
+#### Step 4. Run docker compose up 
+`cd self-hosting/docker-compose/mail/imap-parser`
+`docker compose -f docker-compose-imap.yml build`
+`docker compose -f docker-compose-imap.yml up`
+
+#### Step 5. Emails are sent to Omnivore 
+![inc-gmail](../docs/guides/images/incoming-gmail.png)
 
 ### Docker-mailserver and mail-watcher
 
@@ -300,7 +371,7 @@ Following these steps you should see your email imported into Omnivore.
 
 ## Youtube Transcripts
 
-Omnivore has the ability to process Youtube Transcripts, using OpenAI to add the necessary grammar, and structure. 
+Omnivore has the ability to process YouTube Transcripts, using OpenAI to add the necessary grammar, and structure. 
 
 ### Guide: 
 
