@@ -4,7 +4,9 @@
     "files": true
   },
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["node"],
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["./src/generated"]

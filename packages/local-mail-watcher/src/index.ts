@@ -7,6 +7,7 @@ import { SnsMessage } from './types/SNS'
 import { simpleParser } from 'mailparser'
 import axios from 'axios'
 import { convertToMailObject } from './lib/emailApi'
+import { decodeBase64 } from './lib/base64'
 
 console.log('Starting worker...')
 
@@ -91,13 +92,27 @@ app.post('/sns', async (req, res) => {
     const message = JSON.parse(snsMessage.Message) as {
       notificationType: string
       content: string
+      receipt?: {
+        action?: {
+          encoding?: string
+        }
+      }
     }
     if (message.notificationType != 'Received') {
       console.log('Not an email, failing...')
       res.status(400).send()
+      return
     }
 
-    const mailContent = await simpleParser(message.content)
+    // Check if content is base64 encoded and decode if necessary
+    let emailContent = message.content
+    if (message.receipt?.action?.encoding === "BASE64") {
+      console.log("Detected BASE64 encoded content, decoding...")
+      emailContent = decodeBase64(message.content)
+      console.log("Processed BASE64 content")
+    }
+
+    const mailContent = await simpleParser(emailContent)
     const mail = convertToMailObject(mailContent)
     console.log(mail)
     await (
@@ -108,7 +123,7 @@ app.post('/sns', async (req, res) => {
       delay: 500,
     })
     res.sendStatus(200)
-
+    
     res.status(200).send()
     return
   }

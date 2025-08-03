@@ -1,6 +1,6 @@
 # Omnivore
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/omnivore-app/omnivore/run-tests.yaml?branch=main)](https://github.com/omnivore-app/omnivore/actions/workflows/run-tests.yaml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/omnivore-app/omnivore/build-self-host-docker-images.yml?branch=main)](https://github.com/omnivore-app/omnivore/actions/workflows/build-self-host-docker-images.yml)
 [![Discord](https://img.shields.io/discord/844965259462311966?label=Join%20our%20Discord)](https://discord.gg/h2z5rppzz9)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109458738600914558?domain=https%3A%2F%2Fpkm.social)](https://pkm.social/@omnivore)
 [![Twitter Follow](https://img.shields.io/twitter/follow/omnivoreapp)](https://twitter.com/OmnivoreApp)
@@ -30,7 +30,7 @@ We built Omnivore because we love reading and we want it to be more social. Join
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
 
-We also have a free hosted version of Omnivore at [omnivore.app](https://omnivore.app/) -- try it now!
+A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
 <img width="981" alt="web-screenshot-listview" src="https://github.com/omnivore-app/omnivore/assets/75189/df7c797a-4255-42f4-a686-ad94866cb580">
 
@@ -52,6 +52,7 @@ Omnivore takes advantage of some great open source software:
 - [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
 - [Apollo GraphQL](https://www.apollographql.com/) - We generate our GraphQL queries on Android using Apollo GraphQL.
 - [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
+- [PDF.js](https://github.com/mozilla/pdf.js) - PDF.js is used to have open source pdf functionality. 
 - And many more awesome libraries, just checkout our package files to see what we are using.
 
 ## Importing Libraries

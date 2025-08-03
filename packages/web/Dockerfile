@@ -24,7 +24,7 @@ COPY .eslintrc .
 
 COPY /packages/web/package.json ./packages/web/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 ADD /packages/web ./packages/web
 
 # We want an empty next.config.js when running in docker

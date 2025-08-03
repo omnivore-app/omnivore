@@ -16,7 +16,7 @@ export class TDotCoHandler extends ContentHandler {
     return axios
       .get(url, { maxRedirects: 0, validateStatus: null })
       .then((res) => {
-        return new URL(res.headers.location).href
+        return new URL(res.headers.location!).href
       })
       .catch((err) => {
         console.log('err with t.co url', err)

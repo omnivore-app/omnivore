@@ -12,7 +12,7 @@ COPY .eslintrc .
 COPY /packages/text-to-speech/package.json ./packages/text-to-speech/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
-RUN yarn install --pure-lockfile
+RUN yarn install --pure-lockfile --network-timeout=300000
 
 ADD /packages/utils ./packages/utils
 RUN yarn workspace @omnivore/utils build
@@ -22,7 +22,7 @@ RUN yarn workspace @omnivore/text-to-speech-handler build
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/text-to-speech/node_modules
 RUN rm -rf /app/node_modules
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --production --network-timeout=300000
 
 EXPOSE 8080
 
