@@ -110,7 +110,7 @@
     "showdown": "^2.1.0",
     "reflect-metadata": "0.2.2",
     "snake-case": "^4.0.0",
-    "supertest": "^6.2.2",
+    "supertest": "^7.1.4",
     "ts-loader": "^9.3.0",
     "typeorm": "^0.3.4",
     "typeorm-naming-strategies": "^4.1.0",
