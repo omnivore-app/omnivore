@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.4.5",
-    "@google-cloud/tasks": "^4.0.0",
+    "@google-cloud/tasks": "^6.2.0",
     "@sentry/serverless": "^7.77.0",
     "axios": "^1.4.0",
     "dotenv": "^16.0.1",
