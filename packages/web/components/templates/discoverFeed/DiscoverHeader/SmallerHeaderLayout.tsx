@@ -6,6 +6,7 @@ import { FunnelSimple } from '@phosphor-icons/react'
 import { DiscoverHeaderProps } from './DiscoverHeader'
 import { SmallTopicBar } from './SmallTopicBar'
 import { PrimaryDropdown } from '../../PrimaryDropdown'
+import { PinnedFeeds } from './PinnedFeeds'
 
 export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -13,64 +14,41 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
       alignment="center"
       distribution="start"
       css={{
-        width: '100%',
+        width: '100vw',
         height: '100%',
-        pt: '10px',
+        pt: '20px',
         pb: '10px',
-        pr: '20px',
-        bg: '$thBackground3',
+        pl: '50px',
+        bg: '$readerBg',
         '@md': {
           display: 'none',
         },
       }}
     >
       <>
-        <MenuHeaderButton {...props} />
         <SmallTopicBar {...props} />
+        <HStack
+          alignment="center"
+          distribution={'start'}
+          css={{
+            position: 'absolute',
+            left: '10px',
+            top: '60px',
+            gap: '10px',
+            width: '95vw',
+            paddingBottom: '5px',
+            bg: '$readerBg',
+            overflow: 'scroll',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+          }}
+        >
+          <PinnedFeeds items={props.feeds} selected={props.selectedFeedFilter} applyFeedFilter={props.applyFeedFilter} />
+        </HStack>
       </>
-    </HStack>
-  )
-}
-
-type MenuHeaderButtonProps = {
-  showFilterMenu: boolean
-  setShowFilterMenu: (show: boolean) => void
-}
-
-export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
-  return (
-    <HStack
-      css={{
-        ml: '10px',
-        width: '67px',
-        height: '40px',
-        bg: props.showFilterMenu ? '$thTextContrast2' : '$thBackground2',
-        borderRadius: '5px',
-        px: '5px',
-        cursor: 'pointer',
-      }}
-      alignment="center"
-      distribution="around"
-      onClick={() => {
-        props.setShowFilterMenu(!props.showFilterMenu)
-      }}
-    >
-      <OmnivoreSmallLogo
-        size={20}
-        strokeColor={
-          props.showFilterMenu
-            ? theme.colors.thBackground.toString()
-            : theme.colors.thTextContrast2.toString()
-        }
-      />
-      <FunnelSimple
-        size={20}
-        color={
-          props.showFilterMenu
-            ? theme.colors.thBackground.toString()
-            : theme.colors.thTextContrast2.toString()
-        }
-      />
     </HStack>
   )
 }

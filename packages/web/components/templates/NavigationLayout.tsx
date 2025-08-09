@@ -29,6 +29,8 @@ export type NavigationSection =
   | 'highlights'
   | 'archive'
   | 'trash'
+  | 'discover'
+  | 'l/discover'
 
 type NavigationLayoutProps = {
   children: ReactNode
