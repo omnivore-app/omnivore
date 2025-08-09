@@ -13,7 +13,7 @@ import { corsConfig } from '../utils/corsConfig'
 import { queueExportJob } from '../utils/createTask'
 import { logger } from '../utils/logger'
 
-export function exportRouter() {
+export function exportRouter(): express.Router {
   const router = Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises

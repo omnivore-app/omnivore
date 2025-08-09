@@ -9,7 +9,7 @@ import { readPushSubscription } from '../../pubsub'
 import { logger } from '../../utils/logger'
 import { uploadToBucket } from '../../utils/uploads'
 
-export function uploadServiceRouter() {
+export function uploadServiceRouter(): express.Router {
   const router = express.Router()
 
   router.post(

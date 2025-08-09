@@ -9,7 +9,7 @@ import {
   updateContentForFileItem,
 } from '../../services/update_pdf_content'
 
-export function contentServiceRouter() {
+export function contentServiceRouter(): express.Router {
   const router = express.Router()
 
   router.post('/search', async (req, res) => {

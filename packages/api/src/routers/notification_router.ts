@@ -18,7 +18,7 @@ interface Notification {
   notificationType?: PushNotificationType
 }
 
-export function notificationRouter() {
+export function notificationRouter(): express.Router {
   const router = express.Router()
 
   router.options('/send', cors<express.Request>({ ...corsConfig, maxAge: 600 }))

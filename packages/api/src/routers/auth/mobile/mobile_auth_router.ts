@@ -15,7 +15,7 @@ import { env } from '../../../env'
 import { corsConfig } from '../../../utils/corsConfig'
 import cors from 'cors'
 
-export function mobileAuthRouter() {
+export function mobileAuthRouter(): express.Router {
   const router = express.Router()
 
   router.post('/sign-in', async (req, res) => {

@@ -9,7 +9,7 @@ import { getAISummary } from '../services/ai-summaries'
 import { explainText } from '../services/explain'
 import { FeatureName, findGrantedFeatureByName } from '../services/features'
 
-export function explainRouter() {
+export function explainRouter(): express.Router {
   const router = express.Router()
 
   // Get an indexed summary for an individual library item

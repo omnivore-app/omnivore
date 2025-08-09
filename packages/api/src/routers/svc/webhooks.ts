@@ -8,7 +8,7 @@ import { readPushSubscription } from '../../pubsub'
 import { authTrx } from '../../repository'
 import { logger } from '../../utils/logger'
 
-export function webhooksServiceRouter() {
+export function webhooksServiceRouter(): express.Router {
   const router = express.Router()
 
   router.post(

@@ -18,7 +18,7 @@ type PruneMessage = {
   ttlInDays?: number
 }
 
-export function linkServiceRouter() {
+export function linkServiceRouter(): express.Router {
   const router = express.Router()
 
   router.post(

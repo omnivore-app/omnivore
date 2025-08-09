@@ -34,7 +34,7 @@ import {
   generateUploadSignedUrl,
 } from '../utils/uploads'
 
-export function pageRouter() {
+export function pageRouter(): express.Router {
   const router = express.Router()
 
   // Create a page from an uploaded PDF document

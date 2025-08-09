@@ -9,7 +9,7 @@ import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { logger } from '../utils/logger'
 
-export function textToSpeechRouter() {
+export function textToSpeechRouter(): express.Router {
   const router = express.Router()
 
   router.options('/', cors<express.Request>({ ...corsConfig, maxAge: 600 }))

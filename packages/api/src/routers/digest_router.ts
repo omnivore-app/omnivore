@@ -43,7 +43,7 @@ interface CreateDigestRequest {
   libraryItemIds?: string[]
 }
 
-export function digestRouter() {
+export function digestRouter(): express.Router {
   const router = express.Router()
 
   router.options('/v1', cors<express.Request>({ ...corsConfig, maxAge: 600 }))

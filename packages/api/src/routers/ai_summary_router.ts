@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler/build/src/htmlToSsml'
+// import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler/build/src/htmlToSsml'
 import cors from 'cors'
 import express from 'express'
 import { userRepository } from '../repository/user'
@@ -8,7 +8,7 @@ import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { getAISummary } from '../services/ai-summaries'
 
-export function aiSummariesRouter() {
+export function aiSummariesRouter(): express.Router {
   const router = express.Router()
 
   // Get an indexed summary for an individual library item

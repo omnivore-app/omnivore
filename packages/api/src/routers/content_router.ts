@@ -12,7 +12,7 @@ import {
   isFileExists,
 } from '../utils/uploads'
 
-export function contentRouter() {
+export function contentRouter(): express.Router {
   const router = Router()
 
   interface GetContentRequest {

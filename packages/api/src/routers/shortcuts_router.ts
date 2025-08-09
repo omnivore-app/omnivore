@@ -13,7 +13,7 @@ import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { logger } from '../utils/logger'
 
-export function shortcutsRouter() {
+export function shortcutsRouter(): express.Router {
   const router = express.Router()
 
   router.get(

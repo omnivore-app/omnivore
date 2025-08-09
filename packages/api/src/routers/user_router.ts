@@ -9,7 +9,7 @@ import { corsConfig } from '../utils/corsConfig'
 import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
 
-export function userRouter() {
+export function userRouter(): express.Router {
   const router = express.Router()
 
   router.post(

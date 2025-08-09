@@ -7,7 +7,7 @@ import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { logger } from '../utils/logger'
 
-export function integrationRouter() {
+export function integrationRouter(): express.Router {
   const router = express.Router()
   // request token from pocket
   router.post(

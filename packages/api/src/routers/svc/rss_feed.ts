@@ -5,7 +5,7 @@ import { readPushSubscription } from '../../pubsub'
 import { redisDataSource } from '../../redis_data_source'
 import { logger } from '../../utils/logger'
 
-export function rssFeedRouter() {
+export function rssFeedRouter(): express.Router {
   const router = express.Router()
 
   router.post(

@@ -25,7 +25,7 @@ interface SpeechInput {
 }
 const outputFormats = ['mp3', 'speech-marks', 'speech']
 
-export function articleRouter() {
+export function articleRouter(): express.Router {
   const router = express.Router()
 
   router.options('/save', cors<express.Request>({ ...corsConfig, maxAge: 600 }))

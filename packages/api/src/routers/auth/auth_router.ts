@@ -107,7 +107,7 @@ export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
   )
 }
 
-export function authRouter() {
+export function authRouter(): express.Router {
   const router = express.Router()
 
   router.post('/apple-redirect', curriedAuthHandler('APPLE', false))

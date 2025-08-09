@@ -34,7 +34,7 @@ function isEmailMessage(data: any): data is EmailMessage {
   return 'from' in data && 'to' in data
 }
 
-export function emailsServiceRouter() {
+export function emailsServiceRouter(): express.Router {
   const router = express.Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises

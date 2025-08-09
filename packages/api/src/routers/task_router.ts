@@ -7,7 +7,7 @@ import { corsConfig } from '../utils/corsConfig'
 import { logger } from '../utils/logger'
 import { JobState } from 'bullmq'
 
-export function taskRouter() {
+export function taskRouter(): express.Router {
   const router = express.Router()
 
   router.get(

@@ -24,7 +24,7 @@ import {
   getStorageFileDetails,
 } from '../../utils/uploads'
 
-export function emailAttachmentRouter() {
+export function emailAttachmentRouter(): express.Router {
   const router = express.Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises

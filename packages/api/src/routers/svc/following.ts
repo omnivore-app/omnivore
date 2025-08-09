@@ -49,7 +49,7 @@ function isSaveFollowingItemRequest(
 
 const FOLDER = 'following'
 
-export function followingServiceRouter() {
+export function followingServiceRouter(): express.Router {
   const router = express.Router()
 
   router.post(

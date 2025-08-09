@@ -31,7 +31,7 @@ const getCleanupMessage = (msgStr: string): CleanupMessage => {
   }
 }
 
-export function userServiceRouter() {
+export function userServiceRouter(): express.Router {
   const router = express.Router()
 
   router.post('/prune', cors<express.Request>(corsConfig), async (req, res) => {

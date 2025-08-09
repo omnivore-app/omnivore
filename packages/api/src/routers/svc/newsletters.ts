@@ -30,7 +30,7 @@ const isNewsletterMessage = (data: any): data is NewsletterMessage => {
   )
 }
 
-export function newsletterServiceRouter() {
+export function newsletterServiceRouter(): express.Router {
   const router = express.Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
