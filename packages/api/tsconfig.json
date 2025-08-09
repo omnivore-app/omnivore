@@ -1,14 +1,25 @@
 {
-  "extends": "./../../tsconfig.json",
-  "ts-node": {
-    "files": true
-  },
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "paths": {
-      "express": ["./node_modules/@types/express"]
-    }
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strict": false,
+    "lib": ["ES2020"],
+    "allowJs": true,
+    "isolatedModules": true
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"],
-  "exclude": ["./src/generated"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js"
+  ],
+  "exclude": [
+    "jest.*.ts",
+    "test/**/*",
+    "dist/**/*",
+    "node_modules/**/*"
+  ]
 }
