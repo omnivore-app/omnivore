@@ -1,4 +1,4 @@
-import { LiqeQuery } from '../../../liqe/src/Liqe'
+import { LiqeQuery } from '@omnivore/liqe'
 import axios from 'axios'
 import { Any } from 'typeorm'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'

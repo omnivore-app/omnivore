@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-base-to-string */
 
-import { preParseContent } from '../../../content-handler/src/index'
+import { preParseContent } from '@omnivore/content-handler'
 import { Readability } from '@omnivore/readability'
 import addressparser from 'addressparser'
 import axios from 'axios'

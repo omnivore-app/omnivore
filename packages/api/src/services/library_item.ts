@@ -1,4 +1,4 @@
-import { ExpressionToken, LiqeQuery } from '../../../liqe/src/Liqe'
+import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { camelCase } from 'lodash'
 import { DateTime } from 'luxon'
 import {

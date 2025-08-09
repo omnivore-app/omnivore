@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { htmlToSpeechFile } from '../../../text-to-speech/src/htmlToSsml'
+import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler/build/src/htmlToSsml'
 import cors from 'cors'
 import express from 'express'
 import { userRepository } from '../repository/user'

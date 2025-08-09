@@ -1,4 +1,4 @@
-import { LiqeQuery, parse } from '../../../liqe/src/Liqe'
+import { LiqeQuery, parse } from '@omnivore/liqe'
 
 export const parseSearchQuery = (query: string): LiqeQuery => {
   let searchQuery = query

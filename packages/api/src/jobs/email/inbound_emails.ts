@@ -1,4 +1,4 @@
-import { handleNewsletter } from '../../../../content-handler/src/index'
+import { handleNewsletter } from '@omnivore/content-handler'
 import { Converter } from 'showdown'
 import { ContentReaderType, LibraryItemState } from '../../entity/library_item'
 import { SubscriptionStatus } from '../../entity/subscription'

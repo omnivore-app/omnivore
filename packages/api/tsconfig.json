@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
@@ -10,7 +10,9 @@
     "strict": false,
     "lib": ["ES2020"],
     "allowJs": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "composite": true,
+    "declaration": true
   },
   "include": [
     "src/**/*.ts",

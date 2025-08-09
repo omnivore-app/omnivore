@@ -6,7 +6,7 @@ import {
   htmlToSpeechFile,
   SpeechFile,
   SSMLOptions,
-} from '../../../../text-to-speech/src/htmlToSsml'
+} from '@omnivore/text-to-speech-handler/build/src/htmlToSsml'
 import axios from 'axios'
 import { truncate } from 'lodash'
 import { v4 as uuid } from 'uuid'
