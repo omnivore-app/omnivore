@@ -55,8 +55,8 @@ const PORT = process.env.PORT || 4000
 export const createApp = async (): Promise<Application> => {
   // Dynamically import Express to avoid static require() of ES module
   const expressModule = await import('express')
-  const expressFn = expressModule.default ?? expressModule
-  const app: Application = expressFn()
+  const expressFn = expressModule.default || expressModule
+  const app: Application = (expressFn as any)()
 
   // Initialize Sentry dynamically to avoid static require() of ES module
   const Sentry = await import('@sentry/node')
@@ -190,7 +190,7 @@ const main = async (): Promise<void> => {
   await apolloServer.start()
   // Disable ApolloServer's internal body parser since express.json() is applied globally
   apolloServer.applyMiddleware({
-    app,
+    app: app as any,
     path: '/api/graphql',
     cors: corsConfig,
     bodyParserConfig: false,

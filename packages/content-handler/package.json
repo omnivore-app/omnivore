@@ -36,6 +36,7 @@
     "linkedom": "^0.14.16",
     "lodash": "^4.17.21",
     "luxon": "^3.0.4",
+    "minimatch": "^10.0.3",
     "underscore": "^1.13.6",
     "uuid": "^9.0.0"
   },

@@ -1,10 +1,12 @@
 {
-  "extends": "./../../tsconfig.json",
+  "extends": "./../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
-    // Generate d.ts files
-    "declaration": true
+    "declaration": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "lib": ["ES2020", "esnext.disposable"]
   },
-  "include": ["src", "test"]
+  "include": ["src"]
 }

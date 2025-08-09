@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
 
-const schema = gql`
+const schema: any = gql`
   # Scalars
 
   scalar Date

@@ -44,7 +44,7 @@ export class AzureTextToSpeech implements TextToSpeech {
 
     synthesizer.synthesizing = function (s, e) {
       // convert arrayBuffer to stream and write to stream
-      audioStream?.write(Buffer.from(e.result.audioData))
+      audioStream?.write(new Uint8Array(e.result.audioData))
     }
 
     // The event synthesis completed signals that the synthesis is completed.

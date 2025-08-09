@@ -97,7 +97,7 @@ export const mergeHighlightResolver = authorized<
   const mergedColors: string[] = []
 
   try {
-    const existingHighlights = await authTrx(
+    const existingHighlights = await authTrx<any[]>(
       (tx) =>
         tx
           .withRepository(highlightRepository)
