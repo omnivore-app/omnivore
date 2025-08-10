@@ -12,7 +12,7 @@ Omnivore is a complete, open-source read-it-later solution with web, mobile, and
 - Mobile apps (iOS/Android)
 - Browser extensions
 
-## Architecture Rules
+## Core Architecture Principles
 
 ### Monorepo Structure
 
@@ -23,201 +23,50 @@ Omnivore is a complete, open-source read-it-later solution with web, mobile, and
 - Web frontend in `packages/web`
 - API server in `packages/api`
 
-### TypeScript Standards
+### Technology Stack
 
-- Use strict TypeScript configuration
-- Prefer interfaces over types for object shapes
-- Use enums for constants with multiple values
-- Always define return types for functions
-- Use optional chaining and nullish coalescing operators
-- Avoid `any` type - use `unknown` if needed
-- Use proper generic constraints
+- **Backend**: Node.js 22 (migrating to 23 after stabilization), TypeScript, GraphQL
+- **Frontend**: Next.js with App Router, React, TypeScript, Stitches
+- **Database**: PostgreSQL with vector extensions, Redis for caching/queues
+- **Mobile**: Swift/SwiftUI (iOS), Kotlin/Compose (Android)
+- **Testing**: Jest (preferred), Mocha/Chai (legacy - gradually phase out)
 
-### GraphQL API Patterns
+### Development Standards
 
-- Follow GraphQL best practices with proper schema design
-- Use GraphQL Code Generator for type generation
-- Implement proper error handling with GraphQL error types
-- Use DataLoader pattern for N+1 query prevention
-- Implement proper authentication and authorization
-- Use subscriptions for real-time features
-- Follow relay-style pagination for lists
+- Use strict TypeScript configuration throughout
+- Implement comprehensive testing (80% coverage minimum)
+- Follow security best practices (JWT auth, input validation, HTTPS)
+- Use Docker containers for all services
+- Implement proper error handling and logging
+- Follow GraphQL-first API design
+- Maintain cross-platform compatibility
 
-### Database Patterns
+## Detailed Guidelines
 
-- Use migrations for all schema changes
-- Place migrations in `packages/db/migrations/`
-- Use descriptive migration names with timestamps
-- Always include both up and down migrations
-- Use proper indexing for performance
-- Implement soft deletes where appropriate
-- Use database transactions for complex operations
+For comprehensive development guidelines, refer to the organized cursor rules in the `cursor-rules/` directory:
 
-### Frontend (Next.js) Patterns
+- **[Frontend Development](./cursor-rules/frontend-frameworks-cursorrules.md)** - Next.js, React patterns
+- **[Backend Development](./cursor-rules/backend-fullstack-cursorrules.md)** - GraphQL, microservices
+- **[Mobile Development](./cursor-rules/mobile-development-cursorrules.md)** - iOS, Android, extensions
+- **[Database & API](./cursor-rules/database-api-cursorrules.md)** - PostgreSQL, Redis patterns
+- **[Testing](./cursor-rules/testing-cursorrules.md)** - Jest, E2E, coverage standards
+- **[Build Tools](./cursor-rules/build-tools-development-cursorrules.md)** - Lerna, Docker, CI/CD
+- **[Language-Specific](./cursor-rules/language-specific-cursorrules.md)** - TypeScript, Swift, Kotlin
+- **[Security](./cursor-rules/security-cursorrules.md)** - Authentication, data protection
 
-- Use App Router for new features
-- Implement proper SSR/SSG where beneficial
-- Use SWR for data fetching and caching
-- Follow component composition patterns
-- Use Stitches for styling (already in use)
-- Implement proper error boundaries
-- Use TypeScript with proper prop types
-- Follow accessibility best practices
+## AI Agent Guidelines
 
-### Docker and Containerization
+For AI assistants and automated tools working on this codebase, refer to [AGENTS.md](./AGENTS.md) for:
 
-- Each service should have its own Dockerfile
-- Use multi-stage builds for production images
-- Implement proper health checks
-- Use docker-compose for local development
-- Follow security best practices in containers
-- Use .dockerignore files appropriately
+- Expected behaviors and contribution patterns
+- Code quality standards and testing requirements
+- Security considerations and best practices
+- Communication protocols and workflow guidelines
 
-### Testing Standards
+## Critical Considerations
 
-- Write unit tests for all business logic
-- Use integration tests for API endpoints
-- Implement E2E tests for critical user flows
-- Use proper mocking for external dependencies
-- Maintain test coverage above 80%
-- Use descriptive test names and organize in suites
+**Multi-Platform Impact**: This is a complex application with multiple platforms. Always consider the impact of changes across web, mobile, and browser extension clients. Prioritize user experience and data consistency across all platforms.
 
-### Mobile Development
+**Migration Strategy**: Gradually migrate from Mocha/Chai to Jest for testing. Use Node.js 22 for stability, plan migration to 23 after project stabilization.
 
-- iOS: Use Swift with SwiftUI
-- Android: Use Kotlin with Jetpack Compose
-- Share GraphQL schemas between platforms
-- Implement proper offline capabilities
-- Use platform-specific UI patterns
-- Handle deep linking appropriately
-
-### Browser Extension Development
-
-- Support Chrome, Firefox, Safari, and Edge
-- Use Manifest V3 where applicable
-- Implement proper content security policies
-- Handle permissions appropriately
-- Use background scripts efficiently
-- Implement proper error handling
-
-### Code Quality
-
-- Use ESLint with TypeScript support
-- Follow Prettier formatting
-- Use consistent naming conventions
-- Implement proper logging
-- Use environment variables for configuration
-- Follow SOLID principles
-- Implement proper error handling
-
-### Performance Considerations
-
-- Implement proper caching strategies
-- Use database indexes appropriately
-- Optimize bundle sizes for web and mobile
-- Implement lazy loading where beneficial
-- Use CDN for static assets
-- Monitor performance metrics
-
-### Security Guidelines
-
-- Implement proper authentication (JWT)
-- Use HTTPS everywhere
-- Validate all inputs
-- Implement proper CORS policies
-- Use environment variables for secrets
-- Regular security audits
-- Implement rate limiting
-
-### API Design
-
-- Follow RESTful principles for REST endpoints
-- Use proper HTTP status codes
-- Implement proper versioning
-- Use consistent error response formats
-- Implement proper pagination
-- Use proper HTTP methods
-- Document all APIs
-
-### Documentation Standards
-
-- Update README.md when adding new features
-- Document all environment variables
-- Maintain API documentation
-- Include setup instructions for new developers
-- Document deployment procedures
-- Use inline comments for complex logic
-
-### Development Workflow
-
-- Use feature branches for development
-- Implement proper CI/CD pipelines
-- Use semantic versioning
-- Write meaningful commit messages
-- Use pull request templates
-- Implement proper code review processes
-
-### Environment Management
-
-- Use different configurations for dev/staging/prod
-- Implement proper secrets management
-- Use environment-specific docker-compose files
-- Implement proper logging levels
-- Use monitoring and alerting
-
-### Content Processing
-
-- Implement proper content extraction
-- Use readability algorithms for article parsing
-- Handle different content types (PDF, articles, etc.)
-- Implement proper error handling for content fetching
-- Use queues for background processing
-- Implement retry mechanisms
-
-### User Experience
-
-- Implement proper loading states
-- Use optimistic updates where appropriate
-- Handle offline scenarios gracefully
-- Implement proper error messages
-- Use consistent UI patterns
-- Implement proper keyboard navigation
-
-## File-specific Rules
-
-### GraphQL Schema Files
-
-- Use descriptive field names
-- Implement proper type relationships
-- Use unions for polymorphic types
-- Document schema with descriptions
-- Follow GraphQL naming conventions
-
-### React Components
-
-- Use functional components with hooks
-- Implement proper prop validation
-- Use consistent naming (PascalCase)
-- Keep components focused and small
-- Use proper state management
-- Implement proper cleanup in useEffect
-
-### API Handlers
-
-- Implement proper error handling
-- Use proper HTTP status codes
-- Validate input parameters
-- Implement proper logging
-- Use proper middleware patterns
-- Handle edge cases gracefully
-
-### Database Models
-
-- Use proper relationships
-- Implement proper validations
-- Use descriptive field names
-- Implement proper indexes
-- Use proper data types
-- Handle cascading properly
-
-Remember: This is a complex application with multiple platforms. Always consider the impact of changes across web, mobile, and browser extension clients. Prioritize user experience and data consistency across all platforms.
+**Performance**: Implement proper caching, optimize bundle sizes, use appropriate database indexing, and monitor performance metrics across all platforms.
