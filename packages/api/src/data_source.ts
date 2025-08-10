@@ -13,7 +13,7 @@ export const appDataSource = new DataSource({
   database: env.pg.dbName,
   logging: ['query', 'info'],
   entities: [__dirname + '/entity/**/*{.js,.ts}'],
-  subscribers: [__dirname + '/events/**/*{.js,.ts}'],
+  subscribers: [__dirname + '/events/**/!(*.test|*.spec).{js,ts}'],
   namingStrategy: new SnakeNamingStrategy(),
   logger: new CustomTypeOrmLogger(['query', 'info']),
   connectTimeoutMS: 10000, // 10 seconds
