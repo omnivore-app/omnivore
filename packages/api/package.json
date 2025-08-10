@@ -34,6 +34,7 @@
     "@langchain/anthropic": "^0.3.17",
     "@langchain/core": "^0.3.44",
     "@langchain/openai": "^0.5.5",
+    "@mozilla/readability": "^0.6.0",
     "@notionhq/client": "^2.3.0",
     "@omnivore/content-handler": "file:../../packages/content-handler",
     "@omnivore/liqe": "file:../../packages/liqe",

@@ -5,8 +5,25 @@ import { redisDataSource } from '../redis_data_source'
 import {
   ContentSaveRequestedEvent,
   EventType,
+  ContentType,
 } from '../events/content/content-save-event'
 import { EventManager } from '../events/event-manager'
+import { LibraryItemState, DirectionalityType } from '../entity/library_item'
+import { PageType } from '../generated/graphql'
+import { updateLibraryItem } from '../services/library_item'
+import {
+  ProcessedContentResult,
+  processHtmlContent,
+  processPdfContent,
+  processEmailContent,
+  processRssContent,
+  processYouTubeContent,
+} from './content-processing-service'
+import {
+  applyLabelsToLibraryItem,
+  generateThumbnail,
+  applyRulesToLibraryItem,
+} from './content-worker-helpers'
 
 export const CONTENT_QUEUE_NAME = 'content-processing'
 export const CONTENT_SAVE_JOB_NAME = 'process-content-save'
@@ -125,21 +142,108 @@ export class ContentWorker {
   private async processContent(
     event: ContentSaveRequestedEvent
   ): Promise<void> {
-    // TODO: Implement actual content processing logic
-    // - Fetch content based on contentType
-    // - Parse and extract readable content
-    // - Save to database
-    // - Generate thumbnails
-    // - Apply rules
+    const { userId, libraryItemId, url, contentType, metadata } = event.data
 
     this.logger.info(
-      `${event.libraryItemId} ${event.contentType}`,
-      'Content processed successfully'
+      `${libraryItemId} ${contentType} ${url}`,
+      'Starting content processing'
     )
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      // Update library item state to processing
+      await updateLibraryItem(
+        libraryItemId,
+        { state: LibraryItemState.Processing },
+        userId,
+        undefined,
+        true // skip pubsub to avoid loops
+      )
 
-    throw new Error('Not implemented')
+      let processedContent: ProcessedContentResult
+
+      // Process content based on type
+      switch (contentType) {
+        case ContentType.HTML:
+          processedContent = await processHtmlContent(url, metadata)
+          break
+        case ContentType.PDF:
+          processedContent = await processPdfContent(url, metadata)
+          break
+        case ContentType.EMAIL:
+          processedContent = await processEmailContent(url, metadata)
+          break
+        case ContentType.RSS:
+          processedContent = await processRssContent(url, metadata)
+          break
+        case ContentType.YOUTUBE:
+          processedContent = await processYouTubeContent(url, metadata)
+          break
+        default:
+          throw new Error(`Unsupported content type: ${contentType}`)
+      }
+
+      // Update library item with processed content
+      await updateLibraryItem(
+        libraryItemId,
+        {
+          state: LibraryItemState.Succeeded,
+          title: processedContent.title || url,
+          author: processedContent.author,
+          description: processedContent.description,
+          readableContent: processedContent.content,
+          wordCount: processedContent.wordCount,
+          siteName: processedContent.siteName,
+          siteIcon: processedContent.siteIcon,
+          thumbnail: processedContent.thumbnail,
+          itemType: processedContent.itemType || PageType.Article,
+          textContentHash: processedContent.contentHash,
+          publishedAt:
+            processedContent.publishedAt || metadata.publishedAt
+              ? new Date(metadata.publishedAt)
+              : undefined,
+          itemLanguage: processedContent.language,
+          directionality: (processedContent.directionality ??
+            DirectionalityType.LTR) as DirectionalityType,
+        },
+        userId
+      )
+
+      // Apply labels if provided
+      if (metadata.labels && metadata.labels.length > 0) {
+        await applyLabelsToLibraryItem(libraryItemId, metadata.labels, userId)
+      }
+
+      // Generate thumbnail if not already provided
+      if (!processedContent.thumbnail && processedContent.content) {
+        await generateThumbnail(libraryItemId, processedContent.content)
+      }
+
+      // Apply rules if any exist for the user
+      await applyRulesToLibraryItem(libraryItemId, userId)
+
+      this.logger.info(
+        `${libraryItemId} ${contentType}`,
+        'Content processed successfully'
+      )
+    } catch (error) {
+      this.logger.error(
+        `${libraryItemId} ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+        'Content processing failed'
+      )
+
+      // Update library item state to failed
+      await updateLibraryItem(
+        libraryItemId,
+        { state: LibraryItemState.Failed },
+        userId,
+        undefined,
+        true // skip pubsub
+      )
+
+      throw error
+    }
   }
 
   public getStatus() {
@@ -184,6 +288,15 @@ export class ContentWorker {
 
   public isRunning(): boolean {
     return this.worker.isRunning()
+  }
+
+  public async start(): Promise<void> {
+    // Worker already starts automatically in constructor
+    this.logger.info('Content worker start requested - already running')
+  }
+
+  public async stop(): Promise<void> {
+    await this.shutdown()
   }
 }
 

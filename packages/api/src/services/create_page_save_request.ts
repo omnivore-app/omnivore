@@ -13,6 +13,12 @@ import { enqueueFetchContentJob } from '../utils/createTask'
 import { cleanUrl, generateSlug } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { createOrUpdateLibraryItem } from './library_item'
+import { EventManager } from '../events/event-manager'
+import {
+  ContentSaveRequestedEvent,
+  ContentType,
+} from '../events/content/content-save-event'
+import { determineContentType } from '../utils/content-type-detector'
 
 interface PageSaveRequest {
   user: User
@@ -168,7 +174,34 @@ export const createPageSaveRequest = async ({
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
 
-  // enqueue task to parse item
+  // emit content save requested event
+  try {
+    const eventManager = new EventManager()
+    await eventManager.emit(
+      new ContentSaveRequestedEvent({
+        userId,
+        libraryItemId: libraryItem.id,
+        url,
+        contentType: determineContentType(url),
+        metadata: {
+          labels: labels?.map((label) => label.name) || [],
+          folder,
+          source: 'web',
+          savedAt: libraryItem.savedAt.toISOString(),
+          publishedAt: publishedAt?.toISOString(),
+        },
+      })
+    )
+  } catch (error) {
+    logger.error('Failed to emit content save requested event', {
+      error,
+      url,
+      userId,
+    })
+    // Continue with fallback to direct enqueueing
+  }
+
+  // enqueue task to parse item (fallback)
   try {
     const contentFetchQueueEnabled =
       process.env.CONTENT_FETCH_QUEUE_ENABLED === 'true'

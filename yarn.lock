@@ -3959,6 +3959,11 @@
   dependencies:
     sparse-bitfield "^3.0.3"
 
+"@mozilla/readability@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@mozilla/readability/-/readability-0.6.0.tgz#134e3ce3ff1676716e550de0b8de957bcc59208b"
+  integrity sha512-juG5VWh4qAivzTAeMzvY9xs9HY5rAcr2E4I7tiSSCokRFi7XIZCAu92ZkSTsIj1OPceCifL3cpfteP3pDT9/QQ==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -4666,6 +4671,7 @@
     linkedom "^0.14.16"
     lodash "^4.17.21"
     luxon "^3.0.4"
+    minimatch "^10.0.3"
     underscore "^1.13.6"
     uuid "^9.0.0"
 
@@ -4695,6 +4701,7 @@
     jsonwebtoken "^9.0.2"
     linkedom "^0.14.12"
     microsoft-cognitiveservices-speech-sdk "1.30"
+    minimatch "^10.0.3"
     natural "^6.2.0"
     nodemon "^2.0.15"
     underscore "^1.13.4"
