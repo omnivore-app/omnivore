@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { File, Storage } from '@google-cloud/storage'
 import { RedisDataSource } from '@omnivore/utils'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
@@ -18,6 +17,8 @@ import {
   TextToSpeechInput,
   TextToSpeechOutput,
 } from './textToSpeech'
+import { S3StorageClient } from './storage/S3StorageClient'
+import { File } from './storage/StorageClient'
 
 interface UtteranceInput {
   text: string
@@ -51,7 +52,10 @@ Sentry.GCPFunction.init({
 })
 
 const MAX_CHARACTER_COUNT = 50000
-const storage = new Storage()
+const storage = new S3StorageClient(
+  process.env.LOCAL_MINIO_URL,
+  process.env.AWS_S3_ENDPOINT_URL
+)
 
 const textToSpeechHandlers = [new OpenAITextToSpeech(), new AzureTextToSpeech()]
 
@@ -73,11 +77,11 @@ const uploadToBucket = async (
   bucket: string,
   options?: { contentType?: string; public?: boolean }
 ): Promise<void> => {
-  await storage.bucket(bucket).file(filePath).save(data, options)
+  await storage.upload(bucket, filePath, data, options || {})
 }
 
 export const createGCSFile = (bucket: string, filename: string): File => {
-  return storage.bucket(bucket).file(filename)
+  return storage.createFile(bucket, filename)
 }
 
 const updateSpeech = async (
@@ -292,10 +296,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       let audioData: Buffer | undefined
       let speechMarks: SpeechMark[] = []
       // check if audio file already exists
-      const [exists] = await audioFile.exists()
+      const exists = await audioFile.exists()
       if (exists) {
-        ;[audioData] = await audioFile.download()
-        const [speechMarksExists] = await speechMarksFile.exists()
+        audioData = await audioFile.download()
+        const speechMarksExists = await speechMarksFile.exists()
         if (speechMarksExists) {
           speechMarks = JSON.parse(
             (await speechMarksFile.download()).toString()
@@ -321,10 +325,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
 
         // upload audio data to GCS
-        await audioFile.save(audioData)
+        await audioFile.save(audioData, {})
         // upload speech marks to GCS
         if (speechMarks.length > 0) {
-          await speechMarksFile.save(JSON.stringify(speechMarks))
+          await speechMarksFile.save(JSON.stringify(speechMarks), {})
         }
       }
 
