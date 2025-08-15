@@ -19,7 +19,7 @@ const parser = new XMLParser({
 })
 
 export const removeHTMLTag = (text: string): string => {
-  return text.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, '')
+  return decodeURI(text.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, ''))
 }
 
 export const getFirstParagraphForEmbedding = (text: string): string => {

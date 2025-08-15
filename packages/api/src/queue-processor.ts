@@ -88,6 +88,8 @@ import { logger } from './utils/logger'
 
 export const BACKEND_QUEUE_NAME = 'omnivore-backend-queue'
 export const CONTENT_FETCH_QUEUE = 'omnivore-content-fetch-queue'
+export const DISCOVER_QUEUE = 'omnivore-discover-queue'
+
 
 export const JOB_VERSION = 'v001'
 

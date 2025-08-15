@@ -65,7 +65,7 @@ import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
-import { CONTENT_FETCH_QUEUE, getQueue, JOB_VERSION } from '../queue-processor'
+import { CONTENT_FETCH_QUEUE, DISCOVER_QUEUE, getQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { writeDigest } from '../services/digest'
 import { signFeatureToken } from '../services/features'
@@ -73,6 +73,7 @@ import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logError, logger } from './logger'
+import { DISCOVER_FEED_ADDED_NAME, DiscoverFeedAddedJobData } from '../jobs/discover_feed_added'
 import { EXPORT_QUEUE_NAME } from '../export-processor'
 import View = protos.google.cloud.tasks.v2.Task.View
 
@@ -700,6 +701,18 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
 
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
     priority: getJobPriority(TRIGGER_RULE_JOB_NAME),
+    attempts: 1,
+    delay: 500,
+  })
+}
+
+export const enqueueDiscoverJob = async (data: DiscoverFeedAddedJobData) => {
+  const queue = await getQueue(DISCOVER_QUEUE)
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(DISCOVER_FEED_ADDED_NAME, data, {
     attempts: 1,
     delay: 500,
   })
