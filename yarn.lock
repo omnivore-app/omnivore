@@ -2677,9 +2677,9 @@
     uuid "^8.0.0"
 
 "@google-cloud/storage@^7.0.1":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/storage/-/storage-7.16.0.tgz#62c04ee4f80190992ef06cb033a90c054bcea575"
-  integrity sha512-7/5LRgykyOfQENcm6hDKP8SX/u9XxE5YOiWOkgkwcoO+cG8xT/cyOvp9wwN3IxfdYgpHs8CE7Nq2PKX2lNaEXw==
+  version "7.17.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/storage/-/storage-7.17.0.tgz#1d238f54a0932f36c2364ec9babded218edd7d53"
+  integrity sha512-5m9GoZqKh52a1UqkxDBu/+WVFDALNtHg5up5gNmNbXQWBcV813tzJKsyDtKjOPrlR1em1TxtD7NSPCrObH7koQ==
   dependencies:
     "@google-cloud/paginator" "^5.0.0"
     "@google-cloud/projectify" "^4.0.0"
