@@ -94,6 +94,7 @@ export class S3StorageClient implements StorageClient {
 
   private urlOverride: string | undefined
   private localUrl: string | undefined
+  private extension: string | undefined
 
   constructor(localUrl: string | undefined, urlOverride: string | undefined) {
     this.localUrl = localUrl
@@ -103,10 +104,14 @@ export class S3StorageClient implements StorageClient {
       endpoint: urlOverride,
     })
 
+    const signingUrlObj = new URL(localUrl ?? '')
+    const [signingUrl, extension] = localUrl?.replace(/http[s]?:\/\//g, '')?.split('/') ?? ''.split('/')
     this.signingS3Client = new S3Client({
       forcePathStyle: true,
-      endpoint: localUrl,
+      tls: signingUrlObj.protocol !== 'http:',
+      endpoint: localUrl?.replace(`/${extension}`, ''),
     })
+    this.extension = extension
   }
 
   private createS3UploadStream = (
@@ -235,6 +240,14 @@ export class S3StorageClient implements StorageClient {
     const url = await getSignedUrl(this.signingS3Client, command, {
       expiresIn: 900,
     })
+
+    if (this.extension && this.extension.length > 0) {
+      const urlObj = new URL(url)
+      return url.replace(
+        `${urlObj.protocol}//${urlObj.host}/`,
+        `${urlObj.protocol}//${urlObj.host}/${this.extension}/`
+      )
+    }
 
     return url
   }
