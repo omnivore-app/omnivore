@@ -24,6 +24,7 @@ import {
   useResetShortcuts,
 } from '../../../lib/networking/shortcuts/useShortcuts'
 import { ShortcutsTree } from '../ShortcutsTree'
+import { DiscoverIcon } from '../../elements/icons/DiscoverIcon'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -135,6 +136,15 @@ const LibraryNav = (props: NavigationMenuProps): JSX.Element => {
         isSelected={props.section == 'library'}
         icon={
           <LibraryIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
+        }
+      />
+      <NavButton
+        {...props}
+        text="Discover"
+        section="l/discover"
+        isSelected={props.section == 'discover'}
+        icon={
+          <DiscoverIcon color={theme.colors.thLibraryMenuPrimary.toString()} />
         }
       />
       <NavButton

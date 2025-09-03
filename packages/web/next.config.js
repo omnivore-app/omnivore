@@ -51,6 +51,10 @@ const moduleExports = {
       destination: '/l/home',
     })
     rewrites.push({
+      source: '/discover',
+      destination: '/l/discover',
+    })
+    rewrites.push({
       source: '/library',
       destination: '/l/library',
     })

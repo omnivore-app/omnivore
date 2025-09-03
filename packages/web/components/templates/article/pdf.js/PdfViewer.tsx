@@ -460,8 +460,6 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
     const setPage = (e: { pageNumber: number }) =>
       setCurrentPageNum(e.pageNumber)
 
-
-
     if (props.eventBus && props.pdfViewer) {
       props.eventBus.on('textlayerrendered', render)
       props.eventBus.on('pagechanging', setPage)
@@ -471,7 +469,6 @@ export default function PdfViewer(props: PdfArticleContainerProps) {
       if (props.eventBus) {
         props.eventBus.off('textlayerrendered', render)
         props.eventBus.off('pagechanging', setPage)
-
       }
     }
   }, [props.eventBus, props.pdfViewer, highlights, addHighlightToPage])

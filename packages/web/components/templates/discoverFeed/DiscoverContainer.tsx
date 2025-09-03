@@ -17,8 +17,10 @@ import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { AddLinkModal } from '../AddLinkModal'
 import { useGetDiscoverFeedItems } from '../../../lib/networking/queries/useGetDiscoverFeedItems'
 import { useGetDiscoverFeeds } from '../../../lib/networking/queries/useGetDiscoverFeeds'
+import { usePersistedState } from "../../../lib/hooks/usePersistedState"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
+export type DiscoverVisibilityType = 'SHOW_ALL' | 'HIDE_HIDDEN'
 
 export type TopicTabData = { title: string; subTitle: string }
 
@@ -26,14 +28,15 @@ export function DiscoverContainer(): JSX.Element {
   const router = useRouter()
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [layoutType, setLayoutType] = useState<LayoutType>('GRID_LAYOUT')
+  const [layoutType, setLayoutType] = usePersistedState<LayoutType>({
+    key: 'libraryLayout',
+    initialValue: 'GRID_LAYOUT',
+  })
+  const [discoverVisibility, setDiscoverVisibility] = usePersistedState<DiscoverVisibilityType>({ key: 'discoverVisibility', initialValue:'SHOW_ALL' })
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const { feeds, revalidate, isValidating } = useGetDiscoverFeeds()
+
   const topics = [
-    {
-      title: 'Popular',
-      subTitle: 'Stories that are popular on Omnivore right now...',
-    },
     {
       title: 'All',
       subTitle: 'All the discover stories...',
@@ -82,14 +85,15 @@ export function DiscoverContainer(): JSX.Element {
     hasMore,
     setPage,
     page,
-  } = useGetDiscoverFeedItems(topics[1], selectedFeed)
+    hideDiscoverArticleMutation
+  } = useGetDiscoverFeedItems(topics[0], selectedFeed, 10,discoverVisibility == 'SHOW_ALL')
   const handleFetchMore = useCallback(() => {
     if (isLoading || !hasMore) {
       return
     }
     setPage(page + 1)
   }, [page, isLoading])
-  // useFetchMore(handleFetchMore)
+  useFetchMore(handleFetchMore)
 
   const handleSaveDiscover = async (
     discoverArticleId: string,
@@ -165,7 +169,7 @@ export function DiscoverContainer(): JSX.Element {
     if (window) {
       setLayoutType(
         JSON.parse(
-          window.localStorage.getItem('libraryLayout') || 'GRID_LAYOUT'
+          window.localStorage.getItem('libraryLayout') || '"GRID_LAYOUT"'
         )
       )
     }
@@ -180,7 +184,10 @@ export function DiscoverContainer(): JSX.Element {
     <VStack
       css={{
         height: '100%',
-        width: 'unset',
+        width: '100%',
+        pl: '25px',
+        pr: '25px',
+        flexGrow: 1,
       }}
     >
       <DiscoverHeader
@@ -198,23 +205,19 @@ export function DiscoverContainer(): JSX.Element {
         setShowAddLinkModal={setShowAddLinkModal}
         setLayoutType={setLayoutType}
         topics={topics}
+        discoverVisibility={discoverVisibility}
+        setDiscoverVisibility={setDiscoverVisibility}
       />
-      <HStack css={{ width: '100%', height: '100%' }}>
-        <LibraryFilterMenu
-          setShowAddLinkModal={setShowAddLinkModal}
-          searchTerm={'NONE'} // This is done to stop the library filter menu actually having a highlight. Hacky.
-          applySearchQuery={(searchQuery: string) => {
-            router?.push(`/home?q=${searchQuery}`)
-          }}
-          showFilterMenu={showFilterMenu}
-          setShowFilterMenu={setShowFilterMenu}
-        />
+      <HStack css={{  width: '100%', height: '100%' }}>
+
         <DiscoverItemFeed
+          visibility={discoverVisibility}
           layout={layoutType}
           activeTab={activeTopic}
           handleLinkSubmission={handleSaveDiscover}
           items={discoverItems ?? []}
           viewer={viewer.viewerData?.me}
+          hideDiscoverArticle={hideDiscoverArticleMutation}
         />
         {showAddLinkModal && (
           <AddLinkModal

@@ -10,6 +10,7 @@ import { useMemo } from 'react'
 import { HighlightsContainer } from '../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { State } from '../../lib/networking/fragments/articleFragment'
+import { DiscoverContainer } from '../../components/templates/discoverFeed/DiscoverContainer'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
@@ -121,6 +122,12 @@ export default function Home(): JSX.Element {
             showNavigationMenu={showNavigationMenu}
           />
         )
+      case 'discover':
+        return (
+          <DiscoverContainer
+            key={name}
+          />
+        )
 
       default:
         return <></>
@@ -131,6 +138,8 @@ export default function Home(): JSX.Element {
     switch (section) {
       case 'home':
         return 'Home'
+      case 'discover':
+        return 'Discover'
       case 'library':
         return 'Library'
       case 'subscriptions':

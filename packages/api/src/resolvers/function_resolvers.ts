@@ -62,6 +62,7 @@ import {
   getDiscoverFeedArticlesResolver,
   getDiscoverFeedsResolver,
   saveDiscoverArticleResolver,
+  hideDiscoverArticleResolver,
 } from './discover_feeds'
 import { optInFeatureResolver } from './features'
 import {
@@ -317,6 +318,7 @@ export const functionResolvers = {
     updateEmail: updateEmailResolver,
     saveDiscoverArticle: saveDiscoverArticleResolver,
     deleteDiscoverArticle: deleteDiscoverArticleResolver,
+    hideDiscoverArticle: hideDiscoverArticleResolver,
     moveToFolder: moveToFolderResolver,
     updateNewsletterEmail: updateNewsletterEmailResolver,
     addDiscoverFeed: addDiscoverFeedResolver,

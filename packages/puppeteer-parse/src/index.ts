@@ -535,3 +535,4 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
 
   return { domContent, title }
 }
+
