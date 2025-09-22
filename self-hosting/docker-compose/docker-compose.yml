@@ -17,6 +17,7 @@ services:
       - pgdata:/var/lib/postgresql/data
     env_file:
       - .env
+    restart: always
 
   migrate:
     image: "ghcr.io/omnivore-app/sh-migrate:latest"
@@ -27,7 +28,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
+    
   api:
     image: "ghcr.io/omnivore-app/sh-backend:latest"
     container_name: "omnivore-api"
@@ -43,6 +44,7 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    restart: always
 
   queue-processor:
     image: "ghcr.io/omnivore-app/sh-queue-processor:latest"
@@ -52,6 +54,7 @@ services:
     depends_on:
       api:
         condition: service_started
+    restart: always
 
   web:
     image: "ghcr.io/omnivore-app/sh-web:latest"
@@ -59,10 +62,11 @@ services:
     ports:
       - "3000:8080"
     env_file:
-      .env
+      - .env
     depends_on:
       api:
         condition: service_healthy
+    restart: always
 
   image-proxy:
     image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
@@ -71,6 +75,7 @@ services:
       - "7070:8080"
     env_file:
       - .env
+    restart: always
 
   content-fetch:
     image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
@@ -86,6 +91,7 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
+    restart: always
 
   redis:
     image: "redis:7.2.4"
@@ -98,6 +104,7 @@ services:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     volumes:
       - redis_data:/data
+    restart: always
 
   minio:
     image: minio/minio
@@ -109,13 +116,12 @@ services:
       test: [ "CMD", "mc", "ready", "local" ]
       interval: 5s
       timeout: 1s
-    environment:
-      - "MINIO_ACCESS_KEY=minio"
-      - "MINIO_SECRET_KEY=miniominio"
-      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+    env_file:
+      - .env
     command: server /data
     volumes:
       - minio_data:/data
+    restart: always
 
   createbuckets:
     image: minio/mc
@@ -145,6 +151,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    restart: always
+
 volumes:
   pgdata:
   redis_data:
