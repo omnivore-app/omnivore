@@ -22,6 +22,6 @@ COPY packages/api/scripts/hash-password.js /usr/local/bin/hash-password.js
 RUN chmod +x /usr/local/bin/hash-password.js
 
 # Copy users.csv if it exists (optional file)
-COPY packages/db/users.csv* /app/packages/db/ 2>/dev/null || true
+COPY packages/db/users.csv* /app/packages/db/
 
 CMD ["yarn", "workspace", "@omnivore/db", "migrate"]
