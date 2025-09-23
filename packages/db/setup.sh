@@ -32,7 +32,7 @@ if [ -f "$USERS_FILE" ] && [ -z "${NO_DEMO_USER}" ]; then
 
         # Generate password hash
         echo "Creating user: $email"
-        HASH_OUTPUT=$(node /usr/local/bin/hash-password.js "$password" 2>&1)
+        HASH_OUTPUT=$(cd /app && NODE_PATH=/app/node_modules node /usr/local/bin/hash-password.js "$password" 2>&1)
         PASSWORD_HASH=$(echo "$HASH_OUTPUT" | grep "^Hash: " | sed 's/^Hash: //')
 
         if [ -z "$PASSWORD_HASH" ]; then
@@ -61,7 +61,7 @@ elif [ -z "${NO_DEMO_USER}" ]; then
 
     # Generate hash from plaintext if provided
     if [ -n "$DEMO_USER_PASSWORD" ]; then
-        HASH_OUTPUT=$(node /usr/local/bin/hash-password.js "$DEMO_USER_PASSWORD" 2>&1)
+        HASH_OUTPUT=$(cd /app && NODE_PATH=/app/node_modules node /usr/local/bin/hash-password.js "$DEMO_USER_PASSWORD" 2>&1)
         DEMO_PASSWORD_HASH=$(echo "$HASH_OUTPUT" | grep "^Hash: " | sed 's/^Hash: //')
     else
         DEMO_PASSWORD_HASH=${DEMO_USER_PASSWORD_HASH:-'$2a$10$41G6b1BDUdxNjH1QFPJYDOM29EE0C9nTdjD1FoseuQ8vZU1NWtrh6'}
