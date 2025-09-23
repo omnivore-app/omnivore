@@ -2,3 +2,11 @@ node_modules
 .env*
 Dockerfile
 .dockerignore
+
+# Exclude large assets not needed for DB migrations
+../../packages/web/public/pspdfkit-lib
+../../packages/web/public/static
+../../pkg/extension
+../../pkg/extension-v3
+../../apple
+../../android

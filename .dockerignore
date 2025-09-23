@@ -8,3 +8,7 @@
 .secrets*.yaml
 apple
 android
+
+# Browser extension builds (large and not needed for server builds)
+pkg/extension
+pkg/extension-v3

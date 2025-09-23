@@ -7,3 +7,9 @@ Dockerfile
 *.yaml
 .secrets*.yaml
 
+# Web build needs its public assets, but exclude browser extensions
+../../pkg/extension
+../../pkg/extension-v3
+../../apple
+../../android
+

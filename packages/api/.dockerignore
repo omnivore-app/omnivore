@@ -6,3 +6,13 @@ Dockerfile
 .dockerignore
 *.yaml
 .secrets*.yaml
+
+# Exclude large frontend assets not needed for API
+../../packages/web/public/pspdfkit-lib
+../../packages/web/public/static
+../../packages/web/public/pdfjs-dist
+../../packages/web/public/*.mjs
+../../pkg/extension
+../../pkg/extension-v3
+../../apple
+../../android
