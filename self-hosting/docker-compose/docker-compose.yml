@@ -131,15 +131,15 @@ services:
       - BUCKET_NAME=omnivore
       - ENDPOINT=http://minio:9000
       - AWS_S3_ENDPOINT_URL=http://minio:9000
+    env_file:
+      - .env
+    volumes:
+      - ./setup-s3.sh:/setup-s3.sh:ro
     depends_on:
       - minio
     entrypoint: >
       /bin/bash -c "
-      sleep 5;
-      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
-      /usr/bin/mc mb myminio/omnivore;
-      /usr/bin/mc anonymous set public myminio/omnivore;
-      exit 0;
+      chmod +x /setup-s3.sh && /setup-s3.sh
       "
   mail-watch-server:
     image: "ghcr.io/omnivore-app/sh-local-mail-watcher:latest"
