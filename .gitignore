@@ -46,6 +46,11 @@ dist
 # Ignore local SA JSON files
 **/*.sa.json
 
+# User credentials
+users.csv
+demo-users.csv
+*.users.csv
+
 # JetBrains Products
 .idea/
 

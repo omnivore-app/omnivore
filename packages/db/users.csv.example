@@ -1,0 +1,4 @@
+email,password,name,username
+demo@omnivore.app,demo_password,Demo User,demo_user
+admin@example.com,admin123,Admin User,admin
+test@example.com,test456,Test User,testuser
