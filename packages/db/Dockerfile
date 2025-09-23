@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN yarn install
 
-# Install bcryptjs globally for password hashing
-RUN npm install -g bcryptjs
-
 ADD /packages/db ./packages/db
 ADD /packages/db/setup.sh ./packages/db/setup.sh
 
