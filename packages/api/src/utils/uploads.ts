@@ -109,7 +109,7 @@ export const downloadFromUrl = async (
 ) => {
   // download the content as stream and max 10MB
   const response = await axios.get<Buffer>(contentObjUrl, {
-    responseType: 'stream',
+    responseType: 'arraybuffer',
     maxContentLength,
     timeout,
   })
@@ -123,11 +123,21 @@ export const uploadToSignedUrl = async (
   contentType: string,
   timeout?: number
 ) => {
+  // Check if this is an AWS S3 URL (requires Content-Length header)
+  const isAwsS3 = uploadSignedUrl.includes('amazonaws.com')
+
+  const headers: Record<string, string | number> = {
+    'Content-Type': contentType,
+  }
+
+  // AWS S3 requires Content-Length header to avoid 501 Transfer-Encoding error
+  if (isAwsS3) {
+    headers['Content-Length'] = data.length
+  }
+
   // upload the stream to the signed url
   await axios.put(uploadSignedUrl, data, {
-    headers: {
-      'Content-Type': contentType,
-    },
+    headers,
     maxBodyLength: maxContentLength,
     timeout,
   })
