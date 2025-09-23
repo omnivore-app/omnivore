@@ -44,10 +44,15 @@ if [ -f "$USERS_FILE" ] && [ -z "${NO_DEMO_USER}" ]; then
         psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command \
             "INSERT INTO omnivore.user (id, source, email, source_user_id, name, password)
              VALUES ('$USER_ID', 'EMAIL', '$email', '$email', '$name', '$PASSWORD_HASH')
-             ON CONFLICT(email) DO NOTHING;
+             ON CONFLICT (email) DO UPDATE SET
+                name = EXCLUDED.name,
+                password = EXCLUDED.password;
              INSERT INTO omnivore.user_profile (user_id, username)
-             VALUES ('$USER_ID', '$username')
-             ON CONFLICT(user_id) DO NOTHING;" || true
+             SELECT omnivore.user.id, '$username'
+             FROM omnivore.user
+             WHERE email = '$email'
+             ON CONFLICT (username) DO UPDATE SET
+                user_id = EXCLUDED.user_id;" || true
 
         echo "Created user: $email"
     done
@@ -73,10 +78,15 @@ elif [ -z "${NO_DEMO_USER}" ]; then
     psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command \
         "INSERT INTO omnivore.user (id, source, email, source_user_id, name, password)
          VALUES ('$USER_ID', 'EMAIL', '$DEMO_EMAIL', '$DEMO_EMAIL', '$DEMO_NAME', '$DEMO_PASSWORD_HASH')
-         ON CONFLICT(email) DO NOTHING;
+         ON CONFLICT (email) DO UPDATE SET
+            name = EXCLUDED.name,
+            password = EXCLUDED.password;
          INSERT INTO omnivore.user_profile (user_id, username)
-         VALUES ('$USER_ID', '$DEMO_USERNAME')
-         ON CONFLICT(user_id) DO NOTHING;"
+         SELECT omnivore.user.id, '$DEMO_USERNAME'
+         FROM omnivore.user
+         WHERE email = '$DEMO_EMAIL'
+         ON CONFLICT (username) DO UPDATE SET
+            user_id = EXCLUDED.user_id;"
 
     echo "Created demo user with email: $DEMO_EMAIL"
 fi
