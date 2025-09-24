@@ -31,10 +31,10 @@ Omnivoreは、オンラインで読んだものを保存し整理できる **後
 
 1. ブラウザ用のOmnivore拡張機能をダウンロードしてインストールします:
 
-- [Chrome](https://omnivore.app/install/chrome)
-- [Edge](https://omnivore.app/install/edge)
-- [Firefox](https://omnivore.app/install/firefox)
-- [Safari](https://omnivore.app/install/safari)
+- [Chrome](https://omnivore.work/install/chrome)
+- [Edge](https://omnivore.work/install/edge)
+- [Firefox](https://omnivore.work/install/firefox)
+- [Safari](https://omnivore.work/install/safari)
 
 2. 保存したいページに移動し、ブラウザのツールバーまたは拡張機能メニューにあるOmnivoreボタンをタップします。
 3. または、リンクを右クリック（Macの場合はコマンド+クリック）し、メニューから**Omnivoreに保存**を選択できます。
@@ -44,7 +44,7 @@ Omnivoreは、オンラインで読んだものを保存し整理できる **後
 
 モバイルデバイスからリンクを保存する最良の方法は、Omnivoreアプリを使用することです。アプリはこちらからダウンロードできます:
 
-- [iOS（iPhoneまたはiPad）](https://omnivore.app/install/ios)
+- [iOS（iPhoneまたはiPad）](https://omnivore.work/install/ios)
 - Android
 
 モバイルアプリをインストールしたら:
@@ -56,7 +56,7 @@ Omnivoreは、オンラインで読んだものを保存し整理できる **後
 ### メール経由のニュースレター購読
 
 1. Omnivoreのウェブサイトまたアプリで、右上隅にある写真、イニシャル、またはアバターをタップしてプロファイルメニューにアクセスします。メニューから**Eメール**を選択します。
-2. **新しいメールアドレスを作成**をタップして、リストに新しいメールアドレス（例: username-123_abc@inbox.omnivore.app）を追加します。
+2. **新しいメールアドレスを作成**をタップして、リストに新しいメールアドレス（例: username-123_abc@inbox.omnivore.work）を追加します。
 3. メールアドレスの横にあるコピーのアイコンをクリックします。
 4. 購読したいニュースレターの登録ページに移動します。
 5. Omnivoreのメールアドレスを登録フォームに貼り付けます。
@@ -64,7 +64,7 @@ Omnivoreは、オンラインで読んだものを保存し整理できる **後
 
 ### MacからPDFを保存
 
-1. [Macアプリ](https://omnivore.app/install/mac)をインストールします。
+1. [Macアプリ](https://omnivore.work/install/mac)をインストールします。
 2. Mac上で保存したいPDFを見つけ、ファイル名を右クリックまたはCtrl+クリックします。
 3. メニューから**共有**を選択し、**Omnivore**を選びます。
 4. リンクは、次にライブラリをリフレッシュすると表示されます。
@@ -134,7 +134,7 @@ Omnivoreは異なるデバイス間での読書の進行状況を自動的に追
 ### 検索
 
 1. 保存したすべてのリンクを検索するには、検索バーにキーワードやフレーズを入力します。
-2. キーワードをラベルやフィルタと組み合わせて、さらに絞り込んだ検索を行うことができます。[詳細な検索について詳しく](https://docs.omnivore.app/using/search.html)。
+2. キーワードをラベルやフィルタと組み合わせて、さらに絞り込んだ検索を行うことができます。[詳細な検索について詳しく](https://docs.omnivore.work/using/search.html)。
 
 ### フィルタ
 

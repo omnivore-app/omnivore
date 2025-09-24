@@ -281,7 +281,7 @@ describe('User API', () => {
 
         const user = await userRepository.findOneBy({ id: userId })
         expect(user?.status).to.eql(StatusType.Deleted)
-        expect(user?.email).to.eql(`deleted_user_${userId}@omnivore.app`)
+        expect(user?.email).to.eql(`deleted_user_${userId}@omnivore.work`)
       })
     })
 

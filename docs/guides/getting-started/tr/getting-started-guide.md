@@ -31,10 +31,10 @@ Daha sonra okumak istediğiniz sayfaların veya makalelerin bağlantılarını k
 
 1. Tarayıcınız için Omnivore uzantısını indirin ve yükleyin:
 
-- [Chrome](https://omnivore.app/install/chrome)
-- [Edge](https://omnivore.app/install/edge)
-- [Firefox](https://omnivore.app/install/firefox)
-- [Safari](https://omnivore.app/install/safari)
+- [Chrome](https://omnivore.work/install/chrome)
+- [Edge](https://omnivore.work/install/edge)
+- [Firefox](https://omnivore.work/install/firefox)
+- [Safari](https://omnivore.work/install/safari)
 
 2. Kaydetmek istediğiniz sayfaya gidin ve tarayıcınızın araç çubuğundaki veya Uzantılar menüsündeki Omnivore düğmesine dokunun.
 3. Alternatif olarak, herhangi bir linke sağ tıklayabilir (Mac'te command+tıklama) ve menüden **Save to Omnivore** seçeneğine tıklayabilirsiniz.
@@ -44,7 +44,7 @@ Daha sonra okumak istediğiniz sayfaların veya makalelerin bağlantılarını k
 
 Mobil cihazınızdan bağlantıları kaydetmenin en iyi yolu Omnivore uygulamasıdır. Uygulamayı buradan indirebilirsiniz:
 
-- [iOS (iPhone veya iPad)](https://omnivore.app/install/ios)
+- [iOS (iPhone veya iPad)](https://omnivore.work/install/ios)
 - Android
 
 Mobil uygulama yüklendikten sonra:
@@ -56,7 +56,7 @@ Mobil uygulama yüklendikten sonra:
 ### E-posta ile Bülten Abonelikleri
 
 1. Omnivore web sitesinde veya uygulamasında, profil menüsüne erişmek için sağ üst köşedeki fotoğrafınıza, baş harfinize veya avatarınıza dokunun. Menüden **E-postalar** öğesini seçin.
-2. Listeye yeni bir e-posta adresi (örn. username-123_abc@inbox.omnivore.app) eklemek için **Yeni E-posta Adresi Oluştur** öğesine dokunun.
+2. Listeye yeni bir e-posta adresi (örn. username-123_abc@inbox.omnivore.work) eklemek için **Yeni E-posta Adresi Oluştur** öğesine dokunun.
 3. E-posta adresinin yanındaki kopyala simgesine tıklayın.
 4. Abone olmak istediğiniz haber bülteninin kayıt sayfasına gidin.
 5. Omnivore e-posta adresini kayıt formuna yapıştırın.
@@ -64,7 +64,7 @@ Mobil uygulama yüklendikten sonra:
 
 ### Mac bir cihazdan PDF kaydetme
 
-1. [Mac uygulaması](https://omnivore.app/install/mac)nı kurun.
+1. [Mac uygulaması](https://omnivore.work/install/mac)nı kurun.
 2. Mac'inizde kaydetmek istediğiniz dosyanın ismine sağ tıklayın veya ctrl+tıklayın.
 3. Menüden **Paylaş**'a tıklayın ve **Omnivore**'u seçin.
 4. Bağlantı, bir sonraki yenilemenizde kitaplığınızda görünecektir.
@@ -135,7 +135,7 @@ Varsayılan olarak, kitaplık gelen kutusu kaydettiğiniz tüm bağlantıları g
 ### Arama
 
 1. Kaydettiğiniz tüm bağlantıları aramak için arama çubuğuna bir anahtar kelime veya ifade girin.
-2. Aramanızı daha da daraltmak için etiketleri ve filtreleri anahtar kelimelerle birleştirebilirsiniz. [Daha fazla bilgi için gelişmiş arama hakkında bunu inceleyebilirsiniz](https://docs.omnivore.app/using/search.html).
+2. Aramanızı daha da daraltmak için etiketleri ve filtreleri anahtar kelimelerle birleştirebilirsiniz. [Daha fazla bilgi için gelişmiş arama hakkında bunu inceleyebilirsiniz](https://docs.omnivore.work/using/search.html).
 
 ### Filtreler
 

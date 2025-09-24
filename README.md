@@ -8,7 +8,7 @@
 
 <img align="right" src="https://avatars.githubusercontent.com/u/70113176?s=400&u=506b21d9f019f3160963c010ef363667fb24c7c9&v=4" height="150px" alt="Omnivore Logo">
 
-[Omnivore](https://omnivore.app) is a complete, open source read-it-later solution for people who like text.
+[Omnivore](https://omnivore.work) is a complete, open source read-it-later solution for people who like text.
 
 We built Omnivore because we love reading and we want it to be more social. Join us!
 
@@ -17,11 +17,11 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - Automatically saves your place in long articles
 - Add newsletter articles via email (with substack support!)
 - PDF support
-- [Web app](https://omnivore.app/) written in Node.js and TypeScript
-- [Native iOS app](https://omnivore.app/install/ios) ([source](https://github.com/omnivore-app/omnivore/tree/main/apple))
-- [Android app](https://omnivore.app/install/android) ([source](https://github.com/omnivore-app/omnivore/tree/main/android/Omnivore))
+- [Web app](https://omnivore.work/) written in Node.js and TypeScript
+- [Native iOS app](https://omnivore.work/install/ios) ([source](https://github.com/omnivore-app/omnivore/tree/main/apple))
+- [Android app](https://omnivore.work/install/android) ([source](https://github.com/omnivore-app/omnivore/tree/main/android/Omnivore))
 - Progressive web app for Android users
-- Browser extensions for [Chrome](https://omnivore.app/install/chrome), [Safari](https://omnivore.app/install/safari), [Firefox](https://omnivore.app/install/firefox), and [Edge](https://omnivore.app/install/edge)
+- Browser extensions for [Chrome](https://omnivore.work/install/chrome), [Safari](https://omnivore.work/install/safari), [Firefox](https://omnivore.work/install/firefox), and [Edge](https://omnivore.work/install/edge)
 - Labels (aka tagging)
 - Offline support
 - Text to speech (iOS only)
@@ -38,7 +38,7 @@ A guide for running a self hosted server can be found [here](./self-hosting/GUID
 
 We're building our community on Discord. [Join us!](https://discord.gg/h2z5rppzz9)
 
-Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
+Read more about Omnivore on our blog. <https://blog.omnivore.work/p/getting-started-with-omnivore>
 
 ## Shoutouts :tada:
 
@@ -57,7 +57,7 @@ Omnivore takes advantage of some great open source software:
 
 ## Importing Libraries
 
-Check out our [docs](https://docs.omnivore.app/using/importing.html) for information on importing your data from other apps.
+Check out our [docs](https://docs.omnivore.work/using/importing.html) for information on importing your data from other apps.
 
 ## How to setup local development :computer:
 
@@ -88,7 +88,7 @@ Open <http://localhost:3000> and confirm Omnivore is running
 
 #### 3. Login with the test account
 
-During database setup docker compose creates an account `demo@omnivore.app`, password: `demo_password`.
+During database setup docker compose creates an account `demo@omnivore.work`, password: `demo_password`.
 
 Go to <http://localhost:3000/> in your browser and choose `Continue with Email` to login.
 
@@ -145,7 +145,7 @@ yarn start
 This will start the puppeteer-parse service on port 9090.
 
 In your browser go to <http://localhost:3000/home>, click the `Add Link` button,
-and enter a URL such as `https://blog.omnivore.app/p/getting-started-with-omnivore`.
+and enter a URL such as `https://blog.omnivore.work/p/getting-started-with-omnivore`.
 
 You should see a Chromium window open and navigate to your link. When the service
 is done fetching your content you will see it in your library.

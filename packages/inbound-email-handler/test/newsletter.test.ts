@@ -18,7 +18,7 @@ describe('Confirmation email test', () => {
 
     it('returns true when email is from Gmail Team', () => {
       from = 'Gmail Team <forwarding-noreply@google.com>'
-      subject = `(#123456789) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
+      subject = `(#123456789) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.work`
 
       expect(isGoogleConfirmationEmail(from, subject)).to.be.true
     })
@@ -26,7 +26,7 @@ describe('Confirmation email test', () => {
     it('returns true when email is from Japan Gmail Team', () => {
       from = 'SWG チーム <forwarding-noreply@google.com>'
       subject =
-        '（#123456789）SWG の転送の確認 - test@omnivore.app からメールを受信'
+        '（#123456789）SWG の転送の確認 - test@omnivore.work からメールを受信'
 
       expect(isGoogleConfirmationEmail(from, subject)).to.be.true
     })
@@ -34,7 +34,7 @@ describe('Confirmation email test', () => {
     it('returns true when email is in Spanish', () => {
       from = 'Equipo de Gmail <forwarding-noreply@google.com>'
       subject =
-        'Confirmación de reenvío de 123456789 (n.º Gmail) - Recibir correo de test@omnivore.app'
+        'Confirmación de reenvío de 123456789 (n.º Gmail) - Recibir correo de test@omnivore.work'
 
       expect(isGoogleConfirmationEmail(from, subject)).to.be.true
     })
@@ -46,21 +46,21 @@ describe('Confirmation email test', () => {
 
     it('returns the confirmation code from the email', () => {
       code = '123456789'
-      subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
+      subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.work`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })
 
     it('returns the confirmation code from the Google Japan email', () => {
       code = '123456789'
-      subject = `（#${code}）SWG の転送の確認 - test@omnivore.app からメールを受信`
+      subject = `（#${code}）SWG の転送の確認 - test@omnivore.work からメールを受信`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })
 
     it('returns the confirmation code from the Spanish email', () => {
       code = '123456789'
-      subject = `Confirmación de reenvío de ${code} (n.º Gmail) - Recibir correo de test@omnivore.app`
+      subject = `Confirmación de reenvío de ${code} (n.º Gmail) - Recibir correo de test@omnivore.work`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })
@@ -88,16 +88,16 @@ describe('Newsletter email test', () => {
 
 describe('parsedTo', () => {
   it('returns envelope to if exists', () => {
-    const to = 'receipient@inbox.omnivore.app'
+    const to = 'receipient@inbox.omnivore.work'
     expect(
       parsedTo({
-        envelope: `{"to":["${to}"],"from":"sender@omnivore.app"}`,
+        envelope: `{"to":["${to}"],"from":"sender@omnivore.work"}`,
       })
     ).to.equal(to)
   })
 
   it('returns parsed to if envelope does not exists', () => {
-    const to = 'receipient@inbox.omnivore.app'
+    const to = 'receipient@inbox.omnivore.work'
     expect(
       parsedTo({
         to,
@@ -109,7 +109,7 @@ describe('parsedTo', () => {
 describe('parseAuthor', () => {
   it('returns author if exists', () => {
     const author = 'Tester'
-    const address = `${author} <tester@omnivore.app>`
+    const address = `${author} <tester@omnivore.work>`
     expect(parseAuthor(address)).to.eql(author)
   })
 })

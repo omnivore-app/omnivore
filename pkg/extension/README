@@ -10,7 +10,7 @@ Steps for new extension release:
 * yarn install
 * To generate a production extension in dist/ folder to save articles
 against production site, run: yarn build-prod
-* For development extension to use against QA site (dev.omnivore.app) run yarn build-qa
+* For development extension to use against QA site (dev.omnivore.work) run yarn build-qa
 * For using extension against localhost, run yarn build
 
 

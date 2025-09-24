@@ -56,7 +56,7 @@ They are the same as the listed environment variables above.
 Running `docker compose up` will pull the images from the github, and then start the services. 
 
 During the first deployment omnivore-migrate will go through and set up the necessary Postgres tables. 
-This will also create a demo user with email: demo@omnivore.app, password: demo_password. 
+This will also create a demo user with email: demo@omnivore.work, password: demo_password. 
 
 When the service is ready you can access the web-app by using localhost:3000
 
@@ -185,7 +185,7 @@ We will go over
 #### Receiving Newsletter Subscriptions via Email
 1. On the Omnivore website or app, tap your photo, initial, or avatar in the top right corner to access the profile menu. Select Emails from the menu.
 
-2. Tap Create a New Email Address to add a new email address (e.g. username-123abc@inbox.omnivore.app) to the list.
+2. Tap Create a New Email Address to add a new email address (e.g. username-123abc@inbox.omnivore.work) to the list.
 
 3. Click the Copy icon next to the email address.
 

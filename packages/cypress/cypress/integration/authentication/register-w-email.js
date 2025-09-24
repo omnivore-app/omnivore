@@ -1,4 +1,4 @@
-const email = 'tester@omnivore.app'
+const email = 'tester@omnivore.work'
 const username = 'testuser'
 const password = 'testpassword'
 const fullName = 'Test User'

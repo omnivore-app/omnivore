@@ -18,7 +18,7 @@ describe('saveEmail', () => {
   before(async () => {
     // create test user
     user = await createTestUser('fakeUser')
-    scope = nock('https://blog.omnivore.app')
+    scope = nock('https://blog.omnivore.work')
       .get('/fake-url')
       .reply(200)
       .persist()
@@ -40,7 +40,7 @@ describe('saveEmail', () => {
   })
 
   it('doesnt fail if saved twice', async () => {
-    const url = 'https://blog.omnivore.app/fake-url'
+    const url = 'https://blog.omnivore.work/fake-url'
     const title = 'fake title'
     const author = 'fake author'
 

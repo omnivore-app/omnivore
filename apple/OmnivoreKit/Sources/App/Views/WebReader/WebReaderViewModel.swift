@@ -25,7 +25,7 @@ struct SafariWebLink: Identifiable {
 
   func hasOriginalUrl(_ item: Models.LibraryItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
-      if host == "omnivore.app" {
+      if host == "omnivore.work" {
         return false
       }
       return true

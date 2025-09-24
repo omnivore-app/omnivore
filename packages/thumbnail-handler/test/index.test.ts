@@ -10,7 +10,7 @@ describe('findThumbnail', () => {
     const images = ['large_and_square', 'small', 'sprite', 'wide']
     // mock getting image by url
     images.forEach((image) => {
-      nock('https://omnivore.app')
+      nock('https://omnivore.work')
         .get(`/${image}.png`)
         .replyWithFile(200, path.join(__dirname, 'fixtures', `${image}.png`))
     })
@@ -23,6 +23,6 @@ describe('findThumbnail', () => {
     const imageSizes = await fetchAllImageSizes(content)
     const thumbnail = findThumbnail(imageSizes)
 
-    expect(thumbnail).to.eql('https://omnivore.app/large_and_square.png')
+    expect(thumbnail).to.eql('https://omnivore.work/large_and_square.png')
   })
 })

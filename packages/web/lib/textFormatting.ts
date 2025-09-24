@@ -13,7 +13,7 @@ export const timeAgo = (date: string | undefined): string => {
 export const shouldHideUrl = (url: string): boolean => {
   try {
     const origin = new URL(url).origin
-    const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.app']
+    const hideHosts = ['https://storage.googleapis.com', 'https://omnivore.work']
     if (hideHosts.indexOf(origin) != -1) {
       return true
     }
@@ -24,7 +24,7 @@ export const shouldHideUrl = (url: string): boolean => {
 }
 
 const shouldHideSiteName = (siteName: string) => {
-  const hideNames = ['storage.googleapis.com', 'omnivore.app']
+  const hideNames = ['storage.googleapis.com', 'omnivore.work']
   if (hideNames.indexOf(siteName) != -1) {
     return true
   }

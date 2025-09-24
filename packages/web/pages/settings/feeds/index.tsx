@@ -127,7 +127,7 @@ export default function Rss(): JSX.Element {
   return (
     <SettingsTable
       pageId={'feeds'}
-      pageInfoLink="https://docs.omnivore.app/using/feeds.html"
+      pageInfoLink="https://docs.omnivore.work/using/feeds.html"
       headerTitle="Subscribed feeds"
       createTitle="Add a feed"
       createAction={() => {

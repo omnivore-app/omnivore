@@ -103,18 +103,18 @@ export const findNewsletterEmailByAddress = async (
 }
 
 const createRandomEmailAddress = (userName: string, length: number): string => {
-  // format: hongbo-sduhfsjh1e@inbox.omnivore.app
+  // format: hongbo-sduhfsjh1e@inbox.omnivore.work
   const inbox =
     'inbox' + (env.server.apiEnv === 'prod' ? '' : `-${env.server.apiEnv}`)
   /* nanoid can generate a random string ending with -
   which is not allowed as a last character in email address.
   So we append a 'e' to all random strings.
 
-  when rand is sdfsdf-: jacksonh-sdfsdf-e@inbox.omnivore.app
-  when rand is abcdef: jacksonh-abcdefe@inbox.omnivore.app
+  when rand is sdfsdf-: jacksonh-sdfsdf-e@inbox.omnivore.work
+  when rand is abcdef: jacksonh-abcdefe@inbox.omnivore.work
    */
   return `${userName}-${nanoid(length)}e@${
-    env.email.domain || `@${inbox}.omnivore.app`
+    env.email.domain || `@${inbox}.omnivore.work`
   }`
 }
 

@@ -154,7 +154,7 @@ export default function AndroidInstallHelp({
             justifyContent: 'flex-end',
           }}
         >
-          <a href="https://omnivore.app/install/android">
+          <a href="https://omnivore.work/install/android">
             <img
               alt="Get it on Google Play"
               style={{

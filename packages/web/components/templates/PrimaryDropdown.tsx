@@ -216,7 +216,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         title="Settings"
       />
       <DropdownOption
-        onSelect={() => window.open('https://docs.omnivore.app', '_blank')}
+        onSelect={() => window.open('https://docs.omnivore.work', '_blank')}
         title="Documentation"
       />
       <DropdownOption

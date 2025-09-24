@@ -80,7 +80,7 @@ describe('ArticleSavingRequest API', () => {
   describe('createArticleSavingRequest', () => {
     it('returns the article saving request', async () => {
       const res = await graphqlRequest(
-        createArticleSavingRequestMutation('https://blog.omnivore.app'),
+        createArticleSavingRequestMutation('https://blog.omnivore.work'),
         authToken
       ).expect(200)
 
@@ -90,9 +90,9 @@ describe('ArticleSavingRequest API', () => {
     })
 
     it('creates a library item in db', async () => {
-      const url = 'https://blog.omnivore.app/1'
+      const url = 'https://blog.omnivore.work/1'
       await graphqlRequest(
-        createArticleSavingRequestMutation('https://blog.omnivore.app/1'),
+        createArticleSavingRequestMutation('https://blog.omnivore.work/1'),
         authToken
       ).expect(200)
 
@@ -117,7 +117,7 @@ describe('ArticleSavingRequest API', () => {
     let id: string
 
     before(async () => {
-      url = 'https://blog.omnivore.app/2'
+      url = 'https://blog.omnivore.work/2'
       // create article saving request
       const res = await graphqlRequest(
         createArticleSavingRequestMutation(url),

@@ -107,7 +107,7 @@ describe('features resolvers', () => {
             name: `opt-in-user-${i}`,
             source: 'GOOGLE',
             sourceUserId: `fake-user-id-user${i}`,
-            email: `opt-in-user-${i}@omnivore.app`,
+            email: `opt-in-user-${i}@omnivore.work`,
             username: `user${i}`,
             bio: `i am user${i}`,
           }

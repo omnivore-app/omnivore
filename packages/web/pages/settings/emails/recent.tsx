@@ -166,7 +166,7 @@ export default function RecentEmails(): JSX.Element {
   return (
     <SettingsTable
       pageId="recent-emails"
-      pageInfoLink="https://docs.omnivore.app/using/inbox.html"
+      pageInfoLink="https://docs.omnivore.work/using/inbox.html"
       headerTitle="Recently Received Emails"
     >
       {sortedRecentEmails.length > 0 ? (

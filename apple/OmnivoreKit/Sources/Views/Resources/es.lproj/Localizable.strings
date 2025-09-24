@@ -42,7 +42,7 @@
 // Push Notification Settings
 "notificationsEnabled" = "Notificaciones Habilitadas";
 "notificationsExplainer" = "Activar las notificaciones Push da permiso para enviar notificaciones al dispositivo donde has instalado Omnivore,\npero tu estás a cargo de qué notificaciones se envían.";
-"notificationsTriggerExplainer" = "Las notificaciones Push se activan con tus \n[reglas de cuenta](https://omnivore.app/settings/rules), que puedes editar online.";
+"notificationsTriggerExplainer" = "Las notificaciones Push se activan con tus \n[reglas de cuenta](https://omnivore.work/settings/rules), que puedes editar online.";
 "notificationsEnable" = "¿Activar Notificaciones Push?";
  "notificationsGeneralExplainer" = "Recibe una notificación cuando los enlaces de newsletter lleguen a tu bandeja de entrada. O recibe los recordatorios que establezcas desde nuestra extensión para compartir.";
 "notificationsOptionDeny" = "No, gracias";

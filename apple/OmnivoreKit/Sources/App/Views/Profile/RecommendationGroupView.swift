@@ -132,7 +132,7 @@
           Text("""
           \(LocalText.clubsAdminDenyViewing)
 
-          [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+          [Learn more about clubs](https://blog.omnivore.work/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
           """)
             .accentColor(.blue)
         } else if viewModel.nonAdmins.count > 0 {
@@ -147,7 +147,7 @@
           Text("""
           \(LocalText.clubsNoMembers)
 
-          [Learn more about clubs](https://blog.omnivore.app/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
+          [Learn more about clubs](https://blog.omnivore.work/p/dca38ba4-8a74-42cc-90ca-d5ffa5d075cc)
           """)
             .accentColor(.blue)
         }

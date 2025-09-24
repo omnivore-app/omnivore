@@ -40,7 +40,7 @@ class MockFile {
   }
 
   getSignedUrl() {
-    return ['https://signed-url.upload.omnivore.app']
+    return ['https://signed-url.upload.omnivore.work']
   }
 
   getMetadata() {
@@ -48,7 +48,7 @@ class MockFile {
   }
 
   publicUrl() {
-    return 'https://public-url.upload.omnivore.app'
+    return 'https://public-url.upload.omnivore.work'
   }
 
   makePublic() {

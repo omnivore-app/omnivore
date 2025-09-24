@@ -31,10 +31,10 @@ Hay cinco formas principales de guardar los enlaces a páginas o artículos que 
 
 1. Descarga e instala la extensión Omnivore para tu navegador:
 
-- [Chrome ](https://omnivore.app/install/chrome)
-- [Edge](https://omnivore.app/install/edge)
-- [Firefox](https://omnivore.app/install/firefox)
-- [Safari](https://omnivore.app/install/safari)
+- [Chrome ](https://omnivore.work/install/chrome)
+- [Edge](https://omnivore.work/install/edge)
+- [Firefox](https://omnivore.work/install/firefox)
+- [Safari](https://omnivore.work/install/safari)
 
 2. Navega hasta la página que quieres guardar y toca el botón **Omnivore** en la barra de herramientas de tu navegador o en el menú Extensiones.
 3. Como alternativa, puedes hacer clic con el botón derecho (command+clic en Mac) en cualquier enlace y seleccionar **Guardar en Omnivore** en el menú.
@@ -44,7 +44,7 @@ Hay cinco formas principales de guardar los enlaces a páginas o artículos que 
 
 La mejor forma de guardar enlaces desde tu dispositivo móvil es a través de la aplicación Omnivore. Puedes descargar la aplicación aquí:
 
-- [iOS (iPhone or iPad)](https://omnivore.app/install/ios)
+- [iOS (iPhone or iPad)](https://omnivore.work/install/ios)
 - Android
 
 Una vez instalada la aplicación móvil:
@@ -56,7 +56,7 @@ Una vez instalada la aplicación móvil:
 ### Suscripciones a boletines (newsletters) por correo electrónico
 
 1. En el sitio web o la aplicación Omnivore, clic en tu foto, iniciales o avatar en la esquina superior derecha para acceder al menú de perfil. Selecciona **Correos electrónicos** en el menú.
-2. Clic en **Crear una nueva dirección de correo electrónico** para agregar una nueva dirección de correo electrónico (por ejemplo, nombre de usuario-123_abc@inbox.omnivore.app) a la lista.
+2. Clic en **Crear una nueva dirección de correo electrónico** para agregar una nueva dirección de correo electrónico (por ejemplo, nombre de usuario-123_abc@inbox.omnivore.work) a la lista.
 3. Haz clic en el icono **Copiar** junto a la dirección de correo electrónico.
 4. Navega hasta la página de registro del boletín (newsletter) al que quieres suscribirte.
 5. Pega la dirección de correo electrónico de Omnivore en el formulario de registro.
@@ -64,7 +64,7 @@ Una vez instalada la aplicación móvil:
 
 ### Guardar PDFs desde un Mac
 
-1. Instala la [aplicación Mac] (https://omnivore.app/install/mac).
+1. Instala la [aplicación Mac] (https://omnivore.work/install/mac).
 2. En tu Mac, busca el PDF que deseas guardar y haz clic con el botón derecho o ctrl+clic en el nombre del archivo.
 3. Selecciona **Compartir** en el menú y elige **Omnívore**.
 4. El enlace aparecerá en tu Biblioteca la próxima vez que la actualices.
@@ -135,7 +135,7 @@ De forma predeterminada, la bandeja de entrada de la biblioteca muestra todos lo
 ### Buscar
 
 1. Para buscar en todos sus enlaces guardados, escribe una palabra clave o frase en la barra de búsqueda.
-2. Puedes combinar palabras clave con etiquetas y filtros para refinar aún más tu búsqueda. [Saber más sobre búsqueda avanzada](https://docs.omnivore.app/using/search.html).
+2. Puedes combinar palabras clave con etiquetas y filtros para refinar aún más tu búsqueda. [Saber más sobre búsqueda avanzada](https://docs.omnivore.work/using/search.html).
 
 ### Filtros
 

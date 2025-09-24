@@ -19,9 +19,9 @@ public struct FollowingViewModal: View {
 
   If you don't need the following tab you can disable it from the filters view in your settings.
 
-  - [Learn more about the following](https://docs.omnivore.app/using/following.html)
+  - [Learn more about the following](https://docs.omnivore.work/using/following.html)
 
-  - [Tell your friends about Omnivore](https://omnivore.app/about)
+  - [Tell your friends about Omnivore](https://omnivore.work/about)
 
   """
 

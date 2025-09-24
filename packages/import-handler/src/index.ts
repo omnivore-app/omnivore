@@ -124,7 +124,7 @@ const sendImportFailedEmail = async (
   return queueEmailJob(redisDataSource, {
     userId,
     subject: 'Your Omnivore import failed.',
-    html: `There was an error importing your file. Please ensure you uploaded the correct file type, if you need help, please email feedback@omnivore.app`,
+    html: `There was an error importing your file. Please ensure you uploaded the correct file type, if you need help, please email feedback@omnivore.work`,
   })
 }
 

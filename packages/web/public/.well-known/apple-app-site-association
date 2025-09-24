@@ -3,7 +3,7 @@
     "details": [
       {
         "appIDs": [
-          "QJF2XZ86HB.app.omnivore.app"
+          "QJF2XZ86HB.app.omnivore.work"
         ],
         "components": [
           {
@@ -16,7 +16,7 @@
   },
   "webcredentials": {
     "apps": [
-      "QJF2XZ86HB.app.omnivore.app"
+      "QJF2XZ86HB.app.omnivore.work"
     ]
   }
 }

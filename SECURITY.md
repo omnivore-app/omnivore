@@ -6,14 +6,14 @@ Keeping user information safe and secure is a top priority, and we welcome the c
 
 Omnivore runs a number of services but only submissions under the following domains are eligible for rewards. Any Omnivore-owned domains not listed below are not in scope, not eligible for rewards, and not covered by our legal safe harbor.
 
-- omnivore.app
-- demo.omnivore.app
+- omnivore.work
+- demo.omnivore.work
 
 ## Domains that are out of scope:
 
-- docs.omnivore.app
-- blog.omnivore.app
-- changes.omnivore.app
+- docs.omnivore.work
+- blog.omnivore.work
+- changes.omnivore.work
 
 ## The following vulnerability categories are outside of the scope of our responsible disclosure program, and aren't eligible for bounty:
 
@@ -30,7 +30,7 @@ Omnivore runs a number of services but only submissions under the following doma
 
 # How to Submit a Report
 
-To submit a vulnerability report to Omnivore Media, please contact us at feedback@omnivore.app. Your submission will be reviewed and validated by a member of our security team.
+To submit a vulnerability report to Omnivore Media, please contact us at feedback@omnivore.work. Your submission will be reviewed and validated by a member of our security team.
 
 # Safe Harbor
 

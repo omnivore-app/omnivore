@@ -158,7 +158,7 @@ export default function IOSInstallHelp({
           }
         >
           <a
-            href="https://omnivore.app/install/ios"
+            href="https://omnivore.work/install/ios"
             target="_blank"
             rel="noreferrer"
             style={{ display: 'inlineBlock', overflow: 'hidden' }}

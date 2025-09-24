@@ -269,7 +269,7 @@ private extension PageScrapePayload {
     #if os(iOS)
       let appGroupID = "group.app.omnivoreapp"
     #else
-      let appGroupID = "QJF2XZ86HB.app.omnivore.app"
+      let appGroupID = "QJF2XZ86HB.app.omnivore.work"
     #endif
     return FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: appGroupID

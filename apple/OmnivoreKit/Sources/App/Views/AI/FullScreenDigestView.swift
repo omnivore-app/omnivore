@@ -238,7 +238,7 @@ struct FullScreenDigestView: View {
             Image.coloredSmallOmnivoreLogo
               .resizable()
               .frame(width: 20, height: 20)
-            Text("Omnivore.app")
+            Text("omnivore.work")
               .font(Font.system(size: 14))
               .foregroundColor(Color.themeLibraryItemSubtle)
             Spacer()

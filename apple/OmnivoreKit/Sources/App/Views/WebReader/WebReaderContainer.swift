@@ -135,40 +135,40 @@ struct WebReaderContainerView: View {
   }
 
   #if os(iOS)
-    var audioNavbarItem: some View {
-      if audioController.isLoadingItem(audioController.itemAudioProperties) {
-        return AnyView(ProgressView()
-          .padding(.horizontal))
-      } else {
-        return AnyView(
-          Button(
-            action: {
-              switch audioController.state {
-              case .playing:
-                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-                  audioController.pause()
-                  return
-                }
-                fallthrough
-              case .paused:
-                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-                  audioController.unpause()
-                  return
-                }
-                fallthrough
-              default:
-                audioController.play(itemAudioProperties: item.audioProperties)
-              }
-            },
-            label: {
-              textToSpeechButtonImage
-            }
-          )
-          .buttonStyle(.plain)
-          .padding(.trailing, 4)
-        )
-      }
-    }
+//    var audioNavbarItem: some View {
+//      if audioController.isLoadingItem(audioController.itemAudioProperties) {
+//        return AnyView(ProgressView()
+//          .padding(.horizontal))
+//      } else {
+//        return AnyView(
+//          Button(
+//            action: {
+//              switch audioController.state {
+//              case .playing:
+//                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+//                  audioController.pause()
+//                  return
+//                }
+//                fallthrough
+//              case .paused:
+//                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+//                  audioController.unpause()
+//                  return
+//                }
+//                fallthrough
+//              default:
+//                audioController.play(itemAudioProperties: item.audioProperties)
+//              }
+//            },
+//            label: {
+//              textToSpeechButtonImage
+//            }
+//          )
+//          .buttonStyle(.plain)
+//          .padding(.trailing, 4)
+//        )
+//      }
+//    }
 
     var textToSpeechButtonImage: some View {
       if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
@@ -280,7 +280,7 @@ struct WebReaderContainerView: View {
 
         Spacer()
       #endif
-
+//
 //      Button(
 //        action: { showExplainSheet = true },
 //        label: { Image(systemName: "sparkles") }
@@ -289,7 +289,8 @@ struct WebReaderContainerView: View {
 //      .padding(.trailing, 4)
 
       Button(
-        action: { showLabelsModal = true },
+        action: {
+            showLabelsModal = true },
         label: {
           Image.label
         }
@@ -307,7 +308,7 @@ struct WebReaderContainerView: View {
       .padding(.trailing, 4)
 
       #if os(iOS)
-        audioNavbarItem
+//        audioNavbarItem
 
         Button(
           action: {

@@ -1,7 +1,7 @@
 
 describe('add link button', () => {
   before(() => {
-    const email = 'tester@omnivore.app'
+    const email = 'tester@omnivore.work'
     const password = 'testpassword'
 
     cy.login(email, password)

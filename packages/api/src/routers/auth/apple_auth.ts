@@ -19,7 +19,7 @@ import {
 import { DEFAULT_HOME_PATH } from '../../utils/navigation'
 
 const appleBaseURL = 'https://appleid.apple.com'
-const audienceName = 'app.omnivore.app'
+const audienceName = 'app.omnivore.work'
 const webAudienceName = 'app.omnivore'
 
 async function fetchApplePublicKey(kid: string): Promise<string | null> {

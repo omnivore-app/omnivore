@@ -20,7 +20,7 @@ describe('User Service Router', () => {
       const users = await createUsers([
         {
           name: 'user_1',
-          email: 'user_1@omnivore.app',
+          email: 'user_1@omnivore.work',
           status: StatusType.Deleted,
           updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
           source: 'GOOGLE',
@@ -28,7 +28,7 @@ describe('User Service Router', () => {
         },
         {
           name: 'user_2',
-          email: 'user_2@omnivore.app',
+          email: 'user_2@omnivore.work',
           status: StatusType.Deleted,
           updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
           source: 'GOOGLE',

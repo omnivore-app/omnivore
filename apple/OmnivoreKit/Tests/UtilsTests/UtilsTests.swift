@@ -11,15 +11,15 @@ final class UtilsTests: XCTestCase {
 
   func testNormalizeUrl() {
     // trailing slash removed
-    XCTAssertEqual(normalizeURL("https://omnivore.app/"), "https://omnivore.app")
+    XCTAssertEqual(normalizeURL("https://omnivore.work/"), "https://omnivore.work")
 
     // utm_ removed
     // swiftlint:disable:next line_length
-    XCTAssertEqual(normalizeURL("https://omnivore.app/?aa=a&bb=b&utm_track=track&cc=c"), "https://omnivore.app?aa=a&bb=b&cc=c")
+    XCTAssertEqual(normalizeURL("https://omnivore.work/?aa=a&bb=b&utm_track=track&cc=c"), "https://omnivore.work?aa=a&bb=b&cc=c")
 
     // query params sorted
-    XCTAssertEqual(normalizeURL("https://omnivore.app/?aa=a&cc=c&bb=b"), "https://omnivore.app?aa=a&bb=b&cc=c")
-    XCTAssertEqual(normalizeURL("https://omnivore.app/?cc=c&bb=b&aa=a"), "https://omnivore.app?aa=a&bb=b&cc=c")
+    XCTAssertEqual(normalizeURL("https://omnivore.work/?aa=a&cc=c&bb=b"), "https://omnivore.work?aa=a&bb=b&cc=c")
+    XCTAssertEqual(normalizeURL("https://omnivore.work/?cc=c&bb=b&aa=a"), "https://omnivore.work?aa=a&bb=b&cc=c")
   }
 
   static var allTests = [

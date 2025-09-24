@@ -42,7 +42,7 @@
 // Push Notification Settings
 "notificationsEnabled" = "Benachrichtigungen aktiviert";
 "notificationsExplainer" = "Das Aktivieren von Push-Benachrichtigungen gibt Omnivore die Erlaubnis, Benachrichtigungen zu senden,\ndu entscheidest jedoch, welche Benachrichtigungen gesendet werden.";
-"notificationsTriggerExplainer" = "Push-Benachrichtigungen werden durch deine \n[Kontoregeln](https://omnivore.app/settings/rules) ausgelöst, die du online bearbeiten kannst.";
+"notificationsTriggerExplainer" = "Push-Benachrichtigungen werden durch deine \n[Kontoregeln](https://omnivore.work/settings/rules) ausgelöst, die du online bearbeiten kannst.";
 "notificationsEnable" = "Push-Benachrichtigungen aktivieren?";
 "notificationsGeneralExplainer" = "Erhalte Benachrichtigungen, wenn Newsletter-Links in deinem Posteingang eintreffen. Oder erhalte Erinnerungen, die du über unsere Erweiterung festgelegt hast.";
 "notificationsOptionDeny" = "Nein, danke";

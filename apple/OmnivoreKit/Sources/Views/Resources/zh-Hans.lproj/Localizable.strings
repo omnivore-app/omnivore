@@ -43,7 +43,7 @@
 // Push Notification Settings
 "notificationsEnabled" = "启用通知";
 "notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限，但由您负责发送哪些通知。";
-"notificationsTriggerExplainer" = "推送通知使用您的[账号规则](https://omnivore.app/settings/rules)您可以在线编辑。";
+"notificationsTriggerExplainer" = "推送通知使用您的[账号规则](https://omnivore.work/settings/rules)您可以在线编辑。";
 "notificationsEnable" = "确定启用推送通知?";
 "notificationsGeneralExplainer" = "当新闻资讯链接到达您的收集箱时收到通知。或者接收您从我们的分享扩展中设置的提醒。";
 "notificationsOptionDeny" = "不用了";
@@ -248,7 +248,7 @@
 //"filter to inbox, archive, or all" = "筛选到收集箱、存档或全部";
 //"search for a specific title" = "搜索特定标题";
 //"any saved read with highlights" = "任何带有荧光笔高亮显示的已保存文章";
-//"[More on Advanced Search](https://docs.omnivore.app/using/search.html)" = "[了解更多高级搜索](https://docs.omnivore.app/zh/using/search.html)";
+//"[More on Advanced Search](https://docs.omnivore.work/using/search.html)" = "[了解更多高级搜索](https://docs.omnivore.work/zh/using/search.html)";
 //
 //// Views/AudioPlayer/ExpandedPlayer.swift
 //"Playback Speed (%.1f×)" = "播放速度 (%.1f×)";

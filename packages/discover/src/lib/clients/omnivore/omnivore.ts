@@ -8,7 +8,7 @@ import {
 } from '../../../types/OmnivoreSchema'
 
 const API_URL =
-  process.env.OMNIVORE_API_URL ?? 'https://api-prod.omnivore.app/api'
+  process.env.OMNIVORE_API_URL ?? 'https://api-prod.omnivore.work/api'
 
 export class OmnivoreClient {
   username: string

@@ -286,7 +286,7 @@ export default function LabelsPage(): JSX.Element {
               helpTitle="Use labels to organize your library and optimize your workflow."
               helpMessage="Use this page to view and edit all your labels. Labels can be attached to individual library items, or your highlights, and are used to keep your library organized."
               docsMessage={'Read the Docs'}
-              docsDestination="https://docs.omnivore.app/using/organizing.html#labels"
+              docsDestination="https://docs.omnivore.work/using/organizing.html#labels"
               onDismiss={() => {
                 setShowLabelPageHelp(false)
               }}
@@ -308,7 +308,7 @@ export default function LabelsPage(): JSX.Element {
               <Box>
                 <StyledText style="fixedHeadline">Labels </StyledText>
               </Box>
-              <InfoLink href="https://docs.omnivore.app/using/organizing.html#labels" />
+              <InfoLink href="https://docs.omnivore.work/using/organizing.html#labels" />
               <Box
                 css={{
                   display: 'flex',

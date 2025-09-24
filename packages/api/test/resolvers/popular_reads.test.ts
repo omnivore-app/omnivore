@@ -54,7 +54,7 @@ describe('PopularReads API', () => {
         user.id
       )
       expect(item?.originalUrl).to.eq(
-        'https://blog.omnivore.app/p/saving-links-from-your-iphone-or'
+        'https://blog.omnivore.work/p/saving-links-from-your-iphone-or'
       )
       expect(item?.wordCount).to.eq(371)
     })

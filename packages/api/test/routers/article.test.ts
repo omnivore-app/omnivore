@@ -36,7 +36,7 @@ describe('/article/save API', () => {
   })
 
   describe('POST /article/save', () => {
-    const url = 'https://blog.omnivore.app'
+    const url = 'https://blog.omnivore.work'
 
     before(() => {
       sinon.replace(

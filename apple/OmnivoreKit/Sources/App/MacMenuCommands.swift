@@ -137,7 +137,7 @@ import Views
     public var body: some Commands {
       CommandGroup(after: .appInfo) {
         Button("Open Online", action: {
-          if let url = URL(string: "https://omnivore.app/") {
+          if let url = URL(string: "https://omnivore.work/") {
             NSWorkspace.shared.open(url)
           }
         })

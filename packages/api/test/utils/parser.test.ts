@@ -44,7 +44,7 @@ describe('parsePreparedContent', () => {
       .reply(401)
 
     const html = load('./test/utils/data/stratechery-blog-post.html')
-    const result = await parsePreparedContent('https://blog.omnivore.app/', {
+    const result = await parsePreparedContent('https://blog.omnivore.work/', {
       document: html,
       pageInfo: {},
     })
@@ -67,7 +67,7 @@ describe('parsePreparedContent', () => {
         </body>
       </html>
     `
-    const result = await parsePreparedContent('https://blog.omnivore.app/', {
+    const result = await parsePreparedContent('https://blog.omnivore.work/', {
       document: html,
       pageInfo: {},
     })
@@ -95,7 +95,7 @@ describe('parsePreparedContent', () => {
 //                     </head>
 //                     <body>body</body>
 //                     </html>`
-//     const result = await parsePreparedContent('https://blog.omnivore.app/', {
+//     const result = await parsePreparedContent('https://blog.omnivore.work/', {
 //       document: html,
 //       pageInfo: {},
 //     })
@@ -138,14 +138,14 @@ describe('getTitleFromEmailSubject', () => {
 describe('parseEmailAddress', () => {
   it('returns the name and address when in name <address> format', () => {
     const name = 'test name'
-    const address = 'tester@omnivore.app'
+    const address = 'tester@omnivore.work'
     const parsed = parseEmailAddress(`${name} <${address}>`)
     expect(parsed.name).to.eql(name)
     expect(parsed.address).to.eql(address)
   })
 
   it('returns the address when in address format', () => {
-    const address = 'tester@omnivore.app'
+    const address = 'tester@omnivore.work'
     const parsed = parseEmailAddress(address)
     expect(parsed.name).to.eql('')
     expect(parsed.address).to.eql(address)

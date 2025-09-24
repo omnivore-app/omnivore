@@ -317,7 +317,7 @@ const UploadImportTab = (props: AddLinkModalProps): JSX.Element => {
             <Info size={14} color="#007AFF" />
             Imports must be in a supported format.{' '}
             <a
-              href="https://docs.omnivore.app/using/importing.html"
+              href="https://docs.omnivore.work/using/importing.html"
               target="_blank"
               rel="noreferrer"
               style={{ color: '#007AFF' }}

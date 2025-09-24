@@ -16,7 +16,7 @@ public class PersistentContainer: NSPersistentContainer {
     #if os(iOS)
       let appGroupID = "group.app.omnivoreapp"
     #else
-      let appGroupID = "QJF2XZ86HB.app.omnivore.app"
+      let appGroupID = "QJF2XZ86HB.app.omnivore.work"
     #endif
     let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
     return appGroupContainer?.appendingPathComponent(DatabaseFile)

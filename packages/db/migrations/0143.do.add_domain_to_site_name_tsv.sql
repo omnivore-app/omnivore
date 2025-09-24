@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION update_library_item_tsv() RETURNS trigger AS $$
 begin
     new.content_tsv := to_tsvector('pg_catalog.english', coalesce(new.readable_content, ''));
     new.site_name_tsv := to_tsvector('pg_catalog.english', coalesce(new.site_name, '')) ||
-        -- domain (eg omnivore.app)
+        -- domain (eg omnivore.work)
         to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.original_url, '^((http[s]?):\/)?\/?(.*\.)?(([^:\/\s]+)\.[^:\/\s]+)(.*)$', '\4'), '')) ||
         -- secondary hostname (eg omnivore)
         to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.original_url, '^((http[s]?):\/)?\/?(.*\.)?(([^:\/\s]+)\.[^:\/\s]+)(.*)$', '\5'), ''));

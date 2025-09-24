@@ -44,7 +44,7 @@ export const FetchItemsError = (): JSX.Element => {
       >
         We have encountered unexpected problems.{' '}
         <a
-          href="https://docs.omnivore.app/using/help.html"
+          href="https://docs.omnivore.work/using/help.html"
           target="_blank"
           rel="noreferrer"
         >

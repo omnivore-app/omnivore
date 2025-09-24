@@ -15,4 +15,4 @@ object AppleConstants {
 }
 
 const val FORGOT_PASSWORD_URL = "${BuildConfig.OMNIVORE_WEB_URL}/auth/forgot-password"
-const val SELF_HOSTING_URL = "https://docs.omnivore.app/self-hosting/self-hosting.html"
+const val SELF_HOSTING_URL = "https://docs.omnivore.work/self-hosting/self-hosting.html"

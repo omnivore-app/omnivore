@@ -57,8 +57,8 @@ android {
         debug {
             signingConfig = signingConfigs.getByName("debug")
             applicationIdSuffix = ".debug"
-            buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-demo.omnivore.app\"")
-            buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://demo.omnivore.app\"")
+            buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-demo.omnivore.work\"")
+            buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://demo.omnivore.work\"")
             buildConfigField(
                 "String",
                 "OMNIVORE_GAUTH_SERVER_CLIENT_ID",
@@ -68,8 +68,8 @@ android {
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("release")
-            buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-prod.omnivore.app\"")
-            buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://omnivore.app\"")
+            buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-prod.omnivore.work\"")
+            buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://omnivore.work\"")
             buildConfigField(
                 "String",
                 "OMNIVORE_GAUTH_SERVER_CLIENT_ID",

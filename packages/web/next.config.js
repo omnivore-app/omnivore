@@ -30,19 +30,19 @@ const moduleExports = {
       rewrites.push(
         {
           source: '/api/graphql',
-          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/graphql`,
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.work/api/graphql`,
         },
         {
           source: '/api/auth/:path*',
-          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/auth/:path*`,
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.work/api/auth/:path*`,
         },
         {
           source: '/api/article/save',
-          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/article/save`,
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.work/api/article/save`,
         },
         {
           source: '/api/mobile-auth/:path*',
-          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.work/api/mobile-auth/:path*`,
         }
       )
     }
@@ -182,7 +182,7 @@ const moduleExports = {
       },
       {
         source: '/privacy',
-        destination: 'https://docs.omnivore.app/about/privacy-policy',
+        destination: 'https://docs.omnivore.work/about/privacy-policy',
         permanent: true,
       },
       {

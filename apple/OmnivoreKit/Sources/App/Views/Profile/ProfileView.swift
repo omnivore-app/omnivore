@@ -151,7 +151,7 @@ struct ProfileView: View {
       Section {
         Button(
           action: {
-            if let url = URL(string: "https://docs.omnivore.app") {
+            if let url = URL(string: "https://docs.omnivore.work") {
               openURL(url)
             }
           },
@@ -187,7 +187,7 @@ struct ProfileView: View {
       Section {
         Button(
           action: {
-            if let url = URL(string: "https://omnivore.app/privacy") {
+            if let url = URL(string: "https://omnivore.work/privacy") {
               openURL(url)
             }
           },
@@ -196,7 +196,7 @@ struct ProfileView: View {
 
         Button(
           action: {
-            if let url = URL(string: "https://omnivore.app/terms") {
+            if let url = URL(string: "https://omnivore.work/terms") {
               openURL(url)
             }
           },

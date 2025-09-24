@@ -18,7 +18,7 @@ export default function Logout(): JSX.Element {
     async function logoutLocal(): Promise<void> {
       console.trace('making auth verify call')
       // Note that we are using web URL so we get a URL like
-      // omnivore.app/api/client/logout, this will clear
+      // omnivore.work/api/client/logout, this will clear
       // the cookie on the frontend domain
       await fetch(`${webBaseURL}/api/client/logout`, {
         method: 'GET',

@@ -146,7 +146,7 @@ export function emailAttachmentRouter() {
         uploadFile.fileName
       )
 
-      const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFilePathName}`
+      const uploadFileUrlOverride = `https://omnivore.work/attachments/${uploadFilePathName}`
       const uploadFileHash = uploadFileDetails.md5Hash
       const itemType =
         uploadFile.contentType === 'application/pdf'

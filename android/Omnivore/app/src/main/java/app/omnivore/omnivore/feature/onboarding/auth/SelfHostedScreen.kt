@@ -114,7 +114,7 @@ fun SelfHostedFields(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = apiServer,
-            placeholder = { Text(text = "https://api-prod.omnivore.app/") },
+            placeholder = { Text(text = "https://api-prod.omnivore.work/") },
             label = { Text(stringResource(R.string.self_hosted_view_field_api_url_label)) },
             onValueChange = onAPIServerChange,
             keyboardOptions = KeyboardOptions(
@@ -127,7 +127,7 @@ fun SelfHostedFields(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
             value = webServer,
-            placeholder = { Text(text = "https://omnivore.app/") },
+            placeholder = { Text(text = "https://omnivore.work/") },
             label = { Text(stringResource(R.string.self_hosted_view_field_web_url_label)) },
             onValueChange = onWebServerChange,
             keyboardOptions = KeyboardOptions(
