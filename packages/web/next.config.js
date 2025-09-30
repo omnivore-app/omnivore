@@ -1,13 +1,19 @@
 const ContentSecurityPolicy = `
   default-src 'self';
   base-uri 'self';
-  connect-src 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://proxy-prod.omnivore-image-cache.app https://accounts.google.com https://proxy-demo.omnivore-image-cache.app https://storage.googleapis.com https://widget.intercom.io https://api-iam.intercom.io https://static.intercomassets.com https://downloads.intercomcdn.com https://platform.twitter.com wss://nexus-websocket-a.intercom.io wss://nexus-websocket-b.intercom.io wss://nexus-europe-websocket.intercom.io wss://nexus-australia-websocket.intercom.io https://uploads.intercomcdn.com https://tools.applemediaservices.com wss://www.tiktok.com *.sentry.io 127.0.0.1 http://localhost:1010 http://localhost:9000; 
+  connect-src 'self' ${
+    process.env.NEXT_PUBLIC_SERVER_BASE_URL
+  } https://proxy-prod.omnivore-image-cache.app https://accounts.google.com https://proxy-demo.omnivore-image-cache.app https://storage.googleapis.com https://widget.intercom.io https://api-iam.intercom.io https://static.intercomassets.com https://downloads.intercomcdn.com https://platform.twitter.com wss://nexus-websocket-a.intercom.io wss://nexus-websocket-b.intercom.io wss://nexus-europe-websocket.intercom.io wss://nexus-australia-websocket.intercom.io https://uploads.intercomcdn.com https://tools.applemediaservices.com wss://www.tiktok.com *.sentry.io 127.0.0.1 http://localhost:1010 http://localhost:9000 http://localhost:4001; 
   font-src 'self' data: https://cdn.jsdelivr.net https://js.intercomcdn.com https://fonts.intercomcdn.com;
-  form-action 'self' ${process.env.NEXT_PUBLIC_SERVER_BASE_URL} https://getpocket.com/auth/authorize https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://www.notion.so https://api.notion.com;
+  form-action 'self' ${
+    process.env.NEXT_PUBLIC_SERVER_BASE_URL
+  } https://getpocket.com/auth/authorize https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://www.notion.so https://api.notion.com;
   frame-ancestors 'none';
   frame-src 'self' https://accounts.google.com https://platform.twitter.com https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://www.recaptcha.net https://www.tiktok.com;
   manifest-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' accounts.google.com https://widget.intercom.io https://js.intercomcdn.com https://platform.twitter.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://www.gstatic.cn/ https://*.neutral.ttwstatic.com https://www.tiktok.com/embed.js https://browser.sentry-cdn.com https://js.sentry-cdn.com;
+  script-src 'self' 'unsafe-inline' ${
+    process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : ''
+  } accounts.google.com https://widget.intercom.io https://js.intercomcdn.com https://platform.twitter.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://www.gstatic.cn/ https://*.neutral.ttwstatic.com https://www.tiktok.com/embed.js https://browser.sentry-cdn.com https://js.sentry-cdn.com;
   style-src 'self' 'unsafe-inline' https://accounts.google.com https://cdnjs.cloudflare.com https://*.neutral.ttwstatic.com;
   img-src 'self' blob: data: https:;
   worker-src 'self' blob:;
@@ -15,6 +21,78 @@ const ContentSecurityPolicy = `
 `
 
 const moduleExports = {
+  // Enable SWC minification for faster builds
+  swcMinify: true,
+
+  // Disable Sentry for development
+  sentry: {
+    disableServerWebpackPlugin: true,
+    disableClientWebpackPlugin: true,
+    hideSourceMaps: true,
+  },
+
+  // Experimental Turbopack for faster development
+  experimental: {
+    turbo: {
+      rules: {
+        '*.svg': ['@svgr/webpack'],
+      },
+    },
+  },
+
+  // Webpack optimizations for development
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Faster development builds with better chunking
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              priority: 10,
+            },
+            radix: {
+              test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+              name: 'radix-ui',
+              chunks: 'all',
+              priority: 20,
+            },
+            phosphor: {
+              test: /[\\/]node_modules[\\/]@phosphor-icons[\\/]/,
+              name: 'phosphor-icons',
+              chunks: 'all',
+              priority: 20,
+            },
+          },
+        },
+      }
+
+      // Enable persistent caching
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+      }
+    }
+
+    return config
+  },
+
+  // Optimize imports to reduce bundle size
+  modularizeImports: {
+    '@phosphor-icons/react': {
+      transform: '@phosphor-icons/react/dist/icons/{{member}}',
+    },
+    '@radix-ui/react-icons': {
+      transform: '@radix-ui/react-icons/dist/{{member}}',
+    },
+  },
+
   images: {
     formats: ['image/avif', 'image/webp'],
     domains: [

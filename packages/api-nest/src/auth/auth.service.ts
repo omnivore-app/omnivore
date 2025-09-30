@@ -12,6 +12,12 @@ import { NotificationClient } from './interfaces/notification-client.interface'
 import { AnalyticsService } from '../analytics/analytics.service'
 import { PubSubService } from '../pubsub/pubsub.service'
 import { IntercomService } from '../integrations/intercom.service'
+import {
+  LoginSuccessResponse,
+  RegisterSuccessWithLoginResponse,
+  RegisterSuccessWithVerificationResponse,
+  AuthUserData,
+} from './dto/auth-responses.dto'
 
 export interface JwtPayload {
   sub: string
@@ -42,7 +48,31 @@ export class AuthService {
     return this.userService.validateCredentials(email, password)
   }
 
-  async login(user: User) {
+  async validateToken(token: string): Promise<User | null> {
+    try {
+      // Remove 'Bearer ' prefix if present
+      const cleanToken = token.replace(/^Bearer\s+/, '')
+
+      // Verify and decode the JWT token
+      const payload = this.jwtService.verify(cleanToken) as JwtPayload
+
+      if (!payload.sub) {
+        return null
+      }
+
+      // Get user from database
+      const user = await this.userService.findById(payload.sub)
+
+      return user
+    } catch (error) {
+      this.logger.warn('Token validation failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+      return null
+    }
+  }
+
+  async login(user: User): Promise<LoginSuccessResponse> {
     this.logger
       .withContext({ userId: user.id, email: user.email })
       .log('User login attempt', { status: user.status, role: user.role })
@@ -81,6 +111,8 @@ export class AuthService {
 
     return {
       success: true,
+      message: 'Login successful',
+      redirectUrl: '/home',
       user: {
         id: user.id,
         email: user.email,
@@ -95,7 +127,11 @@ export class AuthService {
     }
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<
+    RegisterSuccessWithLoginResponse | RegisterSuccessWithVerificationResponse
+  > {
     this.logger.log('User registration started', {
       email: registerDto.email,
       hasInviteCode: !!registerDto.inviteCode,
@@ -166,6 +202,9 @@ export class AuthService {
 
       return {
         success: true,
+        message:
+          'Registration successful. Please check your email for verification.',
+        redirectUrl: '/auth/email-login',
         pendingEmailVerification: true,
       }
     }

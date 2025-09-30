@@ -7,6 +7,7 @@ This backlog consolidates the simplified and original migration strategies into 
 ## 🎯 Current Status & Next Steps
 
 ### ✅ **COMPLETED** (Major Milestone Achieved)
+
 - **ARC-001**: NestJS Package Setup - Complete infrastructure
 - **ARC-002**: Health Checks & Observability - Monitoring ready
 - **ARC-003**: Authentication Module - Full auth system with web integration
@@ -14,15 +15,18 @@ This backlog consolidates the simplified and original migration strategies into 
 - **Performance Optimization**: 25-50x faster development (Next.js + Turbopack)
 
 ### 🔄 **READY TO START** (Choose One)
+
 1. **ARC-004**: GraphQL Module Setup (2 days) - Continue NestJS migration
 2. **ARC-004B**: Vite Migration (1-2 weeks) - Dramatic frontend performance boost
 
 ### ⏳ **PENDING TESTING** (Lower Priority)
+
 - Google OAuth integration testing
-- Apple OAuth integration testing  
+- Apple OAuth integration testing
 - Email verification (pending email service integration)
 
 ### 🎯 **RECOMMENDED NEXT**: ARC-004B Vite Migration
+
 Given the significant performance gains (50-100x faster) and the fact that we're rebuilding the backend, now is the optimal time to modernize the frontend stack.
 
 ---

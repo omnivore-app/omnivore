@@ -111,6 +111,14 @@ services:
       - NEXT_PUBLIC_DEV_SERVER_BASE_URL=http://localhost:4001
       - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
 
+      # Performance optimizations
+      - NEXT_TELEMETRY_DISABLED=1
+      - SENTRY_IGNORE_API_RESOLUTION_ERROR=1
+      - GENERATE_SOURCEMAP=false
+      - SENTRY_DISABLE_AUTO_INSTRUMENTATION=1
+      - SENTRY_DISABLE_SERVER_WEBPACK_PLUGIN=1
+      - SENTRY_DISABLE_CLIENT_WEBPACK_PLUGIN=1
+
       # Server-side Environment
       - SERVER_BASE_URL=http://api-nest:4001
       - BASE_URL=http://localhost:3000
@@ -136,6 +144,7 @@ services:
     volumes:
       - ./packages/web:/app/packages/web
       - /app/packages/web/node_modules
+      - /app/packages/web/.next # Cache Next.js builds
     command: sh -c "cd packages/web && yarn dev:dev"
     restart: unless-stopped
 

@@ -5,7 +5,8 @@
 import * as Sentry from '@sentry/nextjs'
 import { sentryDSN } from './lib/appConfig'
 
-if (sentryDSN) {
+// Disable Sentry in development
+if (sentryDSN && process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: sentryDSN,
 

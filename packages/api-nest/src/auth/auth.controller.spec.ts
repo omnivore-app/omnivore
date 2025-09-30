@@ -20,6 +20,10 @@ describe('AuthController', () => {
     refreshToken: jest.fn(),
   }
 
+  const mockResponse = {
+    cookie: jest.fn(),
+  } as any
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -57,7 +61,7 @@ describe('AuthController', () => {
       mockAuthService.validateUser.mockResolvedValue(mockUser)
       mockAuthService.login.mockResolvedValue(mockResult)
 
-      const result = await controller.login(loginDto)
+      const result = await controller.login(loginDto, mockResponse)
 
       expect(authService.validateUser).toHaveBeenCalledWith(
         loginDto.email,
@@ -70,9 +74,13 @@ describe('AuthController', () => {
     it('should throw UnauthorizedException when credentials are invalid', async () => {
       mockAuthService.validateUser.mockResolvedValue(null)
 
-      await expect(controller.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      )
+      const result = await controller.login(loginDto, mockResponse)
+
+      expect(result).toEqual({
+        success: false,
+        errorCode: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+      })
       expect(authService.validateUser).toHaveBeenCalledWith(
         loginDto.email,
         loginDto.password,
