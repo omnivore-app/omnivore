@@ -18,8 +18,9 @@ const SignUpForm = (): JSX.Element => {
   const [password, setPassword] = useState<string | undefined>()
   const [fullname, setFullname] = useState<string | undefined>()
   const [username, setUsername] = useState<string | undefined>()
-  const [debouncedUsername, setDebouncedUsername] =
-    useState<string | undefined>()
+  const [debouncedUsername, setDebouncedUsername] = useState<
+    string | undefined
+  >()
 
   const { isUsernameValid, usernameErrorMessage } = useValidateUsernameQuery({
     username: debouncedUsername ?? '',
@@ -146,7 +147,7 @@ export function EmailSignup(): JSX.Element {
 
   return (
     <>
-      <form action={`${fetchEndpoint}/auth/email-signup`} method="POST">
+      <form action={`${fetchEndpoint}/auth/register`} method="POST">
         <VStack
           alignment="center"
           css={{

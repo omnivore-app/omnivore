@@ -66,13 +66,13 @@ export const ssoJwtSecret = process.env.SSO_JWT_SECRET
 
 export const gauthRedirectURI =
   appEnv == 'local'
-    ? `${baseURLRecords[appEnv].serverBaseURL}/api/auth/gauth-redirect-localhost`
-    : `${baseURLRecords[appEnv].serverBaseURL}/api/auth/vercel/gauth-redirect`
+    ? `${baseURLRecords[appEnv].serverBaseURL}/api/v2/auth/gauth-redirect-localhost`
+    : `${baseURLRecords[appEnv].serverBaseURL}/api/v2/auth/vercel/gauth-redirect`
 
 export const appleAuthRedirectURI =
   appEnv == 'local'
-    ? `${baseURLRecords[appEnv].serverBaseURL}/api/auth/apple-redirect-localhost`
-    : `${baseURLRecords[appEnv].serverBaseURL}/api/auth/vercel/apple-redirect`
+    ? `${baseURLRecords[appEnv].serverBaseURL}/api/v2/auth/apple-redirect-localhost`
+    : `${baseURLRecords[appEnv].serverBaseURL}/api/v2/auth/vercel/apple-redirect`
 
 export const intercomAppID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID
 
@@ -83,6 +83,6 @@ export const googleID =
 
 export const gqlEndpoint = `${serverBaseURL(appEnv)}/api/graphql`
 
-export const fetchEndpoint = `${serverBaseURL(appEnv)}/api`
+export const fetchEndpoint = `${serverBaseURL(appEnv)}/api/v2`
 
 export const webBaseURL = webURL(appEnv)

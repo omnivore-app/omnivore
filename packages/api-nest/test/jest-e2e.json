@@ -1,0 +1,18 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleDirectories": [
+    "node_modules",
+    "../node_modules",
+    "../../node_modules"
+  ],
+  "moduleNameMapper": {
+    "^typeorm$": "<rootDir>/../../../node_modules/typeorm",
+    "^uuid$": "<rootDir>/../../../node_modules/uuid/dist/index.js"
+  }
+}

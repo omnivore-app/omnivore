@@ -8,6 +8,31 @@ x-postgres: &postgres-common
     retries: 3
 
 services:
+  api-nest:
+    build:
+      context: .
+      dockerfile: packages/api-nest/Dockerfile
+      target: builder
+    container_name: 'omnivore-api-nest'
+    ports:
+      - '4001:4001'
+    environment:
+      - NODE_ENV=development
+      - NEST_PORT=4001
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/omnivore
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-secret-key-change-in-production
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./packages/api-nest:/app/packages/api-nest
+      - ./packages/db:/app/packages/db
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      - /app/packages/api-nest/node_modules
+    command: yarn start:dev
+    restart: unless-stopped
+
   postgres:
     <<: *postgres-common
     container_name: 'omnivore-postgres'
@@ -209,6 +234,16 @@ services:
       /usr/bin/mc anonymous set public myminio/omnivore-local;
       exit 0;
       "
+  structurizr:
+    image: structurizr/lite:latest
+    container_name: omnivore-structurizr
+    ports:
+      - '8081:8080'
+    volumes:
+      - ./structurizr:/usr/local/structurizr
+    environment:
+      - STRUCTURIZR_WORKSPACE_FILENAME=workspace.dsl
+    restart: unless-stopped
 
 volumes:
   minio_data:

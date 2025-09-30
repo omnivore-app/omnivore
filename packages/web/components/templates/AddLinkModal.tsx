@@ -80,8 +80,9 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
 }
 
 const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   const addLink = useCallback(
     async (link: string) => {
@@ -108,8 +109,9 @@ const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
 }
 
 const AddFeedTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   const subscribe = useCallback(
     async (feedUrl: string) => {
@@ -621,7 +623,9 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
           console.log('onDropRejected: ', fileRejections, event)
           alert('You can only upload PDF files to your Omnivore Library.')
           setInDragOperation(false)
-          event.preventDefault()
+          if ('preventDefault' in event) {
+            event.preventDefault()
+          }
         }}
         preventDropOnDocument={true}
         noClick={true}

@@ -1,0 +1,159 @@
+services:
+  postgres:
+    image: "ankane/pgvector:v0.5.1"
+    container_name: "omnivore-postgres-dev"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: omnivore
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d omnivore"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ./packages/db/Dockerfile
+    container_name: "omnivore-migrate-dev"
+    environment:
+      - PGPASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - PG_HOST=postgres
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=omnivore
+      - NO_DEMO_USER=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Creating database and users...'
+        psql -h postgres -U postgres -c 'CREATE DATABASE omnivore;' || true
+        psql -h postgres -U postgres -c \"CREATE USER app_user WITH ENCRYPTED PASSWORD 'postgres';\" || true
+        echo 'Running migrations...'
+        cd /app/packages/db && yarn migrate
+        echo 'Granting permissions...'
+        psql -h postgres -U postgres -d omnivore -c 'GRANT omnivore_user TO app_user;' || true
+        echo 'Migration completed successfully'
+      "
+
+  api-nest:
+    build:
+      context: .
+      dockerfile: packages/api-nest/Dockerfile
+      target: builder
+    container_name: "omnivore-api-nest-dev"
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=development
+      - NEST_PORT=4001
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=omnivore
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev-jwt-secret-at-least-32-characters-long-for-development
+      - FRONTEND_URL=http://localhost:3000
+      # Optional OAuth (using dummy values for development)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-dummy-client-id-for-development}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-dummy-secret}
+      - GOOGLE_IOS_CLIENT_ID=${GOOGLE_IOS_CLIENT_ID:-dummy-ios-client-id}
+      - GOOGLE_ANDROID_CLIENT_ID=${GOOGLE_ANDROID_CLIENT_ID:-dummy-android-client-id}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./packages/api-nest:/app/packages/api-nest
+      - ./packages/db:/app/packages/db
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      - /app/packages/api-nest/node_modules
+    command: yarn start:dev
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://localhost:4001/api/v2/health'', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: ./packages/web/Dockerfile
+      target: builder
+      args:
+        - APP_ENV=dev
+        - BASE_URL=http://localhost:3000
+        - SERVER_BASE_URL=http://localhost:4001
+        - HIGHLIGHTS_BASE_URL=http://localhost:3000
+    container_name: "omnivore-web-dev"
+    ports:
+      - "3000:3000"
+    environment:
+      # Next.js Environment
+      - NODE_ENV=development
+      - NEXT_PUBLIC_APP_ENV=dev
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
+      - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4001
+      - NEXT_PUBLIC_DEV_BASE_URL=http://localhost:3000
+      - NEXT_PUBLIC_DEV_SERVER_BASE_URL=http://localhost:4001
+      - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
+
+      # Server-side Environment
+      - SERVER_BASE_URL=http://api-nest:4001
+      - BASE_URL=http://localhost:3000
+      - HIGHLIGHTS_BASE_URL=http://localhost:3000
+      - API_ENDPOINT=http://api-nest:4001/api/graphql
+
+      # Google OAuth Configuration (using dummy values for development)
+      - GAUTH_CLIENT_ID=${GOOGLE_CLIENT_ID:-dummy-client-id-for-development}
+      - GAUTH_SECRET=${GOOGLE_CLIENT_SECRET:-dummy-secret}
+      - GAUTH_IOS_CLIENT_ID=${GOOGLE_IOS_CLIENT_ID:-dummy-ios-client-id}
+      - GAUTH_ANDROID_CLIENT_ID=${GOOGLE_ANDROID_CLIENT_ID:-dummy-android-client-id}
+
+      # JWT Configuration
+      - JWT_SECRET=dev-jwt-secret-at-least-32-characters-long-for-development
+      - SSO_JWT_SECRET=dev-jwt-secret-at-least-32-characters-long-for-development
+
+      # Client Configuration
+      - CLIENT_URL=http://localhost:3000
+      - GATEWAY_URL=http://localhost:4001
+    depends_on:
+      api-nest:
+        condition: service_healthy
+    volumes:
+      - ./packages/web:/app/packages/web
+      - /app/packages/web/node_modules
+    command: sh -c "cd packages/web && yarn dev:dev"
+    restart: unless-stopped
+
+  redis:
+    image: "redis:7.2.4"
+    container_name: "omnivore-redis-dev"
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -309,7 +309,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
               console.log('onDropRejected: ', fileRejections, event)
               alert('You can only upload PDF files to your Omnivore Library.')
               setInDragOperation(false)
-              event.preventDefault()
+              if ('preventDefault' in event) {
+                event.preventDefault()
+              }
             }}
             preventDropOnDocument={true}
             noClick={true}

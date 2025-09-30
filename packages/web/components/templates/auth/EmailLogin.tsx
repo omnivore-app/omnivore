@@ -12,8 +12,8 @@ import Link from 'next/link'
 import { Recaptcha } from '../../elements/Recaptcha'
 
 const LoginForm = (): JSX.Element => {
-  const [email, setEmail] = useState<string | undefined>()
-  const [password, setPassword] = useState<string | undefined>()
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
   return (
     <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
@@ -52,8 +52,9 @@ const LoginForm = (): JSX.Element => {
 
 export function EmailLogin(): JSX.Element {
   const router = useRouter()
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
   const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export function EmailLogin(): JSX.Element {
   }, [router.isReady, router.query])
 
   return (
-    <form action={`${fetchEndpoint}/auth/email-login`} method="POST">
+    <form action={`${fetchEndpoint}/auth/login`} method="POST">
       <VStack
         alignment="center"
         css={{

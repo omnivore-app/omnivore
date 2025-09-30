@@ -72,3 +72,9 @@ data.json
 
 tsconfig.tsbuildinfo
 self-hosting/docker-compose/mail/mail-server/docker-data/
+
+.jest-cache
+
+# Ignore auto-generated files
+workspace.json
+packages/api/test

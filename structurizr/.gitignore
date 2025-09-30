@@ -1,0 +1,10 @@
+# Ignore auto-generated files
+workspace.json
+
+# Ignore any exported diagrams (optional, you might want to commit these)
+*.png
+*.svg
+
+# Ignore any temporary files
+*.tmp
+.DS_Store
