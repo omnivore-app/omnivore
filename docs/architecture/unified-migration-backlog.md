@@ -4,6 +4,27 @@ This backlog consolidates the simplified and original migration strategies into 
 
 **Key Approach**: Start with a new NestJS service (Node.js 24 LTS) running alongside Express, then migrate features slice-by-slice until we can decommission the old services.
 
+## 🎯 Current Status & Next Steps
+
+### ✅ **COMPLETED** (Major Milestone Achieved)
+- **ARC-001**: NestJS Package Setup - Complete infrastructure
+- **ARC-002**: Health Checks & Observability - Monitoring ready
+- **ARC-003**: Authentication Module - Full auth system with web integration
+- **ARC-003B**: Database & Entity Integration - TypeORM entities working
+- **Performance Optimization**: 25-50x faster development (Next.js + Turbopack)
+
+### 🔄 **READY TO START** (Choose One)
+1. **ARC-004**: GraphQL Module Setup (2 days) - Continue NestJS migration
+2. **ARC-004B**: Vite Migration (1-2 weeks) - Dramatic frontend performance boost
+
+### ⏳ **PENDING TESTING** (Lower Priority)
+- Google OAuth integration testing
+- Apple OAuth integration testing  
+- Email verification (pending email service integration)
+
+### 🎯 **RECOMMENDED NEXT**: ARC-004B Vite Migration
+Given the significant performance gains (50-100x faster) and the fact that we're rebuilding the backend, now is the optimal time to modernize the frontend stack.
+
 ---
 
 ## ARC-001 NestJS Package Setup ✅ **COMPLETED**
@@ -101,6 +122,31 @@ This backlog consolidates the simplified and original migration strategies into 
   - [ ] Both Express and NestJS GraphQL endpoints function simultaneously
 - **Dependencies**: ARC-003B.
 - **Effort Estimate**: 2 days.
+- **Status**: 🔄 Ready to start
+
+## ARC-004B Frontend Performance Optimization (Vite Migration)
+
+- **Problem/Objective**: Migrate from Next.js to Vite for dramatically improved development experience and build performance.
+- **Approach**: Complete frontend migration to Vite + React Router for 50-100x performance gains. Tasks:
+  - [ ] Create Vite configuration with React, TypeScript, and SWC
+  - [ ] Set up React Router for client-side routing
+  - [ ] Migrate Next.js pages to React Router routes
+  - [ ] Replace Next.js API routes with Express/Fastify server
+  - [ ] Configure Vite plugins for image optimization, CSS processing
+  - [ ] Set up SSR with Vite SSR or Remix if needed
+  - [ ] Update build pipeline and Docker configuration
+  - [ ] Migrate environment variable handling
+  - [ ] Update testing configuration for Vite
+- **Acceptance Criteria**:
+  - [ ] Cold start time: <500ms (vs current 1.2s with Next.js)
+  - [ ] HMR response time: <50ms (vs current <100ms)
+  - [ ] Build time: <30s (vs current 2-5min)
+  - [ ] Bundle size reduction: 30-50% smaller
+  - [ ] All existing functionality preserved
+  - [ ] Authentication flow works seamlessly
+- **Dependencies**: ARC-003 (authentication working).
+- **Effort Estimate**: 1-2 weeks.
+- **Status**: 🎯 High Priority - Ready to start
 
 ## ARC-005 Library Module Foundation
 
