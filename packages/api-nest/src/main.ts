@@ -30,7 +30,7 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('api/v2/docs', app, document, {
+  SwaggerModule.setup('api/v2/swagger', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
     },
@@ -42,7 +42,12 @@ async function bootstrap() {
     origin: frontendUrl,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'x-omnivoreclient', // Legacy web custom header for client identification
+    ],
   })
 
   app.useGlobalPipes(new ValidationPipe())

@@ -1,0 +1,33 @@
+# Development Dockerfile for web-vite
+# Uses Vite dev server with HMR (Hot Module Replacement)
+
+FROM node:22.12-alpine
+
+# Install necessary build tools
+RUN apk add --no-cache g++ make python3 py3-setuptools
+
+WORKDIR /app
+
+# Copy root-level package files for monorepo
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
+COPY tsconfig.base.json .
+
+# Copy web-vite package.json
+COPY packages/web-vite/package.json ./packages/web-vite/package.json
+
+# Install dependencies at monorepo level
+RUN yarn install --pure-lockfile
+
+# Copy web-vite source code
+COPY packages/web-vite ./packages/web-vite
+
+# Set working directory to web-vite
+WORKDIR /app/packages/web-vite
+
+# Expose Vite dev server port
+EXPOSE 3000
+
+# Start Vite dev server
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

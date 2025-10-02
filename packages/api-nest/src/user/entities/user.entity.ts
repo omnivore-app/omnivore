@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  Index,
 } from 'typeorm'
 import { UserRole } from '../enums/user-role.enum'
 
@@ -36,6 +37,7 @@ export class User {
   @Column({ type: 'enum', enum: RegistrationType })
   source!: RegistrationType
 
+  @Index('idx_user_email') // Add index for faster login lookups
   @Column('text', { name: 'email', nullable: true })
   email?: string
 

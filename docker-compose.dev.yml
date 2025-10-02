@@ -84,68 +84,43 @@ services:
           "CMD-SHELL",
           'node -e "require(''http'').get(''http://localhost:4001/api/v2/health'', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on(''error'', () => process.exit(1))"',
         ]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 5
 
-  web:
+  web-vite:
     build:
       context: .
-      dockerfile: ./packages/web/Dockerfile
-      target: builder
-      args:
-        - APP_ENV=dev
-        - BASE_URL=http://localhost:3000
-        - SERVER_BASE_URL=http://localhost:4001
-        - HIGHLIGHTS_BASE_URL=http://localhost:3000
-    container_name: "omnivore-web-dev"
+      dockerfile: packages/web-vite/Dockerfile.dev
+    container_name: "omnivore-web-vite-dev"
     ports:
       - "3000:3000"
     environment:
-      # Next.js Environment
+      # Vite Environment
       - NODE_ENV=development
-      - NEXT_PUBLIC_APP_ENV=dev
-      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
-      - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4001
-      - NEXT_PUBLIC_DEV_BASE_URL=http://localhost:3000
-      - NEXT_PUBLIC_DEV_SERVER_BASE_URL=http://localhost:4001
-      - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
+      - VITE_APP_ENV=local
 
-      # Performance optimizations
-      - NEXT_TELEMETRY_DISABLED=1
-      - SENTRY_IGNORE_API_RESOLUTION_ERROR=1
-      - GENERATE_SOURCEMAP=false
-      - SENTRY_DISABLE_AUTO_INSTRUMENTATION=1
-      - SENTRY_DISABLE_SERVER_WEBPACK_PLUGIN=1
-      - SENTRY_DISABLE_CLIENT_WEBPACK_PLUGIN=1
+      # API Configuration
+      - VITE_API_URL=http://localhost:4001/api/v2
+      - VITE_SERVER_BASE_URL=http://localhost:4001
 
-      # Server-side Environment
-      - SERVER_BASE_URL=http://api-nest:4001
-      - BASE_URL=http://localhost:3000
-      - HIGHLIGHTS_BASE_URL=http://localhost:3000
-      - API_ENDPOINT=http://api-nest:4001/api/graphql
+      # Base URLs
+      - VITE_BASE_URL=http://localhost:3000
+      - VITE_HIGHLIGHTS_BASE_URL=http://localhost:3000
+      - VITE
 
-      # Google OAuth Configuration (using dummy values for development)
-      - GAUTH_CLIENT_ID=${GOOGLE_CLIENT_ID:-dummy-client-id-for-development}
-      - GAUTH_SECRET=${GOOGLE_CLIENT_SECRET:-dummy-secret}
-      - GAUTH_IOS_CLIENT_ID=${GOOGLE_IOS_CLIENT_ID:-dummy-ios-client-id}
-      - GAUTH_ANDROID_CLIENT_ID=${GOOGLE_ANDROID_CLIENT_ID:-dummy-android-client-id}
-
-      # JWT Configuration
-      - JWT_SECRET=dev-jwt-secret-at-least-32-characters-long-for-development
-      - SSO_JWT_SECRET=dev-jwt-secret-at-least-32-characters-long-for-development
-
-      # Client Configuration
-      - CLIENT_URL=http://localhost:3000
-      - GATEWAY_URL=http://localhost:4001
+      # OAuth Configuration (dummy values for development UI testing)
+      - VITE_GAUTH_CLIENT_ID=${GAUTH_CLIENT_ID:-dummy-google-client-id-for-development.apps.googleusercontent.com}
+      - VITE_GAUTH_IOS_CLIENT_ID=${GAUTH_IOS_CLIENT_ID:-dummy-ios-client-id}
+      - VITE_GAUTH_ANDROID_CLIENT_ID=${GAUTH_ANDROID_CLIENT_ID:-dummy-android-client-id}
+      - VITE_APPLE_CLIENT_ID=${APPLE_CLIENT_ID:-dummy-apple-client-id}
     depends_on:
       api-nest:
         condition: service_healthy
     volumes:
-      - ./packages/web:/app/packages/web
-      - /app/packages/web/node_modules
-      - /app/packages/web/.next # Cache Next.js builds
-    command: sh -c "cd packages/web && yarn dev:dev"
+      - ./packages/web-vite:/app/packages/web-vite
+      - /app/packages/web-vite/node_modules
+    command: npm run dev -- --host 0.0.0.0 --port 3000
     restart: unless-stopped
 
   redis:
