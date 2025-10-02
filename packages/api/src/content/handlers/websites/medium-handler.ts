@@ -271,7 +271,7 @@ export class MediumHandler implements ContentHandler {
         metadata.subtitle = subtitleElement.textContent?.trim()
       }
     } catch (error) {
-      this.logger.warn('Failed to extract Medium metadata', {
+      this.logger.error('Failed to extract Medium metadata', {
         url: content.url,
         error: error instanceof Error ? error.message : 'Unknown error',
       })

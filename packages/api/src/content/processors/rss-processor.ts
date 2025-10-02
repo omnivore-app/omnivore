@@ -140,7 +140,7 @@ export class RssContentProcessor implements ContentProcessor {
         .replace(/\s+/g, ' ')
         .trim()
     } catch (error) {
-      this.logger.warn('Failed to extract text from RSS HTML', {
+      this.logger.error('Failed to extract text from RSS HTML', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       return html

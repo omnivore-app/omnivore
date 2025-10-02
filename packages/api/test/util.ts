@@ -31,7 +31,20 @@ export const startApolloServer = async () => {
 }
 
 export const stopApolloServer = async () => {
-  await apollo.stop()
+  try {
+    if (apollo) {
+      await apollo.stop()
+      apollo = null
+    }
+    if (httpServer) {
+      await new Promise<void>((resolve) => {
+        httpServer.close(() => resolve())
+      })
+      httpServer = null
+    }
+  } catch (error) {
+    console.error('Error stopping Apollo server:', error)
+  }
 }
 
 export const startWorker = (connection: ConnectionOptions) => {
@@ -42,8 +55,18 @@ export const startWorker = (connection: ConnectionOptions) => {
 }
 
 export const stopWorker = async () => {
-  await queueEvents.close()
-  await worker.close()
+  try {
+    if (queueEvents) {
+      await queueEvents.close()
+      queueEvents = null
+    }
+    if (worker) {
+      await worker.close()
+      worker = null
+    }
+  } catch (error) {
+    console.error('Error stopping worker:', error)
+  }
 }
 
 export const waitUntilJobsDone = async (jobs: Job[]) => {

@@ -209,7 +209,7 @@ export class SubstackHandler implements ContentHandler {
       metadata.isNewsletter = true
       metadata.platform = 'Substack'
     } catch (error) {
-      this.logger.warn('Failed to extract Substack metadata', {
+      this.logger.error('Failed to extract Substack metadata', {
         url: content.url,
         error: error instanceof Error ? error.message : 'Unknown error',
       })

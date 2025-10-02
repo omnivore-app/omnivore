@@ -113,7 +113,7 @@ export class ContentCacheService {
       // Check content size
       const contentSize = JSON.stringify(content).length
       if (contentSize > this.maxCacheSize) {
-        this.logger.warn('Content too large for cache', {
+        this.logger.error('Content too large for cache', {
           url,
           contentType,
           size: contentSize,

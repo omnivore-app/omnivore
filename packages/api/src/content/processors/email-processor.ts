@@ -140,7 +140,7 @@ export class EmailContentProcessor implements ContentProcessor {
         .replace(/\s+/g, ' ')
         .trim()
     } catch (error) {
-      this.logger.warn('Failed to extract text from email HTML', {
+      this.logger.error('Failed to extract text from email HTML', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       return html

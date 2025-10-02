@@ -124,7 +124,7 @@ export class PdfContentProcessor implements ContentProcessor {
 
     // If we have raw PDF data, we'd need a PDF parsing library
     // For now, return placeholder text
-    this.logger.warn('No text content available for PDF', {
+    this.logger.error('No text content available for PDF', {
       url: content.url,
     })
 
@@ -141,7 +141,7 @@ export class PdfContentProcessor implements ContentProcessor {
         .replace(/\s+/g, ' ') // Normalize whitespace
         .trim()
     } catch (error) {
-      this.logger.warn('Failed to extract text from PDF HTML', {
+      this.logger.error('Failed to extract text from PDF HTML', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       return html

@@ -239,7 +239,7 @@ export class GenericHandler implements ContentHandler {
         metadata.logo = logoElement.getAttribute('src')
       }
     } catch (error) {
-      this.logger.warn('Failed to extract newsletter metadata', {
+      this.logger.error('Failed to extract newsletter metadata', {
         url: content.url,
         error: error instanceof Error ? error.message : 'Unknown error',
       })

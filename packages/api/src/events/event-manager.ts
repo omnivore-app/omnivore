@@ -92,7 +92,7 @@ export class EventManager implements EventEmitter {
     const route = this.eventRoutes.get(event.eventType)
 
     if (!route) {
-      this.logger.warn(`${event.eventType}`, 'No route found for event type')
+      this.logger.error(`${event.eventType}`, 'No route found for event type')
       return
     }
 

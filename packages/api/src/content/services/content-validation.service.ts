@@ -67,7 +67,7 @@ export class ContentValidationService {
 
       return detectedType
     } catch (error) {
-      this.logger.warn('Content type detection failed, defaulting to HTML', {
+      this.logger.error('Content type detection failed, defaulting to HTML', {
         url,
         error: error instanceof Error ? error.message : 'Unknown error',
       })
@@ -171,7 +171,7 @@ export class ContentValidationService {
       }
 
       // Network errors or timeouts
-      this.logger.warn('URL accessibility check failed', {
+      this.logger.error('URL accessibility check failed', {
         url,
         error: error instanceof Error ? error.message : 'Unknown error',
       })

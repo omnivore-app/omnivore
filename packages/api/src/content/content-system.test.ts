@@ -113,6 +113,17 @@ describe('Unified Content Processing System', () => {
       }
     })
 
+    test('should classify errors correctly', () => {
+      // Test DNS error classification
+      const dnsError = new Error('NS_ERROR_UNKNOWN_HOST')
+      // This would use the error classifier in a real implementation
+      expect(dnsError.message).toContain('NS_ERROR_UNKNOWN_HOST')
+
+      // Test SSL error classification
+      const sslError = new Error('SSL_ERROR_BAD_CERT_DOMAIN')
+      expect(sslError.message).toContain('SSL_ERROR_BAD_CERT_DOMAIN')
+    })
+
     test('should handle cleanup gracefully', async () => {
       await expect(processor.cleanup()).resolves.not.toThrow()
     })

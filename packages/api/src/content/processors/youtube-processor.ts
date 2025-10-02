@@ -292,7 +292,7 @@ export class YoutubeContentProcessor implements ContentProcessor {
         .replace(/\s+/g, ' ')
         .trim()
     } catch (error) {
-      this.logger.warn('Failed to extract text from YouTube HTML', {
+      this.logger.error('Failed to extract text from YouTube HTML', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       return ''

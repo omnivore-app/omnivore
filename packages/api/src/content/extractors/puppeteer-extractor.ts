@@ -138,7 +138,7 @@ export class PuppeteerExtractor implements ContentExtractor {
         try {
           await page.close()
         } catch (error) {
-          this.logger.warn('Failed to close page', {
+          this.logger.error('Failed to close page', {
             error: error instanceof Error ? error.message : 'Unknown error',
           })
         }
@@ -148,7 +148,7 @@ export class PuppeteerExtractor implements ContentExtractor {
         try {
           await context.close()
         } catch (error) {
-          this.logger.warn('Failed to close browser context', {
+          this.logger.error('Failed to close browser context', {
             error: error instanceof Error ? error.message : 'Unknown error',
           })
         }
@@ -227,7 +227,7 @@ export class PuppeteerExtractor implements ContentExtractor {
 
       // Handle disconnection
       this.browserInstance.on('disconnected', () => {
-        this.logger.warn('Browser disconnected')
+        this.logger.error('Browser disconnected')
         this.browserInstance = null
       })
 
@@ -342,7 +342,7 @@ export class PuppeteerExtractor implements ContentExtractor {
           try {
             await page.evaluate(script)
           } catch (error) {
-            this.logger.warn('Custom script execution failed', {
+            this.logger.error('Custom script execution failed', {
               script: script.substring(0, 100),
               error: error instanceof Error ? error.message : 'Unknown error',
             })
@@ -356,7 +356,7 @@ export class PuppeteerExtractor implements ContentExtractor {
       // Wait for DOM to settle
       await this.waitForDOMToSettle(page)
     } catch (error) {
-      this.logger.warn('Content waiting failed', {
+      this.logger.error('Content waiting failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       // Don't throw here - we might still get some content

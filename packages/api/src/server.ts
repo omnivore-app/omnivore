@@ -49,8 +49,12 @@ import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
+import { ContentWorker } from './workers/content-worker'
 
 const PORT = process.env.PORT || 4000
+
+// Global ContentWorker instance
+let contentWorker: ContentWorker | null = null
 
 export const createApp = async (): Promise<Application> => {
   // Dynamically import Express to avoid static require() of ES module
@@ -99,7 +103,13 @@ export const createApp = async (): Promise<Application> => {
   })
 
   app.get('/_ah/health', (_req: Request, res: Response) => {
-    res.sendStatus(200)
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      contentWorker: contentWorker?.getStatus() || {
+        status: 'not initialized',
+      },
+    })
   })
 
   app.use('/api/auth', authLimiter, authRouter())
@@ -184,6 +194,14 @@ const main = async (): Promise<void> => {
     await redisDataSource.initialize()
   }
 
+  // Initialize ContentWorker for processing content save events
+  if (!contentWorker) {
+    console.log('[api]: Initializing ContentWorker...')
+    contentWorker = new ContentWorker()
+    await contentWorker.start()
+    console.log('[api]: ContentWorker initialized and started')
+  }
+
   const app = await createApp()
   const httpServer = createServer(app)
   const apolloServer = await makeApolloServer(app as Express, httpServer)
@@ -223,6 +241,12 @@ const main = async (): Promise<void> => {
     try {
       await apolloServer.stop()
       console.log('[api]: Express server stopped')
+
+      // Stop ContentWorker
+      if (contentWorker) {
+        await contentWorker.stop()
+        console.log('[api]: ContentWorker stopped')
+      }
 
       // await analytics.shutdownAsync()
       console.log('[api]: Posthog events flushed')

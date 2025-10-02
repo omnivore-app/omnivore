@@ -174,9 +174,25 @@ export const createPageSaveRequest = async ({
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
 
+  let eventEmissionSucceeded = false
+
   // emit content save requested event
   try {
     const eventManager = new EventManager()
+
+    console.log('emitting content save requested event', {
+      userId,
+      libraryItemId: libraryItem.id,
+      url,
+      contentType: determineContentType(url),
+      metadata: {
+        labels: labels?.map((label) => label.name) || [],
+        folder,
+        source: 'web',
+        savedAt: libraryItem.savedAt?.toISOString() ?? new Date().toISOString(),
+        publishedAt: publishedAt?.toISOString() ?? new Date().toISOString(),
+      },
+    })
     await eventManager.emit(
       new ContentSaveRequestedEvent({
         userId,
@@ -187,13 +203,27 @@ export const createPageSaveRequest = async ({
           labels: labels?.map((label) => label.name) || [],
           folder,
           source: 'web',
-          savedAt: libraryItem.savedAt.toISOString(),
-          publishedAt: publishedAt?.toISOString(),
+          savedAt:
+            libraryItem.savedAt?.toISOString() ?? new Date().toISOString(),
+          publishedAt: publishedAt?.toISOString() ?? new Date().toISOString(),
         },
       })
     )
+
+    eventEmissionSucceeded = true
+
+    logger.info(
+      '✅ Content save requested event emitted successfully - using new processing pipeline',
+      {
+        url,
+        userId,
+      }
+    )
+
+    // ✅ SUCCESS: Return early, skip fallback to old infrastructure
+    return libraryItem
   } catch (error) {
-    logger.error('Failed to emit content save requested event', {
+    logger.error('❌ Event emission failed - falling back to old pipeline', {
       error,
       url,
       userId,
@@ -201,8 +231,13 @@ export const createPageSaveRequest = async ({
     // Continue with fallback to direct enqueueing
   }
 
+  // ⚠️ ONLY run fallback if event emission failed
   // enqueue task to parse item (fallback)
   try {
+    if (!eventEmissionSucceeded) {
+      logger.error('❌ Failed to emit content save requested event')
+    }
+
     const contentFetchQueueEnabled =
       process.env.CONTENT_FETCH_QUEUE_ENABLED === 'true'
     if (contentFetchQueueEnabled) {

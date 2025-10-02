@@ -16,14 +16,12 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.js"
+    "src/**/*.js",
+    "test/**/*.ts",
+    "jest.config.ts"
   ],
   "exclude": [
-    "jest.*.ts",
-    "test/**/*",
     "dist/**/*",
-    "node_modules/**/*",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts"
+    "node_modules/**/*"
   ]
 }

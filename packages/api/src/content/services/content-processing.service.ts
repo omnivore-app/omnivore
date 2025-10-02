@@ -111,7 +111,7 @@ export class ContentProcessingService {
           )
         } catch (handlerError) {
           // If specialized handler fails, log warning and continue with standard processing
-          this.logger.warn(
+          this.logger.error(
             'Specialized handler failed, falling back to standard processing',
             {
               url: context.url,

@@ -239,7 +239,7 @@ export class TwitterHandler implements ContentHandler {
         metadata.mentions = mentions
       }
     } catch (error) {
-      this.logger.warn('Failed to extract Twitter metadata', {
+      this.logger.error('Failed to extract Twitter metadata', {
         url: content.url,
         error: error instanceof Error ? error.message : 'Unknown error',
       })

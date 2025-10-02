@@ -151,7 +151,7 @@ export class HtmlContentProcessor implements ContentProcessor {
 
       return text
     } catch (error) {
-      this.logger.warn('Failed to extract text from HTML', {
+      this.logger.error('Failed to extract text from HTML', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       return html
@@ -238,7 +238,7 @@ export class HtmlContentProcessor implements ContentProcessor {
 
       return { ...content.metadata, ...metadata }
     } catch (error) {
-      this.logger.warn('Failed to extract metadata', {
+      this.logger.error('Failed to extract metadata', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
       return content.metadata || {}

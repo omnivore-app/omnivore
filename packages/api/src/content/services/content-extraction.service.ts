@@ -84,7 +84,7 @@ export class ContentExtractionService {
         // Fallback to puppeteer if available
         const fallbackExtractor = this.extractors.get('puppeteer')
         if (fallbackExtractor && fallbackExtractor.canExtract(url, options)) {
-          this.logger.warn(
+          this.logger.error(
             'Primary extractor cannot handle content, falling back to Puppeteer',
             {
               url,
