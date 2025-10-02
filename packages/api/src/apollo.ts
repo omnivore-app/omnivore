@@ -47,7 +47,7 @@ import { batchGetSubscriptionsByNames } from './services/subscriptions'
 import { batchGetUploadFilesByIds } from './services/upload_file'
 import { findUsersByIds } from './services/user'
 import { tracer } from './tracing'
-import { getClaimsByToken, setAuthInCookie } from './utils/auth'
+import { getClaimsByToken, setAuthInCookie, getTokenByRequest } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
 
@@ -68,7 +68,8 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     variables: req.body.variables,
   })
 
-  const token = req?.cookies?.auth || req?.headers?.authorization
+  // AIDEV-NOTE: api-key-auth - Use getTokenByRequest to support API keys while preserving cookie auth
+  const token = getTokenByRequest(req)
   const claims = await getClaimsByToken(token)
 
   httpContext.set('claims', claims)
