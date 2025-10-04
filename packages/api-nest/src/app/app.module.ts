@@ -5,6 +5,9 @@ import { HealthModule } from '../health/health.module'
 import { AuthModule } from '../auth/auth.module'
 import { UserModule } from '../user/user.module'
 import { LoggingModule } from '../logging/logging.module'
+import { GraphqlModule } from '../graphql/graphql.module'
+import { LibraryModule } from '../library/library.module'
+import { LabelModule } from '../label/label.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { configValidationSchema } from '../config/config.schema'
@@ -36,6 +39,12 @@ import { configValidationSchema } from '../config/config.schema'
 
     // Authentication
     AuthModule,
+
+    // Library / Reader
+    LibraryModule,
+
+    // GraphQL API
+    GraphqlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

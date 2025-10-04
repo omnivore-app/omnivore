@@ -1,0 +1,274 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthPayload {
+  accessToken: String!
+  expiresIn: String
+  tokenType: String!
+  user: User!
+}
+
+type BulkActionResult {
+  errors: [String!]
+  failureCount: Float!
+  message: String
+  success: Boolean!
+  successCount: Float!
+}
+
+enum ContentReaderType {
+  EPUB
+  PDF
+  WEB
+}
+
+input CreateLabelInput {
+  color: String = "#000000"
+  description: String
+  name: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DeleteResult {
+  """ID of the deleted item"""
+  itemId: String
+
+  """Optional message providing details about the operation"""
+  message: String
+
+  """Whether the deletion was successful"""
+  success: Boolean!
+}
+
+type Label {
+  color: String!
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  internal: Boolean!
+  name: String!
+  position: Int!
+  updatedAt: DateTime!
+}
+
+type LibraryItem {
+  author: String
+  contentReader: ContentReaderType!
+  createdAt: DateTime!
+  description: String
+  folder: String!
+  id: ID!
+  labels: [Label!]
+  originalUrl: String!
+  publishedAt: DateTime
+  readAt: DateTime
+  readingProgressBottomPercent: Float
+  readingProgressTopPercent: Float
+  savedAt: DateTime!
+  slug: String!
+  state: LibraryItemState!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum LibraryItemState {
+  ARCHIVED
+  CONTENT_NOT_FETCHED
+  DELETED
+  FAILED
+  PROCESSING
+  SUCCEEDED
+}
+
+type LibraryItemsConnection {
+  items: [LibraryItem!]!
+  nextCursor: String
+}
+
+input LibrarySearchInput {
+  """Filter by folder (inbox, archive, trash, all)"""
+  folder: String
+
+  """Filter by label names (items with ANY of these labels)"""
+  labels: [String!]
+
+  """
+  Search query for full-text search across title, description, author, and content
+  """
+  query: String
+
+  """Field to sort by"""
+  sortBy: LibrarySortField = SAVED_AT
+
+  """Sort order (ASC or DESC)"""
+  sortOrder: SortOrder = DESC
+
+  """Filter by item state"""
+  state: LibraryItemState
+}
+
+"""Available fields to sort library items by"""
+enum LibrarySortField {
+  AUTHOR
+  PUBLISHED_AT
+  SAVED_AT
+  TITLE
+  UPDATED_AT
+}
+
+type Mutation {
+  """Archive or unarchive a library item"""
+  archiveLibraryItem(
+    """Whether to archive (true) or unarchive (false)"""
+    archived: Boolean!
+
+    """Library item ID"""
+    id: String!
+  ): LibraryItem!
+
+  """Archive or unarchive multiple library items"""
+  bulkArchiveItems(
+    """Whether to archive (true) or unarchive (false)"""
+    archived: Boolean!
+
+    """List of library item IDs to archive/unarchive"""
+    itemIds: [String!]!
+  ): BulkActionResult!
+
+  """Delete multiple library items"""
+  bulkDeleteItems(
+    """List of library item IDs to delete"""
+    itemIds: [String!]!
+  ): BulkActionResult!
+
+  """Mark multiple library items as read"""
+  bulkMarkAsRead(
+    """List of library item IDs to mark as read"""
+    itemIds: [String!]!
+  ): BulkActionResult!
+
+  """Move multiple library items to a different folder"""
+  bulkMoveToFolder(
+    """Target folder (inbox, archive, trash)"""
+    folder: String!
+
+    """List of library item IDs to move"""
+    itemIds: [String!]!
+  ): BulkActionResult!
+
+  """Create a new label"""
+  createLabel(input: CreateLabelInput!): Label!
+
+  """Delete a label"""
+  deleteLabel(id: String!): DeleteResult!
+
+  """
+  Delete a library item (moves to trash or permanently deletes if already in trash)
+  """
+  deleteLibraryItem(
+    """Library item ID"""
+    id: String!
+  ): DeleteResult!
+
+  """Move a library item to a different folder"""
+  moveLibraryItemToFolder(
+    """Target folder (inbox, archive, trash)"""
+    folder: String!
+
+    """Library item ID"""
+    id: String!
+  ): LibraryItem!
+
+  """Set labels for a library item (replaces existing labels)"""
+  setLibraryItemLabels(itemId: String!, labelIds: [String!]!): [Label!]!
+
+  """Update an existing label"""
+  updateLabel(id: String!, input: UpdateLabelInput!): Label!
+
+  """Update reading progress for a library item"""
+  updateReadingProgress(
+    """Library item ID"""
+    id: String!
+
+    """Reading progress data"""
+    progress: ReadingProgressInput!
+  ): LibraryItem!
+}
+
+type Query {
+  """Get a single label by ID"""
+  label(id: String!): Label
+
+  """Get all labels for the current user"""
+  labels: [Label!]!
+  libraryItem(id: String!): LibraryItem
+  libraryItems(after: String, first: Int = 20, search: LibrarySearchInput): LibraryItemsConnection!
+  me: User!
+  session: AuthPayload
+  viewer: User!
+}
+
+input ReadingProgressInput {
+  """Anchor index for last read position"""
+  readingProgressAnchorIndex: Int = 0
+
+  """Bottom reading progress percentage (0-100)"""
+  readingProgressBottomPercent: Float!
+
+  """Highest read anchor index"""
+  readingProgressHighestAnchor: Int = 0
+
+  """Top reading progress percentage (0-100)"""
+  readingProgressTopPercent: Float!
+}
+
+enum RegistrationType {
+  APPLE
+  EMAIL
+  GOOGLE
+  TWITTER
+}
+
+"""Sort order direction"""
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum StatusType {
+  ACTIVE
+  ARCHIVED
+  PENDING
+}
+
+input UpdateLabelInput {
+  color: String
+  description: String
+  name: String
+}
+
+type User {
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  name: String
+  role: UserRole
+  source: RegistrationType!
+  status: StatusType!
+  updatedAt: DateTime!
+}
+
+enum UserRole {
+  ADMIN
+  INTEGRATION_DEVELOPER
+  PENDING
+  PREMIUM
+  SUPPORT
+  SUSPENDED
+  USER
+}

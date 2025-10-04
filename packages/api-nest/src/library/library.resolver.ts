@@ -1,0 +1,235 @@
+import { Args, Int, Query, Mutation, Resolver, ResolveField, Parent } from '@nestjs/graphql'
+import { UseGuards } from '@nestjs/common'
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { CurrentUser } from '../user/decorators/current-user.decorator'
+import { User } from '../user/entities/user.entity'
+import { LibraryService } from './library.service'
+import { LibraryItem, LibraryItemsConnection, BulkActionResult } from './dto/library-item.type'
+import {
+  ReadingProgressInput,
+  DeleteResult,
+  LibrarySearchInput,
+} from './dto/library-inputs.type'
+import { LabelService } from '../label/label.service'
+import { Label } from '../label/dto/label.type'
+
+@Resolver(() => LibraryItem)
+export class LibraryResolver {
+  constructor(
+    private readonly libraryService: LibraryService,
+    private readonly labelService: LabelService,
+  ) {}
+
+  // ==================== FIELD RESOLVERS ====================
+
+  @ResolveField(() => [Label], { nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async labels(
+    @Parent() libraryItem: LibraryItem,
+    @CurrentUser() user: User,
+  ): Promise<Label[] | null> {
+    return this.labelService.getLibraryItemLabels(user.id, libraryItem.id)
+  }
+
+  // ==================== QUERIES ====================
+
+  @Query(() => LibraryItemsConnection)
+  @UseGuards(JwtAuthGuard)
+  async libraryItems(
+    @CurrentUser() user: User,
+    @Args('first', { type: () => Int, nullable: true, defaultValue: 20 })
+    first = 20,
+    @Args('after', { type: () => String, nullable: true }) after?: string,
+    @Args('search', { type: () => LibrarySearchInput, nullable: true })
+    search?: LibrarySearchInput,
+  ): Promise<LibraryItemsConnection> {
+    const { items, nextCursor } = await this.libraryService.listForUser(
+      user.id,
+      first,
+      after,
+      search,
+    )
+
+    return {
+      items: items.map(mapEntityToGraph),
+      nextCursor,
+    }
+  }
+
+  @Query(() => LibraryItem, { nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async libraryItem(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String }) id: string,
+  ): Promise<LibraryItem | null> {
+    const entity = await this.libraryService.findById(user.id, id)
+    return entity ? mapEntityToGraph(entity) : null
+  }
+
+  // ==================== MUTATIONS ====================
+
+  @Mutation(() => LibraryItem, {
+    description: 'Archive or unarchive a library item',
+  })
+  @UseGuards(JwtAuthGuard)
+  async archiveLibraryItem(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String, description: 'Library item ID' })
+    id: string,
+    @Args('archived', {
+      type: () => Boolean,
+      description: 'Whether to archive (true) or unarchive (false)',
+    })
+    archived: boolean,
+  ): Promise<LibraryItem> {
+    const entity = await this.libraryService.archiveItem(user.id, id, archived)
+    return mapEntityToGraph(entity)
+  }
+
+  @Mutation(() => DeleteResult, {
+    description:
+      'Delete a library item (moves to trash or permanently deletes if already in trash)',
+  })
+  @UseGuards(JwtAuthGuard)
+  async deleteLibraryItem(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String, description: 'Library item ID' })
+    id: string,
+  ): Promise<DeleteResult> {
+    return await this.libraryService.deleteItem(user.id, id)
+  }
+
+  @Mutation(() => LibraryItem, {
+    description: 'Update reading progress for a library item',
+  })
+  @UseGuards(JwtAuthGuard)
+  async updateReadingProgress(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String, description: 'Library item ID' })
+    id: string,
+    @Args('progress', {
+      type: () => ReadingProgressInput,
+      description: 'Reading progress data',
+    })
+    progress: ReadingProgressInput,
+  ): Promise<LibraryItem> {
+    const entity = await this.libraryService.updateReadingProgress(
+      user.id,
+      id,
+      progress,
+    )
+    return mapEntityToGraph(entity)
+  }
+
+  @Mutation(() => LibraryItem, {
+    description: 'Move a library item to a different folder',
+  })
+  @UseGuards(JwtAuthGuard)
+  async moveLibraryItemToFolder(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String, description: 'Library item ID' })
+    id: string,
+    @Args('folder', {
+      type: () => String,
+      description: 'Target folder (inbox, archive, trash)',
+    })
+    folder: string,
+  ): Promise<LibraryItem> {
+    const entity = await this.libraryService.moveToFolder(user.id, id, folder)
+    return mapEntityToGraph(entity)
+  }
+
+  // ==================== BULK MUTATIONS ====================
+
+  @Mutation(() => BulkActionResult, {
+    description: 'Archive or unarchive multiple library items',
+  })
+  @UseGuards(JwtAuthGuard)
+  async bulkArchiveItems(
+    @CurrentUser() user: User,
+    @Args('itemIds', {
+      type: () => [String],
+      description: 'List of library item IDs to archive/unarchive',
+    })
+    itemIds: string[],
+    @Args('archived', {
+      type: () => Boolean,
+      description: 'Whether to archive (true) or unarchive (false)',
+    })
+    archived: boolean,
+  ): Promise<BulkActionResult> {
+    return await this.libraryService.bulkArchive(user.id, itemIds, archived)
+  }
+
+  @Mutation(() => BulkActionResult, {
+    description: 'Delete multiple library items',
+  })
+  @UseGuards(JwtAuthGuard)
+  async bulkDeleteItems(
+    @CurrentUser() user: User,
+    @Args('itemIds', {
+      type: () => [String],
+      description: 'List of library item IDs to delete',
+    })
+    itemIds: string[],
+  ): Promise<BulkActionResult> {
+    return await this.libraryService.bulkDelete(user.id, itemIds)
+  }
+
+  @Mutation(() => BulkActionResult, {
+    description: 'Move multiple library items to a different folder',
+  })
+  @UseGuards(JwtAuthGuard)
+  async bulkMoveToFolder(
+    @CurrentUser() user: User,
+    @Args('itemIds', {
+      type: () => [String],
+      description: 'List of library item IDs to move',
+    })
+    itemIds: string[],
+    @Args('folder', {
+      type: () => String,
+      description: 'Target folder (inbox, archive, trash)',
+    })
+    folder: string,
+  ): Promise<BulkActionResult> {
+    return await this.libraryService.bulkMoveToFolder(user.id, itemIds, folder)
+  }
+
+  @Mutation(() => BulkActionResult, {
+    description: 'Mark multiple library items as read',
+  })
+  @UseGuards(JwtAuthGuard)
+  async bulkMarkAsRead(
+    @CurrentUser() user: User,
+    @Args('itemIds', {
+      type: () => [String],
+      description: 'List of library item IDs to mark as read',
+    })
+    itemIds: string[],
+  ): Promise<BulkActionResult> {
+    return await this.libraryService.bulkMarkAsRead(user.id, itemIds)
+  }
+}
+
+function mapEntityToGraph(entity: any): LibraryItem {
+  return {
+    id: entity.id,
+    title: entity.title,
+    slug: entity.slug,
+    originalUrl: entity.originalUrl,
+    author: entity.author ?? null,
+    description: entity.description ?? null,
+    savedAt: entity.savedAt,
+    createdAt: entity.createdAt,
+    publishedAt: entity.publishedAt ?? null,
+    readAt: entity.readAt ?? null,
+    updatedAt: entity.updatedAt,
+    readingProgressTopPercent: entity.readingProgressTopPercent ?? 0,
+    readingProgressBottomPercent: entity.readingProgressBottomPercent ?? 0,
+    state: entity.state,
+    contentReader: entity.contentReader,
+    folder: entity.folder,
+    labels: null, // Labels will be resolved by the field resolver
+  }
+}
