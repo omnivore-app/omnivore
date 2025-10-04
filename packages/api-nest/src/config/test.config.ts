@@ -7,10 +7,17 @@ import { Filter } from '../filter/entities/filter.entity'
 import { Group } from '../group/entities/group.entity'
 import { Invite } from '../group/entities/invite.entity'
 import { GroupMembership } from '../group/entities/group-membership.entity'
+import { LibraryItemEntity } from '../library/entities/library-item.entity'
+import { Label } from '../label/entities/label.entity'
+import { EntityLabel } from '../label/entities/entity-label.entity'
 
 export const testDatabaseConfig: TypeOrmModuleOptions = {
-  type: 'sqlite',
-  database: ':memory:',
+  type: 'postgres',
+  host: process.env.DATABASE_HOST || 'localhost',
+  port: parseInt(process.env.DATABASE_PORT || '5432'),
+  username: process.env.DATABASE_USER || 'app_user',
+  password: process.env.DATABASE_PASSWORD || '',
+  database: process.env.DATABASE_NAME || 'omnivore', // Use same DB as dev
   entities: [
     User,
     UserProfile,
@@ -19,8 +26,11 @@ export const testDatabaseConfig: TypeOrmModuleOptions = {
     Group,
     Invite,
     GroupMembership,
+    LibraryItemEntity,
+    Label,
+    EntityLabel,
   ],
-  synchronize: true,
+  synchronize: false, // Use existing schema
   logging: false,
 }
 
