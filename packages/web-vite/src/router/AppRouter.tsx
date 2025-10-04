@@ -18,6 +18,7 @@ const LoginPage = React.lazy(() => import('../pages/LoginPage'))
 const EmailLoginPage = React.lazy(() => import('../pages/EmailLoginPage'))
 const RegisterPage = React.lazy(() => import('../pages/RegisterPage'))
 const LibraryPage = React.lazy(() => import('../pages/LibraryPage'))
+const LabelsPage = React.lazy(() => import('../pages/LabelsPage'))
 const ReaderPage = React.lazy(() => import('../pages/ReaderPage'))
 const SettingsPage = React.lazy(() => import('../pages/SettingsPage'))
 const AdminPage = React.lazy(() => import('../pages/AdminPage'))
@@ -91,6 +92,9 @@ const AppLayout: React.FC = () => {
           <a href="/home" className="nav-link">
             Library
           </a>
+          <a href="/labels" className="nav-link">
+            Labels
+          </a>
           <a href="/settings" className="nav-link">
             Settings
           </a>
@@ -163,6 +167,7 @@ const AppRouter: React.FC = () => {
             >
               <Route path="home" element={<LibraryPage />} />
               <Route path="library" element={<Navigate to="/home" replace />} />
+              <Route path="labels" element={<LabelsPage />} />
               <Route path="reader/:id" element={<ReaderPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route

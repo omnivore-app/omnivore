@@ -130,7 +130,8 @@ export interface Label {
   id: string
   name: string
   color: string
-  createdAt: string
+  description?: string | null
+  createdAt?: string
 }
 
 export interface Highlight {
@@ -160,6 +161,37 @@ export interface LibraryItemsResponse extends PaginatedResponse<Article> {
       end: string
     }
   }
+}
+
+export type LibraryItemState =
+  | 'FAILED'
+  | 'PROCESSING'
+  | 'SUCCEEDED'
+  | 'DELETED'
+  | 'ARCHIVED'
+  | 'CONTENT_NOT_FETCHED'
+
+export interface LibraryItem {
+  id: string
+  title: string
+  slug: string
+  originalUrl: string
+  author?: string | null
+  description?: string | null
+  savedAt: string
+  createdAt: string
+  publishedAt?: string | null
+  readAt?: string | null
+  updatedAt: string
+  state: LibraryItemState
+  contentReader: string
+  folder: string
+  labels?: Label[] | null
+}
+
+export interface LibraryItemsConnection {
+  items: LibraryItem[]
+  nextCursor: string | null
 }
 
 export interface Subscription {

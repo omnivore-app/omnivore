@@ -150,14 +150,51 @@ export const useAuthStore = create<AuthState>()(
         set({ statusMessage: null, pendingEmailVerification: false }),
 
       verifyAuth: async () => {
+        const startTime = Date.now()
+
         try {
-          set({ isLoading: true, error: null })
-          const response = await apiClient.verifyAuth()
+          const existingToken =
+            get().token ??
+            (isBrowser ? window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null)
+
+          // Fast path: no token, don't even try
+          if (!existingToken) {
+            set({ ...initialAuthState, isLoading: false })
+            storeToken(null)
+            return
+          }
+
+          // Optimistic: assume valid if we have persisted user
+          const persistedUser = get().user
+          if (persistedUser && existingToken) {
+            set({
+              user: persistedUser,
+              token: existingToken,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            })
+          } else {
+            set({ isLoading: true, error: null, token: existingToken })
+          }
+
+          // Verify in background with timeout
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Auth verification timeout')), 5000)
+          )
+
+          const response = await Promise.race([
+            apiClient.verifyAuth(),
+            timeoutPromise
+          ]) as Awaited<ReturnType<typeof apiClient.verifyAuth>>
+
+          const elapsed = Date.now() - startTime
+          console.log(`[Auth] Verification took ${elapsed}ms`)
 
           if (response.authStatus === 'AUTHENTICATED' && response.user) {
             set({
               user: response.user as AuthUser,
-              token: get().token,
+              token: existingToken,
               isAuthenticated: true,
               isLoading: false,
               error: null,
@@ -171,15 +208,21 @@ export const useAuthStore = create<AuthState>()(
               pendingEmailVerification: true,
               isLoading: false,
             })
+            storeToken(existingToken)
           } else {
-            set({ ...initialAuthState })
+            set({ ...initialAuthState, isLoading: false })
             storeToken(null)
           }
         } catch (error) {
-          const message =
-            error instanceof Error ? error.message : 'Auth check failed'
-          set({ ...initialAuthState, error: message })
-          storeToken(null)
+          console.warn('[Auth] Verification failed, using cached state:', error)
+          // If we have a cached user, keep using it (offline-first)
+          const cachedUser = get().user
+          if (cachedUser && get().token) {
+            set({ isLoading: false, error: null })
+          } else {
+            set({ ...initialAuthState, isLoading: false })
+            storeToken(null)
+          }
         }
       },
     }),
