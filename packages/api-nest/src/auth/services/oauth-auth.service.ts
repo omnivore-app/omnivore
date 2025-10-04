@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { UserService } from '../../user/user.service'
-import { AuthService } from '../auth.service'
+import { AuthService } from './auth.service'
 import { GoogleOAuthService } from './google-oauth.service'
 import { AppleOAuthService } from './apple-oauth.service'
 import { PendingUserService } from './pending-user.service'

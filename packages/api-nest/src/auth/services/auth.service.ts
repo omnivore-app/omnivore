@@ -1,23 +1,25 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { StructuredLogger } from '../logging/structured-logger.service'
-import { UserService } from '../user/user.service'
-import { User, StatusType } from '../user/entities/user.entity'
-import { RegisterDto } from './dto/register.dto'
-import { EnvVariables } from '../config/env-variables'
-import { EmailVerificationService } from './email-verification.service'
-import { DefaultUserResourcesService } from './default-user-resources.service'
-import { NotificationClient } from './interfaces/notification-client.interface'
-import { AnalyticsService } from '../analytics/analytics.service'
-import { PubSubService } from '../pubsub/pubsub.service'
-import { IntercomService } from '../integrations/intercom.service'
+import { DataSource } from 'typeorm'
+import { StructuredLogger } from '../../logging/structured-logger.service'
+import { UserService } from '../../user/user.service'
+import { User, StatusType } from '../../user/entities/user.entity'
+import { RegisterDto } from '../dto/register.dto'
+import { EnvVariables } from '../../config/env-variables'
+import { EmailVerificationService } from '../email-verification.service'
+import { DefaultUserResourcesService } from '../default-user-resources.service'
+import { NotificationClient } from '../interfaces/notification-client.interface'
+import { AnalyticsService } from '../../analytics/analytics.service'
+import { PubSubService } from '../../pubsub/pubsub.service'
+import { IntercomService } from '../../integrations/intercom.service'
+import { seedLibraryItems } from '../../database/seeds/library-items.seed'
 import {
   LoginSuccessResponse,
   RegisterSuccessWithLoginResponse,
   RegisterSuccessWithVerificationResponse,
   AuthUserData,
-} from './dto/auth-responses.dto'
+} from '../dto/auth-responses.dto'
 
 export interface JwtPayload {
   sub: string
@@ -32,6 +34,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
+    private dataSource: DataSource,
     private userService: UserService,
     private emailVerificationService: EmailVerificationService,
     private defaultResources: DefaultUserResourcesService,
@@ -146,6 +149,17 @@ export class AuthService {
     await this.defaultResources.provisionForUser(result.user.id, {
       username: result.profile.username,
     })
+
+    // Seed example library items in development (but not in test)
+    const nodeEnv = this.configService.get<string>('NODE_ENV')
+    const shouldSeed = nodeEnv !== 'production' && nodeEnv !== 'test'
+    if (shouldSeed) {
+      try {
+        await seedLibraryItems(this.dataSource, result.user.id)
+      } catch (error) {
+        this.logger.warn('Failed to seed library items', { error })
+      }
+    }
 
     // Analytics: Track user creation
     this.analytics.trackUserCreated(

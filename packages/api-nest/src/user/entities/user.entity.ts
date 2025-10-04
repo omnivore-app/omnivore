@@ -7,6 +7,13 @@ import {
   OneToOne,
   Index,
 } from 'typeorm'
+import {
+  Field,
+  GraphQLISODateTime,
+  ID,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql'
 import { UserRole } from '../enums/user-role.enum'
 
 export enum StatusType {
@@ -22,8 +29,18 @@ export enum RegistrationType {
   APPLE = 'APPLE',
 }
 
+registerEnumType(StatusType, {
+  name: 'StatusType',
+})
+
+registerEnumType(RegistrationType, {
+  name: 'RegistrationType',
+})
+
+@ObjectType()
 @Entity({ name: 'user', schema: 'omnivore' })
 export class User {
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
@@ -34,10 +51,12 @@ export class User {
   @Column('text', { name: 'last_name', nullable: true })
   lastName?: string
 
+  @Field(() => RegistrationType)
   @Column({ type: 'enum', enum: RegistrationType })
   source!: RegistrationType
 
   @Index('idx_user_email') // Add index for faster login lookups
+  @Field(() => String, { nullable: true })
   @Column('text', { name: 'email', nullable: true })
   email?: string
 
@@ -47,12 +66,14 @@ export class User {
   @Column('text', { name: 'source_user_id', unique: true })
   sourceUserId!: string
 
+  @Field(() => String, { nullable: true })
   @Column('text', { name: 'name', nullable: true })
   name?: string
 
   @Column('varchar', { length: 255, name: 'password', nullable: true }) // Added in migration 0067
   password?: string
 
+  @Field(() => StatusType)
   @Column({
     type: 'enum',
     enum: StatusType,
@@ -61,13 +82,16 @@ export class User {
   }) // Added in migration 0088
   status!: StatusType
 
+  @Field(() => GraphQLISODateTime)
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date
 
+  @Field(() => GraphQLISODateTime)
   @UpdateDateColumn({ name: 'updated_at' }) // Added in migration 0014
   updatedAt!: Date
 
   // NEW: Enhanced role system - will be added via new migration
+  @Field(() => UserRole, { nullable: true })
   @Column({
     type: 'enum',
     enum: UserRole,

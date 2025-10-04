@@ -1,24 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
+import { DataSource } from 'typeorm'
 import { AuthService } from './auth.service'
-import { UserService } from '../user/user.service'
-import { EmailVerificationService } from './email-verification.service'
-import { DefaultUserResourcesService } from './default-user-resources.service'
-import { NotificationClient } from './interfaces/notification-client.interface'
-import { AnalyticsService } from '../analytics/analytics.service'
-import { PubSubService } from '../pubsub/pubsub.service'
-import { IntercomService } from '../integrations/intercom.service'
-import { StructuredLogger } from '../logging/structured-logger.service'
+import { UserService } from '../../user/user.service'
+import { EmailVerificationService } from '../email-verification.service'
+import { DefaultUserResourcesService } from '../default-user-resources.service'
+import { NotificationClient } from '../interfaces/notification-client.interface'
+import { AnalyticsService } from '../../analytics/analytics.service'
+import { PubSubService } from '../../pubsub/pubsub.service'
+import { IntercomService } from '../../integrations/intercom.service'
+import { StructuredLogger } from '../../logging/structured-logger.service'
 import {
   User,
   StatusType,
   RegistrationType,
-} from '../user/entities/user.entity'
-import { UserProfile } from '../user/entities/profile.entity'
-import { EnvVariables } from '../config/env-variables'
-import { RegisterDto } from './dto/register.dto'
-import { UserRole } from '../user/enums/user-role.enum'
+} from '../../user/entities/user.entity'
+import { UserProfile } from '../../user/entities/profile.entity'
+import { RegisterDto } from '../dto/register.dto'
+import { UserRole } from '../../user/enums/user-role.enum'
 
 const createMockUser = (overrides: Partial<User> = {}): User =>
   ({
@@ -91,6 +91,22 @@ describe('AuthService', () => {
     sendEmailVerification: jest.fn(),
   }
 
+  const mockDataSource = {
+    createQueryRunner: jest.fn().mockReturnValue({
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+      manager: {
+        save: jest.fn(),
+        find: jest.fn(),
+        findOne: jest.fn(),
+      },
+    }),
+    getRepository: jest.fn(),
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -102,6 +118,10 @@ describe('AuthService', () => {
         {
           provide: ConfigService,
           useValue: mockConfigService,
+        },
+        {
+          provide: DataSource,
+          useValue: mockDataSource,
         },
         {
           provide: UserService,
@@ -171,6 +191,7 @@ describe('AuthService', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
+    jest.restoreAllMocks()
   })
 
   describe('validateUser', () => {
@@ -233,6 +254,7 @@ describe('AuthService', () => {
       })
       expect(result).toEqual({
         success: true,
+        message: 'Login successful',
         user: {
           id: mockUser.id,
           email: mockUser.email,
@@ -263,6 +285,7 @@ describe('AuthService', () => {
       const mockResult = { user: mockUser, profile: mockProfile }
       const mockLoginResult = {
         success: true,
+        message: 'Login successful',
         user: {
           id: mockUser.id,
           email: mockUser.email,
@@ -275,9 +298,12 @@ describe('AuthService', () => {
 
       mockUserService.registerUserComplete.mockResolvedValue(mockResult)
       mockDefaultResourcesService.provisionForUser.mockResolvedValue(undefined)
-      mockConfigService.get
-        .mockReturnValueOnce(false) // Email confirmation not required
-        .mockReturnValueOnce('1h') // JWT expiration
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'AUTH_REQUIRE_EMAIL_CONFIRMATION') return false
+        if (key === 'NODE_ENV') return 'test' // Skip seeding in tests
+        if (key === 'JWT_EXPIRES_IN') return '1h'
+        return undefined
+      })
       mockJwtService.sign.mockReturnValue('jwt-token')
 
       const result = await service.register(registerDto)
@@ -306,7 +332,11 @@ describe('AuthService', () => {
 
       mockUserService.registerUserComplete.mockResolvedValue(mockResult)
       mockDefaultResourcesService.provisionForUser.mockResolvedValue(undefined)
-      mockConfigService.get.mockReturnValue(true) // Email confirmation required
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'AUTH_REQUIRE_EMAIL_CONFIRMATION') return true
+        if (key === 'NODE_ENV') return 'test' // Skip seeding in tests
+        return undefined
+      })
       mockEmailVerificationService.createVerificationToken.mockResolvedValue(
         mockToken,
       )
@@ -334,6 +364,9 @@ describe('AuthService', () => {
       })
       expect(result).toEqual({
         success: true,
+        message:
+          'Registration successful. Please check your email for verification.',
+        redirectUrl: '/auth/email-login',
         pendingEmailVerification: true,
       })
     })
@@ -349,6 +382,7 @@ describe('AuthService', () => {
       const mockActivatedUser = createMockUser({ status: StatusType.ACTIVE })
       const mockLoginResult = {
         success: true,
+        message: 'Login successful',
         user: {
           id: mockActivatedUser.id,
           email: mockActivatedUser.email,
@@ -386,6 +420,7 @@ describe('AuthService', () => {
       const mockUser = createMockUser({ status: StatusType.ACTIVE })
       const mockLoginResult = {
         success: true,
+        message: 'Login successful',
         user: {
           id: mockUser.id,
           email: mockUser.email,

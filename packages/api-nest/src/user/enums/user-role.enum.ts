@@ -1,3 +1,5 @@
+import { registerEnumType } from '@nestjs/graphql'
+
 /**
  * User Role Enum
  *
@@ -46,6 +48,14 @@ export enum Permission {
   SYSTEM_ADMIN = 'system:admin',
   SUPPORT_ACCESS = 'support:access',
 }
+
+registerEnumType(UserRole, {
+  name: 'UserRole',
+})
+
+registerEnumType(Permission, {
+  name: 'Permission',
+})
 
 // Base permissions for different user types
 const BASE_USER_PERMISSIONS = [

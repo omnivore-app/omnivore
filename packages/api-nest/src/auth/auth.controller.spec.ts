@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { BadRequestException, UnauthorizedException } from '@nestjs/common'
 import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
+import { AuthService } from './services/auth.service'
 import { LoginDto } from './dto/login.dto'
 import { RegisterDto } from './dto/register.dto'
 import { ConfirmEmailDto } from './dto/confirm-email.dto'
@@ -50,9 +50,14 @@ describe('AuthController', () => {
     }
 
     it('should return login result when credentials are valid', async () => {
-      const mockUser = { id: '1', email: 'test@example.com' }
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        canAccess: jest.fn().mockReturnValue(true),
+      }
       const mockResult = {
         success: true,
+        message: 'Login successful',
         user: mockUser,
         accessToken: 'jwt-token',
         expiresIn: '1h',

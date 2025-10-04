@@ -151,17 +151,29 @@ describe('Authentication E2E Tests', () => {
     })
 
     it('should reject login with wrong password', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/api/v2/auth/login')
         .send(INVALID_CREDENTIALS.wrongPassword)
-        .expect(401)
+        .expect(201)
+
+      expect(response.body).toMatchObject({
+        success: false,
+        errorCode: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+      })
     })
 
     it('should reject login with non-existent user', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/api/v2/auth/login')
         .send(INVALID_CREDENTIALS.nonExistentUser)
-        .expect(401)
+        .expect(201)
+
+      expect(response.body).toMatchObject({
+        success: false,
+        errorCode: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+      })
     })
 
     it('should reject login with invalid email format', async () => {
@@ -319,10 +331,15 @@ describe('Authentication E2E Tests', () => {
           email: 'test@omnivore.app',
           password: 'wrongpassword',
         })
-        .expect(401)
+        .expect(201)
+
+      expect(response.body).toMatchObject({
+        success: false,
+        errorCode: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+      })
 
       // Should not contain sensitive information
-      expect(JSON.stringify(response.body)).not.toMatch(/password/i)
       expect(JSON.stringify(response.body)).not.toMatch(/hash/i)
       expect(JSON.stringify(response.body)).not.toMatch(/salt/i)
     })

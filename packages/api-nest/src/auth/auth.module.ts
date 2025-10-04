@@ -7,7 +7,7 @@ import { UserModule } from '../user/user.module'
 import { LoggingModule } from '../logging/logging.module'
 import { Filter } from '../filter/entities/filter.entity'
 import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
+import { AuthService } from './services/auth.service'
 import { GoogleOAuthController } from './controllers/google-oauth.controller'
 import { AppleOAuthController } from './controllers/apple-oauth.controller'
 import { MobileAuthController } from './controllers/mobile-auth.controller'
@@ -17,6 +17,7 @@ import { PendingUserService } from './services/pending-user.service'
 import { OAuthAuthService } from './services/oauth-auth.service'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { LocalStrategy } from './strategies/local.strategy'
+import { AuthResolver } from './auth.resolver'
 import { EnvVariables } from '../config/env-variables'
 import { EmailVerificationService } from './email-verification.service'
 import { NotificationClient } from './interfaces/notification-client.interface'
@@ -103,6 +104,7 @@ import Redis from 'ioredis'
       },
       inject: [ConfigService],
     },
+    AuthResolver,
   ],
   exports: [AuthService, JwtModule],
 })

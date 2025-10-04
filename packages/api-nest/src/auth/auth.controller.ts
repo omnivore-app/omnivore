@@ -22,7 +22,7 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
-import { AuthService } from './auth.service'
+import { AuthService } from './services/auth.service'
 import { LoginDto } from './dto/login.dto'
 import { RegisterDto } from './dto/register.dto'
 import { ConfirmEmailDto } from './dto/confirm-email.dto'

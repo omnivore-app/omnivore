@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Logger, HttpStatus } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
 import { OAuthAuthService } from '../services/oauth-auth.service'
-import { AuthService } from '../auth.service'
+import { AuthService } from '../services/auth.service'
 import { UserService } from '../../user/user.service'
 
 interface MobileSignInDto {
