@@ -7,6 +7,9 @@ import { Filter } from '../filter/entities/filter.entity'
 import { Group } from '../group/entities/group.entity'
 import { Invite } from '../group/entities/invite.entity'
 import { GroupMembership } from '../group/entities/group-membership.entity'
+import { LibraryItemEntity } from '../library/entities/library-item.entity'
+import { Label } from '../label/entities/label.entity'
+import { EntityLabel } from '../label/entities/entity-label.entity'
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { GroupMembership } from '../group/entities/group-membership.entity'
           Group,
           Invite,
           GroupMembership,
+          LibraryItemEntity,
+          Label,
+          EntityLabel,
         ],
 
         // Migration configuration

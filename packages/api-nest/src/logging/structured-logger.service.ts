@@ -130,7 +130,7 @@ export class StructuredLogger implements LoggerService {
     }
 
     // In development, use pretty printing
-    if (this.environment === 'development') {
+    if (this.environment === 'development' || this.environment === 'test') {
       this.prettyPrint(logEntry)
     } else {
       // In production, use structured JSON for log aggregation
@@ -139,45 +139,54 @@ export class StructuredLogger implements LoggerService {
   }
 
   private prettyPrint(entry: StructuredLogEntry): void {
-    const timestamp = entry.timestamp
-    const level = entry.level.toUpperCase().padEnd(7)
-    const correlationId = entry.context?.correlationId
-      ? `[${entry.context.correlationId.slice(0, 8)}]`
-      : '[--------]'
-    const userId = entry.context?.userId ? `[${entry.context.userId}]` : ''
+    // Simplified format: time + level + message + key context
+    const time = new Date(entry.timestamp).toLocaleTimeString()
+    const level = this.colorizeLevel(entry.level)
 
-    let logLine = `${timestamp} ${level} ${correlationId}${userId} ${entry.message}`
+    // Extract only the most relevant context
+    const operation = entry.context?.operation
+    const userId = entry.context?.userId?.slice(0, 8)
+    const email = entry.context?.email
+    const method = entry.context?.method
+    const url = entry.context?.url
+    const statusCode = entry.context?.statusCode
+    const duration = entry.meta?.duration
 
-    // Add context details if present
-    if (entry.context && Object.keys(entry.context).length > 3) {
-      const contextDetails = Object.entries(entry.context)
-        .filter(
-          ([key]) =>
-            !['service', 'environment', 'correlationId', 'userId'].includes(
-              key,
-            ),
-        )
-        .map(([key, value]) => `${key}=${value}`)
-        .join(' ')
+    // Build compact context string
+    const contextParts: string[] = []
+    if (operation) contextParts.push(`[${operation}]`)
+    if (method && url) contextParts.push(`${method} ${url}`)
+    if (statusCode) contextParts.push(`${statusCode}`)
+    if (duration) contextParts.push(`${duration}ms`)
+    if (userId) contextParts.push(`user:${userId}`)
+    else if (email) contextParts.push(`${email}`)
 
-      if (contextDetails) {
-        logLine += ` | ${contextDetails}`
-      }
-    }
+    const context = contextParts.length > 0 ? ` ${contextParts.join(' ')}` : ''
 
-    // Add metadata if present
-    if (entry.meta && Object.keys(entry.meta).length > 0) {
-      logLine += ` | meta: ${JSON.stringify(entry.meta)}`
-    }
-
-    console.log(logLine)
+    // Single line log
+    console.log(`${time} ${level} ${entry.message}${context}`)
 
     // Print error details if present
     if (entry.error) {
-      console.log(`  Error: ${entry.error.name}: ${entry.error.message}`)
-      if (entry.error.stack && this.environment === 'development') {
-        console.log(`  Stack: ${entry.error.stack}`)
+      console.log(`  └─ ${entry.error.name}: ${entry.error.message}`)
+      if (entry.error.stack) {
+        // Print first 3 lines of stack trace
+        const stackLines = entry.error.stack.split('\n').slice(0, 3)
+        stackLines.forEach((line) => console.log(`     ${line.trim()}`))
       }
     }
+  }
+
+  private colorizeLevel(level: string): string {
+    const colors: Record<string, string> = {
+      error: '\x1b[31m', // red
+      warn: '\x1b[33m', // yellow
+      info: '\x1b[36m', // cyan
+      debug: '\x1b[35m', // magenta
+      verbose: '\x1b[90m', // gray
+    }
+    const reset = '\x1b[0m'
+    const color = colors[level] || ''
+    return `${color}${level.toUpperCase().padEnd(7)}${reset}`
   }
 }
