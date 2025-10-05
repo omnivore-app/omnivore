@@ -9,6 +9,7 @@ import {
   ReadingProgressInput,
   DeleteResult,
   LibrarySearchInput,
+  SaveUrlInput,
 } from './dto/library-inputs.type'
 import { LabelService } from '../label/label.service'
 import { Label } from '../label/dto/label.type'
@@ -210,6 +211,21 @@ export class LibraryResolver {
   ): Promise<BulkActionResult> {
     return await this.libraryService.bulkMarkAsRead(user.id, itemIds)
   }
+
+  // ==================== CONTENT INGESTION ====================
+
+  @Mutation(() => LibraryItem, {
+    description: 'Save a URL to the library with content extraction',
+  })
+  @UseGuards(JwtAuthGuard)
+  async saveUrl(
+    @CurrentUser() user: User,
+    @Args('input', { type: () => SaveUrlInput })
+    input: SaveUrlInput,
+  ): Promise<LibraryItem> {
+    const entity = await this.libraryService.saveUrl(user.id, input)
+    return mapEntityToGraph(entity)
+  }
 }
 
 function mapEntityToGraph(entity: any): LibraryItem {
@@ -230,6 +246,7 @@ function mapEntityToGraph(entity: any): LibraryItem {
     state: entity.state,
     contentReader: entity.contentReader,
     folder: entity.folder,
+    content: entity.readableContent ?? null,
     labels: null, // Labels will be resolved by the field resolver
   }
 }

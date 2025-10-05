@@ -2,6 +2,7 @@
 // Mirrors the behaviour of the legacy web package's fetcher but keeps dependencies light
 
 import { useState, useCallback } from 'react'
+import type { LibraryItem, DeleteResult } from '../types/api'
 
 const DEFAULT_GRAPHQL_PATH = '/api/graphql'
 const TOKEN_STORAGE_KEY = 'omnivore-auth-token'
@@ -165,6 +166,27 @@ const BULK_MARK_AS_READ_MUTATION = `
       failureCount
       errors
       message
+    }
+  }
+`
+
+const SAVE_URL_MUTATION = `
+  mutation SaveUrl($input: SaveUrlInput!) {
+    saveUrl(input: $input) {
+      id
+      title
+      slug
+      originalUrl
+      author
+      description
+      savedAt
+      createdAt
+      updatedAt
+      publishedAt
+      readAt
+      state
+      contentReader
+      folder
     }
   }
 `
@@ -411,6 +433,35 @@ export function useBulkMarkAsRead() {
   return { ...state, bulkMarkAsRead }
 }
 
+export function useSaveUrl() {
+  const [state, setState] = useState<MutationState<any>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const saveUrl = useCallback(
+    async (input: { url: string; folder?: string }) => {
+      setState({ loading: true, error: null, data: null })
+      try {
+        const result = await graphqlRequest<{ saveUrl: any }>(
+          SAVE_URL_MUTATION,
+          { input }
+        )
+        setState({ loading: false, error: null, data: result.saveUrl })
+        return result.saveUrl
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error('Save URL failed')
+        setState({ loading: false, error: err, data: null })
+        throw err
+      }
+    },
+    []
+  )
+
+  return { ...state, saveUrl }
+}
+
 // ==================== LABEL TYPES ====================
 
 export interface Label {
@@ -435,6 +486,37 @@ export interface UpdateLabelInput {
   color?: string
   description?: string
 }
+
+// ==================== LIBRARY ITEM QUERIES ====================
+
+const GET_LIBRARY_ITEM_QUERY = `
+  query GetLibraryItem($id: String!) {
+    libraryItem(id: $id) {
+      id
+      title
+      slug
+      originalUrl
+      author
+      description
+      content
+      savedAt
+      createdAt
+      publishedAt
+      readAt
+      updatedAt
+      readingProgressTopPercent
+      readingProgressBottomPercent
+      state
+      contentReader
+      folder
+      labels {
+        id
+        name
+        color
+      }
+    }
+  }
+`
 
 // ==================== LABEL QUERIES ====================
 
@@ -660,4 +742,38 @@ export function useSetLibraryItemLabels() {
   )
 
   return { ...state, setLibraryItemLabels }
+}
+
+// ==================== LIBRARY ITEM HOOKS ====================
+
+export function useLibraryItem(id: string) {
+  const [state, setState] = useState<{
+    loading: boolean
+    error: Error | null
+    data: LibraryItem | null
+  }>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const fetchLibraryItem = useCallback(async () => {
+    if (!id) return
+
+    setState({ loading: true, error: null, data: null })
+    try {
+      const result = await graphqlRequest<{ libraryItem: LibraryItem | null }>(
+        GET_LIBRARY_ITEM_QUERY,
+        { id }
+      )
+      setState({ loading: false, error: null, data: result.libraryItem })
+      return result.libraryItem
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error('Failed to fetch library item')
+      setState({ loading: false, error: err, data: null })
+      throw err
+    }
+  }, [id])
+
+  return { ...state, fetchLibraryItem }
 }

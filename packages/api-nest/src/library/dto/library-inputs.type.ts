@@ -15,6 +15,7 @@ import {
   IsIn,
   IsOptional,
   IsEnum,
+  IsUrl,
 } from 'class-validator'
 import { LibraryItemState } from '../entities/library-item.entity'
 
@@ -172,4 +173,25 @@ export class LibrarySearchInput {
   })
   @IsOptional()
   labels?: string[]
+}
+
+/**
+ * Input type for saving a URL to the library
+ */
+@InputType()
+export class SaveUrlInput {
+  @Field(() => String, { description: 'URL to save to library' })
+  @IsUrl({}, { message: 'Must be a valid URL' })
+  @IsString()
+  url: string
+
+  @Field(() => String, {
+    nullable: true,
+    defaultValue: 'inbox',
+    description: 'Folder to save the URL to (inbox, archive)',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['inbox', 'archive'])
+  folder?: string
 }

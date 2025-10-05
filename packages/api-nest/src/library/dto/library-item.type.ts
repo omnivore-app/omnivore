@@ -62,6 +62,9 @@ export class LibraryItem {
 
   @Field(() => [Label], { nullable: true })
   labels?: Label[] | null
+
+  @Field({ nullable: true })
+  content?: string | null
 }
 
 @ObjectType()

@@ -21,6 +21,7 @@ import type {
 } from '../types/api'
 import ErrorBoundary from '../components/ErrorBoundary'
 import LabelPicker from '../components/LabelPicker'
+import AddLinkModal from '../components/AddLinkModal'
 import '../styles/LabelPicker.css'
 
 const LIBRARY_ITEMS_QUERY = `
@@ -72,6 +73,7 @@ const LibraryPage: React.FC = () => {
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false)
   const [selectedLabelFilters, setSelectedLabelFilters] = useState<string[]>([])
   const [showLabelFilter, setShowLabelFilter] = useState(false)
+  const [showAddLinkModal, setShowAddLinkModal] = useState(false)
 
   const { archiveItem } = useArchiveItem()
   const { deleteItem } = useDeleteItem()
@@ -449,6 +451,37 @@ const LibraryPage: React.FC = () => {
     setSelectedLabelFilters([])
   }
 
+  const handleAddLinkSuccess = async () => {
+    showToast('Link added successfully!', 'success')
+    // Refetch library items
+    try {
+      const searchParams: any = {}
+      if (searchQuery.trim()) {
+        searchParams.query = searchQuery.trim()
+      }
+      if (activeFolder && activeFolder !== 'all') {
+        searchParams.folder = activeFolder
+      }
+      if (selectedLabelFilters.length > 0) {
+        searchParams.labels = selectedLabelFilters
+      }
+      searchParams.sortBy = sortBy
+      searchParams.sortOrder = sortOrder
+
+      const data = await graphqlRequest<{ libraryItems: LibraryItemsConnection }>(
+        LIBRARY_ITEMS_QUERY,
+        {
+          first: INITIAL_PAGE_SIZE,
+          search: Object.keys(searchParams).length > 0 ? searchParams : undefined
+        }
+      )
+
+      setItems(data.libraryItems.items)
+    } catch (err) {
+      console.error('Failed to refetch library items:', err)
+    }
+  }
+
   if (loading) {
     return (
       <div className="loading-spinner">
@@ -550,9 +583,20 @@ const LibraryPage: React.FC = () => {
             >
               {isMultiSelectMode ? 'Exit Multi-Select' : 'Multi-Select'}
             </button>
-            <button className="add-article-btn">+ Add Article</button>
+            <button
+              className="add-article-btn"
+              onClick={() => setShowAddLinkModal(true)}
+            >
+              + Add Article
+            </button>
           </div>
         </div>
+
+        <AddLinkModal
+          isOpen={showAddLinkModal}
+          onClose={() => setShowAddLinkModal(false)}
+          onSuccess={handleAddLinkSuccess}
+        />
 
         {isMultiSelectMode && (
           <div className="bulk-actions-bar">
@@ -690,7 +734,10 @@ const LibraryPage: React.FC = () => {
                 : 'Your library is empty. Add some articles to get started!'}
             </p>
             {!searchQuery && (
-              <button className="add-article-btn">
+              <button
+                className="add-article-btn"
+                onClick={() => setShowAddLinkModal(true)}
+              >
                 + Add Your First Article
               </button>
             )}
@@ -726,14 +773,12 @@ const LibraryPage: React.FC = () => {
                 </div>
 
                 <h3 className="article-title">
-                  <a
-                    href={item.originalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="article-link"
+                  <button
+                    onClick={() => handleRead(item.id)}
+                    className="article-title-btn"
                   >
                     {item.title}
-                  </a>
+                  </button>
                 </h3>
 
                 <div className="article-meta">

@@ -116,6 +116,9 @@ export class LibraryItemEntity {
   @Column({ name: 'label_names', type: 'text', array: true, nullable: true, default: [] })
   labelNames?: string[] | null
 
+  @Column({ name: 'readable_content', type: 'text', default: '' })
+  readableContent!: string
+
   @OneToMany(() => EntityLabel, (entityLabel) => entityLabel.libraryItem)
   entityLabels!: EntityLabel[]
 }

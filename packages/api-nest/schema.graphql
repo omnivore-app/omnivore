@@ -58,6 +58,7 @@ type Label {
 
 type LibraryItem {
   author: String
+  content: String
   contentReader: ContentReaderType!
   createdAt: DateTime!
   description: String
@@ -184,6 +185,9 @@ type Mutation {
     id: String!
   ): LibraryItem!
 
+  """Save a URL to the library with content extraction"""
+  saveUrl(input: SaveUrlInput!): LibraryItem!
+
   """Set labels for a library item (replaces existing labels)"""
   setLibraryItemLabels(itemId: String!, labelIds: [String!]!): [Label!]!
 
@@ -232,6 +236,14 @@ enum RegistrationType {
   EMAIL
   GOOGLE
   TWITTER
+}
+
+input SaveUrlInput {
+  """Folder to save the URL to (inbox, archive)"""
+  folder: String = "inbox"
+
+  """URL to save to library"""
+  url: String!
 }
 
 """Sort order direction"""

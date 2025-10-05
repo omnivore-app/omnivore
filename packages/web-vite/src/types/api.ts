@@ -178,6 +178,7 @@ export interface LibraryItem {
   originalUrl: string
   author?: string | null
   description?: string | null
+  content?: string | null
   savedAt: string
   createdAt: string
   publishedAt?: string | null
@@ -187,6 +188,12 @@ export interface LibraryItem {
   contentReader: string
   folder: string
   labels?: Label[] | null
+}
+
+export interface DeleteResult {
+  success: boolean
+  message?: string
+  itemId?: string
 }
 
 export interface LibraryItemsConnection {

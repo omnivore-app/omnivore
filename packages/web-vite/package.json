@@ -21,6 +21,7 @@
     "@radix-ui/react-toast": "^1.2.15",
     "@stitches/react": "^1.2.8",
     "@tanstack/react-query": "^5.90.2",
+    "dompurify": "^3.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^6.0.0",

@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
+  ConflictException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, DataSource } from 'typeorm'
@@ -14,10 +16,13 @@ import {
   LibrarySearchInput,
   LibrarySortField,
   SortOrder,
+  SaveUrlInput,
 } from './dto/library-inputs.type'
 
 @Injectable()
 export class LibraryService {
+  private readonly logger = new Logger(LibraryService.name)
+
   constructor(
     @InjectRepository(LibraryItemEntity)
     private readonly libraryRepository: Repository<LibraryItemEntity>,
@@ -632,4 +637,88 @@ export class LibraryService {
       await queryRunner.release()
     }
   }
+
+  /**
+   * Save a URL to the user's library
+   */
+  async saveUrl(
+    userId: string,
+    input: SaveUrlInput,
+  ): Promise<LibraryItemEntity> {
+    const { url, folder = 'inbox' } = input
+
+    this.logger.log(`Saving URL for user ${userId}: ${url}`)
+
+    // Check for duplicate URL
+    const existingItem = await this.libraryRepository.findOne({
+      where: {
+        userId,
+        originalUrl: url,
+      },
+    })
+
+    if (existingItem) {
+      throw new ConflictException(
+        'This URL has already been saved to your library',
+      )
+    }
+
+    // Create library item with CONTENT_NOT_FETCHED state
+    // Content extraction will be handled by queue in ARC-012
+    const slug = this.generateSlug(url)
+
+    const libraryItem = this.libraryRepository.create({
+      userId,
+      originalUrl: url,
+      slug,
+      title: url, // Temporary title until content is fetched
+      state: LibraryItemState.CONTENT_NOT_FETCHED,
+      folder,
+      savedAt: new Date(),
+      contentReader: 'WEB' as any,
+      itemType: 'ARTICLE',
+    })
+
+    const savedItem = await this.libraryRepository.save(libraryItem)
+
+    this.logger.log(
+      `Successfully saved URL with ID: ${savedItem.id} (content extraction deferred to queue)`,
+    )
+
+    // TODO: Dispatch to queue for content extraction (ARC-012)
+    // TODO: Use @omnivore/readability for proper extraction (ARC-013)
+
+    return savedItem
+  }
+
+  /**
+   * Generate a slug from URL
+   */
+  private generateSlug(url: string): string {
+    try {
+      const urlObj = new URL(url)
+      const pathname = urlObj.pathname
+
+      // Extract meaningful part from pathname
+      let slug = pathname
+        .split('/')
+        .filter((part) => part.length > 0)
+        .join('-')
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 100)
+
+      if (!slug) {
+        slug = urlObj.hostname.replace(/\./g, '-')
+      }
+
+      // Add timestamp to ensure uniqueness
+      const timestamp = Date.now()
+      return `${slug}-${timestamp}`
+    } catch {
+      return `url-${Date.now()}`
+    }
+  }
+
 }

@@ -676,6 +676,24 @@
   color: #4a9eff;
 }
 
+.article-title-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #d9d9d9;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  width: 100%;
+}
+
+.article-title-btn:hover {
+  color: #4a9eff;
+}
+
 .article-meta {
   margin-bottom: 16px;
 }
