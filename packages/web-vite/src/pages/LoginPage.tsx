@@ -1,7 +1,7 @@
 // Login page component for Omnivore Vite app
 // Replicates legacy login page with OAuth and email options
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores'
 import { AppleSignInButton } from '../components/AppleSignInButton'
@@ -9,6 +9,8 @@ import { AppleSignInButton } from '../components/AppleSignInButton'
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
+  const [isGoogleReady, setIsGoogleReady] = useState(false)
+  const googleButtonRef = useRef<HTMLDivElement>(null)
 
   const googleClientId = import.meta.env.VITE_GAUTH_CLIENT_ID
   const hasGoogleAuth = googleClientId && googleClientId.trim().length > 0
@@ -22,6 +24,66 @@ const LoginPage: React.FC = () => {
       navigate('/home', { replace: true })
     }
   }, [isAuthenticated, navigate])
+
+  // Load and initialize Google Sign-In
+  useEffect(() => {
+    if (!hasGoogleAuth) return
+
+    // Load Google GSI script dynamically
+    const script = document.createElement('script')
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.defer = true
+
+    script.onload = () => {
+      // Wait for google.accounts to be available
+      const initGoogle = () => {
+        if (window.google && window.google.accounts && googleButtonRef.current) {
+          try {
+            // Initialize Google Sign-In
+            window.google.accounts.id.initialize({
+              client_id: googleClientId,
+              login_uri: `${import.meta.env.VITE_API_URL}/auth/google-web-signin`,
+              ux_mode: 'popup',
+              context: 'use',
+            })
+
+            // Render the button
+            window.google.accounts.id.renderButton(
+              googleButtonRef.current,
+              {
+                type: 'standard',
+                theme: 'outline',
+                size: 'large',
+                text: 'continue_with',
+                shape: 'rectangular',
+                logo_alignment: 'center',
+                width: 300, // Match other buttons
+              }
+            )
+
+            setIsGoogleReady(true)
+          } catch (error) {
+            console.error('Failed to initialize Google Sign-In:', error)
+          }
+        } else {
+          // Retry after a short delay
+          setTimeout(initGoogle, 100)
+        }
+      }
+
+      initGoogle()
+    }
+
+    document.body.appendChild(script)
+
+    return () => {
+      // Clean up script on unmount
+      if (document.body.contains(script)) {
+        document.body.removeChild(script)
+      }
+    }
+  }, [hasGoogleAuth, googleClientId])
 
   return (
     <div className="login-layout">
@@ -53,27 +115,25 @@ const LoginPage: React.FC = () => {
 
             {/* OAuth Buttons */}
             <div className="login-buttons-container">
-              {/* Google Sign-In Button - Only show if configured */}
+              {/* Google Sign-In Button - Dynamically rendered */}
               {hasGoogleAuth && (
                 <>
                   <div
-                    id="g_id_onload"
-                    data-client_id={googleClientId}
-                    data-context="use"
-                    data-ux_mode="popup"
-                    data-login_uri={`${import.meta.env.VITE_API_URL}/auth/google-web-signin`}
-                    data-auto_prompt="false"
+                    ref={googleButtonRef}
+                    className="google-signin-container"
+                    style={{
+                      minHeight: '44px',
+                      display: isGoogleReady ? 'block' : 'none'
+                    }}
                   />
-                  <div
-                    className="g_id_signin"
-                    data-type="standard"
-                    data-shape="rectangular"
-                    data-theme="outline"
-                    data-text="continue_with"
-                    data-size="large"
-                    data-logo_alignment="center"
-                    data-width="261"
-                  />
+
+                  {/* Loading placeholder while Google initializes */}
+                  {!isGoogleReady && (
+                    <div className="google-signin-placeholder">
+                      <div className="loading-spinner"></div>
+                    </div>
+                  )}
+
                   <div className="login-button-spacer"></div>
                 </>
               )}

@@ -106,32 +106,58 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  width: 261px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .login-button-spacer {
   height: 16px;
 }
 
+/* Google Sign-In container */
+.google-signin-container {
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Override Google's button styles to match our width */
+.google-signin-container > div {
+  width: 100% !important;
+}
+
+/* Google Sign-In loading placeholder */
+.google-signin-placeholder {
+  width: 100%;
+  max-width: 300px;
+  min-height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Apple Sign-In button - ensure consistent width */
 .apple-signin-button {
-  cursor: pointer;
-  display: block;
-  min-width: 261px;
-  min-height: 41px;
-  width: 261px;
-  height: 41px;
+  width: 100% !important;
+  max-width: 300px !important;
+  min-height: 44px !important;
 }
 
-#appleid-signin {
-  min-width: 261px;
-  min-height: 41px;
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-/* Ensure Google Sign-In button renders properly */
-.g_id_signin {
-  min-width: 261px;
-  min-height: 40px;
-  display: block;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .oauth-notice {
