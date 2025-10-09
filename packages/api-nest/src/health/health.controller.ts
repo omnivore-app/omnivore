@@ -6,6 +6,7 @@ import {
 } from '@nestjs/terminus'
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { RedisHealthIndicator } from './redis-health.indicator'
+import { QueueHealthIndicator } from '../queue/queue-health.indicator'
 
 @ApiTags('health')
 @Controller('health')
@@ -14,6 +15,7 @@ export class HealthController {
     private health: HealthCheckService,
     private db: TypeOrmHealthIndicator,
     private redis: RedisHealthIndicator,
+    private queue: QueueHealthIndicator,
   ) {}
 
   @ApiOperation({ summary: 'Basic health check' })
@@ -85,6 +87,8 @@ export class HealthController {
       () => this.db.pingCheck('database'),
       // Redis health check
       () => this.redis.isHealthy('redis'),
+      // Queue health check
+      () => this.queue.isHealthy('queues'),
       // System health check
       () => this.getSystemHealth(),
     ])
@@ -99,6 +103,8 @@ export class HealthController {
       () => this.db.pingCheck('database'),
       // Redis health check
       () => this.redis.isHealthy('redis'),
+      // Queue health check
+      () => this.queue.isHealthy('queues'),
       // System health check
       () => this.getSystemHealth(),
       // Application health check

@@ -6,6 +6,9 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "transformIgnorePatterns": [
+    "node_modules/(?!(bullmq|msgpackr)/)"
+  ],
   "moduleDirectories": [
     "node_modules",
     "../node_modules",

@@ -194,4 +194,14 @@ export class SaveUrlInput {
   @IsString()
   @IsIn(['inbox', 'archive'])
   folder?: string
+
+  @Field(() => String, {
+    nullable: true,
+    defaultValue: 'web',
+    description: 'Source of the save request (web, mobile, api, extension)',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['web', 'mobile', 'api', 'extension'])
+  source?: 'web' | 'mobile' | 'api' | 'extension'
 }

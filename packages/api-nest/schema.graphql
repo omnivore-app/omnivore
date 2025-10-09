@@ -242,6 +242,9 @@ input SaveUrlInput {
   """Folder to save the URL to (inbox, archive)"""
   folder: String = "inbox"
 
+  """Source of the save request (web, mobile, api, extension)"""
+  source: String = "web"
+
   """URL to save to library"""
   url: String!
 }

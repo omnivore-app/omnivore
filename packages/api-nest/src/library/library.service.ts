@@ -18,6 +18,9 @@ import {
   SortOrder,
   SaveUrlInput,
 } from './dto/library-inputs.type'
+import { EventBusService } from '../queue/event-bus.service'
+import { EVENT_NAMES } from '../queue/events.constants'
+import { JOB_PRIORITY } from '../queue/queue.constants'
 
 @Injectable()
 export class LibraryService {
@@ -27,6 +30,7 @@ export class LibraryService {
     @InjectRepository(LibraryItemEntity)
     private readonly libraryRepository: Repository<LibraryItemEntity>,
     private readonly dataSource: DataSource,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async listForUser(
@@ -682,11 +686,21 @@ export class LibraryService {
     const savedItem = await this.libraryRepository.save(libraryItem)
 
     this.logger.log(
-      `Successfully saved URL with ID: ${savedItem.id} (content extraction deferred to queue)`,
+      `Successfully saved URL with ID: ${savedItem.id}, dispatching to queue for content extraction`,
     )
 
-    // TODO: Dispatch to queue for content extraction (ARC-012)
-    // TODO: Use @omnivore/readability for proper extraction (ARC-013)
+    // Emit event to trigger background content processing
+    this.eventBus.emitContentSaveRequested({
+      eventType: EVENT_NAMES.CONTENT_SAVE_REQUESTED,
+      libraryItemId: savedItem.id,
+      url: savedItem.originalUrl,
+      userId: savedItem.userId,
+      priority: JOB_PRIORITY.NORMAL,
+      source: input.source || 'web',
+      timestamp: new Date(),
+    })
+
+    this.logger.log(`Content processing job enqueued for item ${savedItem.id}`)
 
     return savedItem
   }
