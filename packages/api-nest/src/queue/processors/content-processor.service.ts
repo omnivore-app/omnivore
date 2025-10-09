@@ -5,11 +5,14 @@
  * web content for saved library items.
  */
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common'
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq'
 import { Job } from 'bullmq'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { Readability } from '@mozilla/readability'
+import { parseHTML } from 'linkedom'
+import fetch from 'cross-fetch'
 import { LibraryItemEntity, LibraryItemState } from '../../library/entities/library-item.entity'
 import { EventBusService } from '../event-bus.service'
 import { EVENT_NAMES } from '../events.constants'
@@ -38,6 +41,9 @@ export interface ContentFetchResult {
   publishedDate?: Date
   siteIcon?: string
   thumbnail?: string
+  description?: string
+  siteName?: string
+  wordCount?: number
   error?: string
 }
 
@@ -45,7 +51,7 @@ export interface ContentFetchResult {
 @Processor(QUEUE_NAMES.CONTENT_PROCESSING, {
   concurrency: JOB_CONFIG.WORKER_CONCURRENCY,
 })
-export class ContentProcessorService extends WorkerHost implements OnModuleInit {
+export class ContentProcessorService extends WorkerHost implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ContentProcessorService.name)
 
   constructor(
@@ -60,6 +66,17 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit 
     this.logger.log(
       `ContentProcessorService initialized with concurrency ${JOB_CONFIG.WORKER_CONCURRENCY}`
     )
+  }
+
+  async onModuleDestroy() {
+    this.logger.log('ContentProcessorService shutting down...')
+    try {
+      // Close the worker gracefully
+      await this.worker?.close()
+      this.logger.log('ContentProcessorService shut down successfully')
+    } catch (error) {
+      this.logger.error(`Error during ContentProcessorService shutdown: ${error}`)
+    }
   }
 
   /**
@@ -184,8 +201,9 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit 
   }
 
   /**
-   * Fetch content from URL
-   * TODO: Implement full content fetching in Phase 3 with Puppeteer/handlers
+   * Fetch content from URL using two-phase extraction:
+   * 1. Open Graph metadata (fast preview)
+   * 2. Mozilla Readability (full content)
    */
   private async fetchContent(
     url: string,
@@ -194,25 +212,76 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit 
     this.logger.log(`Fetching content from ${url}`)
 
     try {
-      // STUB: For Phase 2, we'll just create a placeholder result
-      // In Phase 3, this will be replaced with actual Puppeteer/handler logic
+      // Phase 1: Fetch HTML content
+      this.logger.debug(`Fetching HTML from ${url}`)
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; Omnivore/1.0; +https://omnivore.app)',
+        },
+        signal: AbortSignal.timeout(30000), // 30 second timeout
+      })
 
-      // Simulate network delay
-      await this.delay(1000)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const html = await response.text()
       await job.updateProgress(40)
 
-      // Simulate content processing
-      await this.delay(1000)
+      // Phase 2: Parse HTML with linkedom
+      this.logger.debug(`Parsing HTML for ${url}`)
+      const { document } = parseHTML(html)
+      await job.updateProgress(45)
+
+      // Phase 3: Extract Open Graph metadata (fast)
+      this.logger.debug(`Extracting Open Graph metadata from ${url}`)
+      const ogData = this.extractOpenGraph(document, url)
+      await job.updateProgress(50)
+
+      // Phase 4: Extract content with Readability
+      this.logger.debug(`Extracting readable content from ${url}`)
+      const reader = new Readability(document, {
+        keepClasses: false,
+        charThreshold: 500,
+      })
+      const article = reader.parse()
       await job.updateProgress(60)
 
-      // Return stub data
+      if (!article) {
+        // Readability failed, but we can still use Open Graph data
+        this.logger.warn(`Readability failed for ${url}, using Open Graph data only`)
+        return {
+          success: true,
+          title: ogData.title || new URL(url).hostname,
+          content: ogData.description ? `<p>${ogData.description}</p>` : '',
+          contentType: 'text/html',
+          author: ogData.author,
+          description: ogData.description,
+          thumbnail: ogData.image,
+          siteName: ogData.siteName,
+          siteIcon: ogData.favicon,
+          publishedDate: ogData.publishedTime ? new Date(ogData.publishedTime) : undefined,
+          wordCount: 0,
+        }
+      }
+
+      // Phase 5: Combine Open Graph + Readability results
+      this.logger.log(
+        `Successfully extracted content from ${url}: ${article.length} words`
+      )
+
       return {
         success: true,
-        title: `Content from ${new URL(url).hostname}`,
-        content: '<p>This is stub content. Real content fetching will be implemented in Phase 3.</p>',
+        title: article.title || ogData.title || 'Untitled',
+        content: article.content || '',
         contentType: 'text/html',
-        author: 'Unknown',
-        publishedDate: new Date(),
+        author: article.byline || ogData.author,
+        description: article.excerpt || ogData.description,
+        thumbnail: ogData.image,
+        siteName: article.siteName || ogData.siteName,
+        siteIcon: ogData.favicon,
+        publishedDate: ogData.publishedTime ? new Date(ogData.publishedTime) : undefined,
+        wordCount: article.length || 0,
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -222,6 +291,52 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit 
         success: false,
         error: errorMessage,
       }
+    }
+  }
+
+  /**
+   * Extract Open Graph metadata from HTML document
+   */
+  private extractOpenGraph(
+    document: Document,
+    url: string
+  ): {
+    title?: string
+    description?: string
+    image?: string
+    siteName?: string
+    author?: string
+    publishedTime?: string
+    favicon?: string
+  } {
+    const getMeta = (property: string): string | undefined => {
+      const element = document.querySelector(
+        `meta[property="${property}"], meta[name="${property}"]`
+      )
+      return element?.getAttribute('content') || undefined
+    }
+
+    const getLink = (rel: string): string | undefined => {
+      const element = document.querySelector(`link[rel="${rel}"]`)
+      const href = element?.getAttribute('href')
+      if (!href) return undefined
+
+      // Convert relative URLs to absolute
+      try {
+        return new URL(href, url).toString()
+      } catch {
+        return href
+      }
+    }
+
+    return {
+      title: getMeta('og:title') || getMeta('twitter:title'),
+      description: getMeta('og:description') || getMeta('twitter:description') || getMeta('description'),
+      image: getMeta('og:image') || getMeta('twitter:image'),
+      siteName: getMeta('og:site_name'),
+      author: getMeta('article:author') || getMeta('author'),
+      publishedTime: getMeta('article:published_time'),
+      favicon: getLink('icon') || getLink('shortcut icon'),
     }
   }
 
@@ -239,9 +354,12 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit 
         title: result.title,
         readableContent: result.content,
         author: result.author,
+        description: result.description,
         publishedAt: result.publishedDate,
+        siteName: result.siteName,
         siteIcon: result.siteIcon,
         thumbnail: result.thumbnail,
+        wordCount: result.wordCount,
       })
 
       this.logger.log(`Content saved for library item ${libraryItemId}`)

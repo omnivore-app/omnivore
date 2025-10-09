@@ -14954,6 +14954,13 @@ cross-fetch@^3.0.6, cross-fetch@^3.1.5:
   dependencies:
     node-fetch "^2.7.0"
 
+cross-fetch@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-4.1.0.tgz#8f69355007ee182e47fa692ecbaa37a52e43c3d2"
+  integrity sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw==
+  dependencies:
+    node-fetch "^2.7.0"
+
 cross-inspect@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/cross-inspect/-/cross-inspect-1.0.1.tgz"
@@ -22804,6 +22811,17 @@ linkedom@^0.16.4, linkedom@^0.16.5:
     cssom "^0.5.0"
     html-escaper "^3.0.3"
     htmlparser2 "^9.1.0"
+    uhyphen "^0.2.0"
+
+linkedom@^0.18.5:
+  version "0.18.12"
+  resolved "https://registry.yarnpkg.com/linkedom/-/linkedom-0.18.12.tgz#a8b1a1942b567dcb1888093df311055da1349a14"
+  integrity sha512-jalJsOwIKuQJSeTvsgzPe9iJzyfVaEJiEXl+25EkKevsULHvMJzpNqwvj1jOESWdmgKDiXObyjOYwlUqG7wo1Q==
+  dependencies:
+    css-select "^5.1.0"
+    cssom "^0.5.0"
+    html-escaper "^3.0.3"
+    htmlparser2 "^10.0.0"
     uhyphen "^0.2.0"
 
 linkedom@^0.18.9:
