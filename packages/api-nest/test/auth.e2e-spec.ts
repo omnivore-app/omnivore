@@ -71,7 +71,7 @@ describe('Authentication E2E Tests', () => {
 
   afterAll(async () => {
     await app.close()
-  })
+  }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
   describe('POST /api/v2/auth/register', () => {
     it('should register a new user successfully', async () => {

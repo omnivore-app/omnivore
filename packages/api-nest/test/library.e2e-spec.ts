@@ -181,7 +181,7 @@ describe('Library GraphQL (e2e)', () => {
 
   afterAll(async () => {
     await app.close()
-  })
+  }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
   const executeQuery = (query: string, variables: Record<string, unknown> = {}) =>
     request(app.getHttpServer())

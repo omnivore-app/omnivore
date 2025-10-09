@@ -79,7 +79,7 @@ describe('SaveUrl E2E Tests', () => {
     }
 
     await app.close()
-  })
+  }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
   const executeQuery = async (
     query: string,

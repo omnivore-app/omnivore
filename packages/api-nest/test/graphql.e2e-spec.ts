@@ -43,7 +43,7 @@ describe('GraphQL Module (e2e)', () => {
 
   afterAll(async () => {
     await app.close()
-  })
+  }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
   it('rejects unauthenticated viewer query', async () => {
     const response = await request(app.getHttpServer())

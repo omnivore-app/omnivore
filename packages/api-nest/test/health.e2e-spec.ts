@@ -23,7 +23,7 @@ describe('Health E2E Tests', () => {
 
   afterAll(async () => {
     await app.close()
-  })
+  }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
   describe('GET /api/v2/health', () => {
     it('should return basic health status', async () => {
