@@ -69,30 +69,21 @@ export const JOB_CONFIG = {
  * Redis Configuration
  */
 export const REDIS_CONFIG = {
-  // Connection
-  HOST: process.env.REDIS_HOST || 'localhost',
-  PORT: parseInt(process.env.REDIS_PORT || '6379', 10),
-  PASSWORD: process.env.REDIS_PASSWORD,
+  URL: process.env.REDIS_URL || 'redis://localhost:6379',
 
-  // Sentinel configuration (for production)
   SENTINEL_NAME: process.env.REDIS_SENTINEL_NAME || 'mymaster',
   SENTINELS: process.env.REDIS_SENTINELS
-    ? process.env.REDIS_SENTINELS.split(',').map(s => {
+    ? process.env.REDIS_SENTINELS.split(',').map((s) => {
         const [host, port] = s.split(':')
         return { host, port: parseInt(port, 10) }
       })
     : undefined,
 
-  // Connection pool
-  // BullMQ requires null for blocking operations (BRPOPLPUSH, etc.)
   MAX_RETRIES_PER_REQUEST: null,
   ENABLE_READY_CHECK: true,
   ENABLE_OFFLINE_QUEUE: true,
 
-  // Key prefixes for different environments
-  KEY_PREFIX: process.env.NODE_ENV === 'test'
-    ? 'omnivore:test:'
-    : 'omnivore:',
+  KEY_PREFIX: process.env.NODE_ENV === 'test' ? 'omnivore:test:' : 'omnivore:',
 } as const
 
 /**
@@ -110,7 +101,7 @@ export const QUEUE_STATE = {
 /**
  * Type exports for type-safe usage
  */
-export type QueueName = typeof QUEUE_NAMES[keyof typeof QUEUE_NAMES]
-export type JobType = typeof JOB_TYPES[keyof typeof JOB_TYPES]
-export type JobPriority = typeof JOB_PRIORITY[keyof typeof JOB_PRIORITY]
-export type QueueState = typeof QUEUE_STATE[keyof typeof QUEUE_STATE]
+export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES]
+export type JobType = (typeof JOB_TYPES)[keyof typeof JOB_TYPES]
+export type JobPriority = (typeof JOB_PRIORITY)[keyof typeof JOB_PRIORITY]
+export type QueueState = (typeof QUEUE_STATE)[keyof typeof QUEUE_STATE]

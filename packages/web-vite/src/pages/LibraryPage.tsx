@@ -67,7 +67,8 @@ const LibraryPage: React.FC = () => {
   const [activeFolder, setActiveFolder] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('SAVED_AT')
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC')
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [toast, setToast] =
+    useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [processingItemId, setProcessingItemId] = useState<string | null>(null)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false)
@@ -114,13 +115,13 @@ const LibraryPage: React.FC = () => {
         searchParams.sortBy = sortBy
         searchParams.sortOrder = sortOrder
 
-        const data = await graphqlRequest<{ libraryItems: LibraryItemsConnection }>(
-          LIBRARY_ITEMS_QUERY,
-          {
-            first: INITIAL_PAGE_SIZE,
-            search: Object.keys(searchParams).length > 0 ? searchParams : undefined
-          }
-        )
+        const data = await graphqlRequest<{
+          libraryItems: LibraryItemsConnection
+        }>(LIBRARY_ITEMS_QUERY, {
+          first: INITIAL_PAGE_SIZE,
+          search:
+            Object.keys(searchParams).length > 0 ? searchParams : undefined,
+        })
 
         setItems(data.libraryItems.items)
         setError(null)
@@ -137,7 +138,15 @@ const LibraryPage: React.FC = () => {
     // Debounce search query - shorter for better UX
     const debounceTimer = setTimeout(fetchItems, searchQuery ? 300 : 0)
     return () => clearTimeout(debounceTimer)
-  }, [user, searchQuery, activeFolder, sortBy, sortOrder, selectedLabelFilters])
+  }, [
+    user,
+    searchQuery,
+    activeFolder,
+    sortBy,
+    sortOrder,
+    selectedLabelFilters,
+    items.length,
+  ])
 
   // No client-side filtering needed - using server-side search
   const filteredItems = items
@@ -185,7 +194,10 @@ const LibraryPage: React.FC = () => {
     }
   }
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const showToast = (
+    message: string,
+    type: 'success' | 'error' = 'success'
+  ) => {
     setToast({ message, type })
     setTimeout(() => setToast(null), 3000)
   }
@@ -194,7 +206,10 @@ const LibraryPage: React.FC = () => {
     navigate(`/reader/${itemId}`)
   }
 
-  const handleArchive = async (itemId: string, currentState: LibraryItemState) => {
+  const handleArchive = async (
+    itemId: string,
+    currentState: LibraryItemState
+  ) => {
     const isArchived = currentState === 'ARCHIVED'
 
     try {
@@ -204,7 +219,11 @@ const LibraryPage: React.FC = () => {
       setItems((prevItems) =>
         prevItems.map((item) =>
           item.id === itemId
-            ? { ...item, state: isArchived ? 'SUCCEEDED' : 'ARCHIVED', folder: isArchived ? 'inbox' : 'archive' }
+            ? {
+                ...item,
+                state: isArchived ? 'SUCCEEDED' : 'ARCHIVED',
+                folder: isArchived ? 'inbox' : 'archive',
+              }
             : item
         )
       )
@@ -215,9 +234,7 @@ const LibraryPage: React.FC = () => {
       // Revert optimistic update on error
       setItems((prevItems) =>
         prevItems.map((item) =>
-          item.id === itemId
-            ? { ...item, state: currentState }
-            : item
+          item.id === itemId ? { ...item, state: currentState } : item
         )
       )
       showToast(err instanceof Error ? err.message : 'Action failed', 'error')
@@ -280,13 +297,23 @@ const LibraryPage: React.FC = () => {
       setItems((prevItems) =>
         prevItems.map((item) =>
           selectedItems.has(item.id)
-            ? { ...item, state: archived ? 'ARCHIVED' : 'SUCCEEDED', folder: archived ? 'archive' : 'inbox' }
+            ? {
+                ...item,
+                state: archived ? 'ARCHIVED' : 'SUCCEEDED',
+                folder: archived ? 'archive' : 'inbox',
+              }
             : item
         )
       )
 
       const result = await bulkArchive(itemIds, archived)
-      showToast(result.message || `${result.successCount} items ${archived ? 'archived' : 'unarchived'}`, 'success')
+      showToast(
+        result.message ||
+          `${result.successCount} items ${
+            archived ? 'archived' : 'unarchived'
+          }`,
+        'success'
+      )
 
       if (result.failureCount > 0 && result.errors) {
         console.error('Bulk archive errors:', result.errors)
@@ -294,7 +321,10 @@ const LibraryPage: React.FC = () => {
 
       deselectAll()
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Bulk archive failed', 'error')
+      showToast(
+        err instanceof Error ? err.message : 'Bulk archive failed',
+        'error'
+      )
       // Refetch to restore correct state
       window.location.reload()
     }
@@ -303,7 +333,9 @@ const LibraryPage: React.FC = () => {
   const handleBulkDelete = async () => {
     if (selectedItems.size === 0) return
 
-    if (!confirm(`Are you sure you want to delete ${selectedItems.size} item(s)?`)) {
+    if (
+      !confirm(`Are you sure you want to delete ${selectedItems.size} item(s)?`)
+    ) {
       return
     }
 
@@ -311,10 +343,15 @@ const LibraryPage: React.FC = () => {
       const itemIds = Array.from(selectedItems)
 
       // Optimistic update - remove from list
-      setItems((prevItems) => prevItems.filter((item) => !selectedItems.has(item.id)))
+      setItems((prevItems) =>
+        prevItems.filter((item) => !selectedItems.has(item.id))
+      )
 
       const result = await bulkDelete(itemIds)
-      showToast(result.message || `${result.successCount} items deleted`, 'success')
+      showToast(
+        result.message || `${result.successCount} items deleted`,
+        'success'
+      )
 
       if (result.failureCount > 0 && result.errors) {
         console.error('Bulk delete errors:', result.errors)
@@ -322,7 +359,10 @@ const LibraryPage: React.FC = () => {
 
       deselectAll()
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Bulk delete failed', 'error')
+      showToast(
+        err instanceof Error ? err.message : 'Bulk delete failed',
+        'error'
+      )
       window.location.reload()
     }
   }
@@ -348,7 +388,10 @@ const LibraryPage: React.FC = () => {
       )
 
       const result = await bulkMoveToFolder(itemIds, folder)
-      showToast(result.message || `${result.successCount} items moved to ${folder}`, 'success')
+      showToast(
+        result.message || `${result.successCount} items moved to ${folder}`,
+        'success'
+      )
 
       if (result.failureCount > 0 && result.errors) {
         console.error('Bulk move errors:', result.errors)
@@ -356,7 +399,10 @@ const LibraryPage: React.FC = () => {
 
       deselectAll()
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Bulk move failed', 'error')
+      showToast(
+        err instanceof Error ? err.message : 'Bulk move failed',
+        'error'
+      )
       window.location.reload()
     }
   }
@@ -377,7 +423,10 @@ const LibraryPage: React.FC = () => {
       )
 
       const result = await bulkMarkAsRead(itemIds)
-      showToast(result.message || `${result.successCount} items marked as read`, 'success')
+      showToast(
+        result.message || `${result.successCount} items marked as read`,
+        'success'
+      )
 
       if (result.failureCount > 0 && result.errors) {
         console.error('Bulk mark as read errors:', result.errors)
@@ -385,19 +434,25 @@ const LibraryPage: React.FC = () => {
 
       deselectAll()
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Bulk mark as read failed', 'error')
+      showToast(
+        err instanceof Error ? err.message : 'Bulk mark as read failed',
+        'error'
+      )
       window.location.reload()
     }
   }
 
-  const handleLabelsUpdate = async (itemId: string, newLabelNames: string[]) => {
+  const handleLabelsUpdate = async (
+    itemId: string,
+    newLabelNames: string[]
+  ) => {
     // Optimistic update - convert label names to Label objects
     setItems((prevItems) =>
       prevItems.map((item) => {
         if (item.id === itemId && allLabels) {
           // Map label names to full Label objects from allLabels
           const updatedLabels = newLabelNames
-            .map(name => allLabels.find(l => l.name === name))
+            .map((name) => allLabels.find((l) => l.name === name))
             .filter((l): l is NonNullable<typeof l> => l !== undefined)
           return { ...item, labels: updatedLabels }
         }
@@ -422,13 +477,12 @@ const LibraryPage: React.FC = () => {
       searchParams.sortBy = sortBy
       searchParams.sortOrder = sortOrder
 
-      const data = await graphqlRequest<{ libraryItems: LibraryItemsConnection }>(
-        LIBRARY_ITEMS_QUERY,
-        {
-          first: INITIAL_PAGE_SIZE,
-          search: Object.keys(searchParams).length > 0 ? searchParams : undefined
-        }
-      )
+      const data = await graphqlRequest<{
+        libraryItems: LibraryItemsConnection
+      }>(LIBRARY_ITEMS_QUERY, {
+        first: INITIAL_PAGE_SIZE,
+        search: Object.keys(searchParams).length > 0 ? searchParams : undefined,
+      })
 
       setItems(data.libraryItems.items)
     } catch (err) {
@@ -468,13 +522,12 @@ const LibraryPage: React.FC = () => {
       searchParams.sortBy = sortBy
       searchParams.sortOrder = sortOrder
 
-      const data = await graphqlRequest<{ libraryItems: LibraryItemsConnection }>(
-        LIBRARY_ITEMS_QUERY,
-        {
-          first: INITIAL_PAGE_SIZE,
-          search: Object.keys(searchParams).length > 0 ? searchParams : undefined
-        }
-      )
+      const data = await graphqlRequest<{
+        libraryItems: LibraryItemsConnection
+      }>(LIBRARY_ITEMS_QUERY, {
+        first: INITIAL_PAGE_SIZE,
+        search: Object.keys(searchParams).length > 0 ? searchParams : undefined,
+      })
 
       setItems(data.libraryItems.items)
     } catch (err) {
@@ -504,16 +557,19 @@ const LibraryPage: React.FC = () => {
   return (
     <ErrorBoundary>
       {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          {toast.message}
-        </div>
+        <div className={`toast toast-${toast.type}`}>{toast.message}</div>
       )}
       <div className="library-page">
         <div className="library-header">
           <h1>
-            Your Library {searching && <span className="searching-indicator">Searching...</span>}
+            Your Library{' '}
+            {searching && (
+              <span className="searching-indicator">Searching...</span>
+            )}
             {selectedItems.size > 0 && (
-              <span className="selection-count">({selectedItems.size} selected)</span>
+              <span className="selection-count">
+                ({selectedItems.size} selected)
+              </span>
             )}
           </h1>
           <div className="library-controls">
@@ -532,7 +588,9 @@ const LibraryPage: React.FC = () => {
                 className="label-filter-toggle-btn"
                 onClick={() => setShowLabelFilter(!showLabelFilter)}
               >
-                🏷️ Filter by Labels {selectedLabelFilters.length > 0 && `(${selectedLabelFilters.length})`}
+                🏷️ Filter by Labels{' '}
+                {selectedLabelFilters.length > 0 &&
+                  `(${selectedLabelFilters.length})`}
               </button>
               {showLabelFilter && (
                 <div className="label-filter-dropdown">
@@ -663,19 +721,25 @@ const LibraryPage: React.FC = () => {
               All
             </button>
             <button
-              className={`folder-tab ${activeFolder === 'inbox' ? 'active' : ''}`}
+              className={`folder-tab ${
+                activeFolder === 'inbox' ? 'active' : ''
+              }`}
               onClick={() => setActiveFolder('inbox')}
             >
               Inbox
             </button>
             <button
-              className={`folder-tab ${activeFolder === 'archive' ? 'active' : ''}`}
+              className={`folder-tab ${
+                activeFolder === 'archive' ? 'active' : ''
+              }`}
               onClick={() => setActiveFolder('archive')}
             >
               Archive
             </button>
             <button
-              className={`folder-tab ${activeFolder === 'trash' ? 'active' : ''}`}
+              className={`folder-tab ${
+                activeFolder === 'trash' ? 'active' : ''
+              }`}
               onClick={() => setActiveFolder('trash')}
             >
               Trash
@@ -698,7 +762,9 @@ const LibraryPage: React.FC = () => {
             </select>
             <button
               className="sort-order-btn"
-              onClick={() => setSortOrder(sortOrder === 'DESC' ? 'ASC' : 'DESC')}
+              onClick={() =>
+                setSortOrder(sortOrder === 'DESC' ? 'ASC' : 'DESC')
+              }
               title={sortOrder === 'DESC' ? 'Descending' : 'Ascending'}
             >
               {sortOrder === 'DESC' ? '↓' : '↑'}
@@ -747,7 +813,9 @@ const LibraryPage: React.FC = () => {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className={`article-card ${selectedItems.has(item.id) ? 'selected' : ''}`}
+                className={`article-card ${
+                  selectedItems.has(item.id) ? 'selected' : ''
+                }`}
               >
                 {isMultiSelectMode && (
                   <div className="article-checkbox">
@@ -797,7 +865,7 @@ const LibraryPage: React.FC = () => {
                           padding: '0.25rem 0.5rem',
                           borderRadius: '0.25rem',
                           fontSize: '0.75rem',
-                          marginRight: '0.25rem'
+                          marginRight: '0.25rem',
                         }}
                       >
                         {label.name}
@@ -823,8 +891,10 @@ const LibraryPage: React.FC = () => {
                   </button>
                   <LabelPicker
                     itemId={item.id}
-                    currentLabels={item.labels?.map(l => l.name) || []}
-                    onUpdate={(labelNames) => handleLabelsUpdate(item.id, labelNames)}
+                    currentLabels={item.labels?.map((l) => l.name) || []}
+                    onUpdate={(labelNames) =>
+                      handleLabelsUpdate(item.id, labelNames)
+                    }
                   />
                   <button
                     className="action-btn action-btn-danger"

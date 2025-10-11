@@ -14,17 +14,19 @@ import { EventBusService } from './event-bus.service'
 import { QueueHealthIndicator } from './queue-health.indicator'
 import { ContentProcessorService } from './processors/content-processor.service'
 import { LibraryItemEntity } from '../library/entities/library-item.entity'
+import { EnvVariables } from '../config/env-variables'
 
 @Module({
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([LibraryItemEntity]),
-    // Register BullMQ with Redis Sentinel configuration
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        // Check if we're using Sentinel (production) or standalone Redis (development)
+        const redisUrl =
+          configService.get<string>(EnvVariables.REDIS_URL) || REDIS_CONFIG.URL
+
         const useSentinel =
           configService.get<string>('NODE_ENV') === 'production' &&
           REDIS_CONFIG.SENTINELS
@@ -32,19 +34,14 @@ import { LibraryItemEntity } from '../library/entities/library-item.entity'
         return {
           connection: useSentinel
             ? {
-                // Sentinel configuration (production)
                 sentinels: REDIS_CONFIG.SENTINELS,
                 name: REDIS_CONFIG.SENTINEL_NAME,
-                password: REDIS_CONFIG.PASSWORD,
                 maxRetriesPerRequest: REDIS_CONFIG.MAX_RETRIES_PER_REQUEST,
                 enableReadyCheck: REDIS_CONFIG.ENABLE_READY_CHECK,
                 enableOfflineQueue: REDIS_CONFIG.ENABLE_OFFLINE_QUEUE,
               }
             : {
-                // Standalone Redis configuration (development)
-                host: REDIS_CONFIG.HOST,
-                port: REDIS_CONFIG.PORT,
-                password: REDIS_CONFIG.PASSWORD,
+                url: redisUrl,
                 maxRetriesPerRequest: REDIS_CONFIG.MAX_RETRIES_PER_REQUEST,
                 enableReadyCheck: REDIS_CONFIG.ENABLE_READY_CHECK,
                 enableOfflineQueue: REDIS_CONFIG.ENABLE_OFFLINE_QUEUE,
@@ -64,7 +61,6 @@ import { LibraryItemEntity } from '../library/entities/library-item.entity'
       },
     }),
 
-    // Register individual queues
     BullModule.registerQueue(
       {
         name: QUEUE_NAMES.CONTENT_PROCESSING,
@@ -95,7 +91,7 @@ import { LibraryItemEntity } from '../library/entities/library-item.entity'
             delay: 3000,
           },
         },
-      }
+      },
     ),
   ],
   providers: [EventBusService, QueueHealthIndicator, ContentProcessorService],
