@@ -65,6 +65,12 @@ export class LibraryItem {
 
   @Field({ nullable: true })
   content?: string | null
+
+  @Field({ nullable: true })
+  note?: string | null
+
+  @Field(() => Date, { nullable: true })
+  noteUpdatedAt?: Date | null
 }
 
 @ObjectType()

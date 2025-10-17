@@ -205,3 +205,13 @@ export class SaveUrlInput {
   @IsIn(['web', 'mobile', 'api', 'extension'])
   source?: 'web' | 'mobile' | 'api' | 'extension'
 }
+
+/**
+ * Input type for updating notebook content
+ */
+@InputType()
+export class UpdateNotebookInput {
+  @Field(() => String, { description: 'Notebook content (supports markdown)' })
+  @IsString()
+  note: string
+}

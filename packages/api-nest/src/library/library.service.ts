@@ -706,6 +706,32 @@ export class LibraryService {
   }
 
   /**
+   * Update notebook content for a library item
+   * @param userId - User ID who owns the item
+   * @param itemId - Library item ID
+   * @param note - Notebook content (supports markdown)
+   * @returns Updated library item
+   */
+  async updateNotebook(
+    userId: string,
+    itemId: string,
+    note: string,
+  ): Promise<LibraryItemEntity> {
+    const item = await this.findById(userId, itemId)
+
+    if (!item) {
+      throw new NotFoundException(`Library item with ID ${itemId} not found`)
+    }
+
+    // Update note and timestamp
+    item.note = note
+    item.noteUpdatedAt = new Date()
+
+    await this.libraryRepository.save(item)
+    return item
+  }
+
+  /**
    * Generate a slug from URL
    */
   private generateSlug(url: string): string {

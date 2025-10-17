@@ -8,6 +8,7 @@ import { LoggingModule } from '../logging/logging.module'
 import { GraphqlModule } from '../graphql/graphql.module'
 import { LibraryModule } from '../library/library.module'
 import { LabelModule } from '../label/label.module'
+import { HighlightModule } from '../highlight/highlight.module'
 import { QueueModule } from '../queue/queue.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -43,6 +44,12 @@ import { configValidationSchema } from '../config/config.schema'
 
     // Library / Reader
     LibraryModule,
+
+    // Labels
+    LabelModule,
+
+    // Highlights
+    HighlightModule,
 
     // Queue and Background Processing
     QueueModule,

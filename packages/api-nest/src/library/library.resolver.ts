@@ -10,6 +10,7 @@ import {
   DeleteResult,
   LibrarySearchInput,
   SaveUrlInput,
+  UpdateNotebookInput,
 } from './dto/library-inputs.type'
 import { LabelService } from '../label/label.service'
 import { Label } from '../label/dto/label.type'
@@ -118,6 +119,28 @@ export class LibraryResolver {
       user.id,
       id,
       progress,
+    )
+    return mapEntityToGraph(entity)
+  }
+
+  @Mutation(() => LibraryItem, {
+    description: 'Update notebook content for a library item',
+  })
+  @UseGuards(JwtAuthGuard)
+  async updateNotebook(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String, description: 'Library item ID' })
+    id: string,
+    @Args('input', {
+      type: () => UpdateNotebookInput,
+      description: 'Notebook content',
+    })
+    input: UpdateNotebookInput,
+  ): Promise<LibraryItem> {
+    const entity = await this.libraryService.updateNotebook(
+      user.id,
+      id,
+      input.note,
     )
     return mapEntityToGraph(entity)
   }
@@ -247,6 +270,8 @@ function mapEntityToGraph(entity: any): LibraryItem {
     contentReader: entity.contentReader,
     folder: entity.folder,
     content: entity.readableContent ?? null,
+    note: entity.note ?? null,
+    noteUpdatedAt: entity.noteUpdatedAt ?? null,
     labels: null, // Labels will be resolved by the field resolver
   }
 }

@@ -119,6 +119,12 @@ export class LibraryItemEntity {
   @Column({ name: 'readable_content', type: 'text', default: '' })
   readableContent!: string
 
+  @Column({ type: 'text', nullable: true })
+  note?: string | null
+
+  @Column({ name: 'note_updated_at', type: 'timestamptz', nullable: true })
+  noteUpdatedAt?: Date | null
+
   @OneToMany(() => EntityLabel, (entityLabel) => entityLabel.libraryItem)
   entityLabels!: EntityLabel[]
 }

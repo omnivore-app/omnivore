@@ -23,6 +23,35 @@ enum ContentReaderType {
   WEB
 }
 
+input CreateHighlightInput {
+  """User annotation/note on the highlight"""
+  annotation: String
+
+  """Highlight color (yellow, red, green, blue)"""
+  color: String
+
+  """Anchor index for position"""
+  highlightPositionAnchorIndex: Int = 0
+
+  """Position in document as percentage (0-100)"""
+  highlightPositionPercent: Float = 0
+
+  """HTML content of the highlight"""
+  html: String
+
+  """Library item ID"""
+  libraryItemId: String!
+
+  """Text before the quote (for context)"""
+  prefix: String
+
+  """Quoted text from the document"""
+  quote: String!
+
+  """Text after the quote (for context)"""
+  suffix: String
+}
+
 input CreateLabelInput {
   color: String = "#000000"
   description: String
@@ -45,6 +74,32 @@ type DeleteResult {
   success: Boolean!
 }
 
+type Highlight {
+  annotation: String
+  color: String
+  createdAt: DateTime!
+  highlightPositionAnchorIndex: Int!
+  highlightPositionPercent: Float!
+  highlightType: HighlightType!
+  html: String
+  id: ID!
+  libraryItemId: String!
+  patch: String
+  prefix: String
+  quote: String
+  representation: RepresentationType!
+  sharedAt: DateTime
+  shortId: String!
+  suffix: String
+  updatedAt: DateTime!
+}
+
+enum HighlightType {
+  HIGHLIGHT
+  NOTE
+  REDACTION
+}
+
 type Label {
   color: String!
   createdAt: DateTime!
@@ -65,6 +120,8 @@ type LibraryItem {
   folder: String!
   id: ID!
   labels: [Label!]
+  note: String
+  noteUpdatedAt: DateTime
   originalUrl: String!
   publishedAt: DateTime
   readAt: DateTime
@@ -162,8 +219,20 @@ type Mutation {
     itemIds: [String!]!
   ): BulkActionResult!
 
+  """Create a new highlight with optional color"""
+  createHighlight(
+    """Highlight creation data"""
+    input: CreateHighlightInput!
+  ): Highlight!
+
   """Create a new label"""
   createLabel(input: CreateLabelInput!): Label!
+
+  """Delete a highlight"""
+  deleteHighlight(
+    """Highlight ID"""
+    id: String!
+  ): DeleteResult!
 
   """Delete a label"""
   deleteLabel(id: String!): DeleteResult!
@@ -191,8 +260,26 @@ type Mutation {
   """Set labels for a library item (replaces existing labels)"""
   setLibraryItemLabels(itemId: String!, labelIds: [String!]!): [Label!]!
 
+  """Update a highlight (annotation and/or color)"""
+  updateHighlight(
+    """Highlight ID"""
+    id: String!
+
+    """Highlight update data"""
+    input: UpdateHighlightInput!
+  ): Highlight!
+
   """Update an existing label"""
   updateLabel(id: String!, input: UpdateLabelInput!): Label!
+
+  """Update notebook content for a library item"""
+  updateNotebook(
+    """Library item ID"""
+    id: String!
+
+    """Notebook content"""
+    input: UpdateNotebookInput!
+  ): LibraryItem!
 
   """Update reading progress for a library item"""
   updateReadingProgress(
@@ -205,6 +292,18 @@ type Mutation {
 }
 
 type Query {
+  """Get a single highlight by ID"""
+  highlight(
+    """Highlight ID"""
+    id: String!
+  ): Highlight
+
+  """Get all highlights for a library item"""
+  highlights(
+    """Library item ID"""
+    libraryItemId: String!
+  ): [Highlight!]!
+
   """Get a single label by ID"""
   label(id: String!): Label
 
@@ -238,6 +337,11 @@ enum RegistrationType {
   TWITTER
 }
 
+enum RepresentationType {
+  CONTENT
+  FEED_CONTENT
+}
+
 input SaveUrlInput {
   """Folder to save the URL to (inbox, archive)"""
   folder: String = "inbox"
@@ -261,10 +365,23 @@ enum StatusType {
   PENDING
 }
 
+input UpdateHighlightInput {
+  """User annotation/note on the highlight"""
+  annotation: String
+
+  """Highlight color (yellow, red, green, blue)"""
+  color: String
+}
+
 input UpdateLabelInput {
   color: String
   description: String
   name: String
+}
+
+input UpdateNotebookInput {
+  """Notebook content (supports markdown)"""
+  note: String!
 }
 
 type User {

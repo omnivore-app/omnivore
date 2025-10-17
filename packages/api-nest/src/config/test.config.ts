@@ -13,11 +13,11 @@ import { EntityLabel } from '../label/entities/entity-label.entity'
 
 export const testDatabaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
-  host: process.env.DATABASE_HOST || 'localhost',
-  port: parseInt(process.env.DATABASE_PORT || '5432'),
-  username: process.env.DATABASE_USER || 'app_user',
-  password: process.env.DATABASE_PASSWORD || '',
-  database: process.env.DATABASE_NAME || 'omnivore', // Use same DB as dev
+  host: process.env.TEST_DATABASE_HOST,
+  port: Number.parseInt(process.env.TEST_DATABASE_PORT || '5432'),
+  username: process.env.TEST_DATABASE_USER,
+  password: process.env.TEST_DATABASE_PASSWORD,
+  database: process.env.TEST_DATABASE_NAME,
   entities: [
     User,
     UserProfile,
@@ -30,7 +30,7 @@ export const testDatabaseConfig: TypeOrmModuleOptions = {
     Label,
     EntityLabel,
   ],
-  synchronize: false, // Use existing schema
+  synchronize: false,
   logging: false,
 }
 
