@@ -7,7 +7,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "transformIgnorePatterns": [
-    "node_modules/(?!(bullmq|msgpackr)/)"
+    "node_modules/(?!(bullmq|msgpackr|@faker-js)/)"
   ],
   "moduleDirectories": [
     "node_modules",
@@ -17,5 +17,9 @@
   "moduleNameMapper": {
     "^typeorm$": "<rootDir>/../../../node_modules/typeorm",
     "^uuid$": "<rootDir>/../../../node_modules/uuid/dist/index.js"
-  }
+  },
+  "globalSetup": "<rootDir>/setup/global-setup.ts",
+  "globalTeardown": "<rootDir>/setup/global-teardown.ts",
+  "setupFilesAfterEnv": ["<rootDir>/setup/jest-environment-setup.ts"],
+  "testTimeout": 60000
 }

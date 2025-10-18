@@ -64,9 +64,11 @@
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@testcontainers/postgresql": "^11.7.1",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.14",
