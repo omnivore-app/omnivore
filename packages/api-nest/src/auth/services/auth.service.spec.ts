@@ -459,7 +459,7 @@ describe('AuthService', () => {
       mockUserService.findById.mockResolvedValue(null)
 
       await expect(service.confirmEmail('verification-token')).rejects.toThrow(
-        'USER_NOT_FOUND',
+        'User not found',
       )
 
       expect(emailVerificationService.verifyToken).toHaveBeenCalledWith(
@@ -535,7 +535,7 @@ describe('AuthService', () => {
 
       await expect(
         service.resendVerification('test@example.com'),
-      ).rejects.toThrow('USER_NOT_FOUND')
+      ).rejects.toThrow('User not found')
 
       expect(userService.findByEmail).toHaveBeenCalledWith('test@example.com')
     })
@@ -547,7 +547,7 @@ describe('AuthService', () => {
 
       await expect(
         service.resendVerification('test@example.com'),
-      ).rejects.toThrow('USER_ALREADY_VERIFIED')
+      ).rejects.toThrow('Email already verified. Please login to continue.')
 
       expect(userService.findByEmail).toHaveBeenCalledWith('test@example.com')
     })
