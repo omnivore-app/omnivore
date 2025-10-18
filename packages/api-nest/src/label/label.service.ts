@@ -3,42 +3,37 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 import { Label } from './entities/label.entity'
-import { EntityLabel } from './entities/entity-label.entity'
 import { CreateLabelInput, UpdateLabelInput } from './dto/label-inputs.type'
-import { LibraryItemEntity } from '../library/entities/library-item.entity'
+import { ILibraryItemRepository } from '../repositories/interfaces/library-item-repository.interface'
+import { ILabelRepository } from '../repositories/interfaces/label-repository.interface'
+import { IEntityLabelRepository } from '../repositories/interfaces/entity-label-repository.interface'
 
 @Injectable()
 export class LabelService {
   constructor(
-    @InjectRepository(Label)
-    private readonly labelRepository: Repository<Label>,
-    @InjectRepository(EntityLabel)
-    private readonly entityLabelRepository: Repository<EntityLabel>,
-    @InjectRepository(LibraryItemEntity)
-    private readonly libraryItemRepository: Repository<LibraryItemEntity>,
+    @Inject('ILabelRepository')
+    private readonly labelRepository: ILabelRepository,
+    @Inject('IEntityLabelRepository')
+    private readonly entityLabelRepository: IEntityLabelRepository,
+    @Inject('ILibraryItemRepository')
+    private readonly libraryItemRepository: ILibraryItemRepository,
   ) {}
 
   /**
    * Get all labels for a user
    */
   async findAll(userId: string): Promise<Label[]> {
-    return this.labelRepository.find({
-      where: { userId },
-      order: { position: 'ASC' },
-    })
+    return this.labelRepository.findAll(userId)
   }
 
   /**
    * Get a single label by ID
    */
   async findOne(userId: string, labelId: string): Promise<Label> {
-    const label = await this.labelRepository.findOne({
-      where: { id: labelId, userId },
-    })
+    const label = await this.labelRepository.findById(labelId, userId)
 
     if (!label) {
       throw new NotFoundException(`Label with ID ${labelId} not found`)
@@ -52,9 +47,7 @@ export class LabelService {
    */
   async create(userId: string, input: CreateLabelInput): Promise<Label> {
     // Check for duplicate label name
-    const existing = await this.labelRepository.findOne({
-      where: { userId, name: input.name },
-    })
+    const existing = await this.labelRepository.findByName(input.name, userId)
 
     if (existing) {
       throw new ConflictException(
@@ -89,9 +82,7 @@ export class LabelService {
 
     // If updating name, check for duplicates
     if (input.name && input.name !== label.name) {
-      const existing = await this.labelRepository.findOne({
-        where: { userId, name: input.name },
-      })
+      const existing = await this.labelRepository.findByName(input.name, userId)
 
       if (existing) {
         throw new ConflictException(
@@ -132,9 +123,10 @@ export class LabelService {
     labelIds: string[],
   ): Promise<Label[]> {
     // Verify library item exists and belongs to user
-    const libraryItem = await this.libraryItemRepository.findOne({
-      where: { id: libraryItemId, userId },
-    })
+    const libraryItem = await this.libraryItemRepository.findById(
+      libraryItemId,
+      userId,
+    )
 
     if (!libraryItem) {
       throw new NotFoundException(
@@ -145,9 +137,7 @@ export class LabelService {
     // Verify all labels belong to the user
     let labels: Label[] = []
     if (labelIds.length > 0) {
-      labels = await this.labelRepository.find({
-        where: labelIds.map((id) => ({ id, userId })),
-      })
+      labels = await this.labelRepository.findByIds(labelIds, userId)
 
       if (labels.length !== labelIds.length) {
         throw new NotFoundException(
@@ -157,7 +147,7 @@ export class LabelService {
     }
 
     // Remove existing labels for this library item
-    await this.entityLabelRepository.delete({ libraryItemId })
+    await this.entityLabelRepository.deleteByLibraryItemId(libraryItemId)
 
     // Add new labels
     if (labelIds.length > 0) {
@@ -181,10 +171,7 @@ export class LabelService {
       return []
     }
 
-    return this.labelRepository.find({
-      where: labelIds.map((id) => ({ id, userId })),
-      order: { position: 'ASC' },
-    })
+    return this.labelRepository.findByIds(labelIds, userId)
   }
 
   /**
@@ -194,10 +181,8 @@ export class LabelService {
     userId: string,
     libraryItemId: string,
   ): Promise<Label[]> {
-    const entityLabels = await this.entityLabelRepository.find({
-      where: { libraryItemId },
-      relations: ['label'],
-    })
+    const entityLabels =
+      await this.entityLabelRepository.findByLibraryItemId(libraryItemId)
 
     // Filter to only return labels owned by the user
     const labels = entityLabels

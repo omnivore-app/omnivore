@@ -18,6 +18,7 @@ import {
   IsUrl,
 } from 'class-validator'
 import { LibraryItemState } from '../entities/library-item.entity'
+import { FOLDERS, ALL_FOLDERS, VALID_FOLDERS } from '../../constants/folders.constants'
 
 /**
  * Sort field options for library items
@@ -114,7 +115,7 @@ export class DeleteResult {
 export class MoveToFolderInput {
   @Field(() => String, { description: 'Target folder (inbox, archive, trash)' })
   @IsString()
-  @IsIn(['inbox', 'archive', 'trash', 'all'])
+  @IsIn([...ALL_FOLDERS])
   folder: string
 }
 
@@ -138,7 +139,7 @@ export class LibrarySearchInput {
   })
   @IsOptional()
   @IsString()
-  @IsIn(['inbox', 'archive', 'trash', 'all'])
+  @IsIn([...ALL_FOLDERS])
   folder?: string
 
   @Field(() => LibraryItemState, {
@@ -187,12 +188,12 @@ export class SaveUrlInput {
 
   @Field(() => String, {
     nullable: true,
-    defaultValue: 'inbox',
+    defaultValue: FOLDERS.INBOX,
     description: 'Folder to save the URL to (inbox, archive)',
   })
   @IsOptional()
   @IsString()
-  @IsIn(['inbox', 'archive'])
+  @IsIn([FOLDERS.INBOX, FOLDERS.ARCHIVE])
   folder?: string
 
   @Field(() => String, {

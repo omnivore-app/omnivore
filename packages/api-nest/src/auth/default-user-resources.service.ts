@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Repository, DataSource } from 'typeorm'
 import { Filter } from '../filter/entities/filter.entity'
+import { FOLDERS } from '../constants/folders.constants'
+import { seedLibraryItems } from '../database/seeds/library-items.seed'
+import { ConfigService } from '@nestjs/config'
 
 export interface ProvisionOptions {
   client?: string
@@ -15,8 +18,16 @@ export class DefaultUserResourcesService {
   constructor(
     @InjectRepository(Filter)
     private readonly filterRepository: Repository<Filter>,
+    private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * Provision default resources for a new user
+   * Creates default filters and optionally seeds example library items
+   * @param userId - The user ID to provision resources for
+   * @param options - Provisioning options (client, username)
+   */
   async provisionForUser(
     userId: string,
     options: ProvisionOptions,
@@ -26,6 +37,7 @@ export class DefaultUserResourcesService {
     try {
       await this.createDefaultFilters(userId)
       await this.addPopularReads(userId, options.client)
+      await this.seedExampleLibraryItems(userId)
     } catch (error) {
       this.logger.error(
         `Failed to provision resources for user ${userId}`,
@@ -56,7 +68,7 @@ export class DefaultUserResourcesService {
       category: 'Search',
       defaultFilter: true,
       visible: true,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
     }))
 
     try {
@@ -125,6 +137,35 @@ export class DefaultUserResourcesService {
     } catch (error) {
       this.logger.error(`Failed to add popular reads for user ${userId}`, error)
       // Don't throw - this shouldn't block user creation
+    }
+  }
+
+  /**
+   * Seed example library items for new users in non-production environments
+   * Helps new users understand the app with sample content
+   * @param userId - The user ID to seed items for
+   * @private
+   */
+  private async seedExampleLibraryItems(userId: string): Promise<void> {
+    const nodeEnv = this.configService.get<string>('NODE_ENV')
+    const shouldSeed = nodeEnv !== 'production' && nodeEnv !== 'test'
+
+    if (!shouldSeed) {
+      this.logger.debug(
+        `Skipping library items seed for user ${userId} (env: ${nodeEnv})`,
+      )
+      return
+    }
+
+    try {
+      await seedLibraryItems(this.dataSource, userId)
+      this.logger.debug(`Seeded example library items for user ${userId}`)
+    } catch (error) {
+      this.logger.warn(
+        `Failed to seed library items for user ${userId}`,
+        error,
+      )
+      // Don't throw - this is optional and shouldn't block user creation
     }
   }
 }

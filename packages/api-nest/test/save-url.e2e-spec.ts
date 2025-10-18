@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto'
 import { AppModule } from '../src/app/app.module'
 import { ConfigService } from '@nestjs/config'
 import { DataSource } from 'typeorm'
+import { FOLDERS } from '../src/constants/folders.constants'
 
 describe('SaveUrl E2E Tests', () => {
   let app: INestApplication
@@ -122,7 +123,7 @@ describe('SaveUrl E2E Tests', () => {
       expect(response.body.errors).toBeUndefined()
       expect(response.body.data.saveUrl).toMatchObject({
         originalUrl: 'https://example.com/article',
-        folder: 'inbox', // Default folder
+        folder: FOLDERS.INBOX, // Default folder
         contentReader: 'WEB',
         state: 'CONTENT_NOT_FETCHED', // Content extraction deferred to ARC-012
       })
@@ -149,7 +150,7 @@ describe('SaveUrl E2E Tests', () => {
         {
           input: {
             url: 'https://example.com/archived-article',
-            folder: 'archive',
+            folder: FOLDERS.ARCHIVE,
           },
         },
       )
@@ -157,7 +158,7 @@ describe('SaveUrl E2E Tests', () => {
       expect(response.status).toBe(200)
       expect(response.body.data.saveUrl).toMatchObject({
         originalUrl: 'https://example.com/archived-article',
-        folder: 'archive',
+        folder: FOLDERS.ARCHIVE,
       })
 
       createdLibraryItemIds.push(response.body.data.saveUrl.id)
@@ -561,14 +562,14 @@ describe('SaveUrl E2E Tests', () => {
       `,
         {
           id: itemId,
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
         },
       )
 
       expect(moveResponse.status).toBe(200)
       expect(moveResponse.body.data.moveLibraryItemToFolder).toMatchObject({
         id: itemId,
-        folder: 'archive',
+        folder: FOLDERS.ARCHIVE,
       })
     })
 

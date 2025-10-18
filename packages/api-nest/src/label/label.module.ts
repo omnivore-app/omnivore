@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { Label } from './entities/label.entity'
-import { EntityLabel } from './entities/entity-label.entity'
-import { LibraryItemEntity } from '../library/entities/library-item.entity'
 import { LabelService } from './label.service'
 import { LabelResolver } from './label.resolver'
+import { RepositoriesModule } from '../repositories/repositories.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Label, EntityLabel, LibraryItemEntity])],
+  imports: [
+    RepositoriesModule, // Access to ILabelRepository, IEntityLabelRepository, and ILibraryItemRepository
+  ],
   providers: [LabelService, LabelResolver],
   exports: [LabelService],
 })

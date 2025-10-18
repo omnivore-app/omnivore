@@ -1,7 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { DataSource } from 'typeorm'
 import { StructuredLogger } from '../../logging/structured-logger.service'
 import { UserService } from '../../user/user.service'
 import { User, StatusType } from '../../user/entities/user.entity'
@@ -13,7 +17,6 @@ import { NotificationClient } from '../interfaces/notification-client.interface'
 import { AnalyticsService } from '../../analytics/analytics.service'
 import { PubSubService } from '../../pubsub/pubsub.service'
 import { IntercomService } from '../../integrations/intercom.service'
-import { seedLibraryItems } from '../../database/seeds/library-items.seed'
 import {
   LoginSuccessResponse,
   RegisterSuccessWithLoginResponse,
@@ -34,7 +37,6 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    private dataSource: DataSource,
     private userService: UserService,
     private emailVerificationService: EmailVerificationService,
     private defaultResources: DefaultUserResourcesService,
@@ -47,10 +49,21 @@ export class AuthService {
     this.logger.setContext({ operation: 'auth' })
   }
 
+  /**
+   * Validate user credentials for authentication
+   * @param email - User's email address
+   * @param password - User's password (plaintext)
+   * @returns User entity if credentials are valid, null otherwise
+   */
   async validateUser(email: string, password: string): Promise<User | null> {
     return this.userService.validateCredentials(email, password)
   }
 
+  /**
+   * Validate a JWT token and retrieve the associated user
+   * @param token - JWT token (with or without 'Bearer ' prefix)
+   * @returns User entity if token is valid, null otherwise
+   */
   async validateToken(token: string): Promise<User | null> {
     try {
       // Remove 'Bearer ' prefix if present
@@ -75,6 +88,13 @@ export class AuthService {
     }
   }
 
+  /**
+   * Generate JWT token and login response for a user
+   * Validates user status and tracks login analytics
+   * @param user - User entity to login
+   * @returns Login response with access token and user data
+   * @throws UnauthorizedException if user account is not active
+   */
   async login(user: User): Promise<LoginSuccessResponse> {
     this.logger
       .withContext({ userId: user.id, email: user.email })
@@ -132,6 +152,13 @@ export class AuthService {
     }
   }
 
+  /**
+   * Register a new user account with complete user provisioning
+   * Creates user, profile, default resources, and triggers analytics/notifications
+   * Returns either immediate login or email verification response based on config
+   * @param registerDto - User registration data (email, password, name, etc.)
+   * @returns Login response or email verification response
+   */
   async register(
     registerDto: RegisterDto,
   ): Promise<
@@ -146,20 +173,10 @@ export class AuthService {
     const result = await this.userService.registerUserComplete(registerDto)
 
     // Provision default resources for the new user
+    // This includes default filters and example library items (in non-production envs)
     await this.defaultResources.provisionForUser(result.user.id, {
       username: result.profile.username,
     })
-
-    // Seed example library items in development (but not in test)
-    const nodeEnv = this.configService.get<string>('NODE_ENV')
-    const shouldSeed = nodeEnv !== 'production' && nodeEnv !== 'test'
-    if (shouldSeed) {
-      try {
-        await seedLibraryItems(this.dataSource, result.user.id)
-      } catch (error) {
-        this.logger.warn('Failed to seed library items', { error })
-      }
-    }
 
     // Analytics: Track user creation
     this.analytics.trackUserCreated(
@@ -234,6 +251,11 @@ export class AuthService {
     return this.login(result.user)
   }
 
+  /**
+   * Generate a new access token for an authenticated user
+   * @param user - User entity to generate token for
+   * @returns New access token and expiration time
+   */
   async refreshToken(user: User) {
     const role = user.role ?? 'user'
 
@@ -253,10 +275,22 @@ export class AuthService {
     }
   }
 
+  /**
+   * Find a user by their ID
+   * @param id - User ID
+   * @returns User entity if found, null otherwise
+   */
   async findUserById(id: string): Promise<User | null> {
     return this.userService.findById(id)
   }
 
+  /**
+   * Confirm a user's email address using a verification token
+   * Activates pending user accounts and returns login response
+   * @param token - Email verification token
+   * @returns Login response with access token
+   * @throws NotFoundException if user not found
+   */
   async confirmEmail(token: string) {
     const payload = await this.emailVerificationService.verifyToken(token, {
       consume: true,
@@ -264,7 +298,7 @@ export class AuthService {
 
     const user = await this.userService.findById(payload.userId)
     if (!user) {
-      throw new Error('USER_NOT_FOUND')
+      throw new NotFoundException('User not found')
     }
 
     if (user.status === StatusType.PENDING) {
@@ -286,14 +320,23 @@ export class AuthService {
     return this.login(user)
   }
 
+  /**
+   * Resend email verification for a pending user account
+   * @param email - User's email address
+   * @returns Success response
+   * @throws NotFoundException if user not found
+   * @throws BadRequestException if user already verified
+   */
   async resendVerification(email: string) {
     const user = await this.userService.findByEmail(email.trim().toLowerCase())
     if (!user) {
-      throw new Error('USER_NOT_FOUND')
+      throw new NotFoundException('User not found')
     }
 
     if (user.status !== StatusType.PENDING) {
-      throw new Error('USER_ALREADY_VERIFIED')
+      throw new BadRequestException(
+        'Email already verified. Please login to continue.',
+      )
     }
 
     const verificationToken =

@@ -12,6 +12,7 @@ import {
   LibraryItemState,
 } from '../src/library/entities/library-item.entity'
 import { HighlightEntity } from '../src/highlight/entities/highlight.entity'
+import { FOLDERS } from '../src/constants/folders.constants'
 
 const HIGHLIGHTS_QUERY = `
   query Highlights($libraryItemId: String!) {
@@ -47,7 +48,7 @@ const CREATE_HIGHLIGHT_MUTATION = `
       quote
       annotation
       color
-      highlaryPositionPercent
+      highlightPositionPercent
       createdAt
     }
   }
@@ -138,7 +139,7 @@ describe('Highlight GraphQL (e2e)', () => {
       savedAt: new Date(),
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       itemType: 'ARTICLE',
       readableContent: 'This is the content of the article that can be highlighted.',
     })
@@ -161,6 +162,8 @@ describe('Highlight GraphQL (e2e)', () => {
   describe('Query highlights', () => {
     beforeAll(async () => {
       // Create test highlights with different colors
+      // Use shorter timestamp (last 8 digits) to fit in varchar(14) constraint
+      const shortTimestamp = Date.now().toString().slice(-8)
       const highlights = [
         {
           id: randomUUID(),
@@ -168,7 +171,7 @@ describe('Highlight GraphQL (e2e)', () => {
           user: { id: userId } as any,
           libraryItemId: testLibraryItemId,
           libraryItem: { id: testLibraryItemId } as any,
-          shortId: 'test001',
+          shortId: `t${shortTimestamp}1`,
           quote: 'First important quote',
           annotation: 'This is significant',
           color: 'yellow',
@@ -183,7 +186,7 @@ describe('Highlight GraphQL (e2e)', () => {
           user: { id: userId } as any,
           libraryItemId: testLibraryItemId,
           libraryItem: { id: testLibraryItemId } as any,
-          shortId: 'test002',
+          shortId: `t${shortTimestamp}2`,
           quote: 'Second important quote',
           annotation: 'Very interesting',
           color: 'green',
@@ -198,7 +201,7 @@ describe('Highlight GraphQL (e2e)', () => {
           user: { id: userId } as any,
           libraryItemId: testLibraryItemId,
           libraryItem: { id: testLibraryItemId } as any,
-          shortId: 'test003',
+          shortId: `t${shortTimestamp}3`,
           quote: 'Third important quote',
           color: 'red',
           highlightPositionPercent: 50,
@@ -212,7 +215,7 @@ describe('Highlight GraphQL (e2e)', () => {
           user: { id: userId } as any,
           libraryItemId: testLibraryItemId,
           libraryItem: { id: testLibraryItemId } as any,
-          shortId: 'test004',
+          shortId: `t${shortTimestamp}4`,
           quote: 'Fourth important quote',
           annotation: 'Key insight',
           color: 'blue',
@@ -264,9 +267,12 @@ describe('Highlight GraphQL (e2e)', () => {
     })
 
     it('retrieves a single highlight by id', async () => {
-      const existing = await highlightRepository.findOneBy({
-        libraryItemId: testLibraryItemId,
-        shortId: 'test001',
+      // Find the first highlight created in beforeAll
+      const existing = await highlightRepository.findOne({
+        where: {
+          libraryItemId: testLibraryItemId,
+          quote: 'First important quote',
+        },
       })
 
       const response = await executeQuery(HIGHLIGHT_QUERY, {
@@ -293,7 +299,7 @@ describe('Highlight GraphQL (e2e)', () => {
         savedAt: new Date(),
         state: LibraryItemState.SUCCEEDED,
         contentReader: ContentReaderType.WEB,
-        folder: 'inbox',
+        folder: FOLDERS.INBOX,
         itemType: 'ARTICLE',
       })
 
@@ -490,7 +496,7 @@ describe('Highlight GraphQL (e2e)', () => {
         user: { id: userId } as any,
         libraryItemId: testLibraryItemId,
         libraryItem: { id: testLibraryItemId } as any,
-        shortId: `update-${Date.now()}`,
+        shortId: `u${Date.now().toString().slice(-8)}`,
         quote: 'Original quote',
         annotation: 'Original annotation',
         color: 'yellow',
@@ -642,7 +648,7 @@ describe('Highlight GraphQL (e2e)', () => {
         user: { id: userId } as any,
         libraryItemId: testLibraryItemId,
         libraryItem: { id: testLibraryItemId } as any,
-        shortId: `delete-${Date.now()}`,
+        shortId: `d${Date.now().toString().slice(-8)}`,
         quote: 'To be deleted',
         color: 'yellow',
         highlightPositionPercent: 50,

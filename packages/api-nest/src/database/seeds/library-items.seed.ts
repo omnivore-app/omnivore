@@ -5,6 +5,7 @@ import {
   LibraryItemState,
   ContentReaderType,
 } from '../../library/entities/library-item.entity'
+import { FOLDERS } from '../../constants/folders.constants'
 
 /**
  * Seed example library items for a user (for testing)
@@ -29,7 +30,7 @@ export async function seedLibraryItems(
         'Learn how to build scalable, maintainable applications with NestJS framework',
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       itemType: 'ARTICLE',
       wordCount: 2500,
       siteName: 'NestJS Docs',
@@ -47,7 +48,7 @@ export async function seedLibraryItems(
         'Modern best practices for designing and implementing GraphQL APIs',
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       itemType: 'ARTICLE',
       wordCount: 3200,
       siteName: 'GraphQL.org',
@@ -66,7 +67,7 @@ export async function seedLibraryItems(
         'Deep dive into React Server Components and their impact on modern web applications',
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       itemType: 'ARTICLE',
       wordCount: 4100,
       siteName: 'React.dev',
@@ -85,7 +86,7 @@ export async function seedLibraryItems(
         'New features and improvements in TypeScript 5.8 release',
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'archive',
+      folder: FOLDERS.ARCHIVE,
       itemType: 'ARTICLE',
       wordCount: 1800,
       siteName: 'TypeScript Blog',
@@ -104,7 +105,7 @@ export async function seedLibraryItems(
         'Comprehensive guide to optimizing PostgreSQL database performance',
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       itemType: 'ARTICLE',
       wordCount: 5400,
       siteName: 'PostgreSQL Docs',

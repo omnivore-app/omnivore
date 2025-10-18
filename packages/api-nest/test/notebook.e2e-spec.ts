@@ -11,6 +11,7 @@ import {
   LibraryItemEntity,
   LibraryItemState,
 } from '../src/library/entities/library-item.entity'
+import { FOLDERS } from '../src/constants/folders.constants'
 
 const LIBRARY_ITEM_QUERY = `
   query LibraryItem($id: String!) {
@@ -107,7 +108,7 @@ describe('Notebook GraphQL (e2e)', () => {
         savedAt: new Date(),
         state: LibraryItemState.SUCCEEDED,
         contentReader: ContentReaderType.WEB,
-        folder: 'inbox',
+        folder: FOLDERS.INBOX,
         itemType: 'ARTICLE',
       })
 
@@ -226,7 +227,10 @@ describe('Notebook GraphQL (e2e)', () => {
 
     it('retrieves notebook via libraryItem query', async () => {
       const noteContent = 'My personal notes about this article'
-      await libraryRepository.update(testItemId, { note: noteContent })
+      await libraryRepository.update(testItemId, {
+        note: noteContent,
+        noteUpdatedAt: new Date(),
+      })
 
       const response = await executeQuery(LIBRARY_ITEM_QUERY, {
         id: testItemId,

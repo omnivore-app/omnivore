@@ -11,6 +11,7 @@ import {
   LibraryItemEntity,
   LibraryItemState,
 } from '../src/library/entities/library-item.entity'
+import { FOLDERS } from '../src/constants/folders.constants'
 
 const LIBRARY_ITEMS_QUERY = `
   query LibraryItems($first: Int, $after: String, $search: LibrarySearchInput) {
@@ -209,7 +210,7 @@ describe('Library GraphQL (e2e)', () => {
       savedAt: new Date(Date.now() - 2000),
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       itemType: 'ARTICLE',
       labelNames: ['news'],
     })
@@ -224,7 +225,7 @@ describe('Library GraphQL (e2e)', () => {
       savedAt: new Date(),
       state: LibraryItemState.SUCCEEDED,
       contentReader: ContentReaderType.WEB,
-      folder: 'archive',
+      folder: FOLDERS.ARCHIVE,
       itemType: 'ARTICLE',
       labelNames: ['tech'],
     })
@@ -238,7 +239,7 @@ describe('Library GraphQL (e2e)', () => {
     expect(firstPage.body.data.libraryItems.items[0]).toMatchObject({
       title: 'Second article',
       slug: 'second-article',
-      folder: 'archive',
+      folder: FOLDERS.ARCHIVE,
       state: 'SUCCEEDED',
     })
 
@@ -255,7 +256,7 @@ describe('Library GraphQL (e2e)', () => {
     expect(secondPage.body.data.libraryItems.items[0]).toMatchObject({
       title: 'First article',
       slug: 'first-article',
-      folder: 'inbox',
+      folder: FOLDERS.INBOX,
       state: 'SUCCEEDED',
     })
     expect(secondPage.body.data.libraryItems.nextCursor).toBeNull()
@@ -290,7 +291,7 @@ describe('Library GraphQL (e2e)', () => {
         savedAt: new Date(),
         state: LibraryItemState.SUCCEEDED,
         contentReader: ContentReaderType.WEB,
-        folder: 'inbox',
+        folder: FOLDERS.INBOX,
         itemType: 'ARTICLE',
         readingProgressTopPercent: 0,
         readingProgressBottomPercent: 0,
@@ -311,13 +312,13 @@ describe('Library GraphQL (e2e)', () => {
         expect(response.body.data.archiveLibraryItem).toMatchObject({
           id: testItemId,
           state: 'ARCHIVED',
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
         })
 
         // Verify in database
         const item = await libraryRepository.findOneBy({ id: testItemId })
         expect(item?.state).toBe(LibraryItemState.ARCHIVED)
-        expect(item?.folder).toBe('archive')
+        expect(item?.folder).toBe(FOLDERS.ARCHIVE)
       })
 
       it('unarchives a library item', async () => {
@@ -337,13 +338,13 @@ describe('Library GraphQL (e2e)', () => {
         expect(response.body.data.archiveLibraryItem).toMatchObject({
           id: testItemId,
           state: 'SUCCEEDED',
-          folder: 'inbox',
+          folder: FOLDERS.INBOX,
         })
 
         // Verify in database
         const item = await libraryRepository.findOneBy({ id: testItemId })
         expect(item?.state).toBe(LibraryItemState.SUCCEEDED)
-        expect(item?.folder).toBe('inbox')
+        expect(item?.folder).toBe(FOLDERS.INBOX)
       })
 
       it('returns error for non-existent item', async () => {
@@ -372,14 +373,14 @@ describe('Library GraphQL (e2e)', () => {
 
         // Verify item is in trash
         const item = await libraryRepository.findOneBy({ id: testItemId })
-        expect(item?.folder).toBe('trash')
+        expect(item?.folder).toBe(FOLDERS.TRASH)
         expect(item?.state).toBe(LibraryItemState.DELETED)
       })
 
       it('permanently deletes item already in trash', async () => {
         // First move to trash
         await libraryRepository.update(testItemId, {
-          folder: 'trash',
+          folder: FOLDERS.TRASH,
           state: LibraryItemState.DELETED,
         })
 
@@ -485,20 +486,20 @@ describe('Library GraphQL (e2e)', () => {
           MOVE_LIBRARY_ITEM_TO_FOLDER_MUTATION,
           {
             id: testItemId,
-            folder: 'archive',
+            folder: FOLDERS.ARCHIVE,
           },
         )
 
         expect(response.body.errors).toBeUndefined()
         expect(response.body.data.moveLibraryItemToFolder).toMatchObject({
           id: testItemId,
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
           state: 'ARCHIVED',
         })
 
         // Verify in database
         const item = await libraryRepository.findOneBy({ id: testItemId })
-        expect(item?.folder).toBe('archive')
+        expect(item?.folder).toBe(FOLDERS.ARCHIVE)
         expect(item?.state).toBe(LibraryItemState.ARCHIVED)
       })
 
@@ -507,14 +508,14 @@ describe('Library GraphQL (e2e)', () => {
           MOVE_LIBRARY_ITEM_TO_FOLDER_MUTATION,
           {
             id: testItemId,
-            folder: 'trash',
+            folder: FOLDERS.TRASH,
           },
         )
 
         expect(response.body.errors).toBeUndefined()
         expect(response.body.data.moveLibraryItemToFolder).toMatchObject({
           id: testItemId,
-          folder: 'trash',
+          folder: FOLDERS.TRASH,
           state: 'DELETED',
         })
       })
@@ -522,7 +523,7 @@ describe('Library GraphQL (e2e)', () => {
       it('moves item back to inbox', async () => {
         // First move to archive
         await libraryRepository.update(testItemId, {
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
           state: LibraryItemState.ARCHIVED,
         })
 
@@ -531,14 +532,14 @@ describe('Library GraphQL (e2e)', () => {
           MOVE_LIBRARY_ITEM_TO_FOLDER_MUTATION,
           {
             id: testItemId,
-            folder: 'inbox',
+            folder: FOLDERS.INBOX,
           },
         )
 
         expect(response.body.errors).toBeUndefined()
         expect(response.body.data.moveLibraryItemToFolder).toMatchObject({
           id: testItemId,
-          folder: 'inbox',
+          folder: FOLDERS.INBOX,
           state: 'SUCCEEDED',
         })
       })
@@ -561,7 +562,7 @@ describe('Library GraphQL (e2e)', () => {
           MOVE_LIBRARY_ITEM_TO_FOLDER_MUTATION,
           {
             id: randomUUID(),
-            folder: 'archive',
+            folder: FOLDERS.ARCHIVE,
           },
         )
 
@@ -587,7 +588,7 @@ describe('Library GraphQL (e2e)', () => {
           savedAt: new Date(Date.now() - 5000),
           state: LibraryItemState.SUCCEEDED,
           contentReader: ContentReaderType.WEB,
-          folder: 'inbox',
+          folder: FOLDERS.INBOX,
           itemType: 'ARTICLE',
         },
         {
@@ -602,7 +603,7 @@ describe('Library GraphQL (e2e)', () => {
           savedAt: new Date(Date.now() - 4000),
           state: LibraryItemState.SUCCEEDED,
           contentReader: ContentReaderType.WEB,
-          folder: 'inbox',
+          folder: FOLDERS.INBOX,
           itemType: 'ARTICLE',
         },
         {
@@ -617,7 +618,7 @@ describe('Library GraphQL (e2e)', () => {
           savedAt: new Date(Date.now() - 3000),
           state: LibraryItemState.ARCHIVED,
           contentReader: ContentReaderType.WEB,
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
           itemType: 'ARTICLE',
         },
         {
@@ -632,7 +633,7 @@ describe('Library GraphQL (e2e)', () => {
           savedAt: new Date(Date.now() - 2000),
           state: LibraryItemState.SUCCEEDED,
           contentReader: ContentReaderType.WEB,
-          folder: 'inbox',
+          folder: FOLDERS.INBOX,
           itemType: 'ARTICLE',
         },
       ]
@@ -680,28 +681,28 @@ describe('Library GraphQL (e2e)', () => {
 
     it('filters by folder (inbox)', async () => {
       const response = await executeQuery(LIBRARY_ITEMS_QUERY, {
-        search: { folder: 'inbox' },
+        search: { folder: FOLDERS.INBOX },
       })
 
       expect(response.body.errors).toBeUndefined()
       expect(response.body.data.libraryItems.items.length).toBeGreaterThan(0)
       expect(
         response.body.data.libraryItems.items.every(
-          (item: any) => item.folder === 'inbox',
+          (item: any) => item.folder === FOLDERS.INBOX,
         ),
       ).toBe(true)
     })
 
     it('filters by folder (archive)', async () => {
       const response = await executeQuery(LIBRARY_ITEMS_QUERY, {
-        search: { folder: 'archive' },
+        search: { folder: FOLDERS.ARCHIVE },
       })
 
       expect(response.body.errors).toBeUndefined()
       expect(response.body.data.libraryItems.items.length).toBeGreaterThan(0)
       expect(
         response.body.data.libraryItems.items.every(
-          (item: any) => item.folder === 'archive',
+          (item: any) => item.folder === FOLDERS.ARCHIVE,
         ),
       ).toBe(true)
     })
@@ -722,12 +723,12 @@ describe('Library GraphQL (e2e)', () => {
 
     it('combines search query with folder filter', async () => {
       const response = await executeQuery(LIBRARY_ITEMS_QUERY, {
-        search: { query: 'John Doe', folder: 'inbox' },
+        search: { query: 'John Doe', folder: FOLDERS.INBOX },
       })
 
       expect(response.body.errors).toBeUndefined()
       const items = response.body.data.libraryItems.items
-      expect(items.every((item: any) => item.folder === 'inbox')).toBe(true)
+      expect(items.every((item: any) => item.folder === FOLDERS.INBOX)).toBe(true)
       expect(items.every((item: any) => item.author === 'John Doe')).toBe(true)
     })
 
@@ -778,7 +779,7 @@ describe('Library GraphQL (e2e)', () => {
     it('supports pagination with search filters', async () => {
       const firstPage = await executeQuery(LIBRARY_ITEMS_QUERY, {
         first: 2,
-        search: { folder: 'inbox' },
+        search: { folder: FOLDERS.INBOX },
       })
 
       expect(firstPage.body.errors).toBeUndefined()
@@ -791,14 +792,14 @@ describe('Library GraphQL (e2e)', () => {
         const secondPage = await executeQuery(LIBRARY_ITEMS_QUERY, {
           first: 2,
           after: nextCursor,
-          search: { folder: 'inbox' },
+          search: { folder: FOLDERS.INBOX },
         })
 
         expect(secondPage.body.errors).toBeUndefined()
         // All items should still be from inbox
         expect(
           secondPage.body.data.libraryItems.items.every(
-            (item: any) => item.folder === 'inbox',
+            (item: any) => item.folder === FOLDERS.INBOX,
           ),
         ).toBe(true)
       }
@@ -821,7 +822,7 @@ describe('Library GraphQL (e2e)', () => {
         savedAt: new Date(Date.now() - (i + 1) * 1000),
         state: LibraryItemState.SUCCEEDED,
         contentReader: ContentReaderType.WEB,
-        folder: 'inbox',
+        folder: FOLDERS.INBOX,
         itemType: 'ARTICLE',
       }))
 
@@ -876,7 +877,7 @@ describe('Library GraphQL (e2e)', () => {
           where: { id: bulkTestItemIds[0] },
         })
         expect(item?.state).toBe(LibraryItemState.SUCCEEDED)
-        expect(item?.folder).toBe('inbox')
+        expect(item?.folder).toBe(FOLDERS.INBOX)
       })
 
       it('returns error for empty itemIds array', async () => {
@@ -941,7 +942,7 @@ describe('Library GraphQL (e2e)', () => {
 
         const response = await executeQuery(BULK_MOVE_TO_FOLDER_MUTATION, {
           itemIds: idsToMove,
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
         })
 
         expect(response.body.errors).toBeUndefined()
@@ -964,7 +965,7 @@ describe('Library GraphQL (e2e)', () => {
 
         const response = await executeQuery(BULK_MOVE_TO_FOLDER_MUTATION, {
           itemIds: idsToMove,
-          folder: 'trash',
+          folder: FOLDERS.TRASH,
         })
 
         expect(response.body.errors).toBeUndefined()
@@ -995,7 +996,7 @@ describe('Library GraphQL (e2e)', () => {
       it('returns error for empty itemIds array', async () => {
         const response = await executeQuery(BULK_MOVE_TO_FOLDER_MUTATION, {
           itemIds: [],
-          folder: 'archive',
+          folder: FOLDERS.ARCHIVE,
         })
 
         expect(response.body.errors).toBeDefined()
@@ -1052,7 +1053,7 @@ describe('Library GraphQL (e2e)', () => {
           savedAt: new Date(),
           state: LibraryItemState.SUCCEEDED,
           contentReader: ContentReaderType.WEB,
-          folder: 'inbox',
+          folder: FOLDERS.INBOX,
           itemType: 'ARTICLE',
         }))
 

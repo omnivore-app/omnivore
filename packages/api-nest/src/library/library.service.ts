@@ -4,9 +4,8 @@ import {
   BadRequestException,
   Logger,
   ConflictException,
+  Inject,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, DataSource } from 'typeorm'
 import {
   LibraryItemEntity,
   LibraryItemState,
@@ -14,112 +13,50 @@ import {
 import {
   ReadingProgressInput,
   LibrarySearchInput,
-  LibrarySortField,
-  SortOrder,
   SaveUrlInput,
 } from './dto/library-inputs.type'
 import { EventBusService } from '../queue/event-bus.service'
 import { EVENT_NAMES } from '../queue/events.constants'
 import { JOB_PRIORITY } from '../queue/queue.constants'
+import { ILibraryItemRepository } from '../repositories/interfaces/library-item-repository.interface'
+import { FOLDERS, VALID_FOLDERS } from '../constants/folders.constants'
 
 @Injectable()
 export class LibraryService {
   private readonly logger = new Logger(LibraryService.name)
 
   constructor(
-    @InjectRepository(LibraryItemEntity)
-    private readonly libraryRepository: Repository<LibraryItemEntity>,
-    private readonly dataSource: DataSource,
+    @Inject('ILibraryItemRepository')
+    private readonly libraryRepository: ILibraryItemRepository,
     private readonly eventBus: EventBusService,
   ) {}
 
+  /**
+   * List library items for a user with pagination and optional filtering
+   * @param userId - User ID to fetch items for
+   * @param first - Number of items to fetch (pagination limit)
+   * @param after - Cursor for pagination (optional)
+   * @param search - Search and filter criteria (optional)
+   * @returns Paginated list of library items with next cursor
+   */
   async listForUser(
     userId: string,
     first: number,
     after?: string,
     search?: LibrarySearchInput,
   ): Promise<{ items: LibraryItemEntity[]; nextCursor: string | null }> {
-    const limit = Math.min(Math.max(first, 1), 100)
-
-    const query = this.libraryRepository
-      .createQueryBuilder('item')
-      .where('item.userId = :userId', { userId })
-
-    // Apply folder filter
-    if (search?.folder && search.folder !== 'all') {
-      query.andWhere('item.folder = :folder', { folder: search.folder })
-    }
-
-    // Apply state filter
-    if (search?.state) {
-      query.andWhere('item.state = :state', { state: search.state })
-    }
-
-    // Apply full-text search
-    if (search?.query && search.query.trim()) {
-      const searchTerm = `%${search.query.trim()}%`
-      query.andWhere(
-        '(item.title ILIKE :searchTerm OR item.description ILIKE :searchTerm OR item.author ILIKE :searchTerm)',
-        { searchTerm },
-      )
-    }
-
-    // Apply label filter
-    if (search?.labels && search.labels.length > 0) {
-      query.andWhere('item.labelNames && :labels', { labels: search.labels })
-    }
-
-    // Determine sort field and order
-    const sortBy = search?.sortBy || LibrarySortField.SAVED_AT
-    const sortOrder = search?.sortOrder || SortOrder.DESC
-
-    // Map sort field to column name
-    const sortColumn = `item.${sortBy}`
-
-    query.orderBy(sortColumn, sortOrder).take(limit + 1)
-
-    // Handle cursor-based pagination
-    if (after) {
-      // For cursor pagination, we need to use the sort field
-      const cursorDate = new Date(after)
-      if (!Number.isNaN(cursorDate.getTime())) {
-        const operator = sortOrder === SortOrder.DESC ? '<' : '>'
-        query.andWhere(`${sortColumn} ${operator} :cursor`, {
-          cursor: cursorDate,
-        })
-      }
-    }
-
-    const rows = await query.getMany()
-    const hasNext = rows.length > limit
-    const sliced = hasNext ? rows.slice(0, limit) : rows
-
-    // Generate next cursor based on sort field
-    let nextCursor: string | null = null
-    if (hasNext && sliced.length > 0) {
-      const lastItem = sliced[sliced.length - 1]
-      const cursorField = sortBy as keyof LibraryItemEntity
-      const cursorValue = lastItem[cursorField]
-
-      if (cursorValue instanceof Date) {
-        nextCursor = cursorValue.toISOString()
-      } else if (typeof cursorValue === 'string') {
-        nextCursor = cursorValue
-      } else {
-        nextCursor = lastItem.savedAt.toISOString()
-      }
-    }
-
-    return { items: sliced, nextCursor }
+    // Delegate to repository - all query logic is now in the repository layer
+    return this.libraryRepository.listForUser(userId, first, after, search)
   }
 
+  /**
+   * Find a library item by ID for a specific user
+   * @param userId - User ID who owns the item
+   * @param id - Library item ID
+   * @returns Library item or null if not found
+   */
   async findById(userId: string, id: string): Promise<LibraryItemEntity | null> {
-    return this.libraryRepository.findOne({
-      where: {
-        id,
-        userId,
-      },
-    })
+    return this.libraryRepository.findById(id, userId)
   }
 
   /**
@@ -142,10 +79,9 @@ export class LibraryService {
 
     // Update state and folder based on archive status
     item.state = archived ? LibraryItemState.ARCHIVED : LibraryItemState.SUCCEEDED
-    item.folder = archived ? 'archive' : 'inbox'
+    item.folder = archived ? FOLDERS.ARCHIVE : FOLDERS.INBOX
 
-    await this.libraryRepository.save(item)
-    return item
+    return await this.libraryRepository.save(item)
   }
 
   /**
@@ -165,7 +101,7 @@ export class LibraryService {
     }
 
     // If already in trash, perform hard delete (mark as DELETED)
-    if (item.folder === 'trash') {
+    if (item.folder === FOLDERS.TRASH) {
       item.state = LibraryItemState.DELETED
       await this.libraryRepository.save(item)
       return {
@@ -176,7 +112,7 @@ export class LibraryService {
     }
 
     // Otherwise, soft delete by moving to trash
-    item.folder = 'trash'
+    item.folder = FOLDERS.TRASH
     item.state = LibraryItemState.DELETED
     await this.libraryRepository.save(item)
 
@@ -265,10 +201,9 @@ export class LibraryService {
     }
 
     // Validate folder
-    const validFolders = ['inbox', 'archive', 'trash']
-    if (!validFolders.includes(folder)) {
+    if (!VALID_FOLDERS.includes(folder as any)) {
       throw new BadRequestException(
-        `Invalid folder. Must be one of: ${validFolders.join(', ')}`,
+        `Invalid folder. Must be one of: ${VALID_FOLDERS.join(', ')}`,
       )
     }
 
@@ -276,11 +211,11 @@ export class LibraryService {
     item.folder = folder
 
     // Update state based on folder
-    if (folder === 'archive') {
+    if (folder === FOLDERS.ARCHIVE) {
       item.state = LibraryItemState.ARCHIVED
-    } else if (folder === 'trash') {
+    } else if (folder === FOLDERS.TRASH) {
       item.state = LibraryItemState.DELETED
-    } else if (folder === 'inbox') {
+    } else if (folder === FOLDERS.INBOX) {
       item.state = LibraryItemState.SUCCEEDED
     }
 
@@ -321,61 +256,8 @@ export class LibraryService {
       )
     }
 
-    const queryRunner = this.dataSource.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-
-    const errors: string[] = []
-    let successCount = 0
-    let failureCount = 0
-
-    try {
-      // Process items in batches for better performance
-      const batchSize = 100
-      for (let i = 0; i < itemIds.length; i += batchSize) {
-        const batch = itemIds.slice(i, i + batchSize)
-
-        // Update items that belong to the user
-        const result = await queryRunner.manager
-          .createQueryBuilder()
-          .update(LibraryItemEntity)
-          .set({
-            state: archived
-              ? LibraryItemState.ARCHIVED
-              : LibraryItemState.SUCCEEDED,
-            folder: archived ? 'archive' : 'inbox',
-          })
-          .where('id IN (:...ids)', { ids: batch })
-          .andWhere('userId = :userId', { userId })
-          .execute()
-
-        successCount += result.affected || 0
-        failureCount += batch.length - (result.affected || 0)
-
-        // Track which items failed
-        if (result.affected !== batch.length) {
-          const failedIds = batch.slice(result.affected || 0)
-          errors.push(
-            `Failed to ${archived ? 'archive' : 'unarchive'} items: ${failedIds.join(', ')}`,
-          )
-        }
-      }
-
-      await queryRunner.commitTransaction()
-
-      return {
-        success: failureCount === 0,
-        successCount,
-        failureCount,
-        errors: errors.length > 0 ? errors : undefined,
-        message: `Successfully ${archived ? 'archived' : 'unarchived'} ${successCount} item(s)`,
-      }
-    } catch (error) {
-      await queryRunner.rollbackTransaction()
-      throw error
-    } finally {
-      await queryRunner.release()
-    }
+    // Delegate to repository - transaction handling and batch processing in repository
+    return this.libraryRepository.bulkArchive(userId, itemIds, archived)
   }
 
   /**
@@ -407,56 +289,8 @@ export class LibraryService {
       )
     }
 
-    const queryRunner = this.dataSource.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-
-    const errors: string[] = []
-    let successCount = 0
-    let failureCount = 0
-
-    try {
-      // Process items in batches
-      const batchSize = 100
-      for (let i = 0; i < itemIds.length; i += batchSize) {
-        const batch = itemIds.slice(i, i + batchSize)
-
-        // Mark items as deleted (soft delete)
-        const result = await queryRunner.manager
-          .createQueryBuilder()
-          .update(LibraryItemEntity)
-          .set({
-            state: LibraryItemState.DELETED,
-            folder: 'trash',
-          })
-          .where('id IN (:...ids)', { ids: batch })
-          .andWhere('userId = :userId', { userId })
-          .execute()
-
-        successCount += result.affected || 0
-        failureCount += batch.length - (result.affected || 0)
-
-        if (result.affected !== batch.length) {
-          const failedIds = batch.slice(result.affected || 0)
-          errors.push(`Failed to delete items: ${failedIds.join(', ')}`)
-        }
-      }
-
-      await queryRunner.commitTransaction()
-
-      return {
-        success: failureCount === 0,
-        successCount,
-        failureCount,
-        errors: errors.length > 0 ? errors : undefined,
-        message: `Successfully deleted ${successCount} item(s)`,
-      }
-    } catch (error) {
-      await queryRunner.rollbackTransaction()
-      throw error
-    } finally {
-      await queryRunner.release()
-    }
+    // Delegate to repository
+    return this.libraryRepository.bulkDelete(userId, itemIds)
   }
 
   /**
@@ -483,10 +317,9 @@ export class LibraryService {
     }
 
     // Validate folder
-    const validFolders = ['inbox', 'archive', 'trash']
-    if (!validFolders.includes(folder)) {
+    if (!VALID_FOLDERS.includes(folder as any)) {
       throw new BadRequestException(
-        `Invalid folder. Must be one of: ${validFolders.join(', ')}`,
+        `Invalid folder. Must be one of: ${VALID_FOLDERS.join(', ')}`,
       )
     }
 
@@ -498,67 +331,8 @@ export class LibraryService {
       )
     }
 
-    // Determine state based on folder
-    let state: LibraryItemState
-    if (folder === 'archive') {
-      state = LibraryItemState.ARCHIVED
-    } else if (folder === 'trash') {
-      state = LibraryItemState.DELETED
-    } else {
-      state = LibraryItemState.SUCCEEDED
-    }
-
-    const queryRunner = this.dataSource.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-
-    const errors: string[] = []
-    let successCount = 0
-    let failureCount = 0
-
-    try {
-      // Process items in batches
-      const batchSize = 100
-      for (let i = 0; i < itemIds.length; i += batchSize) {
-        const batch = itemIds.slice(i, i + batchSize)
-
-        const result = await queryRunner.manager
-          .createQueryBuilder()
-          .update(LibraryItemEntity)
-          .set({
-            folder,
-            state,
-          })
-          .where('id IN (:...ids)', { ids: batch })
-          .andWhere('userId = :userId', { userId })
-          .execute()
-
-        successCount += result.affected || 0
-        failureCount += batch.length - (result.affected || 0)
-
-        if (result.affected !== batch.length) {
-          const failedIds = batch.slice(result.affected || 0)
-          errors.push(
-            `Failed to move items to ${folder}: ${failedIds.join(', ')}`,
-          )
-        }
-      }
-
-      await queryRunner.commitTransaction()
-
-      return {
-        success: failureCount === 0,
-        successCount,
-        failureCount,
-        errors: errors.length > 0 ? errors : undefined,
-        message: `Successfully moved ${successCount} item(s) to ${folder}`,
-      }
-    } catch (error) {
-      await queryRunner.rollbackTransaction()
-      throw error
-    } finally {
-      await queryRunner.release()
-    }
+    // Delegate to repository
+    return this.libraryRepository.bulkMoveToFolder(userId, itemIds, folder)
   }
 
   /**
@@ -590,76 +364,29 @@ export class LibraryService {
       )
     }
 
-    const queryRunner = this.dataSource.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-
-    const errors: string[] = []
-    let successCount = 0
-    let failureCount = 0
-
-    try {
-      // Process items in batches
-      const batchSize = 100
-      for (let i = 0; i < itemIds.length; i += batchSize) {
-        const batch = itemIds.slice(i, i + batchSize)
-
-        const result = await queryRunner.manager
-          .createQueryBuilder()
-          .update(LibraryItemEntity)
-          .set({
-            readAt: new Date(),
-            readingProgressTopPercent: 100,
-            readingProgressBottomPercent: 100,
-          })
-          .where('id IN (:...ids)', { ids: batch })
-          .andWhere('userId = :userId', { userId })
-          .execute()
-
-        successCount += result.affected || 0
-        failureCount += batch.length - (result.affected || 0)
-
-        if (result.affected !== batch.length) {
-          const failedIds = batch.slice(result.affected || 0)
-          errors.push(`Failed to mark items as read: ${failedIds.join(', ')}`)
-        }
-      }
-
-      await queryRunner.commitTransaction()
-
-      return {
-        success: failureCount === 0,
-        successCount,
-        failureCount,
-        errors: errors.length > 0 ? errors : undefined,
-        message: `Successfully marked ${successCount} item(s) as read`,
-      }
-    } catch (error) {
-      await queryRunner.rollbackTransaction()
-      throw error
-    } finally {
-      await queryRunner.release()
-    }
+    // Delegate to repository
+    return this.libraryRepository.bulkMarkAsRead(userId, itemIds)
   }
 
   /**
-   * Save a URL to the user's library
+   * Save a URL to the user's library and trigger background content extraction
+   * Creates a library item in CONTENT_NOT_FETCHED state and dispatches an event
+   * to the content processing queue for background extraction.
+   * @param userId - User ID who is saving the URL
+   * @param input - URL save request input (url, folder, source)
+   * @returns Created library item
+   * @throws ConflictException if URL already exists in user's library
    */
   async saveUrl(
     userId: string,
     input: SaveUrlInput,
   ): Promise<LibraryItemEntity> {
-    const { url, folder = 'inbox' } = input
+    const { url, folder = FOLDERS.INBOX } = input
 
     this.logger.log(`Saving URL for user ${userId}: ${url}`)
 
     // Check for duplicate URL
-    const existingItem = await this.libraryRepository.findOne({
-      where: {
-        userId,
-        originalUrl: url,
-      },
-    })
+    const existingItem = await this.libraryRepository.findByUrl(url, userId)
 
     if (existingItem) {
       throw new ConflictException(
@@ -732,7 +459,12 @@ export class LibraryService {
   }
 
   /**
-   * Generate a slug from URL
+   * Generate a unique, URL-safe slug from a URL
+   * Extracts meaningful parts from the URL pathname and adds a timestamp
+   * to ensure uniqueness across all library items.
+   * @param url - The URL to generate a slug from
+   * @returns A unique, URL-safe slug (max 100 chars + timestamp)
+   * @private
    */
   private generateSlug(url: string): string {
     try {

@@ -3,22 +3,22 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
+  Inject,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 import { HighlightEntity, HighlightType } from './entities/highlight.entity'
-import { LibraryItemEntity } from '../library/entities/library-item.entity'
 import { CreateHighlightInput, UpdateHighlightInput } from './dto/highlight-inputs.type'
+import { ILibraryItemRepository } from '../repositories/interfaces/library-item-repository.interface'
+import { IHighlightRepository } from '../repositories/interfaces/highlight-repository.interface'
 
 @Injectable()
 export class HighlightService {
   private readonly logger = new Logger(HighlightService.name)
 
   constructor(
-    @InjectRepository(HighlightEntity)
-    private readonly highlightRepository: Repository<HighlightEntity>,
-    @InjectRepository(LibraryItemEntity)
-    private readonly libraryItemRepository: Repository<LibraryItemEntity>,
+    @Inject('IHighlightRepository')
+    private readonly highlightRepository: IHighlightRepository,
+    @Inject('ILibraryItemRepository')
+    private readonly libraryItemRepository: ILibraryItemRepository,
   ) {}
 
   /**
@@ -29,9 +29,10 @@ export class HighlightService {
     libraryItemId: string,
   ): Promise<HighlightEntity[]> {
     // Verify the library item belongs to the user
-    const libraryItem = await this.libraryItemRepository.findOne({
-      where: { id: libraryItemId, userId },
-    })
+    const libraryItem = await this.libraryItemRepository.findById(
+      libraryItemId,
+      userId,
+    )
 
     if (!libraryItem) {
       throw new NotFoundException(
@@ -39,27 +40,15 @@ export class HighlightService {
       )
     }
 
-    return this.highlightRepository.find({
-      where: {
-        libraryItemId,
-        userId,
-      },
-      order: {
-        highlightPositionPercent: 'ASC',
-      },
-    })
+    // Delegate to repository for data access
+    return this.highlightRepository.findByLibraryItem(libraryItemId, userId)
   }
 
   /**
    * Get a single highlight by ID
    */
   async findById(userId: string, id: string): Promise<HighlightEntity | null> {
-    return this.highlightRepository.findOne({
-      where: {
-        id,
-        userId,
-      },
-    })
+    return this.highlightRepository.findById(id, userId)
   }
 
   /**
@@ -70,9 +59,10 @@ export class HighlightService {
     input: CreateHighlightInput,
   ): Promise<HighlightEntity> {
     // Verify the library item exists and belongs to the user
-    const libraryItem = await this.libraryItemRepository.findOne({
-      where: { id: input.libraryItemId, userId },
-    })
+    const libraryItem = await this.libraryItemRepository.findById(
+      input.libraryItemId,
+      userId,
+    )
 
     if (!libraryItem) {
       throw new NotFoundException(

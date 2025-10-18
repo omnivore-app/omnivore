@@ -10,6 +10,7 @@ import { GroupMembership } from '../group/entities/group-membership.entity'
 import { LibraryItemEntity } from '../library/entities/library-item.entity'
 import { Label } from '../label/entities/label.entity'
 import { EntityLabel } from '../label/entities/entity-label.entity'
+import { HighlightEntity } from '../highlight/entities/highlight.entity'
 
 export const testDatabaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -29,6 +30,7 @@ export const testDatabaseConfig: TypeOrmModuleOptions = {
     LibraryItemEntity,
     Label,
     EntityLabel,
+    HighlightEntity,
   ],
   synchronize: false,
   logging: false,

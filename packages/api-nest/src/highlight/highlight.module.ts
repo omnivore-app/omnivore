@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { HighlightEntity } from './entities/highlight.entity'
-import { LibraryItemEntity } from '../library/entities/library-item.entity'
 import { HighlightService } from './highlight.service'
 import { HighlightResolver } from './highlight.resolver'
+import { RepositoriesModule } from '../repositories/repositories.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([HighlightEntity, LibraryItemEntity])],
+  imports: [
+    RepositoriesModule, // Access to IHighlightRepository and ILibraryItemRepository
+  ],
   providers: [HighlightService, HighlightResolver],
   exports: [HighlightService],
 })
