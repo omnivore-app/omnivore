@@ -119,9 +119,8 @@ type LibraryItem {
   description: String
   folder: String!
   id: ID!
-
   """Legacy alias for thumbnail"""
-  image: String
+  image: String @deprecated(reason: "Use `thumbnail`")
 
   """Item type (ARTICLE, FILE, VIDEO, etc.)"""
   itemType: String!
@@ -131,7 +130,7 @@ type LibraryItem {
   originalUrl: String!
 
   """Legacy alias for itemType"""
-  pageType: String!
+  pageType: String! @deprecated(reason: "Use `itemType`")
   publishedAt: DateTime
   readAt: DateTime
   readingProgressBottomPercent: Float
@@ -155,7 +154,7 @@ type LibraryItem {
   wordCount: Float
 
   """Legacy alias for wordCount"""
-  wordsCount: Float
+  wordsCount: Float @deprecated(reason: "Use `wordCount`")
 }
 
 enum LibraryItemState {
