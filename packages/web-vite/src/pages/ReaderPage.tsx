@@ -351,6 +351,7 @@ const ReaderPage: React.FC = () => {
         </div>
       </div>
 
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: content sanitized with DOMPurify above */}
       <div
         className="reader-content"
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
