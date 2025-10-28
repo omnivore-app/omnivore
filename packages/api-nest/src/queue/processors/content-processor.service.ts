@@ -5,7 +5,12 @@
  * web content for saved library items.
  */
 
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common'
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common'
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq'
 import { Job } from 'bullmq'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -13,7 +18,10 @@ import { Repository } from 'typeorm'
 import { Readability } from '@mozilla/readability'
 import { parseHTML } from 'linkedom'
 import fetch from 'cross-fetch'
-import { LibraryItemEntity, LibraryItemState } from '../../library/entities/library-item.entity'
+import {
+  LibraryItemEntity,
+  LibraryItemState,
+} from '../../library/entities/library-item.entity'
 import { EventBusService } from '../event-bus.service'
 import { EVENT_NAMES } from '../events.constants'
 import { QUEUE_NAMES, JOB_TYPES, JOB_CONFIG } from '../queue.constants'
@@ -51,20 +59,23 @@ export interface ContentFetchResult {
 @Processor(QUEUE_NAMES.CONTENT_PROCESSING, {
   concurrency: JOB_CONFIG.WORKER_CONCURRENCY,
 })
-export class ContentProcessorService extends WorkerHost implements OnModuleInit, OnModuleDestroy {
+export class ContentProcessorService
+  extends WorkerHost
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(ContentProcessorService.name)
 
   constructor(
     @InjectRepository(LibraryItemEntity)
     private readonly libraryItemRepository: Repository<LibraryItemEntity>,
-    private readonly eventBus: EventBusService
+    private readonly eventBus: EventBusService,
   ) {
     super()
   }
 
   onModuleInit() {
     this.logger.log(
-      `ContentProcessorService initialized with concurrency ${JOB_CONFIG.WORKER_CONCURRENCY}`
+      `ContentProcessorService initialized with concurrency ${JOB_CONFIG.WORKER_CONCURRENCY}`,
     )
   }
 
@@ -75,7 +86,9 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
       await this.worker?.close()
       this.logger.log('ContentProcessorService shut down successfully')
     } catch (error) {
-      this.logger.error(`Error during ContentProcessorService shutdown: ${error}`)
+      this.logger.error(
+        `Error during ContentProcessorService shutdown: ${error}`,
+      )
     }
   }
 
@@ -87,7 +100,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
     const { libraryItemId, url, userId, source } = job.data
 
     this.logger.log(
-      `Processing job ${job.id} for item ${libraryItemId} (attempt ${job.attemptsMade + 1}/${job.opts.attempts})`
+      `Processing job ${job.id} for item ${libraryItemId} (attempt ${job.attemptsMade + 1}/${job.opts.attempts})`,
     )
 
     // Route to appropriate handler based on job name
@@ -105,7 +118,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
    * Handle fetch-content jobs
    */
   private async handleFetchContent(
-    job: Job<FetchContentJobData>
+    job: Job<FetchContentJobData>,
   ): Promise<ContentFetchResult> {
     const { libraryItemId, url, userId } = job.data
     const startTime = Date.now()
@@ -124,7 +137,10 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
       await job.updateProgress(10)
 
       // Update library item state to PROCESSING
-      await this.updateLibraryItemState(libraryItemId, LibraryItemState.PROCESSING)
+      await this.updateLibraryItemState(
+        libraryItemId,
+        LibraryItemState.PROCESSING,
+      )
       await job.updateProgress(20)
 
       // Fetch and process content
@@ -141,7 +157,10 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
       await job.updateProgress(90)
 
       // Update library item state to SUCCEEDED
-      await this.updateLibraryItemState(libraryItemId, LibraryItemState.SUCCEEDED)
+      await this.updateLibraryItemState(
+        libraryItemId,
+        LibraryItemState.SUCCEEDED,
+      )
       await job.updateProgress(100)
 
       const processingTime = Date.now() - startTime
@@ -157,22 +176,26 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
       })
 
       this.logger.log(
-        `Successfully processed job ${job.id} for item ${libraryItemId} in ${processingTime}ms`
+        `Successfully processed job ${job.id} for item ${libraryItemId} in ${processingTime}ms`,
       )
 
       return result
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      const willRetry = (job.attemptsMade + 1) < (job.opts.attempts || 1)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      const willRetry = job.attemptsMade + 1 < (job.opts.attempts || 1)
 
       this.logger.error(
         `Job ${job.id} failed for item ${libraryItemId}: ${errorMessage} ` +
-        `(attempt ${job.attemptsMade + 1}/${job.opts.attempts}, will retry: ${willRetry})`
+          `(attempt ${job.attemptsMade + 1}/${job.opts.attempts}, will retry: ${willRetry})`,
       )
 
       // Update library item state to FAILED if final attempt
       if (!willRetry) {
-        await this.updateLibraryItemState(libraryItemId, LibraryItemState.FAILED)
+        await this.updateLibraryItemState(
+          libraryItemId,
+          LibraryItemState.FAILED,
+        )
       }
 
       // Emit fetch failed event
@@ -194,7 +217,9 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
   /**
    * Handle parse-content jobs (future implementation)
    */
-  private async handleParseContent(job: Job<FetchContentJobData>): Promise<any> {
+  private async handleParseContent(
+    job: Job<FetchContentJobData>,
+  ): Promise<any> {
     this.logger.log(`Parse content job ${job.id} - Not implemented yet`)
     // TODO: Implement content parsing in Phase 3
     return { success: true, message: 'Parsing not implemented yet' }
@@ -207,7 +232,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
    */
   private async fetchContent(
     url: string,
-    job: Job<FetchContentJobData>
+    job: Job<FetchContentJobData>,
   ): Promise<ContentFetchResult> {
     this.logger.log(`Fetching content from ${url}`)
 
@@ -217,12 +242,14 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
 
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.9',
           'Accept-Encoding': 'gzip, deflate, br',
           'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
+          Pragma: 'no-cache',
           'Sec-Fetch-Dest': 'document',
           'Sec-Fetch-Mode': 'navigate',
           'Sec-Fetch-Site': 'none',
@@ -259,19 +286,26 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
 
       if (!article) {
         // Readability failed, but we can still use Open Graph data
-        this.logger.warn(`Readability failed for ${url}, using Open Graph data only`)
+        this.logger.warn(
+          `Readability failed for ${url}, using Open Graph data only`,
+        )
+        const fallbackContent = ogData.description
+          ? `<p>${ogData.description}</p>`
+          : ''
         return {
           success: true,
           title: ogData.title || new URL(url).hostname,
-          content: ogData.description ? `<p>${ogData.description}</p>` : '',
+          content: fallbackContent,
           contentType: 'text/html',
           author: ogData.author,
           description: ogData.description,
           thumbnail: ogData.image,
           siteName: ogData.siteName,
           siteIcon: ogData.favicon,
-          publishedDate: ogData.publishedTime ? new Date(ogData.publishedTime) : undefined,
-          wordCount: 0,
+          publishedDate: ogData.publishedTime
+            ? new Date(ogData.publishedTime)
+            : undefined,
+          wordCount: this.calculateWordCount(fallbackContent),
         }
       }
 
@@ -280,7 +314,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
 
       // Phase 6: Combine Open Graph + Readability results
       this.logger.log(
-        `Successfully extracted content from ${url}: ${actualWordCount} words`
+        `Successfully extracted content from ${url}: ${actualWordCount} words`,
       )
 
       return {
@@ -293,11 +327,14 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
         thumbnail: ogData.image,
         siteName: article.siteName || ogData.siteName,
         siteIcon: ogData.favicon,
-        publishedDate: ogData.publishedTime ? new Date(ogData.publishedTime) : undefined,
+        publishedDate: ogData.publishedTime
+          ? new Date(ogData.publishedTime)
+          : undefined,
         wordCount: actualWordCount,
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
       this.logger.error(`Failed to fetch content from ${url}: ${errorMessage}`)
 
       return {
@@ -308,23 +345,31 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
   }
 
   /**
-   * Calculate word count from HTML content (strips tags and counts actual words)
+   * Calculate word count from HTML content
+   * Parses HTML to decode entities (e.g., &nbsp;, &amp;) before counting words
    * @param htmlContent - HTML content to count words from
    * @returns Actual word count
    */
   private calculateWordCount(htmlContent: string): number {
     if (!htmlContent) return 0
 
-    // Strip HTML tags
-    const textOnly = htmlContent.replace(/<[^>]*>/g, ' ')
+    try {
+      // Parse HTML to decode entities and extract text content
+      const { document } = parseHTML(htmlContent)
+      const textOnly = document.body?.textContent || ''
 
-    // Remove extra whitespace and normalize
-    const normalized = textOnly.replace(/\s+/g, ' ').trim()
+      // Remove extra whitespace and normalize
+      const normalized = textOnly.replace(/\s+/g, ' ').trim()
+      if (!normalized) return 0
 
-    // Split by whitespace and count non-empty words
-    const words = normalized.split(' ').filter(word => word.length > 0)
+      // Split by whitespace and count non-empty words
+      const words = normalized.split(' ').filter((word) => word.length > 0)
 
-    return words.length
+      return words.length
+    } catch (error) {
+      this.logger.warn(`Failed to calculate word count: ${error}`)
+      return 0
+    }
   }
 
   /**
@@ -332,7 +377,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
    */
   private extractOpenGraph(
     document: Document,
-    url: string
+    url: string,
   ): {
     title?: string
     description?: string
@@ -344,7 +389,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
   } {
     const getMeta = (property: string): string | undefined => {
       const element = document.querySelector(
-        `meta[property="${property}"], meta[name="${property}"]`
+        `meta[property="${property}"], meta[name="${property}"]`,
       )
       return element?.getAttribute('content') || undefined
     }
@@ -364,7 +409,10 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
 
     return {
       title: getMeta('og:title') || getMeta('twitter:title'),
-      description: getMeta('og:description') || getMeta('twitter:description') || getMeta('description'),
+      description:
+        getMeta('og:description') ||
+        getMeta('twitter:description') ||
+        getMeta('description'),
       image: getMeta('og:image') || getMeta('twitter:image'),
       siteName: getMeta('og:site_name'),
       author: getMeta('article:author') || getMeta('author'),
@@ -378,7 +426,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
    */
   private async saveContent(
     libraryItemId: string,
-    result: ContentFetchResult
+    result: ContentFetchResult,
   ): Promise<void> {
     this.logger.log(`Saving content for library item ${libraryItemId}`)
 
@@ -397,8 +445,11 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
 
       this.logger.log(`Content saved for library item ${libraryItemId}`)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      this.logger.error(`Failed to save content for ${libraryItemId}: ${errorMessage}`)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      this.logger.error(
+        `Failed to save content for ${libraryItemId}: ${errorMessage}`,
+      )
       throw error
     }
   }
@@ -408,15 +459,18 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
    */
   private async updateLibraryItemState(
     libraryItemId: string,
-    state: LibraryItemState
+    state: LibraryItemState,
   ): Promise<void> {
     try {
       await this.libraryItemRepository.update(libraryItemId, { state })
-      this.logger.debug(`Updated library item ${libraryItemId} state to ${state}`)
+      this.logger.debug(
+        `Updated library item ${libraryItemId} state to ${state}`,
+      )
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
       this.logger.error(
-        `Failed to update state for ${libraryItemId}: ${errorMessage}`
+        `Failed to update state for ${libraryItemId}: ${errorMessage}`,
       )
       throw error
     }
@@ -426,7 +480,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
    * Utility: Delay for testing
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   /**
