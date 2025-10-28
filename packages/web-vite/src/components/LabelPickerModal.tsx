@@ -9,6 +9,15 @@ interface LabelPickerModalProps {
   onClose: () => void
 }
 
+/**
+ * LabelPickerModal
+ * @param props.itemId - Target library item ID.
+ * @param props.currentLabels - Current label names applied.
+ * @param props.onUpdate - Called with the updated label name list.
+ * @param props.onClose - Close handler.
+ */
+export function LabelPickerModal({ itemId, currentLabels, onUpdate, onClose }: LabelPickerModalProps) {
+
 // Preset colors matching legacy implementation
 const PRESET_COLORS = [
   { name: 'Red', value: '#FF5D99' },
