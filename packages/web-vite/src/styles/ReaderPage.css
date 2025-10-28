@@ -1,17 +1,19 @@
-/* Reader Page Styles */
+/* Reader Page Styles - Using Design Tokens for Dark Theme */
 
 .reader-page {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: var(--font-primary);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 /* Header Styles */
 .reader-header {
   margin-bottom: 40px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .back-button {
@@ -20,17 +22,18 @@
   gap: 8px;
   padding: 8px 16px;
   margin-bottom: 20px;
-  background: #f5f5f5;
-  border: none;
-  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
   font-size: 14px;
-  color: #333;
+  color: var(--color-text-primary);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-fast);
 }
 
 .back-button:hover {
-  background: #e0e0e0;
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-hover);
 }
 
 .reader-header h1 {
@@ -38,18 +41,18 @@
   font-weight: 700;
   line-height: 1.2;
   margin: 0 0 16px 0;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
 }
 
 .reader-header .author {
   font-size: 16px;
-  color: #666;
+  color: var(--color-text-secondary);
   margin: 8px 0;
 }
 
 .reader-header .publish-date {
   font-size: 14px;
-  color: #999;
+  color: var(--color-text-tertiary);
   margin: 4px 0;
 }
 
@@ -57,21 +60,103 @@
   display: inline-block;
   margin-top: 12px;
   font-size: 14px;
-  color: #007aff;
+  color: var(--color-action-blue);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color var(--transition-fast);
 }
 
 .reader-header .original-link:hover {
-  color: #0051d5;
+  color: #5aa3ff;
   text-decoration: underline;
+}
+
+/* Reader Labels - Minimalist chips matching legacy design */
+.reader-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0;
+}
+
+.reader-label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.label-chip-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Reader Toolbar - Minimalist button bar */
+.reader-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toolbar-button:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-action-blue);
+  color: var(--color-action-blue);
+}
+
+.toolbar-button svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .reader-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .toolbar-button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .reader-labels {
+    gap: 4px;
+  }
+
+  .reader-label-chip {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
 }
 
 /* Content Styles */
 .reader-content {
   font-size: 18px;
   line-height: 1.7;
-  color: #333;
+  color: var(--color-text-secondary);
 }
 
 .reader-content p {
@@ -87,7 +172,7 @@
   margin: 1.5em 0 0.5em 0;
   line-height: 1.3;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
 }
 
 .reader-content h1 { font-size: 2em; }
@@ -96,7 +181,7 @@
 .reader-content h4 { font-size: 1.1em; }
 
 .reader-content a {
-  color: #007aff;
+  color: var(--color-action-blue);
   text-decoration: none;
 }
 
@@ -108,23 +193,25 @@
   max-width: 100%;
   height: auto;
   margin: 1.5em 0;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 .reader-content pre {
-  background: #f5f5f5;
+  background: var(--color-bg-secondary);
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow-x: auto;
   font-size: 14px;
+  border: 1px solid var(--color-border-primary);
 }
 
 .reader-content code {
-  background: #f5f5f5;
+  background: var(--color-bg-secondary);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
   font-size: 0.9em;
+  color: var(--color-text-primary);
 }
 
 .reader-content pre code {
@@ -135,8 +222,8 @@
 .reader-content blockquote {
   margin: 1.5em 0;
   padding: 0 0 0 20px;
-  border-left: 4px solid #e0e0e0;
-  color: #666;
+  border-left: 4px solid var(--color-border-secondary);
+  color: var(--color-text-tertiary);
   font-style: italic;
 }
 
@@ -157,14 +244,14 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  color: #666;
+  color: var(--color-text-tertiary);
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007aff;
+  border: 4px solid var(--color-bg-tertiary);
+  border-top: 4px solid var(--color-action-blue);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -183,13 +270,13 @@
 
 .reader-error h2 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
   margin-bottom: 12px;
 }
 
 .reader-error p {
   font-size: 16px;
-  color: #666;
+  color: var(--color-text-secondary);
   margin-bottom: 24px;
 }
 
@@ -206,19 +293,19 @@
 
 .empty-state h2 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
   margin-bottom: 12px;
 }
 
 .empty-state p {
   font-size: 16px;
-  color: #666;
+  color: var(--color-text-secondary);
   margin-bottom: 12px;
 }
 
 .empty-state .state-info {
   font-size: 14px;
-  color: #999;
+  color: var(--color-text-tertiary);
   font-style: italic;
   margin-bottom: 24px;
 }
@@ -226,16 +313,16 @@
 .empty-state .view-original-button {
   display: inline-block;
   padding: 12px 24px;
-  background: #007aff;
-  color: white;
+  background: var(--color-action-blue);
+  color: var(--color-text-primary);
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 16px;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-fast);
 }
 
 .empty-state .view-original-button:hover {
-  background: #0051d5;
+  background: #5aa3ff;
 }
 
 /* Responsive Design */

@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom'
 import { useAuthStore } from '../stores'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import LeftNavigation from '../components/LeftNavigation'
 
 // Lazy load components for better performance
 const LandingPage = React.lazy(() => import('../pages/LandingPage'))
@@ -77,7 +78,7 @@ const HomeRoute: React.FC = () => {
   return <LandingPage />
 }
 
-// Layout component
+// Layout component with left navigation
 const AppLayout: React.FC = () => {
   const { logout } = useAuthStore()
 
@@ -87,25 +88,31 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="app-layout">
-      <header className="app-header">
-        <nav className="app-nav">
-          <a href="/home" className="nav-link">
-            Library
-          </a>
-          <a href="/labels" className="nav-link">
-            Labels
-          </a>
-          <a href="/settings" className="nav-link">
-            Settings
-          </a>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
-        </nav>
-      </header>
-      <main className="app-main">
-        <Outlet />
-      </main>
+      {/* Left navigation panel */}
+      <LeftNavigation />
+
+      {/* Main content area */}
+      <div className="main-content-wrapper">
+        {/* Top bar with user actions */}
+        <header className="top-bar">
+          <div className="top-bar-left">
+            {/* Search will be in individual pages */}
+          </div>
+          <div className="top-bar-right">
+            <a href="/settings" className="top-bar-link">
+              ⚙️ Settings
+            </a>
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="app-main">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

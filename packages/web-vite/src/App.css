@@ -7,6 +7,108 @@
 .app {
   min-height: 100vh;
   width: 100%;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* New layout with left navigation */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #1a1a1a;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  margin-left: 250px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #2a2a2a;
+  border-bottom: 1px solid #3a3a3a;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.top-bar-left {
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.top-bar-link {
+  color: #898989;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.top-bar-link:hover {
+  color: #fff;
+}
+
+.logout-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #898989;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* Main content area */
+.app-main {
+  flex: 1;
+  background: #1a1a1a;
+  overflow-y: auto;
+}
+
+/* View toggle button */
+.view-toggle-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #898989;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.view-toggle-btn:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    margin-left: 0;
+  }
+
+  .top-bar {
+    padding: 1rem;
+  }
 }
 
 /* Login page styles - matching legacy web package */

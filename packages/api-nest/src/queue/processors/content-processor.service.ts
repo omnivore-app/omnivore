@@ -275,9 +275,12 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
         }
       }
 
-      // Phase 5: Combine Open Graph + Readability results
+      // Phase 5: Calculate accurate word count from content (strips HTML)
+      const actualWordCount = this.calculateWordCount(article.content || '')
+
+      // Phase 6: Combine Open Graph + Readability results
       this.logger.log(
-        `Successfully extracted content from ${url}: ${article.length} words`
+        `Successfully extracted content from ${url}: ${actualWordCount} words`
       )
 
       return {
@@ -291,7 +294,7 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
         siteName: article.siteName || ogData.siteName,
         siteIcon: ogData.favicon,
         publishedDate: ogData.publishedTime ? new Date(ogData.publishedTime) : undefined,
-        wordCount: article.length || 0,
+        wordCount: actualWordCount,
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -302,6 +305,26 @@ export class ContentProcessorService extends WorkerHost implements OnModuleInit,
         error: errorMessage,
       }
     }
+  }
+
+  /**
+   * Calculate word count from HTML content (strips tags and counts actual words)
+   * @param htmlContent - HTML content to count words from
+   * @returns Actual word count
+   */
+  private calculateWordCount(htmlContent: string): number {
+    if (!htmlContent) return 0
+
+    // Strip HTML tags
+    const textOnly = htmlContent.replace(/<[^>]*>/g, ' ')
+
+    // Remove extra whitespace and normalize
+    const normalized = textOnly.replace(/\s+/g, ' ').trim()
+
+    // Split by whitespace and count non-empty words
+    const words = normalized.split(' ').filter(word => word.length > 0)
+
+    return words.length
   }
 
   /**

@@ -1,0 +1,461 @@
+/* Library Page - 3-Tier Layout Styles */
+/* Improved visual spacing and organization */
+
+.library-page {
+  max-width: 100%;
+  width: 100%;
+  padding: 0;
+  background: #1a1a1a;
+}
+
+/* ===== TIER 1: Top Bar (Search + Add) ===== */
+.library-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #2a2a2a;
+  border-bottom: 1px solid #3a3a3a;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+}
+
+.search-spinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+.add-article-btn {
+  background: #4a9eff;
+  color: white;
+  border: none;
+  padding: 0.625rem 1.5rem;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.add-article-btn:hover {
+  background: #3a8eef;
+  transform: translateY(-1px);
+}
+
+.add-article-btn:active {
+  transform: translateY(0);
+}
+
+/* ===== TIER 2: Filters Bar ===== */
+.library-filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #252525;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.filter-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Label Filter */
+.label-filter-wrapper {
+  position: relative;
+}
+
+.label-filter-toggle-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #d9d9d9;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.label-filter-toggle-btn:hover {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+/* View Toggle */
+.view-toggle-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #898989;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 40px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.view-toggle-btn:hover {
+  background: #3a3a3a;
+  color: #d9d9d9;
+}
+
+/* Multi-Select Toggle */
+.multi-select-toggle-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #898989;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.multi-select-toggle-btn:hover {
+  background: #3a3a3a;
+  color: #d9d9d9;
+}
+
+/* Sort Controls */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-controls label {
+  color: #898989;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.sort-select {
+  background: #333;
+  border: 1px solid #444;
+  color: #d9d9d9;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.sort-select:hover {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #4a9eff;
+}
+
+.sort-order-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #898989;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sort-order-btn:hover {
+  background: #3a3a3a;
+  color: #d9d9d9;
+}
+
+/* ===== TIER 3: Folder Tabs ===== */
+.library-folder-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #1a1a1a;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.folder-tab {
+  background: transparent;
+  border: none;
+  color: #898989;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.folder-tab:hover {
+  background: #252525;
+  color: #d9d9d9;
+}
+
+.folder-tab.active {
+  background: #333;
+  color: #fff;
+  border-bottom: 2px solid #4a9eff;
+}
+
+.selection-indicator {
+  margin-left: auto;
+  color: #898989;
+  font-size: 13px;
+  padding: 0.25rem 0.75rem;
+  background: #252525;
+  border-radius: 12px;
+}
+
+/* ===== Library Stats ===== */
+.library-stats {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem 1.5rem;
+  background: #1a1a1a;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.stat-number {
+  color: #d9d9d9;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.stat-label {
+  color: #898989;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Bulk Actions Bar ===== */
+.bulk-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #252525;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.bulk-select-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bulk-control-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #898989;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.bulk-control-btn:hover {
+  background: #3a3a3a;
+  color: #d9d9d9;
+}
+
+.selected-count {
+  color: #898989;
+  font-size: 13px;
+}
+
+.bulk-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bulk-action-btn {
+  background: #333;
+  border: 1px solid #444;
+  color: #d9d9d9;
+  padding: 0.5rem 0.875rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.bulk-action-btn:hover {
+  background: #3a3a3a;
+}
+
+.bulk-action-btn-danger {
+  color: #ff6b6b;
+  border-color: #8b0000;
+}
+
+.bulk-action-btn-danger:hover {
+  background: #8b0000;
+  color: white;
+}
+
+/* ===== Toast Notifications ===== */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast-success {
+  background: #4caf50;
+  color: white;
+}
+
+.toast-error {
+  background: #ff4444;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 1024px) {
+  .library-filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .filter-controls-left {
+    flex-wrap: wrap;
+  }
+
+  .sort-controls {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .library-top-bar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .add-article-btn {
+    width: 100%;
+  }
+
+  .library-folder-tabs {
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+  }
+
+  .library-stats {
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .bulk-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bulk-action-buttons {
+    width: 100%;
+  }
+
+  .bulk-action-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-controls-left {
+    width: 100%;
+  }
+
+  .view-toggle-btn,
+  .multi-select-toggle-btn {
+    flex: 1;
+  }
+
+  .folder-tab {
+    flex: 1;
+    text-align: center;
+  }
+}

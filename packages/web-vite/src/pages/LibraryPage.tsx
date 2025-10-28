@@ -12,6 +12,7 @@ import {
   useBulkDelete,
   useBulkMoveToFolder,
   useBulkMarkAsRead,
+  useUpdateReadingProgress,
   useLabels,
 } from '../lib/graphql-client'
 import type {
@@ -21,8 +22,16 @@ import type {
 } from '../types/api'
 import ErrorBoundary from '../components/ErrorBoundary'
 import LabelPicker from '../components/LabelPicker'
+import LabelPickerModal from '../components/LabelPickerModal'
 import AddLinkModal from '../components/AddLinkModal'
+import EditInfoModal from '../components/EditInfoModal'
+import LibraryItemCard, { type CardAction } from '../components/LibraryItemCard'
+import LibraryItemRow from '../components/LibraryItemRow'
 import '../styles/LabelPicker.css'
+import '../styles/LibraryGrid.css'
+import '../styles/LibraryList.css'
+import '../styles/LibraryCard.css'
+import '../styles/LibraryPage.css'
 
 const LIBRARY_ITEMS_QUERY = `
   query LibraryItems($first: Int!, $after: String, $search: LibrarySearchInput) {
@@ -48,6 +57,13 @@ const LIBRARY_ITEMS_QUERY = `
           color
           description
         }
+        thumbnail
+        wordCount
+        siteName
+        siteIcon
+        itemType
+        readingProgressTopPercent
+        readingProgressBottomPercent
       }
       nextCursor
     }
@@ -64,7 +80,7 @@ const LibraryPage: React.FC = () => {
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeFolder, setActiveFolder] = useState<string>('all')
+  const [activeFolder, setActiveFolder] = useState<string>('inbox')
   const [sortBy, setSortBy] = useState<string>('SAVED_AT')
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC')
   const [toast, setToast] =
@@ -75,6 +91,13 @@ const LibraryPage: React.FC = () => {
   const [selectedLabelFilters, setSelectedLabelFilters] = useState<string[]>([])
   const [showLabelFilter, setShowLabelFilter] = useState(false)
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    // Load view mode from localStorage, default to 'grid'
+    const saved = localStorage.getItem('omnivore-view-mode')
+    return (saved === 'grid' || saved === 'list') ? saved : 'grid'
+  })
+  const [editingLabelsItemId, setEditingLabelsItemId] = useState<string | null>(null)
+  const [editingInfoItemId, setEditingInfoItemId] = useState<string | null>(null)
 
   const { archiveItem } = useArchiveItem()
   const { deleteItem } = useDeleteItem()
@@ -82,11 +105,81 @@ const LibraryPage: React.FC = () => {
   const { bulkDelete } = useBulkDelete()
   const { bulkMoveToFolder } = useBulkMoveToFolder()
   const { bulkMarkAsRead } = useBulkMarkAsRead()
+  const { updateProgress } = useUpdateReadingProgress()
   const { data: allLabels, fetchLabels } = useLabels()
 
   useEffect(() => {
     fetchLabels()
   }, [fetchLabels])
+
+  // Persist view mode to localStorage
+  useEffect(() => {
+    localStorage.setItem('omnivore-view-mode', viewMode)
+  }, [viewMode])
+
+  // Polling for processing items
+  useEffect(() => {
+    const processingItems = items.filter(
+      (i) => i.state === 'CONTENT_NOT_FETCHED' || i.state === 'PROCESSING'
+    )
+
+    if (processingItems.length === 0) return
+
+    const pollInterval = setInterval(async () => {
+      try {
+        // Build search parameters
+        const searchParams: any = {}
+        if (searchQuery.trim()) {
+          searchParams.query = searchQuery.trim()
+        }
+        if (activeFolder) {
+          searchParams.folder = activeFolder
+        }
+        if (selectedLabelFilters.length > 0) {
+          searchParams.labels = selectedLabelFilters
+        }
+        searchParams.sortBy = sortBy
+        searchParams.sortOrder = sortOrder
+
+        const data = await graphqlRequest<{
+          libraryItems: LibraryItemsConnection
+        }>(LIBRARY_ITEMS_QUERY, {
+          first: INITIAL_PAGE_SIZE,
+          search:
+            Object.keys(searchParams).length > 0 ? searchParams : undefined,
+        })
+
+        // Check which items finished processing
+        const nowReady = data.libraryItems.items.filter((item) =>
+          processingItems.some(
+            (p) => p.id === item.id && item.state === 'SUCCEEDED'
+          )
+        )
+
+        if (nowReady.length > 0) {
+          showToast(
+            `${nowReady.length} article${
+              nowReady.length > 1 ? 's' : ''
+            } ready to read!`,
+            'success'
+          )
+        }
+
+        setItems(data.libraryItems.items)
+      } catch (err) {
+        console.error('Failed to poll for processing items:', err)
+      }
+    }, 5000) // Poll every 5 seconds
+
+    return () => clearInterval(pollInterval)
+  }, [
+    items,
+    searchQuery,
+    activeFolder,
+    selectedLabelFilters,
+    sortBy,
+    sortOrder,
+  ])
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -106,7 +199,7 @@ const LibraryPage: React.FC = () => {
         if (searchQuery.trim()) {
           searchParams.query = searchQuery.trim()
         }
-        if (activeFolder && activeFolder !== 'all') {
+        if (activeFolder) {
           searchParams.folder = activeFolder
         }
         if (selectedLabelFilters.length > 0) {
@@ -148,8 +241,16 @@ const LibraryPage: React.FC = () => {
     items.length,
   ])
 
-  // No client-side filtering needed - using server-side search
-  const filteredItems = items
+  // Client-side filtering to reflect optimistic updates before server refetch
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      // Filter by active folder
+      if (activeFolder === 'inbox' && item.folder !== 'inbox') return false
+      if (activeFolder === 'archive' && item.folder !== 'archive') return false
+      if (activeFolder === 'trash' && item.folder !== 'trash') return false
+      return true
+    })
+  }, [items, activeFolder])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -468,7 +569,7 @@ const LibraryPage: React.FC = () => {
       if (searchQuery.trim()) {
         searchParams.query = searchQuery.trim()
       }
-      if (activeFolder && activeFolder !== 'all') {
+      if (activeFolder) {
         searchParams.folder = activeFolder
       }
       if (selectedLabelFilters.length > 0) {
@@ -488,6 +589,119 @@ const LibraryPage: React.FC = () => {
     } catch (err) {
       console.error('Failed to refetch library items:', err)
       // Don't show error toast here since the optimistic update already succeeded
+    }
+  }
+
+  const handleInfoUpdate = async (itemId: string, updatedFields: any) => {
+    // Optimistic update
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === itemId ? { ...item, ...updatedFields } : item
+      )
+    )
+    showToast('Info updated', 'success')
+  }
+
+  const handleMarkAsRead = async (itemId: string) => {
+    try {
+      setProcessingItemId(itemId)
+
+      // Optimistic update
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                readingProgressTopPercent: 100,
+                readingProgressBottomPercent: 100,
+                readAt: new Date().toISOString(),
+              }
+            : item
+        )
+      )
+
+      await updateProgress(itemId, {
+        readingProgressTopPercent: 100,
+        readingProgressBottomPercent: 100,
+      })
+      showToast('Marked as read', 'success')
+    } catch (err) {
+      // Revert optimistic update on error
+      window.location.reload()
+      showToast(err instanceof Error ? err.message : 'Action failed', 'error')
+    } finally {
+      setProcessingItemId(null)
+    }
+  }
+
+  const handleMarkAsUnread = async (itemId: string) => {
+    try {
+      setProcessingItemId(itemId)
+
+      // Optimistic update
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                readingProgressTopPercent: 0,
+                readingProgressBottomPercent: 0,
+                readAt: null,
+              }
+            : item
+        )
+      )
+
+      await updateProgress(itemId, {
+        readingProgressTopPercent: 0,
+        readingProgressBottomPercent: 0,
+      })
+      showToast('Marked as unread', 'success')
+    } catch (err) {
+      // Revert optimistic update on error
+      window.location.reload()
+      showToast(err instanceof Error ? err.message : 'Action failed', 'error')
+    } finally {
+      setProcessingItemId(null)
+    }
+  }
+
+  // Unified action handler for card menu
+  const handleCardAction = async (action: CardAction, itemId: string) => {
+    const item = items.find((i) => i.id === itemId)
+    if (!item) return
+
+    switch (action) {
+      case 'archive':
+      case 'unarchive':
+        await handleArchive(itemId, item.state)
+        break
+      case 'delete':
+        await handleDelete(itemId)
+        break
+      case 'set-labels':
+        setEditingLabelsItemId(itemId)
+        break
+      case 'open-notebook':
+        // Show toast about upcoming feature, but still navigate to reader
+        showToast('Notebook sidebar coming soon! Opening article...', 'success')
+        // Navigate to reader with notebook sidebar open (when implemented in ARC-010-FE)
+        setTimeout(() => navigate(`/reader/${itemId}?notebook=open`), 500)
+        break
+      case 'open-original':
+        if (item.originalUrl) {
+          window.open(item.originalUrl, '_blank', 'noopener,noreferrer')
+        }
+        break
+      case 'edit-info':
+        setEditingInfoItemId(itemId)
+        break
+      case 'mark-read':
+        await handleMarkAsRead(itemId)
+        break
+      case 'mark-unread':
+        await handleMarkAsUnread(itemId)
+        break
     }
   }
 
@@ -513,7 +727,7 @@ const LibraryPage: React.FC = () => {
       if (searchQuery.trim()) {
         searchParams.query = searchQuery.trim()
       }
-      if (activeFolder && activeFolder !== 'all') {
+      if (activeFolder) {
         searchParams.folder = activeFolder
       }
       if (selectedLabelFilters.length > 0) {
@@ -560,35 +774,35 @@ const LibraryPage: React.FC = () => {
         <div className={`toast toast-${toast.type}`}>{toast.message}</div>
       )}
       <div className="library-page">
-        <div className="library-header">
-          <h1>
-            Your Library{' '}
-            {searching && (
-              <span className="searching-indicator">Searching...</span>
-            )}
-            {selectedItems.size > 0 && (
-              <span className="selection-count">
-                ({selectedItems.size} selected)
-              </span>
-            )}
-          </h1>
-          <div className="library-controls">
-            <div className="search-box">
-              <input
-                type="text"
-                placeholder="Search saved items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-              />
-              {searching && <span className="search-spinner">⏳</span>}
-            </div>
+        {/* Top Bar: Search + Add + User Menu */}
+        <div className="library-top-bar">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search saved items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            {searching && <span className="search-spinner">⏳</span>}
+          </div>
+          <button
+            className="add-article-btn"
+            onClick={() => setShowAddLinkModal(true)}
+          >
+            + Add
+          </button>
+        </div>
+
+        {/* Filters Bar: Labels + View Toggle + Multi-Select + Sort */}
+        <div className="library-filters-bar">
+          <div className="filter-controls-left">
             <div className="label-filter-wrapper">
               <button
                 className="label-filter-toggle-btn"
                 onClick={() => setShowLabelFilter(!showLabelFilter)}
               >
-                🏷️ Filter by Labels{' '}
+                🏷️ Labels{' '}
                 {selectedLabelFilters.length > 0 &&
                   `(${selectedLabelFilters.length})`}
               </button>
@@ -631,6 +845,13 @@ const LibraryPage: React.FC = () => {
               )}
             </div>
             <button
+              className="view-toggle-btn"
+              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              title={`Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`}
+            >
+              {viewMode === 'grid' ? '☰' : '⊞'}
+            </button>
+            <button
               className="multi-select-toggle-btn"
               onClick={() => {
                 setIsMultiSelectMode(!isMultiSelectMode)
@@ -639,13 +860,31 @@ const LibraryPage: React.FC = () => {
                 }
               }}
             >
-              {isMultiSelectMode ? 'Exit Multi-Select' : 'Multi-Select'}
+              ☑ {isMultiSelectMode ? 'Exit' : 'Select'}
             </button>
-            <button
-              className="add-article-btn"
-              onClick={() => setShowAddLinkModal(true)}
+          </div>
+          <div className="sort-controls">
+            <label htmlFor="sort-by">Sort:</label>
+            <select
+              id="sort-by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="sort-select"
             >
-              + Add Article
+              <option value="SAVED_AT">Recent</option>
+              <option value="UPDATED_AT">Updated</option>
+              <option value="PUBLISHED_AT">Published</option>
+              <option value="TITLE">Title</option>
+              <option value="AUTHOR">Author</option>
+            </select>
+            <button
+              className="sort-order-btn"
+              onClick={() =>
+                setSortOrder(sortOrder === 'DESC' ? 'ASC' : 'DESC')
+              }
+              title={sortOrder === 'DESC' ? 'Descending' : 'Ascending'}
+            >
+              {sortOrder === 'DESC' ? '↓' : '↑'}
             </button>
           </div>
         </div>
@@ -655,6 +894,44 @@ const LibraryPage: React.FC = () => {
           onClose={() => setShowAddLinkModal(false)}
           onSuccess={handleAddLinkSuccess}
         />
+
+        {/* Label Picker Modal */}
+        {editingLabelsItemId && (() => {
+          const editingItem = items.find(i => i.id === editingLabelsItemId)
+          if (!editingItem) return null
+
+          return (
+            <LabelPickerModal
+              itemId={editingItem.id}
+              currentLabels={editingItem.labels?.map(l => l.name) || []}
+              onUpdate={(labelNames) => {
+                handleLabelsUpdate(editingItem.id, labelNames)
+                setEditingLabelsItemId(null)
+              }}
+              onClose={() => setEditingLabelsItemId(null)}
+            />
+          )
+        })()}
+
+        {/* Edit Info Modal */}
+        {editingInfoItemId && (() => {
+          const editingItem = items.find(i => i.id === editingInfoItemId)
+          if (!editingItem) return null
+
+          return (
+            <EditInfoModal
+              itemId={editingItem.id}
+              currentTitle={editingItem.title}
+              currentAuthor={editingItem.author}
+              currentDescription={editingItem.description}
+              onUpdate={(updatedFields) => {
+                handleInfoUpdate(editingItem.id, updatedFields)
+                setEditingInfoItemId(null)
+              }}
+              onClose={() => setEditingInfoItemId(null)}
+            />
+          )
+        })()}
 
         {isMultiSelectMode && (
           <div className="bulk-actions-bar">
@@ -712,64 +989,33 @@ const LibraryPage: React.FC = () => {
           </div>
         )}
 
-        <div className="library-filters">
-          <div className="folder-tabs">
-            <button
-              className={`folder-tab ${activeFolder === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveFolder('all')}
-            >
-              All
-            </button>
-            <button
-              className={`folder-tab ${
-                activeFolder === 'inbox' ? 'active' : ''
-              }`}
-              onClick={() => setActiveFolder('inbox')}
-            >
-              Inbox
-            </button>
-            <button
-              className={`folder-tab ${
-                activeFolder === 'archive' ? 'active' : ''
-              }`}
-              onClick={() => setActiveFolder('archive')}
-            >
-              Archive
-            </button>
-            <button
-              className={`folder-tab ${
-                activeFolder === 'trash' ? 'active' : ''
-              }`}
-              onClick={() => setActiveFolder('trash')}
-            >
-              Trash
-            </button>
-          </div>
-
-          <div className="sort-controls">
-            <label htmlFor="sort-by">Sort by:</label>
-            <select
-              id="sort-by"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="sort-select"
-            >
-              <option value="SAVED_AT">Date Saved</option>
-              <option value="UPDATED_AT">Last Updated</option>
-              <option value="PUBLISHED_AT">Published Date</option>
-              <option value="TITLE">Title</option>
-              <option value="AUTHOR">Author</option>
-            </select>
-            <button
-              className="sort-order-btn"
-              onClick={() =>
-                setSortOrder(sortOrder === 'DESC' ? 'ASC' : 'DESC')
-              }
-              title={sortOrder === 'DESC' ? 'Descending' : 'Ascending'}
-            >
-              {sortOrder === 'DESC' ? '↓' : '↑'}
-            </button>
-          </div>
+        {/* Folder Tabs: Inbox, Archive, Trash */}
+        <div className="library-folder-tabs">
+          <button
+            className={`folder-tab ${activeFolder === 'inbox' ? 'active' : ''}`}
+            onClick={() => setActiveFolder('inbox')}
+          >
+            Inbox
+          </button>
+          <button
+            className={`folder-tab ${
+              activeFolder === 'archive' ? 'active' : ''
+            }`}
+            onClick={() => setActiveFolder('archive')}
+          >
+            Archive
+          </button>
+          <button
+            className={`folder-tab ${activeFolder === 'trash' ? 'active' : ''}`}
+            onClick={() => setActiveFolder('trash')}
+          >
+            Trash
+          </button>
+          {selectedItems.size > 0 && (
+            <span className="selection-indicator">
+              {selectedItems.size} selected
+            </span>
+          )}
         </div>
 
         <div className="library-stats">
@@ -808,103 +1054,34 @@ const LibraryPage: React.FC = () => {
               </button>
             )}
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div className="articles-grid">
             {filteredItems.map((item) => (
-              <div
+              <LibraryItemCard
                 key={item.id}
-                className={`article-card ${
-                  selectedItems.has(item.id) ? 'selected' : ''
-                }`}
-              >
-                {isMultiSelectMode && (
-                  <div className="article-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.has(item.id)}
-                      onChange={() => toggleItemSelection(item.id)}
-                      className="checkbox-input"
-                    />
-                  </div>
-                )}
-                <div className="article-header">
-                  <div className="article-state">
-                    <span
-                      className="state-indicator"
-                      style={{ backgroundColor: getStateColor(item.state) }}
-                    ></span>
-                    <span className="state-label">
-                      {getStateLabel(item.state)}
-                    </span>
-                  </div>
-                  <div className="article-date">{formatDate(item.savedAt)}</div>
-                </div>
-
-                <h3 className="article-title">
-                  <button
-                    onClick={() => handleRead(item.id)}
-                    className="article-title-btn"
-                  >
-                    {item.title}
-                  </button>
-                </h3>
-
-                <div className="article-meta">
-                  <span className="article-url">{item.originalUrl}</span>
-                </div>
-
-                {item.labels && item.labels.length > 0 && (
-                  <div className="article-labels">
-                    {item.labels.map((label) => (
-                      <span
-                        key={label.id}
-                        className="label"
-                        style={{
-                          backgroundColor: label.color,
-                          color: '#fff',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.25rem',
-                          fontSize: '0.75rem',
-                          marginRight: '0.25rem',
-                        }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="article-actions">
-                  <button
-                    className="action-btn"
-                    onClick={() => handleRead(item.id)}
-                    disabled={processingItemId === item.id}
-                  >
-                    Read
-                  </button>
-                  <button
-                    className="action-btn"
-                    onClick={() => handleArchive(item.id, item.state)}
-                    disabled={processingItemId === item.id}
-                  >
-                    {item.state === 'ARCHIVED' ? 'Unarchive' : 'Archive'}
-                  </button>
-                  <LabelPicker
-                    itemId={item.id}
-                    currentLabels={item.labels?.map((l) => l.name) || []}
-                    onUpdate={(labelNames) =>
-                      handleLabelsUpdate(item.id, labelNames)
-                    }
-                  />
-                  <button
-                    className="action-btn action-btn-danger"
-                    onClick={() => handleDelete(item.id)}
-                    disabled={processingItemId === item.id}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
+                item={item}
+                isSelected={selectedItems.has(item.id)}
+                isMultiSelectMode={isMultiSelectMode}
+                onRead={handleRead}
+                onAction={handleCardAction}
+                onToggleSelect={toggleItemSelection}
+                isProcessing={processingItemId === item.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="articles-list">
+            {filteredItems.map((item) => (
+              <LibraryItemRow
+                key={item.id}
+                item={item}
+                isSelected={selectedItems.has(item.id)}
+                isMultiSelectMode={isMultiSelectMode}
+                onRead={handleRead}
+                onAction={handleCardAction}
+                onToggleSelect={toggleItemSelection}
+                isProcessing={processingItemId === item.id}
+              />
             ))}
           </div>
         )}

@@ -89,7 +89,7 @@ export function LabelPicker({ itemId, currentLabels, onUpdate }: LabelPickerProp
         onClick={() => setIsOpen(!isOpen)}
         disabled={updating}
       >
-        🏷️ Labels
+        🏷️
       </button>
 
       {isOpen && (

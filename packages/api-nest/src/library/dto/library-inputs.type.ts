@@ -216,3 +216,33 @@ export class UpdateNotebookInput {
   @IsString()
   note: string
 }
+
+/**
+ * Input type for updating library item metadata (title, author, description)
+ */
+@InputType()
+export class UpdateLibraryItemInput {
+  @Field(() => String, {
+    nullable: true,
+    description: 'Updated title for the library item',
+  })
+  @IsOptional()
+  @IsString()
+  title?: string
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Updated author name for the library item',
+  })
+  @IsOptional()
+  @IsString()
+  author?: string
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Updated description for the library item',
+  })
+  @IsOptional()
+  @IsString()
+  description?: string
+}

@@ -1,0 +1,31 @@
+/**
+ * FlairBadge Styles
+ *
+ * System label indicators displayed as icon-only badges in the metadata row
+ */
+
+.flair-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: var(--font-size-caption);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-full);
+  opacity: 0.8;
+  transition: opacity var(--transition-fast);
+  cursor: help;
+}
+
+.flair-badge:hover {
+  opacity: 1;
+  border-color: var(--color-border-hover);
+}
+
+/* Ensure accessibility with focus states */
+.flair-badge:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+}

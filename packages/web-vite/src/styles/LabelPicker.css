@@ -271,3 +271,26 @@
   color: #6b7280;
   font-size: 0.875rem;
 }
+
+/* Inline label picker (for modal usage) */
+.label-picker-inline {
+  width: 100%;
+}
+
+.label-picker-inline .label-picker {
+  width: 100%;
+  display: block;
+}
+
+.label-picker-inline .label-picker-trigger {
+  display: none;
+}
+
+.label-picker-inline .label-picker-dropdown {
+  position: static;
+  width: 100%;
+  max-width: 100%;
+  box-shadow: none;
+  border: none;
+  animation: none;
+}

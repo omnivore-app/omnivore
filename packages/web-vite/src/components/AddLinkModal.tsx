@@ -29,17 +29,19 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
         return false
       }
 
-      // Check if it's a valid URL format
-      const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
-      if (!urlPattern.test(urlString.trim())) {
-        setValidationError('Please enter a valid URL (e.g., https://example.com/article)')
-        return false
+      // Add protocol if missing for URL validation
+      let testUrl = urlString.trim()
+      if (!testUrl.startsWith('http://') && !testUrl.startsWith('https://')) {
+        testUrl = `https://${testUrl}`
       }
+
+      // Use built-in URL constructor for validation
+      new URL(testUrl)
 
       setValidationError(null)
       return true
     } catch {
-      setValidationError('Invalid URL format')
+      setValidationError('Please enter a valid URL (e.g., https://example.com/article)')
       return false
     }
   }

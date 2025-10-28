@@ -28,6 +28,7 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   protected generateDefaults() {
     const timestamp = Date.now()
     const title = faker.lorem.sentence()
+    const domain = faker.internet.domainName()
 
     return {
       id: faker.string.uuid(),
@@ -41,6 +42,23 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
       itemType: 'ARTICLE',
       createdAt: new Date(),
       updatedAt: new Date(),
+      // ARC-009: Add metadata fields for frontend library feature parity
+      author: faker.person.fullName(),
+      description: faker.lorem.paragraph(),
+      thumbnail: faker.image.url({ width: 640, height: 480, category: 'tech' }),
+      wordCount: faker.number.int({ min: 300, max: 5000 }),
+      siteName: faker.company.name(),
+      siteIcon: `https://${domain}/favicon.ico`,
+      publishedAt: faker.date.past({ years: 1 }),
+      readingProgressTopPercent: 0,
+      readingProgressBottomPercent: 0,
+      readingProgressLastReadAnchor: 0,
+      readingProgressHighestReadAnchor: 0,
+      readableContent: faker.lorem.paragraphs(5),
+      labelNames: [],
+      note: null,
+      noteUpdatedAt: null,
+      readAt: null,
       // These will be set by the caller
       userId: '', // Must be provided
       user: undefined,
@@ -54,7 +72,10 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   /**
    * Create an archived library item
    */
-  async archived(userId: string, overrides: Partial<LibraryItemEntity> = {}): Promise<LibraryItemEntity> {
+  async archived(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): Promise<LibraryItemEntity> {
     return this.create({
       userId,
       folder: FOLDERS.ARCHIVE,
@@ -66,7 +87,10 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   /**
    * Create a deleted library item (in trash)
    */
-  async deleted(userId: string, overrides: Partial<LibraryItemEntity> = {}): Promise<LibraryItemEntity> {
+  async deleted(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): Promise<LibraryItemEntity> {
     return this.create({
       userId,
       folder: FOLDERS.TRASH,
@@ -97,7 +121,10 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   /**
    * Create an item that's still being processed
    */
-  async processing(userId: string, overrides: Partial<LibraryItemEntity> = {}): Promise<LibraryItemEntity> {
+  async processing(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): Promise<LibraryItemEntity> {
     return this.create({
       userId,
       state: LibraryItemState.CONTENT_NOT_FETCHED,
@@ -125,7 +152,10 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   /**
    * Create a PDF library item
    */
-  async pdf(userId: string, overrides: Partial<LibraryItemEntity> = {}): Promise<LibraryItemEntity> {
+  async pdf(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): Promise<LibraryItemEntity> {
     return this.create({
       userId,
       contentReader: ContentReaderType.PDF,
@@ -137,7 +167,10 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   /**
    * Build archived item (in memory)
    */
-  buildArchived(userId: string, overrides: Partial<LibraryItemEntity> = {}): LibraryItemEntity {
+  buildArchived(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): LibraryItemEntity {
     return this.build({
       userId,
       folder: FOLDERS.ARCHIVE,
@@ -159,6 +192,50 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
       readingProgressTopPercent: percentComplete,
       readingProgressBottomPercent: Math.min(percentComplete + 5, 100),
       readAt: percentComplete === 100 ? new Date() : null,
+      ...overrides,
+    })
+  }
+
+  /**
+   * Create a library item with complete metadata (ARC-009)
+   * Useful for testing frontend display of thumbnails, site info, etc.
+   */
+  async withFullMetadata(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): Promise<LibraryItemEntity> {
+    const siteName = faker.company.name()
+    const domain = faker.internet.domainName()
+
+    return this.create({
+      userId,
+      author: faker.person.fullName(),
+      description: faker.lorem.sentences(2),
+      thumbnail: faker.image.urlLoremFlickr({
+        width: 1200,
+        height: 630,
+        category: 'business',
+      }),
+      wordCount: faker.number.int({ min: 1000, max: 3000 }),
+      siteName,
+      siteIcon: `https://${domain}/favicon.ico`,
+      publishedAt: faker.date.past({ years: 1 }),
+      readableContent: faker.lorem.paragraphs(15),
+      ...overrides,
+    })
+  }
+
+  /**
+   * Build deleted item (in memory)
+   */
+  buildDeleted(
+    userId: string,
+    overrides: Partial<LibraryItemEntity> = {},
+  ): LibraryItemEntity {
+    return this.build({
+      userId,
+      folder: FOLDERS.TRASH,
+      state: LibraryItemState.DELETED,
       ...overrides,
     })
   }

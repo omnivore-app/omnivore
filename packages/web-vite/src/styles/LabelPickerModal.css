@@ -1,0 +1,424 @@
+/* Label Picker Modal - Minimalist Design with Design Tokens */
+
+/* Modal overlay */
+.label-picker-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content container */
+.label-picker-modal-content {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 200ms ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Modal header */
+.label-picker-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-primary);
+  flex-shrink: 0;
+}
+
+.label-picker-modal-title {
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.label-picker-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.label-picker-modal-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+/* Modal body */
+.label-picker-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+  min-height: 200px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Search input */
+.label-picker-modal-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.label-picker-modal-search-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.label-picker-modal-search-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) + 24px);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  font-family: var(--font-primary);
+  transition: border-color var(--transition-fast);
+}
+
+.label-picker-modal-search-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+}
+
+.label-picker-modal-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.label-picker-modal-search-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Create new label section */
+.label-picker-modal-create {
+  padding: var(--space-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.label-picker-modal-create-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label-picker-modal-create-text {
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Color picker - 6 preset colors */
+.label-picker-modal-color-picker {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.label-picker-modal-color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.label-picker-modal-color-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--color-bg-secondary), 0 0 0 4px var(--color-border-hover);
+}
+
+.label-picker-modal-color-btn.selected {
+  border-color: var(--color-text-primary);
+  box-shadow: 0 0 0 2px var(--color-bg-secondary), 0 0 0 4px var(--color-action-blue);
+}
+
+.label-picker-modal-color-btn.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.label-picker-modal-color-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Create button */
+.label-picker-modal-create-btn {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-action-blue);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  font-family: var(--font-primary);
+}
+
+.label-picker-modal-create-btn:hover:not(:disabled) {
+  background: #5aa3ff;
+}
+
+.label-picker-modal-create-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading and empty states */
+.label-picker-modal-loading,
+.label-picker-modal-empty {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body);
+}
+
+/* Label list */
+.label-picker-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Label item - Minimalist with Feather icon aesthetic */
+.label-picker-modal-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.label-picker-modal-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.label-picker-modal-item:focus-within {
+  outline: none;
+  border-color: var(--color-border-focus);
+  background: var(--color-bg-tertiary);
+}
+
+/* Checkbox - styled to match Feather icon minimalism */
+.label-picker-modal-checkbox {
+  appearance: none;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border-secondary);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  position: relative;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.label-picker-modal-checkbox:checked {
+  background: var(--color-action-blue);
+  border-color: var(--color-action-blue);
+}
+
+.label-picker-modal-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.label-picker-modal-checkbox:hover {
+  border-color: var(--color-border-hover);
+}
+
+.label-picker-modal-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Color dot - matches legacy 12px circle */
+.label-picker-modal-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Label name */
+.label-picker-modal-name {
+  flex: 1;
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* System badge - subtle and minimal */
+.label-picker-modal-system-badge {
+  padding: 2px var(--space-2);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Modal footer */
+.label-picker-modal-footer {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border-primary);
+  flex-shrink: 0;
+}
+
+/* Buttons - using design tokens */
+.label-picker-modal-btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
+  font-family: var(--font-primary);
+}
+
+.label-picker-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.label-picker-modal-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
+}
+
+.label-picker-modal-btn-cancel:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-hover);
+}
+
+.label-picker-modal-btn-save {
+  background: var(--color-action-blue);
+  color: var(--color-text-primary);
+}
+
+.label-picker-modal-btn-save:hover:not(:disabled) {
+  background: #5aa3ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .label-picker-modal-content {
+    width: 95%;
+    max-width: none;
+  }
+
+  .label-picker-modal-header,
+  .label-picker-modal-body,
+  .label-picker-modal-footer {
+    padding: var(--space-3);
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .label-picker-modal-overlay,
+  .label-picker-modal-content,
+  .label-picker-modal-item,
+  .label-picker-modal-checkbox,
+  .label-picker-modal-btn {
+    animation: none;
+    transition: none;
+  }
+
+  @keyframes fadeIn {
+    from, to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from, to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}

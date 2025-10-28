@@ -4,13 +4,22 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../user/decorators/current-user.decorator'
 import { User } from '../user/entities/user.entity'
 import { LibraryService } from './library.service'
-import { LibraryItem, LibraryItemsConnection, BulkActionResult } from './dto/library-item.type'
+import {
+  LibraryItem,
+  LibraryItemsConnection,
+  BulkActionResult,
+  SearchResult,
+  SearchSuccess,
+  SearchItemEdge,
+  SearchPageInfo,
+} from './dto/library-item.type'
 import {
   ReadingProgressInput,
   DeleteResult,
   LibrarySearchInput,
   SaveUrlInput,
   UpdateNotebookInput,
+  UpdateLibraryItemInput,
 } from './dto/library-inputs.type'
 import { LabelService } from '../label/label.service'
 import { Label } from '../label/dto/label.type'
@@ -66,6 +75,61 @@ export class LibraryResolver {
   ): Promise<LibraryItem | null> {
     const entity = await this.libraryService.findById(user.id, id)
     return entity ? mapEntityToGraph(entity) : null
+  }
+
+  /**
+   * Legacy search query for backward compatibility with frontend
+   * Maps to libraryItems but returns the expected edges/pageInfo structure
+   */
+  @Query(() => SearchResult, {
+    name: 'search',
+    description: 'Legacy search query for backward compatibility',
+  })
+  @UseGuards(JwtAuthGuard)
+  async search(
+    @CurrentUser() user: User,
+    @Args('first', { type: () => Int, nullable: true, defaultValue: 20 })
+    first = 20,
+    @Args('after', { type: () => String, nullable: true }) after?: string,
+    @Args('query', { type: () => String, nullable: true }) query?: string,
+    @Args('includeContent', { type: () => Boolean, nullable: true }) includeContent?: boolean,
+  ): Promise<typeof SearchResult> {
+    try {
+      // Convert query string to search input format
+      const searchInput: LibrarySearchInput | undefined = query
+        ? { query }
+        : undefined
+
+      const { items, nextCursor } = await this.libraryService.listForUser(
+        user.id,
+        first,
+        after,
+        searchInput,
+      )
+
+      // Transform to legacy format with edges and pageInfo
+      const edges: SearchItemEdge[] = items.map((item, index) => ({
+        cursor: nextCursor && index === items.length - 1 ? nextCursor : item.id,
+        node: mapEntityToGraph(item),
+      }))
+
+      const pageInfo: SearchPageInfo = {
+        hasNextPage: !!nextCursor,
+        hasPreviousPage: !!after,
+        startCursor: items.length > 0 ? items[0].id : null,
+        endCursor: nextCursor,
+        totalCount: null, // Not currently tracked
+      }
+
+      return {
+        edges,
+        pageInfo,
+      } as SearchSuccess
+    } catch (error) {
+      return {
+        errorCodes: ['SEARCH_ERROR'],
+      }
+    }
   }
 
   // ==================== MUTATIONS ====================
@@ -141,6 +205,28 @@ export class LibraryResolver {
       user.id,
       id,
       input.note,
+    )
+    return mapEntityToGraph(entity)
+  }
+
+  @Mutation(() => LibraryItem, {
+    description: 'Update library item metadata (title, author, description)',
+  })
+  @UseGuards(JwtAuthGuard)
+  async updateLibraryItem(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => String, description: 'Library item ID' })
+    id: string,
+    @Args('input', {
+      type: () => UpdateLibraryItemInput,
+      description: 'Updated library item metadata',
+    })
+    input: UpdateLibraryItemInput,
+  ): Promise<LibraryItem> {
+    const entity = await this.libraryService.updateLibraryItemMetadata(
+      user.id,
+      id,
+      input,
     )
     return mapEntityToGraph(entity)
   }
@@ -251,7 +337,15 @@ export class LibraryResolver {
   }
 }
 
+/**
+ * Map LibraryItemEntity to GraphQL LibraryItem type
+ * Handles field name differences and null coalescing
+ */
 function mapEntityToGraph(entity: any): LibraryItem {
+  const thumbnail = entity.thumbnail ?? null
+  const wordCount = entity.wordCount ?? null
+  const itemType = entity.itemType ?? 'ARTICLE'
+
   return {
     id: entity.id,
     title: entity.title,
@@ -273,5 +367,15 @@ function mapEntityToGraph(entity: any): LibraryItem {
     note: entity.note ?? null,
     noteUpdatedAt: entity.noteUpdatedAt ?? null,
     labels: null, // Labels will be resolved by the field resolver
-  }
+    // ARC-009: Add fields for frontend library feature parity
+    thumbnail,
+    wordCount,
+    siteName: entity.siteName ?? null,
+    siteIcon: entity.siteIcon ?? null,
+    itemType,
+    // Legacy field aliases (TypeScript doesn't know about getters, so we set them directly)
+    image: thumbnail,
+    wordsCount: wordCount,
+    pageType: itemType,
+  } as LibraryItem
 }

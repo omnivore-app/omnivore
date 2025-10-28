@@ -1,0 +1,461 @@
+/* Enhanced Library Card Styles for Grid View */
+
+.library-item-card {
+  position: relative;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  overflow: visible; /* Changed from hidden to allow dropdown to show */
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.library-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+.library-item-card.selected {
+  border-color: var(--color-action-blue);
+  box-shadow: var(--shadow-focus);
+}
+
+.library-item-card.is-archived {
+  opacity: 0.6;
+}
+
+.library-item-card.is-processing {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ===== DENSITY MODES ===== */
+
+/* Compact density: minimal padding, no thumbnail, 1-line title */
+.library-item-card.density-compact .card-content {
+  padding: var(--space-2);
+  gap: var(--space-2);
+}
+
+.library-item-card.density-compact .card-title-text {
+  -webkit-line-clamp: 1;
+  font-size: var(--font-size-body);
+}
+
+.library-item-card.density-compact .card-description {
+  display: none; /* Hide description in compact mode */
+}
+
+/* Comfortable density: medium thumbnail, 2-line title (default) */
+.library-item-card.density-comfortable .card-thumbnail {
+  height: var(--card-thumbnail-height-comfortable);
+}
+
+.library-item-card.density-comfortable .card-content {
+  padding: var(--space-4);
+  gap: var(--space-3);
+}
+
+.library-item-card.density-comfortable .card-title-text {
+  -webkit-line-clamp: 2;
+  font-size: var(--font-size-heading);
+}
+
+/* Spacious density: large thumbnail, 3-line title */
+.library-item-card.density-spacious .card-thumbnail {
+  height: var(--card-thumbnail-height-spacious);
+}
+
+.library-item-card.density-spacious .card-content {
+  padding: var(--space-4);
+  gap: var(--space-3);
+}
+
+.library-item-card.density-spacious .card-title-text {
+  -webkit-line-clamp: 2;
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Checkbox for multi-select */
+.card-checkbox {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+}
+
+.checkbox-input {
+  cursor: pointer;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Thumbnail */
+.card-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: var(--color-bg-tertiary);
+  cursor: pointer;
+  overflow: hidden; /* Keep overflow hidden on thumbnail to clip images */
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* Round top corners */
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.card-thumbnail:hover .thumbnail-image {
+  transform: scale(1.05);
+}
+
+.thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+.content-type-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  background: rgba(0, 0, 0, 0.7);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+}
+
+/* Card content wrapper */
+.card-content {
+  position: relative;
+  z-index: 1; /* Lower than dropdown (9999) to ensure dropdown appears above */
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Title */
+.card-title {
+  margin: 0;
+}
+
+.card-title-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+/* Card hover effect - entire card is interactive */
+.library-item-card:hover .card-title-text {
+  color: var(--color-brand-yellow);
+}
+
+/* Description */
+.card-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+}
+
+/* Metadata bar - Author, Reading time, Saved date */
+.card-metadata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* Author name - slightly more prominent */
+.metadata-author {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Metadata items (reading time, saved date) with icons */
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+}
+
+.metadata-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* Tags (user labels) - minimalist with tag icon */
+.card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.label-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.label-badge:hover {
+  background: var(--color-brand-yellow);
+  color: var(--color-text-on-accent);
+}
+
+.label-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.label-more {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.label-more:hover {
+  background: var(--color-action-blue);
+  color: var(--color-text-primary);
+}
+
+/* Progress bar - absolute bottom of card */
+.card-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-bg-tertiary);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width var(--transition-slow) ease;
+}
+
+/* Card menu button - three-dot menu */
+.card-menu-button {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+}
+
+/* Show menu button on card hover (desktop) or always on touch devices */
+.library-item-card:hover .card-menu-button {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .card-menu-button {
+    opacity: 1;
+  }
+}
+
+.card-menu-button:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.card-menu-button:focus {
+  opacity: 1;
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+}
+
+/* Dropdown menu - positioned at card level, not thumbnail level */
+.card-menu-dropdown {
+  position: absolute;
+  top: calc(var(--space-2) + 32px); /* Below the menu button */
+  right: var(--space-2);
+  z-index: 9999; /* High z-index to ensure it's above all card content */
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  animation: slideDown 150ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Menu items */
+.card-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.card-menu-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.card-menu-item:focus {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: -2px;
+}
+
+.card-menu-item svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+/* Danger item (delete) */
+.card-menu-item-danger {
+  color: var(--color-state-danger);
+}
+
+.card-menu-item-danger:hover {
+  background: rgba(139, 0, 0, 0.1);
+}
+
+/* Menu divider */
+.card-menu-divider {
+  height: 1px;
+  background: var(--color-border-primary);
+  margin: var(--space-2) 0;
+}
+
+/* Simplified card - entire card is clickable */
+/* Actions available via:
+   1. Three-dot menu (context menu)
+   2. Multi-select mode (checkbox + action bar)
+   3. Keyboard shortcuts
+*/
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .library-item-card,
+  .thumbnail-image,
+  .card-title-btn,
+  .action-btn-icon,
+  .progress-bar-fill,
+  .card-menu-button,
+  .card-menu-dropdown {
+    transition: none;
+    animation: none;
+  }
+
+  .card-thumbnail:hover .thumbnail-image {
+    transform: none;
+  }
+
+  .action-btn-icon:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .library-item-card:hover {
+    transform: none;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* Adjust thumbnail heights for mobile */
+  .library-item-card.density-comfortable .card-thumbnail {
+    height: 120px;
+  }
+
+  .library-item-card.density-spacious .card-thumbnail {
+    height: 150px;
+  }
+
+  /* Ensure touch targets meet mobile standards */
+  .action-btn-icon {
+    min-width: var(--touch-target-min-android);
+    min-height: var(--touch-target-min-android);
+  }
+
+  /* Stack footer elements on very small screens */
+  .card-footer {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+}

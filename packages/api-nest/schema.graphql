@@ -119,19 +119,43 @@ type LibraryItem {
   description: String
   folder: String!
   id: ID!
+
+  """Legacy alias for thumbnail"""
+  image: String
+
+  """Item type (ARTICLE, FILE, VIDEO, etc.)"""
+  itemType: String!
   labels: [Label!]
   note: String
   noteUpdatedAt: DateTime
   originalUrl: String!
+
+  """Legacy alias for itemType"""
+  pageType: String!
   publishedAt: DateTime
   readAt: DateTime
   readingProgressBottomPercent: Float
   readingProgressTopPercent: Float
   savedAt: DateTime!
+
+  """Site favicon/icon URL"""
+  siteIcon: String
+
+  """Site name (e.g., "Medium", "New York Times")"""
+  siteName: String
   slug: String!
   state: LibraryItemState!
+
+  """Thumbnail/cover image URL for the library item"""
+  thumbnail: String
   title: String!
   updatedAt: DateTime!
+
+  """Estimated word count for reading time calculation"""
+  wordCount: Float
+
+  """Legacy alias for wordCount"""
+  wordsCount: Float
 }
 
 enum LibraryItemState {
@@ -272,6 +296,15 @@ type Mutation {
   """Update an existing label"""
   updateLabel(id: String!, input: UpdateLabelInput!): Label!
 
+  """Update library item metadata (title, author, description)"""
+  updateLibraryItem(
+    """Library item ID"""
+    id: String!
+
+    """Updated library item metadata"""
+    input: UpdateLibraryItemInput!
+  ): LibraryItem!
+
   """Update notebook content for a library item"""
   updateNotebook(
     """Library item ID"""
@@ -312,6 +345,9 @@ type Query {
   libraryItem(id: String!): LibraryItem
   libraryItems(after: String, first: Int = 20, search: LibrarySearchInput): LibraryItemsConnection!
   me: User!
+
+  """Legacy search query for backward compatibility"""
+  search(after: String, first: Int = 20, includeContent: Boolean, query: String): SearchResult!
   session: AuthPayload
   viewer: User!
 }
@@ -353,6 +389,30 @@ input SaveUrlInput {
   url: String!
 }
 
+type SearchError {
+  errorCodes: [String!]!
+}
+
+type SearchItemEdge {
+  cursor: String!
+  node: LibraryItem!
+}
+
+type SearchPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  totalCount: Int
+}
+
+union SearchResult = SearchError | SearchSuccess
+
+type SearchSuccess {
+  edges: [SearchItemEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
 """Sort order direction"""
 enum SortOrder {
   ASC
@@ -377,6 +437,17 @@ input UpdateLabelInput {
   color: String
   description: String
   name: String
+}
+
+input UpdateLibraryItemInput {
+  """Updated author name for the library item"""
+  author: String
+
+  """Updated description for the library item"""
+  description: String
+
+  """Updated title for the library item"""
+  title: String
 }
 
 input UpdateNotebookInput {

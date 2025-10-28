@@ -1,0 +1,247 @@
+/**
+ * Design Tokens - Omnivore Design System v1.0
+ * Developer Handoff Specification
+ * Provides consistent spacing, typography, colors, and other design primitives
+ * across the Omnivore application.
+ */
+
+:root {
+  /* ===== TYPOGRAPHY ===== */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Font sizes */
+  --font-size-heading: 16px;
+  --font-size-body: 14px;
+  --font-size-caption: 12px;
+  --font-size-micro: 11px;
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --line-height-tight: 1.3;
+  --line-height-normal: 1.5;
+
+  /* Legacy typography scale (for backward compatibility) */
+  --text-xs: 0.75rem;   /* 12px */
+  --text-sm: 0.875rem;  /* 14px */
+  --text-base: 1rem;    /* 16px */
+  --text-lg: 1.125rem;  /* 18px */
+  --text-xl: 1.25rem;   /* 20px */
+  --text-2xl: 1.5rem;   /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem;  /* 36px */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* ===== SPACING SCALE (4px base) ===== */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ===== COLOR PALETTE ===== */
+
+  /* Accent Colors */
+  --color-brand-yellow: #FFD234;
+  --color-action-blue: #4A9EFF;
+
+  /* State Colors */
+  --color-state-success: #4CAF50;
+  --color-state-warning: #FF9500;
+  --color-state-danger: #8B0000;
+  --color-state-info: #4A9EFF;
+
+  /* Text Colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #D9D9D9;
+  --color-text-tertiary: #898989;
+  --color-text-muted: #666666;
+  --color-text-disabled: #444444;
+  --color-text-on-accent: #0d0d0d;
+
+  /* Background Colors */
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #2a2a2a;
+  --color-bg-tertiary: #252525;
+  --color-bg-elevated: #333333;
+  --color-bg-hover: #3a3a3a;
+
+  /* Border Colors */
+  --color-border-primary: #3a3a3a;
+  --color-border-secondary: #444444;
+  --color-border-hover: #4a4a4a;
+  --color-border-focus: #4A9EFF;
+
+  /* Legacy aliases (for backward compatibility) */
+  --color-accent: #FFD234;
+  --color-accent-hover: #ffdb58;
+  --color-accent-text: #0d0d0d;
+  --color-primary: #4A9EFF;
+  --color-primary-hover: #3a8eef;
+  --color-primary-active: #2a7edf;
+  --color-success: #4CAF50;
+  --color-success-hover: #45a049;
+  --color-warning: #FF9500;
+  --color-warning-hover: #e68600;
+  --color-danger: #8B0000;
+  --color-danger-hover: #a00000;
+  --color-danger-text: #ff6b6b;
+  --color-info: #4A9EFF;
+
+  /* Progress Bar Colors */
+  --color-progress-unread: #4A9EFF;
+  --color-progress-started: #FFD234;
+  --color-progress-halfway: #FF9500;
+  --color-progress-complete: #4CAF50;
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm: 4px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.25);
+  --shadow-focus: 0 0 0 2px rgba(74, 158, 255, 0.3);
+  --shadow-focus-accent: 0 0 0 2px rgba(255, 210, 52, 0.3);
+
+  /* Legacy shadow aliases */
+  --shadow-focus-primary: 0 0 0 3px rgba(74, 158, 255, 0.1);
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 200ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+
+  /* ===== Z-INDEX SCALE ===== */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 50;
+  --z-fixed: 100;
+  --z-modal-backdrop: 500;
+  --z-modal: 1000;
+  --z-popover: 1500;
+  --z-tooltip: 2000;
+
+  /* ===== BREAKPOINTS (for reference in media queries) ===== */
+  /* Use these values in your media queries:
+   * --breakpoint-sm: 640px
+   * --breakpoint-md: 768px
+   * --breakpoint-lg: 1024px
+   * --breakpoint-xl: 1280px
+   * --breakpoint-2xl: 1536px
+   */
+
+  /* ===== COMPONENT-SPECIFIC TOKENS ===== */
+
+  /* Buttons */
+  --btn-padding-sm: var(--space-2) var(--space-3);
+  --btn-padding-md: var(--space-3) var(--space-4);
+  --btn-padding-lg: var(--space-4) var(--space-6);
+  --btn-height-sm: 32px;
+  --btn-height-md: 40px;
+  --btn-height-lg: 48px;
+
+  /* Input fields */
+  --input-padding: var(--space-3) var(--space-4);
+  --input-border-width: 1px;
+  --input-focus-border-color: var(--color-action-blue);
+
+  /* LibraryCard - Density-specific tokens */
+  --card-padding-compact: var(--space-2);
+  --card-padding-comfortable: var(--space-3);
+  --card-padding-spacious: var(--space-4);
+  --card-gap: var(--space-6);
+  --card-thumbnail-height-compact: 0px;
+  --card-thumbnail-height-comfortable: 150px;
+  --card-thumbnail-height-spacious: 180px;
+  --card-title-clamp-compact: 1;
+  --card-title-clamp-comfortable: 2;
+  --card-title-clamp-spacious: 3;
+
+  /* Navigation */
+  --nav-width: 250px;
+  --nav-item-padding: var(--space-3) var(--space-4);
+
+  /* Accessibility - Touch Targets */
+  --touch-target-min: 44px; /* iOS minimum */
+  --touch-target-min-android: 48px; /* Android minimum */
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Spacing utilities */
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+/* Gap utilities */
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+
+/* Typography utilities */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+/* Color utilities */
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-tertiary { color: var(--color-text-tertiary); }
+.text-muted { color: var(--color-text-muted); }
+
+.bg-primary { background-color: var(--color-bg-primary); }
+.bg-secondary { background-color: var(--color-bg-secondary); }
+.bg-tertiary { background-color: var(--color-bg-tertiary); }
+
+/* Border radius utilities */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Shadow utilities */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }

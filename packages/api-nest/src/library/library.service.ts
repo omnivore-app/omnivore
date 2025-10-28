@@ -14,6 +14,7 @@ import {
   ReadingProgressInput,
   LibrarySearchInput,
   SaveUrlInput,
+  UpdateLibraryItemInput,
 } from './dto/library-inputs.type'
 import { EventBusService } from '../queue/event-bus.service'
 import { EVENT_NAMES } from '../queue/events.constants'
@@ -453,6 +454,47 @@ export class LibraryService {
     // Update note and timestamp
     item.note = note
     item.noteUpdatedAt = new Date()
+
+    await this.libraryRepository.save(item)
+    return item
+  }
+
+  /**
+   * Update library item metadata (title, author, description)
+   * @param userId - User ID who owns the item
+   * @param itemId - Library item ID
+   * @param input - Updated metadata fields
+   * @returns Updated library item
+   */
+  async updateLibraryItemMetadata(
+    userId: string,
+    itemId: string,
+    input: UpdateLibraryItemInput,
+  ): Promise<LibraryItemEntity> {
+    const item = await this.findById(userId, itemId)
+
+    if (!item) {
+      throw new NotFoundException(`Library item with ID ${itemId} not found`)
+    }
+
+    // Update only the fields that are provided
+    if (input.title !== undefined) {
+      if (!input.title.trim()) {
+        throw new BadRequestException('Title cannot be empty')
+      }
+      item.title = input.title
+    }
+
+    if (input.author !== undefined) {
+      item.author = input.author || null
+    }
+
+    if (input.description !== undefined) {
+      item.description = input.description || null
+    }
+
+    // Update the updatedAt timestamp
+    item.updatedAt = new Date()
 
     await this.libraryRepository.save(item)
     return item

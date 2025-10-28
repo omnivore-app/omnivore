@@ -1,6 +1,9 @@
 /* Inter font loaded from Google Fonts via <link> in index.html for instant loading */
 /* Removed local @font-face declarations that were blocking page load */
 
+/* Import design tokens first for use throughout the app */
+@import './styles/design-tokens.css';
+
 :root {
   font-size: 112.5%;
 }

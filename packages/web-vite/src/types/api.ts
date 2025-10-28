@@ -132,6 +132,10 @@ export interface Label {
   color: string
   description?: string | null
   createdAt?: string
+  // ARC-009B: Distinguish between system labels (Flair) and user tags
+  // Flair = system-managed labels with icons (e.g., "Newsletter", "RSS")
+  // Tags = user-created labels with colors
+  internal?: boolean // true for system labels (Flair), false for user tags
 }
 
 export interface Highlight {
@@ -188,6 +192,14 @@ export interface LibraryItem {
   contentReader: string
   folder: string
   labels?: Label[] | null
+  // ARC-009: Enhanced metadata fields for rich library UI
+  thumbnail?: string | null
+  wordCount?: number | null
+  siteName?: string | null
+  siteIcon?: string | null
+  itemType: string
+  readingProgressTopPercent?: number | null
+  readingProgressBottomPercent?: number | null
 }
 
 export interface DeleteResult {

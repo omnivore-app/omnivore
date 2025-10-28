@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
   useLabels,
   useCreateLabel,
@@ -16,8 +16,11 @@ export function LabelsPage() {
   const { updateLabel, loading: updating } = useUpdateLabel()
   const { deleteLabel, loading: deleting } = useDeleteLabel()
 
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingLabel, setEditingLabel] = useState<Label | null>(null)
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [menuDirection, setMenuDirection] = useState<'up' | 'down'>('down')
   const [formData, setFormData] = useState<CreateLabelInput>({
     name: '',
     color: '#6366f1',
@@ -28,21 +31,42 @@ export function LabelsPage() {
     type: 'success' | 'error'
   } | null>(null)
 
+  const menuRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     fetchLabels()
   }, [fetchLabels])
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null)
+      }
+    }
+    if (openMenuId) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [openMenuId])
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setNotification({ message, type })
     setTimeout(() => setNotification(null), 3000)
   }
 
+  // Filter labels by search query
+  const filteredLabels = labels?.filter(label =>
+    label.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    label.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   const handleCreateLabel = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       await createLabel(formData)
       showToast('Label created successfully', 'success')
-      setShowCreateForm(false)
+      setShowCreateModal(false)
       setFormData({ name: '', color: '#6366f1', description: '' })
       fetchLabels()
     } catch (err) {
@@ -113,8 +137,20 @@ export function LabelsPage() {
 
   const cancelEdit = () => {
     setEditingLabel(null)
-    setShowCreateForm(false)
+    setShowCreateModal(false)
     setFormData({ name: '', color: '#6366f1', description: '' })
+  }
+
+  const toggleMenu = (labelId: string, event: React.MouseEvent) => {
+    // Determine if menu should open upward (if near bottom of viewport)
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    const menuHeight = 200 // Approximate menu height with padding
+
+    // If there's not enough space below, open upward
+    const direction = spaceBelow < menuHeight ? 'up' : 'down'
+    setMenuDirection(direction)
+    setOpenMenuId(openMenuId === labelId ? null : labelId)
   }
 
   if (loading && !labels) {
@@ -135,156 +171,226 @@ export function LabelsPage() {
 
   return (
     <div className="labels-page">
-      <div className="labels-header">
-        <h1>Labels</h1>
-        <button
-          className="btn-primary"
-          onClick={() => setShowCreateForm(true)}
-          disabled={showCreateForm || !!editingLabel}
-        >
-          + Create Label
-        </button>
-      </div>
-
+      {/* Toast notification */}
       {notification && (
-        <div className={`notification notification-${notification.type}`}>
+        <div className={`toast toast-${notification.type}`}>
           {notification.message}
         </div>
       )}
 
-      {(showCreateForm || editingLabel) && (
-        <div className="label-form-card">
-          <h2>{editingLabel ? 'Edit Label' : 'Create New Label'}</h2>
-          <form
-            onSubmit={editingLabel ? handleUpdateLabel : handleCreateLabel}
+      {/* Header with search and create button */}
+      <div className="labels-header">
+        <h1 className="labels-title">Labels</h1>
+        <div className="labels-header-actions">
+          <div className="search-box">
+            <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search labels..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <button
+            className="btn-primary"
+            onClick={() => setShowCreateModal(true)}
           >
-            <div className="form-group">
-              <label htmlFor="name">Name *</label>
-              <input
-                type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
-                maxLength={100}
-                disabled={creating || updating}
-              />
-            </div>
+            + New Label
+          </button>
+        </div>
+      </div>
 
-            <div className="form-group">
-              <label htmlFor="color">Color *</label>
-              <div className="color-input-group">
+      {/* Create/Edit Modal */}
+      {(showCreateModal || editingLabel) && (
+        <div className="modal-overlay" onClick={cancelEdit}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{editingLabel ? 'Edit Label' : 'Create New Label'}</h2>
+              <button className="modal-close" onClick={cancelEdit}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={editingLabel ? handleUpdateLabel : handleCreateLabel}>
+              <div className="form-group">
+                <label htmlFor="name">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  maxLength={100}
+                  disabled={creating || updating}
+                  placeholder="e.g., Reading, Tech, Design"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="color">Color</label>
                 <input
                   type="color"
                   id="color"
                   value={formData.color}
-                  onChange={(e) =>
-                    setFormData({ ...formData, color: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                   disabled={creating || updating}
-                />
-                <input
-                  type="text"
-                  value={formData.color}
-                  onChange={(e) =>
-                    setFormData({ ...formData, color: e.target.value })
-                  }
-                  pattern="^#[0-9A-Fa-f]{6}$"
-                  placeholder="#6366f1"
-                  disabled={creating || updating}
+                  className="color-picker"
+                  title={formData.color}
                 />
               </div>
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                maxLength={500}
-                rows={3}
-                disabled={creating || updating}
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="description">Description (optional)</label>
+                <textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  maxLength={500}
+                  rows={3}
+                  disabled={creating || updating}
+                  placeholder="Add a description for this label..."
+                />
+              </div>
 
-            <div className="form-actions">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={cancelEdit}
-                disabled={creating || updating}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn-primary"
-                disabled={creating || updating}
-              >
-                {creating || updating ? 'Saving...' : editingLabel ? 'Update' : 'Create'}
-              </button>
-            </div>
-          </form>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={cancelEdit}
+                  disabled={creating || updating}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={creating || updating}
+                >
+                  {creating || updating ? 'Saving...' : editingLabel ? 'Update Label' : 'Create Label'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      <div className="labels-list">
-        {labels && labels.length === 0 ? (
-          <div className="labels-empty">
-            <p>No labels yet. Create your first label to get started!</p>
-          </div>
-        ) : (
-          <div className="labels-grid">
-            {labels?.map((label) => (
-              <div key={label.id} className="label-card">
-                <div className="label-card-header">
-                  <div className="label-name-group">
-                    <span
-                      className="label-color-dot"
-                      style={{ backgroundColor: label.color }}
-                    />
-                    <span className="label-name">{label.name}</span>
-                    {label.internal && (
-                      <span className="label-badge">System</span>
-                    )}
-                  </div>
-                  {!label.internal && (
-                    <div className="label-actions">
-                      <button
-                        className="btn-icon"
-                        onClick={() => startEdit(label)}
-                        title="Edit label"
-                        disabled={deleting}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="btn-icon btn-danger"
-                        onClick={() => handleDeleteLabel(label)}
-                        title="Delete label"
-                        disabled={deleting}
-                      >
-                        🗑️
-                      </button>
+      {/* Labels Table */}
+      {!labels || labels.length === 0 ? (
+        <div className="labels-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+          <h3>No labels yet</h3>
+          <p>Create your first label to organize your articles</p>
+          <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
+            + Create Label
+          </button>
+        </div>
+      ) : (
+        <div className="labels-table-wrapper">
+          <table className="labels-table">
+            <thead>
+              <tr>
+                <th className="th-name">Name</th>
+                <th className="th-description">Description</th>
+                <th className="th-created">Created</th>
+                <th className="th-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLabels?.map((label) => (
+                <tr key={label.id} className="label-row">
+                  <td className="td-name">
+                    <div className="label-name-cell">
+                      <span
+                        className="label-color-dot"
+                        style={{ backgroundColor: label.color }}
+                      />
+                      <span className="label-name">{label.name}</span>
+                      {label.internal && (
+                        <span className="label-system-badge">System</span>
+                      )}
                     </div>
-                  )}
-                </div>
-                {label.description && (
-                  <p className="label-description">{label.description}</p>
-                )}
-                <div className="label-meta">
-                  <span className="label-color-code">{label.color}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  </td>
+                  <td className="td-description">
+                    <span className="label-description-text">
+                      {label.description || 'No description'}
+                    </span>
+                  </td>
+                  <td className="td-created">
+                    <span className="label-created-text">
+                      {new Date(label.createdAt || Date.now()).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </td>
+                  <td className="td-actions">
+                    {!label.internal && (
+                      <div className="label-actions-cell">
+                        <button
+                          className="label-menu-button"
+                          onClick={(e) => toggleMenu(label.id, e)}
+                          aria-label="Label actions"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                          </svg>
+                        </button>
+
+                        {/* Dropdown menu */}
+                        {openMenuId === label.id && (
+                          <div
+                            ref={menuRef}
+                            className={`label-menu-dropdown ${menuDirection === 'up' ? 'label-menu-dropdown-up' : ''}`}
+                          >
+                            <button
+                              className="label-menu-item"
+                              onClick={() => {
+                                startEdit(label)
+                                setOpenMenuId(null)
+                              }}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                              </svg>
+                              Edit
+                            </button>
+                            <div className="label-menu-divider"></div>
+                            <button
+                              className="label-menu-item label-menu-item-danger"
+                              onClick={() => {
+                                handleDeleteLabel(label)
+                                setOpenMenuId(null)
+                              }}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

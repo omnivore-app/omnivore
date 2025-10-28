@@ -1,0 +1,261 @@
+/* Left Navigation Panel Styles - matching legacy Omnivore UI */
+
+/* Mobile menu toggle button (only visible on mobile) */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  background: #ffd234;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-menu-toggle:hover {
+  background: #ffdb58;
+}
+
+/* Overlay for mobile menu */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Left navigation panel */
+.left-navigation {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 250px;
+  background: #2a2a2a;
+  color: #898989;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border-right: 1px solid #3a3a3a;
+  z-index: 100;
+}
+
+/* Close button (only visible on mobile) */
+.nav-close-btn {
+  display: none;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #898989;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.nav-close-btn:hover {
+  color: #fff;
+}
+
+/* Navigation sections */
+.nav-section {
+  padding: 1rem 0;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.main-nav {
+  padding-top: 1.5rem;
+}
+
+/* Navigation items */
+.nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  color: #898989;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.nav-item.active {
+  background: #ffd234;
+  color: #2a2a2a;
+  font-weight: 600;
+}
+
+.nav-icon {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.nav-label {
+  flex: 1;
+}
+
+.nav-count {
+  background: #444;
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Shortcuts section */
+.shortcuts-section {
+  padding-top: 0.5rem;
+}
+
+.shortcuts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.25rem;
+}
+
+.shortcuts-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin: 0;
+}
+
+.shortcuts-toggle {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.shortcuts-toggle:hover {
+  color: #898989;
+}
+
+/* Shortcut items */
+.shortcuts-list {
+  padding: 0.5rem 0;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.6rem 1.25rem;
+  background: transparent;
+  border: none;
+  color: #898989;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, color 0.2s;
+}
+
+.shortcut-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.shortcut-icon {
+  margin-right: 0.75rem;
+  font-size: 1rem;
+}
+
+.shortcut-label {
+  flex: 1;
+}
+
+/* Filter shortcuts (nested items) */
+.filter-shortcuts-list {
+  padding: 0.5rem 0;
+  border-top: 1px solid #3a3a3a;
+  margin-top: 0.5rem;
+}
+
+.filter-shortcut-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 1.25rem 0.5rem 2.5rem;
+  background: transparent;
+  border: none;
+  color: #777;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-shortcut-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.filter-shortcut-icon {
+  margin-right: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.filter-shortcut-label {
+  flex: 1;
+}
+
+/* Footer */
+.nav-footer {
+  margin-top: auto;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #3a3a3a;
+}
+
+.nav-footer-text {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .left-navigation {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .left-navigation.open {
+    transform: translateX(0);
+  }
+
+  .nav-overlay {
+    display: block;
+  }
+
+  .nav-close-btn {
+    display: block;
+  }
+}

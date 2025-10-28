@@ -1,0 +1,242 @@
+/**
+ * MultiSelectActionBar Styles
+ *
+ * Floating action bar for batch operations when items are selected
+ */
+
+.multi-select-action-bar {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-sticky);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+
+  animation: slideUpFadeIn var(--transition-fast);
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Selection info */
+.action-bar-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.action-bar-count {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Actions container */
+.action-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Base button styles */
+.action-bar-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+  color: var(--color-text-primary);
+  min-height: var(--touch-target-min);
+}
+
+.action-bar-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-bar-btn:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+}
+
+.action-bar-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.action-bar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button variants */
+.action-bar-btn-primary {
+  background: var(--color-action-blue);
+  border-color: var(--color-action-blue);
+  color: var(--color-text-primary);
+}
+
+.action-bar-btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.action-bar-btn-secondary {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-secondary);
+  color: var(--color-text-secondary);
+}
+
+.action-bar-btn-secondary:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+}
+
+.action-bar-btn-danger {
+  background: transparent;
+  border-color: var(--color-state-danger);
+  color: var(--color-danger-text);
+}
+
+.action-bar-btn-danger:hover:not(:disabled) {
+  background: var(--color-state-danger);
+  border-color: var(--color-state-danger);
+  color: var(--color-text-primary);
+}
+
+.action-bar-btn-link {
+  background: transparent;
+  border: none;
+  color: var(--color-action-blue);
+  padding: var(--space-1) var(--space-2);
+}
+
+.action-bar-btn-link:hover:not(:disabled) {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+  box-shadow: none;
+  transform: none;
+}
+
+.action-bar-btn-close {
+  background: transparent;
+  border: none;
+  padding: var(--space-2);
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  justify-content: center;
+}
+
+.action-bar-btn-close:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+/* Icon and text */
+.action-bar-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.action-bar-text {
+  font-size: var(--font-size-body);
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .multi-select-action-bar {
+    animation: none;
+  }
+
+  .action-bar-btn:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .action-bar-btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .multi-select-action-bar {
+    bottom: var(--space-4);
+    left: var(--space-4);
+    right: var(--space-4);
+    transform: none;
+    width: auto;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  @keyframes slideUpFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .action-bar-info {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .action-bar-actions {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  /* Hide text on mobile, show icons only */
+  .action-bar-text {
+    display: none;
+  }
+
+  .action-bar-btn {
+    padding: var(--space-2);
+    min-width: var(--touch-target-min-android);
+    min-height: var(--touch-target-min-android);
+    justify-content: center;
+  }
+
+  .action-bar-btn-link {
+    min-width: auto;
+  }
+}
+
+/* Desktop - Alternative top placement (can be toggled via class) */
+.multi-select-action-bar.action-bar-top {
+  top: var(--space-6);
+  bottom: auto;
+}
+
+@media (max-width: 768px) {
+  .multi-select-action-bar.action-bar-top {
+    top: var(--space-4);
+  }
+}

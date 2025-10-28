@@ -1,0 +1,309 @@
+/* Edit Info Modal Styles - Dark Theme with Design Tokens */
+
+/* Modal overlay - full screen backdrop */
+.edit-info-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: var(--space-4);
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content container */
+.edit-info-modal-content {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 250ms ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal header */
+.edit-info-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.edit-info-modal-title {
+  margin: 0;
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.edit-info-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.edit-info-modal-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.edit-info-modal-close:focus {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+}
+
+/* Modal body - scrollable form area */
+.edit-info-modal-body {
+  padding: var(--space-4);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Error message */
+.edit-info-error {
+  padding: var(--space-3);
+  background: rgba(139, 0, 0, 0.1);
+  border: 1px solid var(--color-state-danger);
+  border-radius: var(--radius-md);
+  color: var(--color-state-danger);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+}
+
+/* Form field wrapper */
+.edit-info-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Field labels */
+.edit-info-label {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.edit-info-label .required {
+  color: var(--color-state-danger);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Text inputs */
+.edit-info-input {
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-family: var(--font-primary);
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.edit-info-input::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 0.7;
+}
+
+.edit-info-input:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.edit-info-input:focus {
+  outline: none;
+  border-color: var(--color-action-blue);
+  background: var(--color-bg-primary);
+}
+
+.edit-info-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Textarea */
+.edit-info-textarea {
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-family: var(--font-primary);
+  color: var(--color-text-primary);
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.edit-info-textarea::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 0.7;
+}
+
+.edit-info-textarea:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.edit-info-textarea:focus {
+  outline: none;
+  border-color: var(--color-action-blue);
+  background: var(--color-bg-primary);
+}
+
+.edit-info-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal footer */
+.edit-info-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border-primary);
+}
+
+/* Modal buttons */
+.edit-info-modal-btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-info-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-info-modal-btn:focus {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+}
+
+/* Cancel button */
+.edit-info-modal-btn-cancel {
+  background: transparent;
+  border-color: var(--color-border-primary);
+  color: var(--color-text-primary);
+}
+
+.edit-info-modal-btn-cancel:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-hover);
+}
+
+/* Save button */
+.edit-info-modal-btn-save {
+  background: var(--color-action-blue);
+  color: var(--color-text-on-accent);
+  border-color: var(--color-action-blue);
+}
+
+.edit-info-modal-btn-save:hover:not(:disabled) {
+  background: #5aa3ff;
+  border-color: #5aa3ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .edit-info-modal-overlay {
+    padding: var(--space-2);
+  }
+
+  .edit-info-modal-content {
+    max-height: 95vh;
+  }
+
+  .edit-info-modal-header,
+  .edit-info-modal-body,
+  .edit-info-modal-footer {
+    padding: var(--space-3);
+  }
+
+  .edit-info-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .edit-info-modal-btn {
+    width: 100%;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .edit-info-modal-overlay,
+  .edit-info-modal-content,
+  .edit-info-input,
+  .edit-info-textarea,
+  .edit-info-modal-btn {
+    animation: none;
+    transition: none;
+  }
+
+  @keyframes fadeIn {
+    from, to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes slideUp {
+    from, to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

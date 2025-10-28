@@ -601,6 +601,18 @@ const SET_LIBRARY_ITEM_LABELS_MUTATION = `
   }
 `
 
+const UPDATE_LIBRARY_ITEM_MUTATION = `
+  mutation UpdateLibraryItem($id: String!, $input: UpdateLibraryItemInput!) {
+    updateLibraryItem(id: $id, input: $input) {
+      id
+      title
+      author
+      description
+      updatedAt
+    }
+  }
+`
+
 // ==================== LABEL HOOKS ====================
 
 export function useLabels() {
@@ -776,4 +788,40 @@ export function useLibraryItem(id: string) {
   }, [id])
 
   return { ...state, fetchLibraryItem }
+}
+
+export interface UpdateLibraryItemInput {
+  title?: string
+  author?: string
+  description?: string
+}
+
+export function useUpdateLibraryItem() {
+  const [state, setState] = useState<MutationState<any>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const updateLibraryItem = useCallback(
+    async (id: string, input: UpdateLibraryItemInput) => {
+      setState({ loading: true, error: null, data: null })
+      try {
+        const result = await graphqlRequest<{ updateLibraryItem: any }>(
+          UPDATE_LIBRARY_ITEM_MUTATION,
+          { id, input }
+        )
+        setState({ loading: false, error: null, data: result.updateLibraryItem })
+        return result.updateLibraryItem
+      } catch (error) {
+        const err =
+          error instanceof Error ? error : new Error('Failed to update library item')
+        setState({ loading: false, error: err, data: null })
+        throw err
+      }
+    },
+    []
+  )
+
+  return { ...state, updateLibraryItem }
 }
