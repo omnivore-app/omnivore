@@ -279,6 +279,7 @@ const ReaderPage: React.FC = () => {
                 style={{ backgroundColor: label.color }}
               >
                 <svg
+                  aria-hidden="true"
                   className="label-chip-icon"
                   width="14"
                   height="14"
