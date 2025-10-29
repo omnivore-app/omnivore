@@ -273,6 +273,7 @@ export class ContentProcessorService
       // Phase 3: Extract Open Graph metadata (fast)
       this.logger.debug(`Extracting Open Graph metadata from ${url}`)
       const ogData = this.extractOpenGraph(document, url)
+      this.logger.log(`[DEBUG] Open Graph data extracted: ${JSON.stringify({ title: ogData.title, image: ogData.image, siteName: ogData.siteName })}`)
       await job.updateProgress(50)
 
       // Phase 4: Extract content with Readability
@@ -312,12 +313,20 @@ export class ContentProcessorService
       // Phase 5: Calculate accurate word count from content (strips HTML)
       const actualWordCount = this.calculateWordCount(article.content || '')
 
+      // Cross-check: Readability also provides textContent (plain text)
+      // This helps verify our HTML-to-text word counting is accurate
+      const readabilityTextLength = article.textContent?.length || 0
+      const readabilityWordEstimate = article.textContent
+        ? article.textContent.trim().split(/\s+/).filter(w => w.length > 0).length
+        : 0
+
       // Phase 6: Combine Open Graph + Readability results
       this.logger.log(
-        `Successfully extracted content from ${url}: ${actualWordCount} words`,
+        `Successfully extracted content from ${url}: ${actualWordCount} words ` +
+        `(Readability textContent estimate: ${readabilityWordEstimate} words, text length: ${readabilityTextLength})`
       )
 
-      return {
+      const result = {
         success: true,
         title: article.title || ogData.title || 'Untitled',
         content: article.content || '',
@@ -332,6 +341,9 @@ export class ContentProcessorService
           : undefined,
         wordCount: actualWordCount,
       }
+
+      this.logger.log(`[DEBUG] Content fetch result: ${JSON.stringify({ title: result.title, thumbnail: result.thumbnail, wordCount: result.wordCount })}`)
+      return result
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
@@ -347,24 +359,39 @@ export class ContentProcessorService
   /**
    * Calculate word count from HTML content
    * Parses HTML to decode entities (e.g., &nbsp;, &amp;) before counting words
+   *
    * @param htmlContent - HTML content to count words from
    * @returns Actual word count
+   * @internal - Public for testing purposes only, not part of public API
    */
-  private calculateWordCount(htmlContent: string): number {
-    if (!htmlContent) return 0
+  public calculateWordCount(htmlContent: string): number {
+    if (!htmlContent) {
+      this.logger.debug('[calculateWordCount] No HTML content provided')
+      return 0
+    }
 
     try {
+      // Readability returns HTML fragment (DIV), not a complete document
+      // Wrap it in a proper HTML structure so linkedom can parse it correctly
+      const wrappedHtml = `<!DOCTYPE html><html><body>${htmlContent}</body></html>`
+
       // Parse HTML to decode entities and extract text content
-      const { document } = parseHTML(htmlContent)
+      const { document } = parseHTML(wrappedHtml)
       const textOnly = document.body?.textContent || ''
+
+      this.logger.debug(`[calculateWordCount] HTML length: ${htmlContent.length}, Text length: ${textOnly.length}`)
 
       // Remove extra whitespace and normalize
       const normalized = textOnly.replace(/\s+/g, ' ').trim()
-      if (!normalized) return 0
+      if (!normalized) {
+        this.logger.debug('[calculateWordCount] Normalized text is empty')
+        return 0
+      }
 
       // Split by whitespace and count non-empty words
       const words = normalized.split(' ').filter((word) => word.length > 0)
 
+      this.logger.debug(`[calculateWordCount] Word count: ${words.length}`)
       return words.length
     } catch (error) {
       this.logger.warn(`Failed to calculate word count: ${error}`)
@@ -431,7 +458,7 @@ export class ContentProcessorService
     this.logger.log(`Saving content for library item ${libraryItemId}`)
 
     try {
-      await this.libraryItemRepository.update(libraryItemId, {
+      const updateData = {
         title: result.title,
         readableContent: result.content,
         author: result.author,
@@ -441,7 +468,10 @@ export class ContentProcessorService
         siteIcon: result.siteIcon,
         thumbnail: result.thumbnail,
         wordCount: result.wordCount,
-      })
+      }
+
+      this.logger.log(`[DEBUG] Saving to DB: ${JSON.stringify({ title: updateData.title, thumbnail: updateData.thumbnail, wordCount: updateData.wordCount })}`)
+      await this.libraryItemRepository.update(libraryItemId, updateData)
 
       this.logger.log(`Content saved for library item ${libraryItemId}`)
     } catch (error) {
