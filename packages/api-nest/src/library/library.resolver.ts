@@ -92,7 +92,8 @@ export class LibraryResolver {
     first = 20,
     @Args('after', { type: () => String, nullable: true }) after?: string,
     @Args('query', { type: () => String, nullable: true }) query?: string,
-    @Args('includeContent', { type: () => Boolean, nullable: true }) includeContent?: boolean,
+    @Args('includeContent', { type: () => Boolean, nullable: true, defaultValue: false })
+    includeContent = false,
   ): Promise<typeof SearchResult> {
     try {
       // Convert query string to search input format
@@ -108,16 +109,26 @@ export class LibraryResolver {
       )
 
       // Transform to legacy format with edges and pageInfo
-      const edges: SearchItemEdge[] = items.map((item, index) => ({
-        cursor: nextCursor && index === items.length - 1 ? nextCursor : item.id,
-        node: mapEntityToGraph(item),
-      }))
+      // Each edge should have cursor = item.id, not nextCursor
+      const edges: SearchItemEdge[] = items.map((item) => {
+        const graphItem = mapEntityToGraph(item)
+
+        // Strip content if includeContent is false for better performance
+        if (!includeContent && graphItem.content) {
+          graphItem.content = null
+        }
+
+        return {
+          cursor: item.id,  // Each edge cursor should be the item's ID
+          node: graphItem,
+        }
+      })
 
       const pageInfo: SearchPageInfo = {
         hasNextPage: !!nextCursor,
         hasPreviousPage: !!after,
         startCursor: items.length > 0 ? items[0].id : null,
-        endCursor: nextCursor,
+        endCursor: items.length > 0 ? items[items.length - 1].id : null,  // Last item's ID, not nextCursor
         totalCount: null, // Not currently tracked
       }
 

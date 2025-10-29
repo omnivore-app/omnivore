@@ -787,7 +787,8 @@ const LibraryPage: React.FC = () => {
             {searching && <span className="search-spinner">⏳</span>}
           </div>
           <button
-            className="add-article-btn"
+            type="button"
+            className="btn btn-primary add-article-btn"
             onClick={() => setShowAddLinkModal(true)}
           >
             + Add
@@ -799,7 +800,8 @@ const LibraryPage: React.FC = () => {
           <div className="filter-controls-left">
             <div className="label-filter-wrapper">
               <button
-                className="label-filter-toggle-btn"
+                type="button"
+                className="btn btn-secondary label-filter-toggle-btn"
                 onClick={() => setShowLabelFilter(!showLabelFilter)}
               >
                 🏷️ Labels{' '}
@@ -845,14 +847,16 @@ const LibraryPage: React.FC = () => {
               )}
             </div>
             <button
-              className="view-toggle-btn"
+              type="button"
+              className="btn btn-icon view-toggle-btn"
               onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
               title={`Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`}
             >
               {viewMode === 'grid' ? '☰' : '⊞'}
             </button>
             <button
-              className="multi-select-toggle-btn"
+              type="button"
+              className="btn btn-secondary multi-select-toggle-btn"
               onClick={() => {
                 setIsMultiSelectMode(!isMultiSelectMode)
                 if (isMultiSelectMode) {
@@ -878,7 +882,8 @@ const LibraryPage: React.FC = () => {
               <option value="AUTHOR">Author</option>
             </select>
             <button
-              className="sort-order-btn"
+              type="button"
+              className="btn btn-icon sort-order-btn"
               onClick={() =>
                 setSortOrder(sortOrder === 'DESC' ? 'ASC' : 'DESC')
               }
@@ -936,10 +941,10 @@ const LibraryPage: React.FC = () => {
         {isMultiSelectMode && (
           <div className="bulk-actions-bar">
             <div className="bulk-select-controls">
-              <button onClick={selectAll} className="bulk-control-btn">
+              <button type="button" onClick={selectAll} className="btn btn-secondary bulk-control-btn">
                 Select All
               </button>
-              <button onClick={deselectAll} className="bulk-control-btn">
+              <button type="button" onClick={deselectAll} className="btn btn-secondary bulk-control-btn">
                 Deselect All
               </button>
               <span className="selected-count">
@@ -949,38 +954,44 @@ const LibraryPage: React.FC = () => {
             {selectedItems.size > 0 && (
               <div className="bulk-action-buttons">
                 <button
+                  type="button"
                   onClick={() => handleBulkArchive(true)}
-                  className="bulk-action-btn"
+                  className="btn btn-secondary bulk-action-btn"
                 >
                   Archive Selected
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleBulkArchive(false)}
-                  className="bulk-action-btn"
+                  className="btn btn-secondary bulk-action-btn"
                 >
                   Unarchive Selected
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleBulkMoveToFolderAction('inbox')}
-                  className="bulk-action-btn"
+                  className="btn btn-secondary bulk-action-btn"
                 >
                   Move to Inbox
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleBulkMoveToFolderAction('archive')}
-                  className="bulk-action-btn"
+                  className="btn btn-secondary bulk-action-btn"
                 >
                   Move to Archive
                 </button>
                 <button
+                  type="button"
                   onClick={handleBulkMarkAsReadAction}
-                  className="bulk-action-btn"
+                  className="btn btn-secondary bulk-action-btn"
                 >
                   Mark as Read
                 </button>
                 <button
+                  type="button"
                   onClick={handleBulkDelete}
-                  className="bulk-action-btn bulk-action-btn-danger"
+                  className="btn btn-danger bulk-action-btn bulk-action-btn-danger"
                 >
                   Delete Selected
                 </button>
@@ -992,12 +1003,14 @@ const LibraryPage: React.FC = () => {
         {/* Folder Tabs: Inbox, Archive, Trash */}
         <div className="library-folder-tabs">
           <button
+            type="button"
             className={`folder-tab ${activeFolder === 'inbox' ? 'active' : ''}`}
             onClick={() => setActiveFolder('inbox')}
           >
             Inbox
           </button>
           <button
+            type="button"
             className={`folder-tab ${
               activeFolder === 'archive' ? 'active' : ''
             }`}
@@ -1006,6 +1019,7 @@ const LibraryPage: React.FC = () => {
             Archive
           </button>
           <button
+            type="button"
             className={`folder-tab ${activeFolder === 'trash' ? 'active' : ''}`}
             onClick={() => setActiveFolder('trash')}
           >
@@ -1047,7 +1061,8 @@ const LibraryPage: React.FC = () => {
             </p>
             {!searchQuery && (
               <button
-                className="add-article-btn"
+                type="button"
+                className="btn btn-primary add-article-btn"
                 onClick={() => setShowAddLinkModal(true)}
               >
                 + Add Your First Article

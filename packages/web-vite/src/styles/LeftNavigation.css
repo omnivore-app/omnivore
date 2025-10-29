@@ -20,6 +20,11 @@
   background: #ffdb58;
 }
 
+.mobile-menu-toggle:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+}
+
 /* Overlay for mobile menu */
 .nav-overlay {
   display: none;
@@ -66,6 +71,12 @@
   color: #fff;
 }
 
+.nav-close-btn:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 /* Navigation sections */
 .nav-section {
   padding: 1rem 0;
@@ -92,6 +103,13 @@
 }
 
 .nav-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: -2px;
   background: #333;
   color: #fff;
 }
@@ -154,6 +172,12 @@
   color: #898989;
 }
 
+.shortcuts-toggle:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 /* Shortcut items */
 .shortcuts-list {
   padding: 0.5rem 0;
@@ -174,6 +198,13 @@
 }
 
 .shortcut-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.shortcut-item:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: -2px;
   background: #333;
   color: #fff;
 }
@@ -209,6 +240,13 @@
 }
 
 .filter-shortcut-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.filter-shortcut-item:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: -2px;
   background: #333;
   color: #fff;
 }

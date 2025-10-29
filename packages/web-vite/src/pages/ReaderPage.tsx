@@ -177,7 +177,7 @@ const ReaderPage: React.FC = () => {
         <div className="reader-error">
           <h2>Error Loading Article</h2>
           <p>{error.message}</p>
-          <button onClick={handleBack} className="back-button">
+          <button type="button" onClick={handleBack} className="back-button">
             ← Back to Library
           </button>
         </div>
@@ -194,7 +194,7 @@ const ReaderPage: React.FC = () => {
           <p>
             The article you're looking for doesn't exist or has been deleted.
           </p>
-          <button onClick={handleBack} className="back-button">
+          <button type="button" onClick={handleBack} className="back-button">
             ← Back to Library
           </button>
         </div>
@@ -207,7 +207,7 @@ const ReaderPage: React.FC = () => {
     return (
       <div className="reader-page">
         <div className="reader-header">
-          <button onClick={handleBack} className="back-button">
+          <button type="button" onClick={handleBack} className="back-button">
             ← Back to Library
           </button>
           <h1>{item.title}</h1>
@@ -260,7 +260,7 @@ const ReaderPage: React.FC = () => {
   return (
     <div className="reader-page">
       <div className="reader-header">
-        <button onClick={handleBack} className="back-button">
+        <button type="button" onClick={handleBack} className="back-button">
           ← Back to Library
         </button>
         <h1>{item.title}</h1>
@@ -309,9 +309,11 @@ const ReaderPage: React.FC = () => {
         {/* Toolbar with label edit button */}
         <div className="reader-toolbar">
           <button
+            type="button"
             className="toolbar-button"
             onClick={() => setShowLabelModal(true)}
             title="Edit labels (l)"
+            aria-label="Edit labels"
           >
             <svg
               width="20"
@@ -322,16 +324,20 @@ const ReaderPage: React.FC = () => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
+              <title>Label icon</title>
               <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
               <line x1="7" y1="7" x2="7.01" y2="7"></line>
             </svg>
             <span>Labels</span>
           </button>
           <button
+            type="button"
             className="toolbar-button"
             onClick={() => setShowEditInfoModal(true)}
             title="Edit info (e)"
+            aria-label="Edit article information"
           >
             <svg
               width="20"
@@ -342,9 +348,11 @@ const ReaderPage: React.FC = () => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
+              <title>Edit icon</title>
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              <path d="M18.5 2.5a2.121 2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
             <span>Edit Info</span>
           </button>

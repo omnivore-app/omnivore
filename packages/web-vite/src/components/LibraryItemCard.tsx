@@ -281,19 +281,37 @@ const LibraryItemCard: React.FC<LibraryItemCardProps> = ({
           </p>
         )}
 
-        {/* Metadata bar - Author, Reading time, Saved date */}
+        {/* Metadata bar - Site name, Author, Reading time, Saved date */}
         <div className="card-metadata">
-          {/* Author name */}
-          {item.author && (
-            <span className="metadata-author">{item.author}</span>
-          )}
-
-          {/* Reading time with clock icon */}
-          {readingTime && (
+          {/* Site name/source with globe icon */}
+          {item.siteName && (
             <div className="metadata-item">
               <svg className="metadata-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <span>{item.siteName}</span>
+            </div>
+          )}
+
+          {/* Author name with user icon */}
+          {item.author && (
+            <div className="metadata-item">
+              <svg className="metadata-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>{item.author}</span>
+            </div>
+          )}
+
+          {/* Reading time with book-open icon */}
+          {readingTime && (
+            <div className="metadata-item">
+              <svg className="metadata-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
               </svg>
               <span>{readingTime}</span>
             </div>

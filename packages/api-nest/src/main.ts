@@ -50,7 +50,18 @@ async function bootstrap() {
     ],
   })
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // Automatically transform payloads to DTO instances
+      whitelist: true, // Strip properties that don't have decorators
+      forbidNonWhitelisted: false, // Allow non-whitelisted properties (for GraphQL flexibility)
+      skipUndefinedProperties: false, // Validate undefined properties
+      skipNullProperties: true, // Skip validation for null properties (fixes GraphQL null handling)
+      transformOptions: {
+        enableImplicitConversion: true, // Convert primitive types automatically
+      },
+    }),
+  )
 
   await app.listen(port, () => {
     Logger.log(`App is listening on port ${port}`)
