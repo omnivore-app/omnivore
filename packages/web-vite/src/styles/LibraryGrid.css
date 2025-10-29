@@ -18,14 +18,14 @@
 @media (max-width: 1200px) {
   .articles-grid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: var(--space-3);  /* 1rem */
+    gap: var(--space-4);  /* 1rem */
   }
 }
 
 @media (max-width: 768px) {
   .articles-grid {
     grid-template-columns: 1fr;
-    gap: var(--space-3);  /* 1rem */
+    gap: var(--space-4);  /* 1rem */
   }
 }
 

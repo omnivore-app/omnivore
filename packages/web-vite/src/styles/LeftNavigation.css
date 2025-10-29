@@ -109,7 +109,7 @@
 
 .nav-item:focus-visible {
   outline: 2px solid var(--color-action-blue);
-  outline-offset: -2px;
+  outline-offset: 2px;
   background: #333;
   color: #fff;
 }
@@ -204,7 +204,7 @@
 
 .shortcut-item:focus-visible {
   outline: 2px solid var(--color-action-blue);
-  outline-offset: -2px;
+  outline-offset: 2px;
   background: #333;
   color: #fff;
 }
@@ -246,7 +246,7 @@
 
 .filter-shortcut-item:focus-visible {
   outline: 2px solid var(--color-action-blue);
-  outline-offset: -2px;
+  outline-offset: 2px;
   background: #333;
   color: #fff;
 }
