@@ -28,20 +28,68 @@ services:
       - PG_USER=postgres
       - PG_PASSWORD=postgres
       - PG_DB=omnivore
-      - NO_DEMO_USER=true
+      - FRESH_DB=${FRESH_DB:-false}
+      # Remove NO_DEMO_USER to enable demo user creation in development
+      # To disable demo user, set: NO_DEMO_USER=true
+      # - NO_DEMO_USER=true
     depends_on:
       postgres:
         condition: service_healthy
     command: >
       sh -c "
-        echo 'Creating database and users...'
+        echo '🚀 Starting database setup...'
+        
+        # Conditional fresh database drop
+        if [ \"$$FRESH_DB\" = \"true\" ]; then
+          echo '🔄 FRESH_DB=true: Dropping existing database...'
+          psql -h postgres -U postgres -c 'DROP DATABASE IF EXISTS omnivore;'
+          echo '✓ Database dropped'
+        else
+          echo '📦 FRESH_DB=false: Preserving existing data'
+        fi
+        
+        echo 'Creating database if not exists...'
         psql -h postgres -U postgres -c 'CREATE DATABASE omnivore;' || true
-        psql -h postgres -U postgres -c \"CREATE USER app_user WITH ENCRYPTED PASSWORD 'postgres';\" || true
+        
+        echo 'Creating users...'
+        # PostgreSQL doesn't support IF NOT EXISTS for CREATE USER, so check first
+        psql -h postgres -U postgres -tc \"SELECT 1 FROM pg_roles WHERE rolname='app_user'\" | grep -q 1 || \
+          psql -h postgres -U postgres -c \"CREATE USER app_user WITH ENCRYPTED PASSWORD 'postgres';\"
+        echo '✓ app_user ready'
+        
         echo 'Running migrations...'
         cd /app/packages/db && yarn migrate
+        
         echo 'Granting permissions...'
         psql -h postgres -U postgres -d omnivore -c 'GRANT omnivore_user TO app_user;' || true
-        echo 'Migration completed successfully'
+        
+        # Idempotent demo user creation
+        if [ -z \"$${NO_DEMO_USER}\" ]; then
+          echo 'Checking for demo user...'
+          USER_EXISTS=$$(psql -h postgres -U postgres -d omnivore -t -c \"SELECT COUNT(*) FROM omnivore.user WHERE email='demo@omnivore.app'\" | xargs)
+          
+          if [ \"$$USER_EXISTS\" = \"0\" ]; then
+            echo 'Creating demo user...'
+            USER_ID=$$(uuidgen)
+            PASSWORD='$$2a$$10$$41G6b1BDUdxNjH1QFPJYDOM29EE0C9nTdjD1FoseuQ8vZU1NWtrh6'
+            psql -h postgres -U postgres -d omnivore -c \"
+              INSERT INTO omnivore.user (id, source, email, source_user_id, name, password) 
+              VALUES ('$$USER_ID', 'EMAIL', 'demo@omnivore.app', 'demo@omnivore.app', 'Demo User', '$$PASSWORD')
+              ON CONFLICT (email) DO NOTHING;
+              
+              INSERT INTO omnivore.user_profile (user_id, username) 
+              SELECT id, 'demo_user' FROM omnivore.user WHERE email = 'demo@omnivore.app'
+              ON CONFLICT (username) DO NOTHING;
+            \"
+            echo '✅ Created demo user: demo@omnivore.app / demo_password'
+          else
+            echo '✓ Demo user already exists'
+          fi
+        else
+          echo 'NO_DEMO_USER set - skipping demo user creation'
+        fi
+        
+        echo '✅ Database setup completed successfully'
       "
 
   api-nest:
