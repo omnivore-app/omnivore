@@ -4,7 +4,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-6);  /* 1.5rem */
-  padding: var(--space-3);  /* 1rem */
+  padding: var(--space-4);  /* 1rem */
 }
 
 /* Responsive adjustments */
