@@ -58,7 +58,6 @@ Omnivore takes advantage of some great open source software:
 - [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
 - [PDF.js](https://github.com/mozilla/pdf.js) - PDF.js is used to have open source pdf functionality. 
 - And many more awesome libraries, just checkout our package files to see what we are using.
-- 
 
 ## Shoutouts: Community 🧑‍🤝‍🧑
 - [Poudlardo](https://github.com/Poudlardo) - Providing a Podman-compose file for self-hosting.
