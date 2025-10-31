@@ -58,6 +58,23 @@ Omnivore takes advantage of some great open source software:
 - [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
 - [PDF.js](https://github.com/mozilla/pdf.js) - PDF.js is used to have open source pdf functionality. 
 - And many more awesome libraries, just checkout our package files to see what we are using.
+- 
+
+## Shoutouts: Community 🧑‍🤝‍🧑
+- [Poudlardo](https://github.com/Poudlardo) - Providing a Podman-compose file for self-hosting.
+- [leopku](https://github.com/leopku) - Fixing build issues with v3 manifest
+- [travisemslander-fn](https://github.com/travisemslander-fn) - Providing fixes for SNS Emails.
+- [andrew-craig](https://github.com/andrew-craig) & [lukebtaylor](https://github.com/lukebtaylor) - Providing fixes for emails.
+- [Benature](https://github.com/Benature) - Providing fixes for Minio
+- [rbarbazz](https://github.com/rbarbazz) - Providing a HTML toggle for notes.
+- [pgrosslicht](https://github.com/pgrosslicht) - various fixes to iOs Applications
+- [Adil, m1xxos, Mike Baker, David Adams, Russ Taylor,  William Theaker, keumky2](https://github.com/omnivore-app/omnivore/commit/4e582fb55db5537a462061c9eb0805b482cc9a00) - Who contributed to the initial commit for self-hosting, which was squashed - unfortunately losing the history in the process.
+
+And of course... 
+- [jacksonh](https://github.com/jacksonh), [sywhb](https://github.com/sywhb) and [satindar](https://github.com/satindar) - who provided the initial repo, and core functionality. 
+
+and many more who contributed in the past. If you feel like your name is missing from this list, please contact me (Podginator) via our Discord. 
+
 
 ## Importing Libraries
 
