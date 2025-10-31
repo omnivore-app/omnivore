@@ -54,15 +54,6 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:cache,mode=max
 
-      - name: Build and push web
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/omnivore-app/sh-web:latest
-          file: packages/web/Dockerfile-self
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache,mode=max
 
       - name: Build and push image-proxy
         uses: docker/build-push-action@v6
@@ -105,6 +96,22 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache,mode=max
 
+      - name: Build and push web (x86)
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-web:latest
+          file: packages/web/Dockerfile-self
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache,mode=max
 
-
-
+      - name: Build and push web (arm64)
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-web:latest
+          file: packages/web/Dockerfile-self
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web-arm:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web-arm:cache,mode=max
