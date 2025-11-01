@@ -68,6 +68,7 @@ Omnivore takes advantage of some great open source software:
 - [rbarbazz](https://github.com/rbarbazz) - Providing a HTML toggle for notes.
 - [pgrosslicht](https://github.com/pgrosslicht) - various fixes to iOs Applications
 - [Adil, m1xxos, Mike Baker, David Adams, Russ Taylor,  William Theaker, keumky2](https://github.com/omnivore-app/omnivore/commit/4e582fb55db5537a462061c9eb0805b482cc9a00) - Who contributed to the initial commit for self-hosting, which was squashed - unfortunately losing the history in the process.
+- mollydot on Discord - For continuing to moderate, and be an active part of our community!
 
 And of course... 
 - [jacksonh](https://github.com/jacksonh), [sywhb](https://github.com/sywhb) and [satindar](https://github.com/satindar) - who provided the initial repo, and core functionality. 
