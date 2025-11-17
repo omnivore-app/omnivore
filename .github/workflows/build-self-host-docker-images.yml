@@ -1,4 +1,8 @@
 name: Build Self-Hosting Docker Images
+
+env:
+  WEB_IMAGE: ghcr.io/omnivore-app/sh-web
+
 on:
   push:
     branches:
@@ -95,23 +99,131 @@ jobs:
           file: packages/local-mail-watcher/Dockerfile
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache,mode=max
+  build-selfhost-web-images:
+    name: Build self-host web images
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV  
 
-      - name: Build and push web (x86)
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Login to GitHub container registry'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.WEB_IMAGE }}
+
+      - name: Build and push Web with Digest
+        id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/omnivore-app/sh-web:latest
           file: packages/web/Dockerfile-self
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache,mode=max
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.WEB_IMAGE }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web-${{matrix.platform}}:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web-${{matrix.platform}}:cache,mode=max
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
 
-      - name: Build and push web (arm64)
-        uses: docker/build-push-action@v6
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
         with:
-          platforms: linux/arm64
-          push: true
-          tags: ghcr.io/omnivore-app/sh-web:latest
-          file: packages/web/Dockerfile-self
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web-arm:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web-arm:cache,mode=max
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+  merge:
+    runs-on: ubuntu-latest
+    needs:
+      - build-selfhost-web-images
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: 'Login to GitHub container registry'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.WEB_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.WEB_IMAGE }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.WEB_IMAGE }}:${{ steps.meta.outputs.version }}
+#
+#      - name: Build and push web (x86)
+#        uses: docker/build-push-action@v6
+#        with:
+#          platforms: linux/amd64
+#          push: true
+#          tags: ghcr.io/omnivore-app/sh-web:latest
+#          file: packages/web/Dockerfile-self
+#          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache
+#          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web:cache,mode=max
+#
+#      - name: Build and push web (arm64)
+#        uses: docker/build-push-action@v6
+#        with:
+#          platforms: linux/arm64
+#          push: true
+#          tags: ghcr.io/omnivore-app/sh-web:latest
+#          file: packages/web/Dockerfile-self
+#          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-web-arm:cache
+#          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-web-arm:cache,mode=max
