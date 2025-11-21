@@ -2,9 +2,10 @@
 // This component is no longer used as AppRouter handles all routing now
 // Keeping for backwards compatibility but should be removed in next cleanup
 import React from 'react'
-import { useAuthStore } from '../stores'
+
 import LibraryPage from '../pages/LibraryPage'
 import LoginPage from '../pages/LoginPage'
+import { useAuthStore } from '../stores'
 import ErrorBoundary from './ErrorBoundary'
 
 const AuthWrapper: React.FC = () => {

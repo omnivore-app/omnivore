@@ -61,12 +61,12 @@ const DELETE_LIBRARY_ITEM_MUTATION = `
   }
 `
 
+// Legacy UPDATE_READING_PROGRESS_MUTATION removed
+// See reading-progress.e2e-spec.ts for sentinel-based progress tests
 const UPDATE_READING_PROGRESS_MUTATION = `
   mutation UpdateReadingProgress($id: String!, $progress: ReadingProgressInput!) {
     updateReadingProgress(id: $id, progress: $progress) {
       id
-      readingProgressTopPercent
-      readingProgressBottomPercent
       readAt
     }
   }
@@ -184,7 +184,10 @@ describe('Library GraphQL (e2e)', () => {
     await app.close()
   }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
-  const executeQuery = (query: string, variables: Record<string, unknown> = {}) =>
+  const executeQuery = (
+    query: string,
+    variables: Record<string, unknown> = {},
+  ) =>
     request(app.getHttpServer())
       .post('/api/graphql')
       .set('Authorization', `Bearer ${authToken}`)
@@ -263,7 +266,10 @@ describe('Library GraphQL (e2e)', () => {
   })
 
   it('retrieves a single library item by id', async () => {
-    const existing = await libraryRepository.findOneByOrFail({ slug: 'second-article', userId })
+    const existing = await libraryRepository.findOneByOrFail({
+      slug: 'second-article',
+      userId,
+    })
 
     const response = await executeQuery(LIBRARY_ITEM_QUERY, { id: existing.id })
 
@@ -293,8 +299,6 @@ describe('Library GraphQL (e2e)', () => {
         contentReader: ContentReaderType.WEB,
         folder: FOLDERS.INBOX,
         itemType: 'ARTICLE',
-        readingProgressTopPercent: 0,
-        readingProgressBottomPercent: 0,
       })
 
       const saved = await libraryRepository.save(testItem)
@@ -403,76 +407,6 @@ describe('Library GraphQL (e2e)', () => {
       it('returns error for non-existent item', async () => {
         const response = await executeQuery(DELETE_LIBRARY_ITEM_MUTATION, {
           id: randomUUID(),
-        })
-
-        expect(response.body.errors).toBeDefined()
-        expect(response.body.errors[0].message).toContain('not found')
-      })
-    })
-
-    describe('updateReadingProgress', () => {
-      it('updates reading progress', async () => {
-        const response = await executeQuery(UPDATE_READING_PROGRESS_MUTATION, {
-          id: testItemId,
-          progress: {
-            readingProgressTopPercent: 50,
-            readingProgressBottomPercent: 45,
-            readingProgressAnchorIndex: 100,
-            readingProgressHighestAnchor: 150,
-          },
-        })
-
-        expect(response.body.errors).toBeUndefined()
-        expect(response.body.data.updateReadingProgress).toMatchObject({
-          id: testItemId,
-          readingProgressTopPercent: 50,
-          readingProgressBottomPercent: 45,
-        })
-
-        // Verify in database
-        const item = await libraryRepository.findOneBy({ id: testItemId })
-        expect(item?.readingProgressTopPercent).toBe(50)
-        expect(item?.readingProgressBottomPercent).toBe(45)
-        expect(item?.readingProgressLastReadAnchor).toBe(100)
-        expect(item?.readingProgressHighestReadAnchor).toBe(150)
-      })
-
-      it('marks item as read when progress reaches 100%', async () => {
-        const response = await executeQuery(UPDATE_READING_PROGRESS_MUTATION, {
-          id: testItemId,
-          progress: {
-            readingProgressTopPercent: 100,
-            readingProgressBottomPercent: 100,
-          },
-        })
-
-        expect(response.body.errors).toBeUndefined()
-        expect(response.body.data.updateReadingProgress.readAt).toBeTruthy()
-
-        // Verify in database
-        const item = await libraryRepository.findOneBy({ id: testItemId })
-        expect(item?.readAt).toBeTruthy()
-      })
-
-      it('returns error for invalid progress percentage', async () => {
-        const response = await executeQuery(UPDATE_READING_PROGRESS_MUTATION, {
-          id: testItemId,
-          progress: {
-            readingProgressTopPercent: 150, // Invalid: > 100
-            readingProgressBottomPercent: 45,
-          },
-        })
-
-        expect(response.body.errors).toBeDefined()
-      })
-
-      it('returns error for non-existent item', async () => {
-        const response = await executeQuery(UPDATE_READING_PROGRESS_MUTATION, {
-          id: randomUUID(),
-          progress: {
-            readingProgressTopPercent: 50,
-            readingProgressBottomPercent: 45,
-          },
         })
 
         expect(response.body.errors).toBeDefined()
@@ -669,9 +603,9 @@ describe('Library GraphQL (e2e)', () => {
       })
 
       expect(response.body.errors).toBeUndefined()
-      expect(response.body.data.libraryItems.items.length).toBeGreaterThanOrEqual(
-        2,
-      )
+      expect(
+        response.body.data.libraryItems.items.length,
+      ).toBeGreaterThanOrEqual(2)
       expect(
         response.body.data.libraryItems.items.every(
           (item: any) => item.author === 'John Doe',
@@ -728,7 +662,9 @@ describe('Library GraphQL (e2e)', () => {
 
       expect(response.body.errors).toBeUndefined()
       const items = response.body.data.libraryItems.items
-      expect(items.every((item: any) => item.folder === FOLDERS.INBOX)).toBe(true)
+      expect(items.every((item: any) => item.folder === FOLDERS.INBOX)).toBe(
+        true,
+      )
       expect(items.every((item: any) => item.author === 'John Doe')).toBe(true)
     })
 
@@ -773,7 +709,9 @@ describe('Library GraphQL (e2e)', () => {
 
       expect(response.body.errors).toBeUndefined()
       expect(response.body.data.libraryItems.items.length).toBeGreaterThan(0)
-      expect(response.body.data.libraryItems.items[0].title).toContain('GraphQL')
+      expect(response.body.data.libraryItems.items[0].title).toContain(
+        'GraphQL',
+      )
     })
 
     it('supports pagination with search filters', async () => {
@@ -843,7 +781,9 @@ describe('Library GraphQL (e2e)', () => {
           successCount: 3,
           failureCount: 0,
         })
-        expect(response.body.data.bulkArchiveItems.message).toContain('archived')
+        expect(response.body.data.bulkArchiveItems.message).toContain(
+          'archived',
+        )
 
         // Verify items are archived
         const archivedItems = await libraryRepository.find({
@@ -887,7 +827,9 @@ describe('Library GraphQL (e2e)', () => {
         })
 
         expect(response.body.errors).toBeDefined()
-        expect(response.body.errors[0].message).toContain('No item IDs provided')
+        expect(response.body.errors[0].message).toContain(
+          'No item IDs provided',
+        )
       })
 
       it('handles partial success gracefully', async () => {
@@ -899,7 +841,9 @@ describe('Library GraphQL (e2e)', () => {
         })
 
         expect(response.body.errors).toBeUndefined()
-        expect(response.body.data.bulkArchiveItems.successCount).toBeGreaterThan(0)
+        expect(
+          response.body.data.bulkArchiveItems.successCount,
+        ).toBeGreaterThan(0)
       })
     })
 
@@ -932,7 +876,9 @@ describe('Library GraphQL (e2e)', () => {
         })
 
         expect(response.body.errors).toBeDefined()
-        expect(response.body.errors[0].message).toContain('No item IDs provided')
+        expect(response.body.errors[0].message).toContain(
+          'No item IDs provided',
+        )
       })
     })
 
@@ -1000,7 +946,9 @@ describe('Library GraphQL (e2e)', () => {
         })
 
         expect(response.body.errors).toBeDefined()
-        expect(response.body.errors[0].message).toContain('No item IDs provided')
+        expect(response.body.errors[0].message).toContain(
+          'No item IDs provided',
+        )
       })
     })
 
@@ -1025,8 +973,6 @@ describe('Library GraphQL (e2e)', () => {
         })
         expect(markedItem?.readAt).toBeDefined()
         expect(markedItem?.readAt).toBeInstanceOf(Date)
-        expect(markedItem?.readingProgressTopPercent).toBe(100)
-        expect(markedItem?.readingProgressBottomPercent).toBe(100)
       })
 
       it('returns error for empty itemIds array', async () => {
@@ -1035,7 +981,9 @@ describe('Library GraphQL (e2e)', () => {
         })
 
         expect(response.body.errors).toBeDefined()
-        expect(response.body.errors[0].message).toContain('No item IDs provided')
+        expect(response.body.errors[0].message).toContain(
+          'No item IDs provided',
+        )
       })
     })
 

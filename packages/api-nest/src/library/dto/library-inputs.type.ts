@@ -18,7 +18,7 @@ import {
   IsUrl,
 } from 'class-validator'
 import { LibraryItemState } from '../entities/library-item.entity'
-import { FOLDERS, ALL_FOLDERS, VALID_FOLDERS } from '../../constants/folders.constants'
+import { FOLDERS, ALL_FOLDERS } from '../../constants/folders.constants'
 
 /**
  * Sort field options for library items
@@ -48,44 +48,6 @@ registerEnumType(SortOrder, {
   name: 'SortOrder',
   description: 'Sort order direction',
 })
-
-/**
- * Input type for updating reading progress
- */
-@InputType()
-export class ReadingProgressInput {
-  @Field(() => Float, { description: 'Top reading progress percentage (0-100)' })
-  @IsNumber()
-  @Min(0)
-  @Max(100)
-  readingProgressTopPercent: number
-
-  @Field(() => Float, {
-    description: 'Bottom reading progress percentage (0-100)',
-  })
-  @IsNumber()
-  @Min(0)
-  @Max(100)
-  readingProgressBottomPercent: number
-
-  @Field(() => Int, {
-    description: 'Anchor index for last read position',
-    nullable: true,
-    defaultValue: 0,
-  })
-  @IsInt()
-  @Min(0)
-  readingProgressAnchorIndex?: number
-
-  @Field(() => Int, {
-    description: 'Highest read anchor index',
-    nullable: true,
-    defaultValue: 0,
-  })
-  @IsInt()
-  @Min(0)
-  readingProgressHighestAnchor?: number
-}
 
 /**
  * Result type for delete operations
@@ -245,4 +207,11 @@ export class UpdateLibraryItemInput {
   @IsOptional()
   @IsString()
   description?: string
+
+  @Field(() => Date, {
+    nullable: true,
+    description: 'Read timestamp (set to mark as read, null to mark as unread)',
+  })
+  @IsOptional()
+  readAt?: Date | null
 }

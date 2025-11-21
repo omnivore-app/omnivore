@@ -1,10 +1,11 @@
 // Login page component for Omnivore Vite app
 // Replicates legacy login page with OAuth and email options
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../stores'
+
 import { AppleSignInButton } from '../components/AppleSignInButton'
+import { useAuthStore } from '../stores'
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()

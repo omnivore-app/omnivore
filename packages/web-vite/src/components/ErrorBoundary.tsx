@@ -1,7 +1,8 @@
 // React Error Boundaries for Omnivore Vite migration
 // Comprehensive error handling with graceful fallbacks
 
-import React, { Component, type ReactNode } from 'react'
+import React, { type ReactNode, Component } from 'react'
+
 import { type ApiError } from '../types/api'
 
 interface ErrorBoundaryState {

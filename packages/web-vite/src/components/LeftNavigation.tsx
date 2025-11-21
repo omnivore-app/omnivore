@@ -1,9 +1,10 @@
 // Left navigation panel component - matches legacy Omnivore UI
 // Features: Main nav (Home, Library, Highlights, etc.) + Shortcuts section
 
-import React, { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
 import '../styles/LeftNavigation.css'
+
+import React, { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 interface NavItem {
   id: string

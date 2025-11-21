@@ -1,14 +1,16 @@
-import { useEffect, useState, useRef } from 'react'
-import {
-  useLabels,
-  useCreateLabel,
-  useUpdateLabel,
-  useDeleteLabel,
-  type Label,
-  type CreateLabelInput,
-  type UpdateLabelInput,
-} from '../lib/graphql-client'
 import '../styles/LabelsPage.css'
+
+import { useEffect, useRef, useState } from 'react'
+
+import {
+  type CreateLabelInput,
+  type Label,
+  type UpdateLabelInput,
+  useCreateLabel,
+  useDeleteLabel,
+  useLabels,
+  useUpdateLabel,
+} from '../lib/graphql-client'
 
 export function LabelsPage() {
   const { data: labels, loading, error, fetchLabels } = useLabels()
@@ -46,6 +48,7 @@ export function LabelsPage() {
     }
     if (openMenuId) {
       document.addEventListener('mousedown', handleClickOutside)
+      
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [openMenuId])
@@ -103,6 +106,7 @@ export function LabelsPage() {
   const handleDeleteLabel = async (label: Label) => {
     if (label.internal) {
       showToast('Cannot delete system labels', 'error')
+      
       return
     }
 
@@ -125,6 +129,7 @@ export function LabelsPage() {
   const startEdit = (label: Label) => {
     if (label.internal) {
       showToast('Cannot edit system labels', 'error')
+      
       return
     }
     setEditingLabel(label)

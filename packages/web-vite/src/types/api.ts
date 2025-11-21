@@ -61,7 +61,8 @@ export interface RegisterSuccessWithLoginResponse extends AuthBaseResponse {
   expiresIn: string
 }
 
-export interface RegisterSuccessWithVerificationResponse extends AuthBaseResponse {
+export interface RegisterSuccessWithVerificationResponse
+  extends AuthBaseResponse {
   success: true
   pendingEmailVerification: true
 }
@@ -71,10 +72,7 @@ export type RegisterResponse =
   | RegisterSuccessWithVerificationResponse
   | LoginErrorResponse
 
-export type AuthStatus =
-  | 'AUTHENTICATED'
-  | 'NOT_AUTHENTICATED'
-  | 'PENDING_USER'
+export type AuthStatus = 'AUTHENTICATED' | 'NOT_AUTHENTICATED' | 'PENDING_USER'
 
 export interface VerifyAuthResponse {
   authStatus: AuthStatus
@@ -116,7 +114,8 @@ export interface Article {
   publishedAt?: string
   savedAt: string
   readAt?: string
-  readingProgress?: number
+  readingProgress?: number // Deprecated: use readingProgressPercent
+  readingProgressPercent?: number | null // Reading progress 0-100 based on sentinels
   state: 'UNREAD' | 'READING' | 'READ' | 'ARCHIVED'
   labels?: Label[]
   highlights?: Highlight[]
@@ -138,14 +137,53 @@ export interface Label {
   internal?: boolean // true for system labels (Flair), false for user tags
 }
 
+// Highlight anchoring types for robust text positioning
+export type HighlightColor = 'YELLOW' | 'RED' | 'GREEN' | 'BLUE'
+
+export interface AnchorDomRange {
+  startPath: string
+  startOffset: number
+  endPath: string
+  endOffset: number
+}
+
+export interface AnchorTextPosition {
+  start: number
+  end: number
+  version?: string
+}
+
+export interface AnchorTextQuote {
+  exact: string
+  prefix?: string
+  suffix?: string
+}
+
+export interface AnchoredSelectors {
+  domRange?: AnchorDomRange
+  textPosition?: AnchorTextPosition
+  textQuote?: AnchorTextQuote
+}
+
 export interface Highlight {
   id: string
-  text: string
-  position: number
+  quote: string // The highlighted text
+  annotation?: string | null
+  color: HighlightColor
+  highlightPositionPercent: number
+  highlightPositionAnchorIndex: number
+  prefix?: string | null
+  suffix?: string | null
   createdAt: string
   updatedAt: string
-  note?: string
+  // New: Anchored selectors for robust positioning
+  selectors?: AnchoredSelectors
 }
+
+export type HighlightLike = Pick<
+  Highlight,
+  'id' | 'color' | 'annotation' | 'selectors' | 'quote' | 'prefix' | 'suffix'
+>
 
 export interface PaginatedResponse<T> {
   items: T[]
@@ -198,8 +236,11 @@ export interface LibraryItem {
   siteName?: string | null
   siteIcon?: string | null
   itemType: string
-  readingProgressTopPercent?: number | null
-  readingProgressBottomPercent?: number | null
+  // ARC-010: Notebook feature
+  note?: string | null
+  noteUpdatedAt?: string | null
+  // Sentinel-based reading progress percentage (0-100)
+  readingProgressPercent?: number | null
 }
 
 export interface DeleteResult {
@@ -269,4 +310,23 @@ export interface FormError {
 export interface ValidationResult {
   isValid: boolean
   errors: FormError[]
+}
+
+// Library search sort options
+export type LibrarySortBy =
+  | 'SAVED_AT'
+  | 'UPDATED_AT'
+  | 'PUBLISHED_AT'
+  | 'TITLE'
+  | 'AUTHOR'
+
+export type LibrarySortOrder = 'ASC' | 'DESC'
+
+export interface LibrarySearchInput {
+  query?: string
+  folder?: string
+  labels?: string[]
+  sortBy?: LibrarySortBy
+  sortOrder?: LibrarySortOrder
+  state?: LibraryItemState
 }

@@ -11,9 +11,11 @@
  * - Respects density modes
  */
 
-import React from 'react'
-import type { CardDensity } from './LibraryItemCard'
 import '../styles/CardSkeleton.css'
+
+import React from 'react'
+
+import type { CardDensity } from './LibraryItemCard'
 
 interface CardSkeletonProps {
   density?: CardDensity

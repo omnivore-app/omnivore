@@ -5,19 +5,29 @@ import {
   Logger,
   Inject,
 } from '@nestjs/common'
-import { HighlightEntity, HighlightType } from './entities/highlight.entity'
-import { CreateHighlightInput, UpdateHighlightInput } from './dto/highlight-inputs.type'
+import {
+  HighlightEntity,
+  HighlightType,
+  HighlightColor,
+  RepresentationType,
+} from './entities/highlight.entity'
+import { HighlightSelectors } from './entities/highlight-selector.interface'
+import {
+  CreateHighlightInput,
+  UpdateHighlightInput,
+} from './dto/highlight-inputs.type'
 import { ILibraryItemRepository } from '../repositories/interfaces/library-item-repository.interface'
 import { IHighlightRepository } from '../repositories/interfaces/highlight-repository.interface'
+import { REPOSITORY_TOKENS } from '../repositories/injection-tokens'
 
 @Injectable()
 export class HighlightService {
   private readonly logger = new Logger(HighlightService.name)
 
   constructor(
-    @Inject('IHighlightRepository')
+    @Inject(REPOSITORY_TOKENS.IHighlightRepository)
     private readonly highlightRepository: IHighlightRepository,
-    @Inject('ILibraryItemRepository')
+    @Inject(REPOSITORY_TOKENS.ILibraryItemRepository)
     private readonly libraryItemRepository: ILibraryItemRepository,
   ) {}
 
@@ -73,6 +83,24 @@ export class HighlightService {
     // Generate a short ID (8 characters)
     const shortId = this.generateShortId()
 
+    // Build selectors from input - prefer explicit selectors, fallback to quote/prefix/suffix
+    let selectors: HighlightSelectors
+    if (input.selectors) {
+      // Use selectors directly (GraphQLJSON scalar provides object)
+      selectors = input.selectors as HighlightSelectors
+    } else {
+      // Build TextQuote selector from quote/prefix/suffix fields
+      // Following W3C Web Annotation Data Model specification
+      // Database constraint enforces: selectors ? 'textQuote' AND selectors->'textQuote' ? 'exact'
+      selectors = {
+        textQuote: {
+          exact: input.quote || '',
+          prefix: input.prefix,
+          suffix: input.suffix,
+        },
+      }
+    }
+
     const highlight = this.highlightRepository.create({
       userId,
       libraryItemId: input.libraryItemId,
@@ -83,10 +111,12 @@ export class HighlightService {
       annotation: input.annotation,
       highlightPositionPercent: input.highlightPositionPercent ?? 0,
       highlightPositionAnchorIndex: input.highlightPositionAnchorIndex ?? 0,
-      color: input.color ?? 'yellow',
+      color: input.color ?? HighlightColor.YELLOW,
       html: input.html,
       highlightType: HighlightType.HIGHLIGHT,
-      representation: 'CONTENT' as any,
+      representation: RepresentationType.CONTENT,
+      selectors,
+      contentVersion: input.contentVersion,
     })
 
     return this.highlightRepository.save(highlight)

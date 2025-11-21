@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
-import { useLabels, useSetLibraryItemLabels, type Label } from '../lib/graphql-client'
 import '../styles/LabelPicker.css'
+
+import { useEffect, useRef, useState } from 'react'
+
+import { type Label, useLabels, useSetLibraryItemLabels } from '../lib/graphql-client'
 
 interface LabelPickerProps {
   itemId: string
@@ -50,6 +52,7 @@ export function LabelPicker({ itemId, currentLabels, onUpdate }: LabelPickerProp
       } else {
         newSet.add(labelName)
       }
+      
       return newSet
     })
   }

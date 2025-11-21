@@ -8,6 +8,9 @@ import { Label } from '../label/entities/label.entity'
 import { EntityLabel } from '../label/entities/entity-label.entity'
 import { LabelRepository } from './label.repository'
 import { EntityLabelRepository } from './entity-label.repository'
+import { ReadingProgressEntity } from '../reading-progress/entities/reading-progress.entity'
+import { ReadingProgressRepository } from './reading-progress.repository'
+import { REPOSITORY_TOKENS } from './injection-tokens'
 
 /**
  * RepositoriesModule
@@ -24,31 +27,37 @@ import { EntityLabelRepository } from './entity-label.repository'
       HighlightEntity,
       Label,
       EntityLabel,
+      ReadingProgressEntity,
     ]),
   ],
   providers: [
     {
-      provide: 'ILibraryItemRepository',
+      provide: REPOSITORY_TOKENS.ILibraryItemRepository,
       useClass: LibraryItemRepository,
     },
     {
-      provide: 'IHighlightRepository',
+      provide: REPOSITORY_TOKENS.IHighlightRepository,
       useClass: HighlightRepository,
     },
     {
-      provide: 'ILabelRepository',
+      provide: REPOSITORY_TOKENS.ILabelRepository,
       useClass: LabelRepository,
     },
     {
-      provide: 'IEntityLabelRepository',
+      provide: REPOSITORY_TOKENS.IEntityLabelRepository,
       useClass: EntityLabelRepository,
+    },
+    {
+      provide: REPOSITORY_TOKENS.IReadingProgressRepository,
+      useClass: ReadingProgressRepository,
     },
   ],
   exports: [
-    'ILibraryItemRepository',
-    'IHighlightRepository',
-    'ILabelRepository',
-    'IEntityLabelRepository',
+    REPOSITORY_TOKENS.ILibraryItemRepository,
+    REPOSITORY_TOKENS.IHighlightRepository,
+    REPOSITORY_TOKENS.ILabelRepository,
+    REPOSITORY_TOKENS.IEntityLabelRepository,
+    REPOSITORY_TOKENS.IReadingProgressRepository,
     TypeOrmModule, // Export TypeOrmModule to make raw repositories available in tests
   ],
 })

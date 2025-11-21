@@ -11,7 +11,6 @@ import {
   LibraryItemState,
 } from './entities/library-item.entity'
 import {
-  ReadingProgressInput,
   LibrarySearchInput,
   SaveUrlInput,
   UpdateLibraryItemInput,
@@ -20,15 +19,19 @@ import { EventBusService } from '../queue/event-bus.service'
 import { EVENT_NAMES } from '../queue/events.constants'
 import { JOB_PRIORITY } from '../queue/queue.constants'
 import { ILibraryItemRepository } from '../repositories/interfaces/library-item-repository.interface'
+import { IReadingProgressRepository } from '../repositories/interfaces/reading-progress-repository.interface'
 import { FOLDERS, VALID_FOLDERS } from '../constants/folders.constants'
+import { REPOSITORY_TOKENS } from '../repositories/injection-tokens'
 
 @Injectable()
 export class LibraryService {
   private readonly logger = new Logger(LibraryService.name)
 
   constructor(
-    @Inject('ILibraryItemRepository')
+    @Inject(REPOSITORY_TOKENS.ILibraryItemRepository)
     private readonly libraryRepository: ILibraryItemRepository,
+    @Inject(REPOSITORY_TOKENS.IReadingProgressRepository)
+    private readonly readingProgressRepository: IReadingProgressRepository,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,7 +59,10 @@ export class LibraryService {
    * @param id - Library item ID
    * @returns Library item or null if not found
    */
-  async findById(userId: string, id: string): Promise<LibraryItemEntity | null> {
+  async findById(
+    userId: string,
+    id: string,
+  ): Promise<LibraryItemEntity | null> {
     return this.libraryRepository.findById(id, userId)
   }
 
@@ -79,7 +85,9 @@ export class LibraryService {
     }
 
     // Update state and folder based on archive status
-    item.state = archived ? LibraryItemState.ARCHIVED : LibraryItemState.SUCCEEDED
+    item.state = archived
+      ? LibraryItemState.ARCHIVED
+      : LibraryItemState.SUCCEEDED
     item.folder = archived ? FOLDERS.ARCHIVE : FOLDERS.INBOX
 
     return await this.libraryRepository.save(item)
@@ -122,65 +130,6 @@ export class LibraryService {
       message: 'Item moved to trash',
       itemId,
     }
-  }
-
-  /**
-   * Update reading progress for a library item
-   * @param userId - User ID who owns the item
-   * @param itemId - Library item ID
-   * @param progress - Reading progress data
-   * @returns Updated library item
-   */
-  async updateReadingProgress(
-    userId: string,
-    itemId: string,
-    progress: ReadingProgressInput,
-  ): Promise<LibraryItemEntity> {
-    const item = await this.findById(userId, itemId)
-
-    if (!item) {
-      throw new NotFoundException(`Library item with ID ${itemId} not found`)
-    }
-
-    // Validate progress percentages
-    if (
-      progress.readingProgressTopPercent < 0 ||
-      progress.readingProgressTopPercent > 100
-    ) {
-      throw new BadRequestException(
-        'Reading progress top percent must be between 0 and 100',
-      )
-    }
-
-    if (
-      progress.readingProgressBottomPercent < 0 ||
-      progress.readingProgressBottomPercent > 100
-    ) {
-      throw new BadRequestException(
-        'Reading progress bottom percent must be between 0 and 100',
-      )
-    }
-
-    // Update reading progress fields
-    item.readingProgressTopPercent = progress.readingProgressTopPercent
-    item.readingProgressBottomPercent = progress.readingProgressBottomPercent
-
-    if (progress.readingProgressAnchorIndex !== undefined) {
-      item.readingProgressLastReadAnchor = progress.readingProgressAnchorIndex
-    }
-
-    if (progress.readingProgressHighestAnchor !== undefined) {
-      item.readingProgressHighestReadAnchor =
-        progress.readingProgressHighestAnchor
-    }
-
-    // If progress is 100%, mark as read
-    if (progress.readingProgressTopPercent === 100) {
-      item.readAt = new Date()
-    }
-
-    await this.libraryRepository.save(item)
-    return item
   }
 
   /**
@@ -365,8 +314,32 @@ export class LibraryService {
       )
     }
 
-    // Delegate to repository
-    return this.libraryRepository.bulkMarkAsRead(userId, itemIds)
+    // First, mark items as read in library_item table
+    const result = await this.libraryRepository.bulkMarkAsRead(userId, itemIds)
+
+    // Then, update reading progress to 100% for items that have sentinels
+    // Fetch all items in a single query using findByIds
+    const items = await this.libraryRepository.findByIds(itemIds, userId)
+
+    // Update reading progress for each item that has sentinels
+    await Promise.all(
+      items.map(async (item) => {
+        if (!item.totalSentinels || item.totalSentinels === 0) {
+          return // Skip items without sentinels
+        }
+
+        // Set reading progress to 100% (highestSeenSentinel = totalSentinels)
+        await this.readingProgressRepository.upsertProgress(
+          userId,
+          item.id,
+          null, // contentVersion - null means applies to any version
+          item.totalSentinels, // lastSeenSentinel
+          item.totalSentinels, // highestSeenSentinel (100% completion)
+        )
+      }),
+    )
+
+    return result
   }
 
   /**
@@ -493,6 +466,10 @@ export class LibraryService {
       item.description = input.description || null
     }
 
+    if (input.readAt !== undefined) {
+      item.readAt = input.readAt
+    }
+
     // Update the updatedAt timestamp
     item.updatedAt = new Date()
 
@@ -534,5 +511,4 @@ export class LibraryService {
       return `url-${Date.now()}`
     }
   }
-
 }

@@ -6,10 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Omnivore - Read-it-later for serious readers</title>
 
-    <!-- Inter font from Google Fonts (instant loading) -->
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://substackcdn.com">
+    <link rel="dns-prefetch" href="https://substack-post-media.s3.amazonaws.com">
+    <link rel="dns-prefetch" href="https://secure.gravatar.com">
+
+    <!-- Preconnect to critical origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Preconnect to common CDN origins for faster image loading -->
+    <link rel="preconnect" href="https://substackcdn.com" crossorigin>
+    <link rel="preconnect" href="https://substack-post-media.s3.amazonaws.com" crossorigin>
+
+    <!-- Inter font from Google Fonts with optimized loading -->
+    <!-- Using font-display=swap for faster initial render, loading only essential weights -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preload critical CSS (Vite will inject this automatically in production) -->
 
     <!-- Google Sign-In loaded dynamically in LoginPage component -->
   </head>

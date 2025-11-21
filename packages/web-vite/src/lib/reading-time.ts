@@ -23,6 +23,7 @@ export function calculateReadingTime(
 
   if (minutes < 1) return '< 1 min'
   if (minutes === 1) return '1 min'
+  
   return `${minutes} min`
 }
 
@@ -42,12 +43,14 @@ export function formatTimestamp(dateString: string): string {
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
     if (diffInMinutes < 1) return 'Just now'
     if (diffInMinutes === 1) return '1 minute ago'
+    
     return `${diffInMinutes} minutes ago`
   }
 
   // Less than 24 hours
   if (diffInHours < 24) {
     if (diffInHours === 1) return '1 hour ago'
+    
     return `${diffInHours} hours ago`
   }
 
@@ -55,6 +58,7 @@ export function formatTimestamp(dateString: string): string {
   if (diffInHours < 168) {
     const diffInDays = Math.floor(diffInHours / 24)
     if (diffInDays === 1) return '1 day ago'
+    
     return `${diffInDays} days ago`
   }
 
@@ -76,6 +80,7 @@ export function getProgressColor(percent: number): string {
   if (percent < 25) return '#4a9eff'
   if (percent < 75) return '#ffd234'
   if (percent < 100) return '#ff9500'
+  
   return '#4caf50' // Completed
 }
 
@@ -92,5 +97,6 @@ export function formatReadingProgress(
   const percent = topPercent ?? 0
   if (percent === 0) return ''
   if (percent >= 100) return 'Completed'
+  
   return `${Math.round(percent)}% read`
 }

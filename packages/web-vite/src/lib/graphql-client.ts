@@ -1,8 +1,16 @@
 // Minimal GraphQL helper targeting the NestJS `/api/graphql` endpoint
 // Mirrors the behaviour of the legacy web package's fetcher but keeps dependencies light
 
-import { useState, useCallback } from 'react'
-import type { LibraryItem, DeleteResult } from '../types/api'
+import { useCallback, useState } from 'react'
+
+import type { DeleteResult, HighlightColor, LibraryItem } from '../types/api'
+import {
+  HIGHLIGHT_FRAGMENT,
+  LABEL_BASIC_FRAGMENT,
+  LABEL_FRAGMENT,
+  LIBRARY_ITEM_FULL_FRAGMENT,
+  READING_PROGRESS_FRAGMENT,
+} from './graphql-fragments'
 
 const DEFAULT_GRAPHQL_PATH = '/api/graphql'
 const TOKEN_STORAGE_KEY = 'omnivore-auth-token'
@@ -22,7 +30,7 @@ const resolveGraphqlUrl = (): string => {
   if (normalizedBase.endsWith('/api/v2')) {
     return `${normalizedBase.slice(
       0,
-      -'/api/v2'.length
+      -'/api/v2'.length,
     )}${DEFAULT_GRAPHQL_PATH}`
   }
 
@@ -42,7 +50,7 @@ export interface GraphqlResponse<T> {
 
 export async function graphqlRequest<T>(
   query: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<T> {
   const endpoint = resolveGraphqlUrl()
   const token = isBrowser
@@ -95,18 +103,6 @@ const DELETE_LIBRARY_ITEM_MUTATION = `
       success
       message
       itemId
-    }
-  }
-`
-
-const UPDATE_READING_PROGRESS_MUTATION = `
-  mutation UpdateReadingProgress($id: String!, $progress: ReadingProgressInput!) {
-    updateReadingProgress(id: $id, progress: $progress) {
-      id
-      readingProgressTopPercent
-      readingProgressBottomPercent
-      readAt
-      updatedAt
     }
   }
 `
@@ -171,22 +167,11 @@ const BULK_MARK_AS_READ_MUTATION = `
 `
 
 const SAVE_URL_MUTATION = `
+  ${LIBRARY_ITEM_FULL_FRAGMENT}
+  ${LABEL_BASIC_FRAGMENT}
   mutation SaveUrl($input: SaveUrlInput!) {
     saveUrl(input: $input) {
-      id
-      title
-      slug
-      originalUrl
-      author
-      description
-      savedAt
-      createdAt
-      updatedAt
-      publishedAt
-      readAt
-      state
-      contentReader
-      folder
+      ...LibraryItemFullFields
     }
   }
 `
@@ -214,6 +199,7 @@ export function useArchiveItem() {
         archived,
       })
       setState({ loading: false, error: null, data })
+      
       return data
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Archive failed')
@@ -237,6 +223,7 @@ export function useDeleteItem() {
     try {
       const data = await graphqlRequest(DELETE_LIBRARY_ITEM_MUTATION, { id })
       setState({ loading: false, error: null, data })
+      
       return data
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Delete failed')
@@ -246,44 +233,6 @@ export function useDeleteItem() {
   }, [])
 
   return { ...state, deleteItem }
-}
-
-export function useUpdateReadingProgress() {
-  const [state, setState] = useState<MutationState<any>>({
-    loading: false,
-    error: null,
-    data: null,
-  })
-
-  const updateProgress = useCallback(
-    async (
-      id: string,
-      progress: {
-        readingProgressTopPercent: number
-        readingProgressBottomPercent: number
-        readingProgressAnchorIndex?: number
-        readingProgressHighestAnchor?: number
-      }
-    ) => {
-      setState({ loading: true, error: null, data: null })
-      try {
-        const data = await graphqlRequest(UPDATE_READING_PROGRESS_MUTATION, {
-          id,
-          progress,
-        })
-        setState({ loading: false, error: null, data })
-        return data
-      } catch (error) {
-        const err =
-          error instanceof Error ? error : new Error('Update progress failed')
-        setState({ loading: false, error: err, data: null })
-        throw err
-      }
-    },
-    []
-  )
-
-  return { ...state, updateProgress }
 }
 
 export function useMoveToFolder() {
@@ -301,6 +250,7 @@ export function useMoveToFolder() {
         folder,
       })
       setState({ loading: false, error: null, data })
+      
       return data
     } catch (error) {
       const err =
@@ -338,6 +288,7 @@ export function useBulkArchive() {
           bulkArchiveItems: BulkActionResult
         }>(BULK_ARCHIVE_ITEMS_MUTATION, { itemIds, archived })
         setState({ loading: false, error: null, data: result.bulkArchiveItems })
+        
         return result.bulkArchiveItems
       } catch (error) {
         const err =
@@ -346,7 +297,7 @@ export function useBulkArchive() {
         throw err
       }
     },
-    []
+    [],
   )
 
   return { ...state, bulkArchive }
@@ -362,14 +313,15 @@ export function useBulkDelete() {
   const bulkDelete = useCallback(async (itemIds: string[]) => {
     setState({ loading: true, error: null, data: null })
     try {
-      const result = await graphqlRequest<{ bulkDeleteItems: BulkActionResult }>(
-        BULK_DELETE_ITEMS_MUTATION,
-        { itemIds }
-      )
+      const result = await graphqlRequest<{
+        bulkDeleteItems: BulkActionResult
+      }>(BULK_DELETE_ITEMS_MUTATION, { itemIds })
       setState({ loading: false, error: null, data: result.bulkDeleteItems })
+      
       return result.bulkDeleteItems
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Bulk delete failed')
+      const err =
+        error instanceof Error ? error : new Error('Bulk delete failed')
       setState({ loading: false, error: err, data: null })
       throw err
     }
@@ -393,15 +345,18 @@ export function useBulkMoveToFolder() {
           bulkMoveToFolder: BulkActionResult
         }>(BULK_MOVE_TO_FOLDER_MUTATION, { itemIds, folder })
         setState({ loading: false, error: null, data: result.bulkMoveToFolder })
+        
         return result.bulkMoveToFolder
       } catch (error) {
         const err =
-          error instanceof Error ? error : new Error('Bulk move to folder failed')
+          error instanceof Error
+            ? error
+            : new Error('Bulk move to folder failed')
         setState({ loading: false, error: err, data: null })
         throw err
       }
     },
-    []
+    [],
   )
 
   return { ...state, bulkMoveToFolder }
@@ -421,6 +376,7 @@ export function useBulkMarkAsRead() {
         bulkMarkAsRead: BulkActionResult
       }>(BULK_MARK_AS_READ_MUTATION, { itemIds })
       setState({ loading: false, error: null, data: result.bulkMarkAsRead })
+      
       return result.bulkMarkAsRead
     } catch (error) {
       const err =
@@ -446,17 +402,19 @@ export function useSaveUrl() {
       try {
         const result = await graphqlRequest<{ saveUrl: any }>(
           SAVE_URL_MUTATION,
-          { input }
+          { input },
         )
         setState({ loading: false, error: null, data: result.saveUrl })
+        
         return result.saveUrl
       } catch (error) {
-        const err = error instanceof Error ? error : new Error('Save URL failed')
+        const err =
+          error instanceof Error ? error : new Error('Save URL failed')
         setState({ loading: false, error: err, data: null })
         throw err
       }
     },
-    []
+    [],
   )
 
   return { ...state, saveUrl }
@@ -490,30 +448,26 @@ export interface UpdateLabelInput {
 // ==================== LIBRARY ITEM QUERIES ====================
 
 const GET_LIBRARY_ITEM_QUERY = `
+  ${LIBRARY_ITEM_FULL_FRAGMENT}
+  ${LABEL_BASIC_FRAGMENT}
   query GetLibraryItem($id: String!) {
     libraryItem(id: $id) {
-      id
-      title
-      slug
-      originalUrl
-      author
-      description
-      content
-      savedAt
-      createdAt
-      publishedAt
-      readAt
-      updatedAt
-      readingProgressTopPercent
-      readingProgressBottomPercent
-      state
-      contentReader
-      folder
-      labels {
-        id
-        name
-        color
-      }
+      ...LibraryItemFullFields
+    }
+  }
+`
+
+// Batched query for reader page - fetches item + highlights in one request
+const GET_READER_PAGE_DATA_QUERY = `
+  ${LIBRARY_ITEM_FULL_FRAGMENT}
+  ${LABEL_FRAGMENT}
+  ${HIGHLIGHT_FRAGMENT}
+  query GetReaderPageData($id: String!) {
+    libraryItem(id: $id) {
+      ...LibraryItemFullFields
+    }
+    highlights(libraryItemId: $id) {
+      ...HighlightFields
     }
   }
 `
@@ -521,31 +475,19 @@ const GET_LIBRARY_ITEM_QUERY = `
 // ==================== LABEL QUERIES ====================
 
 const GET_LABELS_QUERY = `
+  ${LABEL_FRAGMENT}
   query GetLabels {
     labels {
-      id
-      name
-      color
-      description
-      position
-      internal
-      createdAt
-      updatedAt
+      ...LabelFields
     }
   }
 `
 
 const GET_LABEL_QUERY = `
+  ${LABEL_FRAGMENT}
   query GetLabel($id: String!) {
     label(id: $id) {
-      id
-      name
-      color
-      description
-      position
-      internal
-      createdAt
-      updatedAt
+      ...LabelFields
     }
   }
 `
@@ -553,30 +495,19 @@ const GET_LABEL_QUERY = `
 // ==================== LABEL MUTATIONS ====================
 
 const CREATE_LABEL_MUTATION = `
+  ${LABEL_FRAGMENT}
   mutation CreateLabel($input: CreateLabelInput!) {
     createLabel(input: $input) {
-      id
-      name
-      color
-      description
-      position
-      internal
-      createdAt
-      updatedAt
+      ...LabelFields
     }
   }
 `
 
 const UPDATE_LABEL_MUTATION = `
+  ${LABEL_FRAGMENT}
   mutation UpdateLabel($id: String!, $input: UpdateLabelInput!) {
     updateLabel(id: $id, input: $input) {
-      id
-      name
-      color
-      description
-      position
-      internal
-      updatedAt
+      ...LabelFields
     }
   }
 `
@@ -592,11 +523,10 @@ const DELETE_LABEL_MUTATION = `
 `
 
 const SET_LIBRARY_ITEM_LABELS_MUTATION = `
+  ${LABEL_BASIC_FRAGMENT}
   mutation SetLibraryItemLabels($itemId: String!, $labelIds: [String!]!) {
     setLibraryItemLabels(itemId: $itemId, labelIds: $labelIds) {
-      id
-      name
-      color
+      ...LabelBasicFields
     }
   }
 `
@@ -608,6 +538,7 @@ const UPDATE_LIBRARY_ITEM_MUTATION = `
       title
       author
       description
+      readAt
       updatedAt
     }
   }
@@ -631,9 +562,11 @@ export function useLabels() {
     try {
       const result = await graphqlRequest<{ labels: Label[] }>(GET_LABELS_QUERY)
       setState({ loading: false, error: null, data: result.labels })
+      
       return result.labels
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Failed to fetch labels')
+      const err =
+        error instanceof Error ? error : new Error('Failed to fetch labels')
       setState({ loading: false, error: err, data: null })
       throw err
     }
@@ -654,12 +587,14 @@ export function useCreateLabel() {
     try {
       const result = await graphqlRequest<{ createLabel: Label }>(
         CREATE_LABEL_MUTATION,
-        { input }
+        { input },
       )
       setState({ loading: false, error: null, data: result.createLabel })
+      
       return result.createLabel
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Failed to create label')
+      const err =
+        error instanceof Error ? error : new Error('Failed to create label')
       setState({ loading: false, error: err, data: null })
       throw err
     }
@@ -681,17 +616,19 @@ export function useUpdateLabel() {
       try {
         const result = await graphqlRequest<{ updateLabel: Label }>(
           UPDATE_LABEL_MUTATION,
-          { id, input }
+          { id, input },
         )
         setState({ loading: false, error: null, data: result.updateLabel })
+        
         return result.updateLabel
       } catch (error) {
-        const err = error instanceof Error ? error : new Error('Failed to update label')
+        const err =
+          error instanceof Error ? error : new Error('Failed to update label')
         setState({ loading: false, error: err, data: null })
         throw err
       }
     },
-    []
+    [],
   )
 
   return { ...state, updateLabel }
@@ -709,12 +646,14 @@ export function useDeleteLabel() {
     try {
       const result = await graphqlRequest<{ deleteLabel: DeleteResult }>(
         DELETE_LABEL_MUTATION,
-        { id }
+        { id },
       )
       setState({ loading: false, error: null, data: result.deleteLabel })
+      
       return result.deleteLabel
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Failed to delete label')
+      const err =
+        error instanceof Error ? error : new Error('Failed to delete label')
       setState({ loading: false, error: err, data: null })
       throw err
     }
@@ -742,15 +681,18 @@ export function useSetLibraryItemLabels() {
           error: null,
           data: result.setLibraryItemLabels,
         })
+        
         return result.setLibraryItemLabels
       } catch (error) {
         const err =
-          error instanceof Error ? error : new Error('Failed to set item labels')
+          error instanceof Error
+            ? error
+            : new Error('Failed to set item labels')
         setState({ loading: false, error: err, data: null })
         throw err
       }
     },
-    []
+    [],
   )
 
   return { ...state, setLibraryItemLabels }
@@ -776,12 +718,16 @@ export function useLibraryItem(id: string) {
     try {
       const result = await graphqlRequest<{ libraryItem: LibraryItem | null }>(
         GET_LIBRARY_ITEM_QUERY,
-        { id }
+        { id },
       )
       setState({ loading: false, error: null, data: result.libraryItem })
+      
       return result.libraryItem
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Failed to fetch library item')
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Failed to fetch library item')
       setState({ loading: false, error: err, data: null })
       throw err
     }
@@ -790,10 +736,56 @@ export function useLibraryItem(id: string) {
   return { ...state, fetchLibraryItem }
 }
 
+// Batched hook for reader page - fetches item + highlights in one request
+export function useReaderPageData(id: string) {
+  const [state, setState] = useState<{
+    loading: boolean
+    error: Error | null
+    item: LibraryItem | null
+    highlights: Highlight[] | null
+  }>({
+    loading: false,
+    error: null,
+    item: null,
+    highlights: null,
+  })
+
+  const fetchReaderPageData = useCallback(async () => {
+    if (!id) return
+
+    setState({ loading: true, error: null, item: null, highlights: null })
+    try {
+      const result = await graphqlRequest<{
+        libraryItem: LibraryItem | null
+        highlights: Highlight[]
+      }>(GET_READER_PAGE_DATA_QUERY, { id })
+
+      setState({
+        loading: false,
+        error: null,
+        item: result.libraryItem,
+        highlights: result.highlights || [],
+      })
+      
+      return { item: result.libraryItem, highlights: result.highlights }
+    } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Failed to fetch reader page data')
+      setState({ loading: false, error: err, item: null, highlights: null })
+      throw err
+    }
+  }, [id])
+
+  return { ...state, fetchReaderPageData }
+}
+
 export interface UpdateLibraryItemInput {
   title?: string
   author?: string
   description?: string
+  readAt?: string | null
 }
 
 export function useUpdateLibraryItem() {
@@ -809,19 +801,408 @@ export function useUpdateLibraryItem() {
       try {
         const result = await graphqlRequest<{ updateLibraryItem: any }>(
           UPDATE_LIBRARY_ITEM_MUTATION,
-          { id, input }
+          { id, input },
         )
-        setState({ loading: false, error: null, data: result.updateLibraryItem })
+        setState({
+          loading: false,
+          error: null,
+          data: result.updateLibraryItem,
+        })
+        
         return result.updateLibraryItem
       } catch (error) {
         const err =
-          error instanceof Error ? error : new Error('Failed to update library item')
+          error instanceof Error
+            ? error
+            : new Error('Failed to update library item')
         setState({ loading: false, error: err, data: null })
         throw err
       }
     },
-    []
+    [],
   )
 
   return { ...state, updateLibraryItem }
+}
+
+// ==================== HIGHLIGHT TYPES ====================
+
+export interface Highlight {
+  id: string
+  shortId: string
+  libraryItemId: string
+  quote: string | null
+  prefix: string | null
+  suffix: string | null
+  patch: string | null
+  annotation: string | null
+  createdAt: string
+  updatedAt: string
+  sharedAt: string | null
+  highlightPositionPercent: number
+  highlightPositionAnchorIndex: number
+  highlightType: 'HIGHLIGHT' | 'REDACTION' | 'NOTE'
+  html: string | null
+  color: HighlightColor
+  representation: 'CONTENT' | 'FEED_CONTENT'
+  selectors: Record<string, any> | null // AnchoredSelectors object (GraphQLJSON scalar)
+  contentVersion?: string | null
+}
+
+export interface CreateHighlightInput {
+  libraryItemId: string
+  quote: string
+  annotation?: string
+  color?: HighlightColor
+  prefix?: string
+  suffix?: string
+  highlightPositionPercent: number
+  highlightPositionAnchorIndex?: number
+  selectors?: Record<string, any> // AnchoredSelectors object (GraphQLJSON scalar)
+  contentVersion?: string
+}
+
+export interface UpdateHighlightInput {
+  annotation?: string
+  color?: HighlightColor
+}
+
+// ==================== HIGHLIGHT QUERIES ====================
+
+const GET_HIGHLIGHTS_QUERY = `
+  ${HIGHLIGHT_FRAGMENT}
+  query GetHighlights($libraryItemId: String!) {
+    highlights(libraryItemId: $libraryItemId) {
+      ...HighlightFields
+    }
+  }
+`
+
+const GET_HIGHLIGHT_QUERY = `
+  ${HIGHLIGHT_FRAGMENT}
+  query GetHighlight($id: String!) {
+    highlight(id: $id) {
+      ...HighlightFields
+    }
+  }
+`
+
+// ==================== HIGHLIGHT MUTATIONS ====================
+
+const CREATE_HIGHLIGHT_MUTATION = `
+  ${HIGHLIGHT_FRAGMENT}
+  mutation CreateHighlight($input: CreateHighlightInput!) {
+    createHighlight(input: $input) {
+      ...HighlightFields
+    }
+  }
+`
+
+const UPDATE_HIGHLIGHT_MUTATION = `
+  ${HIGHLIGHT_FRAGMENT}
+  mutation UpdateHighlight($id: String!, $input: UpdateHighlightInput!) {
+    updateHighlight(id: $id, input: $input) {
+      ...HighlightFields
+    }
+  }
+`
+
+const DELETE_HIGHLIGHT_MUTATION = `
+  mutation DeleteHighlight($id: String!) {
+    deleteHighlight(id: $id) {
+      success
+      message
+      itemId
+    }
+  }
+`
+
+// ==================== HIGHLIGHT HOOKS ====================
+
+export function useHighlights(libraryItemId: string) {
+  const [state, setState] = useState<{
+    loading: boolean
+    error: Error | null
+    data: Highlight[] | null
+  }>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const fetchHighlights = useCallback(async () => {
+    if (!libraryItemId) return
+
+    setState({ loading: true, error: null, data: null })
+    try {
+      const result = await graphqlRequest<{ highlights: Highlight[] }>(
+        GET_HIGHLIGHTS_QUERY,
+        { libraryItemId },
+      )
+      setState({ loading: false, error: null, data: result.highlights })
+      
+      return result.highlights
+    } catch (error) {
+      const err =
+        error instanceof Error ? error : new Error('Failed to fetch highlights')
+      setState({ loading: false, error: err, data: null })
+      throw err
+    }
+  }, [libraryItemId])
+
+  return { ...state, fetchHighlights, refetch: fetchHighlights }
+}
+
+export function useCreateHighlight() {
+  const [state, setState] = useState<MutationState<Highlight>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const createHighlight = useCallback(async (input: CreateHighlightInput) => {
+    setState({ loading: true, error: null, data: null })
+    try {
+      const result = await graphqlRequest<{ createHighlight: Highlight }>(
+        CREATE_HIGHLIGHT_MUTATION,
+        { input },
+      )
+      setState({ loading: false, error: null, data: result.createHighlight })
+      
+      return result.createHighlight
+    } catch (error) {
+      const err =
+        error instanceof Error ? error : new Error('Failed to create highlight')
+      setState({ loading: false, error: err, data: null })
+      throw err
+    }
+  }, [])
+
+  return { ...state, createHighlight }
+}
+
+export function useUpdateHighlight() {
+  const [state, setState] = useState<MutationState<Highlight>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const updateHighlight = useCallback(
+    async (id: string, input: UpdateHighlightInput) => {
+      setState({ loading: true, error: null, data: null })
+      try {
+        const result = await graphqlRequest<{ updateHighlight: Highlight }>(
+          UPDATE_HIGHLIGHT_MUTATION,
+          { id, input },
+        )
+        setState({ loading: false, error: null, data: result.updateHighlight })
+        
+        return result.updateHighlight
+      } catch (error) {
+        const err =
+          error instanceof Error
+            ? error
+            : new Error('Failed to update highlight')
+        setState({ loading: false, error: err, data: null })
+        throw err
+      }
+    },
+    [],
+  )
+
+  return { ...state, updateHighlight }
+}
+
+export function useDeleteHighlight() {
+  const [state, setState] = useState<MutationState<DeleteResult>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const deleteHighlight = useCallback(async (id: string) => {
+    setState({ loading: true, error: null, data: null })
+    try {
+      const result = await graphqlRequest<{ deleteHighlight: DeleteResult }>(
+        DELETE_HIGHLIGHT_MUTATION,
+        { id },
+      )
+      setState({ loading: false, error: null, data: result.deleteHighlight })
+      
+      return result.deleteHighlight
+    } catch (error) {
+      const err =
+        error instanceof Error ? error : new Error('Failed to delete highlight')
+      setState({ loading: false, error: err, data: null })
+      throw err
+    }
+  }, [])
+
+  return { ...state, deleteHighlight }
+}
+
+// ==================== NOTEBOOK MUTATIONS ====================
+
+const UPDATE_NOTEBOOK_MUTATION = `
+  mutation UpdateNotebook($id: String!, $input: UpdateNotebookInput!) {
+    updateNotebook(id: $id, input: $input) {
+      id
+      note
+      noteUpdatedAt
+      updatedAt
+    }
+  }
+`
+
+// ==================== NOTEBOOK HOOKS ====================
+
+export interface UpdateNotebookInput {
+  note: string
+}
+
+export function useUpdateNotebook() {
+  const [state, setState] = useState<MutationState<LibraryItem>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const updateNotebook = useCallback(async (itemId: string, note: string) => {
+    setState({ loading: true, error: null, data: null })
+    try {
+      const result = await graphqlRequest<{ updateNotebook: LibraryItem }>(
+        UPDATE_NOTEBOOK_MUTATION,
+        { id: itemId, input: { note } },
+      )
+      setState({ loading: false, error: null, data: result.updateNotebook })
+      
+      return result.updateNotebook
+    } catch (error) {
+      const err =
+        error instanceof Error ? error : new Error('Failed to update notebook')
+      setState({ loading: false, error: err, data: null })
+      throw err
+    }
+  }, [])
+
+  return { ...state, updateNotebook }
+}
+
+// ==================== READING PROGRESS TYPES ====================
+
+export interface ReadingProgress {
+  id: string
+  libraryItemId: string
+  contentVersion: string | null
+  lastSeenSentinel: number
+  highestSeenSentinel: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UpdateReadingProgressInput {
+  libraryItemId: string
+  contentVersion?: string
+  lastSeenSentinel: number
+  highestSeenSentinel: number
+  totalSentinels?: number
+}
+
+// ==================== READING PROGRESS QUERIES ====================
+
+const GET_READING_PROGRESS_QUERY = `
+  ${READING_PROGRESS_FRAGMENT}
+  query GetReadingProgress($libraryItemId: String!, $contentVersion: String) {
+    readingProgress(libraryItemId: $libraryItemId, contentVersion: $contentVersion) {
+      ...ReadingProgressFields
+    }
+  }
+`
+
+// ==================== READING PROGRESS MUTATIONS ====================
+
+const UPDATE_READING_PROGRESS_MUTATION = `
+  ${READING_PROGRESS_FRAGMENT}
+  mutation UpdateReadingProgress($input: UpdateReadingProgressInput!) {
+    updateReadingProgress(input: $input) {
+      ...ReadingProgressFields
+    }
+  }
+`
+
+// ==================== READING PROGRESS HOOKS ====================
+
+export function useReadingProgress(
+  libraryItemId: string,
+  contentVersion?: string,
+) {
+  const [state, setState] = useState<{
+    loading: boolean
+    error: Error | null
+    data: ReadingProgress | null
+  }>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const fetchProgress = useCallback(async () => {
+    if (!libraryItemId) return
+
+    setState({ loading: true, error: null, data: null })
+    try {
+      const result = await graphqlRequest<{
+        readingProgress: ReadingProgress | null
+      }>(GET_READING_PROGRESS_QUERY, { libraryItemId, contentVersion })
+      setState({ loading: false, error: null, data: result.readingProgress })
+      
+      return result.readingProgress
+    } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Failed to fetch reading progress')
+      setState({ loading: false, error: err, data: null })
+      throw err
+    }
+  }, [libraryItemId, contentVersion])
+
+  return { ...state, fetchProgress, refetch: fetchProgress }
+}
+
+export function useUpdateReadingProgress() {
+  const [state, setState] = useState<MutationState<ReadingProgress>>({
+    loading: false,
+    error: null,
+    data: null,
+  })
+
+  const updateProgress = useCallback(
+    async (input: UpdateReadingProgressInput) => {
+      setState({ loading: true, error: null, data: null })
+      try {
+        const result = await graphqlRequest<{
+          updateReadingProgress: ReadingProgress
+        }>(UPDATE_READING_PROGRESS_MUTATION, { input })
+        setState({
+          loading: false,
+          error: null,
+          data: result.updateReadingProgress,
+        })
+        
+        return result.updateReadingProgress
+      } catch (error) {
+        const err =
+          error instanceof Error
+            ? error
+            : new Error('Failed to update reading progress')
+        setState({ loading: false, error: err, data: null })
+        throw err
+      }
+    },
+    [],
+  )
+
+  return { ...state, updateProgress }
 }

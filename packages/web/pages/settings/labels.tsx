@@ -142,7 +142,11 @@ const IconButton = styled(Button, {
 const Input = styled('input', { ...inputStyles })
 
 const TextArea = styled('textarea', { ...inputStyles })
-
+/**
+ * Renders a labels management page allowing users to create, edit, search, and delete labels.
+ * Includes CRUD operations, search functionality, and dropdown menus for label actions.
+ * System labels (internal=true) cannot be edited or deleted.
++ */
 export default function LabelsPage(): JSX.Element {
   const { data: labels, isLoading } = useGetLabels()
   const createLabel = useCreateLabel()
@@ -155,8 +159,9 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] =
-    useState<string | null>(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
+    string | null
+  >(null)
   const [showLabelPageHelp, setShowLabelPageHelp] = usePersistedState<boolean>({
     key: `--settings-labels-show-help`,
     initialValue: true,
@@ -170,7 +175,7 @@ export default function LabelsPage(): JSX.Element {
       return []
     }
     return labels.sort((left: Label, right: Label) =>
-      left.name.localeCompare(right.name)
+      left.name.localeCompare(right.name),
     )
   }, [labels])
 
@@ -216,7 +221,6 @@ export default function LabelsPage(): JSX.Element {
         description: descriptionInputText,
       })
     } catch (err) {
-      console.log('error updating label: ', err)
       showErrorToast('Failed to update label')
       return
     }
@@ -251,7 +255,7 @@ export default function LabelsPage(): JSX.Element {
   const handleGenerateRandomColor = (rowId?: string) => {
     const colorHexes = Object.keys(labelColorObjects).slice(
       0,
-      -1
+      -1,
     ) as LabelColor[]
     const randomColorHex =
       colorHexes[Math.floor(Math.random() * colorHexes.length)]
@@ -449,7 +453,7 @@ function GenericTableCard(
   props: GenericTableCardProps & {
     isLastChild?: boolean
     isFirstChild?: boolean
-  }
+  },
 ) {
   const {
     label,
@@ -776,7 +780,12 @@ function GenericTableCard(
   )
 }
 
-function MobileEditCard(props: any) {
+function MobileEditCard(
+  props: GenericTableCardProps & {
+    isLastChild?: boolean
+    isFirstChild?: boolean
+  },
+) {
   const {
     label,
     editingLabelId,
@@ -861,7 +870,12 @@ function MobileEditCard(props: any) {
   )
 }
 
-function DesktopEditCard(props: any) {
+function DesktopEditCard(
+  props: GenericTableCardProps & {
+    isLastChild?: boolean
+    isFirstChild?: boolean
+  },
+) {
   const {
     label,
     editingLabelId,

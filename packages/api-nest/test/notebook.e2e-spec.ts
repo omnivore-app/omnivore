@@ -275,15 +275,15 @@ describe('Notebook GraphQL (e2e)', () => {
       const noteContent = 'My preserved notes'
       await libraryRepository.update(testItemId, { note: noteContent })
 
-      // Update reading progress (different field)
+      // Update another field to test note preservation
       await libraryRepository.update(testItemId, {
-        readingProgressTopPercent: 50,
+        title: 'Updated Title',
       })
 
       // Verify notebook is preserved
       const item = await libraryRepository.findOneBy({ id: testItemId })
       expect(item?.note).toBe(noteContent)
-      expect(item?.readingProgressTopPercent).toBe(50)
+      expect(item?.title).toBe('Updated Title')
     })
   })
 })

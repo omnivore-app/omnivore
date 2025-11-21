@@ -11,6 +11,7 @@ import { LibraryItemEntity } from '../library/entities/library-item.entity'
 import { Label } from '../label/entities/label.entity'
 import { EntityLabel } from '../label/entities/entity-label.entity'
 import { HighlightEntity } from '../highlight/entities/highlight.entity'
+import { ReadingProgressEntity } from '../reading-progress/entities/reading-progress.entity'
 
 export const testDatabaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -31,6 +32,7 @@ export const testDatabaseConfig: TypeOrmModuleOptions = {
     Label,
     EntityLabel,
     HighlightEntity,
+    ReadingProgressEntity,
   ],
   synchronize: false,
   logging: false,

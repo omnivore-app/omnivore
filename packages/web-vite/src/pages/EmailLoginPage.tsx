@@ -1,13 +1,14 @@
 // Email login page component for Omnivore Vite app
 // Email/password authentication form
 
-import React, { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../stores'
-import { loginSchema, type LoginFormData } from '../lib/validation'
+
 import ErrorBoundary from '../components/ErrorBoundary'
+import { type LoginFormData, loginSchema } from '../lib/validation'
+import { useAuthStore } from '../stores'
 
 const EmailLoginPage: React.FC = () => {
   const navigate = useNavigate()

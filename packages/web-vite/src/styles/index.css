@@ -1,0 +1,30 @@
+/*
+ * Consolidated CSS Bundle for Omnivore Vite App
+ * This file imports all CSS in dependency order to reduce HTTP requests
+ * Vite will automatically code-split this based on route usage
+ */
+
+/* Design tokens must be loaded first */
+@import './design-tokens.css';
+
+/* Core component styles */
+@import './LeftNavigation.css';
+@import './LibraryPage.css';
+@import './LibraryGrid.css';
+@import './LibraryList.css';
+@import './LibraryCard.css';
+@import './CardSkeleton.css';
+@import './FlairBadge.css';
+@import './MultiSelectActionBar.css';
+
+/* Modal and overlay components */
+@import './LabelPicker.css';
+@import './LabelPickerModal.css';
+@import './AddLinkModal.css';
+@import './EditInfoModal.css';
+@import './NotebookModal.css';
+
+/* Page-specific styles */
+@import './ReaderPage.css';
+@import './HighlightSidebar.css';
+@import './LabelsPage.css';

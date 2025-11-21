@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
-import { useSaveUrl } from '../lib/graphql-client'
 import '../styles/AddLinkModal.css'
+
+import React, { useState } from 'react'
+
+import { useSaveUrl } from '../lib/graphql-client'
 
 interface AddLinkModalProps {
   isOpen: boolean
@@ -26,6 +28,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
       // Basic URL validation
       if (!urlString.trim()) {
         setValidationError('URL is required')
+        
         return false
       }
 
@@ -39,9 +42,11 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
       new URL(testUrl)
 
       setValidationError(null)
+      
       return true
     } catch {
       setValidationError('Please enter a valid URL (e.g., https://example.com/article)')
+      
       return false
     }
   }

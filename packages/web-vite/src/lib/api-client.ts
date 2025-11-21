@@ -16,6 +16,7 @@ export const AUTH_TOKEN_STORAGE_KEY = 'omnivore-auth-token'
 
 const resolveBaseUrl = (): string => {
   const envUrl = import.meta.env?.VITE_API_URL as string | undefined
+  
   return (envUrl && envUrl.trim().length > 0 ? envUrl : DEFAULT_BASE_URL).replace(
     /\/$/,
     ''
@@ -30,6 +31,7 @@ const getStoredToken = (): string | null => {
     return window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)
   } catch (error) {
     console.warn('Unable to read auth token from storage', error)
+    
     return null
   }
 }
@@ -38,6 +40,7 @@ const buildUrl = (baseUrl: string, endpoint: string): string => {
   const normalizedEndpoint = endpoint.startsWith('/')
     ? endpoint
     : `/${endpoint}`
+  
   return `${baseUrl}${normalizedEndpoint}`
 }
 
@@ -117,6 +120,7 @@ class OmnivoreApiClient {
       if (isBrowser) {
         window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
       }
+      
       return { authStatus: 'NOT_AUTHENTICATED' }
     }
   }

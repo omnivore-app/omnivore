@@ -21,5 +21,7 @@
   "globalSetup": "<rootDir>/setup/global-setup.ts",
   "globalTeardown": "<rootDir>/setup/global-teardown.ts",
   "setupFilesAfterEnv": ["<rootDir>/setup/jest-environment-setup.ts"],
-  "testTimeout": 60000
+  "testTimeout": 60000,
+  "silent": false,
+  "verbose": true
 }

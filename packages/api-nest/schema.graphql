@@ -28,7 +28,10 @@ input CreateHighlightInput {
   annotation: String
 
   """Highlight color (yellow, red, green, blue)"""
-  color: String
+  color: HighlightColor = YELLOW
+
+  """Optional content version/hash for tracking"""
+  contentVersion: String
 
   """Anchor index for position"""
   highlightPositionAnchorIndex: Int = 0
@@ -47,6 +50,9 @@ input CreateHighlightInput {
 
   """Quoted text from the document"""
   quote: String!
+
+  """Web Annotation selectors for robust text positioning (W3C standard)"""
+  selectors: JSON
 
   """Text after the quote (for context)"""
   suffix: String
@@ -76,7 +82,10 @@ type DeleteResult {
 
 type Highlight {
   annotation: String
-  color: String
+  color: HighlightColor!
+
+  """Optional content version/hash for tracking"""
+  contentVersion: String
   createdAt: DateTime!
   highlightPositionAnchorIndex: Int!
   highlightPositionPercent: Float!
@@ -88,17 +97,32 @@ type Highlight {
   prefix: String
   quote: String
   representation: RepresentationType!
+
+  """Web Annotation selectors for robust text positioning (W3C standard)"""
+  selectors: JSON!
   sharedAt: DateTime
   shortId: String!
   suffix: String
   updatedAt: DateTime!
 }
 
+"""Highlight color options"""
+enum HighlightColor {
+  BLUE
+  GREEN
+  RED
+  YELLOW
+}
+
 enum HighlightType {
   HIGHLIGHT
-  NOTE
   REDACTION
 }
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type Label {
   color: String!
@@ -134,8 +158,9 @@ type LibraryItem {
   pageType: String!
   publishedAt: DateTime
   readAt: DateTime
-  readingProgressBottomPercent: Float
-  readingProgressTopPercent: Float
+
+  """Reading progress percentage (0-100) based on sentinel tracking"""
+  readingProgressPercent: Float
   savedAt: DateTime!
 
   """Site favicon/icon URL"""
@@ -314,14 +339,11 @@ type Mutation {
     input: UpdateNotebookInput!
   ): LibraryItem!
 
-  """Update reading progress for a library item"""
+  """Update sentinel-based reading progress for a library item"""
   updateReadingProgress(
-    """Library item ID"""
-    id: String!
-
-    """Reading progress data"""
-    progress: ReadingProgressInput!
-  ): LibraryItem!
+    """Reading progress data with sentinels"""
+    input: UpdateReadingProgressInput!
+  ): ReadingProgress!
 }
 
 type Query {
@@ -346,24 +368,42 @@ type Query {
   libraryItems(after: String, first: Int = 20, search: LibrarySearchInput): LibraryItemsConnection!
   me: User!
 
+  """Get reading progress for a library item"""
+  readingProgress(
+    """Optional content version to filter by"""
+    contentVersion: String
+
+    """Library item ID"""
+    libraryItemId: String!
+  ): ReadingProgress
+
   """Legacy search query for backward compatibility"""
   search(after: String, first: Int = 20, includeContent: Boolean = false, query: String): SearchResult!
   session: AuthPayload
   viewer: User!
 }
 
-input ReadingProgressInput {
-  """Anchor index for last read position"""
-  readingProgressAnchorIndex: Int = 0
+type ReadingProgress {
+  """Hash/version of the content this progress applies to"""
+  contentVersion: String
 
-  """Bottom reading progress percentage (0-100)"""
-  readingProgressBottomPercent: Float!
+  """When this progress record was first created"""
+  createdAt: DateTime!
 
-  """Highest read anchor index"""
-  readingProgressHighestAnchor: Int = 0
+  """Highest sentinel ever reached (for completion tracking)"""
+  highestSeenSentinel: Int!
 
-  """Top reading progress percentage (0-100)"""
-  readingProgressTopPercent: Float!
+  """Unique identifier"""
+  id: ID!
+
+  """Most recent sentinel scrolled past (for position restoration)"""
+  lastSeenSentinel: Int!
+
+  """Library item this progress belongs to"""
+  libraryItemId: String!
+
+  """When this progress was last updated"""
+  updatedAt: DateTime!
 }
 
 enum RegistrationType {
@@ -430,7 +470,7 @@ input UpdateHighlightInput {
   annotation: String
 
   """Highlight color (yellow, red, green, blue)"""
-  color: String
+  color: HighlightColor
 }
 
 input UpdateLabelInput {
@@ -446,6 +486,9 @@ input UpdateLibraryItemInput {
   """Updated description for the library item"""
   description: String
 
+  """Read timestamp (set to mark as read, null to mark as unread)"""
+  readAt: DateTime
+
   """Updated title for the library item"""
   title: String
 }
@@ -453,6 +496,25 @@ input UpdateLibraryItemInput {
 input UpdateNotebookInput {
   """Notebook content (supports markdown)"""
   note: String!
+}
+
+input UpdateReadingProgressInput {
+  """Hash/version of the content this progress applies to"""
+  contentVersion: String
+
+  """Highest sentinel ever reached by this user"""
+  highestSeenSentinel: Int!
+
+  """Most recent sentinel the user scrolled past"""
+  lastSeenSentinel: Int!
+
+  """Library item ID"""
+  libraryItemId: String!
+
+  """
+  Total number of sentinels in the article (for progress percentage calculation)
+  """
+  totalSentinels: Int
 }
 
 type User {

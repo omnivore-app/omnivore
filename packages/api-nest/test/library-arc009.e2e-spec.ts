@@ -104,18 +104,18 @@ describe('ARC-009: Frontend Library Feature Parity (e2e)', () => {
 
     // Create item with both progress and metadata
     const item = await LibraryItemFactory.withFullMetadata(user.id, {
-      readingProgressTopPercent: 65,
+      readAt: new Date(), // Mark as read
       title: 'Partially Read Article',
     })
 
     expect(item.title).toBe('Partially Read Article')
-    expect(item.readingProgressTopPercent).toBe(65)
+    expect(item.readAt).toBeDefined()
     expect(item.thumbnail).toBeDefined()
     expect(item.wordCount).toBeDefined()
     expect(item.siteName).toBeDefined()
 
     console.log('✅ Progress + metadata work together')
-    console.log('  - Progress:', item.readingProgressTopPercent, '%')
+    console.log('  - Read:', item.readAt ? 'Yes' : 'No')
     console.log('  - Word count:', item.wordCount)
   })
 

@@ -17,7 +17,7 @@ export const registerSchema = z
     name: z.string().min(2, 'Name must be at least 2 characters'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Passwords don\'t match',
     path: ['confirmPassword'],
   })
 

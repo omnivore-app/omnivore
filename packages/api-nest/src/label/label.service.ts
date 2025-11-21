@@ -10,15 +10,16 @@ import { CreateLabelInput, UpdateLabelInput } from './dto/label-inputs.type'
 import { ILibraryItemRepository } from '../repositories/interfaces/library-item-repository.interface'
 import { ILabelRepository } from '../repositories/interfaces/label-repository.interface'
 import { IEntityLabelRepository } from '../repositories/interfaces/entity-label-repository.interface'
+import { REPOSITORY_TOKENS } from '../repositories/injection-tokens'
 
 @Injectable()
 export class LabelService {
   constructor(
-    @Inject('ILabelRepository')
+    @Inject(REPOSITORY_TOKENS.ILabelRepository)
     private readonly labelRepository: ILabelRepository,
-    @Inject('IEntityLabelRepository')
+    @Inject(REPOSITORY_TOKENS.IEntityLabelRepository)
     private readonly entityLabelRepository: IEntityLabelRepository,
-    @Inject('ILibraryItemRepository')
+    @Inject(REPOSITORY_TOKENS.ILibraryItemRepository)
     private readonly libraryItemRepository: ILibraryItemRepository,
   ) {}
 

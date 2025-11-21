@@ -9,7 +9,7 @@ const LandingPage: React.FC = () => {
     {
       titleText: 'Save it now. Read it later.',
       descriptionText:
-        "Save articles and PDFs as you come across them using Omnivore's mobile apps and browser extensions. Read them later using our distraction free reader.",
+        'Save articles and PDFs as you come across them using Omnivore\'s mobile apps and browser extensions. Read them later using our distraction free reader.',
       image: '/static/images/landing/landing-01-save-it-now.png',
       imagePosition: 'right' as const,
     },
@@ -23,7 +23,7 @@ const LandingPage: React.FC = () => {
     {
       titleText: 'Keep your reading organized, whatever that means to you.',
       descriptionText:
-        "Keep your reading organized and easily available with labels, filters, rules, and full text searches. We're not here to tell you how to stay organized — our job is to give you the tools to build a system that works for you.",
+        'Keep your reading organized and easily available with labels, filters, rules, and full text searches. We\'re not here to tell you how to stay organized — our job is to give you the tools to build a system that works for you.',
       image: '/static/images/landing/landing-03-organisation.png',
       imagePosition: 'right' as const,
     },
@@ -44,14 +44,14 @@ const LandingPage: React.FC = () => {
     {
       titleText: 'Listen to your reading with text-to-speech.',
       descriptionText:
-        "Work through your to-be-read list and give your eyes a break with text-to-speech, exclusively in the Omnivore app for iOS. Realistic, natural-sounding AI voices will read any saved article aloud.",
+        'Work through your to-be-read list and give your eyes a break with text-to-speech, exclusively in the Omnivore app for iOS. Realistic, natural-sounding AI voices will read any saved article aloud.',
       image: '/static/images/landing/landing-06-tts.png',
       imagePosition: 'left' as const,
     },
     {
-      titleText: "Open source means you're in control.",
+      titleText: 'Open source means you\'re in control.',
       descriptionText:
-        "Reading is a lifetime activity, and you shouldn't have to worry you'll lose your library after you've spent years building it. Our open-source platform ensures your reading won't be held prisoner in a proprietary system.",
+        'Reading is a lifetime activity, and you shouldn\'t have to worry you\'ll lose your library after you\'ve spent years building it. Our open-source platform ensures your reading won\'t be held prisoner in a proprietary system.',
       image: '/static/images/landing/landing-07-oss.png',
       imagePosition: 'right' as const,
     },

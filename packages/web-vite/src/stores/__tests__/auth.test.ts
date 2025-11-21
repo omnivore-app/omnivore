@@ -1,7 +1,7 @@
 // Tests for Zustand auth store
 // Ensure authentication state management matches the NestJS contracts
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../lib/api-client', () => {
   const login = vi.fn()
@@ -15,14 +15,14 @@ vi.mock('../../lib/api-client', () => {
   }
 })
 
+import { apiClient, AUTH_TOKEN_STORAGE_KEY } from '../../lib/api-client'
 import {
-  mockUser,
-  mockLoginSuccessResponse,
   mockLoginErrorResponse,
+  mockLoginSuccessResponse,
   mockRegisterPendingResponse,
+  mockUser,
 } from '../../test/utils'
 import { useAuthStore } from '../index'
-import { apiClient, AUTH_TOKEN_STORAGE_KEY } from '../../lib/api-client'
 
 const mockedApiClient = apiClient as unknown as {
   login: ReturnType<typeof vi.fn>

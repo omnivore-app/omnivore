@@ -1,9 +1,10 @@
 // Tests for API client
 // Comprehensive testing of API communication
 
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
-import { OmnivoreApiClient, AUTH_TOKEN_STORAGE_KEY } from '../api-client'
-import { mockUser, mockArticle } from '../../test/utils'
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { mockArticle, mockUser } from '../../test/utils'
+import { AUTH_TOKEN_STORAGE_KEY, OmnivoreApiClient } from '../api-client'
 
 const fetchMock = () => fetch as unknown as Mock
 

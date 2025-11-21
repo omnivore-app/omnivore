@@ -5,6 +5,7 @@ import { HighlightEntity } from '../../highlight/entities/highlight.entity'
  * Separates data access layer from business logic
  */
 export interface IHighlightRepository {
+
   /**
    * Find a highlight by ID and user ID
    * @param id - Highlight ID
@@ -44,4 +45,15 @@ export interface IHighlightRepository {
    * @returns void
    */
   remove(highlight: HighlightEntity): Promise<void>
+
+  /**
+   * Batch find highlights for multiple library items
+   * @param libraryItemIds - Array of library item IDs
+   * @param userId - User ID who owns the highlights
+   * @returns Map of library item ID to array of highlights
+   */
+  findByLibraryItemIds(
+    libraryItemIds: string[],
+    userId: string,
+  ): Promise<Map<string, HighlightEntity[]>>
 }

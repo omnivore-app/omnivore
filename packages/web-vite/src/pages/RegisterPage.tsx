@@ -1,13 +1,14 @@
 // Enhanced Register page component for Omnivore Vite migration
 // Migrated from existing EmailSignup.tsx with improved design and functionality
 
-import React, { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../stores'
-import { registerSchema, type RegisterFormData } from '../lib/validation'
+
 import ErrorBoundary from '../components/ErrorBoundary'
+import { type RegisterFormData, registerSchema } from '../lib/validation'
+import { useAuthStore } from '../stores'
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate()

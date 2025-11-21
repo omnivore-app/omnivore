@@ -1,7 +1,7 @@
 // Simple test to verify Vitest setup
 // Basic functionality test without complex dependencies
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('Basic Setup', () => {
   it('should run tests', () => {

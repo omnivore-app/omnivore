@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useUpdateLibraryItem, type UpdateLibraryItemInput } from '../lib/graphql-client'
 import '../styles/EditInfoModal.css'
+
+import { useEffect, useState } from 'react'
+
+import { type UpdateLibraryItemInput, useUpdateLibraryItem } from '../lib/graphql-client'
 
 interface EditInfoModalProps {
   itemId: string
@@ -45,6 +47,7 @@ export function EditInfoModal({
       // If nothing changed, just close
       if (Object.keys(input).length === 0) {
         onClose()
+        
         return
       }
 

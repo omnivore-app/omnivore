@@ -1,9 +1,19 @@
-import { Args, Int, Query, Mutation, Resolver, ResolveField, Parent } from '@nestjs/graphql'
+import {
+  Args,
+  Int,
+  Query,
+  Mutation,
+  Resolver,
+  ResolveField,
+  Parent,
+  Context,
+} from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../user/decorators/current-user.decorator'
 import { User } from '../user/entities/user.entity'
 import { LibraryService } from './library.service'
+import { DataLoaderService } from '../graphql/dataloader.service'
 import {
   LibraryItem,
   LibraryItemsConnection,
@@ -14,7 +24,6 @@ import {
   SearchPageInfo,
 } from './dto/library-item.type'
 import {
-  ReadingProgressInput,
   DeleteResult,
   LibrarySearchInput,
   SaveUrlInput,
@@ -23,6 +32,15 @@ import {
 } from './dto/library-inputs.type'
 import { LabelService } from '../label/label.service'
 import { Label } from '../label/dto/label.type'
+import { LibraryItemEntity } from './entities/library-item.entity'
+
+/**
+ * Library item with entity fields for field resolvers
+ * Extends the GraphQL type to include database entity fields
+ */
+interface LibraryItemWithEntityFields extends LibraryItem {
+  totalSentinels?: number
+}
 
 @Resolver(() => LibraryItem)
 export class LibraryResolver {
@@ -38,8 +56,43 @@ export class LibraryResolver {
   async labels(
     @Parent() libraryItem: LibraryItem,
     @CurrentUser() user: User,
+    @Context('dataLoaders') dataLoaders: DataLoaderService,
   ): Promise<Label[] | null> {
-    return this.labelService.getLibraryItemLabels(user.id, libraryItem.id)
+    // Use DataLoader to batch label queries and prevent N+1 problems
+    const labels = await dataLoaders.labels.load(libraryItem.id)
+    return labels.length > 0 ? labels : null
+  }
+
+  @ResolveField(() => Number, { nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async readingProgressPercent(
+    @Parent() libraryItem: LibraryItemWithEntityFields,
+    @CurrentUser() user: User,
+    @Context('dataLoaders') dataLoaders: DataLoaderService,
+  ): Promise<number | null> {
+    // Get total sentinels from the library item
+    const totalSentinels = libraryItem.totalSentinels || 0
+
+    if (totalSentinels === 0) {
+      return null // No sentinels injected yet
+    }
+
+    // Use DataLoader to batch reading progress queries
+    const progress = await dataLoaders.readingProgress.load(libraryItem.id)
+
+    if (!progress || progress.highestSeenSentinel === 0) {
+      return null // No reading progress yet
+    }
+
+    // Calculate percentage: (highest_seen_sentinel / total_sentinels) * 100
+    let percent = Math.min(100, Math.round((progress.highestSeenSentinel / totalSentinels) * 100))
+
+    // Round up to 100% if >= 95% (accounts for sentinels not being at the very end)
+    if (percent >= 95 && percent < 100) {
+      percent = 100
+    }
+
+    return percent
   }
 
   // ==================== QUERIES ====================
@@ -92,7 +145,11 @@ export class LibraryResolver {
     first = 20,
     @Args('after', { type: () => String, nullable: true }) after?: string,
     @Args('query', { type: () => String, nullable: true }) query?: string,
-    @Args('includeContent', { type: () => Boolean, nullable: true, defaultValue: false })
+    @Args('includeContent', {
+      type: () => Boolean,
+      nullable: true,
+      defaultValue: false,
+    })
     includeContent = false,
   ): Promise<typeof SearchResult> {
     try {
@@ -119,7 +176,7 @@ export class LibraryResolver {
         }
 
         return {
-          cursor: item.id,  // Each edge cursor should be the item's ID
+          cursor: item.id, // Each edge cursor should be the item's ID
           node: graphItem,
         }
       })
@@ -128,7 +185,7 @@ export class LibraryResolver {
         hasNextPage: !!nextCursor,
         hasPreviousPage: !!after,
         startCursor: items.length > 0 ? items[0].id : null,
-        endCursor: items.length > 0 ? items[items.length - 1].id : null,  // Last item's ID, not nextCursor
+        endCursor: items.length > 0 ? items[items.length - 1].id : null, // Last item's ID, not nextCursor
         totalCount: null, // Not currently tracked
       }
 
@@ -174,28 +231,6 @@ export class LibraryResolver {
     id: string,
   ): Promise<DeleteResult> {
     return await this.libraryService.deleteItem(user.id, id)
-  }
-
-  @Mutation(() => LibraryItem, {
-    description: 'Update reading progress for a library item',
-  })
-  @UseGuards(JwtAuthGuard)
-  async updateReadingProgress(
-    @CurrentUser() user: User,
-    @Args('id', { type: () => String, description: 'Library item ID' })
-    id: string,
-    @Args('progress', {
-      type: () => ReadingProgressInput,
-      description: 'Reading progress data',
-    })
-    progress: ReadingProgressInput,
-  ): Promise<LibraryItem> {
-    const entity = await this.libraryService.updateReadingProgress(
-      user.id,
-      id,
-      progress,
-    )
-    return mapEntityToGraph(entity)
   }
 
   @Mutation(() => LibraryItem, {
@@ -352,7 +387,7 @@ export class LibraryResolver {
  * Map LibraryItemEntity to GraphQL LibraryItem type
  * Handles field name differences and null coalescing
  */
-function mapEntityToGraph(entity: any): LibraryItem {
+function mapEntityToGraph(entity: LibraryItemEntity): LibraryItem {
   const thumbnail = entity.thumbnail ?? null
   const wordCount = entity.wordCount ?? null
   const itemType = entity.itemType ?? 'ARTICLE'
@@ -369,21 +404,19 @@ function mapEntityToGraph(entity: any): LibraryItem {
     publishedAt: entity.publishedAt ?? null,
     readAt: entity.readAt ?? null,
     updatedAt: entity.updatedAt,
-    readingProgressTopPercent: entity.readingProgressTopPercent ?? 0,
-    readingProgressBottomPercent: entity.readingProgressBottomPercent ?? 0,
     state: entity.state,
     contentReader: entity.contentReader,
     folder: entity.folder,
     content: entity.readableContent ?? null,
     note: entity.note ?? null,
     noteUpdatedAt: entity.noteUpdatedAt ?? null,
-    labels: null, // Labels will be resolved by the field resolver
-    // ARC-009: Add fields for frontend library feature parity
+    labels: null,
     thumbnail,
     wordCount,
     siteName: entity.siteName ?? null,
     siteIcon: entity.siteIcon ?? null,
     itemType,
+    totalSentinels: entity.totalSentinels ?? 0, // For reading progress calculation
     // Legacy field aliases (TypeScript doesn't know about getters, so we set them directly)
     image: thumbnail,
     wordsCount: wordCount,

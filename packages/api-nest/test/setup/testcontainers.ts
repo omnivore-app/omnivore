@@ -11,6 +11,7 @@ import { LibraryItemEntity } from '../../src/library/entities/library-item.entit
 import { Label } from '../../src/label/entities/label.entity'
 import { EntityLabel } from '../../src/label/entities/entity-label.entity'
 import { HighlightEntity } from '../../src/highlight/entities/highlight.entity'
+import { ReadingProgressEntity } from '../../src/reading-progress/entities/reading-progress.entity'
 
 let container: StartedPostgreSqlContainer | null = null
 let dataSource: DataSource | null = null
@@ -55,6 +56,7 @@ export async function setupTestContainer(): Promise<{
       Label,
       EntityLabel,
       HighlightEntity,
+      ReadingProgressEntity,
     ],
     synchronize: false, // We'll call synchronize() manually after creating schema
     logging: false, // Disable logging for cleaner test output
@@ -139,6 +141,7 @@ export async function cleanDatabase(): Promise<void> {
   // Truncate all tables
   const tables = [
     'omnivore.entity_label',
+    'omnivore.reading_progress',
     'omnivore.highlight',
     'omnivore.label',
     'omnivore.library_item',

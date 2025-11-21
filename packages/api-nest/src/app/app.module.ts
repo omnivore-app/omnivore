@@ -9,6 +9,7 @@ import { GraphqlModule } from '../graphql/graphql.module'
 import { LibraryModule } from '../library/library.module'
 import { LabelModule } from '../label/label.module'
 import { HighlightModule } from '../highlight/highlight.module'
+import { ReadingProgressModule } from '../reading-progress/reading-progress.module'
 import { QueueModule } from '../queue/queue.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -50,6 +51,9 @@ import { configValidationSchema } from '../config/config.schema'
 
     // Highlights
     HighlightModule,
+
+    // Reading Progress (Sentinel-based)
+    ReadingProgressModule,
 
     // Queue and Background Processing
     QueueModule,

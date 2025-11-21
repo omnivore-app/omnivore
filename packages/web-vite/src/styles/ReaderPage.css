@@ -325,6 +325,310 @@
   background: #5aa3ff;
 }
 
+/* Highlight Styles - 4-color system */
+.reader-content mark.highlight {
+  padding: 2px 0;
+  border-radius: 2px;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+/* Yellow highlight (default) */
+.reader-content mark.highlight-yellow {
+  background-color: rgba(255, 212, 59, 0.35);
+  border-bottom: 2px solid rgba(255, 212, 59, 0.6);
+}
+
+.reader-content mark.highlight-yellow:hover {
+  background-color: rgba(255, 212, 59, 0.5);
+  border-bottom-color: rgba(255, 212, 59, 0.8);
+}
+
+/* Red highlight (critical/important) */
+.reader-content mark.highlight-red {
+  background-color: rgba(255, 107, 107, 0.35);
+  border-bottom: 2px solid rgba(255, 107, 107, 0.6);
+}
+
+.reader-content mark.highlight-red:hover {
+  background-color: rgba(255, 107, 107, 0.5);
+  border-bottom-color: rgba(255, 107, 107, 0.8);
+}
+
+/* Green highlight (action items) */
+.reader-content mark.highlight-green {
+  background-color: rgba(85, 239, 196, 0.35);
+  border-bottom: 2px solid rgba(85, 239, 196, 0.6);
+}
+
+.reader-content mark.highlight-green:hover {
+  background-color: rgba(85, 239, 196, 0.5);
+  border-bottom-color: rgba(85, 239, 196, 0.8);
+}
+
+/* Blue highlight (reference/informational) */
+.reader-content mark.highlight-blue {
+  background-color: rgba(116, 185, 255, 0.35);
+  border-bottom: 2px solid rgba(116, 185, 255, 0.6);
+}
+
+.reader-content mark.highlight-blue:hover {
+  background-color: rgba(116, 185, 255, 0.5);
+  border-bottom-color: rgba(116, 185, 255, 0.8);
+}
+
+/* Flash animation for jump-to-highlight */
+@keyframes highlightFlash {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+}
+
+.reader-content mark.highlight-flash {
+  animation: highlightFlash 1s ease-in-out;
+}
+
+/* Create Highlight Popup */
+.create-highlight-popup {
+  position: absolute;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  width: 450px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  z-index: 1001;
+  animation: slideDown 150ms ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+
+.popup-title {
+  font-size: 14px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.popup-close:hover {
+  color: var(--color-text-primary);
+}
+
+.color-picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  height: auto;
+  min-height: fit-content;
+  margin: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  /* Fallback for older browsers that don't support gap */
+  grid-row-gap: 10px;
+  grid-column-gap: 10px;
+}
+
+.color-button {
+  padding: 10px 12px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 0;
+  box-sizing: border-box;
+  min-height: 40px;
+  /* Ensure text doesn't wrap */
+  white-space: nowrap;
+}
+
+.color-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.color-button.active {
+  border-color: var(--color-action-blue);
+  box-shadow: 0 0 0 2px rgba(116, 185, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.color-label {
+  color: var(--color-text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.add-note-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 0;
+  background: transparent;
+  border: 1px dashed var(--color-border-primary);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.add-note-button:hover {
+  border-color: var(--color-action-blue);
+  color: var(--color-action-blue);
+  background: rgba(116, 185, 255, 0.05);
+}
+
+.annotation-input-container {
+  width: 100%;
+  margin: 0;
+  display: block;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+  /* Ensure it doesn't overlap with color buttons */
+  clear: both;
+}
+
+.annotation-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+.annotation-textarea:focus {
+  outline: none;
+  border-color: var(--color-action-blue);
+  box-shadow: 0 0 0 2px rgba(116, 185, 255, 0.1);
+}
+
+.selected-text-preview {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  padding: 8px;
+  margin: 0;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+
+.save-highlight-button {
+  width: 100%;
+  padding: 10px 16px;
+  margin: 0;
+  background: var(--color-action-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.save-highlight-button:hover {
+  background: #5aa3ff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.save-highlight-button:active {
+  transform: translateY(0);
+}
+
+/* Highlight tooltip for annotations */
+.highlight-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  max-width: 300px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.highlight-tooltip.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.highlight-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-bg-elevated);
+}
+
+.highlight-tooltip-annotation {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.highlight-tooltip-empty {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .reader-page {
@@ -342,6 +646,13 @@
   .reader-content h1 { font-size: 1.75em; }
   .reader-content h2 { font-size: 1.4em; }
   .reader-content h3 { font-size: 1.2em; }
+
+  /* Adjust highlight tooltip for mobile */
+  .highlight-tooltip {
+    max-width: 250px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -352,5 +663,11 @@
   .back-button {
     font-size: 13px;
     padding: 6px 12px;
+  }
+
+  /* Stack tooltip above on very small screens */
+  .highlight-tooltip {
+    max-width: 200px;
+    font-size: 12px;
   }
 }

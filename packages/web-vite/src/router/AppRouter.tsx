@@ -4,14 +4,15 @@
 import React from 'react'
 import {
   BrowserRouter,
-  Routes,
-  Route,
   Navigate,
   Outlet,
+  Route,
+  Routes,
 } from 'react-router-dom'
-import { useAuthStore } from '../stores'
+
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import LeftNavigation from '../components/LeftNavigation'
+import { useAuthStore } from '../stores'
 
 // Lazy load components for better performance
 const LandingPage = React.lazy(() => import('../pages/LandingPage'))

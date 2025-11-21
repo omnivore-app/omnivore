@@ -10,6 +10,7 @@ import {
   UpdateHighlightInput,
 } from './dto/highlight-inputs.type'
 import { DeleteResult } from '../library/dto/library-inputs.type'
+import { HighlightColor } from './entities/highlight.entity'
 
 @Resolver(() => Highlight)
 export class HighlightResolver {
@@ -120,7 +121,9 @@ function mapEntityToGraph(entity: any): Highlight {
     highlightPositionAnchorIndex: entity.highlightPositionAnchorIndex ?? 0,
     highlightType: entity.highlightType,
     html: entity.html ?? null,
-    color: entity.color ?? 'yellow',
+    color: entity.color ?? HighlightColor.YELLOW,
     representation: entity.representation,
+    selectors: entity.selectors ?? {},
+    contentVersion: entity.contentVersion ?? null,
   }
 }

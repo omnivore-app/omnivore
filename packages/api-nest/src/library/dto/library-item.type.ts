@@ -1,5 +1,16 @@
-import { Field, Float, ID, Int, ObjectType, registerEnumType, createUnionType } from '@nestjs/graphql'
-import { LibraryItemState, ContentReaderType } from '../entities/library-item.entity'
+import {
+  Field,
+  Float,
+  ID,
+  Int,
+  ObjectType,
+  registerEnumType,
+  createUnionType,
+} from '@nestjs/graphql'
+import {
+  LibraryItemState,
+  ContentReaderType,
+} from '../entities/library-item.entity'
 import { Label } from '../../label/dto/label.type'
 
 registerEnumType(LibraryItemState, {
@@ -45,12 +56,6 @@ export class LibraryItem {
   @Field(() => Date)
   updatedAt!: Date
 
-  @Field(() => Float, { nullable: true })
-  readingProgressTopPercent?: number | null
-
-  @Field(() => Float, { nullable: true })
-  readingProgressBottomPercent?: number | null
-
   @Field(() => LibraryItemState)
   state!: LibraryItemState
 
@@ -72,28 +77,48 @@ export class LibraryItem {
   @Field(() => Date, { nullable: true })
   noteUpdatedAt?: Date | null
 
-  @Field({ nullable: true, description: 'Thumbnail/cover image URL for the library item' })
+  @Field({
+    nullable: true,
+    description: 'Thumbnail/cover image URL for the library item',
+  })
   thumbnail?: string | null
 
-  @Field(() => Float, { nullable: true, description: 'Estimated word count for reading time calculation' })
+  @Field(() => Float, {
+    nullable: true,
+    description: 'Estimated word count for reading time calculation',
+  })
   wordCount?: number | null
 
-  @Field({ nullable: true, description: 'Site name (e.g., "Medium", "New York Times")' })
+  @Field({
+    nullable: true,
+    description: 'Site name (e.g., "Medium", "New York Times")',
+  })
   siteName?: string | null
 
   @Field({ nullable: true, description: 'Site favicon/icon URL' })
   siteIcon?: string | null
 
-  @Field({ description: 'Item type (ARTICLE, FILE, VIDEO, etc.)', defaultValue: 'ARTICLE' })
+  @Field({
+    description: 'Item type (ARTICLE, FILE, VIDEO, etc.)',
+    defaultValue: 'ARTICLE',
+  })
   itemType!: string
 
   // Legacy field aliases for backward compatibility with frontend
-  @Field({ nullable: true, name: 'image', description: 'Legacy alias for thumbnail' })
+  @Field({
+    nullable: true,
+    name: 'image',
+    description: 'Legacy alias for thumbnail',
+  })
   get image(): string | null {
     return this.thumbnail
   }
 
-  @Field(() => Float, { nullable: true, name: 'wordsCount', description: 'Legacy alias for wordCount' })
+  @Field(() => Float, {
+    nullable: true,
+    name: 'wordsCount',
+    description: 'Legacy alias for wordCount',
+  })
   get wordsCount(): number | null {
     return this.wordCount
   }
@@ -102,6 +127,12 @@ export class LibraryItem {
   get pageType(): string {
     return this.itemType
   }
+
+  @Field(() => Float, {
+    nullable: true,
+    description: 'Reading progress percentage (0-100) based on sentinel tracking',
+  })
+  readingProgressPercent?: number | null
 }
 
 @ObjectType()

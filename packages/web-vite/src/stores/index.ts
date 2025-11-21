@@ -2,7 +2,8 @@
 // Centralised state management with persistence and backend integration
 
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
+
 import { apiClient, AUTH_TOKEN_STORAGE_KEY } from '../lib/api-client'
 import type { AuthUser, LoginResponse, RegisterResponse } from '../types/api'
 
@@ -80,6 +81,7 @@ const handleAuthSuccess = (response: LoginResponse | RegisterResponse) => {
 
   if ('accessToken' in response && response.accessToken) {
     storeToken(response.accessToken)
+    
     return {
       user: response.user,
       token: response.accessToken,
@@ -161,6 +163,7 @@ export const useAuthStore = create<AuthState>()(
           if (!existingToken) {
             set({ ...initialAuthState, isLoading: false })
             storeToken(null)
+            
             return
           }
 

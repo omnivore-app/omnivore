@@ -45,13 +45,11 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
       // ARC-009: Add metadata fields for frontend library feature parity
       author: faker.person.fullName(),
       description: faker.lorem.paragraph(),
-      thumbnail: faker.image.url({ width: 640, height: 480, category: 'tech' }),
+      thumbnail: faker.image.url({ width: 640, height: 480 }),
       wordCount: faker.number.int({ min: 300, max: 5000 }),
       siteName: faker.company.name(),
       siteIcon: `https://${domain}/favicon.ico`,
       publishedAt: faker.date.past({ years: 1 }),
-      readingProgressTopPercent: 0,
-      readingProgressBottomPercent: 0,
       readingProgressLastReadAnchor: 0,
       readingProgressHighestReadAnchor: 0,
       readableContent: faker.lorem.paragraphs(5),
@@ -111,8 +109,6 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
 
     return this.create({
       userId,
-      readingProgressTopPercent: percentComplete,
-      readingProgressBottomPercent: Math.min(percentComplete + 5, 100),
       readAt,
       ...overrides,
     })
@@ -189,8 +185,6 @@ class LibraryItemFactoryClass extends BaseFactory<LibraryItemEntity> {
   ): LibraryItemEntity {
     return this.build({
       userId,
-      readingProgressTopPercent: percentComplete,
-      readingProgressBottomPercent: Math.min(percentComplete + 5, 100),
       readAt: percentComplete === 100 ? new Date() : null,
       ...overrides,
     })

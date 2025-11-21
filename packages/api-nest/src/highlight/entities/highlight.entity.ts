@@ -7,18 +7,26 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { User } from '../../user/entities/user.entity'
+
 import { LibraryItemEntity } from '../../library/entities/library-item.entity'
+import { User } from '../../user/entities/user.entity'
+import { HighlightSelectors } from './highlight-selector.interface'
 
 export enum HighlightType {
   HIGHLIGHT = 'HIGHLIGHT',
   REDACTION = 'REDACTION',
-  NOTE = 'NOTE', // Legacy - being phased out in favor of library_item.note
 }
 
 export enum RepresentationType {
   CONTENT = 'CONTENT',
   FEED_CONTENT = 'FEED_CONTENT',
+}
+
+export enum HighlightColor {
+  YELLOW = 'YELLOW',
+  RED = 'RED',
+  GREEN = 'GREEN',
+  BLUE = 'BLUE',
 }
 
 @Entity({ name: 'highlight', schema: 'omnivore' })
@@ -70,7 +78,11 @@ export class HighlightEntity {
   @Column({ name: 'highlight_position_percent', type: 'real', default: 0 })
   highlightPositionPercent!: number
 
-  @Column({ name: 'highlight_position_anchor_index', type: 'integer', default: 0 })
+  @Column({
+    name: 'highlight_position_anchor_index',
+    type: 'integer',
+    default: 0,
+  })
   highlightPositionAnchorIndex!: number
 
   @Column({
@@ -84,8 +96,12 @@ export class HighlightEntity {
   @Column({ type: 'text', nullable: true })
   html?: string | null
 
-  @Column({ type: 'text', nullable: true })
-  color?: string | null
+  @Column({
+    type: 'enum',
+    enum: HighlightColor,
+    default: HighlightColor.YELLOW,
+  })
+  color!: HighlightColor
 
   @Column({
     type: 'enum',
@@ -93,4 +109,22 @@ export class HighlightEntity {
     default: RepresentationType.CONTENT,
   })
   representation!: RepresentationType
+
+  // Robust anchored selectors for multi-strategy text positioning
+  // Uses W3C Web Annotation Data Model selector format
+  // @see https://www.w3.org/TR/annotation-model/#selectors
+  @Column({
+    type: 'jsonb',
+    default: {},
+  })
+  selectors!: HighlightSelectors
+
+  // Optional content version/hash for tracking
+  @Column({
+    name: 'content_version',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
+  contentVersion?: string | null
 }

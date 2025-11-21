@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useLabels, useSetLibraryItemLabels, useCreateLabel, type Label } from '../lib/graphql-client'
 import '../styles/LabelPickerModal.css'
+
+import { useEffect, useState } from 'react'
+
+import { type Label, useCreateLabel, useLabels, useSetLibraryItemLabels } from '../lib/graphql-client'
 
 interface LabelPickerModalProps {
   itemId: string
@@ -50,6 +52,7 @@ export function LabelPickerModal({ itemId, currentLabels, onUpdate, onClose }: L
       } else {
         newSet.add(labelName)
       }
+      
       return newSet
     })
   }
@@ -99,6 +102,7 @@ export function LabelPickerModal({ itemId, currentLabels, onUpdate, onClose }: L
       // Add to selected labels immediately
       setSelectedLabels((prev) => {
         const updated = new Set([...prev, trimmedName])
+        
         return updated
       })
 

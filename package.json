@@ -1,42 +1,48 @@
 {
-  "name": "omnivore-app",
-  "version": "1.0.0",
-  "description": "",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "license": "AGPL-3.0-only",
-  "scripts": {
-    "test": "lerna run --stream test",
-    "lint": "lerna run --parallel lint",
-    "build": "lerna run build",
-    "test:scoped:example": "lerna run test --scope={@omnivore/pdf-handler,@omnivore/web}",
-    "gql-typegen": "graphql-codegen",
-    "deploy:web": "vercel --prod"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@ardatan/aggregate-error": "^0.0.6",
-    "@graphql-codegen/cli": "^2.6.2",
-    "@graphql-codegen/introspection": "^2.1.1",
-    "@graphql-codegen/schema-ast": "^2.1.1",
-    "@graphql-codegen/typescript": "^2.1.1",
-    "@graphql-codegen/typescript-resolvers": "^2.1.1",
-    "@tsconfig/node14": "^1.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.9.0",
-    "@typescript-eslint/parser": "^5.9.0",
-    "eslint": "^8.6.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "graphql": "^15.3.0",
-    "graphql-tag": "^2.11.0",
-    "lerna": "^7.4.1",
-    "prettier": "^2.5.1",
-    "typescript": "5.7.3"
-  },
-  "volta": {
-    "node": "22.11.0",
-    "yarn": "1.22.19"
-  }
+    "name": "omnivore-app",
+    "version": "1.0.0",
+    "description": "",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "license": "AGPL-3.0-only",
+    "scripts": {
+        "test": "lerna run --stream test",
+        "lint": "lerna run --parallel lint",
+        "build": "lerna run build",
+        "test:scoped:example": "lerna run test --scope={@omnivore/pdf-handler,@omnivore/web}",
+        "gql-typegen": "graphql-codegen",
+        "deploy:web": "vercel --prod",
+        "prepare": "husky install || true"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@ardatan/aggregate-error": "^0.0.6",
+        "@graphql-codegen/cli": "^2.6.2",
+        "@graphql-codegen/introspection": "^2.1.1",
+        "@graphql-codegen/schema-ast": "^2.1.1",
+        "@graphql-codegen/typescript": "^2.1.1",
+        "@graphql-codegen/typescript-resolvers": "^2.1.1",
+        "@tsconfig/node14": "^1.0.1",
+        "@typescript-eslint/eslint-plugin": "^5.9.0",
+        "@typescript-eslint/parser": "^5.9.0",
+        "eslint": "^8.6.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "eslint-plugin-simple-import-sort": "^7.0.0",
+        "@commitlint/cli": "^18.4.3",
+        "@commitlint/config-conventional": "^18.4.3",
+        "graphql": "^15.3.0",
+        "graphql-tag": "^2.11.0",
+        "husky": "^9.0.0",
+        "lerna": "^7.4.1",
+        "lint-staged": "^15.0.0",
+        "prettier": "^2.5.1",
+        "typescript": "5.7.3"
+    },
+    "volta": {
+        "node": "22.11.0",
+        "yarn": "1.22.19"
+    }
 }

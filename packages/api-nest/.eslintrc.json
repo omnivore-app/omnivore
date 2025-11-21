@@ -1,0 +1,8 @@
+{
+  "extends": ["../../.eslintrc.base.json"],
+  "rules": {
+    "semi": [2, "never"],
+    "@typescript-eslint/no-unnecessary-type-assertion": [0, "never"]
+  }
+}
+

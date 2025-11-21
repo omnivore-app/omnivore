@@ -45,6 +45,25 @@ export class LibraryItemRepository implements ILibraryItemRepository {
   }
 
   /**
+   * Find multiple library items by IDs and user ID
+   * Uses a single query with IN clause for efficiency
+   */
+  async findByIds(
+    ids: string[],
+    userId: string,
+  ): Promise<LibraryItemEntity[]> {
+    if (ids.length === 0) {
+      return []
+    }
+
+    return this.repository
+      .createQueryBuilder('item')
+      .where('item.id IN (:...ids)', { ids })
+      .andWhere('item.userId = :userId', { userId })
+      .getMany()
+  }
+
+  /**
    * Find a library item by URL and user ID (for duplicate detection)
    */
   async findByUrl(
@@ -153,6 +172,32 @@ export class LibraryItemRepository implements ILibraryItemRepository {
    */
   create(data: Partial<LibraryItemEntity>): LibraryItemEntity {
     return this.repository.create(data)
+  }
+
+  /**
+   * Update specific fields of a library item
+   */
+  async update(
+    id: string,
+    userId: string,
+    data: Partial<LibraryItemEntity>,
+  ): Promise<LibraryItemEntity> {
+    // First find the item to ensure it exists and belongs to the user
+    const item = await this.findById(id, userId)
+    if (!item) {
+      throw new Error(`Library item with ID ${id} not found`)
+    }
+
+    // Update the item
+    await this.repository.update({ id, userId }, data)
+
+    // Fetch and return the updated item
+    const updated = await this.findById(id, userId)
+    if (!updated) {
+      throw new Error(`Failed to fetch updated library item ${id}`)
+    }
+
+    return updated
   }
 
   /**
@@ -376,8 +421,6 @@ export class LibraryItemRepository implements ILibraryItemRepository {
           .update(LibraryItemEntity)
           .set({
             readAt: new Date(),
-            readingProgressTopPercent: 100,
-            readingProgressBottomPercent: 100,
           })
           .where('id IN (:...ids)', { ids: batch })
           .andWhere('userId = :userId', { userId })

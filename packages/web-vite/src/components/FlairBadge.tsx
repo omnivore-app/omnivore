@@ -12,9 +12,11 @@
  * - Distinguished from user tags (which show text + color)
  */
 
-import React from 'react'
-import type { Label } from '../types/api'
 import '../styles/FlairBadge.css'
+
+import React from 'react'
+
+import type { Label } from '../types/api'
 
 interface FlairBadgeProps {
   label: Label

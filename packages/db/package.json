@@ -10,12 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^8.2.0",
     "pg": "^8.3.0",
     "postgrator": "^4.1.1",
     "ts-node": "^10.2.1"
   },
   "devDependencies": {
-    "plop": "^2.7.1"
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.9.2",
+    "plop": "^4.0.4"
   }
 }

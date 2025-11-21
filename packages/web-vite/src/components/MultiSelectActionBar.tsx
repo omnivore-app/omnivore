@@ -14,8 +14,9 @@
  * - Escape key to exit multi-select mode
  */
 
-import React, { useEffect } from 'react'
 import '../styles/MultiSelectActionBar.css'
+
+import React, { useEffect } from 'react'
 
 interface MultiSelectActionBarProps {
   selectedCount: number
@@ -43,6 +44,7 @@ const MultiSelectActionBar: React.FC<MultiSelectActionBarProps> = ({
     }
 
     document.addEventListener('keydown', handleEscape)
+    
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onExitMultiSelect])
 

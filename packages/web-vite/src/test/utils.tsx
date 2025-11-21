@@ -1,9 +1,9 @@
 // Test utilities for Omnivore Vite migration
 // Reusable test helpers and mocks
 
-import { render, type RenderOptions } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+import { type RenderOptions, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
+import { BrowserRouter } from 'react-router-dom'
 
 // Custom render function with providers
 const AllTheProviders = ({ children }: { children: any }) => {

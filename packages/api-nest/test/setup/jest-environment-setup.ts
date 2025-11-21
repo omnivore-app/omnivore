@@ -3,6 +3,7 @@
  * Runs in each test worker to initialize the test DataSource
  */
 
+import './test-logger-config' // Import logger configuration to suppress noise
 import { DataSource } from 'typeorm'
 import { User } from '../../src/user/entities/user.entity'
 import { UserProfile } from '../../src/user/entities/profile.entity'
