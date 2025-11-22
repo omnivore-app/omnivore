@@ -1,33 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { AppModule } from '../src/app/app.module'
-import { testDatabaseConfig } from '../src/config/test.config'
+import { createE2EApp } from './helpers/create-e2e-app'
 
 describe('GraphQL Module (e2e)', () => {
   let app: INestApplication
   let authToken: string
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideModule(TypeOrmModule)
-      .useModule(TypeOrmModule.forRoot(testDatabaseConfig))
-      .compile()
-
-    app = moduleFixture.createNestApplication()
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    )
-
-    app.setGlobalPrefix('api/v2')
-    await app.init()
+    app = await createE2EApp()
 
     const registerResponse = await request(app.getHttpServer())
       .post('/api/v2/auth/register')

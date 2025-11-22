@@ -20,7 +20,10 @@ import { configValidationSchema } from '../config/config.schema'
     // Global configuration with Joi validation
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [
+        `.env.${process.env.NODE_ENV || 'development'}`, // .env.test, .env.development, .env.production
+        '.env', // Fallback for any missing vars
+      ],
       validationSchema: configValidationSchema,
       validationOptions: {
         allowUnknown: true, // Allow other env vars not in schema

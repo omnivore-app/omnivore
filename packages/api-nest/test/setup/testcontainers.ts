@@ -1,4 +1,8 @@
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql'
+import { TEST_DB_CONSTANTS } from './test-db-constants'
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from '@testcontainers/postgresql'
 import { DataSource } from 'typeorm'
 import { User } from '../../src/user/entities/user.entity'
 import { UserProfile } from '../../src/user/entities/profile.entity'
@@ -66,9 +70,11 @@ export async function setupTestContainer(): Promise<{
   console.log('🔌 Initializing database connection...')
   await dataSource.initialize()
 
-  console.log('📁 Creating omnivore schema...')
+  console.log(`📁 Creating ${TEST_DB_CONSTANTS.SCHEMA} schema...`)
   // Create the omnivore schema that our entities use
-  await dataSource.query('CREATE SCHEMA IF NOT EXISTS omnivore')
+  await dataSource.query(
+    `CREATE SCHEMA IF NOT EXISTS ${TEST_DB_CONSTANTS.SCHEMA}`,
+  )
 
   console.log('🔄 Synchronizing database schema...')
   // Now synchronize will create tables in the omnivore schema

@@ -7,16 +7,16 @@
  * Run with: yarn test:e2e --testPathPattern=factories-example
  */
 
+import { HighlightColor } from '../src/highlight/entities/highlight.entity'
+import { StatusType } from '../src/user/entities/user.entity'
+import { UserRole } from '../src/user/enums/user-role.enum'
 import {
-  UserFactory,
-  LibraryItemFactory,
   HighlightFactory,
   LabelFactory,
+  LibraryItemFactory,
+  UserFactory,
 } from './factories'
 import { getTestDataSource } from './setup/test-datasource'
-import { UserRole } from '../src/user/enums/user-role.enum'
-import { StatusType } from '../src/user/entities/user.entity'
-import { HighlightColor } from '../src/highlight/entities/highlight.entity'
 
 describe('Factory Pattern Example (e2e)', () => {
   it('should create test data using factories', async () => {

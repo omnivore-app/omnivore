@@ -1,24 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
 import request from 'supertest'
-import { AppModule } from '../src/app/app.module'
-import { testDatabaseConfig } from '../src/config/test.config'
+import { createE2EApp } from './helpers/create-e2e-app'
 
 describe('Health E2E Tests', () => {
   let app: INestApplication
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideModule(TypeOrmModule)
-      .useModule(TypeOrmModule.forRoot(testDatabaseConfig))
-      .compile()
-
-    app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix('api/v2')
-    await app.init()
+    app = await createE2EApp()
   })
 
   afterAll(async () => {

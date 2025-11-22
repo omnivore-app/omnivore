@@ -1,10 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
-import { ValidationPipe } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
 import request from 'supertest'
-import { AppModule } from '../src/app/app.module'
-import { testDatabaseConfig } from '../src/config/test.config'
+import { createE2EApp } from './helpers/create-e2e-app'
 import {
   TEST_PERSONAS,
   INVALID_CREDENTIALS,
@@ -31,26 +27,7 @@ describe('Authentication E2E Tests', () => {
   }
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideModule(TypeOrmModule)
-      .useModule(TypeOrmModule.forRoot(testDatabaseConfig))
-      .compile()
-
-    app = moduleFixture.createNestApplication()
-
-    // Apply the same pipes as main application
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    )
-
-    app.setGlobalPrefix('api/v2')
-    await app.init()
+    app = await createE2EApp()
 
     // Create the main test user that login tests will use
     const mainTestUser = generateTestUser('main')

@@ -1,4 +1,6 @@
+import { INestApplication } from '@nestjs/common'
 import { DeepPartial, Repository } from 'typeorm'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import { getTestDataSource } from '../setup/test-datasource'
 
 /**
@@ -7,13 +9,22 @@ import { getTestDataSource } from '../setup/test-datasource'
  * - build(): Creates entity in memory (for unit tests with mocks)
  * - create(): Saves entity to database (for integration/E2E tests)
  *
+ * Factory Initialization Modes:
+ * 1. E2E tests: Call FactoryRegistry.setApp(app) to use NestJS DI
+ * 2. Integration tests: Uses globalThis.__TEST_DATASOURCE__ automatically
+ *
  * @example
  * ```typescript
+ * // E2E test setup (recommended)
+ * beforeAll(async () => {
+ *   app = await createE2EApp()
+ *   FactoryRegistry.setApp(app)
+ * })
+ *
+ * const user = await UserFactory.create({ email: 'test@example.com' })
+ *
  * // Unit test (no database)
  * const user = UserFactory.build({ email: 'test@example.com' })
- *
- * // Integration test (with database)
- * const user = await UserFactory.create({ email: 'test@example.com' })
  * ```
  */
 export abstract class BaseFactory<Entity> {
@@ -103,8 +114,47 @@ export abstract class BaseFactory<Entity> {
 }
 
 /**
+ * Factory Registry - Manages NestJS app instance for E2E tests
+ *
+ * E2E tests should call FactoryRegistry.setApp(app) in beforeAll
+ * to allow factories to use NestJS DI for repository access.
+ */
+export class FactoryRegistry {
+  private static app: INestApplication | null = null
+
+  /**
+   * Set the NestJS app instance for E2E tests
+   * Call this in beforeAll() after creating your test app
+   *
+   * @param app - NestJS application instance
+   */
+  static setApp(app: INestApplication): void {
+    FactoryRegistry.app = app
+  }
+
+  /**
+   * Clear the app instance (call in afterAll)
+   */
+  static clearApp(): void {
+    FactoryRegistry.app = null
+  }
+
+  /**
+   * Get the current app instance
+   * @internal
+   */
+  static getApp(): INestApplication | null {
+    return FactoryRegistry.app
+  }
+}
+
+/**
  * Helper function to get a repository from the test DataSource
  * Used by factory implementations
+ *
+ * Behavior:
+ * - If E2E app is set (via FactoryRegistry.setApp), uses NestJS DI
+ * - Otherwise, falls back to globalThis.__TEST_DATASOURCE__
  *
  * @param entityClass - Entity class to get repository for
  * @returns TypeORM Repository instance
@@ -112,6 +162,15 @@ export abstract class BaseFactory<Entity> {
 export function getTestRepository<Entity>(
   entityClass: new () => Entity,
 ): Repository<Entity> {
+  const app = FactoryRegistry.getApp()
+
+  if (app) {
+    // E2E test mode: Use NestJS DI (proper abstraction layer)
+    const repositoryToken = getRepositoryToken(entityClass)
+    return app.get<Repository<Entity>>(repositoryToken)
+  }
+
+  // Integration/migration test mode: Use global DataSource
   const dataSource = getTestDataSource()
   return dataSource.getRepository(entityClass)
 }

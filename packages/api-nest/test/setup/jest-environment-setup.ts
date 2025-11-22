@@ -22,15 +22,23 @@ import { HighlightEntity } from '../../src/highlight/entities/highlight.entity'
  * This runs once per test worker
  */
 async function initializeTestDataSource() {
-  // Get connection details set by global setup
-  const host = process.env.TEST_DB_HOST
-  const port = parseInt(process.env.TEST_DB_PORT || '5432')
-  const database = process.env.TEST_DB_DATABASE
-  const username = process.env.TEST_DB_USERNAME
-  const password = process.env.TEST_DB_PASSWORD
+  // Get connection details set by global setup (testcontainer mode)
+  // or from .env.test file (manual DB mode)
+  const host = process.env.TEST_DATABASE_HOST
+  const port = Number(process.env.TEST_DATABASE_PORT)
+  const database = process.env.TEST_DATABASE_NAME
+  const username = process.env.TEST_DATABASE_USER
+  const password = process.env.TEST_DATABASE_PASSWORD
 
-  if (!host || !database || !username || !password) {
-    throw new Error('Test database connection details not found. Make sure globalSetup ran successfully.')
+  if (!host || !database || !username) {
+    throw new Error(
+      'Test database connection details not found.\n' +
+        'Expected environment variables: TEST_DATABASE_HOST, TEST_DATABASE_PORT, TEST_DATABASE_NAME, TEST_DATABASE_USER, TEST_DATABASE_PASSWORD\n\n' +
+        'Make sure:\n' +
+        '1. Global setup ran successfully (testcontainer mode), OR\n' +
+        '2. .env.test file exists with correct values (manual DB mode)\n\n' +
+        'See .env.test.example for configuration template.',
+    )
   }
 
   // Create and initialize DataSource

@@ -1,11 +1,9 @@
 import { randomUUID } from 'crypto'
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm'
+import { INestApplication } from '@nestjs/common'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import request from 'supertest'
 import { Repository } from 'typeorm'
-import { AppModule } from '../src/app/app.module'
-import { testDatabaseConfig } from '../src/config/test.config'
+import { createE2EAppWithModule } from './helpers/create-e2e-app'
 import {
   ContentReaderType,
   LibraryItemEntity,
@@ -57,24 +55,8 @@ describe('ReadingProgress GraphQL (e2e)', () => {
     process.env.GOOGLE_CLIENT_SECRET = 'test-client-secret'
     process.env.JWT_SECRET = 'test-jwt-secret'
 
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideModule(TypeOrmModule)
-      .useModule(TypeOrmModule.forRoot(testDatabaseConfig))
-      .compile()
-
-    app = moduleFixture.createNestApplication()
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    )
-
-    app.setGlobalPrefix('api/v2')
-    await app.init()
+    const { app: testApp, moduleFixture } = await createE2EAppWithModule()
+    app = testApp
 
     libraryRepository = moduleFixture.get<Repository<LibraryItemEntity>>(
       getRepositoryToken(LibraryItemEntity),

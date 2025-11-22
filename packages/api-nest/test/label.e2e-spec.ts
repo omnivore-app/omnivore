@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
-import request from 'supertest'
+import { INestApplication } from '@nestjs/common'
 import { randomUUID } from 'crypto'
-import { AppModule } from '../src/app/app.module'
-import { ConfigService } from '@nestjs/config'
-import { DataSource } from 'typeorm'
+import request from 'supertest'
+import { createE2EApp } from './helpers/create-e2e-app'
+import { FactoryRegistry } from './factories/base.factory'
+import { LibraryItemFactory } from './factories/library-item.factory'
+import { LibraryItemState } from '../src/library/entities/library-item.entity'
 
 describe('Label E2E Tests', () => {
   let app: INestApplication
@@ -14,23 +14,8 @@ describe('Label E2E Tests', () => {
   let testLibraryItemId: string
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile()
-
-    app = moduleFixture.createNestApplication()
-
-    // Use the same validation pipe configuration as main.ts
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    )
-
-    app.setGlobalPrefix('api/v2')
-    await app.init()
+    app = await createE2EApp()
+    FactoryRegistry.setApp(app) // Enable factories to use NestJS DI
 
     // Create a test user and get auth token
     const testEmail = `test-label-${Date.now()}@example.com`
@@ -48,75 +33,20 @@ describe('Label E2E Tests', () => {
     authToken = registerResponse.body.accessToken
     userId = registerResponse.body.user.id
 
-    // Get the config service to skip email confirmation
-    const configService = app.get(ConfigService)
-    const requireEmailConfirmation = configService.get<boolean>(
-      'AUTH_REQUIRE_EMAIL_CONFIRMATION',
-    )
-
-    // If email confirmation is required, confirm the email
-    if (requireEmailConfirmation) {
-      const dataSource = app.get(DataSource)
-      await dataSource.query(
-        `UPDATE omnivore.user SET status = 'ACTIVE' WHERE id = $1`,
-        [userId],
-      )
-    }
-
-    // Create a test library item for label associations
-    const libraryItemResponse = await executeQuery(
-      `
-      mutation {
-        __typename
-      }
-    `,
-      {},
-    )
-
-    // Use DataSource to create a library item directly
-    const dataSource = app.get(DataSource)
-    const libraryItemResult = await dataSource.query(
-      `
-      INSERT INTO omnivore.library_item (id, user_id, title, slug, original_url, state, folder, saved_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-      RETURNING id
-    `,
-      [
-        randomUUID(),
-        userId,
-        'Test Article for Labels',
-        'test-article-labels',
-        'https://example.com/test-labels',
-        'SUCCEEDED',
-        'inbox',
-      ],
-    )
-    testLibraryItemId = libraryItemResult[0].id
+    // Create a test library item for label associations using factory
+    const libraryItem = await LibraryItemFactory.create({
+      userId,
+      title: 'Test Article for Labels',
+      slug: `test-article-labels-${Date.now()}`,
+      originalUrl: 'https://example.com/test-labels',
+      state: LibraryItemState.SUCCEEDED,
+      folder: 'inbox',
+    })
+    testLibraryItemId = libraryItem.id
   })
 
   afterAll(async () => {
-    // Clean up test data
-    if (userId) {
-      const dataSource = app.get(DataSource)
-
-      // Delete in correct order due to foreign key constraints
-      await dataSource.query(
-        `DELETE FROM omnivore.entity_labels WHERE library_item_id = $1`,
-        [testLibraryItemId],
-      )
-      await dataSource.query(
-        `DELETE FROM omnivore.labels WHERE user_id = $1`,
-        [userId],
-      )
-      await dataSource.query(
-        `DELETE FROM omnivore.library_item WHERE user_id = $1`,
-        [userId],
-      )
-      await dataSource.query(`DELETE FROM omnivore.user WHERE id = $1`, [
-        userId,
-      ])
-    }
-
+    FactoryRegistry.clearApp()
     await app.close()
   }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
@@ -307,7 +237,7 @@ describe('Label E2E Tests', () => {
       expect(errorMessage).toBeDefined()
       expect(
         errorMessage.includes('hex color') ||
-        errorMessage.includes('Bad Request')
+          errorMessage.includes('Bad Request'),
       ).toBe(true)
     })
 

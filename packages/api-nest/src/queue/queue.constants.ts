@@ -5,6 +5,8 @@
  * to avoid magic strings throughout the codebase.
  */
 
+import { isTestEnvironment } from '../utils/env.utils'
+
 /**
  * Queue Names - Define all queues used in the system
  */
@@ -83,7 +85,8 @@ export const REDIS_CONFIG = {
   ENABLE_READY_CHECK: true,
   ENABLE_OFFLINE_QUEUE: true,
 
-  KEY_PREFIX: process.env.NODE_ENV === 'test' ? 'omnivore:test:' : 'omnivore:',
+  // Use test-specific key prefix to avoid polluting production Redis during tests
+  KEY_PREFIX: isTestEnvironment() ? 'omnivore:test:' : 'omnivore:',
 } as const
 
 /**

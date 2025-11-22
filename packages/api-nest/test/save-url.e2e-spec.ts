@@ -1,10 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { randomUUID } from 'crypto'
-import { AppModule } from '../src/app/app.module'
-import { ConfigService } from '@nestjs/config'
-import { DataSource } from 'typeorm'
+import { createE2EApp } from './helpers/create-e2e-app'
+import { FactoryRegistry } from './factories/base.factory'
 import { FOLDERS } from '../src/constants/folders.constants'
 
 describe('SaveUrl E2E Tests', () => {
@@ -14,23 +11,8 @@ describe('SaveUrl E2E Tests', () => {
   let createdLibraryItemIds: string[] = []
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile()
-
-    app = moduleFixture.createNestApplication()
-
-    // Use the same validation pipe configuration as main.ts
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    )
-
-    app.setGlobalPrefix('api/v2')
-    await app.init()
+    app = await createE2EApp()
+    FactoryRegistry.setApp(app) // Enable factories to use NestJS DI
 
     // Create a test user and get auth token
     const testEmail = `test-saveurl-${Date.now()}@example.com`
@@ -48,37 +30,12 @@ describe('SaveUrl E2E Tests', () => {
     authToken = registerResponse.body.accessToken
     userId = registerResponse.body.user.id
 
-    // Get the config service to skip email confirmation
-    const configService = app.get(ConfigService)
-    const requireEmailConfirmation = configService.get<boolean>(
-      'AUTH_REQUIRE_EMAIL_CONFIRMATION',
-    )
-
-    // If email confirmation is required, confirm the email
-    if (requireEmailConfirmation) {
-      const dataSource = app.get(DataSource)
-      await dataSource.query(
-        `UPDATE omnivore.user SET status = 'ACTIVE' WHERE id = $1`,
-        [userId],
-      )
-    }
+    // Note: In test mode, users are ACTIVE by default (no email confirmation required)
+    // This is configured via TEST_AUTH_REQUIRE_EMAIL_CONFIRMATION=false
   })
 
   afterAll(async () => {
-    // Clean up test data
-    if (userId) {
-      const dataSource = app.get(DataSource)
-
-      // Delete in correct order due to foreign key constraints
-      await dataSource.query(
-        `DELETE FROM omnivore.library_item WHERE user_id = $1`,
-        [userId],
-      )
-      await dataSource.query(`DELETE FROM omnivore.user WHERE id = $1`, [
-        userId,
-      ])
-    }
-
+    FactoryRegistry.clearApp()
     await app.close()
   }, 30000) // 30 second timeout for graceful BullMQ worker shutdown
 
