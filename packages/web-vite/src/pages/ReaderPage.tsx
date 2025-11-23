@@ -277,10 +277,21 @@ const ReaderPage: React.FC = () => {
     })
   }, [highlightsJson])
 
-  // Apply anchored highlights to content
+  // Apply anchored highlights to content with click handler
   const { jumpTo, reapply } = useAnchoredHighlights(
     contentRef,
     anchoredHighlights,
+    (highlightId: string) => {
+      // Inline click handler that uses jumpTo (defined after hook returns)
+      const el = contentRef.current?.querySelector(
+        `mark[data-id="${highlightId}"]`,
+      )
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.classList.add('highlight-flash')
+        setTimeout(() => el.classList.remove('highlight-flash'), 900)
+      }
+    },
   )
 
   // Generate content hash when content loads
@@ -660,6 +671,10 @@ const ReaderPage: React.FC = () => {
         selectors,
       }
 
+      // Save current scroll position before any DOM manipulation
+      const scrollY = window.scrollY
+      const scrollX = window.scrollX
+
       await createHighlight(input)
 
       // Refetch highlights to update UI
@@ -671,10 +686,14 @@ const ReaderPage: React.FC = () => {
       savedSelectionRef.current = null // Clear saved selection
       window.getSelection()?.removeAllRanges() // Clear any remaining selection
 
-      // Manually reapply highlights after state updates (longer delay)
+      // Manually reapply highlights after state updates, then restore scroll
       setTimeout(() => {
         console.log('[ReaderPage] Reapplying highlights after creation')
         reapply()
+        // Restore scroll position after highlights are reapplied
+        requestAnimationFrame(() => {
+          window.scrollTo(scrollX, scrollY)
+        })
       }, 500)
     } catch (error) {
       console.error('Failed to create highlight:', error)
@@ -690,12 +709,20 @@ const ReaderPage: React.FC = () => {
     color: HighlightColor,
   ) => {
     try {
+      // Save scroll position
+      const scrollY = window.scrollY
+      const scrollX = window.scrollX
+
       await updateHighlight(highlightId, { annotation, color })
       await fetchHighlights()
       // Manually reapply highlights since MutationObserver is disabled
       setTimeout(() => {
         console.log('[ReaderPage] Reapplying highlights after update')
         reapply()
+        // Restore scroll position
+        requestAnimationFrame(() => {
+          window.scrollTo(scrollX, scrollY)
+        })
       }, 500)
     } catch (error) {
       console.error('Failed to update highlight:', error)
@@ -705,12 +732,20 @@ const ReaderPage: React.FC = () => {
   // Delete highlight handler
   const handleDeleteHighlight = async (highlightId: string) => {
     try {
+      // Save scroll position
+      const scrollY = window.scrollY
+      const scrollX = window.scrollX
+
       await deleteHighlight(highlightId)
       await fetchHighlights()
       // Manually reapply highlights since MutationObserver is disabled
       setTimeout(() => {
         console.log('[ReaderPage] Reapplying highlights after delete')
         reapply()
+        // Restore scroll position
+        requestAnimationFrame(() => {
+          window.scrollTo(scrollX, scrollY)
+        })
       }, 500)
     } catch (error) {
       console.error('Failed to delete highlight:', error)

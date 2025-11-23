@@ -13,6 +13,7 @@ import { QUEUE_NAMES, REDIS_CONFIG } from './queue.constants'
 import { EventBusService } from './event-bus.service'
 import { QueueHealthIndicator } from './queue-health.indicator'
 import { ContentProcessorService } from './processors/content-processor.service'
+import { HtmlSanitizerService } from './services/html-sanitizer.service'
 import { LibraryItemEntity } from '../library/entities/library-item.entity'
 import { EnvVariables } from '../config/env-variables'
 
@@ -94,7 +95,12 @@ import { EnvVariables } from '../config/env-variables'
       },
     ),
   ],
-  providers: [EventBusService, QueueHealthIndicator, ContentProcessorService],
+  providers: [
+    EventBusService,
+    QueueHealthIndicator,
+    ContentProcessorService,
+    HtmlSanitizerService,
+  ],
   exports: [BullModule, EventBusService, QueueHealthIndicator],
 })
 export class QueueModule {}

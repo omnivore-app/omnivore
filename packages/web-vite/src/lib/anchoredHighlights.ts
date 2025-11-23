@@ -237,7 +237,13 @@ function rangeFromDomSelector(
 }
 
 // Wrap a Range across multiple text nodes, return all created marks
-function wrapRange(root: HTMLElement, range: Range, cls: string, id: string) {
+function wrapRange(
+  root: HTMLElement,
+  range: Range,
+  cls: string,
+  id: string,
+  onClick?: (id: string) => void,
+) {
   const marks: HTMLElement[] = []
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
   const texts: Text[] = []
@@ -276,7 +282,17 @@ function wrapRange(root: HTMLElement, range: Range, cls: string, id: string) {
       mark.dataset.hl = '1'
       mark.dataset.id = id
       mark.setAttribute('aria-label', 'Highlight')
+      mark.style.cursor = 'pointer'
       mark.textContent = targetNode.data
+
+      // Attach click listener if provided
+      if (onClick) {
+        mark.addEventListener('click', (e) => {
+          e.stopPropagation()
+          onClick(id)
+        })
+      }
+
       targetNode.parentNode!.replaceChild(mark, targetNode)
       marks.push(mark)
     }
@@ -303,6 +319,7 @@ function clearExistingMarks(root: HTMLElement) {
 export function useAnchoredHighlights(
   contentRef: React.RefObject<HTMLElement>,
   highlights: AnchoredHighlight[],
+  onHighlightClick?: (highlightId: string) => void,
 ) {
   const reapply = useRef<() => void>(() => {})
 
@@ -332,7 +349,7 @@ export function useAnchoredHighlights(
 
         if (r) {
           const cls = `highlight highlight-${h.color.toLowerCase()}`
-          const marks = wrapRange(root, r, cls, h.id)
+          const marks = wrapRange(root, r, cls, h.id, onHighlightClick)
           if (marks.length) {
             applied.push({ id: h.id, marks })
           }
@@ -372,7 +389,7 @@ export function useAnchoredHighlights(
       // mo.disconnect()
       // ro?.disconnect()
     }
-  }, [contentRef, highlights])
+  }, [contentRef, highlights, onHighlightClick])
 
   return {
     reapply: () => reapply.current?.(),

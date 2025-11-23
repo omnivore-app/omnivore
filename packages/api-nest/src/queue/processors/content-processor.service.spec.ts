@@ -15,6 +15,7 @@ import {
   LibraryItemState,
 } from '../../library/entities/library-item.entity'
 import { EventBusService } from '../event-bus.service'
+import { HtmlSanitizerService } from '../services/html-sanitizer.service'
 import { JOB_TYPES } from '../queue.constants'
 
 // Mock logger to suppress console output during tests
@@ -54,6 +55,7 @@ describe('ContentProcessorService', () => {
           provide: EventBusService,
           useValue: mockEventBus,
         },
+        HtmlSanitizerService,
       ],
     })
       .setLogger(mockLogger)

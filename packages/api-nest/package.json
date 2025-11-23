@@ -49,6 +49,7 @@
     "class-validator": "^0.14.0",
     "cross-fetch": "^4.1.0",
     "dataloader": "^2.2.3",
+    "dompurify": "^3.2.2",
     "google-auth-library": "^9.0.0",
     "graphql": "^16.11.0",
     "graphql-scalars": "^1.25.0",
@@ -64,6 +65,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.0",
+    "turndown": "^7.2.2",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
@@ -73,6 +75,7 @@
     "@nestjs/testing": "^10.0.0",
     "@testcontainers/postgresql": "^11.7.1",
     "@types/bcrypt": "^5.0.2",
+    "@types/dompurify": "^3.2.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.14",
     "@types/joi": "^17.2.3",
@@ -83,6 +86,7 @@
     "@types/passport-local": "^1.0.35",
     "@types/pg": "^8.10.9",
     "@types/supertest": "^2.0.12",
+    "@types/turndown": "^5.0.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.42.0",

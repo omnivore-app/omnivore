@@ -18,11 +18,13 @@ import { Repository } from 'typeorm'
 import { Readability } from '@mozilla/readability'
 import { parseHTML } from 'linkedom'
 import fetch from 'cross-fetch'
+import { createHash } from 'crypto'
 import {
   LibraryItemEntity,
   LibraryItemState,
 } from '../../library/entities/library-item.entity'
 import { EventBusService } from '../event-bus.service'
+import { HtmlSanitizerService } from '../services/html-sanitizer.service'
 import { EVENT_NAMES } from '../events.constants'
 import { QUEUE_NAMES, JOB_TYPES, JOB_CONFIG } from '../queue.constants'
 
@@ -52,6 +54,7 @@ export interface ContentFetchResult {
   description?: string
   siteName?: string
   wordCount?: number
+  contentHash?: string
   error?: string
 }
 
@@ -69,6 +72,7 @@ export class ContentProcessorService
     @InjectRepository(LibraryItemEntity)
     private readonly libraryItemRepository: Repository<LibraryItemEntity>,
     private readonly eventBus: EventBusService,
+    private readonly htmlSanitizer: HtmlSanitizerService,
   ) {
     super()
   }
@@ -273,6 +277,12 @@ export class ContentProcessorService
       this.logger.debug(`Extracting Open Graph metadata from ${url}`)
       const ogData = this.extractOpenGraph(document, url)
       this.logger.log(`[DEBUG] Open Graph data extracted: ${JSON.stringify({ title: ogData.title, image: ogData.image, siteName: ogData.siteName })}`)
+      await job.updateProgress(45)
+
+      // Phase 3.5: Extract JSON-LD structured data
+      this.logger.debug(`Extracting JSON-LD metadata from ${url}`)
+      const jsonLdData = this.extractJsonLd(document)
+      this.logger.log(`[DEBUG] JSON-LD data extracted: ${JSON.stringify({ title: jsonLdData.title, author: jsonLdData.author })}`)
       await job.updateProgress(50)
 
       // Phase 4: Extract content with Readability
@@ -292,10 +302,13 @@ export class ContentProcessorService
         const fallbackContent = ogData.description
           ? `<p>${ogData.description}</p>`
           : ''
+        const sanitizedFallback = this.htmlSanitizer.sanitize(fallbackContent)
+        const contentHash = this.generateContentHash(sanitizedFallback)
+
         return {
           success: true,
           title: ogData.title || new URL(url).hostname,
-          content: fallbackContent,
+          content: sanitizedFallback,
           contentType: 'text/html',
           author: ogData.author,
           description: ogData.description,
@@ -305,12 +318,19 @@ export class ContentProcessorService
           publishedDate: ogData.publishedTime
             ? new Date(ogData.publishedTime)
             : undefined,
-          wordCount: this.calculateWordCount(fallbackContent),
+          wordCount: this.calculateWordCount(sanitizedFallback),
+          contentHash,
         }
       }
 
-      // Phase 5: Calculate accurate word count from content (strips HTML)
-      const actualWordCount = this.calculateWordCount(article.content || '')
+      // Phase 5: Sanitize HTML content to prevent XSS
+      const sanitizedContent = this.htmlSanitizer.sanitize(article.content || '')
+
+      // Phase 6: Generate content hash for duplicate detection
+      const contentHash = this.generateContentHash(sanitizedContent)
+
+      // Phase 7: Calculate accurate word count from sanitized content
+      const actualWordCount = this.calculateWordCount(sanitizedContent)
 
       // Cross-check: Readability also provides textContent (plain text)
       // This helps verify our HTML-to-text word counting is accurate
@@ -319,7 +339,8 @@ export class ContentProcessorService
         ? article.textContent.trim().split(/\s+/).filter(w => w.length > 0).length
         : 0
 
-      // Phase 6: Combine Open Graph + Readability results
+      // Phase 8: Combine Open Graph + JSON-LD + Readability results
+      // Priority: JSON-LD > Readability > Open Graph (most structured to least)
       this.logger.log(
         `Successfully extracted content from ${url}: ${actualWordCount} words ` +
         `(Readability textContent estimate: ${readabilityWordEstimate} words, text length: ${readabilityTextLength})`
@@ -327,18 +348,23 @@ export class ContentProcessorService
 
       const result = {
         success: true,
-        title: article.title || ogData.title || 'Untitled',
-        content: article.content || '',
+        title:
+          jsonLdData.title || article.title || ogData.title || 'Untitled',
+        content: sanitizedContent,
         contentType: 'text/html',
-        author: article.byline || ogData.author,
-        description: article.excerpt || ogData.description,
-        thumbnail: ogData.image,
+        author: jsonLdData.author || article.byline || ogData.author,
+        description:
+          jsonLdData.description || article.excerpt || ogData.description,
+        thumbnail: jsonLdData.image || ogData.image,
         siteName: article.siteName || ogData.siteName,
         siteIcon: ogData.favicon,
-        publishedDate: ogData.publishedTime
-          ? new Date(ogData.publishedTime)
-          : undefined,
+        publishedDate:
+          (jsonLdData.publishedTime
+            ? new Date(jsonLdData.publishedTime)
+            : undefined) ||
+          (ogData.publishedTime ? new Date(ogData.publishedTime) : undefined),
         wordCount: actualWordCount,
+        contentHash,
       }
 
       this.logger.log(`[DEBUG] Content fetch result: ${JSON.stringify({ title: result.title, thumbnail: result.thumbnail, wordCount: result.wordCount })}`)
@@ -352,6 +378,25 @@ export class ContentProcessorService
         success: false,
         error: errorMessage,
       }
+    }
+  }
+
+  /**
+   * Generate SHA-256 hash of content for duplicate detection
+   *
+   * @param content - Content to hash
+   * @returns SHA-256 hash as hex string
+   */
+  private generateContentHash(content: string): string {
+    if (!content) return ''
+
+    try {
+      return createHash('sha256').update(content).digest('hex')
+    } catch (error) {
+      this.logger.warn(
+        `Failed to generate content hash: ${error instanceof Error ? error.message : String(error)}`,
+      )
+      return ''
     }
   }
 
@@ -445,6 +490,65 @@ export class ContentProcessorService
       publishedTime: getMeta('article:published_time'),
       favicon: getLink('icon') || getLink('shortcut icon'),
     }
+  }
+
+  /**
+   * Extract JSON-LD structured data from HTML document
+   */
+  private extractJsonLd(document: Document): {
+    title?: string
+    author?: string
+    publishedTime?: string
+    description?: string
+    image?: string
+  } {
+    try {
+      const scripts = document.querySelectorAll(
+        'script[type="application/ld+json"]',
+      )
+
+      for (const script of Array.from(scripts)) {
+        try {
+          const data = JSON.parse(script.textContent || '')
+
+          // Handle different schema.org types
+          const type = data['@type']
+          if (
+            type === 'Article' ||
+            type === 'NewsArticle' ||
+            type === 'BlogPosting' ||
+            type === 'ScholarlyArticle'
+          ) {
+            return {
+              title: data.headline || data.name,
+              author:
+                typeof data.author === 'string'
+                  ? data.author
+                  : data.author?.name,
+              publishedTime: data.datePublished,
+              description: data.description,
+              image:
+                typeof data.image === 'string'
+                  ? data.image
+                  : Array.isArray(data.image)
+                    ? data.image[0]
+                    : data.image?.url,
+            }
+          }
+        } catch (e) {
+          // Skip invalid JSON
+          this.logger.debug(
+            `Failed to parse JSON-LD script: ${e instanceof Error ? e.message : String(e)}`,
+          )
+        }
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Error extracting JSON-LD: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+
+    return {}
   }
 
   /**
