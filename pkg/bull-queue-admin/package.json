@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@bull-board/express": "^5.9.0",
-    "body-parser": "^1.20.2",
+    "body-parser": "^2.2.1",
     "bullmq": "^4.6.0",
     "connect-ensure-login": "^0.1.1",
     "express": "^4.19.2",
