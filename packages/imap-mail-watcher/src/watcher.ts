@@ -8,7 +8,7 @@ void (() => {
   emailObserver$
     .pipe(
       mergeMap((email: FetchMessageObject) =>
-        simpleParser(email.source.toString())
+        simpleParser(email.source?.toString() ?? '')
       ),
       map(convertToMailObject),
       mergeMap(sendToEmailApi)
