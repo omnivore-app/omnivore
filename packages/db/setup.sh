@@ -3,8 +3,16 @@
 psql --host $PG_HOST --username $POSTGRES_USER --command "CREATE DATABASE $PG_DB;" || true
 echo "create $PG_DB database"
 
-psql --host $PG_HOST --username $POSTGRES_USER --command "CREATE USER app_user WITH ENCRYPTED PASSWORD '$PG_PASSWORD';" || true
-echo "created app_user"
+# Set default app_user name and password if variables are not set
+if [ -z "${PG_USER}" ]; then
+    PG_USER=$POSTGRES_USER
+fi
+if [ -z "${PG_PASSWORD}" ]; then
+    PG_PASSWORD=$PGPASSWORD
+fi
+
+psql --host $PG_HOST --username $POSTGRES_USER --command "CREATE USER $PG_USER WITH ENCRYPTED PASSWORD '$PG_PASSWORD';" || true
+echo "created app_user $PG_USER"
 
 psql --host $PG_HOST --username $POSTGRES_USER --command "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicator_password';" || true
 echo "created replicator"
@@ -12,7 +20,7 @@ echo "created replicator"
 psql --host $PG_HOST --username $POSTGRES_USER --command "SELECT pg_create_physical_replication_slot('replication_slot');" || true
 echo "created replication_slot"
 
-PG_USER=$POSTGRES_USER PG_PASSWORD=$PGPASSWORD yarn workspace @omnivore/db migrate
+yarn workspace @omnivore/db migrate
 
 psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command "GRANT omnivore_user TO app_user;" || true
 echo "granted omnivore_user to app_user"
