@@ -1,0 +1,6 @@
+{
+  "name": "@omnivore/print",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Docker-based print-to-Omnivore pipeline assets (IPP server + watcher)."
+}
