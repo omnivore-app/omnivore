@@ -1,6 +1,6 @@
 version: '3'
-x-postgres:
-  &postgres-common
+
+x-postgres: &postgres-common
   image: "ankane/pgvector:v0.5.1"
   user: postgres
   healthcheck:
@@ -18,7 +18,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
-      - .env
+      - ../.env
 
   migrate:
     build:
@@ -27,7 +27,7 @@ services:
     container_name: "omnivore-migrate"
     command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     env_file:
-      - .env
+      - ../.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,7 +45,7 @@ services:
       timeout: 90s
       retries: 6
     env_file:
-      - .env
+      - ../.env
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -56,7 +56,7 @@ services:
       dockerfile: ./packages/api/queue-processor/Dockerfile
     container_name: "omnivore-queue-processor"
     env_file:
-      - .env
+      - ../.env
     depends_on:
       api:
         condition: service_started
@@ -75,7 +75,7 @@ services:
     ports:
       - "3000:8080"
     env_file:
-      .env
+      - ../.env
     depends_on:
       api:
         condition: service_healthy
@@ -88,7 +88,7 @@ services:
     ports:
       - "7070:8080"
     env_file:
-      - .env
+      - ../.env
 
   content-fetch:
     build:
@@ -100,7 +100,7 @@ services:
     environment:
       - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
     env_file:
-      - .env
+      - ../.env
     depends_on:
       redis:
         condition: service_healthy
@@ -155,6 +155,7 @@ services:
       /usr/bin/mc policy set public myminio/omnivore;
       exit 0;
       "
+
   mail-watch-server:
     build:
       context: ../../../
@@ -163,14 +164,56 @@ services:
     ports:
       - "4398:8080"
     env_file:
-      - .env
+      - ../.env
     depends_on:
       redis:
         condition: service_healthy
 
+  print-server:
+    profiles: ["print"]
+    build:
+      context: ../../../packages/print/ippserver
+      dockerfile: Dockerfile
+    container_name: "omnivore-print-server"
+    hostname: "omnivore-print"
+    networks:
+      print_mdns:
+        ipv4_address: ${PRINT_SERVER_IP:-10.0.1.250}
+    volumes:
+      - print_spool:/spool
+    restart: unless-stopped
+
+  print-watcher:
+    profiles: ["print"]
+    build:
+      context: ../../../packages/print/watcher
+      dockerfile: Dockerfile
+    container_name: "omnivore-print-watcher"
+    env_file:
+      - ../print-watcher/.env
+    environment:
+      - OMNIVORE_GRAPHQL_ENDPOINT=http://api:8080/api/graphql
+    volumes:
+      - print_spool:/spool
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   pgdata:
   redis_data:
   minio_data:
+  print_spool:
 
+networks:
+  # For Bonjour/mDNS discovery without binding host UDP 5353, the print server
+  # runs on its own LAN IP via macvlan.
+  print_mdns:
+    driver: macvlan
+    driver_opts:
+      parent: ${PRINT_MACVLAN_PARENT:-eth0}
+    ipam:
+      config:
+        - subnet: ${PRINT_MACVLAN_SUBNET:-10.0.1.0/24}
+          gateway: ${PRINT_MACVLAN_GATEWAY:-10.0.1.1}
