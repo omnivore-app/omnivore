@@ -1,6 +1,6 @@
 import { RedisDataSource } from '@omnivore/utils'
 import { Job, Queue, RedisClient, Worker } from 'bullmq'
-import { JobData, processFetchContentJob } from './request_handler'
+import { JobData, markFetchFailure, processFetchContentJob } from './request_handler'
 
 export const QUEUE = 'omnivore-content-fetch-queue'
 
@@ -34,8 +34,31 @@ export const createWorker = (
   const worker = new Worker(
     queueName,
     async (job: Job<JobData>) => {
-      // process the job
-      await processFetchContentJob(redisDataSource, job.data, job.attemptsMade)
+      const maxAttempts = job.opts.attempts ?? 1
+      try {
+        // process the job
+        await processFetchContentJob(redisDataSource, job.data, job.attemptsMade)
+      } catch (e) {
+        const lastAttempt = job.attemptsMade + 1 >= maxAttempts
+        if (lastAttempt) {
+          const errorMessage = e instanceof Error ? e.message : 'unknown error'
+          let users = job.data.users || []
+          if (job.data.userId) {
+            // Back-compat payload path
+            users = [
+              {
+                id: job.data.userId,
+                folder: job.data.folder,
+                libraryItemId: job.data.saveRequestId || '',
+              },
+            ].filter((u) => u.libraryItemId)
+          }
+          if (users.length) {
+            await markFetchFailure(users, errorMessage)
+          }
+        }
+        throw e
+      }
     },
     {
       connection: redisDataSource.queueRedisClient,

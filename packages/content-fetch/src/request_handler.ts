@@ -17,7 +17,8 @@ interface UserConfig {
 export interface JobData {
   url: string
   userId?: string
-  saveRequestId: string
+  // Back-compat: older payloads used saveRequestId + userId; newer payloads use users[].
+  saveRequestId?: string
   state?: string
   labels?: string[]
   source?: string
@@ -34,7 +35,7 @@ export interface JobData {
 
 interface LogRecord {
   url: string
-  articleSavingRequestId: string
+  articleSavingRequestId?: string
   labels: {
     source: string
   }
@@ -75,8 +76,28 @@ const signToken = promisify(jwt.sign)
 const IMPORTER_METRICS_COLLECTOR_URL =
   process.env.IMPORTER_METRICS_COLLECTOR_URL
 const JWT_SECRET = process.env.JWT_SECRET
+const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
+
+const API_GRAPHQL_ENDPOINT =
+  process.env.API_GRAPHQL_ENDPOINT ||
+  (REST_BACKEND_ENDPOINT
+    ? REST_BACKEND_ENDPOINT.replace(/\/api\/?$/i, '/api/graphql')
+    : undefined)
 
 const MAX_IMPORT_ATTEMPTS = 1
+
+const UPDATE_PAGE_MUTATION = `
+  mutation UpdatePage($input: UpdatePageInput!) {
+    updatePage(input: $input) {
+      ... on UpdatePageSuccess {
+        updatedPage { id }
+      }
+      ... on UpdatePageError {
+        errorCodes
+      }
+    }
+  }
+`
 
 const uploadToBucket = async (filePath: string, data: string) => {
   await storage
@@ -219,6 +240,58 @@ const sendImportStatusUpdate = async (
   }
 }
 
+export const markFetchFailure = async (
+  users: UserConfig[],
+  errorMessage: string
+) => {
+  if (!JWT_SECRET || !API_GRAPHQL_ENDPOINT) {
+    console.error('JWT_SECRET or API_GRAPHQL_ENDPOINT is not set, cannot mark failure', {
+      hasJwtSecret: !!JWT_SECRET,
+      apiGraphqlEndpoint: API_GRAPHQL_ENDPOINT,
+    })
+    return
+  }
+
+  await Promise.all(
+    users.map(async (user) => {
+      try {
+        const auth = (await signToken(
+          { uid: user.id },
+          JWT_SECRET
+        )) as string
+
+        await axios.post(
+          API_GRAPHQL_ENDPOINT,
+          {
+            query: UPDATE_PAGE_MUTATION,
+            variables: {
+              input: {
+                pageId: user.libraryItemId,
+                state: 'FAILED',
+                // Keep existing savedAt/publishedAt/title/etc.
+              },
+            },
+          },
+          {
+            headers: {
+              'Omnivore-Authorization': auth,
+              'Content-Type': 'application/json',
+            },
+            timeout: 5000,
+          }
+        )
+      } catch (e) {
+        console.error('Failed to mark fetch failure', {
+          userId: user.id,
+          libraryItemId: user.libraryItemId,
+          errorMessage,
+        })
+        console.error(e)
+      }
+    })
+  )
+}
+
 export const processFetchContentJob = async (
   redisDataSource: RedisDataSource,
   data: JobData,
@@ -235,9 +308,9 @@ export const processFetchContentJob = async (
       {
         id: userId,
         folder: data.folder,
-        libraryItemId: data.saveRequestId,
+        libraryItemId: data.saveRequestId || '',
       },
-    ]
+    ].filter((u) => !!u.libraryItemId)
   }
   const articleSavingRequestId = data.saveRequestId
   const state = data.state
@@ -277,6 +350,10 @@ export const processFetchContentJob = async (
     if (isBlocked) {
       console.log('domain is blocked', domain)
       logRecord.error = 'domain is blocked'
+
+      if (users.length) {
+        await markFetchFailure(users, logRecord.error)
+      }
 
       return
     }

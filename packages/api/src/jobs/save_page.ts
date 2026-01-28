@@ -6,10 +6,12 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { LibraryItemState } from '../entity/library_item'
 import { redisDataSource } from '../redis_data_source'
 import { userRepository } from '../repository/user'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
+import { updateLibraryItem } from '../services/library_item'
 import { uploadFile } from '../services/upload_file'
 import { logError, logger } from '../utils/logger'
 import {
@@ -285,6 +287,21 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     isSaved = true
   } catch (e) {
     logError(e)
+    try {
+      await updateLibraryItem(
+        articleSavingRequestId,
+        {
+          state: LibraryItemState.Failed,
+        },
+        userId
+      )
+    } catch (updateError) {
+      logger.error('Failed to mark library item as FAILED', {
+        userId,
+        articleSavingRequestId,
+        updateError,
+      })
+    }
 
     throw e
   } finally {
