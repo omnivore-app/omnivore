@@ -1,0 +1,20 @@
+{
+  "name": "omnivore-migration",
+  "version": "1.0.0",
+  "description": "Migrate data from old Omnivore SQLite database to new self-hosted instance",
+  "main": "migrate-omnivore.js",
+  "type": "module",
+  "scripts": {
+    "migrate": "node migrate-omnivore.js",
+    "test": "node migrate-omnivore.js --test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "chalk": "^5.3.0",
+    "csv-parse": "^6.1.0",
+    "node-fetch": "^3.3.2",
+    "p-limit": "^5.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
