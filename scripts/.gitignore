@@ -1,0 +1,26 @@
+# Local runtime artifacts (do not commit)
+.playwright-profile*
+
+# Local isolated deps for Playwright (created on demand)
+.rescue-deps/node_modules/
+node_modules/
+
+# Databases / caches / logs / reports produced by scripts
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+cookie.db
+*.log
+*.json
+*.txt
+
+# Keep code/config files tracked (override broad patterns above)
+!package.json
+!pnpm-workspace.yaml
+!pnpm-lock.yaml
+!*.js
+!*.ts
+!*.sh
+!*.sql
+!.gitignore
