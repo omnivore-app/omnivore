@@ -1,0 +1,32 @@
+{
+  // Extends base tsconfig.json
+  "extends": "./tsconfig.json",
+
+  // Production build overrides
+  "compilerOptions": {
+    // No source maps in production
+    "sourceMap": false,
+
+    // No declaration files in production (smaller bundle)
+    "declaration": false,
+    "declarationMap": false,
+
+    // Remove comments to reduce bundle size
+    "removeComments": true,
+
+    // Optimize for production
+    "noEmitOnError": true
+  },
+
+  // Exclude test files from production build
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test-scripts",
+    "legacy-scripts",
+    "content",
+    "templates",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

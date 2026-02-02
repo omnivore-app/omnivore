@@ -5,6 +5,7 @@
 **/Dockerfile
 **/.dockerignore
 **/*.yaml
+!self-hosting/omc/pnpm-lock.yaml
 .secrets*.yaml
 apple
 android

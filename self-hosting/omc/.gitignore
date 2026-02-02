@@ -1,0 +1,67 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Runtime data
+data/
+*.sqlite
+*.sqlite-journal
+*.db
+
+# Test outputs
+test-scripts/test-output/
+
+# Cache
+cache/
+.cache/
+
+# Generated content
+generated/
+output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test coverage
+coverage/
+
+# Build output
+dist/
+build/
+
+# GraphQL codegen output (currently not used by runtime)
+src/types/generated/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# API keys and secrets (extra safety)
+**/secrets/
+**/*secret*
+**/*key*.json

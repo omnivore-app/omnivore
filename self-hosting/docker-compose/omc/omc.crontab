@@ -1,0 +1,14 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Global lock to avoid overlapping runs.
+# supercronic runs jobs with container env (so OMNIVORE_API_KEY, OMNIVORE_API_URL, OPENAI_API_KEY work).
+
+# Every 30 minutes: ingest recent items -> analyze -> retry failures.
+*/30 * * * * flock -n /var/lock/omc/omc.lock bash -lc 'cd /opt/omc && node dist/bin/omc.js queue add --hours "${OMC_QUEUE_HOURS:-2}" && node dist/bin/omc.js analyze auto --batch-size "${OMC_BATCH_SIZE:-5}" --jsonl --jsonl-path "${OMC_JSONL_PATH:-content/analysis/analyses.jsonl}" && node dist/bin/omc.js analyze retry --failed' >> /var/log/omc/analyze.log 2>&1
+
+# Hourly: content prep (classification + sync summaries/notes back to Omnivore).
+10 * * * * flock -n /var/lock/omc/omc.lock bash -lc 'cd /opt/omc && node dist/bin/omc.js content classify --all --since-hours "${OMC_PREP_SINCE_HOURS:-24}" --limit "${OMC_PREP_LIMIT:-50}" && node dist/bin/omc.js content sync --all --since-hours "${OMC_PREP_SINCE_HOURS:-24}" --limit "${OMC_PREP_LIMIT:-50}" --create-notes' >> /var/log/omc/prep.log 2>&1
+
+# Daily hygiene (non-destructive): backup + integrity check + summary report.
+0 2 * * * flock -n /var/lock/omc/omc.lock bash -lc 'cd /opt/omc && node dist/bin/omc.js db backup && node dist/bin/omc.js db check && node dist/bin/omc.js doctor && mkdir -p content/corpus-reports && node dist/bin/omc.js report corpus > "content/corpus-reports/$(date -I)-daily.md"' >> /var/log/omc/hygiene.log 2>&1

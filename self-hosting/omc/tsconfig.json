@@ -1,0 +1,64 @@
+{
+  "compilerOptions": {
+    // Target modern Node.js
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+
+    // Output configuration
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmit": true,
+
+    // Strict type checking
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Module interop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Additional checks
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+
+    // Source maps and declarations
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Path aliases for clean imports
+    "paths": {
+      "@lib/*": ["./src/lib/*"],
+      "@storage/*": ["./src/storage/*"],
+      "@analysis/*": ["./src/analysis/*"],
+      "@generation/*": ["./src/generation/*"],
+      "@publishing/*": ["./src/publishing/*"],
+      "@workflows/*": ["./src/workflows/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@omc-types/*": ["./src/types/*"]
+    }
+  },
+
+  // Include TypeScript source and JavaScript library
+  "include": [
+    "src/**/*",
+    "lib/**/*"
+  ],
+
+  // Exclude compiled output and dependencies
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test-scripts",
+    "legacy-scripts",
+    "content",
+    "templates"
+  ]
+}

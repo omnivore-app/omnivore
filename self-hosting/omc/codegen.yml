@@ -1,0 +1,58 @@
+# GraphQL Code Generator Configuration
+# Generates TypeScript types from GraphQL schema and operations
+
+schema: './docs/graphql-schema/schema.graphql'
+
+# Watch mode for development
+watch: false
+
+# The CLI runtime currently uses `lib/omnivore/client.js` (string-based queries).
+# Typed GraphQL operations are not maintained right now; reintroduce documents as part of a future migration.
+documents: []
+
+# Output configuration
+generates:
+  # Generate TypeScript types for the schema
+  src/types/generated/graphql.ts:
+    plugins:
+      - typescript
+    config:
+      # Type-safe configuration
+      strictScalars: true
+      scalars:
+        Date: string
+        JSON: 'Record<string, unknown>'
+      # Naming conventions
+      enumsAsTypes: true
+      # Add helpful comments
+      addUnderscoreToArgsType: true
+      skipTypename: false
+
+  # Generate TypeScript types for operations (queries/mutations)
+  src/types/generated/operations.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+    config:
+      # Type-safe configuration
+      strictScalars: true
+      scalars:
+        Date: string
+        JSON: 'Record<string, unknown>'
+      # Avoid duplicating types from schema
+      avoidOptionals: false
+      # Better type names
+      namingConvention:
+        typeNames: pascal-case#pascalCase
+        enumValues: upper-case#upperCase
+      # Fragment configuration
+      fragmentVariablePrefix: ''
+      fragmentVariableSuffix: 'Fragment'
+      # Deduplication
+      dedupeFragments: true
+
+# Hooks to run after generation
+# hooks:
+#   afterAllFileWrite:
+#     - prettier --write

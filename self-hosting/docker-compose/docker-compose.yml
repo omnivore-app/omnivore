@@ -153,6 +153,23 @@ services:
         condition: service_healthy
     restart: always
 
+  omc-cron:
+    build:
+      context: ../..
+      dockerfile: self-hosting/docker-compose/omc/Dockerfile
+    container_name: "omnivore-omc-cron"
+    env_file:
+      - ./omc.env
+    volumes:
+      - omc_data:/opt/omc/data
+      - omc_content:/opt/omc/content
+      - omc_temp:/opt/omc/temp
+      - omc_logs:/var/log/omc
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: always
+
   print-server:
     profiles: ["print"]
     build:
@@ -188,6 +205,10 @@ volumes:
   pgdata:
   redis_data:
   minio_data:
+  omc_data:
+  omc_content:
+  omc_temp:
+  omc_logs:
   print_spool:
 
 networks:

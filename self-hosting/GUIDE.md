@@ -13,7 +13,7 @@
 ## Docker Compose
 
 We recommend using Docker-compose for the simplest way to deploy Omnivore. We have provided a configuration in the `self-hosting/docker-compose` folder. 
-
+ 
 All networking and persistent storage is handled by the docker-compose file.
 
 ### Requirements
@@ -61,6 +61,26 @@ This will also create a demo user with email: demo@omnivore.app, password: demo_
 When the service is ready you can access the web-app by using localhost:3000
 
 With the default .env file you will be able to use Omnivore, add RSS Feeds, add stories etc. 
+
+### Optional: OMC Cron Sidecar (Content Analysis + Notes)
+
+This repo includes an optional `omc-cron` service that runs the Omnivore Content System (OMC) on a schedule:
+
+- Fetch recent saves into an analysis queue
+- Run `omc analyze auto` (non-interactive) using `codex exec`
+- Classify analyzed items (adds topic/sentiment/type labels)
+- Sync summaries + optional NOTE highlights back into Omnivore
+- Run non-destructive hygiene (backup + integrity checks + daily corpus report)
+
+To enable:
+
+1. In `self-hosting/docker-compose/`, create `omc.env` from the example:
+   - `cp omc.env.example omc.env`
+2. Fill in:
+   - `OMNIVORE_API_KEY` (from Omnivore Settings → API Keys)
+   - `OPENAI_API_KEY` (for `codex exec`)
+3. Start the stack:
+   - `docker compose up -d`
 
 
 ### Additional Services used: 
@@ -389,6 +409,5 @@ To learn more about setting up the OpenAI Api key, read here: https://openai.com
 ### Future Releases
 
 In future releases we would like to be able to open this up to use different LLMs, such as Anthropic, Mistral, Bedrock, or any of the other myriad LLM Services.
-
 
 

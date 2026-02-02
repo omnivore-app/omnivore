@@ -35,6 +35,9 @@ package-lock.json
 .env.local
 .env.production
 
+# OMC cron sidecar secrets
+self-hosting/docker-compose/omc.env
+
 
 # build & dist dirs
 build

@@ -1,0 +1,92 @@
+{
+  "name": "omnivore-content-system",
+  "version": "1.0.0",
+  "description": "AI-powered content monetization system for Omnivore reading - generates blog posts, newsletters, and tracks trends",
+  "packageManager": "pnpm@10.14.0",
+  "type": "module",
+  "bin": {
+    "omc": "./dist/bin/omc.js"
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "prebuild": "rm -rf dist",
+    "build:watch": "tsc -p tsconfig.json --watch",
+    "codegen": "graphql-codegen --config codegen.yml",
+    "codegen:watch": "graphql-codegen --config codegen.yml --watch",
+    "dev": "tsx watch index.ts",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "fetch": "corepack pnpm -s run build && node dist/bin/omc.js queue add --hours 24",
+    "analyze:auto": "corepack pnpm -s run build && node dist/bin/omc.js analyze auto --batch-size 5",
+    "analyze:retry": "corepack pnpm -s run build && node dist/bin/omc.js analyze retry --failed",
+    "report:corpus": "corepack pnpm -s run build && node dist/bin/omc.js report corpus"
+  },
+  "keywords": [
+    "omnivore",
+    "content",
+    "blog",
+    "newsletter",
+    "ai",
+    "claude",
+    "agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.1",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@oclif/core": "^3.26.6",
+    "@oclif/plugin-help": "^6.0.21",
+    "better-sqlite3": "^12.4.1",
+    "chalk": "^5.3.0",
+    "csv-parse": "^6.1.0",
+    "dotenv": "^16.4.0",
+    "glob": "^11.0.3",
+    "graphql": "^16.11.0",
+    "graphql-tag": "^2.12.6",
+    "gray-matter": "^4.0.3",
+    "markdown-it": "^14.0.0",
+    "node-fetch": "^3.3.2",
+    "p-limit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^6.0.0",
+    "@graphql-codegen/typed-document-node": "^6.0.1",
+    "@graphql-codegen/typescript": "^5.0.1",
+    "@graphql-codegen/typescript-operations": "^5.0.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.19.0",
+    "nodemon": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "oclif": {
+    "commands": "./dist/src/commands",
+    "bin": "omc",
+    "dirname": "omc",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topicSeparator": " ",
+    "additionalHelpFlags": [
+      "-h"
+    ],
+    "additionalVersionFlags": [
+      "-v"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  }
+}
