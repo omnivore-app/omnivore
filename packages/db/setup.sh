@@ -24,3 +24,12 @@ if [ -z "${NO_DEMO_USER}" ]; then
     psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command "INSERT INTO omnivore.user (id, source, email, source_user_id, name, password) VALUES ('$USER_ID', 'EMAIL', 'demo@omnivore.work', 'demo@omnivore.work', 'Demo User', '$PASSWORD'); INSERT INTO omnivore.user_profile (user_id, username) VALUES ('$USER_ID', 'demo_user');"
     echo "created demo user with email: demo@omnivore.work, password: demo_password"
 fi
+
+# create a custom user if USER_EMAIL and USER_PASSWORD are set
+if [ -n "${USER_EMAIL}" ] && [ -n "${USER_PASSWORD}" ]; then
+    USER_ID=$(uuidgen)
+    HASHED_PASSWORD=$(node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync(process.env.USER_PASSWORD, 10));")
+    USERNAME=$(echo "${USER_EMAIL}" | sed 's/@.*//' | tr -cd '[:alnum:]_')
+    psql --host $PG_HOST --username $POSTGRES_USER --dbname $PG_DB --command "INSERT INTO omnivore.user (id, source, email, source_user_id, name, password) VALUES ('$USER_ID', 'EMAIL', '${USER_EMAIL}', '${USER_EMAIL}', '${USER_NAME:-$USERNAME}', '$HASHED_PASSWORD'); INSERT INTO omnivore.user_profile (user_id, username) VALUES ('$USER_ID', '${USERNAME}');"
+    echo "created user with email: ${USER_EMAIL}"
+fi
