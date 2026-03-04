@@ -4,15 +4,15 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/browser"
+	"github.com/omnivore-app/omnivore/content-fetch-go/internal/bullmq"
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/config"
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/handler"
-	"github.com/omnivore-app/omnivore/content-fetch-go/internal/bullmq"
+	"github.com/omnivore-app/omnivore/content-fetch-go/internal/metrics"
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/redisutil"
 )
 
@@ -34,7 +34,7 @@ func New(cfg *config.Config, rds *redisutil.RedisDataSource, br *browser.Browser
 	m := &mux{cfg: cfg, rds: rds, br: br, worker: w}
 	m.HandleFunc("GET /_ah/health", m.health)
 	m.HandleFunc("GET /lifecycle/prestop", m.prestop)
-	m.HandleFunc("GET /metrics", m.metrics)
+	m.Handle("GET /metrics", metrics.Handler(rds.MQClient, bullmq.ContentFetchQueue))
 	m.HandleFunc("/", m.root) // GET and POST
 	return m
 }
@@ -48,41 +48,9 @@ func (m *mux) health(w http.ResponseWriter, r *http.Request) {
 // It signals the worker to stop and waits for in-flight jobs to finish.
 func (m *mux) prestop(w http.ResponseWriter, r *http.Request) {
 	log.Println("Prestop lifecycle hook called.")
-	// Worker shutdown is handled by the caller (main) via context cancellation;
-	// here we just wait until it's done.
 	m.worker.Wait()
 	log.Println("Worker drained on prestop")
 	w.WriteHeader(http.StatusOK)
-}
-
-// metrics returns Prometheus-format queue metrics, matching the original /metrics endpoint.
-func (m *mux) metrics(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	counts, err := bullmq.GetQueueCounts(ctx, m.rds.MQClient, bullmq.ContentFetchQueue)
-	if err != nil {
-		log.Printf("Error getting queue counts: %v", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	age, err := bullmq.OldestPrioritizedJobAge(ctx, m.rds.MQClient, bullmq.ContentFetchQueue)
-	if err != nil {
-		log.Printf("Error getting oldest job age: %v", err)
-	}
-
-	output := ""
-	for _, metric := range []string{"active", "failed", "completed", "prioritized"} {
-		val, _ := counts[metric]
-		output += fmt.Sprintf("# TYPE omnivore_queue_messages_%s gauge\n", metric)
-		output += fmt.Sprintf("omnivore_queue_messages_%s{queue=%q} %d\n", metric, bullmq.ContentFetchQueue, val)
-	}
-	output += "# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n"
-	output += fmt.Sprintf("omnivore_queue_messages_oldest_job_age_seconds{queue=%q} %s\n",
-		bullmq.ContentFetchQueue, strconv.FormatFloat(age, 'f', -1, 64))
-
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(output))
 }
 
 // root handles the primary job-processing endpoint (GET or POST /?token=...).
