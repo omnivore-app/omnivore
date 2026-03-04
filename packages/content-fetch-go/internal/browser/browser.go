@@ -13,14 +13,14 @@ import (
 
 // Browser wraps a persistent chromedp browser allocator.
 type Browser struct {
-	cfg         *config.Config
+	config         *config.Config
 	allocCtx    context.Context
 	allocCancel context.CancelFunc
 	mu          sync.Mutex
 }
 
-func New(cfg *config.Config) *Browser {
-	return &Browser{cfg: cfg}
+func New(config *config.Config) *Browser {
+	return &Browser{config: config}
 }
 
 // allocatorOpts returns the chromedp ExecAllocator options matching the original Puppeteer args.
@@ -50,8 +50,8 @@ func (b *Browser) allocatorOpts() []chromedp.ExecAllocatorOption {
 		chromedp.Headless,
 	)
 
-	if b.cfg.ChromiumPath != "" && !b.cfg.UseFirefox {
-		opts = append(opts, chromedp.ExecPath(b.cfg.ChromiumPath))
+	if b.config.ChromiumPath != "" && !b.config.UseFirefox {
+		opts = append(opts, chromedp.ExecPath(b.config.ChromiumPath))
 	}
 
 	return opts

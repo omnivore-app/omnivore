@@ -73,9 +73,9 @@ const maxImportAttempts = 1
 // ProcessFetchContentJob is the Go equivalent of processFetchContentJob() from request_handler.ts.
 func ProcessFetchContentJob(
 	ctx context.Context,
-	cfg *config.Config,
-	rds *redisutil.RedisDataSource,
-	br *browser.Browser,
+	config *config.Config,
+	redisDS *redisutil.RedisDataSource,
+	browser *browser.Browser,
 	data *JobData,
 	attemptsMade int,
 ) error {
@@ -132,7 +132,7 @@ func ProcessFetchContentJob(
 			result = "failure"
 			errMsg = processErr.Error()
 		}
-		analyticsClient := analytics.New(cfg)
+		analyticsClient := analytics.New(config)
 		analyticsClient.Capture(userIDs, analytics.Event{
 			Result:       result,
 			URL:          data.URL,
@@ -147,7 +147,7 @@ func ProcessFetchContentJob(
 		if processErr != nil && data.TaskID != nil && *data.TaskID != "" && lastAttempt {
 			log.Println("Sending import status update (failure)")
 			if len(users) > 0 {
-				sendImportStatusUpdate(ctx, cfg, users[0].ID, *data.TaskID, false)
+				sendImportStatusUpdate(ctx, config, users[0].ID, *data.TaskID, false)
 			}
 		}
 	}()
@@ -159,7 +159,7 @@ func ProcessFetchContentJob(
 		return processErr
 	}
 
-	blocked, err := isDomainBlocked(ctx, rds, domain, cfg.MaxFeedFetchFailures)
+	blocked, err := isDomainBlocked(ctx, redisDS, domain, config.MaxFeedFetchFailures)
 	if err != nil {
 		log.Printf("Error checking domain block: %v", err)
 	}
@@ -171,16 +171,16 @@ func ProcessFetchContentJob(
 
 	// Try cache
 	cacheKey := buildCacheKey(data.URL, locale, timezone)
-	fetchResult, err := getCachedResult(ctx, rds, cacheKey)
+	fetchResult, err := getCachedResult(ctx, redisDS, cacheKey)
 	if err != nil {
 		log.Printf("Cache read error: %v", err)
 	}
 
 	if fetchResult == nil {
 		log.Printf("Fetch result not in cache, fetching now: %s", data.URL)
-		fetchResult, err = fetch.FetchContent(ctx, br, data.URL, locale, timezone)
+		fetchResult, err = fetch.FetchContent(ctx, browser, data.URL, locale, timezone)
 		if err != nil {
-			_ = incrementDomainFailure(ctx, rds, domain)
+			_ = incrementDomainFailure(ctx, redisDS, domain)
 			processErr = fmt.Errorf("fetchContent: %w", err)
 			return processErr
 		}
@@ -188,7 +188,7 @@ func ProcessFetchContentJob(
 
 		// Cache result (skip NO_CACHE_URLS)
 		if fetchResult.Content != "" && !fetch.NoCacheURLs[data.URL] {
-			if err := cacheResult(ctx, rds, cacheKey, fetchResult); err != nil {
+			if err := cacheResult(ctx, redisDS, cacheKey, fetchResult); err != nil {
 				log.Printf("Cache write error: %v", err)
 			}
 		}
@@ -202,8 +202,8 @@ func ProcessFetchContentJob(
 	}
 
 	// Upload original content to GCS
-	if fetchResult.Content != "" && !cfg.SkipUploadOriginal {
-		gcsClient, err := gcs.New(ctx, cfg.GCSUploadBucket, cfg.GCSKeyFilePath)
+	if fetchResult.Content != "" && !config.SkipUploadOriginal {
+		gcsClient, err := gcs.New(ctx, config.GCSUploadBucket, config.GCSKeyFilePath)
 		if err != nil {
 			log.Printf("GCS client init error: %v", err)
 		} else {
@@ -261,7 +261,7 @@ func ProcessFetchContentJob(
 		})
 	}
 
-	if err := bullmq.AddBulk(ctx, rds.MQClient, bullmq.BackendQueue, savePageJobs); err != nil {
+	if err := bullmq.AddBulk(ctx, redisDS.MQClient, bullmq.BackendQueue, savePageJobs); err != nil {
 		processErr = fmt.Errorf("queue save-page jobs: %w", err)
 		return processErr
 	}
@@ -312,8 +312,8 @@ type cachedFetchResult struct {
 }
 
 // getCachedResult attempts to get a cached fetch result from Redis.
-func getCachedResult(ctx context.Context, rds *redisutil.RedisDataSource, key string) (*fetch.Result, error) {
-	val, err := rds.CacheClient.Get(ctx, key).Result()
+func getCachedResult(ctx context.Context, redisDS *redisutil.RedisDataSource, key string) (*fetch.Result, error) {
+	val, err := redisDS.CacheClient.Get(ctx, key).Result()
 	if err == redis.Nil {
 		log.Printf("Fetch result not cached: %s", key)
 		return nil, nil
@@ -342,7 +342,7 @@ func getCachedResult(ctx context.Context, rds *redisutil.RedisDataSource, key st
 }
 
 // cacheResult stores a fetch result in Redis with a 24-hour TTL (NX = only if not exists).
-func cacheResult(ctx context.Context, rds *redisutil.RedisDataSource, key string, r *fetch.Result) error {
+func cacheResult(ctx context.Context, redisDS *redisutil.RedisDataSource, key string, r *fetch.Result) error {
 	val, err := json.Marshal(cachedFetchResult{
 		FinalURL:    r.FinalURL,
 		Title:       r.Title,
@@ -352,7 +352,7 @@ func cacheResult(ctx context.Context, rds *redisutil.RedisDataSource, key string
 	if err != nil {
 		return err
 	}
-	return rds.CacheClient.SetNX(ctx, key, string(val), 24*time.Hour).Err()
+	return redisDS.CacheClient.SetNX(ctx, key, string(val), 24*time.Hour).Err()
 }
 
 // failureRedisKey mirrors failureRedisKey() from request_handler.ts.
@@ -361,7 +361,7 @@ func failureRedisKey(domain string) string {
 }
 
 // isDomainBlocked mirrors isDomainBlocked() from request_handler.ts.
-func isDomainBlocked(ctx context.Context, rds *redisutil.RedisDataSource, domain string, maxFailures int) (bool, error) {
+func isDomainBlocked(ctx context.Context, redisDS *redisutil.RedisDataSource, domain string, maxFailures int) (bool, error) {
 	blockedDomains := map[string]bool{
 		"localhost": true,
 		"weibo.com": true,
@@ -371,7 +371,7 @@ func isDomainBlocked(ctx context.Context, rds *redisutil.RedisDataSource, domain
 	}
 
 	key := failureRedisKey(domain)
-	val, err := rds.CacheClient.Get(ctx, key).Result()
+	val, err := redisDS.CacheClient.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return false, nil
 	}
@@ -393,17 +393,17 @@ func isDomainBlocked(ctx context.Context, rds *redisutil.RedisDataSource, domain
 }
 
 // incrementDomainFailure mirrors incrementContentFetchFailure() from request_handler.ts.
-func incrementDomainFailure(ctx context.Context, rds *redisutil.RedisDataSource, domain string) error {
+func incrementDomainFailure(ctx context.Context, redisDS *redisutil.RedisDataSource, domain string) error {
 	key := failureRedisKey(domain)
-	if err := rds.CacheClient.Incr(ctx, key).Err(); err != nil {
+	if err := redisDS.CacheClient.Incr(ctx, key).Err(); err != nil {
 		return err
 	}
-	return rds.CacheClient.Expire(ctx, key, time.Hour).Err()
+	return redisDS.CacheClient.Expire(ctx, key, time.Hour).Err()
 }
 
 // sendImportStatusUpdate mirrors sendImportStatusUpdate() from request_handler.ts.
-func sendImportStatusUpdate(ctx context.Context, cfg *config.Config, userID, taskID string, isImported bool) {
-	if cfg.JWTSecret == "" || cfg.ImporterMetricsCollectorURL == "" {
+func sendImportStatusUpdate(ctx context.Context, config *config.Config, userID, taskID string, isImported bool) {
+	if config.JWTSecret == "" || config.ImporterMetricsCollectorURL == "" {
 		log.Println("JWT_SECRET or IMPORTER_METRICS_COLLECTOR_URL not set, skipping import status update")
 		return
 	}
@@ -411,7 +411,7 @@ func sendImportStatusUpdate(ctx context.Context, cfg *config.Config, userID, tas
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"uid": userID,
 	})
-	tokenStr, err := token.SignedString([]byte(cfg.JWTSecret))
+	tokenStr, err := token.SignedString([]byte(config.JWTSecret))
 	if err != nil {
 		log.Printf("Failed to sign JWT: %v", err)
 		return
@@ -430,7 +430,7 @@ func sendImportStatusUpdate(ctx context.Context, cfg *config.Config, userID, tas
 	reqCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(reqCtx, http.MethodPost, cfg.ImporterMetricsCollectorURL, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(reqCtx, http.MethodPost, config.ImporterMetricsCollectorURL, bytes.NewReader(body))
 	if err != nil {
 		log.Printf("Failed to create import status request: %v", err)
 		return

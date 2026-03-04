@@ -22,19 +22,19 @@ type Worker interface {
 }
 
 type mux struct {
-	cfg    *config.Config
-	rds    *redisutil.RedisDataSource
-	br     *browser.Browser
-	worker Worker
+	config  *config.Config
+	redisDS *redisutil.RedisDataSource
+	browser *browser.Browser
+	worker  Worker
 	http.ServeMux
 }
 
 // New returns an http.Handler with all routes registered.
-func New(cfg *config.Config, rds *redisutil.RedisDataSource, br *browser.Browser, w Worker) http.Handler {
-	m := &mux{cfg: cfg, rds: rds, br: br, worker: w}
+func New(config *config.Config, redisDS *redisutil.RedisDataSource, browser *browser.Browser, worker Worker) http.Handler {
+	m := &mux{config: config, redisDS: redisDS, browser: browser, worker: worker}
 	m.HandleFunc("GET /_ah/health", m.health)
 	m.HandleFunc("GET /lifecycle/prestop", m.prestop)
-	m.Handle("GET /metrics", metrics.Handler(rds.MQClient, bullmq.ContentFetchQueue))
+	m.Handle("GET /metrics", metrics.Handler(redisDS.MQClient, bullmq.ContentFetchQueue))
 	m.HandleFunc("/", m.root) // GET and POST
 	return m
 }
@@ -66,7 +66,7 @@ func (m *mux) root(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.URL.Query().Get("token") != m.cfg.VerificationToken {
+	if r.URL.Query().Get("token") != m.config.VerificationToken {
 		log.Println("Query does not include valid token")
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -88,7 +88,7 @@ func (m *mux) root(w http.ResponseWriter, r *http.Request) {
 
 	if err := handler.ProcessFetchContentJob(
 		context.Background(),
-		m.cfg, m.rds, m.br,
+		m.config, m.redisDS, m.browser,
 		&data, attempt,
 	); err != nil {
 		log.Printf("Error fetching content: %v", err)

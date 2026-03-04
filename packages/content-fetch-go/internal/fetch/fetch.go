@@ -48,7 +48,7 @@ var NoCacheURLs = map[string]bool{
 }
 
 // FetchContent is the Go equivalent of fetchContent() in puppeteer-parse/src/index.ts.
-func FetchContent(ctx context.Context, br *browser.Browser, rawURL, locale, timezone string) (*Result, error) {
+func FetchContent(ctx context.Context, browser *browser.Browser, rawURL, locale, timezone string) (*Result, error) {
 	start := time.Now()
 	log.Printf("content-fetch request url=%s locale=%s timezone=%s", rawURL, locale, timezone)
 
@@ -82,7 +82,7 @@ func FetchContent(ctx context.Context, br *browser.Browser, rawURL, locale, time
 	}
 
 	// Fall through to browser fetch
-	result, err := retrievePage(ctx, br, targetURL, locale, timezone)
+	result, err := retrievePage(ctx, browser, targetURL, locale, timezone)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +146,8 @@ func preHandle(ctx context.Context, rawURL string) (*preHandleResult, error) {
 
 // retrievePage navigates to the URL using the browser, waits for load and DOM settle,
 // then captures the full document HTML.
-func retrievePage(ctx context.Context, br *browser.Browser, targetURL, locale, timezone string) (*Result, error) {
-	tabCtx, cancel, err := br.NewContext()
+func retrievePage(ctx context.Context, browser *browser.Browser, targetURL, locale, timezone string) (*Result, error) {
+	tabCtx, cancel, err := browser.NewContext()
 	if err != nil {
 		return nil, fmt.Errorf("new browser context: %w", err)
 	}

@@ -17,26 +17,26 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	config := config.Load()
 
-	if cfg.VerificationToken == "" {
+	if config.VerificationToken == "" {
 		log.Fatal("VERIFICATION_TOKEN is required")
 	}
 
-	rds, err := redisutil.New(cfg)
+	redisDS, err := redisutil.New(config)
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
-	br := browser.New(cfg)
+	browser := browser.New(config)
 
 	workerCtx, workerCancel := context.WithCancel(context.Background())
-	worker := queue.NewWorker(workerCtx, cfg, rds, br)
+	worker := queue.NewWorker(workerCtx, config, redisDS, browser)
 	worker.Start()
 
-	srv := server.New(cfg, rds, br, worker)
+	srv := server.New(config, redisDS, browser, worker)
 
-	port := cfg.Port
+	port := config.Port
 	if port == 0 {
 		port = 3002
 	}
@@ -71,10 +71,10 @@ func main() {
 	log.Println("Worker closed")
 
 	// Close browser
-	br.Close()
+	browser.Close()
 	log.Println("Browser closed")
 
 	// Close Redis
-	rds.Shutdown()
+	redisDS.Shutdown()
 	log.Println("Redis connection closed")
 }

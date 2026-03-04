@@ -11,7 +11,7 @@ import (
 // Client sends analytics events to PostHog.
 type Client struct {
 	ph     posthog.Client
-	cfg    *config.Config
+	config    *config.Config
 }
 
 // Event carries data for an analytics capture call.
@@ -24,13 +24,13 @@ type Event struct {
 }
 
 // New creates a PostHog analytics client.
-func New(cfg *config.Config) *Client {
-	ph, err := posthog.NewWithConfig(cfg.PostHogAPIKey, posthog.Config{})
+func New(config *config.Config) *Client {
+	ph, err := posthog.NewWithConfig(config.PostHogAPIKey, posthog.Config{})
 	if err != nil {
 		log.Printf("Failed to create PostHog client: %v", err)
-		return &Client{cfg: cfg}
+		return &Client{config: config}
 	}
-	return &Client{ph: ph, cfg: cfg}
+	return &Client{ph: ph, config: config}
 }
 
 // Capture sends a content_fetch_result event.
@@ -39,7 +39,7 @@ func (c *Client) Capture(userIDs []string, ev Event) {
 	if c.ph == nil {
 		return
 	}
-	if !c.cfg.SendAnalytics || ev.Result != "failure" {
+	if !c.config.SendAnalytics || ev.Result != "failure" {
 		return
 	}
 
@@ -48,7 +48,7 @@ func (c *Client) Capture(userIDs []string, ev Event) {
 			Set("url", ev.URL).
 			Set("source", ev.Source).
 			Set("totalTime", ev.TotalTime).
-			Set("env", c.cfg.APIEnv)
+			Set("env", c.config.APIEnv)
 		if ev.ErrorMessage != "" {
 			props.Set("errorMessage", ev.ErrorMessage)
 		}

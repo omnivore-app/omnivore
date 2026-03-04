@@ -54,10 +54,10 @@ func init() {
 
 // Handler returns an http.Handler that refreshes queue metrics from Redis on
 // every request and then delegates to the standard promhttp handler.
-func Handler(rdb *redis.Client, queueName string) http.Handler {
+func Handler(redisClient *redis.Client, queueName string) http.Handler {
 	inner := promhttp.Handler()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := refresh(r.Context(), rdb, queueName); err != nil {
+		if err := refresh(r.Context(), redisClient, queueName); err != nil {
 			log.Printf("Error refreshing queue metrics: %v", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
@@ -67,8 +67,8 @@ func Handler(rdb *redis.Client, queueName string) http.Handler {
 }
 
 // refresh pulls the current queue counts from Redis and updates the gauges.
-func refresh(ctx context.Context, rdb *redis.Client, queueName string) error {
-	counts, err := bullmq.GetQueueCounts(ctx, rdb, queueName)
+func refresh(ctx context.Context, redisClient *redis.Client, queueName string) error {
+	counts, err := bullmq.GetQueueCounts(ctx, redisClient, queueName)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func refresh(ctx context.Context, rdb *redis.Client, queueName string) error {
 	completedGauge.With(labels).Set(float64(counts["completed"]))
 	prioritizedGauge.With(labels).Set(float64(counts["prioritized"]))
 
-	age, err := bullmq.OldestPrioritizedJobAge(ctx, rdb, queueName)
+	age, err := bullmq.OldestPrioritizedJobAge(ctx, redisClient, queueName)
 	if err != nil {
 		log.Printf("Error getting oldest job age: %v", err)
 		age = 0

@@ -79,8 +79,8 @@ type RawJob struct {
 }
 
 // nextJobID atomically increments and returns a new job ID.
-func nextJobID(ctx context.Context, rdb *redis.Client, queueName string) (string, error) {
-	id, err := rdb.Incr(ctx, idKey(queueName)).Result()
+func nextJobID(ctx context.Context, redisClient *redis.Client, queueName string) (string, error) {
+	id, err := redisClient.Incr(ctx, idKey(queueName)).Result()
 	if err != nil {
 		return "", err
 	}
@@ -96,9 +96,9 @@ type AddJobOpts struct {
 
 // AddBulk adds multiple jobs to a BullMQ queue, replicating addBulk() semantics.
 // Each job is stored as a hash and its ID appended to the appropriate list/zset.
-func AddBulk(ctx context.Context, rdb *redis.Client, queueName string, jobs []AddJobOpts) error {
+func AddBulk(ctx context.Context, redisClient *redis.Client, queueName string, jobs []AddJobOpts) error {
 	for _, j := range jobs {
-		jobID, err := nextJobID(ctx, rdb, queueName)
+		jobID, err := nextJobID(ctx, redisClient, queueName)
 		if err != nil {
 			return fmt.Errorf("get next job id: %w", err)
 		}
@@ -117,7 +117,7 @@ func AddBulk(ctx context.Context, rdb *redis.Client, queueName string, jobs []Ad
 		key := jobKey(queueName, jobID)
 
 		// Store the job hash
-		pipe := rdb.Pipeline()
+		pipe := redisClient.Pipeline()
 		pipe.HSet(ctx, key,
 			"name", j.Name,
 			"data", string(dataBytes),
@@ -199,7 +199,7 @@ return jobId
 
 // PopJob atomically moves the next available job to the active list and returns it.
 // Returns nil job if no job is available (non-blocking).
-func PopJob(ctx context.Context, rdb *redis.Client, queueName string) (*RawJob, error) {
+func PopJob(ctx context.Context, redisClient *redis.Client, queueName string) (*RawJob, error) {
 	keys := []string{
 		waitKey(queueName),
 		prioritizedKey(queueName),
@@ -207,7 +207,7 @@ func PopJob(ctx context.Context, rdb *redis.Client, queueName string) (*RawJob, 
 	}
 	prefix := queueKey(queueName) + ":"
 
-	result, err := moveToActiveScript.Run(ctx, rdb, keys, prefix).Result()
+	result, err := moveToActiveScript.Run(ctx, redisClient, keys, prefix).Result()
 	if err == redis.Nil {
 		return nil, nil
 	}
@@ -220,11 +220,11 @@ func PopJob(ctx context.Context, rdb *redis.Client, queueName string) (*RawJob, 
 		return nil, nil
 	}
 
-	return getJob(ctx, rdb, queueName, jobID)
+	return getJob(ctx, redisClient, queueName, jobID)
 }
 
-func getJob(ctx context.Context, rdb *redis.Client, queueName, jobID string) (*RawJob, error) {
-	fields, err := rdb.HGetAll(ctx, jobKey(queueName, jobID)).Result()
+func getJob(ctx context.Context, redisClient *redis.Client, queueName, jobID string) (*RawJob, error) {
+	fields, err := redisClient.HGetAll(ctx, jobKey(queueName, jobID)).Result()
 	if err != nil {
 		return nil, fmt.Errorf("hgetall job %s: %w", jobID, err)
 	}
@@ -252,9 +252,9 @@ func getJob(ctx context.Context, rdb *redis.Client, queueName, jobID string) (*R
 }
 
 // CompleteJob moves a job from active to completed.
-func CompleteJob(ctx context.Context, rdb *redis.Client, queueName, jobID string) error {
+func CompleteJob(ctx context.Context, redisClient *redis.Client, queueName, jobID string) error {
 	now := time.Now().UnixMilli()
-	pipe := rdb.Pipeline()
+	pipe := redisClient.Pipeline()
 	pipe.LRem(ctx, activeKey(queueName), 0, jobID)
 	pipe.ZAdd(ctx, completedKey(queueName), redis.Z{Score: float64(now), Member: jobID})
 	pipe.HSet(ctx, jobKey(queueName, jobID), "finishedOn", now)
@@ -265,11 +265,11 @@ func CompleteJob(ctx context.Context, rdb *redis.Client, queueName, jobID string
 }
 
 // FailJob moves a job from active to failed (or re-queues it for retry).
-func FailJob(ctx context.Context, rdb *redis.Client, queueName, jobID string, reason string, opts JobOpts) error {
+func FailJob(ctx context.Context, redisClient *redis.Client, queueName, jobID string, reason string, opts JobOpts) error {
 	now := time.Now().UnixMilli()
 
 	// Increment attemptsMade
-	newAttempts, err := rdb.HIncrBy(ctx, jobKey(queueName, jobID), "attemptsMade", 1).Result()
+	newAttempts, err := redisClient.HIncrBy(ctx, jobKey(queueName, jobID), "attemptsMade", 1).Result()
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func FailJob(ctx context.Context, rdb *redis.Client, queueName, jobID string, re
 		delay := exponentialDelay(opts.Backoff.Delay, int(newAttempts)-1)
 		retryAt := now + int64(delay)
 
-		pipe := rdb.Pipeline()
+		pipe := redisClient.Pipeline()
 		pipe.LRem(ctx, activeKey(queueName), 0, jobID)
 		pipe.ZAdd(ctx, fmt.Sprintf("%s:delayed", queueKey(queueName)), redis.Z{
 			Score:  float64(retryAt),
@@ -291,7 +291,7 @@ func FailJob(ctx context.Context, rdb *redis.Client, queueName, jobID string, re
 	}
 
 	// Max attempts reached → move to failed
-	pipe := rdb.Pipeline()
+	pipe := redisClient.Pipeline()
 	pipe.LRem(ctx, activeKey(queueName), 0, jobID)
 	pipe.ZAdd(ctx, failedKey(queueName), redis.Z{Score: float64(now), Member: jobID})
 	pipe.HSet(ctx, jobKey(queueName, jobID), "failedReason", reason, "finishedOn", now)
@@ -310,8 +310,8 @@ func exponentialDelay(baseDelay, attempt int) int {
 }
 
 // GetQueueCounts returns job counts for the metrics endpoint.
-func GetQueueCounts(ctx context.Context, rdb *redis.Client, queueName string) (map[string]int64, error) {
-	pipe := rdb.Pipeline()
+func GetQueueCounts(ctx context.Context, redisClient *redis.Client, queueName string) (map[string]int64, error) {
+	pipe := redisClient.Pipeline()
 	activeCmd := pipe.LLen(ctx, activeKey(queueName))
 	failedCmd := pipe.ZCard(ctx, failedKey(queueName))
 	completedCmd := pipe.ZCard(ctx, completedKey(queueName))
@@ -331,9 +331,9 @@ func GetQueueCounts(ctx context.Context, rdb *redis.Client, queueName string) (m
 }
 
 // OldestPrioritizedJobAge returns the age in seconds of the oldest prioritized job, or 0.
-func OldestPrioritizedJobAge(ctx context.Context, rdb *redis.Client, queueName string) (float64, error) {
+func OldestPrioritizedJobAge(ctx context.Context, redisClient *redis.Client, queueName string) (float64, error) {
 	// Check both prioritized zset and wait list
-	results, err := rdb.ZRangeWithScores(ctx, prioritizedKey(queueName), 0, 0).Result()
+	results, err := redisClient.ZRangeWithScores(ctx, prioritizedKey(queueName), 0, 0).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -341,7 +341,7 @@ func OldestPrioritizedJobAge(ctx context.Context, rdb *redis.Client, queueName s
 	if len(results) > 0 {
 		// score encodes priority+counter, so we need the job's timestamp field
 		jobID := results[0].Member.(string)
-		ts, err := rdb.HGet(ctx, jobKey(queueName, jobID), "timestamp").Result()
+		ts, err := redisClient.HGet(ctx, jobKey(queueName, jobID), "timestamp").Result()
 		if err == nil {
 			if tsMs, err := strconv.ParseInt(ts, 10, 64); err == nil {
 				return float64(time.Now().UnixMilli()-tsMs) / 1000.0, nil
@@ -350,11 +350,11 @@ func OldestPrioritizedJobAge(ctx context.Context, rdb *redis.Client, queueName s
 	}
 
 	// Fall back to wait list
-	waitIDs, err := rdb.LRange(ctx, waitKey(queueName), -1, -1).Result() // oldest = tail
+	waitIDs, err := redisClient.LRange(ctx, waitKey(queueName), -1, -1).Result() // oldest = tail
 	if err != nil || len(waitIDs) == 0 {
 		return 0, nil
 	}
-	ts, err := rdb.HGet(ctx, jobKey(queueName, waitIDs[0]), "timestamp").Result()
+	ts, err := redisClient.HGet(ctx, jobKey(queueName, waitIDs[0]), "timestamp").Result()
 	if err != nil {
 		return 0, nil
 	}
@@ -366,6 +366,6 @@ func OldestPrioritizedJobAge(ctx context.Context, rdb *redis.Client, queueName s
 }
 
 // EnsureQueueMeta ensures the queue metadata key exists (BullMQ creates this on queue init).
-func EnsureQueueMeta(ctx context.Context, rdb *redis.Client, queueName string) error {
-	return rdb.HSetNX(ctx, metaKey(queueName), "version", "5").Err()
+func EnsureQueueMeta(ctx context.Context, redisClient *redis.Client, queueName string) error {
+	return redisClient.HSetNX(ctx, metaKey(queueName), "version", "5").Err()
 }
