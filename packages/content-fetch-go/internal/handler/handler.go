@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -18,8 +19,8 @@ import (
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/bullmq"
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/config"
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/fetch"
-	"github.com/omnivore-app/omnivore/content-fetch-go/internal/gcs"
 	"github.com/omnivore-app/omnivore/content-fetch-go/internal/redisutil"
+	"github.com/omnivore-app/omnivore/content-fetch-go/internal/storage"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -201,18 +202,27 @@ func ProcessFetchContentJob(
 		}
 	}
 
-	// Upload original content to GCS
+	// Upload original content to object storage (GCS, S3, or MinIO).
 	if fetchResult.Content != "" && !config.SkipUploadOriginal {
-		gcsClient, err := gcs.New(ctx, config.GCSUploadBucket, config.GCSKeyFilePath)
-		if err != nil {
-			log.Printf("GCS client init error: %v", err)
-		} else {
-			refs := make([]gcs.UserRef, len(users))
-			for i, u := range users {
-				refs[i] = gcs.UserRef{ID: u.ID, LibraryItemID: u.LibraryItemID}
+		// Bridge the legacy GCS_UPLOAD_SA_KEY_FILE_PATH setting:
+		// gcsblob picks up credentials via GOOGLE_APPLICATION_CREDENTIALS.
+		if config.GCSKeyFilePath != "" {
+			if err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", config.GCSKeyFilePath); err != nil {
+				log.Printf("Failed to set GOOGLE_APPLICATION_CREDENTIALS: %v", err)
 			}
-			if err := gcsClient.UploadOriginalContent(ctx, refs, fetchResult.Content, savedDate.UnixMilli()); err != nil {
-				log.Printf("GCS upload error: %v", err)
+		}
+
+		storageClient, err := storage.New(ctx, config.BlobURL())
+		if err != nil {
+			log.Printf("Storage client init error: %v", err)
+		} else {
+			defer storageClient.Close()
+			refs := make([]storage.UserRef, len(users))
+			for i, u := range users {
+				refs[i] = storage.UserRef{ID: u.ID, LibraryItemID: u.LibraryItemID}
+			}
+			if err := storageClient.UploadOriginalContent(ctx, refs, fetchResult.Content, savedDate.UnixMilli()); err != nil {
+				log.Printf("Storage upload error: %v", err)
 			}
 		}
 	}

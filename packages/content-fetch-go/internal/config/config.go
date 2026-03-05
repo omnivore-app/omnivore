@@ -24,9 +24,19 @@ type Config struct {
 	UseFirefox     bool
 	LaunchHeadless bool
 
-	// GCS
-	GCSUploadBucket   string
-	GCSKeyFilePath    string
+	// Object storage
+	// BlobStorageURL is a gocloud.dev blob URL that selects the backend:
+	//   gs://bucket                          → GCS (Application Default Credentials)
+	//   s3://bucket?region=us-east-1         → AWS S3
+	//   s3://bucket?endpoint=http://minio:9000&use_path_style=true&disable_https=true&region=us-east-1
+	//                                         → MinIO
+	// When empty, a gs:// URL is constructed from GCSUploadBucket (backward compat).
+	BlobStorageURL string
+
+	// Legacy GCS settings kept for backward compatibility.
+	// Prefer BLOB_STORAGE_URL for new deployments.
+	GCSUploadBucket    string
+	GCSKeyFilePath     string
 	SkipUploadOriginal bool
 
 	// Analytics (PostHog)
@@ -58,6 +68,8 @@ func Load() *Config {
 		UseFirefox:     os.Getenv("USE_FIREFOX") == "true",
 		LaunchHeadless: os.Getenv("LAUNCH_HEADLESS") == "true",
 
+		BlobStorageURL: os.Getenv("BLOB_STORAGE_URL"),
+
 		GCSUploadBucket:    envDefault("GCS_UPLOAD_BUCKET", "omnivore-files"),
 		GCSKeyFilePath:     os.Getenv("GCS_UPLOAD_SA_KEY_FILE_PATH"),
 		SkipUploadOriginal: os.Getenv("SKIP_UPLOAD_ORIGINAL") == "true",
@@ -73,6 +85,17 @@ func Load() *Config {
 	}
 
 	return cfg
+}
+
+// BlobURL returns the effective gocloud.dev blob URL to open.
+// If BLOB_STORAGE_URL is set it is returned as-is.
+// Otherwise a gs:// URL is constructed from GCS_UPLOAD_BUCKET for backward
+// compatibility with existing GCS deployments.
+func (c *Config) BlobURL() string {
+	if c.BlobStorageURL != "" {
+		return c.BlobStorageURL
+	}
+	return "gs://" + c.GCSUploadBucket
 }
 
 func envDefault(key, def string) string {
