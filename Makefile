@@ -1,3 +1,7 @@
+# ── Configuration (override on the command line: make <target> REGISTRY=myrepo) ─
+REGISTRY ?= korney4eg
+IMAGE_TAG ?= latest
+
 open_ios:
 	$(MAKE) -C apple open
 
@@ -39,3 +43,20 @@ puppeteer:
 content_fetch: content_handler puppeteer
 	yarn workspace @omnivore/content-fetch build
 	yarn workspace @omnivore/content-fetch start
+
+# ── Go content-fetcher ──────────────────────────────────────────────────────
+
+content_fetch_go:
+	cd src-go && go run . server content-fetcher
+
+content_fetch_go_build:
+	cd src-go && go build -o ../bin/omnivore .
+
+# ── Docker images ───────────────────────────────────────────────────────────
+
+docker_build_content_fetcher:
+	docker build -f docker/content-fetcher.Dockerfile \
+		-t $(REGISTRY)/omnivore-content-fetcher:$(IMAGE_TAG) .
+
+docker_push_content_fetcher: docker_build_content_fetcher
+	docker push $(REGISTRY)/omnivore-content-fetcher:$(IMAGE_TAG)
