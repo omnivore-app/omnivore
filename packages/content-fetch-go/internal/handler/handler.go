@@ -24,6 +24,14 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// LabelInput mirrors the TS CreateLabelInput interface.
+// Labels are sent as objects (e.g. {"name":"RSS"}), not plain strings.
+type LabelInput struct {
+	Name        string  `json:"name"`
+	Color       *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
 // UserConfig mirrors the TS UserConfig interface.
 type UserConfig struct {
 	ID            string  `json:"id"`
@@ -31,13 +39,13 @@ type UserConfig struct {
 	Folder        *string `json:"folder,omitempty"`
 }
 
-// JobData mirrors the TS JobData interface exactly.
+// JobData mirrors the TS FetchContentJobData interface.
 type JobData struct {
 	URL           string       `json:"url"`
 	UserID        *string      `json:"userId,omitempty"`
 	SaveRequestID string       `json:"saveRequestId"`
 	State         *string      `json:"state,omitempty"`
-	Labels        []string     `json:"labels,omitempty"`
+	Labels        []LabelInput `json:"labels,omitempty"`
 	Source        *string      `json:"source,omitempty"`
 	TaskID        *string      `json:"taskId,omitempty"`
 	Locale        *string      `json:"locale,omitempty"`
@@ -52,21 +60,21 @@ type JobData struct {
 
 // savePageJobData mirrors SavePageJobData from job.ts.
 type savePageJobData struct {
-	UserID                string   `json:"userId"`
-	URL                   string   `json:"url"`
-	FinalURL              string   `json:"finalUrl"`
-	ArticleSavingRequestID string  `json:"articleSavingRequestId"`
-	State                 *string  `json:"state,omitempty"`
-	Labels                []string `json:"labels,omitempty"`
-	Source                string   `json:"source"`
-	Folder                *string  `json:"folder,omitempty"`
-	RSSFeedURL            *string  `json:"rssFeedUrl,omitempty"`
-	SavedAt               *string  `json:"savedAt,omitempty"`
-	PublishedAt           *string  `json:"publishedAt,omitempty"`
-	TaskID                *string  `json:"taskId,omitempty"`
-	Title                 string   `json:"title,omitempty"`
-	ContentType           string   `json:"contentType,omitempty"`
-	CacheKey              string   `json:"cacheKey,omitempty"`
+	UserID                 string       `json:"userId"`
+	URL                    string       `json:"url"`
+	FinalURL               string       `json:"finalUrl"`
+	ArticleSavingRequestID string       `json:"articleSavingRequestId"`
+	State                  *string      `json:"state,omitempty"`
+	Labels                 []LabelInput `json:"labels,omitempty"`
+	Source                 string       `json:"source"`
+	Folder                 *string      `json:"folder,omitempty"`
+	RSSFeedURL             *string      `json:"rssFeedUrl,omitempty"`
+	SavedAt                *string      `json:"savedAt,omitempty"`
+	PublishedAt            *string      `json:"publishedAt,omitempty"`
+	TaskID                 *string      `json:"taskId,omitempty"`
+	Title                  string       `json:"title,omitempty"`
+	ContentType            string       `json:"contentType,omitempty"`
+	CacheKey               string       `json:"cacheKey,omitempty"`
 }
 
 const maxImportAttempts = 1
