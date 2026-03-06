@@ -862,5 +862,87 @@ func TestIntegration_SetMethodNotAllowed(t *testing.T) {
 	}
 }
 
+// TestIntegration_RSSJobWithLabelObjects verifies the full path for an RSS-style
+// job whose labels field contains objects ({"name":"RSS"}) rather than strings.
+// This is the exact shape produced by refreshFeed.ts in the queue-processor.
+// Before the fix, the worker logged:
+//
+//	json: cannot unmarshal object into Go struct field JobData.labels of type string
+func TestIntegration_RSSJobWithLabelObjects(t *testing.T) {
+	env := newTestEnv(t)
+	defer env.close()
+
+	const (
+		userID    = "rss-user-1"
+		itemID    = "rss-item-1"
+		targetURL = "https://example.com/rss-article"
+		feedURL   = "https://example.com/feed.xml"
+	)
+
+	// Pre-seed a cache entry so no real browser is launched.
+	seedCacheEntry(t, env, targetURL, "", "", &fetch.Result{
+		FinalURL:    targetURL,
+		Title:       "RSS Article",
+		Content:     "<html><body>rss content</body></html>",
+		ContentType: "text/html",
+	})
+
+	// Build the job payload exactly as the queue-processor does it:
+	//   labels: [{ name: 'RSS' }]  ← objects, not strings
+	rssJob := map[string]interface{}{
+		"url":         targetURL,
+		"users":       []map[string]string{{"id": userID, "libraryItemId": itemID}},
+		"priority":    "low",
+		"labels":      []map[string]string{{"name": "RSS"}},
+		"rssFeedUrl":  feedURL,
+		"savedAt":     "2026-01-20T00:00:00.000Z",
+		"publishedAt": "2026-01-20T00:00:00.000Z",
+		"source":      "rss-feeder",
+	}
+
+	ctx := context.Background()
+	if err := bullmq.AddBulk(ctx, env.redisDS.MQClient, bullmq.ContentFetchQueue, []bullmq.AddJobOpts{
+		{
+			Name: "fetch-content",
+			Data: rssJob,
+			Opts: bullmq.JobOpts{Attempts: 2, Priority: 10,
+				Backoff: bullmq.BackoffOpt{Type: "exponential", Delay: 2000}},
+		},
+	}); err != nil {
+		t.Fatalf("AddBulk error: %v", err)
+	}
+
+	// Start the worker — it must not fail to unmarshal the job.
+	workerCtx, workerCancel := context.WithCancel(context.Background())
+	defer workerCancel()
+	w := newTestWorker(workerCtx, env)
+	w.Start()
+
+	// A save-page job for userID should appear in the backend queue.
+	saveJobBytes := waitForSavePageJob(t, env, userID, 15*time.Second)
+
+	var saveJob map[string]interface{}
+	if err := json.Unmarshal(saveJobBytes, &saveJob); err != nil {
+		t.Fatalf("parse save-page job: %v", err)
+	}
+
+	assertField(t, saveJob, "userId", userID)
+	assertField(t, saveJob, "url", targetURL)
+	assertField(t, saveJob, "source", "rss-feeder")
+
+	// The save-page job must propagate labels as objects too.
+	rawLabels, ok := saveJob["labels"].([]interface{})
+	if !ok || len(rawLabels) == 0 {
+		t.Fatalf("expected labels array in save-page job, got: %v", saveJob["labels"])
+	}
+	firstLabel, ok := rawLabels[0].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected label object, got %T", rawLabels[0])
+	}
+	if firstLabel["name"] != "RSS" {
+		t.Errorf("label name: got %v, want %q", firstLabel["name"], "RSS")
+	}
+}
+
 // Ensure the redis client type used in tests is compatible.
 var _ *redis.Client = (*redis.Client)(nil)
