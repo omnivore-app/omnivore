@@ -46,7 +46,7 @@ describe('Test csv importer', () => {
       expect(stub.countFailed).to.equal(0)
       expect(stub.countImported).to.equal(2)
       expect(urls).to.eql([
-        new URL('https://omnivore.app'),
+        new URL('https://omnivore.work'),
         new URL('https://google.com'),
       ])
     })
@@ -96,7 +96,7 @@ describe('Test csv importer', () => {
       expect(stub.countImported).to.equal(3)
       expect(results).to.eql([
         {
-          url: new URL('https://omnivore.app'),
+          url: new URL('https://omnivore.work'),
           state: 'ARCHIVED',
           labels: ['test'],
           savedAt: undefined,

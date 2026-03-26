@@ -166,15 +166,15 @@ fun PrimaryNavigator(
         }
 
         composable(Routes.Documentation.route) {
-            WebViewScreen(navController = navController, url = "https://docs.omnivore.app")
+            WebViewScreen(navController = navController, url = "https://docs.omnivore.work")
         }
 
         composable(Routes.PrivacyPolicy.route) {
-            WebViewScreen(navController = navController, url = "https://omnivore.app/privacy")
+            WebViewScreen(navController = navController, url = "https://omnivore.work/privacy")
         }
 
         composable(Routes.TermsAndConditions.route) {
-            WebViewScreen(navController = navController, url = "https://omnivore.app/app/terms")
+            WebViewScreen(navController = navController, url = "https://omnivore.work/app/terms")
         }
     }
 }

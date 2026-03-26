@@ -67,7 +67,7 @@
       self.id = UUID(uuidString: item.unwrappedID)!
       self.title = item.unwrappedTitle
       self.originalURL = item.pageURLString
-      self.omnivoreWebURL = "https://omnivore.app/me/\(item.slug!)"
+      self.omnivoreWebURL = "https://omnivore.work/me/\(item.slug!)"
       self.omnivoreShortcutURL = "omnivore://read/\(item.unwrappedID)"
       self.author = item.author
       self.siteName = item.siteName

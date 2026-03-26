@@ -56,7 +56,7 @@ struct SelfHostSettingsView: View {
     ScrollView {
       VStack {
         Text("API Server Base URL").frame(maxWidth: .infinity, alignment: .leading)
-        TextField("URL", text: $apiServerAddress, prompt: Text("https://api-prod.omnivore.app"))
+        TextField("URL", text: $apiServerAddress, prompt: Text("https://api-prod.omnivore.work"))
           .autocorrectionDisabled(true)
         #if os(iOS)
           .keyboardType(.URL)
@@ -64,7 +64,7 @@ struct SelfHostSettingsView: View {
         #endif
 
         Text("Web Server URL").frame(maxWidth: .infinity, alignment: .leading)
-        TextField("URL", text: $webServerAddress, prompt: Text("https://omnivore.app"))
+        TextField("URL", text: $webServerAddress, prompt: Text("https://omnivore.work"))
           .autocorrectionDisabled(true)
         #if os(iOS)
           .keyboardType(.URL)
@@ -72,7 +72,7 @@ struct SelfHostSettingsView: View {
         #endif
 
         Text("Text-to-speech Server URL").frame(maxWidth: .infinity, alignment: .leading)
-        TextField("URL", text: $ttsServerAddress, prompt: Text("https://tts.omnivore.app"))
+        TextField("URL", text: $ttsServerAddress, prompt: Text("https://tts.omnivore.work"))
           .autocorrectionDisabled(true)
         #if os(iOS)
           .keyboardType(.URL)
@@ -85,15 +85,15 @@ struct SelfHostSettingsView: View {
         If you have chosen to deploy your own server instance, fill in the \
         above fields to connect to your private self-hosted instance.
 
-        [Learn more about self-hosting Omnivore](https://docs.omnivore.app/self-hosting/self-hosting.html)
+        [Learn more about self-hosting Omnivore](https://docs.omnivore.work/self-hosting/self-hosting.html)
         """)
           .accentColor(.blue)
           .frame(maxWidth: .infinity, alignment: .leading)
 
         Button(action: {
-          AppEnvironment.setCustom(serverBaseURL: "https://api-prod.omnivore.app",
-                                   webAppBaseURL: "https://omnivore.app",
-                                   ttsBaseURL: "https://tts.omnivore.app")
+          AppEnvironment.setCustom(serverBaseURL: "https://api-prod.omnivore.work",
+                                   webAppBaseURL: "https://omnivore.work",
+                                   ttsBaseURL: "https://tts.omnivore.work")
           dataService.switchAppEnvironment(appEnvironment: AppEnvironment.prod)
           dismiss()
         }, label: {

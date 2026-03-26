@@ -48,13 +48,13 @@ describe('videoIdFromYouTubeUrl', () => {
 
   it('Returns undefined for non-youtube url', () => {
     const result = videoIdFromYouTubeUrl(
-      'https://omnivore.app/iZxR7rPdvuQ?si=ad73DTmmXL_lbn31'
+      'https://omnivore.work/iZxR7rPdvuQ?si=ad73DTmmXL_lbn31'
     )
     expect(result).to.eq(undefined)
   })
 
   it('Returns undefined for non-youtube short url', () => {
-    const result = videoIdFromYouTubeUrl('https://omnivore.app/?v=iZxR7rPdvuQ')
+    const result = videoIdFromYouTubeUrl('https://omnivore.work/?v=iZxR7rPdvuQ')
     expect(result).to.eq(undefined)
   })
 
@@ -74,7 +74,7 @@ describe('isYouTubeVideoURL', () => {
     expect(result).to.eq(false)
   })
   it('Returns false for a non-youtube URL', () => {
-    const result = isYouTubeVideoURL('https://omnivore.app/about')
+    const result = isYouTubeVideoURL('https://omnivore.work/about')
     expect(result).to.eq(false)
   })
   it('Returns true for a video URL', () => {

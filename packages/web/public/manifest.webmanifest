@@ -8,11 +8,11 @@
   "capture_links": ["existing-client-navigate", "new-client", "none"],
   "categories": [],
   "url_handlers" : [{
-    "origin": "omnivore.app"
+    "origin": "omnivore.work"
   }, {
-    "origin": "beta.omnivore.app"
+    "origin": "beta.omnivore.work"
   }, {
-    "origin": "demo.omnivore.app"
+    "origin": "demo.omnivore.work"
   }],
   "share_target": {
     "action": "/share-target",
@@ -35,7 +35,7 @@
   }],
   "related_applications": [{
     "platform": "webapp",
-    "url": "https://omnivore.app/manifest.webmanifest"
+    "url": "https://omnivore.work/manifest.webmanifest"
   }],
   "icons": [{
     "src": "/pwa-maskable-36.png",

@@ -104,7 +104,7 @@ export const uploadFile = async (
   const uploadFilePathName = generateUploadFilePathName(uploadFileId, fileName)
   // If this is a file URL, we swap in a special URL
   if (isFileUrl(url)) {
-    url = `https://omnivore.app/attachments/${uploadFilePathName}`
+    url = `https://omnivore.work/attachments/${uploadFilePathName}`
   }
 
   const uploadFileData = await authTrx((t) =>

@@ -21,16 +21,16 @@ public enum AppEnvironment: String {
   }()
 }
 
-private let devBaseURL = "https://api-dev.omnivore.app"
-private let demoBaseURL = "https://api-demo.omnivore.app"
-private let prodBaseURL = "https://api-prod.omnivore.app"
+private let devBaseURL = "https://api-dev.omnivore.work"
+private let demoBaseURL = "https://api-demo.omnivore.work"
+private let prodBaseURL = "https://api-prod.omnivore.work"
 
-private let demoTtsURL = "https://tts-demo.omnivore.app"
-private let prodTtsURL = "https://tts-prod.omnivore.app"
+private let demoTtsURL = "https://tts-demo.omnivore.work"
+private let prodTtsURL = "https://tts-prod.omnivore.work"
 
-private let devWebURL = "https://web-dev.omnivore.app"
-private let demoWebURL = "https://demo.omnivore.app"
-private let prodWebURL = "https://omnivore.app"
+private let devWebURL = "https://web-dev.omnivore.work"
+private let demoWebURL = "https://demo.omnivore.work"
+private let prodWebURL = "https://omnivore.work"
 
 public enum AppEnvironmentUserDefaultKey: String {
   case serverBaseURL = "AppEnvironment_serverBaseURL"

@@ -116,7 +116,7 @@ export default function EmailsPage(): JSX.Element {
     <>
       <SettingsTable
         pageId="settings-emails-tag"
-        pageInfoLink="https://docs.omnivore.app/using/inbox.html"
+        pageInfoLink="https://docs.omnivore.work/using/inbox.html"
         headerTitle="Address"
         createTitle="Create a new email address"
         createAction={createEmail}

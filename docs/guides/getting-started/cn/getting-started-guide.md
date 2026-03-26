@@ -31,10 +31,10 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 
 1. 下载并安装浏览器的 Omnivore 扩展程序：
 
-- [Chrome ](https://omnivore.app/install/chrome)
-- [Edge](https://omnivore.app/install/edge)
-- [Firefox](https://omnivore.app/install/firefox)
-- [Safari](https://omnivore.app/install/safari)
+- [Chrome ](https://omnivore.work/install/chrome)
+- [Edge](https://omnivore.work/install/edge)
+- [Firefox](https://omnivore.work/install/firefox)
+- [Safari](https://omnivore.work/install/safari)
 
 2. 导航到您要保存的页面，然后点击浏览器工具栏或扩展菜单中的 Omnivore 按钮。
 3. 或者，您可以在任何超链接上右键单击（Mac：command+click），然后从菜单中选择 **保存到 Omnivore**。
@@ -44,7 +44,7 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 
 从移动设备保存链接的最佳方法是通过 Omnivore 应用程序。您可以在此处下载此应用程序：
 
-- [iOS (iPhone 或 iPad)](https://omnivore.app/install/ios)
+- [iOS (iPhone 或 iPad)](https://omnivore.work/install/ios)
 - Android
 
 安装移动应用程序后：
@@ -56,7 +56,7 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 ### 通过电子邮件订阅新闻稿件
 
 1. 在 Omnivore 网站或应用程序上，点击右上角的照片、首字母或头像以访问个人资料菜单。从菜单中选择 **电子邮件**。
-2. 点击**创建新电子邮件地址**将新电子邮件地址 (例如: username-123_abc@inbox.omnivore.app) 添加到列表中。
+2. 点击**创建新电子邮件地址**将新电子邮件地址 (例如: username-123_abc@inbox.omnivore.work) 添加到列表中。
 3. 点按电子邮件地址旁边的拷贝图标。
 4. 导航到您想要订阅的新闻稿件的注册页面。
 5. 将 Omnivore 电子邮件地址粘贴到注册表中。
@@ -64,7 +64,7 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 
 ### 从 Mac 保存 PDF
 
-1. 安装 [Mac 应用程序](https://omnivore.app/install/mac)。
+1. 安装 [Mac 应用程序](https://omnivore.work/install/mac)。
 2. 在 Mac 上，找到要保存的 PDF，然后右键单击或 ctrl + 单击 文件名。
 3. 从菜单中选择 **共享**，然后选择 **Omnivore**。
 4. 下次刷新链接时，该链接将显示在您的文库中。
@@ -135,7 +135,7 @@ Omnivore 自动跟踪您在不同设备上的阅读进度，以便您可以轻�
 ### 搜索
 
 1. 要搜索所有已保存的链接，请在搜索栏中输入关键字或短语。
-2. 您可以将关键字与标签和筛选器结合使用，以进一步集中搜索。 [了解有关高级搜索的更多信息](https://docs.omnivore.app/using/search.html)。
+2. 您可以将关键字与标签和筛选器结合使用，以进一步集中搜索。 [了解有关高级搜索的更多信息](https://docs.omnivore.work/using/search.html)。
 
 ### 筛选器 (过滤器)
 

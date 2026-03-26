@@ -11,7 +11,7 @@ import { createTestUser } from '../db'
 import { request } from '../util'
 
 xdescribe('Email attachments Router', () => {
-  const newsletterEmailAddress = 'fakeEmail@omnivore.app'
+  const newsletterEmailAddress = 'fakeEmail@omnivore.work'
 
   let user: User
   let authToken: string

@@ -52,6 +52,7 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
     mapOrNull(async (article: any) => {
       const { image, description } = await getDescriptionAndImage(article)
 
+
       return {
         authors: Array.isArray(article.author.name)
           ? article.author.name[0]
@@ -59,7 +60,7 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
         slug: slugify(article.link['@_href']),
         url: article.link['@_href'],
         title: removeHTMLTag(article.title['#text'] ?? article.title),
-	description: description ?? '',
+        description: description ?? '',
         summary: description ?? '',
         image: image ?? '',
         site: new URL(article.link['@_href']).host,

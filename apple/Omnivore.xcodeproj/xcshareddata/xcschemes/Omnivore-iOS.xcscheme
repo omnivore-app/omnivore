@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8260E9C026EF983F8970EC05"
-               BuildableName = "Omnivore.app"
+               BuildableName = "omnivore.work"
                BlueprintName = "Omnivore-iOS"
                ReferencedContainer = "container:Omnivore.xcodeproj">
             </BuildableReference>
@@ -97,7 +97,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8260E9C026EF983F8970EC05"
-            BuildableName = "Omnivore.app"
+            BuildableName = "omnivore.work"
             BlueprintName = "Omnivore-iOS"
             ReferencedContainer = "container:Omnivore.xcodeproj">
          </BuildableReference>
@@ -121,7 +121,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8260E9C026EF983F8970EC05"
-            BuildableName = "Omnivore.app"
+            BuildableName = "omnivore.work"
             BlueprintName = "Omnivore-iOS"
             ReferencedContainer = "container:Omnivore.xcodeproj">
          </BuildableReference>

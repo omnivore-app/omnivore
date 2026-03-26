@@ -45,7 +45,7 @@ export const sendWithMailJet = async (
       Messages: [
         {
           From: {
-            Email: 'no-reply@omnivore.app',
+            Email: 'no-reply@omnivore.work',
           },
           To: [
             {

@@ -199,7 +199,7 @@
 		0480E71326D939BF006CAE2F /* MacLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLaunchTests.swift; sourceTree = "<group>"; };
 		0480E71526D939BF006CAE2F /* MacUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MacUITests.plist; sourceTree = "<group>"; };
 		0480E71B26D95096006CAE2F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		048ECFFC26A0B1CB00469E57 /* Omnivore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Omnivore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		048ECFFC26A0B1CB00469E57 /* omnivore.work */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = omnivore.work; sourceTree = BUILT_PRODUCTS_DIR; };
 		048ED00A26A0B1CC00469E57 /* MacOmnivore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MacOmnivore.plist; sourceTree = "<group>"; };
 		048ED00B26A0B1CC00469E57 /* MacOmnivore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacOmnivore.entitlements; sourceTree = "<group>"; };
 		04920CC5279671EF003EC1B6 /* PushNotificationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationConfig.swift; sourceTree = "<group>"; };
@@ -209,7 +209,7 @@
 		04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenIdentifierHelpers.swift; sourceTree = "<group>"; };
 		082449FB9F5F3730EE0D8D3F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0BE7F7C593222747A96AA4E7 /* Omnivore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Omnivore.plist; sourceTree = "<group>"; };
-		1A39D8FDA25447FDBF07E24B /* Omnivore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Omnivore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A39D8FDA25447FDBF07E24B /* omnivore.work */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = omnivore.work; sourceTree = BUILT_PRODUCTS_DIR; };
 		42321E822714E6B00056429F /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		42321E842714E6B00056429F /* views */ = {isa = PBXFileReference; lastKnownFileType = folder; path = views; sourceTree = "<group>"; };
 		42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
@@ -532,10 +532,10 @@
 		E601FA26367162479B614F0F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1A39D8FDA25447FDBF07E24B /* Omnivore.app */,
+				1A39D8FDA25447FDBF07E24B /* omnivore.work */,
 				B5EF8E3E143618BFA9F4D89A /* OmnivoreTests.xctest */,
 				95D337DDCEA2007A9705A969 /* ShareExtension.appex */,
-				048ECFFC26A0B1CB00469E57 /* Omnivore.app */,
+				048ECFFC26A0B1CB00469E57 /* omnivore.work */,
 				0411792726A22860004AE24F /* UnitTests-MacApp.xctest */,
 				046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */,
 				0480E71126D939BF006CAE2F /* UITests-Mac.xctest */,
@@ -646,7 +646,7 @@
 				04B8B00526A0CEFA00D3ED0C /* App */,
 			);
 			productName = MacOmnivore;
-			productReference = 048ECFFC26A0B1CB00469E57 /* Omnivore.app */;
+			productReference = 048ECFFC26A0B1CB00469E57 /* omnivore.work */;
 			productType = "com.apple.product-type.application";
 		};
 		3D30FF2BDEFCACE5A2A13AD1 /* ShareExtension */ = {
@@ -753,7 +753,7 @@
 				045B1680279147E7005047F7 /* FirebaseMessaging */,
 			);
 			productName = Omnivore;
-			productReference = 1A39D8FDA25447FDBF07E24B /* Omnivore.app */;
+			productReference = 1A39D8FDA25447FDBF07E24B /* omnivore.work */;
 			productType = "com.apple.product-type.application";
 		};
 		B46CFFB2A582C337CB0AAAEF /* OmnivoreTests-iOS */ = {
@@ -1172,7 +1172,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.6;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Contents/MacOS/Omnivore";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/omnivore.work/Contents/MacOS/Omnivore";
 			};
 			name = Debug;
 		};
@@ -1198,7 +1198,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.6;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Contents/MacOS/Omnivore";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/omnivore.work/Contents/MacOS/Omnivore";
 			};
 			name = Release;
 		};
@@ -1273,7 +1273,7 @@
 				MARKETING_VERSION = 1.23.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.ShareExtension-Mac";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.ShareExtension-Mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1305,7 +1305,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.23.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.ShareExtension-Mac";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.ShareExtension-Mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1392,7 +1392,7 @@
 				MARKETING_VERSION = 1.46.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.work;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1426,7 +1426,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.46.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.work;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1458,7 +1458,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.5;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Omnivore";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/omnivore.work/Omnivore";
 				TEST_TARGET_NAME = Omnivore;
 			};
 			name = Debug;
@@ -1479,8 +1479,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.46.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				MARKETING_VERSION = 1.46.1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.work;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -1504,7 +1504,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.AppStoreScreenshots;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.workStoreScreenshots;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -1527,7 +1527,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.AppStoreScreenshots;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.workStoreScreenshots;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -1565,7 +1565,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.Omnivore-Extension";
 				PRODUCT_NAME = SafariExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -1603,7 +1603,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.Omnivore-Extension";
 				PRODUCT_NAME = SafariExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -1644,7 +1644,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.Omnivore-Extension";
 				PRODUCT_NAME = SafariExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1683,7 +1683,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.Omnivore-Extension";
 				PRODUCT_NAME = SafariExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1766,7 +1766,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.23.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -1799,7 +1799,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.5;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Omnivore";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/omnivore.work/Omnivore";
 				TEST_TARGET_NAME = Omnivore;
 			};
 			name = Release;
@@ -1820,8 +1820,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.46.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				MARKETING_VERSION = 1.46.1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.work;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -1850,7 +1850,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.23.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.work.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;

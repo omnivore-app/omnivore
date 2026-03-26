@@ -2,7 +2,7 @@ import Foundation
 
 func cardShouldHideUrl(_ url: String?) -> Bool {
   if let url = url, let origin = URL(string: url)?.host {
-    let hideHosts = ["storage.googleapis.com", "omnivore.app"]
+    let hideHosts = ["storage.googleapis.com", "omnivore.work"]
     if hideHosts.contains(origin) {
       return true
     }

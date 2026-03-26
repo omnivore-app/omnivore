@@ -1,14 +1,13 @@
 version: '3'
 x-postgres:
   &postgres-common
-  image: "ankane/pgvector:v0.5.1"
+  image: "docker.io/pgvector/pgvector:pg15"
   user: postgres
   healthcheck:
     test: "exit 0"
     interval: 2s
     timeout: 12s
     retries: 3
-
 services:
   postgres:
     <<: *postgres-common
@@ -18,22 +17,23 @@ services:
     env_file:
       - .env
 
+    networks:
+      - omnivore-network
+      
   migrate:
-    build:
-      context: ../../
-      dockerfile: ./packages/db/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-migrate:latest"
     container_name: "omnivore-migrate"
-    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.work, password: demo_password
+    command: '/bin/sh ./packages/db/setup.sh'
     env_file:
       - .env
     depends_on:
       postgres:
         condition: service_healthy
-
+    networks:
+      - omnivore-network
+      
   api:
-    build:
-      context: ../../
-      dockerfile: ./packages/api/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-backend:latest"
     container_name: "omnivore-api"
     ports:
       - "4000:8080"
@@ -47,7 +47,9 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-
+    networks:
+      - omnivore-network
+      
   queue-processor:
     image: "ghcr.io/omnivore-app/sh-queue-processor:latest"
     container_name: "omnivore-queue-processor"
@@ -56,26 +58,22 @@ services:
     depends_on:
       api:
         condition: service_started
-
+    networks:
+      - omnivore-network
+      
   web:
-    build:
-      context: ../../
-      dockerfile: ./packages/web/Dockerfile-self
-      args:
-        - APP_ENV=prod
-        - BASE_URL=https://omnivore.podginator.com
-        - SERVER_BASE_URL=https://omnivore-api.podginator.com 
-        - HIGHLIGHTS_BASE_URL=http://omnivore.podginator.com
-        - USE_NATIVE_PDF=true
+    image: "ghcr.io/omnivore-app/sh-web:latest"
     container_name: "omnivore-web"
     ports:
       - "3000:8080"
     env_file:
-      .env
+      - .env
     depends_on:
       api:
         condition: service_healthy
-
+    networks:
+      - omnivore-network
+      
   image-proxy:
     image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
     container_name: "omnivore-image-proxy"
@@ -83,14 +81,16 @@ services:
       - "7070:8080"
     env_file:
       - .env
-
+    networks:
+      - omnivore-network
+      
   content-fetch:
     image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
     environment:
-      - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
+      - USE_FIREFOX=true
     env_file:
       - .env
     depends_on:
@@ -98,23 +98,31 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
-
+    networks:
+      - omnivore-network
+      
   redis:
-    image: "redis:7.2.4"
+    image: "docker.io/library/redis:latest"
     container_name: "omnivore-redis"
     expose:
       - 6379
+    ports:
+      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     volumes:
       - redis_data:/data
-
+    networks:
+      - omnivore-network
+      
   minio:
-    image: minio/minio
+    image: "docker.io/minio/minio:latest"
+    container_name: "omnivore-minio"
     expose:
-      - 1010
+      - 9000
     ports:
-      - "1010:9000"
+      - "9000:9000"
+      - "9001:9001"
     healthcheck:
       test: [ "CMD", "mc", "ready", "local" ]
       interval: 5s
@@ -122,19 +130,19 @@ services:
     environment:
       - "MINIO_ACCESS_KEY=minio"
       - "MINIO_SECRET_KEY=miniominio"
-      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
-    command: server /data
+    command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
-
+    networks:
+      - omnivore-network
+      
   createbuckets:
-    image: minio/mc
+    image: docker.io/minio/mc:latest
     environment:
       - MINIO_ACCESS_KEY=minio
       - MINIO_SECRET_KEY=miniominio
       - BUCKET_NAME=omnivore
       - ENDPOINT=http://minio:9000
-      - AWS_S3_ENDPOINT_URL=http://minio:9000
     depends_on:
       - minio
     entrypoint: >
@@ -145,6 +153,9 @@ services:
       /usr/bin/mc anonymous set public myminio/omnivore;
       exit 0;
       "
+    networks:
+      - omnivore-network
+      
   mail-watch-server:
     image: "ghcr.io/omnivore-app/sh-local-mail-watcher:latest"
     container_name: "omnivore-mail-watch-server"
@@ -155,18 +166,14 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-  discover:
-    build:
-      context: ../../
-      dockerfile: ./packages/discover/Dockerfile
-    container_name: "omnivore-discover"
-    env_file:
-      - .env
-    depends_on:
-      redis:
-        condition: service_healthy
+    networks:
+      - omnivore-network
+
+networks:
+  omnivore-network:
+    driver: bridge
+
 volumes:
   pgdata:
   redis_data:
   minio_data:
-

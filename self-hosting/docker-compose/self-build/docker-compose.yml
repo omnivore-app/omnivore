@@ -25,7 +25,7 @@ services:
       context: ../../../
       dockerfile: ./packages/db/Dockerfile
     container_name: "omnivore-migrate"
-    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.work, password: demo_password
     env_file:
       - .env
     depends_on:
@@ -150,7 +150,7 @@ services:
     entrypoint: >
       /bin/bash -c "
       sleep 5;
-      until (/usr/bin/mc config host add myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
+      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc mb myminio/omnivore;
       /usr/bin/mc policy set public myminio/omnivore;
       exit 0;

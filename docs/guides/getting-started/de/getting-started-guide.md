@@ -31,10 +31,10 @@ Es gibt fünf grundlegende Arten, um Links zu Seiten oder Artikeln zu speichern,
 
 1. Laden Sie die Omnivore-Erweiterung für Ihren Browser herunter und installieren Sie sie:
 
-  - [Chrome](https://omnivore.app/install/chrome)
-  - [Edge](https://omnivore.app/install/edge)
-  - [Firefox](https://omnivore.app/install/firefox)
-  - [Safari](https://omnivore.app/install/safari)
+  - [Chrome](https://omnivore.work/install/chrome)
+  - [Edge](https://omnivore.work/install/edge)
+  - [Firefox](https://omnivore.work/install/firefox)
+  - [Safari](https://omnivore.work/install/safari)
 
 2. Navigieren Sie zu der Seite, die Sie speichern möchten, und klicken Sie auf die Omnivore-Schaltfläche in Ihrer Browser-Symbolleiste oder im Erweiterungen-Menü.
 3. Alternativ können Sie mit der rechten Maustaste (Befehl+Klick auf dem Mac) auf einen beliebigen Hyperlink klicken und **Zu Omnivore hinzufügen** aus dem Menü auswählen.
@@ -44,7 +44,7 @@ Es gibt fünf grundlegende Arten, um Links zu Seiten oder Artikeln zu speichern,
 
 Die beste Möglichkeit, Links von Ihrem mobilen Gerät zu speichern, besteht über die Omnivore-App. Sie können die App hier herunterladen:
 
-- [iOS (iPhone oder iPad)](https://omnivore.app/install/ios)
+- [iOS (iPhone oder iPad)](https://omnivore.work/install/ios)
 - Android
 
 Nachdem die mobile App installiert ist:
@@ -56,7 +56,7 @@ Nachdem die mobile App installiert ist:
 ### Newsletter-Abonnements per E-Mail
 
 1. Klicken Sie auf der Omnivore-Website oder App auf Ihr Foto, Ihre Initialen oder Ihr Avatar in der oberen rechten Ecke, um das Profilmenü zu öffnen. Wählen Sie **E-Mails** aus dem Menü.
-2. Klicken Sie auf **Neue E-Mail-Adresse erstellen**, um eine neue E-Mail-Adresse (z.B. username-123_abc@inbox.omnivore.app) zur Liste hinzuzufügen.
+2. Klicken Sie auf **Neue E-Mail-Adresse erstellen**, um eine neue E-Mail-Adresse (z.B. username-123_abc@inbox.omnivore.work) zur Liste hinzuzufügen.
 3. Klicken Sie auf das Kopier-Symbol neben der E-Mail-Adresse.
 4. Navigieren Sie zur Anmeldeseite des Newsletters, den Sie abonnieren möchten.
 5. Fügen Sie die Omnivore-E-Mail-Adresse in das Anmeldeformular ein.
@@ -64,7 +64,7 @@ Nachdem die mobile App installiert ist:
 
 ### PDFs von einem Mac speichern
 
-1. Installieren Sie die [Mac App](https://omnivore.app/install/mac).
+1. Installieren Sie die [Mac App](https://omnivore.work/install/mac).
 2. Suchen Sie auf Ihrem Mac das PDF, das Sie speichern möchten und klicken Sie mit der rechten Maustaste oder Strg+Klick auf den Dateinamen.
 3. Wählen Sie **Teilen** aus dem Menü und wählen Sie **Omnivore**.
 4. Der Link wird beim nächsten Aktualisieren in Ihrer Bibliothek angezeigt
@@ -161,7 +161,7 @@ Standardmäßig zeigt der Posteingang der Bibliothek alle gespeicherten Links an
   
 1. Um in all Ihren gespeicherten Links zu suchen, geben Sie ein Schlüsselwort oder eine Phrase in die Suchleiste ein.
 
-2. Sie können Schlüsselworte mit Labels und Filtern kombinieren, um Ihre Suche noch weiter zu fokussieren. [Erfahren Sie mehr über die erweiterte Suche](https://docs.omnivore.app/using/search.html).
+2. Sie können Schlüsselworte mit Labels und Filtern kombinieren, um Ihre Suche noch weiter zu fokussieren. [Erfahren Sie mehr über die erweiterte Suche](https://docs.omnivore.work/using/search.html).
   
 
 ### Filter

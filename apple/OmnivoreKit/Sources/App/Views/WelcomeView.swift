@@ -46,7 +46,7 @@ struct WelcomeView: View {
           #if os(iOS)
             showAboutPage = true
           #else
-            if let url = URL(string: "https://omnivore.app/about") {
+            if let url = URL(string: "https://omnivore.work/about") {
               NSWorkspace.shared.open(url)
             }
           #endif
@@ -147,7 +147,7 @@ struct WelcomeView: View {
       }
     }
     .sheet(isPresented: $showAboutPage) {
-      if let url = URL(string: "https://omnivore.app/about") {
+      if let url = URL(string: "https://omnivore.work/about") {
         SafariView(url: url)
           .ignoresSafeArea(.all, edges: .bottom)
       }

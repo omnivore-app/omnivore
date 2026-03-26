@@ -18,10 +18,10 @@ const icons = {
 }
 
 const extensionDownloadLinks = {
-  'Google Chrome': 'https://omnivore.app/install/chrome',
-  Safari: 'https://omnivore.app/install/mac',
-  'Microsoft Edge': 'https://omnivore.app/install/edge',
-  Firefox: 'https://omnivore.app/install/firefox',
+  'Google Chrome': 'https://omnivore.work/install/chrome',
+  Safari: 'https://omnivore.work/install/mac',
+  'Microsoft Edge': 'https://omnivore.work/install/edge',
+  Firefox: 'https://omnivore.work/install/firefox',
 }
 
 const browserOptions = [
@@ -171,7 +171,7 @@ export default function ExtensionsInstallHelp({
               fontWeight: 600,
               textDecoration: 'underline',
             }}
-            href="https://docs.omnivore.app/using/saving.html"
+            href="https://docs.omnivore.work/using/saving.html"
             target="_blank"
             rel="noreferrer"
           >

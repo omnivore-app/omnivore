@@ -46,7 +46,7 @@ export default function SubscriptionsPage(): JSX.Element {
   return (
     <SettingsTable
       pageId="settings-subscriptions-tag"
-      pageInfoLink="https://docs.omnivore.app/using/feeds.html"
+      pageInfoLink="https://docs.omnivore.work/using/feeds.html"
       headerTitle="Subscriptions"
     >
       <>

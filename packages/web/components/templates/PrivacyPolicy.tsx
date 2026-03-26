@@ -159,7 +159,7 @@ export function PrivacyPolicy(props: PrivacyPolicyProps): JSX.Element {
         </StyledText>
         <StyledText style="body">
           <strong>Website</strong> refers to Omnivore, accessible from
-          https://omnivore.app
+          https://omnivore.work
         </StyledText>
         <StyledText style="body">
           <strong>You</strong> means the individual accessing or using the
@@ -1107,7 +1107,7 @@ export function PrivacyPolicy(props: PrivacyPolicyProps): JSX.Element {
         California resident, You can contact Us:
       </StyledText>
       <StyledList>
-        <StyledListElement>By email: privacy@omnivore.app</StyledListElement>
+        <StyledListElement>By email: privacy@omnivore.work</StyledListElement>
       </StyledList>
       <StyledText style="body">
         Only You, or a person registered with the California Secretary of State
@@ -1259,7 +1259,7 @@ export function PrivacyPolicy(props: PrivacyPolicyProps): JSX.Element {
         If you have any questions about this Privacy Policy, You can contact us:
       </StyledText>
       <StyledList>
-        <StyledListElement>By email: privacy@omnivore.app</StyledListElement>
+        <StyledListElement>By email: privacy@omnivore.work</StyledListElement>
       </StyledList>
     </Box>
   )

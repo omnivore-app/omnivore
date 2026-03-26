@@ -31,10 +31,10 @@ There are five main ways to save links to pages or articles that you wish to rea
 
 1. Download and install the Omnivore extension for your browser:
 
-- [Chrome ](https://omnivore.app/install/chrome)
-- [Edge](https://omnivore.app/install/edge)
-- [Firefox](https://omnivore.app/install/firefox)
-- [Safari](https://omnivore.app/install/safari)
+- [Chrome ](https://omnivore.work/install/chrome)
+- [Edge](https://omnivore.work/install/edge)
+- [Firefox](https://omnivore.work/install/firefox)
+- [Safari](https://omnivore.work/install/safari)
 
 2. Navigate to the page you wish to save and tap the Omnivore button in your browser’s toolbar or Extensions menu.
 3. Alternatively, you can right-click (command+click on Mac) on any hyperlink and select **Save to Omnivore** from the menu.
@@ -44,7 +44,7 @@ There are five main ways to save links to pages or articles that you wish to rea
 
 The best way to save links from your mobile device is via the Omnivore app. You can download the app here:
 
-- [iOS (iPhone or iPad)](https://omnivore.app/install/ios)
+- [iOS (iPhone or iPad)](https://omnivore.work/install/ios)
 - Android
 
 Once the mobile app is installed:
@@ -56,7 +56,7 @@ Once the mobile app is installed:
 ### Newsletter Subscriptions via Email
 
 1. On the Omnivore website or app, tap your photo, initial, or avatar in the top right corner to access the profile menu. Select **Emails** from the menu.
-2. Tap **Create a New Email Address** to add a new email address (ex: username-123_abc@inbox.omnivore.app) to the list.
+2. Tap **Create a New Email Address** to add a new email address (ex: username-123_abc@inbox.omnivore.work) to the list.
 3. Click the Copy icon next to the email address.
 4. Navigate to the signup page for the newsletter you wish to subscribe to. \
 5. Paste the Omnivore email address into the signup form.
@@ -64,7 +64,7 @@ Once the mobile app is installed:
 
 ### Saving PDFs from a Mac
 
-1. Install the [Mac App](https://omnivore.app/install/mac).
+1. Install the [Mac App](https://omnivore.work/install/mac).
 2. On your Mac, locate the PDF you wish to save and right-click or ctrl+click on the file name.
 3. Select **Share** from the menu and choose **Omnivore**.
 4. The link will appear in your Library the next time you refresh it.
@@ -135,7 +135,7 @@ By default, the Library inbox displays all links you have saved. To manage your 
 ### Search
 
 1. To search through all your saved links, enter a keyword or phrase in the search bar.
-2. You can combine keywords with labels and filters to focus your search even further. [Learn more about advanced search](https://docs.omnivore.app/using/search.html).
+2. You can combine keywords with labels and filters to focus your search even further. [Learn more about advanced search](https://docs.omnivore.work/using/search.html).
 
 ### Filters
 

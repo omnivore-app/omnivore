@@ -225,7 +225,7 @@ fun WelcomeHeader() {
 @Composable
 fun MoreInfoButton() {
     val context = LocalContext.current
-    val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://omnivore.app/about")) }
+    val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://omnivore.work/about")) }
 
     ClickableText(
         text = AnnotatedString(

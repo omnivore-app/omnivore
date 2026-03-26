@@ -86,7 +86,7 @@ begin
         setweight(new.author_tsv, 'A') || 
         setweight(new.site_tsv, 'A') || 
         setweight(new.description_tsv, 'A') || 
-        -- full hostname (eg www.omnivore.app)
+        -- full hostname (eg www.omnivore.work)
         setweight(to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.original_url, '^((http[s]?):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$', '\3'), '')), 'A') || 
         -- secondary hostname (eg omnivore)
         setweight(to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.original_url, '^((http[s]?):\/)?\/?(.*\.)?([^:\/\s]+)(\..*)((\/+)*\/)?([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$', '\4'), '')), 'A') ||

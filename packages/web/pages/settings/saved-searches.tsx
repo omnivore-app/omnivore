@@ -358,7 +358,7 @@ export default function SavedSearchesPage(): JSX.Element {
               <Box>
                 <StyledText style="fixedHeadline">Saved Searches </StyledText>
               </Box>
-              <InfoLink href="https://docs.omnivore.app/using/search.html" />
+              <InfoLink href="https://docs.omnivore.work/using/search.html" />
               <Box
                 css={{
                   display: 'flex',

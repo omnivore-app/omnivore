@@ -513,7 +513,7 @@ const ExportSection = (): JSX.Element => {
       </StyledText>
       <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
         If you do not receive your completed export within 24hrs please contact{' '}
-        <a href="mailto:feedback@omnivore.app">
+        <a href="mailto:feedback@omnivore.work">
           Contact&nbsp;us via&nbsp;email
         </a>
       </StyledText>

@@ -56,7 +56,7 @@ export default function LandingPage(): JSX.Element {
           will need to use an API key to authenticate. You can read more about
           this{' '}
           <a
-            href="https://docs.omnivore.app/using/saving.html#authentication-issues"
+            href="https://docs.omnivore.work/using/saving.html#authentication-issues"
             rel="noreferrer"
           >
             here.

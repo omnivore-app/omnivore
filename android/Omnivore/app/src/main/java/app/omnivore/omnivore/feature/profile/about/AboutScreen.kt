@@ -120,7 +120,7 @@ internal fun AboutScreen(
                     LinkIcon(
                         label = stringResource(R.string.website),
                         icon = Icons.Outlined.Public,
-                        url = "https://omnivore.app",
+                        url = "https://omnivore.work",
                     )
                     LinkIcon(
                         label = "Discord",

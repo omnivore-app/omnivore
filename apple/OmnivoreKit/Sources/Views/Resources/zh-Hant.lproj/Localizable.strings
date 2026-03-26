@@ -42,7 +42,7 @@
 // Push Notification Settings
 "notificationsEnabled" = "已啟用通知";
 "notificationsExplainer" = "啟用推播通知將授予 Omnivore 裝置傳送通知的權限，\n但您可以控制哪些通知被傳送。";
-"notificationsTriggerExplainer" = "推播通知是由您的\n[帳戶規則](https://omnivore.app/settings/rules) 觸發，您可以在線上編輯。";
+"notificationsTriggerExplainer" = "推播通知是由您的\n[帳戶規則](https://omnivore.work/settings/rules) 觸發，您可以在線上編輯。";
 "notificationsEnable" = "啟用推播通知？";
 "notificationsGeneralExplainer" = "當電子報連結抵達您的收件匣時獲得通知。或從我們的分享擴充功能接收提醒。";
 "notificationsOptionDeny" = "不，謝謝";

@@ -45,7 +45,7 @@ describe('auth router', () => {
       before(() => {
         password = validPassword
         username = 'Some_username'
-        email = `${username}@omnivore.app ` // space at the end is intentional
+        email = `${username}@omnivore.work ` // space at the end is intentional
         name = 'Some name'
       })
 
@@ -523,7 +523,7 @@ describe('auth router', () => {
       const name = 'test_user'
       const username = 'test_user'
       const sourceUserId = 'test_source_user_id'
-      const email = 'test_user@omnivore.app'
+      const email = 'test_user@omnivore.work'
       const bio = 'test_bio'
       const provider: AuthProvider = 'EMAIL'
 
@@ -586,7 +586,7 @@ describe('auth router', () => {
 describe('isValidSignupRequest', () => {
   it('returns true for normal looking requests', () => {
     const result = isValidSignupRequest({
-      email: 'email@omnivore.app',
+      email: 'email@omnivore.work',
       password: 'superDuperPassword',
       name: "The User's Name",
       username: 'foouser',
@@ -602,21 +602,21 @@ describe('isValidSignupRequest', () => {
     expect(result).to.be.false
 
     result = isValidSignupRequest({
-      email: 'email@omnivore.app',
+      email: 'email@omnivore.work',
       name: "The User's Name",
       username: 'foouser',
     })
     expect(result).to.be.false
 
     result = isValidSignupRequest({
-      email: 'email@omnivore.app',
+      email: 'email@omnivore.work',
       password: 'superDuperPassword',
       username: 'foouser',
     })
     expect(result).to.be.false
 
     result = isValidSignupRequest({
-      email: 'email@omnivore.app',
+      email: 'email@omnivore.work',
       password: 'superDuperPassword',
       name: "The User's Name",
     })

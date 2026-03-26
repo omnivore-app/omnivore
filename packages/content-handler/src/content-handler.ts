@@ -34,7 +34,7 @@ export interface PreHandleResult {
   dom?: Document
 }
 
-export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+export const FAKE_URL_PREFIX = 'https://omnivore.work/no_url?q='
 export const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
 
 export abstract class ContentHandler {

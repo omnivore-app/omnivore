@@ -121,7 +121,7 @@ describe('Recent Emails Resolver', () => {
     before(async () => {
       // create fake email
       recentEmail = await saveReceivedEmail(
-        'Omnivore Newsletter <newsletter@omnivore.app>',
+        'Omnivore Newsletter <newsletter@omnivore.work>',
         newsletterEmail.address,
         'fake subject 3',
         'fake text 3',

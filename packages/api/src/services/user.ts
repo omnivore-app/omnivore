@@ -47,7 +47,7 @@ export const softDeleteUser = async (userId: string) => {
 
       return t.getRepository(User).update(userId, {
         status: StatusType.Deleted,
-        email: `deleted_user_${userId}@omnivore.app`,
+        email: `deleted_user_${userId}@omnivore.work`,
         sourceUserId: `deleted_user_${userId}`,
       })
     },

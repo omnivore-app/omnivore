@@ -25,7 +25,7 @@ const readYamlFile = require('read-yaml-file')
 const app = express()
 const port = process.env.PORT || '8000'
 const ADMIN_USER_EMAIL =
-  process.env.ADMIN_USER_EMAIL || 'admin-user@omnivore.app'
+  process.env.ADMIN_USER_EMAIL || 'admin-user@omnivore.work'
 
 ;(async () => {
   const secrets = await readYamlFile(process.env.SECRETS_FILE)

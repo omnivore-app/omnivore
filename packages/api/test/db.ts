@@ -66,7 +66,7 @@ export const createTestUser = async (
   const [newUser] = await createUser({
     provider: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
-    email: `${name}@omnivore.app`,
+    email: `${name}@omnivore.work`,
     username: name,
     bio: `i am ${name}`,
     name: name,
@@ -82,7 +82,7 @@ export const createUserWithoutProfile = async (name: string): Promise<User> => {
   return userRepository.save({
     source: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
-    email: `${name}@omnivore.app`,
+    email: `${name}@omnivore.work`,
     name: name,
   })
 }
@@ -115,7 +115,7 @@ export const createTestLibraryItem = async (
   const item = {
     user: { id: userId },
     title: 'test title',
-    originalUrl: `https://blog.omnivore.app/test-url-${generateFakeUuid()}`,
+    originalUrl: `https://blog.omnivore.work/test-url-${generateFakeUuid()}`,
     slug: 'test-with-omnivore',
   }
 

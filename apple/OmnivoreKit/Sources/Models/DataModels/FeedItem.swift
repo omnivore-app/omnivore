@@ -141,7 +141,7 @@ public extension LibraryItem {
     switch host {
     case "storage.googleapis.com":
       return true
-    case "omnivore.app":
+    case "omnivore.work":
       return true
     default:
       return false

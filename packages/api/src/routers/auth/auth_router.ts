@@ -393,8 +393,8 @@ export function authRouter() {
       }
 
       // If we do have an auth token, we want to try redirecting to the
-      // sso endpoint which will set a cookie for the client domain (omnivore.app)
-      // after we set a cookie for the API domain (api-prod.omnivore.app)
+      // sso endpoint which will set a cookie for the client domain (omnivore.work)
+      // after we set a cookie for the API domain (api-prod.omnivore.work)
       const authToken = await createWebAuthToken(user.id)
       if (authToken) {
         const ssoToken = createSsoToken(authToken, redirectUri)
