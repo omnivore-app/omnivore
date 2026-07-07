@@ -134,9 +134,15 @@ export const uploadToSignedUrl = async (
 }
 
 export const isFileExists = async (filePath: string): Promise<boolean> => {
-  const file = await storage.downloadFile(bucketName, filePath)
-  const exists = await file.exists()
-  return exists
+  try {
+    const file = await storage.downloadFile(bucketName, filePath)
+    return await file.exists()
+  } catch (error) {
+    if ((error as { name?: string })?.name === 'NoSuchKey') {
+      return false
+    }
+    throw error
+  }
 }
 
 export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
