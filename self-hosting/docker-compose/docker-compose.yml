@@ -73,12 +73,10 @@ services:
       - .env
 
   content-fetch:
-    image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
+    image: "ghcr.io/omnivore-app/sh-content-fetch-go:latest"
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
-    environment:
-      - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
     env_file:
       - .env
     depends_on:
@@ -86,6 +84,8 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
 
   redis:
     image: "redis:7.2.4"
