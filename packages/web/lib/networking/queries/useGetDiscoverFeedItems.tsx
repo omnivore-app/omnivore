@@ -1,7 +1,8 @@
 import { gql } from 'graphql-request'
-import { publicGqlFetcher } from '../networkHelpers'
+import { gqlFetcher, publicGqlFetcher } from '../networkHelpers'
 import { useEffect, useState } from 'react'
 import { TopicTabData } from '../../../components/templates/discoverFeed/DiscoverContainer'
+import { HideDiscoverArticleInput, HideDiscoverArticleOutput } from './useGetDiscoverFeeds'
 
 const OMNIVORE_COMMUNITY_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
 
@@ -18,7 +19,8 @@ export type DiscoverFeedItem = {
   siteName?: string
   saves?: number
   savedId?: string // Has the user saved this? If so then we can get it from here. This will allow us to link back
-  savedLinkUrl?: string
+  savedLinkUrl?: string,
+  hidden?: boolean
 }
 
 type DiscoverItemResponse = {
@@ -30,13 +32,17 @@ type DiscoverItemResponse = {
   activeTopic: TopicTabData
   hasMore: boolean
   page: number
-  setPage: (page: number) => void
+  setPage: (page: number) => void,
+  hideDiscoverArticleMutation :(
+    input: HideDiscoverArticleInput
+  ) => Promise<HideDiscoverArticleOutput | undefined>
 }
 
 export function useGetDiscoverFeedItems(
   startingTopic: TopicTabData,
   selectedFeed = 'All Feeds',
-  limit = 10
+  limit = 10,
+  showHidden = true
 ): DiscoverItemResponse {
   const [activeTopic, setTopic] = useState(startingTopic)
   const [discoverItems, setDiscoverItems] = useState<DiscoverFeedItem[]>([])
@@ -51,7 +57,7 @@ export function useGetDiscoverFeedItems(
     query GetDiscoverFeedItems {
       getDiscoverFeedArticles(discoverTopicId: "${
         activeTopic.title
-      }", first: ${limit}, after: "${page * limit}" ${
+      }", showHidden: ${showHidden}, first: ${limit}, after: "${page * limit}" ${
       fixedSelectedFeed == 'All Feeds' ? '' : `feedId: "${fixedSelectedFeed}"`
     }) {
         ... on GetDiscoverFeedArticleSuccess {
@@ -68,6 +74,7 @@ export function useGetDiscoverFeedItems(
             author,
             savedId, 
             savedLinkUrl,
+            hidden
           }
           pageInfo {
             hasNextPage
@@ -98,7 +105,7 @@ export function useGetDiscoverFeedItems(
     } else {
       setPage(0)
     }
-  }, [activeTopic, selectedFeed])
+  }, [activeTopic, selectedFeed, showHidden])
 
   useEffect(() => {
     setIsLoading(true)
@@ -112,6 +119,41 @@ export function useGetDiscoverFeedItems(
     })
   }, [page])
 
+  const hideDiscoverArticleMutation = async(
+    input: HideDiscoverArticleInput
+  ): Promise<HideDiscoverArticleOutput | undefined> => {
+    const mutation = gql`
+    mutation HideDiscoverArticle($input: HideDiscoverArticleInput!) {
+      hideDiscoverArticle(input: $input) {
+        ... on HideDiscoverArticleSuccess {
+          id
+        }
+
+        ... on HideDiscoverArticleError {
+          errorCodes
+        }
+      }
+    }
+  `
+
+    const data = (await gqlFetcher(mutation, {
+      input,
+    })) as HideDiscoverArticleOutput
+
+    const hiddenDiscoveryList = discoverItems.
+      map(it => {
+        if (it.id == data.hideDiscoverArticle.id) {
+          return { ...it, hidden: input.setHidden }
+        }
+
+        return it
+    })
+
+    setDiscoverItems(hiddenDiscoveryList)
+
+    return data
+  }
+
   return {
     setTopic,
     activeTopic,
@@ -120,5 +162,6 @@ export function useGetDiscoverFeedItems(
     hasMore,
     page,
     setPage,
+    hideDiscoverArticleMutation
   }
 }

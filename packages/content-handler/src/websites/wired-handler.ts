@@ -34,6 +34,7 @@ export class WiredHandler extends ContentHandler {
 
   shouldPreHandle(url: string): boolean {
     const u = new URL(url)
+    console.log(u.hostname, u.hostname.endsWith('wired.com'))
     return u.hostname.endsWith('wired.com')
   }
 

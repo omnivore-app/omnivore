@@ -25,12 +25,12 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
         maxWidth: '100%',
         pt: '10px',
         pb: '0px',
-        gap: '10px',
+        gap: '5px',
         bg: 'transparent',
         // overflowX: 'scroll',
       }}
     >
-      {[{ title: "All Feeds", id:"All Feeds" }, { title: "Community", id: "Community" },  ...props.items.map(({visibleName, id}) => ({ title: visibleName, id }))].map((it) => {
+      {[{ title: "All Feeds", id:"All Feeds" }, ...props.items.map(({visibleName, id}) => ({ title: visibleName, id }))].map((it) => {
         const style =
           it.id == props.selected ? 'ctaPill' : 'ctaPillUnselected'
         return (

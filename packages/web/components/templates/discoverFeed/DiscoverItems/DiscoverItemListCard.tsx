@@ -61,6 +61,7 @@ export function DiscoverItemListCard(
         px: '20px',
         pl: '10px',
         py: '15px',
+        opacity: props.hidden ? 0.5 : 1,
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
@@ -101,8 +102,10 @@ export function DiscoverItemListCard(
             setSavedId={props.setSavedId}
             savedId={props.savedId}
             savedUrl={props.savedUrl}
+            hidden={props.hidden}
             setSavedUrl={props.setSavedUrl}
             deleteDiscoverItem={props.deleteDiscoverItem}
+            hideDiscoverItem={props.setItemHidden}
           />
         </Box>
       )}
