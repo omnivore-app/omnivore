@@ -57,7 +57,7 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
         authors: Array.isArray(article.author.name)
           ? article.author.name[0]
           : article.author.name,
-        slug: slugify(article.link['@_href']),
+        slug: `${slugify(article.link['@_href'])}-${slugify(feed.id)}`,
         url: article.link['@_href'],
         title: removeHTMLTag(article.title['#text'] ?? article.title),
         description: description ?? '',

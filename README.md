@@ -8,8 +8,7 @@
 
 <img align="right" src="https://avatars.githubusercontent.com/u/70113176?s=400&u=506b21d9f019f3160963c010ef363667fb24c7c9&v=4" height="150px" alt="Omnivore Logo">
 
-
-[Omnivore](https://omnivore.work) is a complete, open source read-it-later solution for people who like text.
+Omnivore is a complete, open source read-it-later solution for people who like text.
 
 > [!IMPORTANT]  
 > Omnivore is now a completely Self-Hosted application. The Cloud application was deprecated in November of 2024. The community still exists on Discord, and we endeavour to keep things updated and bug-fixes ongoing. 
@@ -21,16 +20,17 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - Automatically saves your place in long articles
 - Add newsletter articles via email (with substack support!)
 - PDF support
-- [Web app](https://omnivore.work/) written in Node.js and TypeScript
-- [Native iOS app](https://omnivore.work/install/ios) ([source](https://github.com/omnivore-app/omnivore/tree/main/apple))
-- [Android app](https://omnivore.work/install/android) ([source](https://github.com/omnivore-app/omnivore/tree/main/android/Omnivore))
+- Web app written in Node.js and TypeScript
+- Native iOS app ([source](https://github.com/omnivore-app/omnivore/tree/main/apple))
+- Android app ([source](https://github.com/omnivore-app/omnivore/tree/main/android/Omnivore))
 - Progressive web app for Android users
-- Browser extensions for [Chrome](https://omnivore.work/install/chrome), [Safari](https://omnivore.work/install/safari), [Firefox](https://omnivore.work/install/firefox), and [Edge](https://omnivore.work/install/edge)
+- Browser extensions for Chrome, Safari, Firefox, and Edge
 - Labels (aka tagging)
 - Offline support
 - Text to speech (iOS only)
 - [Logseq](https://logseq.com/) support via our [Logseq Plugin](https://github.com/omnivore-app/logseq-omnivore)
 - [Obsidian](https://obsidian.md/) support via our [Obsidian Plugin](https://github.com/omnivore-app/obsidian-omnivore)
+- RSS Client with ability to hide/categorise your RSS Feeds
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
 
@@ -38,11 +38,12 @@ A guide for running a self hosted server can be found [here](./self-hosting/GUID
 
 <img width="981" alt="web-screenshot-listview" src="https://github.com/omnivore-app/omnivore/assets/75189/df7c797a-4255-42f4-a686-ad94866cb580">
 
+[!omnivore](./docs/guides/images/omnivore-home.png)
+
 ## Join us on Discord! :speech_balloon:
 
 We're building our community on Discord. [Join us!](https://discord.gg/h2z5rppzz9)
 
-Read more about Omnivore on our blog. <https://blog.omnivore.work/p/getting-started-with-omnivore>
 
 ## Shoutouts :tada:
 
@@ -73,12 +74,9 @@ Omnivore takes advantage of some great open source software:
 And of course... 
 - [jacksonh](https://github.com/jacksonh), [sywhb](https://github.com/sywhb) and [satindar](https://github.com/satindar) - who provided the initial repo, and core functionality. 
 
-and many more who contributed in the past. If you feel like your name is missing from this list, please contact me (Podginator) via our Discord. 
+and many more who contributed in the past. If you feel like your name is missing from this list, please contact me [(Podginator)](https://github.com/podginator) via our Discord. 
 
 
-## Importing Libraries
-
-Check out our [docs](https://docs.omnivore.work/using/importing.html) for information on importing your data from other apps.
 
 ## How to setup local development :computer:
 

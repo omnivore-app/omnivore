@@ -8,6 +8,7 @@ import { onErrorContinue, rateLimiter } from '../utils/reactive'
 import { Label } from '../../types/OmnivoreSchema'
 import { sqlClient } from '../store/db'
 import { toSql } from 'pgvector/pg'
+import { env } from '../../env'
 
 export type EmbeddedOmnivoreArticle = {
   embedding: Array<number>
@@ -29,7 +30,14 @@ const prepareTitle = (article: OmnivoreArticle): string =>
 const getEmbeddingForArticle = async (
   it: OmnivoreArticle
 ): Promise<EmbeddedOmnivoreArticle> => {
-  // console.log(`${prepareTitle(it)}: ${it.description}`)
+  if (!env.openAiApiKey) {
+    return {
+      embedding: [],
+      article: it,
+      topics: [],
+    }
+  }
+
   const embedding = await client.getEmbeddings(
     `${prepareTitle(it)}: ${it.summary}`
   )
@@ -45,6 +53,10 @@ const addTopicsToArticle = async (
   it: EmbeddedOmnivoreArticle
 ): Promise<EmbeddedOmnivoreArticle> => {
   const articleEmbedding = it.embedding
+
+  if (articleEmbedding.length === 0) {
+    return it
+  }
 
   const topics = await sqlClient.query(
     `SELECT name, similarity

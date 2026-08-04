@@ -23,6 +23,6 @@ const enrichedArticles$ = (): Observable<OmnivoreArticle> => {
       insertArticleToStore$
     )
     .subscribe((it) => {
-      console.log('enriched: ', it)
+      console.log('enriched: ', it.article.title)
     })
 })()

@@ -9,6 +9,7 @@
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
 - - [Third Party Services](#third-party-services)
 - [YouTube Transcripts](#youtube-transcripts)
+- [Discover AI](#discover-ai)
 
 ## Docker Compose
 
@@ -389,5 +390,19 @@ To learn more about setting up the OpenAI Api key, read here: https://openai.com
 
 In future releases we would like to be able to open this up to use different LLMs, such as Anthropic, Mistral, Bedrock, or any of the other myriad LLM Services.
 
+## Discover AI 
+You can use an OpenAPI key in order to categorise your RSS feeds. To do so you need to supply the following in the env file.
+
+| Environment Variable | Description                                     | 
+|----------------------|-------------------------------------------------|
+| OPENAI_API_KEY       | The Open AI Key required to call the LLM        |
+| USE_DISCOVER_AI      | Configures the UI to show the necessary topics. |
+
+*With AI Enabled*: 
+
+![discover-ai](../docs/guides/images/discover_ai.png)
+
+*Without AI Enabled*:
+![imported-email](../docs/guides/images/discover_no_ai.png)
 
 

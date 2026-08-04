@@ -31,9 +31,7 @@ services:
         condition: service_healthy
 
   api:
-    build:
-      context: ../../
-      dockerfile: ./packages/api/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-backend:latest"
     container_name: "omnivore-api"
     ports:
       - "4000:8080"
@@ -58,15 +56,7 @@ services:
         condition: service_started
 
   web:
-    build:
-      context: ../../
-      dockerfile: ./packages/web/Dockerfile-self
-      args:
-        - APP_ENV=prod
-        - BASE_URL=https://omnivore.podginator.com
-        - SERVER_BASE_URL=https://omnivore-api.podginator.com 
-        - HIGHLIGHTS_BASE_URL=http://omnivore.podginator.com
-        - USE_NATIVE_PDF=true
+    image: "ghcr.io/omnivore-app/sh-web:latest"
     container_name: "omnivore-web"
     ports:
       - "3000:8080"
@@ -155,16 +145,16 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
   discover:
-    build:
-      context: ../../
-      dockerfile: ./packages/discover/Dockerfile
+    image: "ghcr.io/omnivore-app/sh-discover:latest"
     container_name: "omnivore-discover"
     env_file:
       - .env
     depends_on:
       redis:
         condition: service_healthy
+
 volumes:
   pgdata:
   redis_data:

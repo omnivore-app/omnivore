@@ -69,10 +69,13 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
             // },
           }}
         >
-          <HeaderText
-            title={props.activeTab.title}
-            subTitle={props.activeTab.subTitle}
-          />
+          { typeof window !== 'undefined' &&
+            (window as any).omnivoreEnv?.USE_DISCOVER_AI && (
+              <HeaderText
+                title={props.activeTab.title}
+                subTitle={props.activeTab.subTitle}
+              />
+            )}
         </HStack>
         <DiscoverItems {...props} />
       </VStack>

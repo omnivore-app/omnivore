@@ -74,7 +74,7 @@ export function getEnv(): BackendEnv {
 
   return {
     pg,
-    openAiApiKey: parse('OPENAI_API_KEY')!,
+    openAiApiKey: parse('OPENAI_API_KEY', false)!,
     imageProxy: {
       url: parse('IMAGE_PROXY_URL', false),
       secretKey: parse('IMAGE_PROXY_SECRET', false),

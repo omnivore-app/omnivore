@@ -49,7 +49,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
         borderRadius: '6px',
         gridGap: props.layout == 'LIST_LAYOUT' ? '10px' : '20px',
         gridTemplateColumns: props.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(auto-fill, minmax(280px, 1fr))',
-        marginTop: '10px',
+        marginTop: typeof window !== 'undefined' && (window as any).omnivoreEnv?.USE_DISCOVER_AI && '10px' || '100px',
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',

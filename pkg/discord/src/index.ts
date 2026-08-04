@@ -53,7 +53,7 @@ const createMessageFromEmbed = (embed: Embed): OmnivoreArticle | undefined => {
     return undefined
   }
   return {
-    slug: slugify(embed.url),
+    slug: `${slugify(embed.url)}-discord`,
     title: embed.title,
     description: embed.description,
     image: embed.thumbnail?.url,

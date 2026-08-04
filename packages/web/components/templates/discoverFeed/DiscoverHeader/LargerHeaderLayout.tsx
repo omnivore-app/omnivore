@@ -8,6 +8,7 @@ import { HeaderToggleGridIcon } from "../../../elements/icons/HeaderToggleGridIc
 import { HeaderToggleListIcon } from "../../../elements/icons/HeaderToggleListIcon"
 import { DiscoverShowAllIcon } from "../../../elements/icons/DiscoverShowAllIcon"
 import { DiscoverHideHiddenIcon } from "../../../elements/icons/DiscoverHideHiddenIcon"
+import { TopBar } from './TopBar'
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -23,7 +24,11 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
         },
       }}
     >
-      <VStack css={{width: '100%'}} alignment={'start'} distribution={'center'}>
+      <VStack
+        css={{ width: '100%' }}
+        alignment={'start'}
+        distribution={'center'}
+      >
         <HStack
           alignment="center"
           distribution={'start'}
@@ -35,20 +40,25 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
               width: '95%',
               display: 'none',
             },
-
           }}
         >
-          <TopicBar
+          <TopBar
             setActiveTab={props.setActiveTab}
             activeTab={props.activeTab}
             topics={props.topics}
+            feeds={props.feeds}
+            selectedFeed={props.selectedFeedFilter}
+            applyFeedFilter={props.applyFeedFilter}
           />
           <Button
             style="plainIcon"
             css={{ display: 'flex', marginLeft: 'auto' }}
             onClick={(e) => {
-              const visibility = props.discoverVisibility == 'HIDE_HIDDEN' ? 'SHOW_ALL' : 'HIDE_HIDDEN';
-              props.setDiscoverVisibility(visibility);
+              const visibility =
+                props.discoverVisibility == 'HIDE_HIDDEN'
+                  ? 'SHOW_ALL'
+                  : 'HIDE_HIDDEN'
+              props.setDiscoverVisibility(visibility)
               e.preventDefault()
             }}
           >
@@ -85,10 +95,15 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             '@mdDown': {
               width: '95%',
             },
-
           }}
         >
-          <PinnedFeeds items={props.feeds} selected={props.selectedFeedFilter} applyFeedFilter={props.applyFeedFilter} />
+          {typeof window !== 'undefined' && (window as any).omnivoreEnv?.USE_DISCOVER_AI && (
+            <PinnedFeeds
+              items={props.feeds}
+              selected={props.selectedFeedFilter}
+              applyFeedFilter={props.applyFeedFilter}
+            />
+          )}
         </HStack>
       </VStack>
     </HStack>

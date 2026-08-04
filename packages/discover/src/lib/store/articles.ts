@@ -13,6 +13,7 @@ import { sqlClient } from './db'
 import pgformat from 'pg-format'
 import { v4 } from 'uuid'
 import { onErrorContinue } from '../utils/reactive'
+import { env } from '../../env';
 
 const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   const { rows } = await sqlClient.query(
@@ -34,37 +35,51 @@ export const removeDuplicateArticles$ = onErrorContinue(
 export const batchInsertArticlesSql = async (
   articles: EmbeddedOmnivoreArticle[]
 ) => {
-  const params = articles.map((embedded) => [
-    v4(),
-    embedded.article.title,
-    embedded.article.feedId,
-    embedded.article.slug,
-    embedded.article.description,
-    embedded.article.url,
-    embedded.article.authors,
-    embedded.article.image,
-    embedded.article.publishedAt,
-    toSql(embedded.embedding),
-  ])
+  const mappedArticles = articles.reduce((prev, embedded, idx) => {
+    const uuid = v4()
+    prev[uuid] = {
+      params: [
+        uuid,
+        embedded.article.title,
+        embedded.article.feedId,
+        embedded.article.slug,
+        embedded.article.description,
+        embedded.article.url,
+        Array.isArray(embedded.article.authors)
+          ? embedded.article.authors.join(', ')
+          : embedded.article.authors,
+        embedded.article.image,
+        embedded.article.publishedAt,
+        embedded.embedding.length > 0 ? toSql(embedded.embedding) : null,
+      ],
+      article: embedded,
+    }
+
+    return prev
+  }, {} as { [key: string]: { params: any[]; article: EmbeddedOmnivoreArticle } })
+  const params = Object.values(mappedArticles).map((it) => it.params)
 
   if (articles.length > 0) {
     const formattedMultiInsert = pgformat(
-      `INSERT INTO omnivore.discover_feed_articles(id, title, feed_id, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING`,
+      `INSERT INTO omnivore.discover_feed_articles(id, title, feed_id, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING returning id`,
       params
     )
 
-    await sqlClient.query(formattedMultiInsert)
+    const linked = await sqlClient.query(formattedMultiInsert)
 
-    const topicLinks = articles.flatMap((it, idx) => {
-      const [uuid] = params[idx]
-      return it.topics.map((topic) => [topic, uuid])
-    })
+    if (env.openAiApiKey) {
+      const updatedRows = linked.rows.map((row) => row.id as string)
+      const topicLinks = updatedRows.flatMap((uuid: string) => {
+        const it = mappedArticles[uuid];
+        return it.article.topics.map((topic) => [topic, uuid])
+      })
 
-    const formattedTopicInsert = pgformat(
-      `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
-      topicLinks
-    )
-    await sqlClient.query(formattedTopicInsert)
+      const formattedTopicInsert = pgformat(
+        `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
+        topicLinks
+      )
+      await sqlClient.query(formattedTopicInsert)
+    }
 
     return articles
   }

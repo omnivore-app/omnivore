@@ -4,7 +4,7 @@ import { OmnivoreSmallLogo } from '../../../elements/images/OmnivoreNameLogo'
 import { theme } from '../../../tokens/stitches.config'
 import { FunnelSimple } from '@phosphor-icons/react'
 import { DiscoverHeaderProps } from './DiscoverHeader'
-import { SmallTopicBar } from './SmallTopicBar'
+import { SmallTopBar } from './SmallTopBar'
 import { PrimaryDropdown } from '../../PrimaryDropdown'
 import { PinnedFeeds } from './PinnedFeeds'
 
@@ -26,7 +26,7 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
       }}
     >
       <>
-        <SmallTopicBar {...props} />
+        <SmallTopBar {...props} selectedFeed={props.selectedFeedFilter} />
         <HStack
           alignment="center"
           distribution={'start'}
@@ -46,7 +46,13 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             scrollbarWidth: 'none',
           }}
         >
-          <PinnedFeeds items={props.feeds} selected={props.selectedFeedFilter} applyFeedFilter={props.applyFeedFilter} />
+          {typeof window !== 'undefined' && (window as any).omnivoreEnv?.USE_DISCOVER_AI && (
+            <PinnedFeeds
+              items={props.feeds}
+              selected={props.selectedFeedFilter}
+              applyFeedFilter={props.applyFeedFilter}
+            />
+          )}
         </HStack>
       </>
     </HStack>
