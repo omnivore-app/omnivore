@@ -17,13 +17,11 @@ export const getDiscoverFeedsResolver = authorized<
       INNER JOIN omnivore.discover_feed feed on sub.feed_id=id
       WHERE sub.user_id = $1`,
       [uid]
-    )) as {
-      rows: DiscoverFeed[]
-    }
+    )) as DiscoverFeed[]
 
     return {
       __typename: 'DiscoverFeedSuccess',
-      feeds: existingFeed.rows || [],
+      feeds: existingFeed || [],
     }
   } catch (error) {
     log.error('Error Getting Discover Feed Subscriptions', error)

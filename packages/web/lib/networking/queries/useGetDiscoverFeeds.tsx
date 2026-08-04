@@ -1,13 +1,14 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { makeGqlFetcher } from '../networkHelpers'
+import { gqlFetcher, makeGqlFetcher } from '../networkHelpers'
 
 type DiscoverFeedsQueryResponse = {
   error: any
   isLoading: boolean
   isValidating: boolean
   feeds: DiscoverFeed[]
-  revalidate: () => void
+  revalidate: () => void,
+
 }
 
 export type DiscoverFeed = {
@@ -18,6 +19,15 @@ export type DiscoverFeed = {
   description?: string
   image?: string
   type: 'rss' | 'atom'
+}
+
+export type HideDiscoverArticleInput = {
+  discoverArticleId: string
+  setHidden: boolean
+}
+
+export type HideDiscoverArticleOutput = {
+  hideDiscoverArticle: { id: string }
 }
 
 export function useGetDiscoverFeeds(): DiscoverFeedsQueryResponse {

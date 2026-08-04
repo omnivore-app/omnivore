@@ -100,7 +100,7 @@ export const parseRss = (feed: OmnivoreFeed) => (parsedXml: any) => {
 
       return {
         authors: article['dc:creator'],
-        slug: slugify(article.link),
+        slug: `${slugify(article.link)}-${slugify(feed.id)}`,
         url: article.link,
         title: removeHTMLTag(article.title),
         description: description ?? '',

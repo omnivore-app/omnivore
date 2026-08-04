@@ -12,7 +12,11 @@ export class OpenAiClient implements AiClient {
   tokenLimit = 4096
   embeddingLimit = 8191
 
-  constructor(openAiParams: OpenAiParams = { apiKey: env.openAiApiKey }) {
+  constructor(
+    openAiParams: OpenAiParams = {
+      apiKey: env.openAiApiKey ?? 'default_api-key',
+    }
+  ) {
     this.client = new OpenAI(openAiParams)
   }
 
@@ -29,7 +33,7 @@ export class OpenAiClient implements AiClient {
     const prompt = `${SUMMARISE_PROMPT(text)}`
     const completion = await this.client.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
       stream: false,
     })
 

@@ -19,12 +19,10 @@ export const editDiscoverFeedsResolver = authorized<
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
       [uid, feedId]
     )) as {
-      rows: {
-        feed_id: string
-      }[]
-    }
+      feed_id: string
+    }[]
 
-    if (feeds.rows.length == 0) {
+    if (feeds.length == 0) {
       return {
         __typename: 'EditDiscoverFeedError',
         errorCodes: [EditDiscoverFeedErrorCode.NotFound],

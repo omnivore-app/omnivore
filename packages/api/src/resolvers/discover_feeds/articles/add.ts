@@ -31,14 +31,12 @@ export const saveDiscoverArticleResolver = authorized<
         }
       }
 
-      const { rows: discoverArticles } = (await appDataSource.query(
+      const discoverArticles = (await appDataSource.query(
         `SELECT url FROM omnivore.discover_feed_articles WHERE id=$1`,
         [discoverArticleId]
       )) as {
-        rows: {
-          url: string
-        }[]
-      }
+        url: string
+      }[]
 
       if (discoverArticles.length != 1) {
         return {

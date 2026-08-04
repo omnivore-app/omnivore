@@ -47,6 +47,7 @@ const getDescriptionAndImage = async (article: any) => {
 }
 
 export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
+	console.log(parsedXml)
   return fromArrayLike(parsedXml.feed.entry).pipe(
     mapOrNull(async (article: any) => {
       const { image, description } = await getDescriptionAndImage(article)
@@ -56,7 +57,7 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
         authors: Array.isArray(article.author.name)
           ? article.author.name[0]
           : article.author.name,
-        slug: slugify(article.link['@_href']),
+        slug: `${slugify(article.link['@_href'])}-${slugify(feed.id)}`,
         url: article.link['@_href'],
         title: removeHTMLTag(article.title['#text'] ?? article.title),
         description: description ?? '',
@@ -65,7 +66,7 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
         site: new URL(article.link['@_href']).host,
         publishedAt: new Date(article.published ?? Date.now()),
         type: 'rss',
-        feedId: feed.title,
+        feedId: feed.id,
       }
     })
   )

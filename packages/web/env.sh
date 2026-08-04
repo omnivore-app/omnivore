@@ -18,4 +18,11 @@ file_contents=$(cat /app/packages/web/public/env.js)
 new_contents=${file_contents//\{\{BASE_URL\}\}/$BASE_URL}
 echo "$new_contents" > /app/packages/web/public/env.js
 
+
+if [ -n "$USE_DISCOVER_AI" ]; then
+    file_contents=$(cat /app/packages/web/public/env.js)
+    new_contents=${file_contents/USE_DISCOVER_AI: false/USE_DISCOVER_AI: true}
+    echo "$new_contents" > /app/packages/web/public/env.js
+fi
+
 yarn workspace @omnivore/web start

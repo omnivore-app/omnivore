@@ -6,47 +6,68 @@ import React from 'react'
 import { PinnedFeeds } from "./PinnedFeeds"
 import { HeaderToggleGridIcon } from "../../../elements/icons/HeaderToggleGridIcon"
 import { HeaderToggleListIcon } from "../../../elements/icons/HeaderToggleListIcon"
+import { DiscoverShowAllIcon } from "../../../elements/icons/DiscoverShowAllIcon"
+import { DiscoverHideHiddenIcon } from "../../../elements/icons/DiscoverHideHiddenIcon"
+import { TopBar } from './TopBar'
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
     <HStack
-      alignment="center"
-      distribution="center"
+      alignment="start"
+      distribution="start"
       css={{
-        width: '100%',
         height: '100%',
+        width: '100%',
+        boxSizing: 'border-box',
         '@mdDown': {
           display: 'none',
         },
       }}
     >
-      <VStack alignment={'center'} distribution={'center'}>
+      <VStack
+        css={{ width: '100%' }}
+        alignment={'start'}
+        distribution={'center'}
+      >
         <HStack
           alignment="center"
           distribution={'start'}
           css={{
             gap: '10px',
-            width: '95%',
+            width: '100%',
+
             '@mdDown': {
               width: '95%',
               display: 'none',
             },
-            '@media (min-width: 930px)': {
-              width: '660px',
-            },
-            '@media (min-width: 1280px)': {
-              width: '1000px',
-            },
-            '@media (min-width: 1600px)': {
-              width: '1340px',
-            },
           }}
         >
-          <TopicBar
+          <TopBar
             setActiveTab={props.setActiveTab}
             activeTab={props.activeTab}
             topics={props.topics}
+            feeds={props.feeds}
+            selectedFeed={props.selectedFeedFilter}
+            applyFeedFilter={props.applyFeedFilter}
           />
+          <Button
+            style="plainIcon"
+            css={{ display: 'flex', marginLeft: 'auto' }}
+            onClick={(e) => {
+              const visibility =
+                props.discoverVisibility == 'HIDE_HIDDEN'
+                  ? 'SHOW_ALL'
+                  : 'HIDE_HIDDEN'
+              props.setDiscoverVisibility(visibility)
+              e.preventDefault()
+            }}
+          >
+            {props.discoverVisibility == 'HIDE_HIDDEN' ? (
+              <DiscoverHideHiddenIcon />
+            ) : (
+              <DiscoverShowAllIcon />
+            )}
+          </Button>
           <Button
             style="plainIcon"
             css={{ display: 'flex', marginLeft: 'auto' }}
@@ -73,20 +94,16 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             paddingBottom: '5px',
             '@mdDown': {
               width: '95%',
-              display: 'none',
-            },
-            '@media (min-width: 930px)': {
-              width: '660px',
-            },
-            '@media (min-width: 1280px)': {
-              width: '1000px',
-            },
-            '@media (min-width: 1600px)': {
-              width: '1340px',
             },
           }}
         >
-          <PinnedFeeds items={props.feeds} selected={props.selectedFeedFilter} applyFeedFilter={props.applyFeedFilter} />
+          {typeof window !== 'undefined' && (window as any).omnivoreEnv?.USE_DISCOVER_AI && (
+            <PinnedFeeds
+              items={props.feeds}
+              selected={props.selectedFeedFilter}
+              applyFeedFilter={props.applyFeedFilter}
+            />
+          )}
         </HStack>
       </VStack>
     </HStack>

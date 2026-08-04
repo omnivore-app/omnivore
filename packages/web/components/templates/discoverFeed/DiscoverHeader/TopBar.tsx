@@ -3,14 +3,19 @@ import { TopicTab } from './TopicTab'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import React, { useEffect, useRef, useState } from 'react'
 import { TopicTabData } from '../DiscoverContainer'
+import { DiscoverFeed } from '../../../../lib/networking/queries/useGetDiscoverFeeds'
+import { PinnedFeeds } from './PinnedFeeds'
 
-export type TopicBarProps = {
+export type TopBarProps = {
   activeTab: TopicTabData
   setActiveTab: (tab: TopicTabData) => void
   topics: TopicTabData[]
+  feeds: DiscoverFeed[]
+  selectedFeed: string
+  applyFeedFilter: (feedFilter: string) => void
 }
 
-export function TopicBar(props: TopicBarProps): JSX.Element {
+export function TopBar(props: TopBarProps): JSX.Element {
   const [overflowing, setOverflowing] = useState(true)
   let scrollToken: NodeJS.Timer | null = null
   const topicParent = useRef<HTMLDivElement>(null)
@@ -50,6 +55,32 @@ export function TopicBar(props: TopicBarProps): JSX.Element {
   const clearScroll = () => {
     clearInterval(scrollToken as NodeJS.Timeout)
     scrollToken = null
+  }
+
+  const showTopics = () => {
+    return props.topics.map((topic) => {
+      return (
+        <TopicTab
+          key={topic.title + props.activeTab.title}
+          title={topic.title}
+          selected={props.activeTab.title == topic.title}
+          onClick={() => {
+            props.setActiveTab(topic)
+          }}
+        />
+      )
+    })
+  }
+
+  const showFeeds = () => {
+    return (
+      <PinnedFeeds
+        items={props.feeds}
+        selected={props.selectedFeed}
+        applyFeedFilter={props.applyFeedFilter}
+        topFeed={true}
+      />
+    )
   }
 
   return (
@@ -130,18 +161,9 @@ export function TopicBar(props: TopicBarProps): JSX.Element {
               css={{ pl: '15px', pr: '15px', overflow: 'hidden' }}
               ref={topicChild}
             >
-              {props.topics.map((topic) => {
-                return (
-                  <TopicTab
-                    key={topic.title + props.activeTab.title}
-                    title={topic.title}
-                    selected={props.activeTab.title == topic.title}
-                    onClick={() => {
-                      props.setActiveTab(topic)
-                    }}
-                  />
-                )
-              })}
+              {typeof window !== 'undefined' && (window as any).omnivoreEnv?.USE_DISCOVER_AI
+                ? showTopics()
+                : showFeeds()}
             </HStack>
           </HStack>
         </form>

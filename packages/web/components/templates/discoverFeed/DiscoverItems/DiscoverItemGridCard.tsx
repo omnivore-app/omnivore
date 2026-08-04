@@ -59,9 +59,10 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
       css={{
         pl: '0px',
         padding: '0px',
-        width: '293px',
         height: '100%',
+        opacity: props.hidden ? 0.5 : 1,
         minHeight: '270px',
+        maxWidth: '400px',
         background: 'white',
         borderRadius: '5px',
         borderWidth: '1px',
@@ -84,7 +85,7 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
         setIsHovered(false)
       }}
     >
-      {!isTouchScreenDevice() && (
+
         <Box
           ref={refs.setFloating}
           style={{ ...floatingStyles, zIndex: 3 }}
@@ -98,11 +99,12 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
             setSavedId={props.setSavedId}
             savedId={props.savedId}
             savedUrl={props.savedUrl}
+            hidden={props.hidden}
             setSavedUrl={props.setSavedUrl}
             deleteDiscoverItem={props.deleteDiscoverItem}
+            hideDiscoverItem={props.setItemHidden}
           />
         </Box>
-      )}
       <DiscoverGridCardContent
         {...props}
         savedId={props.savedId}
@@ -124,7 +126,7 @@ const DiscoverGridCardContent = (
   const originText = siteName(props.item.url, props.item.url)
 
   const goToUrl = () => {
-    if (props.savedUrl) {
+    if (props.savedUrl && !isTouchScreenDevice()) {
       window.location.href = props.savedUrl
     }
   }

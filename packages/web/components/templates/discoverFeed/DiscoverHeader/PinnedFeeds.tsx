@@ -11,6 +11,7 @@ type PinnedFeedsProps = {
   items: DiscoverFeed[]
   selected: string
   applyFeedFilter: (feedFilter: string) => void
+  topFeed?: boolean
 }
 
 export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
@@ -23,16 +24,22 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
       css={{
         width: '100%',
         maxWidth: '100%',
-        pt: '10px',
+        pt: props.topFeed ? '0px' : '10px',
         pb: '0px',
-        gap: '10px',
+        pr: '0px',
+        gap: '5px',
         bg: 'transparent',
         // overflowX: 'scroll',
       }}
     >
-      {[{ title: "All Feeds", id:"All Feeds" }, { title: "Community", id: "Community" },  ...props.items.map(({visibleName, id}) => ({ title: visibleName, id }))].map((it) => {
-        const style =
-          it.id == props.selected ? 'ctaPill' : 'ctaPillUnselected'
+      {[
+        { title: 'All Feeds', id: 'All Feeds' },
+        ...props.items.map(({ visibleName, id }) => ({
+          title: visibleName,
+          id,
+        })),
+      ].map((it) => {
+        const style = it.id == props.selected ? 'ctaPill' : 'ctaPillUnselected'
         return (
           <Button
             key={it.id}
@@ -79,7 +86,6 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
           }}
           title="Edit"
         />
-
       </Dropdown>
     </HStack>
   )
