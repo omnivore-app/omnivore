@@ -38,7 +38,7 @@ A guide for running a self hosted server can be found [here](./self-hosting/GUID
 
 <img width="981" alt="web-screenshot-listview" src="https://github.com/omnivore-app/omnivore/assets/75189/df7c797a-4255-42f4-a686-ad94866cb580">
 
-[!omnivore](./docs/guides/images/omnivore-home.png)
+![omnivore-discover](./docs/guides/images/omnivore-home.png)
 
 ## Join us on Discord! :speech_balloon:
 
