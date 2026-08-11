@@ -107,7 +107,8 @@ const addNewSubscription = async (
   const isXML =
     contentType?.includes('text/rss+xml') ||
     contentType?.includes('text/atom+xml') ||
-    contentType?.includes('application/xml') || 
+    contentType?.includes('application/xml') ||
+    contentType?.includes('application/atom+xml') ||
     contentType?.includes('text/xml') || 
     contentType?.includes('application/rss')
 
