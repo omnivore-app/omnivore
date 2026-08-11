@@ -189,7 +189,7 @@ export function DiscoverContainer(props: DiscoverProps): JSX.Element {
       css={{
         height: '100%',
         width: '100%',
-        pl: '25px',
+        pl: props.showNavigationMenu ? '25px' : '50px',
         pr: '25px',
         flexGrow: 1,
       }}
