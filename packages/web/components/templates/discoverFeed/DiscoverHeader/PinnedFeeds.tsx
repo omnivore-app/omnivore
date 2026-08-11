@@ -19,7 +19,7 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
   const router = useRouter()
 
   return (
-    <Draggable rootClass={''}>
+    <Draggable>
       <HStack
         alignment="center"
         distribution="start"
