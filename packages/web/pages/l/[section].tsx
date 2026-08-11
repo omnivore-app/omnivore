@@ -125,6 +125,7 @@ export default function Home(): JSX.Element {
       case 'discover':
         return (
           <DiscoverContainer
+            showNavigationMenu={showNavigationMenu}
             key={name}
           />
         )

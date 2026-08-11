@@ -112,12 +112,13 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
 
   return (
     <HStack
-      css={{ width: '100vw', height: '100vh' }}
+      css={{}}
       distribution="start"
       alignment="start"
     >
       <PageMetaData path={props.section} title={props.title} />
       <Header
+        section={props.section}
         menuOpen={props.showNavigationMenu}
         toggleMenu={() => {
           props.setShowNavigationMenu(!props.showNavigationMenu)
@@ -187,6 +188,7 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
 
 type HeaderProps = {
   menuOpen: boolean
+  section: NavigationSection
   toggleMenu: () => void
 }
 
@@ -197,7 +199,7 @@ const Header = (props: HeaderProps): JSX.Element => {
       distribution="center"
       css={{
         zIndex: 10,
-        position: props.menuOpen ? 'fixed' : 'absolute',
+        position: (props.menuOpen ||  ['discover', 'l/discover'].includes(props.section)) ? 'fixed' : 'absolute',
         left: '0px',
         top: '0px',
         pl: '20px',
