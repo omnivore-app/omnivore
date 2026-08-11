@@ -21,6 +21,8 @@ type DiscoverItemFeedProps = {
 
   activeTab: TopicTabData
 
+  showFilterMenu: boolean
+
   handleLinkSubmission: (
     link: string,
     timezone: string,
@@ -52,7 +54,6 @@ export const DiscoverItemFeed = (props: DiscoverItemFeedProps) => {
             width: '100%',
             display: 'block',
             '@mdDown': {
-              width: '95%',
               display: 'none',
             },
             '@media (max-width: 930px)': {

@@ -20,7 +20,7 @@ function LoadedContent(): JSX.Element {
         distribution="center"
         css={{ backgroundColor: '$thLibraryBackground' }}
       >
-        <DiscoverContainer />
+        <DiscoverContainer showNavigationMenu={true} />
       </VStack>
     </PrimaryLayout>
   )

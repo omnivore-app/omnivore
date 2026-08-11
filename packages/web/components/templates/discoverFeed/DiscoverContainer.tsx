@@ -24,7 +24,11 @@ export type DiscoverVisibilityType = 'SHOW_ALL' | 'HIDE_HIDDEN'
 
 export type TopicTabData = { title: string; subTitle: string }
 
-export function DiscoverContainer(): JSX.Element {
+export type DiscoverProps = {
+  showNavigationMenu: boolean
+}
+
+export function DiscoverContainer(props: DiscoverProps): JSX.Element {
   const router = useRouter()
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
@@ -191,6 +195,7 @@ export function DiscoverContainer(): JSX.Element {
       }}
     >
       <DiscoverHeader
+        showNavigationMenu={props.showNavigationMenu}
         handleLinkSubmission={handleLinkSave}
         allowSelectMultiple={true}
         alwaysShowHeader={false}
@@ -211,6 +216,7 @@ export function DiscoverContainer(): JSX.Element {
       <HStack css={{  width: '100%', height: '100%' }}>
 
         <DiscoverItemFeed
+          showFilterMenu={showFilterMenu}
           visibility={discoverVisibility}
           layout={layoutType}
           activeTab={activeTopic}

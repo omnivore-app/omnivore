@@ -13,6 +13,8 @@ export type DiscoverHeaderProps = {
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 
+  showNavigationMenu: boolean
+
   setShowAddLinkModal: (show: boolean) => void
 
   handleLinkSubmission: (
@@ -46,7 +48,10 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
           top: '0',
           zIndex: 5,
           position: 'fixed',
-          width: 'calc(100% - 325px)',
+          width: `calc(100% - ${props.showNavigationMenu ? LIBRARY_LEFT_MENU_WIDTH : '25px'})`,
+          left: props.showNavigationMenu ? LIBRARY_LEFT_MENU_WIDTH : '25px',
+          pr: '20px',
+          pl: '20px',
           bg: '$readerBg',
           '@mdDown': {
             left: '0px',
@@ -58,7 +63,6 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
         <LargeHeaderLayout {...props} />
         <SmallHeaderLayout {...props} />
       </VStack>
-
     </>
   )
 }
