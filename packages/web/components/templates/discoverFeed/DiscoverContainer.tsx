@@ -1,5 +1,4 @@
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
-import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
 import { DiscoverHeader } from './DiscoverHeader/DiscoverHeader'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -192,6 +191,10 @@ export function DiscoverContainer(props: DiscoverProps): JSX.Element {
         pl: props.showNavigationMenu ? '25px' : '50px',
         pr: '25px',
         flexGrow: 1,
+        '@mdDown': {
+          pl: '20px',
+          pr: '20px'
+        },
       }}
     >
       <DiscoverHeader
@@ -213,8 +216,7 @@ export function DiscoverContainer(props: DiscoverProps): JSX.Element {
         discoverVisibility={discoverVisibility}
         setDiscoverVisibility={setDiscoverVisibility}
       />
-      <HStack css={{  width: '100%', height: '100%' }}>
-
+      <HStack css={{ width: '100%', height: '100%' }}>
         <DiscoverItemFeed
           showFilterMenu={showFilterMenu}
           visibility={discoverVisibility}

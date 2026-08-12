@@ -46,7 +46,7 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
         css={{
           pt: '15px',
           top: '0',
-          zIndex: 5,
+          zIndex: 4,
           position: 'fixed',
           width: `calc(100% - ${props.showNavigationMenu ? LIBRARY_LEFT_MENU_WIDTH : '25px'})`,
           left: props.showNavigationMenu ? LIBRARY_LEFT_MENU_WIDTH : '25px',

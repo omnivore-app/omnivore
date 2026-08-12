@@ -9,6 +9,7 @@ import { HeaderToggleListIcon } from "../../../elements/icons/HeaderToggleListIc
 import { DiscoverShowAllIcon } from "../../../elements/icons/DiscoverShowAllIcon"
 import { DiscoverHideHiddenIcon } from "../../../elements/icons/DiscoverHideHiddenIcon"
 import { TopBar } from './TopBar'
+import { Draggable } from '../../../patterns/Draggable'
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -98,11 +99,13 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
           }}
         >
           {typeof window !== 'undefined' && (window as any).omnivoreEnv?.USE_DISCOVER_AI && (
-            <PinnedFeeds
-              items={props.feeds}
-              selected={props.selectedFeedFilter}
-              applyFeedFilter={props.applyFeedFilter}
-            />
+            <Draggable>
+              <PinnedFeeds
+                  items={props.feeds}
+                  selected={props.selectedFeedFilter}
+                  applyFeedFilter={props.applyFeedFilter}
+                />
+            </Draggable>
           )}
         </HStack>
       </VStack>

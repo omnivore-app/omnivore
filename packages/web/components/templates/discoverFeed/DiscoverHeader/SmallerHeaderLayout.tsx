@@ -18,7 +18,8 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
         height: '100%',
         pt: '20px',
         pb: '10px',
-        pl: '50px',
+        pl: '20px',
+        pr: '20px',
         bg: '$readerBg',
         '@md': {
           display: 'none',
@@ -35,7 +36,7 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             left: '10px',
             top: '60px',
             gap: '10px',
-            width: '95vw',
+            width: '100%',
             paddingBottom: '5px',
             bg: '$readerBg',
             overflow: 'scroll',

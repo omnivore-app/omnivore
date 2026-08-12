@@ -19,7 +19,6 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
   const router = useRouter()
 
   return (
-    <Draggable>
       <HStack
         alignment="center"
         distribution="start"
@@ -91,6 +90,5 @@ export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
           />
         </Dropdown>
       </HStack>
-    </Draggable>
   )
 }
