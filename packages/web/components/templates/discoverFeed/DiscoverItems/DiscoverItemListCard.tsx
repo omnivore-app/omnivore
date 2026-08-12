@@ -88,7 +88,6 @@ export function DiscoverItemListCard(
       alignment="start"
       distribution="start"
     >
-      {!isTouchScreenDevice() && (
         <Box
           ref={refs.setFloating}
           style={{ ...floatingStyles, zIndex: 3 }}
@@ -108,7 +107,6 @@ export function DiscoverItemListCard(
             hideDiscoverItem={props.setItemHidden}
           />
         </Box>
-      )}
       <DiscoverListCardContent
         {...props}
         savedId={props.savedId}
