@@ -1,40 +1,10 @@
 # Security Policy
 
-Keeping user information safe and secure is a top priority, and we welcome the contribution of external security researchers.
-
-# Scope
-
-Omnivore runs a number of services but only submissions under the following domains are eligible for rewards. Any Omnivore-owned domains not listed below are not in scope, not eligible for rewards, and not covered by our legal safe harbor.
-
-- omnivore.work
-- demo.omnivore.work
-
-## Domains that are out of scope:
-
-- docs.omnivore.work
-- blog.omnivore.work
-- changes.omnivore.work
-
-## The following vulnerability categories are outside of the scope of our responsible disclosure program, and aren't eligible for bounty:
-
-- Denial of Service (DoS), or its distributed version (DDoS)
-- User / email enumeration
-- Brute forcing
-- Spamming that can be prevented by rate limiting techniques
-- Vulnerabilities that involve a high number of user interactions, such as social engineering
-- CSRF on forms publicly available
-- Missing SPF / DKIM / DMARC entries
-- Redirection from HTTP to HTTPS
-- UI / UX bugs or grammar/spelling mistakes
-- Outdated web browsers – vulnerabilities contingent on outdated or unmatched browsers will not be compensated
+Keeping user information safe and secure is a top priority, and we welcome the contribution of external security researchers. Due 
 
 # How to Submit a Report
 
-To submit a vulnerability report to Omnivore Media, please contact us at feedback@omnivore.work. Your submission will be reviewed and validated by a member of our security team.
-
-# Safe Harbor
-
-Omnivore Media supports safe harbor for security researchers who:
+To submit a vulnerability report on Omnivore, please use the Issues tab. 
 
 - Make a good faith effort to avoid privacy violations, destruction of data, and interruption or degradation of our services.
 - Only interact with accounts you own or with explicit permission of the account holder. If you do encounter Personally Identifiable Information (PII) contact us immediately, do not proceed with access, and immediately purge any local information.
