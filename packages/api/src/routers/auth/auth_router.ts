@@ -514,6 +514,11 @@ export function authRouter() {
     hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
+      if (process.env.ENABLE_EMAIL_SIGNUP === 'false') {
+        return res.redirect(
+          `${env.client.url}/auth/email-signup?errorCodes=EMAIL_SIGNUP_DISABLED`
+        )
+      }        
       if (!isValidSignupRequest(req.body)) {
         return res.redirect(
           `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`

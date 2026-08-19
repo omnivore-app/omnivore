@@ -3,16 +3,27 @@
   "name": "Omnivore - Self Hosted",
   "version": "3.0",
   "description": "Save content to your Omnivore library.",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js",
     "scripts": ["background.js"]
   },
   "web_accessible_resources": [
     {
-      "resources": ["images/*.svg", "views/toast.html"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "images/*.svg",
+        "views/toast.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "options_page": "views/options.html",
@@ -27,8 +38,5 @@
     "16": "icons/icon-16.png",
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
-  },
-  "browser_specific_settings": {
-    "gecko_android": {}
   }
 }
