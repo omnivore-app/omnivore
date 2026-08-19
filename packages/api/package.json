@@ -28,7 +28,7 @@
     "@google-cloud/storage": "^7.0.1",
     "@google-cloud/tasks": "^6.2.0",
     "@graphql-tools/utils": "^10.8.6",
-    "@langchain/anthropic": "^1.5.8",
+    "@langchain/anthropic": "^1.5.6",
     "@langchain/openai": "^1.5.8",
     "@notionhq/client": "^2.2.14",
     "@omnivore/content-handler": "1.0.0",
