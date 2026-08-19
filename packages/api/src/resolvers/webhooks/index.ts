@@ -23,6 +23,7 @@ import { authTrx } from '../../repository'
 import { deleteWebhook } from '../../services/webhook'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/gql-utils'
+import { validateUrl } from '../../services/create_page_save_request'
 
 export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
   async (_obj, _params, { uid, log }) => {
@@ -120,7 +121,7 @@ export const setWebhookResolver = authorized<
       contentType: input.contentType || 'application/json',
       enabled: input.enabled === null ? true : input.enabled,
     }
-
+    
     if (input.id) {
       // Update
       const existingWebhook = await authTrx((t) =>
@@ -137,6 +138,8 @@ export const setWebhookResolver = authorized<
 
       webhookToSave.id = input.id
     }
+
+    validateUrl(input.url)
     const webhook = await authTrx((t) =>
       t.getRepository(Webhook).save({
         user: { id: uid },

@@ -440,8 +440,16 @@ export const scanFeedsResolver = authorized<
     }
   }
 
+  // Ensure that we are not running a http request against local/private IPs.
   try {
-    // fetch page content and parse feeds
+    validateUrl(url)
+  } catch (e) {
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
+    }
+  }
+
+  try {
     const response = await axios.get(url, rssParserConfig())
     const content = response.data as string
     // check if the content is html or xml

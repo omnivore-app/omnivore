@@ -456,6 +456,13 @@ describe('Subscriptions API', () => {
         // clean up
         await deleteSubscription(res.body.data.subscribe.subscriptions[0].id)
       })
+
+      it('throws an error when referencing a local ip', async () => {
+        const res = await graphqlRequest(query, authToken, {
+          input: { url: 'http://127.0.0.1', subscriptionType },
+        }).expect(200)
+        expect(res.body.data.subscription.errorCodes).to.eql(['BAD_REQUEST'])
+      })
     })
   })
 
