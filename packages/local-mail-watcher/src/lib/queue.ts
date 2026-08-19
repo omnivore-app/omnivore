@@ -1,10 +1,10 @@
-import { RedisDataSource } from '@omnivore/utils'
-import { Queue, RedisClient } from 'bullmq'
+import { Queue } from 'bullmq'
+import Redis from 'ioredis'
 
 export const QUEUE = 'omnivore-backend-queue'
 
 export const getQueue = async (
-  connection: RedisClient,
+  connection: Redis,
   queueName = QUEUE
 ): Promise<Queue> => {
   const queue = new Queue(queueName, {
