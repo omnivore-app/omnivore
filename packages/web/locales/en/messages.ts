@@ -1,6 +1,7 @@
 const errorMessages: Record<string, string> = {
   'error.AUTH_FAILED': 'Something went wrong, please try again in a moment',
   'error.USER_ALREADY_EXISTS': 'User with this email exists already',
+  'error.EMAIL_SIGNUP_DISABLED': 'Email signup is currently disabled',
   'error.INVALID_CREDENTIALS': 'Invalid email or password',
   'error.USER_NOT_FOUND': 'There is no user with this email yet',
   'error.WRONG_SOURCE': 'This email currently used by another source',
