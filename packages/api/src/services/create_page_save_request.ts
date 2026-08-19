@@ -1,4 +1,4 @@
-import * as privateIpLib from 'private-ip'
+import isIpPrivate from 'private-ip'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import {
@@ -31,8 +31,6 @@ interface PageSaveRequest {
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
-
-const isPrivateIP = privateIpLib.default
 
 const recentSavedItemKey = (userId: string) => `recent-saved-item:${userId}`
 
@@ -100,7 +98,7 @@ export const validateUrl = (url: string): URL => {
   // if (/^(10|172\.16|192\.168)\..*/.test(u.hostname)) {
   //   throw new Error('Invalid URL')
   // }
-  if (isPrivateIP(u.hostname)) {
+  if (isIpPrivate(u.hostname)) {
     throw new Error('Invalid URL')
   }
   return u
