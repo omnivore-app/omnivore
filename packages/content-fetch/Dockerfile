@@ -53,8 +53,9 @@ RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/
     sqlite-libs@edge \
     chromium@edge \
     firefox-esr@edge \
-    ca-certificates@edge \
-    rm -rf /var/cache/apk/*
+    ca-certificates@edge
+
+RUN rm -rf /var/cache/apk/*
 
 WORKDIR /app
 

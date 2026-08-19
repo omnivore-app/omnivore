@@ -1,11 +1,12 @@
 import { RedisDataSource } from '@omnivore/utils'
-import { Job, Queue, RedisClient, Worker } from 'bullmq'
+import { Job, Queue, Worker } from 'bullmq'
 import { JobData, processFetchContentJob } from './request_handler'
+import Redis from 'ioredis'
 
 export const QUEUE = 'omnivore-content-fetch-queue'
 
 export const getQueue = async (
-  connection: RedisClient,
+  connection: Redis,
   queueName = QUEUE
 ): Promise<Queue> => {
   const queue = new Queue(queueName, {

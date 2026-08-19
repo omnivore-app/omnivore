@@ -11061,6 +11061,17 @@ bullmq@^5.1.1, bullmq@^5.22.0:
     semver "7.8.5"
     tslib "2.8.1"
 
+bullmq@^6.1.2:
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-6.1.2.tgz#f13183db9d41ba6b93ae7bf65d266ce5fd6840bc"
+  integrity sha512-GSX8JfWN8CElAGDyt7Zmq59n1FfWZ0L7IjsThNUQq7X8mvVVDb9I5i2F+nFg4A00UbysJ5yejN0oWzmbUJPDFg==
+  dependencies:
+    cron-parser "5.10.0"
+    msgpackr "2.0.5"
+    node-abort-controller "3.1.1"
+    semver "7.8.5"
+    tslib "2.8.1"
+
 bundle-name@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/bundle-name/-/bundle-name-4.1.0.tgz#f3b96b34160d6431a19d7688135af7cfb8797889"
@@ -12686,6 +12697,13 @@ cron-parser@4.9.0:
   integrity sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==
   dependencies:
     luxon "^3.2.1"
+
+cron-parser@5.10.0:
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/cron-parser/-/cron-parser-5.10.0.tgz#94799d9ddd56b893aa8e4a4c7f19717ee7d1ebe4"
+  integrity sha512-izNAxJyRWUP8ljBoDSub5WyrVOUlT4SLGShswE7eoRBpp6QUsSycYxLBMJlbshgPBMcPT/nrfgjNY2918ayv2A==
+  dependencies:
+    luxon "^3.7.2"
 
 cross-fetch@^3.0.6, cross-fetch@^3.1.5:
   version "3.2.0"
@@ -20496,7 +20514,7 @@ lru_map@^0.3.3:
   resolved "https://registry.yarnpkg.com/lru_map/-/lru_map-0.3.3.tgz#b5c8351b9464cbd750335a79650a0ec0e56118dd"
   integrity sha512-Pn9cox5CsMYngeDbmChANltQl+5pi6XmTrraMSzhPmMBbmgcxmqWry0U3PGapCU1yB4/LqCcom7qhHZiF/jGfQ==
 
-luxon@^3.0.4, luxon@^3.2.1:
+luxon@^3.0.4, luxon@^3.2.1, luxon@^3.7.2:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.7.2.tgz#d697e48f478553cca187a0f8436aff468e3ba0ba"
   integrity sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==
@@ -22379,7 +22397,7 @@ node-gyp-build@^4.3.0, node-gyp-build@^4.4.0:
   resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.8.4.tgz#8a70ee85464ae52327772a90d66c6077a900cfc8"
   integrity sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==
 
-node-gyp@13.0.1:
+node-gyp@13.0.1, node-gyp@^13.0.1:
   version "13.0.1"
   resolved "https://registry.yarnpkg.com/node-gyp/-/node-gyp-13.0.1.tgz#ac7be7930de3ab3acaa8bd6b0c06d177d623f10e"
   integrity sha512-piOr0S10qy5THB+q5BdqkoOx65XL/tjTMUAit3vciPNp+snTOBnGunWH1Rz7XZUxf2T9uFrfT/Ty4+aC3yPeyg==
