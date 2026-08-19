@@ -1,4 +1,4 @@
-FROM node:22.12-alpine AS build
+FROM node:24.19-alpine AS build
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 # Installs latest Chromium package and other dependencies.
@@ -38,7 +38,7 @@ RUN yarn workspace @omnivore/utils build && \
 
 
 # Running stage
-FROM node:22.12-alpine
+FROM node:24.19-alpine
 
 RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
 && echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \

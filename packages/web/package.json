@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.9",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "@google-recaptcha/react": "^1.0.3",
     "@phosphor-icons/react": "^2.1.5",
     "@radix-ui/react-avatar": "^0.1.1",
@@ -40,7 +40,7 @@
     "allotment": "^1.20.2",
     "antd": "5.26.6",
     "rc-util": "5.44.4",
-    "axios": "^1.2.0",
+    "axios": "^1.19.0",
     "cookie": "0.7.0",
     "csv-file-validator": "^2.1.0",
     "dayjs": "^1.11.7",

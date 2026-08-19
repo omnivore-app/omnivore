@@ -24,7 +24,7 @@
   "homepage": "https://github.com/mozilla/readability",
   "devDependencies": {
     "@c4312/matcha": "^1.3.1",
-    "axios": "^0.30.0",
+    "axios": "^1.19.0",
     "chai": "^2.1.*",
     "chai-as-promised": "^7.1.1",
     "htmltidy2": "^0.3.0",
@@ -39,7 +39,8 @@
     "sinon": "^7.3.2"
   },
   "dependencies": {
-    "cld": "^2.9.1",
+    "node-gyp":"13.0.1",
+    "cld": "^2.10.1",
     "html-entities": "^2.3.2",
     "parse-srcset": "^1.0.2"
   },

@@ -10,12 +10,12 @@
     "@google-cloud/storage": "^7.0.1",
     "@omnivore/puppeteer-parse": "^1.0.0",
     "@omnivore/utils": "1.0.0",
-    "axios": "^0.30.0",
+    "axios": "^1.19.0",
     "bullmq": "^5.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-async-handler": "^1.2.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.3",
     "posthog-node": "^3.6.3"
   },
   "devDependencies": {
