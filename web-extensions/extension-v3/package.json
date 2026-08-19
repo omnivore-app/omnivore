@@ -12,7 +12,7 @@
     "@types/firefox-webext-browser": "^120.0.4",
     "@types/uuid": "^10.0.0",
     "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^12.0.2",
+    "copy-webpack-plugin": "^14.0.0",
     "dotenv-webpack": "^8.1.0",
     "ts-loader": "^8.0.0",
     "typescript": "^4.0.0",
@@ -20,7 +20,7 @@
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
-    "nanoid": "^4.0.2",
-    "uuid": "^8.3.2"
+    "nanoid": "^6.0.1",
+    "uuid": "^14.0.2"
   }
 }
