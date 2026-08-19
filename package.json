@@ -11,7 +11,7 @@
     "test": "lerna run --stream test",
     "lint": "lerna run --parallel lint",
     "build": "lerna run build",
-    "test:scoped:example": "lerna run test --scope={@omnivore/pdf-handler,@omnivore/web}",
+    "test:scoped:example": "lerna run test --scope={@omnivore/web}",
     "gql-typegen": "graphql-codegen",
     "deploy:web": "vercel --prod"
   },
