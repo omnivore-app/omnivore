@@ -155,6 +155,18 @@ services:
       /usr/bin/mc policy set public myminio/omnivore;
       exit 0;
       "
+
+  discover:
+    build:
+      context: ../../../
+      dockerfile: ./packages/discover/Dockerfile
+    container_name: "omnivore-discover"
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+
   mail-watch-server:
     build:
       context: ../../../

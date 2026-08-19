@@ -414,7 +414,7 @@ const summarizeItems = async (
     logger.info('summaries: ', summaries)
 
     summaries.forEach(
-      (summary, index) => (rankedCandidates[index].summary = summary)
+      (summary: any, index: any) => (rankedCandidates[index].summary = summary)
     )
 
     return rankedCandidates
@@ -441,7 +441,6 @@ const summarizeItems = async (
     })
   )
   logger.info('prompts: ', prompts)
-
   const summaries = await llm.batch(prompts)
   logger.info('summaries: ', summaries)
 

@@ -1,5 +1,5 @@
 import { RedisDataSource } from '@omnivore/utils'
-import { JobType } from 'bullmq'
+import { JobType, RedisClient } from 'bullmq'
 import express, { Express } from 'express'
 import asyncHandler from 'express-async-handler'
 import { JobData, processFetchContentJob } from './request_handler'

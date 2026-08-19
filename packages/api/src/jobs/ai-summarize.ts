@@ -1,6 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai'
-import { loadSummarizationChain } from 'langchain/chains'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import { loadSummarizationChain } from '@langchain/classic/chains'
+import { RecursiveCharacterTextSplitter } from '@langchain/classic/text_splitter'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
 import { authTrx } from '../repository'

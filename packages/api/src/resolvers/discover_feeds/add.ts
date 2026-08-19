@@ -15,6 +15,7 @@ import {
 } from '../../generated/graphql'
 import { authorized } from '../../utils/gql-utils'
 import { enqueueDiscoverJob } from '../../utils/createTask'
+import { isArray, isString } from 'lodash'
 
 const RSS_PARSER_CONFIG = {
   timeout: 5000, // 5 seconds
@@ -105,12 +106,13 @@ const addNewSubscription = async (
 
   const contentType = response.headers['content-type']
   const isXML =
-    contentType?.includes('text/rss+xml') ||
-    contentType?.includes('text/atom+xml') ||
-    contentType?.includes('application/xml') ||
-    contentType?.includes('application/atom+xml') ||
-    contentType?.includes('text/xml') || 
-    contentType?.includes('application/rss')
+    (isArray(contentType) || isString(contentType)) &&
+    (contentType?.includes('text/rss+xml') ||
+      contentType?.includes('text/atom+xml') ||
+      contentType?.includes('application/xml') ||
+      contentType?.includes('application/atom+xml') ||
+      contentType?.includes('text/xml') ||
+      contentType?.includes('application/rss'))
 
   if (!isXML) {
     return {

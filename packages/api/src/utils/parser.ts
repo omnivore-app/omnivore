@@ -7,7 +7,10 @@ import { preParseContent } from '@omnivore/content-handler'
 import { Readability } from '@omnivore/readability'
 import addressparser from 'addressparser'
 import axios from 'axios'
-import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
+import createDOMPurify, {
+  UponSanitizeAttributeHook,
+  UponSanitizeAttributeHookEvent,
+} from 'dompurify'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
 import * as jwt from 'jsonwebtoken'
@@ -92,11 +95,11 @@ export const rssParserConfig = () => {
 }
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
-const domPurifySanitizeHook = (
+const domPurifySanitizeHook: UponSanitizeAttributeHook = (
   node: Element,
-  data: SanitizeElementHookEvent
+  data: UponSanitizeAttributeHookEvent
 ): void => {
-  if (data.tagName === 'iframe') {
+  if (node.tagName === 'iframe') {
     const urlRegex = /^(https?:)?\/\/www\.youtube(-nocookie)?\.com\/embed\//i
     const src = node.getAttribute('src') || ''
     const dataSrc = node.getAttribute('data-src') || ''
@@ -177,7 +180,7 @@ const parseOriginalContent = (document: Document): PageType => {
 const getPurifiedContent = (html: string): Document => {
   const newWindow = parseHTML('')
   const DOMPurify = createDOMPurify(newWindow)
-  DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+  DOMPurify.addHook('uponSanitizeAttribute', domPurifySanitizeHook)
   const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
   return parseHTML(clean).document
 }
@@ -377,7 +380,7 @@ export const parsePreparedContent = async (
     const newHtml = newDocumentElement.outerHTML
     const newWindow = parseHTML('')
     const DOMPurify = createDOMPurify(newWindow)
-    DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+    DOMPurify.addHook('uponSanitizeAttribute', domPurifySanitizeHook)
     const cleanHtml = DOMPurify.sanitize(newHtml, DOM_PURIFY_CONFIG)
     parsedContent.content = cleanHtml
 
