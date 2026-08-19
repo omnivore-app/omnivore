@@ -1,0 +1,13 @@
+{
+  "extends": "../../.eslintrc",
+  "parserOptions": {
+    "project": "tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/strictNullChecks": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off"
+  }
+}
