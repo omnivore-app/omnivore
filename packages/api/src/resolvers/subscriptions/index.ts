@@ -53,6 +53,7 @@ import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
 import { parseFeed, parseOpml, rssParserConfig } from '../../utils/parser'
+import { isArray } from 'lodash'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -454,7 +455,10 @@ export const scanFeedsResolver = authorized<
     const content = response.data as string
     // check if the content is html or xml
     const contentType = response.headers['Content-Type']
-    const isHtml = contentType?.includes('text/html')
+    const isHtml = isArray(contentType)
+      ? contentType.includes('text/html')
+      : contentType === 'text/html'
+
     if (isHtml) {
       // this is an html page, parse rss feed links
       const dom = parseHTML(content).document

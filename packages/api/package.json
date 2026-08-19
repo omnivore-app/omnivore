@@ -30,6 +30,7 @@
     "@graphql-tools/utils": "^10.8.6",
     "@langchain/anthropic": "^1.5.6",
     "@langchain/openai": "^1.5.8",
+    "@langchain/core" : "^1.2.8",
     "@notionhq/client": "^2.2.14",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/liqe": "1.0.0",
