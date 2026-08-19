@@ -42,7 +42,8 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "save-extension@omnivore.work"
-    }
+    },
+    "gecko_android": {}
   },
   "options_ui": {
     "page": "/views/options.html",
@@ -50,10 +51,7 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*/**",
-        "http://*/**"
-      ],
+      "matches": ["https://*/**", "http://*/**"],
       "js": [
         "/scripts/common.js",
         "/scripts/content/toast.js",
@@ -63,13 +61,8 @@
       ]
     },
     {
-      "matches": [
-        "https://*/**",
-        "http://*/**"
-      ],
-      "js": [
-        "/scripts/content/grab-iframe-content.js"
-      ],
+      "matches": ["https://*/**", "http://*/**"],
+      "js": ["/scripts/content/grab-iframe-content.js"],
       "all_frames": true
     }
   ],
@@ -92,7 +85,5 @@
       "description": "Save the current tab to Omnivore"
     }
   },
-  "web_accessible_resources": [
-    "views/toast.html"
-  ]
+  "web_accessible_resources": ["views/toast.html"]
 }
