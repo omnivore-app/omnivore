@@ -169,8 +169,38 @@ describe('Webhooks API', () => {
 
         expect(res.body.data.setWebhook.webhook).to.be.an('object')
         expect(res.body.data.setWebhook.webhook.url).to.eql(webhookUrl)
+
         expect(res.body.data.setWebhook.webhook.eventTypes).to.eql(eventTypes)
         expect(res.body.data.setWebhook.webhook.enabled).to.be.true
+      })
+
+      it('should throw when webhook is local ip', async () => {
+        const localQuery = `
+        mutation {
+          setWebhook(
+            input: {
+              url: "http://127.0.0.1",
+              eventTypes: [${eventTypes.toString()}],
+              enabled: ${enabled.toString()}
+            }
+          ) {
+            ... on SetWebhookSuccess {
+              webhook {
+                id
+                url
+                eventTypes
+                enabled
+              }
+            }
+            ... on SetWebhookError {
+              errorCodes
+            }
+          }
+        }`
+
+        const res = await graphqlRequest(localQuery, authToken).expect(200)
+
+        expect(res.body.data.setWebhook.errorCodes).to.eql(['BAD_REQUEST'])
       })
     })
 
