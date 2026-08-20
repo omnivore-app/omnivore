@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { GraphQLScalarType } from 'graphql'
+import { GraphQLScalarType, StringValueNode } from 'graphql'
 import sanitize from 'sanitize-html'
 
 export class SanitizedString extends GraphQLScalarType {
@@ -20,22 +20,24 @@ export class SanitizedString extends GraphQLScalarType {
       ),
       description: 'Source string that was sanitized',
 
-      serialize(value: string) {
-        return value
+      coerceOutputValue(value) {
+        return value as string
       },
 
       // invoked when a query is passed as a JSON object (for example, when Apollo Client makes a request
-      parseValue(value) {
+      coerceInputLiteral(ast) {
+        let value = ast as StringValueNode
+
         checkLength(value)
-        if (pattern && !new RegExp(pattern).test(value)) {
+        if (pattern && !new RegExp(pattern).test(value.value)) {
           throw new Error(`Specified value does not match pattern`)
         }
-        return sanitize(value, { allowedTags: allowedTags || [] })
+        return sanitize(value.value, { allowedTags: allowedTags || [] })
       },
 
       // invoked when a query is passed as a string
-      parseLiteral(ast) {
-        const value = type.parseLiteral(ast, {})
+      coerceInputValue(ast) {
+        const value = type.coerceInputValue(ast) as string
         checkLength(value)
         if (pattern && !new RegExp(pattern).test(value)) {
           throw new Error(`Specified value does not match pattern`)
@@ -63,8 +65,8 @@ const ScalarResolvers = {
   Date: new GraphQLScalarType({
     name: 'Date',
     description: 'Date',
-    serialize(value) {
-      const timestamp = Date.parse(value)
+    coerceOutputValue(value) {
+      const timestamp = Date.parse(value as string)
       if (!isNaN(timestamp)) {
         return new Date(timestamp).toJSON()
       } else {

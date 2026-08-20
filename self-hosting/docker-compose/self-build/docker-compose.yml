@@ -1,4 +1,3 @@
-version: '3'
 x-postgres:
   &postgres-common
   image: "ankane/pgvector:v0.5.1"

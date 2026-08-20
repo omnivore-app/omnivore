@@ -2697,7 +2697,7 @@
     tslib "^2.4.0"
     value-or-promise "1.0.11"
 
-"@graphql-tools/schema@^10.0.0":
+"@graphql-tools/schema@^10.0.0", "@graphql-tools/schema@^10.1.0":
   version "10.1.0"
   resolved "https://registry.yarnpkg.com/@graphql-tools/schema/-/schema-10.1.0.tgz#d5917001efebe48e141fddf1c7f3f87a6a5dc67b"
   integrity sha512-wao48XQnfY631s3jXoNrhEHvCI8mlKXmIuWrR7F6zAdv92VuSOfHoq9P9KL2EnUMgBUnaStnByOx9Mn6RieWDg==
@@ -2740,16 +2740,6 @@
   resolved "https://registry.npmjs.org/@graphql-tools/utils/-/utils-8.9.0.tgz"
   integrity sha512-pjJIWH0XOVnYGXCqej8g/u/tsfV4LvLlj0eATKQu5zwnxd/TiTHq7Cg313qUPTFFHZ3PP5wJ15chYVtLDwaymg==
   dependencies:
-    tslib "^2.4.0"
-
-"@graphql-tools/utils@^10.8.6":
-  version "10.11.0"
-  resolved "https://registry.npmjs.org/@graphql-tools/utils/-/utils-10.11.0.tgz"
-  integrity sha512-iBFR9GXIs0gCD+yc3hoNswViL1O5josI33dUqiNStFI/MHLCEPduasceAcazRH77YONKNiviHBV8f7OgcT4o2Q==
-  dependencies:
-    "@graphql-typed-document-node/core" "^3.1.1"
-    "@whatwg-node/promise-helpers" "^1.0.0"
-    cross-inspect "1.0.1"
     tslib "^2.4.0"
 
 "@graphql-tools/utils@^12.0.0":
@@ -16537,9 +16527,9 @@ graphql-fields@^2.0.3:
   resolved "https://registry.npmjs.org/graphql-fields/-/graphql-fields-2.0.3.tgz"
   integrity sha512-x3VE5lUcR4XCOxPIqaO4CE+bTK8u6gVouOdpQX9+EKHr+scqtK5Pp/l8nIGqIpN1TUlkKE6jDCCycm/WtLRAwA==
 
-graphql-middleware@^6.0.10:
+graphql-middleware@^6.1.35:
   version "6.1.35"
-  resolved "https://registry.npmjs.org/graphql-middleware/-/graphql-middleware-6.1.35.tgz"
+  resolved "https://registry.yarnpkg.com/graphql-middleware/-/graphql-middleware-6.1.35.tgz#7297d41ceb35742b80640cca5cd85d1e47e8ab24"
   integrity sha512-azawK7ApUYtcuPGRGBR9vDZu795pRuaFhO5fgomdJppdfKRt7jwncuh0b7+D3i574/4B+16CNWgVpnGVlg3ZCg==
   dependencies:
     "@graphql-tools/delegate" "^8.8.1"
@@ -16562,9 +16552,9 @@ graphql-request@^6.0.0:
     "@graphql-typed-document-node/core" "^3.2.0"
     cross-fetch "^3.1.5"
 
-graphql-shield@^7.5.0:
+graphql-shield@^7.6.5:
   version "7.6.5"
-  resolved "https://registry.npmjs.org/graphql-shield/-/graphql-shield-7.6.5.tgz"
+  resolved "https://registry.yarnpkg.com/graphql-shield/-/graphql-shield-7.6.5.tgz#91683254e498e120ce58d560b8b4f118e10530ea"
   integrity sha512-etbzf7UIhQW6vadn/UR+ds0LJOceO8ITDXwbUkQMlP2KqPgSKTZRE2zci+AUfqP+cpV9zDQdbTJfPfW5OCEamg==
   dependencies:
     "@types/yup" "0.29.13"
@@ -16572,7 +16562,7 @@ graphql-shield@^7.5.0:
     tslib "^2.4.0"
     yup "^0.32.0"
 
-graphql-tag@^2.11.0:
+graphql-tag@^2.11.0, graphql-tag@^2.12.7:
   version "2.12.7"
   resolved "https://registry.npmjs.org/graphql-tag/-/graphql-tag-2.12.7.tgz"
   integrity sha512-xnE/NFzy+0eIesvAsREJZ284zTl/wYuBAvpsFSDhRGRdRHdnE90M21Q3xAWyYInb0J756c6x0pIQ62+vtvOs1Q==
@@ -16584,10 +16574,15 @@ graphql-ws@5.12.1:
   resolved "https://registry.npmjs.org/graphql-ws/-/graphql-ws-5.12.1.tgz"
   integrity sha512-umt4f5NnMK46ChM2coO36PTFhHouBrK9stWWBczERguwYrGnPNxJ9dimU6IyOBfOkC6Izhkg4H8+F51W/8CYDg==
 
-graphql@*, graphql@^15.3.0, graphql@^15.5.1, graphql@^15.6.1:
+graphql@*, graphql@^15.5.1, graphql@^15.6.1:
   version "15.10.2"
   resolved "https://registry.npmjs.org/graphql/-/graphql-15.10.2.tgz"
   integrity sha512-1PRqdDPAmViWr4h1GVBT8RoPZfWSGZa7kDzleTilOfVIslsgf+cia3Nl95v1KDmR4iERPaT7WzQ+tN4MJmbg3w==
+
+graphql@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-17.0.2.tgz#05ff6f18e0801e8d040d46957eba712c1459d5d7"
+  integrity sha512-FRWbddMxfkjiB7z+aQDWIR+E34xo9I8c9mtK2RPv8PmMzKRvrdsreHL/Ui/TmwHJfhHChEtsFPyMHKI+xuarQQ==
 
 growl@1.10.5:
   version "1.10.5"

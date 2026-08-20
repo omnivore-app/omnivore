@@ -36,7 +36,6 @@ import { emailAttachmentRouter } from './routers/svc/email_attachment'
 import { followingServiceRouter } from './routers/svc/following'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
-// import { remindersServiceRouter } from './routers/svc/reminders'
 import { rssFeedRouter } from './routers/svc/rss_feed'
 import { uploadServiceRouter } from './routers/svc/upload'
 import { userServiceRouter } from './routers/svc/user'
@@ -173,7 +172,7 @@ const main = async (): Promise<void> => {
   const httpServer = createServer(app)
   const apollo = makeApolloServer(app, httpServer)
   await apollo.start()
-  app.use('/api/graphql', cors())
+  app.use('/api/graphql', cors(corsConfig))
 
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
