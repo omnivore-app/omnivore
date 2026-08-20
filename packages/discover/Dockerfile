@@ -1,4 +1,4 @@
- FROM node:24.19-alpine as builder
+FROM node:24.19-alpine AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN yarn install --pure-lockfile --network-timeout=300000
 
 RUN yarn workspace @omnivore/discover build
 
-FROM node:24.19-alpine as runner
+FROM node:24.19-alpine AS runner
 
 WORKDIR /app
 
