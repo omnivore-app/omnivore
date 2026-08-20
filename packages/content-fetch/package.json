@@ -12,7 +12,7 @@
     "@omnivore/utils": "1.0.0",
     "axios": "^1.19.0",
     "bullmq": "^6.1.2",
-    "ioredis":"^5.3.2",
+    "ioredis":"^6.0.0",
     "dotenv": "^8.2.0",
     "express": "^5.2.1",
     "express-async-handler": "^1.2.0",
