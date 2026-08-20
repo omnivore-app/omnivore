@@ -22045,7 +22045,7 @@ nanoclone@^0.2.1:
   resolved "https://registry.npmjs.org/nanoclone/-/nanoclone-0.2.1.tgz"
   integrity sha512-wynEP02LmIbLpcYw8uBKpcfF6dmg2vcpKqxeH5UcoKEYdExslsdUA4ugFauuaeYdTB76ez6gJW8XAZ6CgkXYxA==
 
-nanoid@*:
+nanoid@*, nanoid@^6.0.1:
   version "6.0.1"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-6.0.1.tgz"
   integrity sha512-3wVS3i51pE2pi1k5FFL/95BGfVS0kSsvDVuGXHOtxox/TywUmtgq+3qiTOTbs9J7KfHaXPiN171k/A6dBnaXFw==
@@ -22069,11 +22069,6 @@ nanoid@^4.0.2:
   version "4.0.2"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-4.0.2.tgz"
   integrity sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==
-
-nanoid@^5.0.9:
-  version "5.1.16"
-  resolved "https://registry.npmjs.org/nanoid/-/nanoid-5.1.16.tgz"
-  integrity sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==
 
 nanomatch@^1.2.9:
   version "1.2.13"
