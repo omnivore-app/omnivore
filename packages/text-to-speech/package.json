@@ -27,7 +27,7 @@
     "@types/html-to-text": "^8.1.1",
     "@types/mocha": "^10.0.6",
     "@types/natural": "^5.1.1",
-    "@types/node": "^14.11.2",
+    "@types/node": "^22.14.0",
     "@types/underscore": "^1.11.4",
     "@types/jsonwebtoken": "^9.0.7",
     "chai": "^4.3.6",
@@ -47,7 +47,10 @@
     "microsoft-cognitiveservices-speech-sdk": "1.30",
     "natural": "^6.2.0",
     "nodemon": "^2.0.15",
-    "underscore": "^1.13.4"
+    "underscore": "^1.13.4",
+    "@aws-sdk/client-s3": "^3.679.0",
+    "@aws-sdk/s3-request-presigner": "^3.679.0",
+    "@aws-sdk/lib-storage": "^3.679.0"
   },
   "volta": {
     "extends": "../../package.json"
