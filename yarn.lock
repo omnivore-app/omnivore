@@ -24147,10 +24147,10 @@ pgpass@1.0.5:
   dependencies:
     split2 "^4.1.0"
 
-pgvector@^0.1.5:
-  version "0.1.8"
-  resolved "https://registry.npmjs.org/pgvector/-/pgvector-0.1.8.tgz"
-  integrity sha512-mD6aw+XYJrsuLl3Y8s8gHDDfOZQ9ERtfQPdhvjOrC7eOTM7b6sNkxeZxBhHwUdXMfHmyGWIbwU0QbmSnn7pPmg==
+pgvector@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/pgvector/-/pgvector-0.3.0.tgz#816342729d4d0aff8efcd6e1bd2b702656de5f74"
+  integrity sha512-+t7qcQD2us8fO8YIq/3lA0gUrD+bVO70MG1MhcDcxJz/OlRGGIIHzFq/4x57Vn/LpzX5wFdfOTLQp9QMPd4ljQ==
 
 picocolors@^0.2.1:
   version "0.2.1"
