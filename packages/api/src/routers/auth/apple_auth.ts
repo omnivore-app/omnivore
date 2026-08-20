@@ -48,14 +48,16 @@ export async function decodeAppleToken(
   token: string
 ): Promise<DecodeTokenResult> {
   const decodedToken = jwt.decode(token, { complete: true })
-  const { kid, alg } = (decodedToken as any).header
+  const { kid } = (decodedToken as any).header
 
   try {
     const publicKey = await fetchApplePublicKey(kid)
     if (!publicKey) {
       return { errorCode: 500 }
     }
-    const jwtClaims: any = jwt.verify(token, publicKey, { algorithms: [alg] })
+    const jwtClaims: any = jwt.verify(token, publicKey, {
+      algorithms: ['RS256'],
+    })
     const issVerified = (jwtClaims.iss ?? '') === appleBaseURL
     const audience = jwtClaims.aud ?? ''
     const audVerified = audience == webAudienceName || audience === audienceName
