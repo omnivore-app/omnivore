@@ -17,7 +17,7 @@
     "express": "^5.2.1",
     "bullmq": "^6.1.2",
     "@omnivore/utils": "1.0.0",
-    "ioredis": "^5.3.2"
+    "ioredis": "^6.0.0"
   },
   "devDependencies": {
     "@types/html-to-text": "^9.0.2",

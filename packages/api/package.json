@@ -87,7 +87,7 @@
     "html-entities": "^2.3.2",
     "image-size": "^1.0.2",
     "intercom-client": "^6.0.0",
-    "ioredis": "^5.3.2",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^2.0.3",
     "@langchain/classic": "^1.0.43",
