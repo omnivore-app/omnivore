@@ -11036,18 +11036,6 @@ builtins@^5.0.0:
   dependencies:
     semver "^7.0.0"
 
-bullmq@^5.1.1:
-  version "5.81.3"
-  resolved "https://registry.npmjs.org/bullmq/-/bullmq-5.81.3.tgz"
-  integrity sha512-Q7uEH2G92rVjX3Yl2qw3+6VEO15uxehC6DfeTHQBQTehddcRDSDuquD9zuvDjxiCffXsPUaBwrRlvlbVcgKs7g==
-  dependencies:
-    cron-parser "4.9.0"
-    ioredis "5.11.1"
-    msgpackr "2.0.5"
-    node-abort-controller "3.1.1"
-    semver "7.8.5"
-    tslib "2.8.1"
-
 bullmq@^6.1.2:
   version "6.1.2"
   resolved "https://registry.npmjs.org/bullmq/-/bullmq-6.1.2.tgz"
@@ -12677,13 +12665,6 @@ create-require@^1.1.0:
   version "1.1.1"
   resolved "https://registry.npmjs.org/create-require/-/create-require-1.1.1.tgz"
   integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
-
-cron-parser@4.9.0:
-  version "4.9.0"
-  resolved "https://registry.npmjs.org/cron-parser/-/cron-parser-4.9.0.tgz"
-  integrity sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==
-  dependencies:
-    luxon "^3.2.1"
 
 cron-parser@5.10.0:
   version "5.10.0"
@@ -17677,7 +17658,7 @@ invariant@^2.2.4:
   dependencies:
     loose-envify "^1.0.0"
 
-ioredis@5.11.1, ioredis@^5.3.2:
+ioredis@^5.3.2:
   version "5.11.1"
   resolved "https://registry.npmjs.org/ioredis/-/ioredis-5.11.1.tgz"
   integrity sha512-ehuGcf94bQXhfagULNXrJdfnWO38v070jxSx/qE87Kjzmu2fU7ro5EFAb+OPituLqgfyuQaym5DlrNydW2sJ9A==

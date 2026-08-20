@@ -60,7 +60,7 @@
     "archiver": "^7.0.1",
     "axios": "^1.19.0",
     "bcryptjs": "^2.4.3",
-    "bullmq": "^5.1.1",
+    "bullmq": "^6.1.2",
     "compression": "^1.7.4",
     "cookie": "^2.0.1",
     "cookie-parser": "^1.4.5",
