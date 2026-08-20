@@ -5,18 +5,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import * as Sentry from '@sentry/node'
 import {
-  ApolloServerPluginDrainHttpServer,
+  ApolloServer,
+  ApolloServerPlugin,
   ContextFunction,
-  PluginDefinition,
-} from 'apollo-server-core'
-import { ApolloServer } from 'apollo-server-express'
-import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
-import { ApolloServerPlugin } from 'apollo-server-plugin-base'
+} from '@apollo/server'
 import DataLoader from 'dataloader'
-import { Express } from 'express'
+import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import type http from 'http'
 import * as jwt from 'jsonwebtoken'
@@ -50,6 +48,10 @@ import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
+import {
+  expressMiddleware,
+} from '@as-integrations/express5'
+import cors from 'cors'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -59,7 +61,7 @@ const resolvers = {
   ...ScalarResolvers,
 }
 
-const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
+export const contextFunc: ContextFunction<any, ResolverContext> = async ({
   req,
   res,
 }) => {
@@ -141,7 +143,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 export function makeApolloServer(
   app: Express,
   httpServer: http.Server
-): ApolloServer {
+): ApolloServer<RequestContext> {
   let schema = makeExecutableSchema({
     resolvers,
     typeDefs,
@@ -149,7 +151,7 @@ export function makeApolloServer(
 
   schema = sanitizeDirectiveTransformer(schema)
 
-  const promExporter: PluginDefinition = createPrometheusExporterPlugin({
+  const promExporter = createPrometheusExporterPlugin({
     app,
     hostnameLabel: false,
     defaultMetrics: false,
@@ -169,7 +171,7 @@ export function makeApolloServer(
         // get graphql query from the request
         const query = contextValue.request.query
         // get the user id from the claims
-        const userId = contextValue.context.claims?.uid
+        const userId = contextValue.contextValue.claims?.uid
         const action = 'replyToEmail'
         if (userId && query?.includes(action)) {
           logger.info('checking usage limit for user', { userId, action })
@@ -192,8 +194,13 @@ export function makeApolloServer(
             if (
               userId &&
               query?.includes(action) &&
-              !requestContext.response.errors &&
-              !requestContext.response.data?.replyToEmail?.errorCodes
+              requestContext.response.body.kind === 'single' &&
+              !requestContext.response.body.singleResult.errors &&
+              !(
+                requestContext.response.body.singleResult.data as {
+                  replyToEmails: { errorCodes: string[] | null } | null
+                }
+              ).replyToEmails?.errorCodes
             ) {
               logger.info('incrementing usage count for user', {
                 userId,
@@ -207,16 +214,15 @@ export function makeApolloServer(
     }
   }
 
-  const apollo = new ApolloServer({
+  const apollo = new ApolloServer<ResolverContext>({
     schema: schema,
-    context: contextFunc,
     plugins: [
       // Our httpServer handles incoming requests to our Express app.
       // Below, we tell Apollo Server to "drain" this httpServer,
       // enabling our servers to shut down gracefully.
       ApolloServerPluginDrainHttpServer({ httpServer }),
       promExporter,
-      usageLimitPlugin,
+      usageLimitPlugin(),
     ],
     formatError: (err) => {
       logger.info('server error', err)

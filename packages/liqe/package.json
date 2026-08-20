@@ -33,8 +33,7 @@
     "npm-watch": "^0.11.0",
     "nyc": "^15.1.0",
     "semantic-release": "^20.1.0",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.4.4"
+    "ts-node": "^10.4.0"
   },
   "engines": {
     "node": ">=12.0"

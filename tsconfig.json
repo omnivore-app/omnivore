@@ -2,9 +2,9 @@
   "$schema": "https://json.schemastore.org/tsconfig",
 
   "compilerOptions": {
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
     "module": "commonjs",
-    "target": "es2020",
+    "target": "es2022",
     "types": ["node"],
     "strict": true,
     "esModuleInterop": true,

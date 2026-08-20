@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "module": "commonjs",
-    "moduleResolution": "node",
+    "rootDir": ".",
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "strict": true,
     "types": ["node"],
-    "target": "es5"
+    "target": "es2022"
   },
   "exclude": [
     "dist",

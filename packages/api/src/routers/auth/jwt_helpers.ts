@@ -31,7 +31,9 @@ export async function createMobileAuthPayload(
   userId: string
 ): Promise<MobileAuthPayload> {
   const authToken = await signToken({ uid: userId }, env.server.jwtSecret)
-  const authCookieString = cookie.serialize('auth', authToken as string, {
+  const authCookieString = cookie.stringifySetCookie({
+    name: 'auth',
+    value: authToken as string,
     httpOnly: true,
     expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
   })

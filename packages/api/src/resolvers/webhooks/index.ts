@@ -121,7 +121,7 @@ export const setWebhookResolver = authorized<
       contentType: input.contentType || 'application/json',
       enabled: input.enabled === null ? true : input.enabled,
     }
-    
+
     if (input.id) {
       // Update
       const existingWebhook = await authTrx((t) =>

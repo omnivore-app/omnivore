@@ -13,7 +13,7 @@ import promBundle from 'express-prom-bundle'
 import { createServer } from 'http'
 import * as prom from 'prom-client'
 import { config, loggers } from 'winston'
-import { makeApolloServer } from './apollo'
+import { contextFunc, makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { redisDataSource } from './redis_data_source'
@@ -36,7 +36,6 @@ import { emailAttachmentRouter } from './routers/svc/email_attachment'
 import { followingServiceRouter } from './routers/svc/following'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
-// import { remindersServiceRouter } from './routers/svc/reminders'
 import { rssFeedRouter } from './routers/svc/rss_feed'
 import { uploadServiceRouter } from './routers/svc/upload'
 import { userServiceRouter } from './routers/svc/user'
@@ -49,6 +48,8 @@ import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
+import cors from 'cors'
+import { expressMiddleware } from '@as-integrations/express5'
 
 const PORT = process.env.PORT || 4000
 
@@ -172,7 +173,17 @@ const main = async (): Promise<void> => {
   const httpServer = createServer(app)
   const apollo = makeApolloServer(app, httpServer)
   await apollo.start()
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+  app.use(
+    '/',
+    cors<cors.CorsRequest>(corsConfig),
+    express.json(),
+    // expressMiddleware accepts the same arguments:
+    // an Apollo Server instance and optional configuration options
+    expressMiddleware(apollo, {
+      context: contextFunc,
+    })
+  )
+  app.use('/api/graphql', cors(corsConfig))
 
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
@@ -183,7 +194,7 @@ const main = async (): Promise<void> => {
 
   const listener = httpServer.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
-    logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
+    logger.notice(`🚀 Server ready at /api/graphql`)
   })
 
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.

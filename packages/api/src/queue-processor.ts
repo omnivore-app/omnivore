@@ -90,7 +90,6 @@ export const BACKEND_QUEUE_NAME = 'omnivore-backend-queue'
 export const CONTENT_FETCH_QUEUE = 'omnivore-content-fetch-queue'
 export const DISCOVER_QUEUE = 'omnivore-discover-queue'
 
-
 export const JOB_VERSION = 'v001'
 
 const jobLatency = new client.Histogram({
@@ -258,24 +257,26 @@ const setupCronJobs = async () => {
     return
   }
 
-  await queue.add(
+  await queue.upsertJobScheduler(
     SYNC_READ_POSITIONS_JOB_NAME,
-    {},
     {
-      priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
-      repeat: {
-        every: 60_000,
+      every: 60_000,
+    },
+    {
+      opts: {
+        priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       },
     }
   )
 
-  await queue.add(
+  await queue.upsertJobScheduler(
     REFRESH_ALL_FEEDS_JOB_NAME,
-    {},
     {
-      priority: getJobPriority(REFRESH_ALL_FEEDS_JOB_NAME),
-      repeat: {
-        every: 14_400_000, // 4 Hours
+      every: 14_400_000, // 4 Hours
+    },
+    {
+      opts: {
+        priority: getJobPriority(REFRESH_ALL_FEEDS_JOB_NAME),
       },
     }
   )

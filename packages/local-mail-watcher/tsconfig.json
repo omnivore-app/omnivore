@@ -5,6 +5,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "types": [],
+    "rootDir": ".",
     "typeRoots": ["./../../node_modules/pgvector/types"]
   }
 }

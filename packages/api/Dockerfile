@@ -1,18 +1,18 @@
-FROM node:24.19 AS builder
+FROM node:24.19-alpine AS builder
 
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-RUN apt-get update && apt-get install -y g++ make python3 && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apk add g++ make python3
 
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
-COPY packages ./packages
-
-# Remove all except needed packages
-RUN find packages -mindepth 1 -type d \
-    ! -regex '^packages/\(api\|readabilityjs\|text-to-speech\|content-handler\|liqe\|utils\)\(/.*\)?' \
-    -exec rm -rf {} +
+COPY packages/readabilityjs ./packages/readabilityjs
+COPY packages/text-to-speech ./packages/text-to-speech
+COPY packages/content-handler ./packages/content-handler
+COPY packages/liqe ./packages/liqe
+COPY packages/utils ./packages/utils
+COPY packages/api ./packages/api
 
 RUN yarn install --pure-lockfile --network-timeout=300000 && \
     yarn workspace @omnivore/utils build && \

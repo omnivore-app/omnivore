@@ -1,7 +1,11 @@
- FROM node:22 as builder
+FROM node:24.19-alpine AS builder
 
 WORKDIR /app
-RUN apt-get update && apt-get install -y g++ make python3
+
+RUN apk add  \
+        python3 \
+        make \
+        g++
 
 COPY package.json .
 COPY yarn.lock .
@@ -17,7 +21,7 @@ RUN yarn install --pure-lockfile --network-timeout=300000
 
 RUN yarn workspace @omnivore/discover build
 
-FROM node:24.19 as runner
+FROM node:24.19-alpine AS runner
 
 WORKDIR /app
 

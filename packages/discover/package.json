@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-dev --files src/index.ts",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
     "test:typecheck": "tsc --noEmit"
@@ -38,7 +38,6 @@
     "@types/pg": "^8.10.5",
     "@types/voca": "^1.4.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.6.3",
     "tslib": "^2.6.2",
     "@types/uuid": "^9.0.1",
     "@types/urlsafe-base64": "^1.0.28"

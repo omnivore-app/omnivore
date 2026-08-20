@@ -7,6 +7,7 @@ import { makeApolloServer } from '../src/apollo'
 import { BACKEND_QUEUE_NAME, createWorker } from '../src/queue-processor'
 import { createApp } from '../src/server'
 import { corsConfig } from '../src/utils/corsConfig'
+import cors from 'cors'
 
 const app = createApp()
 const httpServer = createServer(app)
@@ -17,7 +18,7 @@ let queueEvents: QueueEvents
 
 export const startApolloServer = async () => {
   await apollo.start()
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+  app.use('/api/graphql', cors(corsConfig))
 }
 
 export const stopApolloServer = async () => {
@@ -48,7 +49,7 @@ export const graphqlRequest = (
   variables?: Record<string, unknown>
 ): supertest.Test => {
   return request
-    .post(apollo.graphqlPath)
+    .post('/api/graphql')
     .send({ query, variables })
     .set('Accept', 'application/json')
     .set('authorization', authToken)
