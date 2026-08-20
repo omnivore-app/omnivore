@@ -77,6 +77,9 @@ And of course...
 and many more who contributed in the past. If you feel like your name is missing from this list, please contact me [(Podginator)](https://github.com/podginator) via our Discord. 
 
 
+## How to deploy to your own server
+
+A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
 ## How to setup local development :computer:
 
@@ -169,9 +172,6 @@ and enter a URL such as `https://blog.omnivore.work/p/getting-started-with-omniv
 You should see a Chromium window open and navigate to your link. When the service
 is done fetching your content you will see it in your library.
 
-## How to deploy to your own server
-
-A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
 ## License
 
