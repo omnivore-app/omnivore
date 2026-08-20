@@ -7,6 +7,8 @@ COPY yarn.lock .
 COPY tsconfig.json .
 
 COPY /packages/db/package.json ./packages/db/package.json
+COPY /packages/db/tsconfig.json ./packages/db/tsconfig.json
+
 
 RUN apk add \
   postgresql \
