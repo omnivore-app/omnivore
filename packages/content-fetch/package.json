@@ -14,14 +14,14 @@
     "bullmq": "^6.1.2",
     "ioredis":"^5.3.2",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
+    "express": "^5.2.1",
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.3",
     "posthog-node": "^3.6.3",
     "node-gyp":"^13.0.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.1",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^8.5.0",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
