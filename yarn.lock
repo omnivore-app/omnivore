@@ -15606,11 +15606,6 @@ formdata-node@^4.3.2:
     node-domexception "1.0.0"
     web-streams-polyfill "4.0.0-beta.3"
 
-formdata-node@^6.0.3:
-  version "6.0.3"
-  resolved "https://registry.npmjs.org/formdata-node/-/formdata-node-6.0.3.tgz"
-  integrity sha512-8e1++BCiTzUno9v5IZ2J6bv4RU+3UKDmqWUQD0MIMVCd9AdhWkO1gw57oo1mNEX1dMq2EGI+FbWz4B92pscSQg==
-
 formdata-polyfill@^4.0.10:
   version "4.0.10"
   resolved "https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz"
@@ -17630,18 +17625,10 @@ inquirer@^8.0.0, inquirer@^8.2.4:
     through "^2.3.6"
     wrap-ansi "^6.0.1"
 
-intercom-client@^6.0.0:
-  version "6.4.0"
-  resolved "https://registry.npmjs.org/intercom-client/-/intercom-client-6.4.0.tgz"
-  integrity sha512-Mz7hCm2hYH1IodrIccMwEpfVDoOAlSGcmaG/S2e0M1S9Sg9e54b046Mbw1jBCdCUWqEU4SvG40rt/PpqWsgRFw==
-  dependencies:
-    form-data "^4.0.0"
-    formdata-node "^6.0.3"
-    js-base64 "3.7.7"
-    node-fetch "^2.7.0"
-    qs "^6.13.1"
-    readable-stream "^4.5.2"
-    url-join "4.0.1"
+intercom-client@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/intercom-client/-/intercom-client-7.0.3.tgz#ea4f07f6192bc6ff8e2d1f422e453b2cbfe141c6"
+  integrity sha512-2rsNxBNqDqA0rZ0E/VsWa+/Ao+/nOxKNj9P7gUiQoOGY88eULTJUNtT9oNnT4Dq2+6dr0vvvo+I8ZNzN30Xj7A==
 
 internal-slot@^1.1.0:
   version "1.1.0"
@@ -19132,11 +19119,6 @@ jose@^4.11.4, jose@^4.15.4:
   version "4.15.9"
   resolved "https://registry.npmjs.org/jose/-/jose-4.15.9.tgz"
   integrity sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==
-
-js-base64@3.7.7:
-  version "3.7.7"
-  resolved "https://registry.npmjs.org/js-base64/-/js-base64-3.7.7.tgz"
-  integrity sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==
 
 js-beautify@^1.13.0:
   version "1.15.4"
@@ -25095,7 +25077,7 @@ qrcode-terminal@^0.12.0:
   resolved "https://registry.npmjs.org/qrcode-terminal/-/qrcode-terminal-0.12.0.tgz"
   integrity sha512-EXtzRZmC+YGmGlDFbXKxQiMZNwCLEO6BANKXG4iCtSIM0yqc/pappSx3RIKr4r0uh5JsBckOXeKrB3Iz7mdQpQ==
 
-qs@^6.10.0, qs@^6.11.0, qs@^6.12.3, qs@^6.13.1, qs@^6.14.0, qs@^6.15.2, qs@^6.7.0, qs@~6.15.1:
+qs@^6.10.0, qs@^6.11.0, qs@^6.12.3, qs@^6.14.0, qs@^6.15.2, qs@^6.7.0, qs@~6.15.1:
   version "6.15.3"
   resolved "https://registry.npmjs.org/qs/-/qs-6.15.3.tgz"
   integrity sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==
@@ -26056,7 +26038,7 @@ readable-stream@3, readable-stream@^3.0.0, readable-stream@^3.0.2, readable-stre
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
-readable-stream@^4.0.0, readable-stream@^4.5.2:
+readable-stream@^4.0.0:
   version "4.7.0"
   resolved "https://registry.npmjs.org/readable-stream/-/readable-stream-4.7.0.tgz"
   integrity sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==
@@ -30000,7 +29982,7 @@ urix@^0.1.0:
   resolved "https://registry.npmjs.org/urix/-/urix-0.1.0.tgz"
   integrity sha512-Am1ousAhSLBeB9cG/7k7r2R0zj50uDRlZHPGbazid5s9rlF1F/QKYObEKSIunSjIOkJZqwRRLpvewjEkM7pSqg==
 
-url-join@4.0.1, url-join@^4.0.0:
+url-join@^4.0.0:
   version "4.0.1"
   resolved "https://registry.npmjs.org/url-join/-/url-join-4.0.1.tgz"
   integrity sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==
