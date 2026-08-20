@@ -65,7 +65,12 @@ import {
   UploadContentJobData,
   UPLOAD_CONTENT_JOB,
 } from '../jobs/upload_content'
-import { CONTENT_FETCH_QUEUE, DISCOVER_QUEUE, getQueue, JOB_VERSION } from '../queue-processor'
+import {
+  CONTENT_FETCH_QUEUE,
+  DISCOVER_QUEUE,
+  getQueue,
+  JOB_VERSION,
+} from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { writeDigest } from '../services/digest'
 import { signFeatureToken } from '../services/features'
@@ -73,7 +78,10 @@ import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logError, logger } from './logger'
-import { DISCOVER_FEED_ADDED_NAME, DiscoverFeedAddedJobData } from '../jobs/discover_feed_added'
+import {
+  DISCOVER_FEED_ADDED_NAME,
+  DiscoverFeedAddedJobData,
+} from '../jobs/discover_feed_added'
 import { EXPORT_QUEUE_NAME } from '../export-processor'
 import View = protos.google.cloud.tasks.v2.Task.View
 
@@ -891,11 +899,7 @@ export const removeDigestJobs = async (userId: string) => {
   // remove existing repeated job if any
   await Promise.all(
     Object.keys(CRON_PATTERNS).map((key) =>
-      queue.removeRepeatable(
-        CREATE_DIGEST_JOB,
-        scheduledDigestJobOptions(key as CreateDigestJobSchedule),
-        jobId
-      )
+      queue.removeJobScheduler(CREATE_DIGEST_JOB, )
     )
   )
 }
@@ -941,14 +945,20 @@ export const enqueueCreateDigest = async (
     // delete the digest id to avoid duplication
     delete data.id
 
-    const job = await queue.add(CREATE_DIGEST_JOB, data, {
-      attempts: 1,
-      priority: getJobPriority(CREATE_DIGEST_JOB),
-      repeat: {
-        ...scheduledDigestJobOptions(schedule), // cron parser options (tz, etc.)
+    const job = await queue.upsertJobScheduler(
+      CREATE_DIGEST_JOB,
+      {
+        ...scheduledDigestJobOptions(schedule),
         jobId,
       },
-    })
+      {
+        data,
+        opts: {
+          attempts: 1,
+          priority: getJobPriority(CREATE_DIGEST_JOB),
+        },
+      }
+    )
 
     if (!job || !job.id) {
       logger.error('Error while scheduling create digest job', data)

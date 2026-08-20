@@ -4,6 +4,7 @@
     "files": true
   },
   "compilerOptions": {
+    "rootDirs": ["."],
     "outDir": "dist",
     "types": ["node"],
     "esModuleInterop": true

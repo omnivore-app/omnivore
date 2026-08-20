@@ -1,4 +1,4 @@
-FROM node:24.19
+FROM node:24.19-alpine
 
 WORKDIR /app
 
@@ -8,9 +8,12 @@ COPY tsconfig.json .
 
 COPY /packages/db/package.json ./packages/db/package.json
 
-RUN apt-get update && apt-get install -y \
+RUN apk add \
   postgresql \
-  uuid-runtime
+  uuidgen \
+  python3 \
+  g++ \
+  make
 
 RUN yarn install
 

@@ -3,8 +3,16 @@
   "compileOnSave": false,
   "include": ["./src/**/*"],
   "compilerOptions": {
+    "rootDir": ".",
     "outDir": "dist",
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "../node_modules/@types", "./../../node_modules/types", "./../../node_modules/pgvector/types"]
+    "typeRoots": [
+      "./node_modules/@types",
+      "../node_modules/@types",
+      "./../../node_modules/types",
+      "./../../node_modules/pgvector/types",
+      "./../../node_modules/pgvector/types/pg",
+      "./../../node_modules/pgvector/types/pg/index.d.ts"
+    ]
   }
 }

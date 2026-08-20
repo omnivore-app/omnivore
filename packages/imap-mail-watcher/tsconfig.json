@@ -3,6 +3,7 @@
   "compileOnSave": false,
   "include": ["./src/**/*"],
   "compilerOptions": {
-    "outDir": "dist",
+    "rootDir": ".",
+    "outDir": "dist"
   }
 }

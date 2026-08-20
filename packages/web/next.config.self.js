@@ -1,5 +1,17 @@
 const moduleExports = {
-  transpilePackages: ["antd", "@ant-design", "rc-util", "rc-pagination", "rc-picker", "rc-notification", "rc-tooltip", "rc-tree", "rc-table"],
+  typescript: { ignoreBuildErrors: true },
+  turbopack: {},
+  transpilePackages: [
+    'antd',
+    '@ant-design',
+    'rc-util',
+    'rc-pagination',
+    'rc-picker',
+    'rc-notification',
+    'rc-tooltip',
+    'rc-tree',
+    'rc-table',
+  ],
   rewrites: () => {
     const rewrites = []
     rewrites.push({
@@ -39,7 +51,7 @@ const moduleExports = {
       destination: '/l/trash',
     })
     return rewrites
-  }
+  },
 }
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({

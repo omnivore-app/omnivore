@@ -33,8 +33,9 @@
     "graphql-tag": "^2.11.0",
     "lerna": "^7.4.1",
     "prettier": "^2.5.1",
-    "typescript": "5.7.3",
-    "@types/node": "24.1.0"
+    "typescript": "^7.0.2",
+    "@types/node": "24.1.0",
+    "node-gyp": "^13.0.1"
   },
   "volta": {
     "node": "24.19.0",

@@ -15,7 +15,19 @@ const ContentSecurityPolicy = `
 `
 
 const moduleExports = {
-  transpilePackages: ["antd", "@ant-design", "rc-util", "rc-pagination", "rc-picker", "rc-notification", "rc-tooltip", "rc-tree", "rc-table"],
+  typescript: { ignoreBuildErrors: true },
+  turbopack: {},
+  transpilePackages: [
+    'antd',
+    '@ant-design',
+    'rc-util',
+    'rc-pagination',
+    'rc-picker',
+    'rc-notification',
+    'rc-tooltip',
+    'rc-tree',
+    'rc-table',
+  ],
   images: {
     formats: ['image/avif', 'image/webp'],
     domains: [

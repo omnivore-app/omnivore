@@ -7,8 +7,8 @@ import { client } from '../clients/ai/client'
 import { onErrorContinue, rateLimiter } from '../utils/reactive'
 import { Label } from '../../types/OmnivoreSchema'
 import { sqlClient } from '../store/db'
-import { toSql } from 'pgvector/pg'
 import { env } from '../../env'
+import { toSql } from 'pgvector/pg'
 
 export type EmbeddedOmnivoreArticle = {
   embedding: Array<number>

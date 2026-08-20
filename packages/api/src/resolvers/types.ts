@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Span } from '@opentelemetry/api'
-import { Context as ApolloContext } from 'apollo-server-core'
+import { BaseContext as ApolloContext } from '@apollo/server'
 import DataLoader from 'dataloader'
 import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
@@ -32,7 +32,7 @@ export type ClaimsToSet = {
   userRole?: string | null
 }
 
-export interface RequestContext {
+export interface RequestContext extends ApolloContext {
   log: winston.Logger
   claims: Claims | undefined
   pubsub: PubsubClient
@@ -64,4 +64,4 @@ export interface RequestContext {
   }
 }
 
-export type ResolverContext = ApolloContext<RequestContext>
+export type ResolverContext = RequestContext

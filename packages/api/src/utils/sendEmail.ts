@@ -1,7 +1,7 @@
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
-import { MailService } from '@sendgrid/mail'
 import { env } from '../env'
 import { logger } from './logger'
+import MailService from '@sendgrid/mail'
 
 type SendGridResponse = {
   body?: string
@@ -23,7 +23,7 @@ const asSendGridError = (error: any): SendGridError | undefined => {
 }
 
 export const sendEmail = async (msg: MailDataRequired): Promise<boolean> => {
-  const client = new MailService()
+  const client = MailService;
   if (!process.env.SENDGRID_MSGS_API_KEY) {
     if (env.dev.isLocal) {
       logger.info('SendGrid API key not set.\nSending email:', msg)

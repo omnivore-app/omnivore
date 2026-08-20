@@ -1,8 +1,8 @@
- FROM node:24.19 as builder
+ FROM node:24.19-alpine as builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y g++ make python3
+RUN apk add g++ make python3
 
 COPY package.json .
 COPY yarn.lock .
@@ -23,7 +23,7 @@ ADD /packages/utils ./packages/utils
 RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/imap-mail-watcher build
 
-FROM node:24.19 as runner
+FROM node:24.19-alpine as runner
 
 WORKDIR /app
 

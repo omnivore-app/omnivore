@@ -49,6 +49,7 @@ import { corsConfig } from './utils/corsConfig'
 import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
+import cors from 'cors'
 
 const PORT = process.env.PORT || 4000
 
@@ -172,7 +173,7 @@ const main = async (): Promise<void> => {
   const httpServer = createServer(app)
   const apollo = makeApolloServer(app, httpServer)
   await apollo.start()
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+  app.use('/api/graphql', cors())
 
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
@@ -183,7 +184,7 @@ const main = async (): Promise<void> => {
 
   const listener = httpServer.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
-    logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
+    logger.notice(`🚀 Server ready at /api/graphql`)
   })
 
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.
