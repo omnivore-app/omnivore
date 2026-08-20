@@ -49,7 +49,6 @@ import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
 import {
-  ExpressContextFunctionArgument,
   expressMiddleware,
 } from '@as-integrations/express5'
 import cors from 'cors'
@@ -62,7 +61,7 @@ const resolvers = {
   ...ScalarResolvers,
 }
 
-const contextFunc: ContextFunction<any, ResolverContext> = async ({
+export const contextFunc: ContextFunction<any, ResolverContext> = async ({
   req,
   res,
 }) => {
@@ -235,17 +234,6 @@ export function makeApolloServer(
     persistedQueries: false,
     stopOnTerminationSignals: false, // we handle this ourselves
   })
-
-  app.use(
-    '/',
-    cors<cors.CorsRequest>(),
-    express.json(),
-    // expressMiddleware accepts the same arguments:
-    // an Apollo Server instance and optional configuration options
-    expressMiddleware(apollo, {
-      context: contextFunc,
-    })
-  )
 
   return apollo
 }

@@ -13,7 +13,7 @@ import promBundle from 'express-prom-bundle'
 import { createServer } from 'http'
 import * as prom from 'prom-client'
 import { config, loggers } from 'winston'
-import { makeApolloServer } from './apollo'
+import { contextFunc, makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { redisDataSource } from './redis_data_source'
@@ -49,6 +49,7 @@ import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
 import cors from 'cors'
+import { expressMiddleware } from '@as-integrations/express5'
 
 const PORT = process.env.PORT || 4000
 
@@ -172,6 +173,16 @@ const main = async (): Promise<void> => {
   const httpServer = createServer(app)
   const apollo = makeApolloServer(app, httpServer)
   await apollo.start()
+  app.use(
+    '/',
+    cors<cors.CorsRequest>(),
+    express.json(),
+    // expressMiddleware accepts the same arguments:
+    // an Apollo Server instance and optional configuration options
+    expressMiddleware(apollo, {
+      context: contextFunc,
+    })
+  )
   app.use('/api/graphql', cors(corsConfig))
 
   if (!env.dev.isLocal) {
