@@ -175,7 +175,7 @@ const main = async (): Promise<void> => {
   await apollo.start()
   app.use(
     '/',
-    cors<cors.CorsRequest>(),
+    cors<cors.CorsRequest>(corsConfig),
     express.json(),
     // expressMiddleware accepts the same arguments:
     // an Apollo Server instance and optional configuration options
