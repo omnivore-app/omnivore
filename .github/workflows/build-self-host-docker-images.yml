@@ -38,16 +38,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push discover
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/omnivore-app/sh-discover:latest
-          file: packages/discover/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-discover:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-discover:cache,mode=max
-
       - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
@@ -109,6 +99,17 @@ jobs:
           file: packages/local-mail-watcher/Dockerfile
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache,mode=max
+
+      - name: Build and push discover
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-discover:latest
+          file: packages/discover/Dockerfile
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-discover:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-discover:cache,mode=max
+
 
   build-selfhost-web-images:
     name: Build self-host web images

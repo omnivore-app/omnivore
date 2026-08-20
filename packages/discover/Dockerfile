@@ -1,7 +1,6 @@
- FROM node:24.19 as builder
+ FROM node:22 as builder
 
 WORKDIR /app
-
 RUN apt-get update && apt-get install -y g++ make python3
 
 COPY package.json .
@@ -23,6 +22,7 @@ FROM node:24.19 as runner
 WORKDIR /app
 
 ENV NODE_ENV production
+
 
 COPY --from=builder /app/packages/discover/dist /app/packages/discover/dist
 COPY --from=builder /app/packages/discover/package.json /app/packages/discover/package.json

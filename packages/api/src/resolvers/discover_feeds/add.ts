@@ -33,6 +33,9 @@ const parser = new XMLParser({
   parseTagValue: true,
   ignoreDeclaration: false,
   ignorePiTags: false,
+  processEntities: {
+    maxTotalExpansions: Infinity,
+  },
 })
 
 const extractAtomData = (
