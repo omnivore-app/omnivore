@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "migrate": "ts-node ./migrate.ts",
+    "migrate": "node ./build/migrate.js",
+    "build": "tsc",
     "test:typecheck": "tsc --noEmit",
     "generate": "plop"
   },
