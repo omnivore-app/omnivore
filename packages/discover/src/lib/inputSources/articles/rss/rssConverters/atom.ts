@@ -15,7 +15,9 @@ import { JSDOM } from 'jsdom'
 import { OmnivoreFeed } from '../../../../../types/Feeds'
 
 const getImage = (article: any): string | undefined => {
-  const html = new JSDOM(`<html>${article.content['#text']}</html>`)
+  const html = new JSDOM(
+    `<html>${article.content?.['#text'] || article.summary?.['#text']}</html>`
+  )
   return (
     (html.window.document.querySelectorAll('img')[0] &&
       removeHTMLTag(html.window.document.querySelectorAll('img')[0].src)) ||
@@ -24,7 +26,7 @@ const getImage = (article: any): string | undefined => {
 }
 
 const getDescription = (article: any): string | undefined => {
-  return getFirstParagraphForEmbedding(article.content['#text'])
+  return getFirstParagraphForEmbedding(article.content?.['#text'] || article.summary?.['#text'] || '')
 }
 
 const getDescriptionAndImage = async (article: any) => {
@@ -51,7 +53,6 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
   return fromArrayLike(parsedXml.feed.entry).pipe(
     mapOrNull(async (article: any) => {
       const { image, description } = await getDescriptionAndImage(article)
-
 
       return {
         authors: Array.isArray(article.author.name)
