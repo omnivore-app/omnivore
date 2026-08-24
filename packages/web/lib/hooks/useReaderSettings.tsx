@@ -38,6 +38,9 @@ export type ReaderSettings = {
 
   textDirection: TextDirection | undefined
   setTextDirection: (textDirection: TextDirection) => void
+
+  fullPageScroll: boolean | undefined
+  setFullPageScroll: (set: boolean) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
@@ -73,6 +76,13 @@ export const useReaderSettings = (): ReaderSettings => {
     initialValue: false,
   })
 
+  const [fullPageScroll, setFullPageScroll] = usePersistedState<
+    boolean | undefined
+  >({
+    key: `fullPageScroll`,
+    initialValue: false,
+  })
+
   const [justifyText, setJustifyText] = usePersistedState<boolean | undefined>({
     key: `--display-justify-text`,
     initialValue: false,
@@ -93,12 +103,6 @@ export const useReaderSettings = (): ReaderSettings => {
     },
     [setFontSize]
   )
-
-  // const [hideMargins, setHideMargins] = usePersistedState<boolean | undefined>({
-  //   key: `--display-hide-margins`,
-  //   initialValue: false,
-  //   isSessionStorage: false,
-  // })
 
   const actionHandler = useCallback(
     (action: string, arg?: unknown) => {
@@ -236,6 +240,8 @@ export const useReaderSettings = (): ReaderSettings => {
     setHighContrastText,
     highlightOnRelease,
     setHighlightOnRelease,
+    fullPageScroll,
+    setFullPageScroll,
     textDirection,
     setTextDirection,
   }

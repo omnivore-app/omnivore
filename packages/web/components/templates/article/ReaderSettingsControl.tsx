@@ -232,6 +232,36 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
           <SwitchThumb />
         </SwitchRoot>
       </HStack>
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="full-page-scroll-mode" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            Double Tap Page Turn
+          </StyledText>
+        </Label>
+        <SwitchRoot
+          id="high-contrast-text"
+          checked={readerSettings.fullPageScroll ?? false}
+          onCheckedChange={(checked) => {
+            readerSettings.setFullPageScroll(checked)
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
     </VStack>
   )
 }
