@@ -1,3 +1,4 @@
+import React from 'react'
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
 import { useRouter } from 'next/router'
@@ -494,7 +495,32 @@ export default function Reader(): JSX.Element {
     return <LoadingView />
   }
 
-  console.log('library item: ', libraryItem)
+  useEffect(() => {
+    const preventHighlight = (e: MouseEvent) => {
+      if (e.detail === 2) {
+        e.preventDefault()
+      }
+    }
+    if (readerSettings.fullPageScroll) {
+      document.body.addEventListener('mousedown', preventHighlight)
+    }
+
+    return () => {
+      if (readerSettings.fullPageScroll) {
+        document.body.removeEventListener('mousedown', preventHighlight)
+      }
+    }
+
+  }, [readerSettings])
+
+
+  const doubleClickPageTurn = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    if (readerSettings.fullPageScroll) {
+      const scrollDirection = e.clientX > window.innerWidth / 2 ? 1 : -1
+      window.scroll(0, window.scrollY + window.innerHeight * scrollDirection)
+    }
+  }
+
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
@@ -513,6 +539,7 @@ export default function Reader(): JSX.Element {
         path: router.pathname,
         description: libraryItem?.description ?? '',
       }}
+      onDoubleClick={doubleClickPageTurn}
     >
       <Script async src="/static/mathjax/mathJaxConfiguration.js" />
       <Script
@@ -520,6 +547,7 @@ export default function Reader(): JSX.Element {
         id="MathJax-script"
         src="/static/mathjax/tex-mml-chtml.js"
       />
+
       <ReaderHeader
         hideDisplaySettings={false}
         showDisplaySettingsModal={

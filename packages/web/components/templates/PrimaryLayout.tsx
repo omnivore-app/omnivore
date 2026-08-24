@@ -21,6 +21,7 @@ type PrimaryLayoutProps = {
   pageMetaDataProps?: PageMetaDataProps
   headerToolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
+  onDoubleClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
@@ -106,6 +107,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           width: '100%',
           bg: '$thBackground2',
         }}
+        onDoubleClick={props.onDoubleClick ?? function (_evt){}}
       >
         {props.children}
         {showLogoutConfirmation ? (
