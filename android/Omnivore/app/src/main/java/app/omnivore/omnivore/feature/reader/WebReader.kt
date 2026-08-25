@@ -48,7 +48,6 @@ fun WebReader(
         AndroidView(factory = {
             OmnivoreWebView(it).apply {
                 viewModel = webReaderViewModel
-
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 )
@@ -177,6 +176,15 @@ fun WebReader(
                                 if (!volumeForScrollState) {
                                     return@setOnKeyListener false
                                 }
+
+                                if (viewModel?.getDoubleTabState() ?: false) {
+                                    val script = "var event = new Event('omnivorePageUp');document.dispatchEvent(event);"
+                                    evaluateJavascript(script) {
+                                        actionMode = null
+                                    }
+                                    return@setOnKeyListener true
+                                }
+
                                 scrollVertically(OmnivoreWebView.Direction.UP)
                                 return@setOnKeyListener true
                             }
@@ -185,6 +193,15 @@ fun WebReader(
                                 if (!volumeForScrollState) {
                                     return@setOnKeyListener false
                                 }
+
+                                if (viewModel?.getDoubleTabState() ?: false) {
+                                    val script = "var event = new Event('omnivorePageDown');document.dispatchEvent(event);"
+                                    evaluateJavascript(script) {
+                                        actionMode = null
+                                    }
+                                    return@setOnKeyListener true
+                                }
+
                                 scrollVertically(OmnivoreWebView.Direction.DOWN)
                                 return@setOnKeyListener true
                             }

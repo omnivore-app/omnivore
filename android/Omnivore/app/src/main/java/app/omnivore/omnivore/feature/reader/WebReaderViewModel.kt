@@ -25,6 +25,7 @@ import app.omnivore.omnivore.core.database.dao.SavedItemDao
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.doubleTapTurn
 import app.omnivore.omnivore.core.datastore.preferredTheme
 import app.omnivore.omnivore.core.datastore.preferredWebFontFamily
 import app.omnivore.omnivore.core.datastore.preferredWebFontSize
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -140,6 +142,8 @@ class WebReaderViewModel @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = false
     )
+
+
 
     fun showNavBar() {
         onScrollChange(maxToolbarHeightPx)
@@ -491,7 +495,7 @@ class WebReaderViewModel @Inject constructor(
         val prefersHighContrastFont =
             datastoreRepository.getString(prefersWebHighContrastText) == "true"
         val prefersJustifyText = datastoreRepository.getString(prefersJustifyText) == "true"
-
+        val fullPageScrolling = datastoreRepository.getString(doubleTapTurn) == "true"
         WebPreferences(
             textFontSize = storedFontSize ?: 12,
             lineHeight = storedLineHeight ?: 150,
@@ -500,7 +504,8 @@ class WebReaderViewModel @Inject constructor(
             storedThemePreference = storedThemePreference,
             fontFamily = storedWebFont,
             prefersHighContrastText = prefersHighContrastFont,
-            prefersJustifyText = prefersJustifyText
+            prefersJustifyText = prefersJustifyText,
+            fullPageScroll = fullPageScrolling
         )
     }
 
@@ -584,6 +589,8 @@ class WebReaderViewModel @Inject constructor(
         initialValue = false
     )
 
+    fun getDoubleTabState(): Boolean = runBlocking {  datastoreRepository.getString(doubleTapTurn) == "true" }
+
     fun setVolumeRockerForScrollState(value: Boolean) {
         viewModelScope.launch {
             datastoreRepository.putBoolean(volumeForScroll, value)
@@ -594,6 +601,16 @@ class WebReaderViewModel @Inject constructor(
         viewModelScope.launch {
             datastoreRepository.putBoolean(rtlText, value)
         }
+    }
+
+    fun setDoubleTapTurnState(value: Boolean) {
+        runBlocking {
+            datastoreRepository.putString(doubleTapTurn, value.toString())
+        }
+
+        val script =
+            "var event = new Event('omnivoreSetPageTurn');event.pageTurnSetting = ${value};document.dispatchEvent(event);"
+        enqueueScript(script)
     }
 
     fun applyWebFont(font: WebFont) {

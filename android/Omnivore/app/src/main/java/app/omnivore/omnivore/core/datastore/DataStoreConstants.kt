@@ -19,3 +19,5 @@ const val preferredTheme = "preferredTheme"
 const val followingTabActive = "followingTabActive"
 const val volumeForScroll = "volumeForScroll"
 const val rtlText = "rtlText"
+const val doubleTapTurn = "doubleTapTurn"
+
