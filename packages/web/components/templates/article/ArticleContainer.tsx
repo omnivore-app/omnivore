@@ -393,8 +393,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     )
   }, [props.article.recommendations])
 
-  console.log('props.article', props.article)
-
   return (
     <>
       <Box
