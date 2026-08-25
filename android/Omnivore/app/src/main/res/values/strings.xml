@@ -155,6 +155,8 @@
     <string name="reader_preferences_view_justify_text">Justify Text</string>
     <string name="reader_preferences_view_volume_scroll">Use Volume Rocker to scroll</string>
     <string name="reader_preferences_view_use_rtl">Right-to-left text</string>
+    <string name="reader_preferences_view_use_double_tap">Double Tap to Page turn</string>
+
 
     <!-- WebReaderLoadingContainer -->
     <string name="web_reader_loading_container_error_msg">We were unable to fetch your content.</string>

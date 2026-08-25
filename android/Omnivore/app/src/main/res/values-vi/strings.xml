@@ -155,6 +155,7 @@
     <string name="reader_preferences_view_justify_text">Căn đều văn bản</string>
     <string name="reader_preferences_view_volume_scroll">Sử dụng nút âm lượng để cuộn</string>
     <string name="reader_preferences_view_use_rtl">Văn bản từ phải sang trái</string>
+    <string name="reader_preferences_view_use_double_tap">Nhấn đúp để chuyển trang</string>
 
     <!-- WebReaderLoadingContainer -->
     <string name="web_reader_loading_container_error_msg">Chúng tôi không thể tìm nạp nội dung của bạn.</string>

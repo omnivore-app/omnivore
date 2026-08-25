@@ -68,7 +68,7 @@ fun ReaderPreferencesSheet(
     var fontSizeSliderValue by remember { mutableFloatStateOf(currentWebPreferences.textFontSize.toFloat()) }
     var marginSliderValue by remember { mutableFloatStateOf(currentWebPreferences.maxWidthPercentage.toFloat()) }
     var lineSpacingSliderValue by remember { mutableFloatStateOf(currentWebPreferences.lineHeight.toFloat()) }
-
+    var doubleTapState by  remember { mutableStateOf(currentWebPreferences.fullPageScroll) }
     var themeState by remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
 
 
@@ -289,6 +289,14 @@ fun ReaderPreferencesSheet(
                 checked = rtlTextState,
                 onCheckedChanged = { webReaderViewModel.setRtlTextState(it) },
             )
+            SwitchPreferenceWidget(
+                title = stringResource(R.string.reader_preferences_view_use_double_tap),
+                checked = doubleTapState,
+                onCheckedChanged = {
+                    doubleTapState = it
+                    webReaderViewModel.setDoubleTapTurnState(it)
+               },
+            )
         }
     }
 }
@@ -301,5 +309,6 @@ data class WebPreferences(
     val storedThemePreference: String,
     val fontFamily: WebFont,
     val prefersHighContrastText: Boolean,
-    val prefersJustifyText: Boolean
+    val prefersJustifyText: Boolean,
+    val fullPageScroll: Boolean
 )
