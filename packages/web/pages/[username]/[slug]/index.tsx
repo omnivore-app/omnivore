@@ -511,13 +511,29 @@ export default function Reader(): JSX.Element {
       }
     }
 
-  }, [readerSettings])
+  }, [readerSettings.fullPageScroll])
 
 
   const doubleClickPageTurn = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     if (readerSettings.fullPageScroll) {
       const scrollDirection = e.clientX > window.innerWidth / 2 ? 1 : -1
       window.scroll(0, window.scrollY + window.innerHeight * scrollDirection)
+
+      // Once we've finished scrolling, we need to calculate an offset.
+      const elementsIntersection = document.elementsFromPoint(window.innerWidth/2, 0);
+      const paragraph = elementsIntersection.find(
+        (el) =>
+          el.tagName != 'DIV' && el.hasAttribute('data-omnivore-anchor-idx')
+      ) as HTMLElement
+
+      if (paragraph) {
+        const lineHeight = parseInt(window
+          .getComputedStyle(paragraph)
+          .getPropertyValue('line-height'));
+
+        const { top } = paragraph.getBoundingClientRect()
+        window.scroll(0, window.scrollY - (top * -1) % lineHeight);
+      }
     }
   }
 
