@@ -638,7 +638,7 @@ export default function Reader(): JSX.Element {
             width: '100%',
             height: '100%',
             background: '$readerBg',
-            overflow: 'scroll',
+            overflow: 'hidden',
             paddingTop: '80px',
             '@media print': {
               paddingTop: '0px',
