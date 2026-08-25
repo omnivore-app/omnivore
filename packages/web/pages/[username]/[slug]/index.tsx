@@ -520,7 +520,7 @@ export default function Reader(): JSX.Element {
       window.scroll(0, window.scrollY + window.innerHeight * scrollDirection)
 
       // Once we've finished scrolling, we need to calculate an offset.
-      const elementsIntersection = document.elementsFromPoint(window.innerWidth/2, 0);
+      const elementsIntersection = document.elementsFromPoint(window.innerWidth/2, 1);
       const paragraph = elementsIntersection.find(
         (el) =>
           el.tagName != 'DIV' && el.hasAttribute('data-omnivore-anchor-idx')
@@ -532,7 +532,12 @@ export default function Reader(): JSX.Element {
           .getPropertyValue('line-height'));
 
         const { top } = paragraph.getBoundingClientRect()
-        window.scroll(0, window.scrollY - (top * -1) % lineHeight);
+        const diff = (top * -1) % lineHeight
+        // If we are 70% of the way through the lineheight, we can likely read the entire text.
+        // It would be annoying to show the user the same line again when they double tap. Instead, we should go down to the
+        // next line.
+        const offset = lineHeight * 0.7 < diff ? (lineHeight - diff) * -1 : diff
+        window.scroll(0, window.scrollY - offset);
       }
     }
   }
