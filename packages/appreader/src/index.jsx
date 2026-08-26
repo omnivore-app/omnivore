@@ -106,9 +106,7 @@ const App = () => {
         // It would be annoying to show the user the same line again when they double tap. Instead, we should go down to the
         // next line.
         const offset = lineHeight * 0.7 < diff ? (lineHeight - diff) * -1 : diff
-
-        // We must also accomdate the 48px on Android.
-        window.scroll(0, window.scrollY - offset - (window.webkit ? 0 : 48))
+        window.scroll(0, window.scrollY - offset)
       }
     }
   }
