@@ -82,6 +82,7 @@ const App = () => {
 
   const doubleClickPageTurn = (e) => {
     if (pageTurn) {
+      console.log("triggered")
       const scrollDirection = e.clientX > window.innerWidth / 2 ? 1 : -1
       window.scroll(0, window.scrollY + window.innerHeight * scrollDirection)
 
@@ -124,7 +125,6 @@ const App = () => {
           distribution="center"
           className="disable-webkit-callout"
           style={{ backgroundColor: 'var(--colors-readerBg)' }}
-          onDoubleClick={doubleClickPageTurn}
         >
           <ArticleContainer
             article={window.omnivoreArticle}
