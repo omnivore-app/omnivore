@@ -37,15 +37,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.designsystem.theme.OmnivoreBrand
 import app.omnivore.omnivore.feature.onboarding.OnboardingViewModel
 import app.omnivore.omnivore.feature.onboarding.OnboardingScreen
+import app.omnivore.omnivore.feature.discover.DiscoverScreen
 import app.omnivore.omnivore.feature.following.FollowingScreen
 import app.omnivore.omnivore.feature.library.LibraryView
 import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.profile.SettingsScreen
 import app.omnivore.omnivore.feature.profile.about.AboutScreen
 import app.omnivore.omnivore.feature.profile.account.AccountScreen
+import app.omnivore.omnivore.feature.profile.discover_settings.DiscoverSettingsScreen
+import app.omnivore.omnivore.feature.profile.discover_settings.DiscoverSettingsViewModel
 import app.omnivore.omnivore.feature.profile.filters.FiltersScreen
 import app.omnivore.omnivore.feature.web.WebViewScreen
 import app.omnivore.omnivore.navigation.OmnivoreNavHost
@@ -61,13 +65,17 @@ fun RootView(
     val navController = rememberNavController()
 
     val followingTabActive by onboardingViewModel.followingTabActiveState.collectAsStateWithLifecycle()
+    val discoverTabActive by onboardingViewModel.discoverTabActiveState.collectAsStateWithLifecycle()
+
     val hasAuthToken by onboardingViewModel.hasAuthTokenState.collectAsStateWithLifecycle()
 
-    val destinations = if (followingTabActive) {
-        TopLevelDestination.entries
-    } else {
-        TopLevelDestination.entries.filter { it.route != Routes.Following.route }
+    val destinations = TopLevelDestination.entries.filter {
+        (it.titleTextId === R.string.discover && discoverTabActive)  ||
+        (it.titleTextId === R.string.following && followingTabActive) ||
+                it.titleTextId !in intArrayOf(R.string.following, R.string.discover)
+
     }
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -137,6 +145,10 @@ fun PrimaryNavigator(
                 LibraryView(navController = navController)
             }
 
+            composable(Routes.Discover.route) {
+                DiscoverScreen(navController = navController)
+            }
+
             composable(Routes.Following.route) {
                 FollowingScreen(navController = navController)
             }
@@ -156,6 +168,10 @@ fun PrimaryNavigator(
 
         composable(Routes.Filters.route) {
             FiltersScreen(navController = navController)
+        }
+
+        composable(Routes.DiscoverSettings.route) {
+            DiscoverSettingsScreen(navController = navController)
         }
 
         composable(Routes.Account.route) {

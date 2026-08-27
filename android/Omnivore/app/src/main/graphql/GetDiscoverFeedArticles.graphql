@@ -1,0 +1,31 @@
+query GetDiscoverFeedArticles($after: String, $discoverTopicId: String!, $feedId: ID, $first: Int, $showHidden: Boolean) {
+  getDiscoverFeedArticles(after: $after, discoverTopicId: $discoverTopicId, feedId: $feedId, first: $first, showHidden: $showHidden) {
+    ... on GetDiscoverFeedArticleSuccess {
+      discoverArticles {
+        author
+        description
+        feed
+        hidden
+        id
+        image
+        publishedDate
+        savedId
+        savedLinkUrl
+        siteName
+        slug
+        title
+        url
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+        totalCount
+      }
+    }
+    ... on GetDiscoverFeedArticleError {
+      errorCodes
+    }
+  }
+}

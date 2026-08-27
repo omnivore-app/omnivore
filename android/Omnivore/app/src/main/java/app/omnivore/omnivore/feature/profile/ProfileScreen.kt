@@ -67,6 +67,13 @@ fun SettingsViewContent(
             )
         }
 
+        item {
+            TextPreferenceWidget(
+                title = stringResource(R.string.profile_discover),
+                onPreferenceClick = { navController.navigate(Routes.DiscoverSettings.route) },
+            )
+        }
+
         item { HorizontalDivider() }
 
         item {

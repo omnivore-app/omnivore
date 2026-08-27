@@ -16,6 +16,8 @@ sealed class Routes(val route: String) {
     data object Filters : Routes("Filters")
     data object Account : Routes("Account")
     data object Search : Routes("Search")
+    data object Discover : Routes("Discover")
+    data object DiscoverSettings : Routes("DiscoverSettings")
     data object Documentation : Routes("Documentation")
     data object PrivacyPolicy : Routes("PrivacyPolicy")
     data object TermsAndConditions : Routes("TermsAndConditions")

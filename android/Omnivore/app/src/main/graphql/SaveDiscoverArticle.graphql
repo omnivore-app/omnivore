@@ -1,0 +1,11 @@
+mutation SaveDiscoverArticle($input: SaveDiscoverArticleInput!) {
+  saveDiscoverArticle(input: $input) {
+    ... on SaveDiscoverArticleSuccess {
+      saveId
+      url
+    }
+    ... on SaveDiscoverArticleError {
+      errorCodes
+    }
+  }
+}

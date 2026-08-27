@@ -82,7 +82,6 @@ const App = () => {
 
   const doubleClickPageTurn = (e) => {
     if (pageTurn) {
-      console.log("triggered")
       const scrollDirection = e.clientX > window.innerWidth / 2 ? 1 : -1
       window.scroll(0, window.scrollY + window.innerHeight * scrollDirection)
 
