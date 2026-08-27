@@ -15,6 +15,7 @@
     <string name="back">Back</string>
 
     <!-- Navigation -->
+    <string name="discover">Discover</string>
     <string name="following">Following</string>
     <string name="inbox">Inbox</string>
     <string name="profile">Profile</string>
@@ -208,6 +209,10 @@
     <!-- Filters -->
     <string name="hide_following_tab">Hide following tab</string>
 
+    <!-- Discover -->
+    <string name="hide_discover_tab">Hide Discover tab</string>
+    <string name="hide_discover_topics">Hide Discover Topics</string>
+
     <!-- ManageAccount -->
     <string name="manage_account_title">Manage Account</string>
     <string name="manage_account_action_reset_data_cache">Reset Data Cache</string>
@@ -223,6 +228,7 @@
     <string name="about_terms_and_conditions">Terms and Conditions</string>
 
     <string name="profile_filters">Filters</string>
+    <string name="profile_discover">Discover</string>
     <string name="profile_manage_account">Manage Account</string>
     <string name="about_logout">Logout</string>
 

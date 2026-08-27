@@ -12,6 +12,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.analytics.EventTracker
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.discoverTabActive
 import app.omnivore.omnivore.core.datastore.followingTabActive
 import app.omnivore.omnivore.core.datastore.omnivoreAuthCookieString
 import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
@@ -96,6 +97,14 @@ class OnboardingViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = true
+    )
+
+    val discoverTabActiveState: StateFlow<Boolean> = datastoreRepository.getBoolean(
+        discoverTabActive
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = false
     )
 
     fun setSelfHostingDetails(context: Context, apiServer: String, webServer: String) {

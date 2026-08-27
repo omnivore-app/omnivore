@@ -1,0 +1,18 @@
+query GetDiscoverFeeds {
+  discoverFeeds {
+    ... on DiscoverFeedSuccess {
+      feeds {
+        visibleName
+        id
+        title
+        link
+        description
+        image
+        type
+      }
+    }
+    ... on DiscoverFeedError {
+      errorCodes
+    }
+  }
+}
