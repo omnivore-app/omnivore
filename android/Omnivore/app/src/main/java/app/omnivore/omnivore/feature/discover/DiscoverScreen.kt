@@ -80,7 +80,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.core.network.DiscoverFeed
 import app.omnivore.omnivore.core.network.DiscoverFeedArticle
-import app.omnivore.omnivore.feature.library.Reset
 import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -188,7 +187,7 @@ private fun DiscoverContent(
 
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    private fun Reset(state: DismissState) {
+    fun Reset(state: DismissState) {
         val scope = rememberCoroutineScope()
         LaunchedEffect(key1 = state.dismissDirection) {
             scope.launch {
@@ -207,9 +206,9 @@ private fun DiscoverContent(
 
   Box(
     modifier = Modifier
-        .padding(top = paddingValues.calculateTopPadding())
-        .fillMaxSize()
-        .nestedScroll(pullToRefreshState.nestedScrollConnection)
+      .padding(top = paddingValues.calculateTopPadding())
+      .fillMaxSize()
+      .nestedScroll(pullToRefreshState.nestedScrollConnection)
   ) {
     LazyColumn(
       state = listState,
@@ -348,8 +347,8 @@ private fun TopicFilterBar(
 ) {
   LazyRow(
     modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp, horizontal = 12.dp),
+      .fillMaxWidth()
+      .padding(vertical = 8.dp, horizontal = 12.dp),
     horizontalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     items(topics) { topic ->
@@ -357,13 +356,13 @@ private fun TopicFilterBar(
       Text(
         text = topic.title,
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(
-                if (selected) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.surfaceVariant
-            )
-            .clickable { onTopicSelected(topic) }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+          .clip(RoundedCornerShape(16.dp))
+          .background(
+            if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.surfaceVariant
+          )
+          .clickable { onTopicSelected(topic) }
+          .padding(horizontal = 16.dp, vertical = 8.dp),
         color = if (selected) MaterialTheme.colorScheme.onPrimary
         else MaterialTheme.colorScheme.onSurface,
         style = TextStyle(
@@ -385,8 +384,8 @@ private fun FeedFilterDropdown(
 
   Box(
     modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 4.dp)
+      .fillMaxWidth()
+      .padding(horizontal = 16.dp, vertical = 4.dp)
   ) {
 
       AssistChip(onClick = { expanded = true },
@@ -444,9 +443,8 @@ private fun DiscoverArticleCard(
   ) {
     Column(
       modifier = Modifier
-          .weight(1f)
-          .padding(vertical = 4.dp)
-
+        .weight(1f)
+        .padding(vertical = 4.dp)
     ) {
       article.siteName?.let {
         Text(
@@ -515,8 +513,8 @@ private fun DiscoverArticleCard(
         model = article.image,
         contentDescription = null,
         modifier = Modifier
-            .size(80.dp, 80.dp)
-            .clip(RoundedCornerShape(8.dp)),
+          .size(80.dp, 80.dp)
+          .clip(RoundedCornerShape(8.dp)),
         contentScale = ContentScale.Crop
       )
 
