@@ -19,6 +19,8 @@ const val preferredTheme = "preferredTheme"
 const val followingTabActive = "followingTabActive"
 const val discoverTabActive = "discoverTabActive"
 const val discoverTopicsActive = "discoverTopicsActive"
+const val discoverShowHidden = "discoverShowHidden"
+
 const val volumeForScroll = "volumeForScroll"
 const val rtlText = "rtlText"
 const val doubleTapTurn = "doubleTapTurn"

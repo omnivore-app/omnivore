@@ -1,8 +1,13 @@
 package app.omnivore.omnivore.feature.discover
 
 import android.content.Intent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FloatTweenSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +23,19 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissState
+import androidx.compose.material.DismissValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
+import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.outlined.RemoveRedEye
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -44,11 +58,14 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -61,13 +78,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import app.omnivore.omnivore.core.datastore.discoverTabActive
 import app.omnivore.omnivore.core.network.DiscoverFeed
 import app.omnivore.omnivore.core.network.DiscoverFeedArticle
-import app.omnivore.omnivore.navigation.Routes
+import app.omnivore.omnivore.feature.library.Reset
 import coil.compose.AsyncImage
-import com.apollographql.apollo3.api.label
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,6 +97,7 @@ internal fun DiscoverScreen(
   val selectedFeed by viewModel.selectedFeed.collectAsStateWithLifecycle()
   val feeds by viewModel.feeds.collectAsStateWithLifecycle()
   val discoverTopicsActive by viewModel.discoverTopicsActiveState.collectAsStateWithLifecycle()
+  val discoverShowHiddenActive by viewModel.discoverShowHiddenState.collectAsStateWithLifecycle()
 
   LaunchedEffect(viewModel.snackbarMessage) {
     viewModel.snackbarMessage?.let {
@@ -94,7 +111,12 @@ internal fun DiscoverScreen(
       TopAppBar(
         title = { Text("Discover") },
         actions = {
-
+            IconButton(onClick = { viewModel.setHiddenItems(!discoverShowHiddenActive) }) {
+                Icon(
+                    imageVector = if (discoverShowHiddenActive) Icons.Filled.RemoveRedEye else Icons.Outlined.RemoveRedEye,
+                    contentDescription = null
+                )
+            }
         }
       )
     },
@@ -118,10 +140,12 @@ internal fun DiscoverScreen(
           selectedTopic = selectedTopic,
           feeds = feeds,
           selectedFeed = selectedFeed,
-            topicBarActive = discoverTopicsActive,
+          topicBarActive = discoverTopicsActive,
+          discoverShowHiddenActive = discoverShowHiddenActive,
           onTopicSelected = { viewModel.setTopic(it) },
           onFeedSelected = { viewModel.setFeed(it) },
           onSaveArticle = { viewModel.saveArticle(it) },
+          onHideArticle = { articleId: String, hidden: Boolean -> viewModel.hideArticle(articleId, hidden) },
           onLoadMore = { viewModel.loadMore() },
           onRefresh = { viewModel.refresh() }
         )
@@ -138,7 +162,9 @@ internal fun DiscoverScreen(
   }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 private fun DiscoverContent(
     paddingValues: PaddingValues,
@@ -148,9 +174,11 @@ private fun DiscoverContent(
     feeds: List<DiscoverFeed>,
     selectedFeed: String,
     topicBarActive: Boolean,
+    discoverShowHiddenActive: Boolean,
     onTopicSelected: (DiscoverTopic) -> Unit,
     onFeedSelected: (DiscoverFeed?) -> Unit,
     onSaveArticle: (String) -> Unit,
+    onHideArticle: (String, Boolean) -> Unit,
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -158,6 +186,17 @@ private fun DiscoverContent(
   val listState = rememberLazyListState()
   val pullToRefreshState = rememberPullToRefreshState()
 
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    private fun Reset(state: DismissState) {
+        val scope = rememberCoroutineScope()
+        LaunchedEffect(key1 = state.dismissDirection) {
+            scope.launch {
+                state.reset()
+                state.animateTo(DismissValue.Default, FloatTweenSpec(duration = 0, delay = 0))
+            }
+        }
+    }
 
   if (pullToRefreshState.isRefreshing) {
     LaunchedEffect(true) {
@@ -168,9 +207,9 @@ private fun DiscoverContent(
 
   Box(
     modifier = Modifier
-      .padding(top = paddingValues.calculateTopPadding())
-      .fillMaxSize()
-      .nestedScroll(pullToRefreshState.nestedScrollConnection)
+        .padding(top = paddingValues.calculateTopPadding())
+        .fillMaxSize()
+        .nestedScroll(pullToRefreshState.nestedScrollConnection)
   ) {
     LazyColumn(
       state = listState,
@@ -196,18 +235,97 @@ private fun DiscoverContent(
       }
 
       items(
-        items = articles,
+        items = articles.filter { !(it.hidden == true && !discoverShowHiddenActive) },
         key = { it.id }
       ) { article ->
-        DiscoverArticleCard(
-          article = article,
-          onSave = { onSaveArticle(article.id) },
-          onClick = {
-            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(article.url))
-            context.startActivity(intent)
+          val swipeThreshold = 0.45f
+          val currentThresholdFraction = remember { mutableStateOf(0f) }
+          val swipeState = rememberDismissState(confirmStateChange = {
+              when (it) {
+                  DismissValue.Default -> {
+                      return@rememberDismissState false
+                  }
+
+                  DismissValue.DismissedToEnd -> {
+                      if (currentThresholdFraction.value < swipeThreshold) {
+                          return@rememberDismissState false
+                      }
+                  }
+
+                  DismissValue.DismissedToStart -> {
+                      if (currentThresholdFraction.value < swipeThreshold) {
+                          return@rememberDismissState false
+                      }
+                  }
+              }
+
+              if (it == DismissValue.DismissedToEnd) {
+                  onHideArticle(article.id, article.hidden == false)
+              } else if (it == DismissValue.DismissedToStart) {
+                  onSaveArticle(article.id)
+              }
+
+              true
+          })
+          SwipeToDismiss(
+              modifier = Modifier.animateItemPlacement().background(if (article.hidden == true) Color.LightGray.copy(alpha = 0.5f) else MaterialTheme.colorScheme.background),
+              state = swipeState,
+              directions = setOf(
+                  DismissDirection.StartToEnd, DismissDirection.EndToStart
+              ),
+              dismissThresholds = { FractionalThreshold(swipeThreshold) },
+              background = {
+                  val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
+                  val color by animateColorAsState(
+                      when (swipeState.targetValue) {
+                          DismissValue.Default -> if (article.hidden == true) Color.DarkGray else Color.LightGray
+                          DismissValue.DismissedToEnd -> Color.Red
+                          DismissValue.DismissedToStart -> Color.Green
+                      }, label = "backgroundColor"
+                  )
+                  val alignment = when (direction) {
+                      DismissDirection.StartToEnd -> Alignment.CenterStart
+                      DismissDirection.EndToStart -> Alignment.CenterEnd
+                  }
+                  val icon = when (direction) {
+                      DismissDirection.StartToEnd ->  Icons.Default.RemoveRedEye
+                      DismissDirection.EndToStart -> Icons.Default.Add
+                  }
+                  val scale by animateFloatAsState(
+                      if (swipeState.targetValue == DismissValue.Default) 0.75f else 1f,
+                      label = "scaleAnimation"
+                  )
+
+                  Box(
+                      Modifier
+                          .fillMaxSize()
+                          .background(color)
+                          .padding(horizontal = 20.dp), contentAlignment = alignment
+                  ) {
+                      currentThresholdFraction.value = swipeState.progress.fraction
+                      Icon(
+                          icon,
+                          contentDescription = null,
+                          modifier = Modifier.scale(scale)
+                      )
+                  }
+              },
+              dismissContent = {
+                  DiscoverArticleCard(
+                      article = article,
+                      onSave = { onSaveArticle(article.id) },
+                      onClick = {
+                          val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(article.url))
+                          context.startActivity(intent)
+                      }
+                  )
+                  HorizontalDivider(thickness = 1.dp)
+              },
+          )
+          when {
+              swipeState.isDismissed(DismissDirection.EndToStart) -> Reset(state = swipeState)
+              swipeState.isDismissed(DismissDirection.StartToEnd) -> Reset(state = swipeState)
           }
-        )
-        HorizontalDivider(thickness = 1.dp)
       }
     }
 
@@ -230,8 +348,8 @@ private fun TopicFilterBar(
 ) {
   LazyRow(
     modifier = Modifier
-      .fillMaxWidth()
-      .padding(vertical = 8.dp, horizontal = 12.dp),
+        .fillMaxWidth()
+        .padding(vertical = 8.dp, horizontal = 12.dp),
     horizontalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     items(topics) { topic ->
@@ -239,13 +357,13 @@ private fun TopicFilterBar(
       Text(
         text = topic.title,
         modifier = Modifier
-          .clip(RoundedCornerShape(16.dp))
-          .background(
-            if (selected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.surfaceVariant
-          )
-          .clickable { onTopicSelected(topic) }
-          .padding(horizontal = 16.dp, vertical = 8.dp),
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                if (selected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surfaceVariant
+            )
+            .clickable { onTopicSelected(topic) }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         color = if (selected) MaterialTheme.colorScheme.onPrimary
         else MaterialTheme.colorScheme.onSurface,
         style = TextStyle(
@@ -267,8 +385,8 @@ private fun FeedFilterDropdown(
 
   Box(
     modifier = Modifier
-      .fillMaxWidth()
-      .padding(horizontal = 16.dp, vertical = 4.dp)
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 4.dp)
   ) {
 
       AssistChip(onClick = { expanded = true },
@@ -305,6 +423,7 @@ private fun FeedFilterDropdown(
   }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DiscoverArticleCard(
   article: DiscoverFeedArticle,
@@ -315,14 +434,19 @@ private fun DiscoverArticleCard(
     verticalAlignment = Alignment.Top,
     horizontalArrangement = Arrangement.spacedBy(12.dp),
     modifier = Modifier
-      .fillMaxWidth()
-      .clickable(onClick = onClick)
-      .padding(horizontal = 16.dp, vertical = 12.dp)
+        .fillMaxWidth()
+        .combinedClickable(
+            onClick = {},
+            onLongClick = onClick,
+        )
+        .padding(horizontal = 16.dp, vertical = 12.dp)
+
   ) {
     Column(
       modifier = Modifier
-        .weight(1f)
-        .padding(vertical = 4.dp)
+          .weight(1f)
+          .padding(vertical = 4.dp)
+
     ) {
       article.siteName?.let {
         Text(
@@ -391,8 +515,8 @@ private fun DiscoverArticleCard(
         model = article.image,
         contentDescription = null,
         modifier = Modifier
-          .size(80.dp, 80.dp)
-          .clip(RoundedCornerShape(8.dp)),
+            .size(80.dp, 80.dp)
+            .clip(RoundedCornerShape(8.dp)),
         contentScale = ContentScale.Crop
       )
 

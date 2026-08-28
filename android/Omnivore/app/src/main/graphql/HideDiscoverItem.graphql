@@ -1,0 +1,11 @@
+mutation HideDiscoverArticle($input: HideDiscoverArticleInput!) {
+  hideDiscoverArticle(input: $input) {
+    ... on HideDiscoverArticleSuccess {
+      id
+    }
+
+    ... on HideDiscoverArticleError {
+      errorCodes
+    }
+  }
+}
