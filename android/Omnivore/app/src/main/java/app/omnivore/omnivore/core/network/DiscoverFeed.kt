@@ -2,7 +2,9 @@ package app.omnivore.omnivore.core.network
 
 import app.omnivore.omnivore.graphql.generated.GetDiscoverFeedArticlesQuery
 import app.omnivore.omnivore.graphql.generated.GetDiscoverFeedsQuery
+import app.omnivore.omnivore.graphql.generated.HideDiscoverArticleMutation
 import app.omnivore.omnivore.graphql.generated.SaveDiscoverArticleMutation
+import app.omnivore.omnivore.graphql.generated.type.HideDiscoverArticleInput
 import app.omnivore.omnivore.graphql.generated.type.SaveDiscoverArticleInput
 import com.apollographql.apollo3.api.Optional
 import java.net.URI
@@ -59,6 +61,20 @@ suspend fun Networker.getDiscoverFeeds(): List<DiscoverFeed> {
     listOf()
   }
 }
+
+suspend fun Networker.hideDiscoverItem(discoverItemId: String, hide: Boolean): String? {
+    return try {
+        val input = HideDiscoverArticleInput(
+            discoverArticleId = discoverItemId,
+            setHidden = hide
+        )
+        val result = authenticatedApolloClient().mutation(HideDiscoverArticleMutation(input)).execute()
+        result.data?.hideDiscoverArticle?.onHideDiscoverArticleSuccess?.id
+    } catch (e: Exception) {
+        null
+    }
+}
+
 
 suspend fun Networker.getDiscoverFeedArticles(
   after: String? = null,

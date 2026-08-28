@@ -7,12 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.datastore.discoverShowHidden
 import app.omnivore.omnivore.core.datastore.discoverTopicsActive
 import app.omnivore.omnivore.core.network.DiscoverFeed
 import app.omnivore.omnivore.core.network.DiscoverFeedArticle
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.getDiscoverFeeds
 import app.omnivore.omnivore.core.network.getDiscoverFeedArticles
+import app.omnivore.omnivore.core.network.hideDiscoverItem
 import app.omnivore.omnivore.core.network.saveDiscoverArticle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -57,7 +59,7 @@ class DiscoverViewModel @Inject constructor(
   private val _uiState = MutableStateFlow<DiscoverUiState>(DiscoverUiState.Loading)
   val uiState: StateFlow<DiscoverUiState> = _uiState
 
-  public val topics = listOf(
+  val topics = listOf(
     DiscoverTopic("All", "All the discover stories..."),
     DiscoverTopic("Technology", "Stories about Gadgets, AI, Software and other technology related topics"),
     DiscoverTopic("Politics", "Stories about Leadership, Elections, and issues affecting countries and the world"),
@@ -82,6 +84,12 @@ class DiscoverViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = false
+    )
+
+    val discoverShowHiddenState: StateFlow<Boolean> = datastoreRepository.getBoolean(discoverShowHidden).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = true
     )
 
   private var currentCursor: String? = null
@@ -138,6 +146,12 @@ class DiscoverViewModel @Inject constructor(
       }
     }
   }
+
+    fun setHiddenItems(flag: Boolean) {
+        viewModelScope.launch {
+            datastoreRepository.putBoolean(discoverShowHidden, flag)
+        }
+    }
 
   private fun loadArticles(initialLoad: Boolean) {
     viewModelScope.launch {
@@ -213,4 +227,28 @@ class DiscoverViewModel @Inject constructor(
       }
     }
   }
+
+    fun hideArticle(discoverArticleId: String, hide: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val hideId = networker.hideDiscoverItem(discoverArticleId, hide)
+                if (hideId != null) {
+                    snackbarMessage = "Article hidden"
+                    val currentState = _uiState.value
+                    if (currentState is DiscoverUiState.Success) {
+                        val updatedArticles = currentState.articles.map { article ->
+                            if (article.id == discoverArticleId) {
+                                article.copy(hidden = hide)
+                            } else {
+                                article
+                            }
+                        }
+                        _uiState.value = currentState.copy(articles = updatedArticles)
+                    }
+                } else {
+                    snackbarMessage = "Error hiding article"
+                }
+            }
+        }
+    }
 }
