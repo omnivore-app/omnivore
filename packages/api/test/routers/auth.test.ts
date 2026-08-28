@@ -169,6 +169,38 @@ describe('auth router', () => {
         expect(res.header.location).to.contain('/api/client/auth?tok')
       })
 
+      it('exchanges a valid sso token for an auth token', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        const location = res.header.location as string
+        const tok = new URL(location).searchParams.get('tok')
+        expect(tok).to.not.be.null
+
+        const exchange = await request
+          .post('/api/auth/exchange')
+          .send({ ssoToken: tok })
+          .expect(200)
+        expect(exchange.body.authToken).to.be.a('string')
+      })
+
+      it('refuses to exchange an sso token twice (single use)', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        const location = res.header.location as string
+        const tok = new URL(location).searchParams.get('tok')
+
+        await request.post('/api/auth/exchange').send({ ssoToken: tok }).expect(200)
+        await request
+          .post('/api/auth/exchange')
+          .send({ ssoToken: tok })
+          .expect(400)
+      })
+
+      it('refuses a garbage sso token', async () => {
+        await request
+          .post('/api/auth/exchange')
+          .send({ ssoToken: 'not-a-real-token' })
+          .expect(400)
+      })
+
       it('set auth token in cookie', async () => {
         const res = await loginRequest(email, password).expect(302)
         expect(res.header['set-cookie']).to.be.an('array')
