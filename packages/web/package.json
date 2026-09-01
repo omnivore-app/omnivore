@@ -36,7 +36,7 @@
     "@stitches/react": "^1.2.5",
     "@tanstack/query-async-storage-persister": "5.51.21",
     "@tanstack/react-query": "5.51.21",
-    "@tanstack/react-query-persist-client": "5.51.23",
+    "@tanstack/react-query-persist-client": "5.102.8",
     "allotment": "^1.20.2",
     "antd": "5.26.6",
     "axios": "^1.19.0",
