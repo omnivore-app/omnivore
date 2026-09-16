@@ -1,8 +1,9 @@
-import { map, mergeMap, retry } from 'rxjs'
+import { map, mergeMap, repeat, retry } from 'rxjs'
 import { FetchMessageObject } from 'imapflow'
 import { emailObserver$ } from './lib/emailObserver'
 import { simpleParser } from 'mailparser'
 import { convertToMailObject, sendToEmailApi } from './lib/emailApi'
+import { env } from './env'
 
 void (() => {
   emailObserver$
@@ -12,7 +13,9 @@ void (() => {
         simpleParser(email.source?.toString() ?? '')
       ),
       map(convertToMailObject),
-      mergeMap(sendToEmailApi)
+      mergeMap(sendToEmailApi),
+      repeat({ delay: env.waitTime })
     )
     .subscribe()
 })()
+

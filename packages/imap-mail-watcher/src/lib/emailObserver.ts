@@ -11,27 +11,23 @@ const createClient = () =>
       user: env.imap.auth.user,
       pass: env.imap.auth.password,
     },
-    socketTimeout: env.waitTime + 1,
+    socketTimeout: env.waitTime + 1000,
   })
 
 export const emailObserver$ = new Observable<FetchMessageObject>(
   (subscriber) => {
-    let loop = true
-    let lock: MailboxLockObject | null = null
-
     process.nextTick(async () => {
-      while (loop) {
         const client = createClient()
+        console.log('Connecting to IMAP server.')
         if (!client.usable) {
           await client.connect()
         }
-
+	
+	let lock: MailboxLockObject | null = null
         try {
-          if (!lock) {
-            lock = await client.getMailboxLock('INBOX')
-          }
-
+          lock = await client.getMailboxLock('INBOX')
           // Retrieve all the mails that have yet to be seen.
+          console.log('Fetching messages.')
           const messages = await client.fetchAll(
             { seen: false },
             {
@@ -41,6 +37,8 @@ export const emailObserver$ = new Observable<FetchMessageObject>(
             }
           )
 
+
+          console.log('Sending messages to subscriber.')
           for (const message of messages) {
             subscriber.next(message)
             // Once we are done with this message, set it to seen.
@@ -52,17 +50,13 @@ export const emailObserver$ = new Observable<FetchMessageObject>(
 
         } finally {
           console.log('Releasing lock and logging out.')
-          await client.logout()
           lock?.release()
-          await new Promise((resolve) => setTimeout(resolve, env.waitTime))
+	  await client.logout()
+          subscriber.complete()
         }
-      }
     })
-
-    return () => {
-      loop = false
-      lock?.release()
-    }
+    return () => {}
   }
 )
+
 

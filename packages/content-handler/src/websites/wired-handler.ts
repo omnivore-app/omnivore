@@ -43,12 +43,6 @@ export class WiredHandler extends ContentHandler {
     const data = response.data as string
     const dom = parseHTML(data).document
 
-    if (!this.isPaywalledContent(dom)) {
-      // This is just to ensure that the currently working articles don't break.
-      // Looking further into this, they might all have paywalls?
-      return {}
-    }
-
     const cleanedArticleDom = this.removeNonArticleNodes(dom)
 
     return {
