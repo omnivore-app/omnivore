@@ -2,8 +2,8 @@ import { Observable } from 'rxjs'
 import { FetchMessageObject, ImapFlow, MailboxLockObject } from 'imapflow'
 import { env } from '../env'
 
-const createClient = () =>
-  new ImapFlow({
+const createClient = () => {
+  const flow: any = new ImapFlow({
     host: env.imap.host,
     port: env.imap.port,
     secure: true,
@@ -11,8 +11,12 @@ const createClient = () =>
       user: env.imap.auth.user,
       pass: env.imap.auth.password,
     },
-    socketTimeout: env.waitTime + 1000,
-  })
+  });
+
+  flow._socketError = () => console.error('Socket error called. Ignoring... ');
+
+  return flow;
+}
 
 export const emailObserver$ = new Observable<FetchMessageObject>(
   (subscriber) => {
@@ -52,6 +56,7 @@ export const emailObserver$ = new Observable<FetchMessageObject>(
           console.log('Releasing lock and logging out.')
           lock?.release()
 	  await client.logout()
+	  client.close()
           subscriber.complete()
         }
     })
