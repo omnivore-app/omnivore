@@ -41,6 +41,7 @@ import { ZhihuHandler } from './websites/zhihu-handler'
 import { TikTokHandler } from './websites/tiktok-handler'
 import { WiredHandler } from './websites/wired-handler'
 import { RawContentHandler } from './websites/raw-handler'
+import { LongreadsHandler } from './websites/longreads-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -62,6 +63,7 @@ const validateUrlString = (url: string): boolean => {
 
 const contentHandlers: ContentHandler[] = [
   new WiredHandler(),
+  new LongreadsHandler(),
   new ArsTechnicaHandler(),
   new TheAtlanticHandler(),
   new AppleNewsHandler(),
