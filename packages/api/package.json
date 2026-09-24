@@ -87,7 +87,7 @@
     "graphql-shield": "^7.6.5",
     "highlightjs": "^9.16.2",
     "html-entities": "^2.3.2",
-    "image-size": "^1.0.2",
+    "image-size": "^2.0.3",
     "intercom-client": "^7.0.3",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
