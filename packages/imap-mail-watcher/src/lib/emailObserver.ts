@@ -22,7 +22,7 @@ const createClient = () => {
     }
   }
 
-  return flow as ImapFlow;
+  return flow
 }
 
 export const emailObserver$ = defer(() =>
@@ -56,6 +56,11 @@ export const emailObserver$ = defer(() =>
         lock?.release()
         await client.logout()
         client.close()
+
+        const socket = client.socket
+        if (socket && !socket.destroyed) {
+          socket.destroy()
+        }
       }
     })()
   )
