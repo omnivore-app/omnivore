@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { defer, from, Observable } from 'rxjs'
 import { FetchMessageObject, ImapFlow, MailboxLockObject } from 'imapflow'
 import { env } from '../env'
 
@@ -13,55 +13,52 @@ const createClient = () => {
     },
   });
 
-  flow._socketError = () => console.error('Socket error called. Ignoring... ');
+  flow._socketError = () => {
+    console.error('Socket error called. Ignoring... ')
+    const socket = flow.socket
 
-  return flow;
+    if (socket && !socket.destroyed) {
+      socket.destroy()
+    }
+  }
+
+  return flow as ImapFlow;
 }
 
-export const emailObserver$ = new Observable<FetchMessageObject>(
-  (subscriber) => {
-    process.nextTick(async () => {
-        const client = createClient()
-        console.log('Connecting to IMAP server.')
-        if (!client.usable) {
-          await client.connect()
-        }
-	
-	let lock: MailboxLockObject | null = null
-        try {
-          lock = await client.getMailboxLock('INBOX')
-          // Retrieve all the mails that have yet to be seen.
-          console.log('Fetching messages.')
-          const messages = await client.fetchAll(
-            { seen: false },
-            {
-              envelope: true,
-              source: true,
-              uid: true,
-            }
+export const emailObserver$ = defer(() =>
+  from(
+    (async function* (): AsyncGenerator<FetchMessageObject> {
+      const client = createClient()
+      console.log('Connecting to IMAP server.')
+      if (!client.usable) {
+        await client.connect()
+      }
+
+      let lock: MailboxLockObject | null = null
+      try {
+        lock = await client.getMailboxLock('INBOX')
+        console.log('Fetching messages.')
+        const messages = await client.fetchAll(
+          { seen: false },
+          { envelope: true, source: true, uid: true }
+        )
+
+        console.log('Sending messages to subscriber.')
+        for (const message of messages) {
+          yield message
+          await client.messageFlagsSet(
+            { uid: message.uid.toString(), seen: false },
+            ['\\Seen']
           )
-
-
-          console.log('Sending messages to subscriber.')
-          for (const message of messages) {
-            subscriber.next(message)
-            // Once we are done with this message, set it to seen.
-            await client.messageFlagsSet(
-              { uid: message.uid.toString(), seen: false },
-              ['\\Seen']
-            )
-          }
-
-        } finally {
-          console.log('Releasing lock and logging out.')
-          lock?.release()
-	  await client.logout()
-	  client.close()
-          subscriber.complete()
         }
-    })
-    return () => {}
-  }
+      } finally {
+        console.log('Releasing lock and logging out.')
+        lock?.release()
+        await client.logout()
+        client.close()
+      }
+    })()
+  )
 )
 
 
