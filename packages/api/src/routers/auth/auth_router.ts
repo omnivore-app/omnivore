@@ -39,7 +39,7 @@ import { logger } from '../../utils/logger'
 import { ARCHIVE_ACCOUNT_PATH, DEFAULT_HOME_PATH } from '../../utils/navigation'
 import { hourlyLimiter } from '../../utils/rate_limit'
 import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
-import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
+import { createSsoToken, exchangeSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { handleAppleWebAuth } from './apple_auth'
 import type { AuthProvider } from './auth_types'
 import {
@@ -409,6 +409,21 @@ export function authRouter() {
       return res.redirect(`${env.client.url}/login?errorCodes=AUTH_FAILED`)
     }
   }
+
+  router.post(
+    '/exchange',
+    async (req: express.Request, res: express.Response) => {
+      const token = (req.body?.ssoToken ?? '') as string
+      if (!token) {
+        return res.status(400).json({ errorCode: 'SSO_EXCHANGE_NOT_FOUND' })
+      }
+      const authToken = await exchangeSsoToken(token)
+      if (!authToken) {
+        return res.status(400).json({ errorCode: 'SSO_EXCHANGE_NOT_FOUND' })
+      }
+      return res.status(200).json({ authToken })
+    }
+  )
 
   router.options(
     '/email-login',
