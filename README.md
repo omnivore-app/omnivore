@@ -11,7 +11,9 @@
 Omnivore is a complete, open source read-it-later solution for people who like text.
 
 > [!IMPORTANT]  
-> Omnivore is now a completely Self-Hosted application. The Cloud application was deprecated in November of 2024. The community still exists on Discord, and we endeavour to keep things updated and bug-fixes ongoing. A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
+> Omnivore is now a completely Self-Hosted application. The Cloud application was deprecated in November of 2024. The community still exists on Discord, and we endeavour to keep things updated and bug-fixes ongoing.
+>
+> A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
 We built Omnivore because we love reading and we want it to be more social. Join us!
 
