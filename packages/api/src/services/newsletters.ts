@@ -9,7 +9,7 @@ import {
 import { getRepository } from '../repository'
 import { userRepository } from '../repository/user'
 import { keysToCamelCase } from '../utils/helpers'
-import addressparser = require('nodemailer/lib/addressparser')
+import addressparser from 'nodemailer/lib/addressparser'
 
 const parsedAddress = (emailAddress: string) => {
   const res = addressparser(emailAddress, { flatten: true })
