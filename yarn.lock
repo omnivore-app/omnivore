@@ -22641,10 +22641,15 @@ node-releases@^2.0.53:
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.53.tgz"
   integrity sha512-D9UOmYG3UH1V+ENW56t5QXBwJw1YEY18ruVeus89Rw+SyIgjPkCO84bRzO3uNIYosJbNwiabWVn48o3uJLjxFQ==
 
-nodemailer@9.0.5, nodemailer@^9.0.5:
+nodemailer@9.0.5:
   version "9.0.5"
   resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-9.0.5.tgz"
   integrity sha512-wvjiKvjczmsN7U/8006JOdXubgBk2XFAbioDMbT+sM7cPs0QrhJTa6KBRX7P5REGGkDcLUz/EarWidb8G8C1jQ==
+
+nodemailer@^10.0.2:
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-10.0.2.tgz#1489312809e8f17245ba91a12546be0d0bbe31fe"
+  integrity sha512-83mO0TnWXySiJXdMAIUYmlXYdJ2KUq/w8EJgc4ogKU2UssaHf7ZPeuHcb4YCxeNiM0DDshnm291U0/ClrSZZsg==
 
 nodemon@^2.0.15, nodemon@^2.0.7:
   version "2.0.22"
