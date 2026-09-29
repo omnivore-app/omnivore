@@ -20839,9 +20839,9 @@ markdown-escapes@^1.0.0:
   integrity sha512-8z4efJYk43E0upd0NbVXwgSTQs6cT3T06etieCMEg7dRbzCbxUCK/GHlX8mhHRDcp+OLlHkPKsvqQTCvsRl2cg==
 
 markdown-it@^15.0.0:
-  version "15.0.0"
-  resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-15.0.0.tgz#dc199771f75b01d792316e5b524855b3973868e2"
-  integrity sha512-Lf8ajvVNdRpzSNB4VegxNy7gjs8gU35l4b4+ET49LrQC5PKYwLZ72u60LeJ9gv3qiaesuYjJWCyVeQmv/QWKQw==
+  version "15.0.1"
+  resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-15.0.1.tgz#33b87eafff0feb08cbef5edfd9bc20b3d920f5d8"
+  integrity sha512-9/7gE95FNPkfUWrjJIoHZza2iLmuJlPD0UNMxPi7bxUrbCR525YZY0r+zyfes0dZI5ZZ/uNIXUJca0pJvtw41g==
   dependencies:
     argparse "^3.0.0"
     entities "^8.0.0"
