@@ -77,7 +77,7 @@ export const updateConfirmationCode = async (
   const address = parsedAddress(emailAddress)
   const result = await getRepository(NewsletterEmail)
     .createQueryBuilder()
-    .where('LOWER(address) = :address', { address: address.toLowerCase() })
+    .where('LOWER(address) = :address', { address: address?.toLowerCase() })
     .update({
       confirmationCode: confirmationCode,
     })
@@ -98,7 +98,7 @@ export const findNewsletterEmailByAddress = async (
       'user.status = :status',
       { status: StatusType.Active }
     )
-    .where('LOWER(address) = :address', { address: address.toLowerCase() })
+    .where('LOWER(address) = :address', { address: address?.toLowerCase() })
     .getOne()
 }
 
