@@ -62,11 +62,14 @@ export const sanitizeHtml = (html: string) => {
 }
 
 export const streamHeadAndRetrieveOpenGraph = async (link: string) => {
-  const headers = {
-    'User-Agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:156.0) Gecko/20100101 Firefox/156.0',
+  const options = {
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:156.0) Gecko/20100101 Firefox/156.0',
+    },
+    credentials: 'include' as 'include',
   }
-  const html = await fetch(link, { headers }).then((response) => {
+  const html = await fetch(link, options).then((response) => {
     if (response.body) {
       const reader = response.body.getReader()
 
