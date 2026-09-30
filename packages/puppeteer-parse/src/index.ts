@@ -310,7 +310,11 @@ async function retrievePage(
           return request.abort()
         }
 
-        if (noJavascript && request.resourceType() === 'script') {
+        if (
+          noJavascript &&
+          request.url().toLowerCase().includes('.js')
+        ) {
+          // Block JS on some of the endpoints.
           return request.abort()
         }
 
