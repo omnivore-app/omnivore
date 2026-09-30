@@ -25,12 +25,12 @@ FROM golang:alpine as go-builder
 
 WORKDIR /app
 
-COPY /packages/discover/proxy /packages/discover/
+COPY /packages/proxy /packages/proxy
 
-RUN cd /packages/discover/ && go mod tidy
-RUN cd /packages/discover/ && go mod download
-RUN cd /packages/discover/ && go install
-RUN cd /packages/discover/ && go build -o /goproxy
+RUN cd /packages/proxy/ && go mod tidy
+RUN cd /packages/proxy/ && go mod download
+RUN cd /packages/proxy/ && go install
+RUN cd /packages/proxy/ && go build -o /goproxy
 
 
 FROM node:24.19-slim AS runner
@@ -41,6 +41,11 @@ ENV NODE_ENV production
 
 COPY --from=go-builder /goproxy /app/goproxy
 
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates \
+ && rm -rf /var/lib/apt/lists/* \
+ && update-ca-certificates
+
 COPY --from=builder /app/packages/discover/dist /app/packages/discover/dist
 COPY --from=builder /app/packages/discover/package.json /app/packages/discover/package.json
 COPY --from=builder /app/packages/discover/node_modules /app/packages/discover/node_modules
@@ -49,4 +54,4 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/package.json /app/package.json
 
 
-CMD ["/bin/bash", "-c", "/app/goproxy &  yarn workspace @omnivore/discover start"]
+CMD ["/bin/bash", "-c", "/app/goproxy & yarn workspace @omnivore/discover start"]

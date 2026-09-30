@@ -8,8 +8,6 @@ import { parseHTML } from 'linkedom'
 import { JSDOM } from 'jsdom'
 import { convertAtomStream } from './atom'
 import { OmnivoreContentFeed } from '../../../../../types/Feeds'
-import axios from 'axios'
-import { ClientIdentifier, initTLS, Session } from 'node-tls-client'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -64,37 +62,46 @@ export const sanitizeHtml = (html: string) => {
 }
 
 export const streamHeadAndRetrieveOpenGraph = async (link: string) => {
-  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) kw-surfer/3.0.6 Chrome/152.0.7977.54 Electron/44.0.0 Safari/537.36';
-  const html = await fetch(link, { headers: { 'User-Agent': userAgent }}).then(async (res) => {
-    let response = res;
-    if (response.status === 403) {
-      response = await fetch('localhost:8787', { method: 'GET', headers: { 'X-Target-Url': link, 'User-Agent': userAgent } });
-    }
-
-    if (response.body) {
-      const reader = response.body.getReader()
-
-      // Read chunks of data
-      let html = ''
-      const read = (): Promise<string> => {
-        return reader.read().then(async ({ done, value }) => {
-          if (done) {
-            return html
-          }
-
-          html += new TextDecoder().decode(value)
-          if (html.includes('</head>')) {
-            await reader.cancel()
-            return `${html.slice(0, html.indexOf('</head>') + 7)}</html>`
-          }
-          return read()
+  const userAgent =
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) kw-surfer/3.0.6 Chrome/152.0.7977.54 Electron/44.0.0 Safari/537.36'
+  const html = await fetch(link, { headers: { 'User-Agent': userAgent } }).then(
+    async (res) => {
+      let response = res
+      if (response.status === 403) {
+        response = await fetch('http://127.0.0.1:8787', {
+          method: 'GET',
+          headers: { 'X-Target-Url': link, 'User-Agent': userAgent },
+        }).catch(e => {
+          console.error(e);
+          return res;
         })
       }
 
-      // Start reading the stream
-      return read()
+      if (response.body) {
+        const reader = response.body.getReader()
+
+        // Read chunks of data
+        let html = ''
+        const read = (): Promise<string> => {
+          return reader.read().then(async ({ done, value }) => {
+            if (done) {
+              return html
+            }
+
+            html += new TextDecoder().decode(value)
+            if (html.includes('</head>')) {
+              await reader.cancel()
+              return `${html.slice(0, html.indexOf('</head>') + 7)}</html>`
+            }
+            return read()
+          })
+        }
+
+        // Start reading the stream
+        return read()
+      }
     }
-  })
+  )
 
   if (html) {
     const dom = new JSDOM(sanitizeHtml(html))
