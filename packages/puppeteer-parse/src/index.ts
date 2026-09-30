@@ -252,15 +252,6 @@ async function retrievePage(
         ],
       })
 
-      page.on('request', (request) => {
-        // If the switch is active and the resource is a script, block it
-        if (noJavascript && request.resourceType() === 'script') {
-          request.abort()
-        } else {
-          request.continue()
-        }
-      })
-
       client.on(
         'Network.requestIntercepted',
         (e: Protocol.Network.RequestInterceptedEvent) => {
@@ -316,6 +307,10 @@ async function retrievePage(
         // since .requestType() is not FF compatible, look for font files.
         if (request.url().toLowerCase().includes('.woff2')) {
           // Disallow fonts from loading
+          return request.abort()
+        }
+
+        if (noJavascript && request.resourceType() === 'script') {
           return request.abort()
         }
 
