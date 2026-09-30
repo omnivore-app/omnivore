@@ -49,7 +49,6 @@ const getDescriptionAndImage = async (article: any) => {
 }
 
 export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
-	console.log(parsedXml)
   return fromArrayLike(parsedXml.feed.entry).pipe(
     mapOrNull(async (article: any) => {
       const { image, description } = await getDescriptionAndImage(article)

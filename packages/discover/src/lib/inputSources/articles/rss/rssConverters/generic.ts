@@ -2,9 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
-import { OmnivoreArticle } from '../../../../../types/OmnivoreArticle'
 import { XMLParser } from 'fast-xml-parser'
-import { Observable } from 'rxjs'
 import { parseRss } from './rss'
 import { parseHTML } from 'linkedom'
 import { JSDOM } from 'jsdom'
@@ -22,7 +20,27 @@ const parser = new XMLParser({
 })
 
 export const removeHTMLTag = (text: string): string => {
-  return decodeURI(text.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, ''))
+  const replacedHtmlTags = text.replace(
+    /<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g,
+    ''
+  )
+
+  const translatedSymbols: Record<string, string> = {
+    nbsp: ' ',
+    amp: '&',
+    quot: '"',
+    lt: '<',
+    gt: '>',
+  }
+
+  return replacedHtmlTags
+    .replace(
+      /&(nbsp|amp|quot|lt|gt);/g,
+      (_match, entity) => translatedSymbols[entity]
+    )
+    .replace(/&#(\d+);/gi, (_match, numStr) =>
+      String.fromCharCode(parseInt(numStr, 10))
+    )
 }
 
 export const getFirstParagraphForEmbedding = (text: string): string => {
