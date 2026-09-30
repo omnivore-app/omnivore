@@ -4,7 +4,6 @@ import (
 	"io"
 	"log"
 	"maps"
-	"strings"
 	"time"
 
 	http "github.com/bogdanfinn/fhttp"
@@ -16,7 +15,6 @@ var client tlsclient.HttpClient
 
 func init() {
 	var err error
-	//jar := tlsclient.NewCookieJar()
 	options := []tlsclient.HttpClientOption{
 		tlsclient.WithTimeoutSeconds(30),
 		tlsclient.WithClientProfile(profiles.Chrome_152),
@@ -30,16 +28,12 @@ func init() {
 }
 
 func proxy(w http.ResponseWriter, r *http.Request) {
-	// Target comes from header or query param
 	target := r.Header.Get("X-Target-Url")
 
 	req, _ := http.NewRequest("GET", target, nil)
-	for k, v := range r.Header {
-		if strings.EqualFold(k, "X-Target-Url") || strings.HasPrefix(k, "X-Proxy-") {
-			continue
-		}
-		req.Header[k] = v
-	}
+
+	maps.Copy(r.Header, req.Header)
+	req.Header.Del("X-Target-Url")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -49,8 +43,15 @@ func proxy(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	maps.Copy(w.Header(), resp.Header)
+	// We send back uncompressed, so we remove the content-encoding.
+	w.Header().Del("Content-Encoding")
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+
+	_, err = io.Copy(w, resp.Body)
+	if err != nil {
+		http.Error(w, "upstream: "+err.Error(), 502)
+		return
+	}
 }
 
 func main() {
