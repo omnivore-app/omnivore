@@ -41,12 +41,12 @@ FROM golang:alpine as go-builder
 
 WORKDIR /app
 
-COPY /packages/proxy /packages/proxy
+COPY /packages/proxy/web /packages/proxy/web
 
-RUN cd /packages/proxy/ && go mod tidy
-RUN cd /packages/proxy/ && go mod download
-RUN cd /packages/proxy/ && go install
-RUN cd /packages/proxy/ && go build -o /goproxy
+RUN cd /packages/proxy/web && go mod tidy
+RUN cd /packages/proxy/web && go mod download
+RUN cd /packages/proxy/web && go install
+RUN cd /packages/proxy/web && go build -o /goproxy
 
 # Running stage
 FROM node:24.19-alpine
@@ -78,6 +78,7 @@ WORKDIR /app
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV FIREFOX_PATH=/usr/bin/firefox
 ENV LAUNCH_HEADLESS=true
+ENV USER_AGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) kw-surfer/3.0.6 Chrome/152.0.7977.54 Electron/44.0.0 Safari/537.36"
 
 COPY --from=build /app /app
 

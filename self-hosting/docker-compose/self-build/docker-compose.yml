@@ -81,7 +81,7 @@ services:
 
   image-proxy:
     build:
-      context: ../../../packages/imageproxy
+      context: ../../../packages/proxy/imageproxy
       dockerfile: ./Dockerfile
     container_name: "omnivore-image-proxy"
     ports:

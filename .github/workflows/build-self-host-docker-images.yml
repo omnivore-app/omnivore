@@ -65,8 +65,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/omnivore-app/sh-image-proxy:latest
-          context: packages/imageproxy/
-          file: packages/imageproxy/Dockerfile
+          context: packages/proxy/imageproxy/
+          file: packages/proxy/imageproxy/Dockerfile
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-image-proxy:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-image-proxy:cache,mode=max
 

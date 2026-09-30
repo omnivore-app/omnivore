@@ -49,7 +49,7 @@ export class TheAtlanticHandler extends ContentHandler {
       const response = await axios.get('http://localhost:8787', {
         headers: {
           'X-Target-Url': url,
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) kw-surfer/3.0.6 Chrome/152.0.7977.54 Electron/44.0.0 Safari/537.36',
+          'User-Agent': process.env.USER_AGENT!,
         }
       })
       const data = response.data as string
