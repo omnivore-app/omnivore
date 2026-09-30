@@ -45,6 +45,7 @@ export const fetchContent = async (
     content: string | undefined,
     contentType: string | undefined,
     context: BrowserContext | undefined
+    let noJavascript = false;
 
   try {
     url = getUrl(url)
@@ -58,6 +59,7 @@ export const fetchContent = async (
       title = result?.title
       content = result?.content
       contentType = result?.contentType
+      noJavascript = !!result?.noJavascript
     } catch (e) {
       console.error('error with handler: ', e)
     }
@@ -68,7 +70,8 @@ export const fetchContent = async (
         logRecord,
         functionStartTime,
         locale,
-        timezone
+        timezone,
+        noJavascript
       )
       context = result.context
       url = result.finalUrl
@@ -195,7 +198,8 @@ async function retrievePage(
   logRecord: Record<string, any>,
   functionStartTime: number,
   locale?: string,
-  timezone?: string
+  timezone?: string,
+  noJavascript?: boolean
 ) {
   validateUrlString(url)
 
@@ -212,6 +216,7 @@ async function retrievePage(
   let lastPdfUrl
   try {
     const page = await context.newPage()
+
 
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
@@ -302,6 +307,14 @@ async function retrievePage(
         // since .requestType() is not FF compatible, look for font files.
         if (request.url().toLowerCase().includes('.woff2')) {
           // Disallow fonts from loading
+          return request.abort()
+        }
+
+        if (
+          noJavascript &&
+          request.url().toLowerCase().includes('.js')
+        ) {
+          // Block JS on some of the endpoints.
           return request.abort()
         }
 

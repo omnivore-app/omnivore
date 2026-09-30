@@ -9,7 +9,8 @@ export type OmnivoreArticle = {
   url: string
   publishedAt: Date
   type: 'community' | 'rss'
-  feedId: string
+  feedId: string,
+  skip?: boolean | undefined
 }
 
 export type RSSArticle = {

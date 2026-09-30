@@ -64,7 +64,6 @@ export const newFeeds$ = new Observable<OmnivoreFeed>(
     //     )
     //   })
 
-    console.log('[queue-processor]: starting queue processor')
     redisDataSource.setOptions({
       cache: env.redis.cache,
       mq: env.redis.mq,
@@ -83,7 +82,6 @@ export const newFeeds$ = new Observable<OmnivoreFeed>(
         // eslint-disable-next-line @typescript-eslint/require-await
         async (job: Job) => {
           const executeJob = (job: Job) => {
-            console.log(JSON.stringify(job))
             switch (job.name) {
               case 'discover-feed-added':
                 subscriber.next(job.data.feed)
@@ -109,7 +107,6 @@ export const newFeeds$ = new Observable<OmnivoreFeed>(
     })
   }
 ).pipe(
-  tap(console.log),
   catchError((err) => {
     console.log('Caught Error, continuing')
     console.error(err)

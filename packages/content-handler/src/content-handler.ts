@@ -32,6 +32,7 @@ export interface PreHandleResult {
   content?: string
   contentType?: string
   dom?: Document
+  noJavascript?: boolean
 }
 
 export const FAKE_URL_PREFIX = 'https://omnivore.work/no_url?q='
