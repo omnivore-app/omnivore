@@ -217,9 +217,6 @@ async function retrievePage(
   try {
     const page = await context.newPage()
 
-    if (noJavascript) {
-      await page.setJavaScriptEnabled(false)
-    }
 
     if (!enableJavascriptForUrl(url)) {
       await page.setJavaScriptEnabled(false)
@@ -253,6 +250,15 @@ async function retrievePage(
             interceptionStage: 'HeadersReceived',
           },
         ],
+      })
+
+      page.on('request', (request) => {
+        // If the switch is active and the resource is a script, block it
+        if (noJavascript && request.resourceType() === 'script') {
+          request.abort()
+        } else {
+          request.continue()
+        }
       })
 
       client.on(

@@ -33,7 +33,7 @@ RUN cd /packages/proxy/ && go install
 RUN cd /packages/proxy/ && go build -o /goproxy
 
 
-FROM node:24.19-slim AS runner
+FROM node:24.19-alpine AS runner
 
 WORKDIR /app
 
@@ -41,10 +41,9 @@ ENV NODE_ENV production
 
 COPY --from=go-builder /goproxy /app/goproxy
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates \
- && rm -rf /var/lib/apt/lists/* \
- && update-ca-certificates
+RUN apk add ca-certificates bash \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
 
 COPY --from=builder /app/packages/discover/dist /app/packages/discover/dist
 COPY --from=builder /app/packages/discover/package.json /app/packages/discover/package.json
