@@ -18,7 +18,7 @@ const shouldSkip = (article: any): boolean => {
 
   return (
     SKIPPABLE_TITLES.some((it) => title.includes(it)) ||
-    SKIPPABLE_URLS.some((it) => article.link['@_href']?.includes(it))
+    SKIPPABLE_URLS.some((it) => article.link?.includes(it))
   )
 }
 

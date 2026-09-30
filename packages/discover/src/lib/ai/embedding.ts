@@ -86,11 +86,7 @@ const addTopicsToArticle = async (
     )
     .map(({ name }) => name as string)
 
-  if (extraTopics.length > 0) {
-    console.log(`${it.article.title}: ${it.article.description}`)
-    console.log(topics.rows)
-    console.log(extraTopics)
-  }
+
   topicNames.push(...extraTopics)
 
   if (it.article.type == 'community') {
@@ -107,9 +103,6 @@ const getEmbeddingForLabel = async (
   label: Label
 ): Promise<EmbeddedOmnivoreLabel> => {
   const embedding = await client.getEmbeddings(
-    `${label.name}${label.description ? ' : ' + label.description : ''}`
-  )
-  console.log(
     `${label.name}${label.description ? ' : ' + label.description : ''}`
   )
 
