@@ -37,8 +37,21 @@ RUN yarn workspace @omnivore/utils build && \
     yarn install --pure-lockfile --production --network-timeout=300000
 
 
+FROM golang:alpine as go-builder
+
+WORKDIR /app
+
+COPY /packages/proxy /packages/proxy
+
+RUN cd /packages/proxy/ && go mod tidy
+RUN cd /packages/proxy/ && go mod download
+RUN cd /packages/proxy/ && go install
+RUN cd /packages/proxy/ && go build -o /goproxy
+
 # Running stage
 FROM node:24.19-alpine
+
+COPY --from=go-builder /goproxy /app/goproxy
 
 RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
 && echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
@@ -50,10 +63,13 @@ RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/
     ttf-freefont@edge \
     nss@edge \
     libstdc++@edge \
+    bash \
     sqlite-libs@edge \
     chromium@edge \
     firefox-esr@edge \
-    ca-certificates@edge
+    ca-certificates@edge \
+ && rm -rf /var/lib/apt/lists/* \
+ && update-ca-certificates
 
 RUN rm -rf /var/cache/apk/*
 

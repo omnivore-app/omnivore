@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { proxyAxios } from '../axios'
 import { parseHTML } from 'linkedom'
 import { ContentHandler, PreHandleResult } from '../content-handler'
 
@@ -39,7 +39,7 @@ export class WiredHandler extends ContentHandler {
   }
 
   async preHandle(url: string): Promise<PreHandleResult> {
-    const response = await axios.get(url)
+    const response = await proxyAxios.get(url)
     const data = response.data as string
     const dom = parseHTML(data).document
 
