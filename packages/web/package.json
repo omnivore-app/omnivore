@@ -70,7 +70,7 @@
     "react-sliding-pane": "^7.3.0",
     "react-spinners": "^0.13.7",
     "react-topbar-progress-indicator": "^4.1.1",
-    "remark-gfm": "^3.0.1",
+    "remark-gfm": "^4.0.1",
     "sharp": "^0.35.4",
     "swr": "^2.2.5",
     "use-resize-observer": "^9.1.0",
