@@ -2134,20 +2134,20 @@
   resolved "https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
 
-"@google-cloud/common@^6.0.0":
-  version "6.1.0"
-  resolved "https://registry.npmjs.org/@google-cloud/common/-/common-6.1.0.tgz"
-  integrity sha512-Ohjxjvusr65+SiEVBrilpyn1ir9CM8ZqWjcf7bA8ph1GCunxI6bbwtcl7iGl67A7Lr4Nz7WpNzITNETwggc7pw==
+"@google-cloud/common@^8.0.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/common/-/common-8.1.0.tgz#8856ca82e8033f41e1c724c81b784dd41a8f544f"
+  integrity sha512-fusI7kgJ17G3v9DprG5FaU38bjm5U0AJ7qjHj+oD4uWMdVeIBftKTYUUXL8MPU/XYY5cRgAH0Eoy5debk/YRdA==
   dependencies:
-    "@google-cloud/projectify" "^4.0.0"
-    "@google-cloud/promisify" "^4.0.0"
+    "@google-cloud/projectify" "^6.0.0"
+    "@google-cloud/promisify" "^6.0.0"
     arrify "^2.0.0"
     duplexify "^4.1.3"
     extend "^3.0.2"
-    google-auth-library "^10.6.2"
+    google-auth-library "^11.0.0"
     html-entities "^2.5.2"
-    retry-request "^8.0.0"
-    teeny-request "^10.0.0"
+    retry-request "^9.0.0"
+    teeny-request "^11.0.0"
 
 "@google-cloud/firestore@^8.6.0":
   version "8.7.1"
@@ -2173,41 +2173,41 @@
     on-finished "^2.3.0"
     read-package-up "^11.0.0"
 
-"@google-cloud/logging-api@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/@google-cloud/logging-api/-/logging-api-0.2.0.tgz"
-  integrity sha512-VQ9YohbLMh4wtWfrXLRfEbAjy8JyC1OSXA6dX/A2hpB/0sqnb/97Hs+Ai2fR8t83V4c3u1l2G7CPVuZN8wlG+A==
+"@google-cloud/logging-api@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/logging-api/-/logging-api-0.3.0.tgz#324ce1235b1033f01a3979e75d33d0900cd6b2b0"
+  integrity sha512-HAUW5vFdl5SC4evLxkq1P6Hbf77fFBTqpfq1oOXQ+x6mhVdQ6H3si0LOcat9SWbfoGlIfk3aX4j+rbTL47hVAg==
   dependencies:
-    google-gax "^5.0.0"
+    google-gax "^6.0.0"
 
-"@google-cloud/logging-winston@^6.0.0":
-  version "6.0.2"
-  resolved "https://registry.npmjs.org/@google-cloud/logging-winston/-/logging-winston-6.0.2.tgz"
-  integrity sha512-rrNs4XXLtk0BAnL6kTjfAH26a/zVGsuZHd6Vve3Ip1fT4/Irz2QJtqI0XiPbT/yfmKqFmYa44GWPXtPPAi56ug==
+"@google-cloud/logging-winston@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/logging-winston/-/logging-winston-7.1.0.tgz#a216943cfdf0ae18df1a2e5f7502551369bef6cf"
+  integrity sha512-68jNu5NDBKcnaLnL22FfVKqqJT7btpVOzTf1/uI/57nZC5OP6xEjODTBTUbXjJMYb475iGzC6M6sJTj22ZqicA==
   dependencies:
-    "@google-cloud/logging" "^11.2.1"
-    google-auth-library "^10.5.0"
+    "@google-cloud/logging" "^12.0.0"
+    google-auth-library "^11.0.0"
     lodash.mapvalues "^4.6.0"
     winston-transport "^4.9.0"
 
-"@google-cloud/logging@^11.2.1":
-  version "11.4.0"
-  resolved "https://registry.npmjs.org/@google-cloud/logging/-/logging-11.4.0.tgz"
-  integrity sha512-UtDwKO+Ux9SEPhDGWfN9OPHHCQ1Kt/xgA1xWO12GsoxV6lhLZarHqL2hgOAzLzOP+qxsLkk2eOcSJDPexTEUSQ==
+"@google-cloud/logging@^12.0.0":
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/logging/-/logging-12.1.0.tgz#37cba76b8f23918873ce80275ecf1ae023c443fd"
+  integrity sha512-Nf11w/91L+h4M/U5tTKjyXZAEv8Q6o5boUrkHa8bYzmB7R/NAVnjUP7rO+mu/2OSE9OQ8IkdJXQLsHrL9j/6tQ==
   dependencies:
-    "@google-cloud/common" "^6.0.0"
-    "@google-cloud/logging-api" "^0.2.0"
-    "@google-cloud/paginator" "^5.0.0"
-    "@google-cloud/projectify" "^4.0.0"
+    "@google-cloud/common" "^8.0.0"
+    "@google-cloud/logging-api" "^0.3.0"
+    "@google-cloud/paginator" "^7.0.0"
+    "@google-cloud/projectify" "^6.0.0"
     "@google-cloud/promisify" "4.0.0"
     "@grpc/grpc-js" "^1.14.3"
     "@opentelemetry/api" "^1.7.0"
     arrify "^2.0.1"
     dot-prop "^6.0.0"
     extend "^3.0.2"
-    gcp-metadata "^6.0.0"
-    google-auth-library "^10.6.2"
-    google-gax "^4.0.3"
+    gcp-metadata "^9.0.1"
+    google-auth-library "^11.0.0"
+    google-gax "^6.0.0"
     long "^5.3.2"
     on-finished "^2.3.0"
     pumpify "^2.0.1"
@@ -2246,6 +2246,13 @@
     arrify "^2.0.0"
     extend "^3.0.2"
 
+"@google-cloud/paginator@^7.0.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/paginator/-/paginator-7.1.0.tgz#84dd03fc0537151f7a3a2404ad7b02058064ae9c"
+  integrity sha512-PNCXdAQgNoQODZuqyhmkN2nUpB2q9UFzawZ1oyCDyEyhcheRoCKJJhSKhEIeKpM/NCLnC6Q4We4HEkGCwNDnCA==
+  dependencies:
+    extend "^3.0.2"
+
 "@google-cloud/precise-date@^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@google-cloud/precise-date/-/precise-date-4.0.0.tgz"
@@ -2256,15 +2263,20 @@
   resolved "https://registry.npmjs.org/@google-cloud/projectify/-/projectify-4.0.0.tgz"
   integrity sha512-MmaX6HeSvyPbWGwFq7mXdo0uQZLGBYCwziiLIGq5JVX+/bdI3SAq6bP98trV5eTWfLuvsMcIC1YJOF2vfteLFA==
 
+"@google-cloud/projectify@^6.0.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/projectify/-/projectify-6.1.0.tgz#c0256a9fd90872794c7d2d35fe1b4dff240c57d8"
+  integrity sha512-tKAx9q6vTtbgZcqCojKWK8k6Dy2XBsE7BkNrrBsblxNXrKImYnljqeGfYh9qnTrlTjC9F19pTyCkGcl3pFMW/w==
+
 "@google-cloud/promisify@4.0.0", "@google-cloud/promisify@<4.1.0", "@google-cloud/promisify@~4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@google-cloud/promisify/-/promisify-4.0.0.tgz"
   integrity sha512-Orxzlfb9c67A15cq2JQEyVc7wEsmFBmHjZWZYQMUyJ1qivXyMwdyNOs9odi79hze+2zqdTtu1E19IM/FtqZ10g==
 
-"@google-cloud/promisify@^4.0.0":
-  version "4.1.0"
-  resolved "https://registry.npmjs.org/@google-cloud/promisify/-/promisify-4.1.0.tgz"
-  integrity sha512-G/FQx5cE/+DqBbOpA5jKsegGwdPniU6PuIEMt+qxWgFxvxuFOzVmp6zYchtYuwAWV5/8Dgs0yAmjvNZv3uXLQg==
+"@google-cloud/promisify@^6.0.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/promisify/-/promisify-6.1.0.tgz#93d83ab3936a3f84bc0739f78fc4bad65aeb50aa"
+  integrity sha512-H+Rytzi5zYMyoAmU/zgYLgq7fJ9FY4QQEg4k6gfFx/RY1COJ2xxyIfe8bZ62lqEbWM1DJH7IYETqTFmqNtuUhQ==
 
 "@google-cloud/pubsub@^4.0.0":
   version "4.11.0"
@@ -16139,7 +16151,7 @@ gaxios@^6.0.0, gaxios@^6.0.2, gaxios@^6.0.3, gaxios@^6.1.1:
     node-fetch "^2.6.9"
     uuid "^9.0.1"
 
-gaxios@^7.0.0, gaxios@^7.1.4:
+gaxios@^7.0.0, gaxios@^7.1.3, gaxios@^7.1.4:
   version "7.3.1"
   resolved "https://registry.npmjs.org/gaxios/-/gaxios-7.3.1.tgz"
   integrity sha512-kB3rzJV7d9juLZh8/56QTXCwQfxyhdOMdyYk1HdQKFtF8TJTDTZQJtixWIwXdE9Jji91mC41DUNpjleo4L4eAQ==
@@ -16173,6 +16185,15 @@ gcp-metadata@^8.0.0:
   dependencies:
     gaxios "7.1.3"
     google-logging-utils "1.1.3"
+    json-bigint "^1.0.0"
+
+gcp-metadata@^9.0.0, gcp-metadata@^9.0.1:
+  version "9.0.4"
+  resolved "https://registry.yarnpkg.com/gcp-metadata/-/gcp-metadata-9.0.4.tgz#4ab61c8d9f8eb042801321fc73183b2b7eb82eef"
+  integrity sha512-p6WvbXOhfwnVtv/MyPq5kBiVhfV/qglMIxwwTVNEI1Ha1HmOgz5uHYHtYO6SfGckFaXe8blA11IJJ3wqXmvmBA==
+  dependencies:
+    gaxios "^7.1.3"
+    google-logging-utils "^2.0.0"
     json-bigint "^1.0.0"
 
 generative-bayesian-network@2.1.88:
@@ -16620,7 +16641,7 @@ google-auth-library@10.5.0:
     gtoken "^8.0.0"
     jws "^4.0.0"
 
-google-auth-library@^10.5.0, google-auth-library@^10.6.2:
+google-auth-library@^10.6.2:
   version "10.9.1"
   resolved "https://registry.npmjs.org/google-auth-library/-/google-auth-library-10.9.1.tgz"
   integrity sha512-i1ydyHrqcIxXkWh/uBmVkzCvIuq5yiK2ATndIe5XxKholrG/MTYP9xGYka4sQhrbIAgGjL2B6NOE7rFaiF3fXw==
@@ -16630,6 +16651,18 @@ google-auth-library@^10.5.0, google-auth-library@^10.6.2:
     gaxios "^7.1.4"
     gcp-metadata "8.1.2"
     google-logging-utils "1.1.3"
+    jws "^4.0.0"
+
+google-auth-library@^11.0.0:
+  version "11.1.0"
+  resolved "https://registry.yarnpkg.com/google-auth-library/-/google-auth-library-11.1.0.tgz#3b9270a497ac7d4632928d2065876cebd745c0fc"
+  integrity sha512-YIBq5KNoHQrZ9PM4PeodDBqqBGlSTIxh1zibN8u3zNIO9UJg8gvKuCpdKV7fWXhsZ2zRkU6FhGrgKNgLJ2IRgw==
+  dependencies:
+    base64-js "^1.3.0"
+    ecdsa-sig-formatter "^1.0.11"
+    gaxios "^7.1.4"
+    gcp-metadata "^9.0.0"
+    google-logging-utils "^2.0.0"
     jws "^4.0.0"
 
 google-auth-library@^9.0.0, google-auth-library@^9.3.0, google-auth-library@^9.6.3, google-auth-library@^9.7.0:
@@ -16679,6 +16712,23 @@ google-gax@^5.0.0, google-gax@^5.0.1:
     retry-request "^8.0.2"
     rimraf "^5.0.1"
 
+google-gax@^6.0.0:
+  version "6.10.0"
+  resolved "https://registry.yarnpkg.com/google-gax/-/google-gax-6.10.0.tgz#47359203bd7a53440acda511e6e0a6f0fc3d57bf"
+  integrity sha512-P9+6mNoC97uSUj55MptrxNj9muoDwc05mcY49R8jyg3kqzkPK+uWHApLuAHsNPKh3dtk1M1IuVZIto8e/fvpQA==
+  dependencies:
+    "@grpc/grpc-js" "^1.12.6"
+    "@grpc/proto-loader" "^0.8.0"
+    "@opentelemetry/api" "^1.9.0"
+    duplexify "^4.1.3"
+    google-auth-library "^11.0.0"
+    google-logging-utils "^2.0.0"
+    node-fetch "^3.3.2"
+    object-hash "^3.0.0"
+    proto3-json-serializer "^4.0.0"
+    protobufjs "^7.5.4"
+    retry-request "^9.0.0"
+
 google-logging-utils@1.1.3:
   version "1.1.3"
   resolved "https://registry.npmjs.org/google-logging-utils/-/google-logging-utils-1.1.3.tgz"
@@ -16693,6 +16743,11 @@ google-logging-utils@^1.0.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/google-logging-utils/-/google-logging-utils-1.2.0.tgz"
   integrity sha512-WE9av4wKDZgRjBwgVUabocx8T6/7o3Ca1Fat46FXDhXVAFibzNadedcOXrdgd1Kzmk8tsk/9ZH89Wyf/SqeZ3A==
+
+google-logging-utils@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/google-logging-utils/-/google-logging-utils-2.0.1.tgz#d78b34f4250db9ee816f29fee3321939296bcb8a"
+  integrity sha512-HMhaQghlOTvbcb3c4T5jmmOMtG3JUF1iOQMezaJXL86CDS+Tm2vHd0IeLFRAx3+ewd+bo9E1HFHoy17X5aJa9A==
 
 googleapis-common@^7.0.0:
   version "7.2.0"
@@ -24900,6 +24955,13 @@ proto3-json-serializer@^2.0.2:
   dependencies:
     protobufjs "^7.2.5"
 
+proto3-json-serializer@^4.0.0:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/proto3-json-serializer/-/proto3-json-serializer-4.0.2.tgz#c25ceb475454eeca562f3f66b3d8229d5af9a0c6"
+  integrity sha512-VUQlb/J2WjOG8BKhdLwJUz+MKxSMtBGYh+TaNmRtiYVhlIzXjzeAGIx7gtc3lXlA2iURzfF2+cXaQvC2ofwzpg==
+  dependencies:
+    protobufjs "^7.5.4"
+
 protobufjs@8.4.0:
   version "8.4.0"
   resolved "https://registry.npmjs.org/protobufjs/-/protobufjs-8.4.0.tgz"
@@ -26322,13 +26384,21 @@ retry-request@^7.0.0:
     extend "^3.0.2"
     teeny-request "^9.0.0"
 
-retry-request@^8.0.0, retry-request@^8.0.2:
+retry-request@^8.0.2:
   version "8.0.4"
   resolved "https://registry.npmjs.org/retry-request/-/retry-request-8.0.4.tgz"
   integrity sha512-pI6/7eabUYkZxamkOq0g0uMxKLLGnjzhefY+vL8bVXag5rto4OU2YBTPytWLuHH7aEKD6fn7kJycQfid0Mwnkw==
   dependencies:
     extend "^3.0.2"
     teeny-request "^10.0.0"
+
+retry-request@^9.0.0:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/retry-request/-/retry-request-9.0.1.tgz#3845320e83899248528ba39cf105026406ee4cac"
+  integrity sha512-4kGHEBl0ME6gR+8QB1sPMyg58jUxLUcCZNeqLDrfqzk0eWQN8XJFmeu7fmZCjlZCRW0S2u64Ik1HkO/0sWgCYQ==
+  dependencies:
+    extend "^3.0.2"
+    teeny-request "^11.0.0"
 
 retry@0.13.1, retry@^0.13.1:
   version "0.13.1"
@@ -28286,6 +28356,16 @@ teeny-request@^10.0.0:
   version "10.1.4"
   resolved "https://registry.npmjs.org/teeny-request/-/teeny-request-10.1.4.tgz"
   integrity sha512-R1Cg4Vu0UULeDfHL/kjABLaTW++9yD/B6n2g48y5dJ04hsEaxcfmAqbNDzNsbqAYJyIpZafjklLG9YxRu9uzOg==
+  dependencies:
+    http-proxy-agent "^7.0.0"
+    https-proxy-agent "^7.0.1"
+    node-fetch "^3.3.2"
+    stream-events "^1.0.5"
+
+teeny-request@^11.0.0:
+  version "11.0.1"
+  resolved "https://registry.yarnpkg.com/teeny-request/-/teeny-request-11.0.1.tgz#74a574ef5ce363a3b14e98bd7ae498dc593f8c81"
+  integrity sha512-bNr5j2YjSdajgCVsp+8JVjRf1uHIbpNISLeKp/7V1NnVMX3Gh6H/kECNGlm2Q3I68ACODQ0iv6aZ3Rvm8WgLGA==
   dependencies:
     http-proxy-agent "^7.0.0"
     https-proxy-agent "^7.0.1"
