@@ -46,7 +46,7 @@ export class TheAtlanticHandler extends ContentHandler {
   async preHandle(url: string): Promise<PreHandleResult> {
     // We simply retrieve the article without Javascript enabled using a GET command.
     try {
-      const response = await axios.get('http://localhost:8787', {
+      const response = await axios.get('http://127.0.0.1:8787', {
         headers: {
           'X-Target-Url': url,
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) kw-surfer/3.0.6 Chrome/152.0.7977.54 Electron/44.0.0 Safari/537.36',
