@@ -21,12 +21,29 @@ RUN yarn install --pure-lockfile --network-timeout=300000
 
 RUN yarn workspace @omnivore/discover build
 
+FROM golang:alpine as go-builder
+
+WORKDIR /app
+
+COPY /packages/proxy /packages/proxy
+
+RUN cd /packages/proxy/ && go mod tidy
+RUN cd /packages/proxy/ && go mod download
+RUN cd /packages/proxy/ && go install
+RUN cd /packages/proxy/ && go build -o /goproxy
+
+
 FROM node:24.19-alpine AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV production
 
+COPY --from=go-builder /goproxy /app/goproxy
+
+RUN apk add ca-certificates bash \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
 
 COPY --from=builder /app/packages/discover/dist /app/packages/discover/dist
 COPY --from=builder /app/packages/discover/package.json /app/packages/discover/package.json
@@ -35,4 +52,5 @@ COPY --from=builder /app/packages/discover/node_modules /app/packages/discover/n
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/package.json /app/package.json
 
-CMD ["yarn", "workspace", "@omnivore/discover", "start"]
+
+CMD ["/bin/bash", "-c", "/app/goproxy & yarn workspace @omnivore/discover start"]

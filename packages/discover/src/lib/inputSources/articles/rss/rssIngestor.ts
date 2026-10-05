@@ -1,7 +1,6 @@
 import {
   concatMap,
   merge,
-  mergeAll,
   mergeMap,
   Observable,
   tap,
@@ -17,7 +16,7 @@ import { OmnivoreContentFeed, OmnivoreFeed } from '../../../../types/Feeds'
 import { newFeeds$ } from './newFeedIngestor'
 import { exponentialBackOff, onErrorContinue } from '../../../utils/reactive'
 
-const REFRESH_DELAY_MS = /*3_600_000*/ 300000;
+const REFRESH_DELAY_MS = 300000;
 const getRssFeed = async (
   feed: OmnivoreFeed
 ): Promise<OmnivoreContentFeed | null> => {
@@ -38,7 +37,8 @@ const rssToArticles = (site: OmnivoreFeed) =>
     filter((it): it is OmnivoreContentFeed => !!it),
     mergeMap<OmnivoreContentFeed, Observable<OmnivoreArticle>>((item) =>
       converters.generic(item)
-    )
+    ),
+    filter(it => !it.skip)
   )
 
 export const rss$ = (() => {
@@ -61,9 +61,8 @@ export const rss$ = (() => {
       )
     ),
     timer(0, REFRESH_DELAY_MS).pipe(
-      tap((e) => console.log('Refreshing Stream')),
+      tap((_e) => console.log('Refreshing Stream')),
       concatMap(() => filteredRss$)
     )
   )
-
 })()
