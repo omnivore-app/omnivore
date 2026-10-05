@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { preHandleContent } from '@omnivore/content-handler'
 import path from 'path'
-import { BrowserContext, Page, Protocol } from 'puppeteer-core'
+import { BrowserContext, Handler, Page, Protocol } from 'puppeteer-core'
 import { getBrowser } from './browser'
 
 const NON_SCRIPT_HOSTS = ['medium.com', 'fastcompany.com', 'fortelabs.com']
@@ -218,10 +218,6 @@ async function retrievePage(
     const page = await context.newPage()
 
 
-    if (!enableJavascriptForUrl(url)) {
-      await page.setJavaScriptEnabled(false)
-    }
-
     // set locale for the page
     if (locale) {
       await page.setExtraHTTPHeaders({ 'Accept-Language': locale })
@@ -242,53 +238,49 @@ async function retrievePage(
       })
 
       // intercept request when response headers was received
-      await client.send('Network.setRequestInterception', {
+      await client.send('Fetch.enable', {
         patterns: [
           {
             urlPattern: '*',
             resourceType: 'Document',
-            interceptionStage: 'HeadersReceived',
+            requestStage: 'Response',
           },
         ],
       })
 
-      client.on(
-        'Network.requestIntercepted',
-        (e: Protocol.Network.RequestInterceptedEvent) => {
-          ;(async () => {
-            const headers = e.responseHeaders || {}
+      const fulfilHandler: Handler<Protocol.Fetch.RequestPausedEvent> = (e: Protocol.Fetch.RequestPausedEvent): void => {
+        ;(async () => {
+          const { requestId } = e
+          const headers = e.responseHeaders || []
+          const headerEntry = headers.find(it =>
+            it.name === 'content-type' || it.name === 'Content-Type'
+          )
+          const [contentType] = headerEntry?.value?.toLowerCase().split(';') || []
 
-            const [contentType] = (
-              headers['content-type'] ||
-              headers['Content-Type'] ||
-              ''
-            )
-              .toLowerCase()
-              .split(';')
-            const obj: Protocol.Network.ContinueInterceptedRequestRequest = {
-              interceptionId: e.interceptionId,
+          if (
+            e.responseStatusCode &&
+            e.responseStatusCode >= 200 &&
+            e.responseStatusCode < 300
+          ) {
+            // We only check content-type on success responses
+            // as it doesn't matter what the content type is for things
+            // like redirects
+            if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
+              await client.send('Fetch.failRequest', { requestId, errorReason: 'BlockedByClient' });
             }
+          }
 
-            if (
-              e.responseStatusCode &&
-              e.responseStatusCode >= 200 &&
-              e.responseStatusCode < 300
-            ) {
-              // We only check content-type on success responses
-              // as it doesn't matter what the content type is for things
-              // like redirects
-              if (contentType && !ALLOWED_CONTENT_TYPES.includes(contentType)) {
-                obj['errorReason'] = 'BlockedByClient'
-              }
-            }
+          try {
+            await client.send('Fetch.continueResponse', { requestId })
+          } catch {
+            // ignore
+          }
+        })()
+      };
 
-            try {
-              await client.send('Network.continueInterceptedRequest', obj)
-            } catch {
-              // ignore
-            }
-          })()
-        }
+      client.on<'Fetch.requestPaused'>(
+        'Fetch.requestPaused',
+        fulfilHandler as Handler
       )
     }
 
@@ -311,7 +303,7 @@ async function retrievePage(
         }
 
         if (
-          noJavascript &&
+          (noJavascript || !enableJavascriptForUrl(url)) &&
           request.url().toLowerCase().includes('.js')
         ) {
           // Block JS on some of the endpoints.
