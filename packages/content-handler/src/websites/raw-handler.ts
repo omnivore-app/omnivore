@@ -15,6 +15,7 @@ export class RawContentHandler extends ContentHandler {
       'fastcompany.com',
       'fortelabs.com',
       'theverge.com',
+      'aeon.com'
     ]
 
     return hostnames.some((h) => u.hostname.endsWith(h))
@@ -26,8 +27,11 @@ export class RawContentHandler extends ContentHandler {
       const dom = parseHTML(response.data).document
       return { title: dom.title, content: response.data as string, url: url }
     } catch (error) {
-      console.error('error prehandling URL', error)
-      throw error
+      console.log("Trying inside puppeteer without JS enabled")
+      return {
+        url,
+        noJavascript: true
+      }
     }
   }
 }
