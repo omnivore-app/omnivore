@@ -24,6 +24,8 @@
     "@graphql-codegen/typescript": "^2.1.1",
     "@graphql-codegen/typescript-resolvers": "^2.1.1",
     "@tsconfig/node14": "^1.0.1",
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "24.1.0",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
     "eslint": "^8.6.0",
@@ -32,11 +34,9 @@
     "graphql": "^17.0.2",
     "graphql-tag": "^2.12.7",
     "lerna": "^7.4.1",
-    "prettier": "^2.5.1",
-    "typescript": "^7.0.2",
-    "@types/node": "24.1.0",
     "node-gyp": "^13.0.1",
-    "@types/dotenv": "^8.2.3"
+    "prettier": "^2.5.1",
+    "typescript": "^7.0.2"
   },
   "volta": {
     "node": "24.19.0",
