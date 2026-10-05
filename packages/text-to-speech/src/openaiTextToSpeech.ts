@@ -91,7 +91,7 @@ export class OpenAITextToSpeech implements TextToSpeech {
     }
 
     const payload = {
-      model: 'tts-1',
+      model: 'gpt-4o-mini-tts',
       voice: voice,
       input: stripEmojis(input.text),
     }
