@@ -15,7 +15,7 @@ export class RawContentHandler extends ContentHandler {
       'fastcompany.com',
       'fortelabs.com',
       'theverge.com',
-      'aeon.com'
+      'aeon.co'
     ]
 
     return hostnames.some((h) => u.hostname.endsWith(h))

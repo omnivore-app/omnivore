@@ -1,10 +1,14 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import { ContentHandler, PreHandleResult } from '../content-handler'
+import { RawContentHandler } from './raw-handler'
 
 export class LongreadsHandler extends ContentHandler {
+  private rawContentHandler: RawContentHandler
+
   constructor() {
     super()
+    this.rawContentHandler = new RawContentHandler()
     this.name = 'Longreads'
   }
 
@@ -25,6 +29,11 @@ export class LongreadsHandler extends ContentHandler {
       return {
         url
       }
+    }
+
+    const newUrl = readFullStoryButton.getAttribute('href') || url
+    if (this.rawContentHandler.shouldPreHandle(newUrl)) {
+      return this.rawContentHandler.preHandle(newUrl);
     }
 
     return {
