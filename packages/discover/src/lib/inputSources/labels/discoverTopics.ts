@@ -30,11 +30,6 @@ const baseTopics = [
       'Cloud computing and enterprise IT - AWS, Azure, Kubernetes, DevOps, databases, hosting, VMware, virtualization and data centers',
   },
   {
-    name: 'Politics',
-    description:
-      'Privacy, surveillance and civil liberties - government monitoring, data collection, facial recognition, public records and digital rights',
-  },
-  {
     name: 'Technology',
     description:
       'Cybersecurity - hacking, data breaches, ransomware, vulnerabilities, encryption and online privacy',
@@ -45,6 +40,11 @@ const baseTopics = [
     name: 'Politics',
     description:
       'Politics and governments around the world - international news, diplomacy and foreign leaders',
+  },
+  {
+    name: 'Politics',
+    description:
+      'Political Privacy, surveillance and civil liberties - government monitoring',
   },
   {
     name: 'Politics',
@@ -99,7 +99,7 @@ const baseTopics = [
   {
     name: 'Politics',
     description:
-      'Government policy and regulation - new rules, executive orders, regulators and their impact',
+      'Government policy and regulation - new laws, executive orders',
   },
   {
     name: 'Politics',
