@@ -119,6 +119,11 @@ fun WebReader(
                 }
 
                 webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        view?.evaluateJavascript(HIGHLIGHT_MINIMAP_SCRIPT, null)
+                    }
+
                     override fun shouldOverrideUrlLoading(
                         view: WebView?, request: WebResourceRequest?
                     ): Boolean {
