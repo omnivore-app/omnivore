@@ -129,6 +129,7 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
             val isUpdatedOnServer = networker.updateHighlight(
                 UpdateHighlightInput(
                     annotation = Optional.presentIfNotNull(highlight.annotation),
+                    color = Optional.presentIfNotNull(highlight.color),
                     highlightId = highlight.highlightId,
                     sharedAt = Optional.absent()
                 )
@@ -151,6 +152,7 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
                 articleId = highlightChange.savedItemId,
                 type = Optional.presentIfNotNull(HighlightType.safeValueOf(highlight.type)),
                 annotation = Optional.presentIfNotNull(highlight.annotation),
+                color = Optional.presentIfNotNull(highlight.color),
                 patch = Optional.presentIfNotNull(highlight.patch),
                 quote = Optional.presentIfNotNull(highlight.quote),
             )

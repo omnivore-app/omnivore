@@ -30,7 +30,7 @@ data class Highlight(
   var shortId: String,
   val suffix: String?,
   val updatedAt: String?,
-  val color: String?,
+  var color: String?,
   val highlightPositionPercent: Double?,
   val highlightPositionAnchorIndex: Int?
 )

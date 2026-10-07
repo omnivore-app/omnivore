@@ -153,7 +153,9 @@ suspend fun DataService.updateWebHighlight(jsonString: String) {
             db.highlightDao().findById(highlightId = updateHighlightParams.highlightId)
                 ?: return@withContext
 
-        highlight.annotation = updateHighlightParams.annotation
+        // A color-only update must not wipe the existing note
+        updateHighlightParams.annotation?.let { highlight.annotation = it }
+        updateHighlightParams.color?.let { highlight.color = it }
         highlight.serverSyncStatus = ServerSyncStatus.NEEDS_UPDATE.rawValue
         db.highlightDao().update(highlight)
 

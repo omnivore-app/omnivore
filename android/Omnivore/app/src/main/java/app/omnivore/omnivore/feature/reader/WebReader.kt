@@ -19,10 +19,15 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.feature.components.HighlightColor
+import app.omnivore.omnivore.feature.components.HighlightColorPalette
+import app.omnivore.omnivore.feature.components.HighlightColorPaletteMode
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +46,15 @@ fun WebReader(
             UUID.randomUUID()
         )
     val isDarkMode = isSystemInDarkTheme()
+        val showColorPalette by webReaderViewModel.showHighlightColorPaletteFlow.collectAsStateWithLifecycle()
+        val selectedHighlightColor by webReaderViewModel.highlightColor.collectAsStateWithLifecycle()
+        val existingHighlightColor by webReaderViewModel.existingHighlightColor.collectAsStateWithLifecycle()
+        var webViewRef by remember { mutableStateOf<OmnivoreWebView?>(null) }
+        val paletteMode = when (currentTheme) {
+            Themes.DARK, Themes.BLACK -> HighlightColorPaletteMode.Dark
+            Themes.SYSTEM -> if (isDarkMode) HighlightColorPaletteMode.Dark else HighlightColorPaletteMode.Light
+            else -> HighlightColorPaletteMode.Light
+        }
 
     val volumeForScrollState by webReaderViewModel.volumeRockerForScrollState.collectAsStateWithLifecycle()
 
@@ -48,6 +62,7 @@ fun WebReader(
         AndroidView(factory = {
             OmnivoreWebView(it).apply {
                 viewModel = webReaderViewModel
+                webViewRef = this
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 )
@@ -128,6 +143,7 @@ fun WebReader(
                             Log.d("wvt", "received tap action: $tapCoordinates")
                             CoroutineScope(Dispatchers.Main).launch {
                                 webReaderViewModel.lastTapCoordinates = tapCoordinates
+                                webReaderViewModel.existingHighlightColor.value = null
                                 actionMode?.finish()
                                 actionMode = null
                             }
@@ -137,6 +153,8 @@ fun WebReader(
                             val tapCoordinates = Gson().fromJson(json, TapCoordinates::class.java)
                             CoroutineScope(Dispatchers.Main).launch {
                                 webReaderViewModel.hasTappedExistingHighlight = true
+                                webReaderViewModel.existingHighlightColor.value =
+                                    tapCoordinates.color ?: "yellow"
                                 webReaderViewModel.lastTapCoordinates = tapCoordinates
                                 startActionMode(null, ActionMode.TYPE_FLOATING)
                             }
@@ -220,6 +238,15 @@ fun WebReader(
                 webReaderViewModel.resetJavascriptDispatchQueue()
             }
         })
+
+        if (showColorPalette) {
+            HighlightColorPalette(
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 48.dp),
+                mode = paletteMode,
+                selectedColorName = existingHighlightColor ?: selectedHighlightColor.name,
+                onColorSelected = { color -> webViewRef?.applyPaletteColor(color) }
+            )
+        }
     }
 }
 
@@ -243,6 +270,26 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
         }
     }
 
+    // Applies a color tapped in the palette: create, recolor or remove depending on the selection.
+    fun applyPaletteColor(color: HighlightColor) {
+        val vm = viewModel ?: return
+        val existing = vm.existingHighlightColor.value
+        vm.selectHighlightColor(color)
+        val script = when {
+            existing == null ->
+                "var event = new Event('highlight');event.color = '${color.name}';document.dispatchEvent(event);"
+            existing == color.name ->
+                "var event = new Event('remove');document.dispatchEvent(event);"
+            else ->
+                "var event = new Event('updateColor');event.color = '${color.name}';document.dispatchEvent(event);"
+        }
+        evaluateJavascript(script) {
+            clearFocus()
+            actionMode?.finish()
+            actionMode = null
+        }
+    }
+
     private val actionModeCallback = object : ActionMode.Callback2() {
         // Called when the action mode is created; startActionMode() was called
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -251,9 +298,9 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
                 Log.d("wv", "inflating existing highlight menu")
                 mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
             } else {
-                viewModel?.showHighlightColorPalette()
                 mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
             }
+            viewModel?.showHighlightColorPalette()
             return true
         }
 
@@ -276,7 +323,9 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
                 }
 
                 R.id.highlight -> {
-                    val script = "var event = new Event('highlight');document.dispatchEvent(event);"
+                    val colorName = viewModel?.highlightColor?.value?.name ?: "yellow"
+                    val script =
+                        "var event = new Event('highlight');event.color = '$colorName';document.dispatchEvent(event);"
                     evaluateJavascript(script) {
                         clearFocus()
                         mode.finish()
@@ -328,8 +377,11 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
         override fun onDestroyActionMode(mode: ActionMode) {
             Log.d("wv", "destroying menu: $mode")
             viewModel?.hasTappedExistingHighlight = false
-            viewModel?.hideHighlightColorPalette()
-            actionMode = null
+            if (actionMode == null || actionMode === mode) {
+                viewModel?.hideHighlightColorPalette()
+                viewModel?.existingHighlightColor?.value = null
+                actionMode = null
+            }
         }
 
         override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
@@ -382,7 +434,7 @@ class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
 }
 
 data class TapCoordinates(
-    val tapX: Double, val tapY: Double
+    val tapX: Double, val tapY: Double, val color: String? = null
 )
 
 data class HighlightQuote(val quote: String?)
