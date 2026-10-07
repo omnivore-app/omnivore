@@ -21,6 +21,7 @@ RUN yarn install
 
 ADD /packages/db ./packages/db
 ADD /packages/db/setup.sh ./packages/db/setup.sh
-RUN yarn workspace @omnivore/db build
 
+RUN yarn workspace @omnivore/db build
+RUN mv ./packages/db/migrations ./packages/db/build
 CMD ["yarn", "workspace", "@omnivore/db", "migrate"]
