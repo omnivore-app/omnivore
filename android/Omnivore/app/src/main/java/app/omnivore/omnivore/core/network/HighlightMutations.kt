@@ -43,9 +43,11 @@ data class UpdateHighlightParams(
   val libraryItemId: String?,
   val `annotation`: String?,
   val sharedAt: String?,
+  val color: String? = null,
 ) {
   fun asUpdateHighlightInput() = UpdateHighlightInput(
     annotation = Optional.presentIfNotNull(`annotation`),
+    color = Optional.presentIfNotNull(color),
     highlightId = highlightId ?: "",
     sharedAt = Optional.presentIfNotNull(sharedAt)
   )
@@ -60,10 +62,12 @@ data class MergeHighlightsParams(
   val prefix: String?,
   val suffix: String?,
   val overlapHighlightIdList: List<String>?,
-  val `annotation`: String?
+  val `annotation`: String?,
+  val color: String? = null
 ) {
   fun asMergeHighlightInput() = MergeHighlightInput(
     annotation = Optional.presentIfNotNull(`annotation`),
+    color = Optional.presentIfNotNull(color),
     prefix = Optional.presentIfNotNull(prefix),
     articleId = articleId ?: "",
     id = id ?: "",
