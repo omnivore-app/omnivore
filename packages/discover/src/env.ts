@@ -18,7 +18,10 @@ interface BackendEnv {
       max: number
     }
   }
-  openAiApiKey: string
+  openAiApiKey: string | undefined
+  openRouterApiKey: string | undefined
+  openRouterEmbeddingModel: string
+  openRouterSummarizationModel: string,
   imageProxy: {
     url?: string
     secretKey?: string
@@ -74,13 +77,22 @@ export function getEnv(): BackendEnv {
 
   return {
     pg,
-    openAiApiKey: parse('OPENAI_API_KEY', false)!,
+    openAiApiKey: parse('OPENAI_API_KEY', false),
+    openRouterApiKey: parse('OPENROUTER_API_KEY', false),
+    openRouterEmbeddingModel:
+      parse('OPENROUTER_EMBEDDING_MODEL', false) || 'e5-large-v2',
+    openRouterSummarizationModel:
+      parse('OPENROUTER_SUMMARIZATION_MODEL', false) || 'ministral-8b-2512',
     imageProxy: {
       url: parse('IMAGE_PROXY_URL', false),
       secretKey: parse('IMAGE_PROXY_SECRET', false),
     },
-    redis
+    redis,
   }
+}
+
+export const isAiEnabled = () => {
+  return getEnv().openRouterApiKey || getEnv().openAiApiKey
 }
 
 export const env = getEnv()

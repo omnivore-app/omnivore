@@ -3,221 +3,301 @@ import { fromArrayLike } from 'rxjs/internal/observable/innerFrom'
 
 // We use this to generate the Embeddings for our topics.
 const baseTopics = [
+  // Technology
   {
     name: 'Technology',
-    description: 'this article is about Hardware',
-  },
-  {
-    name: 'Technology',
-    description: 'this article is about Big Tech',
+    description:
+      'New chips, GPUs, smartphones, laptops and gadgets - news about computer hardware and consumer electronics',
   },
   {
     name: 'Technology',
-    description: 'this article is about Software Engineering',
+    description:
+      'Apple, Google, Meta, Amazon and Microsoft - the business, power and controversies of the big tech companies',
   },
   {
     name: 'Technology',
-    description: 'this article is about Artificial Intelligence',
+    description:
+      'Programming and software development - code, languages, frameworks, developer tools and open source',
   },
   {
     name: 'Technology',
-    description: 'this article is about Cloud Engineering',
+    description:
+      'Artificial intelligence news - new models from OpenAI and Anthropic, ChatGPT, AI capabilities, safety and regulation',
   },
   {
     name: 'Technology',
-    description: 'this article is about Security',
+    description:
+      'Cloud computing and enterprise IT - AWS, Azure, Kubernetes, DevOps, databases, hosting, VMware, virtualization and data centers',
   },
   {
     name: 'Politics',
-    description: 'this article is about world politics',
+    description:
+      'Privacy, surveillance and civil liberties - government monitoring, data collection, facial recognition, public records and digital rights',
+  },
+  {
+    name: 'Technology',
+    description:
+      'Cybersecurity - hacking, data breaches, ransomware, vulnerabilities, encryption and online privacy',
+  },
+
+  // Politics
+  {
+    name: 'Politics',
+    description:
+      'Politics and governments around the world - international news, diplomacy and foreign leaders',
   },
   {
     name: 'Politics',
-    description: 'this article is about Geopolitics',
+    description:
+      'Rivalry between nations - sanctions, military alliances, NATO, US-China tensions and struggles for influence',
   },
   {
     name: 'Politics',
-    description: 'this article is about Climate Change',
+    description:
+      'Climate policy and environmental politics - emissions rules, climate summits and green energy debates',
   },
   {
     name: 'Politics',
-    description: 'this article is about the economy',
+    description:
+      'Climate Change - global warming, extreme weather and ecosystems',
   },
   {
     name: 'Politics',
-    description: 'this article is about the healthcare',
+    description:
+      'Economic policy - government budgets, taxes, interest rates and inflation as political issues',
   },
   {
     name: 'Politics',
-    description: 'this article is about Social Justice',
+    description:
+      'Healthcare policy - health insurance, Medicare, drug prices and the politics of health systems',
   },
   {
     name: 'Politics',
-    description: 'this article is about Republicans',
+    description:
+      'Social justice and civil rights - racism, inequality, LGBTQ+ rights, feminism, protests and activism',
   },
   {
     name: 'Politics',
-    description: 'this article is about Democrats',
+    description:
+      'The Republican Party - GOP politicians, conservatism and right-wing US politics',
   },
   {
     name: 'Politics',
-    description: 'this article is about Elections',
+    description:
+      'The Democratic Party - Democratic politicians, progressives and left-wing US politics',
   },
   {
     name: 'Politics',
-    description: 'this article is about War',
+    description:
+      'Elections and campaigns - candidates, polls, voting and political races',
   },
   {
     name: 'Politics',
-    description: 'this article is about Policy',
+    description:
+      'War and armed conflict - military operations, Ukraine, Gaza, weapons and ceasefires',
   },
   {
     name: 'Politics',
-    description: 'this article is about Laws',
+    description:
+      'Government policy and regulation - new rules, executive orders, regulators and their impact',
+  },
+  {
+    name: 'Politics',
+    description:
+      'Courts and the law - lawsuits, Supreme Court rulings, trials and criminal justice',
+  },
+
+  // Health & Wellbeing
+  {
+    name: 'Health & Wellbeing',
+    description:
+      'Mental health - anxiety, depression, therapy, stress, burnout and emotional wellbeing',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about mental health',
+    description:
+      'Personal health and medicine - illness, symptoms, treatments, doctors and staying healthy',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about healthcare',
+    description:
+      'Food and cooking - recipes, restaurants, nutrition and what to eat',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about food',
+    description:
+      'Family and parenting - raising kids, pregnancy, family life and caring for relatives',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about family',
+    description:
+      'Relationships - friendship, marriage, conflict, communication and getting along with people',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about relationship advice',
+    description:
+      'Sex and intimacy - sexual health, desire, consent and intimacy in relationships',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about sexual advice',
+    description:
+      'Fitness and exercise - workouts, strength training, running and losing weight',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about physical health and working out',
+    description:
+      'Self-care - rest, sleep, relaxation, skincare and routines for feeling well',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about self care',
+    description:
+      'Self-improvement - productivity, habits, motivation and personal growth',
   },
   {
     name: 'Health & Wellbeing',
-    description: 'this article is about self help',
+    description:
+      'Dating and romance - dating apps, attraction and finding a partner',
   },
+
+  // Business & Finance
   {
-    name: 'Health & Wellbeing',
-    description: 'this article is about dating',
+    name: 'Business & Finance',
+    description:
+      'Investing - stocks, bonds, crypto, markets and portfolio strategy',
   },
   {
     name: 'Business & Finance',
-    description: 'this article is about investments',
+    description:
+      'Economics - how economies work, trade, labor markets and economic theory',
   },
   {
     name: 'Business & Finance',
-    description: 'this article is about economics',
+    description:
+      'The economy - inflation, recession, GDP, jobs and the cost of living',
   },
   {
     name: 'Business & Finance',
-    description: 'this article is about the economy',
+    description:
+      'Capitalism under scrutiny - inequality, billionaires, corporate power and critiques of the system',
   },
   {
     name: 'Business & Finance',
-    description: 'this article is about capitalism',
+    description:
+      'Personal finance - saving, budgeting, debt, salaries and everyday money',
   },
   {
     name: 'Business & Finance',
-    description: 'this article is about Business',
+    description:
+      'Business news - companies, startups, entrepreneurs, mergers and management',
   },
   {
     name: 'Business & Finance',
-    description: 'this article is about Work and the Office',
+    description:
+      'Work and careers - office culture, remote work, bosses, jobs and career advice',
+  },
+
+  // Science & Education
+  {
+    name: 'Science & Education',
+    description:
+      'Space exploration - NASA, SpaceX, rockets, planets and the universe',
   },
   {
     name: 'Science & Education',
-    description: 'this article is about space',
+    description:
+      'Climate and environmental science - global warming research, extreme weather and ecosystems',
   },
   {
     name: 'Science & Education',
-    description: 'this article is about climate change',
+    description:
+      'Education - schools, universities, students, teachers and learning',
   },
   {
     name: 'Science & Education',
-    description: 'this article is about school',
+    description:
+      'Physics and math - quantum mechanics, particles, relativity and fundamental science',
   },
   {
     name: 'Science & Education',
-    description: 'this article is about physics',
+    description:
+      'Psychology - how the mind works, behavior, biases and cognitive science',
   },
   {
     name: 'Science & Education',
-    description: 'this article is about pyschology',
+    description:
+      'Biology - genetics, evolution, animals, ecosystems and the science of life',
   },
   {
     name: 'Science & Education',
-    description: 'this article is about biology',
+    description:
+      'Scientific discoveries - major new research, breakthrough findings and Nobel prizes',
   },
+
+  // Culture
   {
-    name: 'Science & Education',
-    description: 'this article is about breakthroughs',
+    name: 'Culture',
+    description:
+      'Entertainment and pop culture - celebrity news, fame and show business',
   },
   {
     name: 'Culture',
-    description: 'this article is about Entertainment',
+    description: 'Books and literature - novels, authors, reviews and reading',
   },
   {
     name: 'Culture',
-    description: 'this article is about Books',
+    description: 'Movies - new films, reviews, directors and the box office',
   },
   {
     name: 'Culture',
-    description: 'this article is about Movies',
+    description:
+      'Sports - football, basketball, soccer, athletes, games and leagues',
   },
   {
     name: 'Culture',
-    description: 'this article is about Sports',
+    description:
+      'Music - artists, albums, concerts, songs and the music industry',
   },
   {
     name: 'Culture',
-    description: 'this article is about Music',
+    description:
+      'Actors and celebrities - Hollywood stars, their roles and their lives',
   },
   {
     name: 'Culture',
-    description: 'this article is about Actors',
+    description: 'Television - new series, episodes, finales and what to watch',
   },
   {
     name: 'Culture',
-    description: 'this article is about TV',
+    description: 'Streaming - Netflix, Disney+, HBO and the streaming business',
   },
   {
     name: 'Culture',
-    description: 'this article is about Streaming',
+    description:
+      'Travel - destinations, trips, tourism and exploring the world',
+  },
+
+  // Gaming
+  {
+    name: 'Gaming',
+    description:
+      'PC gaming - Steam, graphics cards, gaming rigs, mods and PC game releases',
   },
   {
     name: 'Gaming',
-    description: 'this article is about PC Gaming',
+    description:
+      'Video games - new releases, reviews, game design and gaming culture',
   },
   {
     name: 'Gaming',
-    description: 'this article is about Video Games',
+    description: 'Xbox - Microsoft consoles, Game Pass and Xbox games',
   },
   {
     name: 'Gaming',
-    description: 'this article is about XBOX',
+    description: 'PlayStation - PS5, Sony studios and PlayStation games',
   },
   {
     name: 'Gaming',
-    description: 'this article is about PlayStation',
-  },
-  {
-    name: 'Gaming',
-    description: 'this article is about Nintendo',
+    description: 'Nintendo - Switch, Mario, Zelda and Pokémon',
   },
 ]
 

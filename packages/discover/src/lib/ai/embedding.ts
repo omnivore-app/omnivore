@@ -7,7 +7,7 @@ import { client } from '../clients/ai/client'
 import { onErrorContinue, rateLimiter } from '../utils/reactive'
 import { Label } from '../../types/OmnivoreSchema'
 import { sqlClient } from '../store/db'
-import { env } from '../../env'
+import { isAiEnabled } from '../../env'
 import { toSql } from 'pgvector/pg'
 
 export type EmbeddedOmnivoreArticle = {
@@ -22,7 +22,7 @@ export type EmbeddedOmnivoreLabel = {
 }
 
 // Remove, for instance, "The Verge" and " - The Verge" to avoid the cosine similarity matching on that.
-const prepareTitle = (article: OmnivoreArticle): string =>
+export const prepareTitle = (article: OmnivoreArticle): string =>
   article.title
     .replace(article.site, '')
     .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>{}[]\\\/]/gi, '')
@@ -30,7 +30,7 @@ const prepareTitle = (article: OmnivoreArticle): string =>
 const getEmbeddingForArticle = async (
   it: OmnivoreArticle
 ): Promise<EmbeddedOmnivoreArticle> => {
-  if (!env.openAiApiKey) {
+  if (!isAiEnabled()) {
     return {
       embedding: [],
       article: it,
@@ -38,9 +38,7 @@ const getEmbeddingForArticle = async (
     }
   }
 
-  const embedding = await client.getEmbeddings(
-    `${prepareTitle(it)}: ${it.summary}`
-  )
+  const embedding = await client.getEmbeddings(it)
 
   return {
     embedding,
@@ -59,35 +57,19 @@ const addTopicsToArticle = async (
   }
 
   const topics = await sqlClient.query(
-    `SELECT name, similarity
-     FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
-     ORDER BY similarity desc`,
+    client.selectQuery,
     [toSql(articleEmbedding)]
   )
 
   // OpenAI seems to cluster things around 0.7-0.9. Through trial and error I have found 0.77 to be a fairly accurate score.
   const topicNames = topics.rows
-    .filter(({ similarity }) => similarity > 0.77)
+    .filter(client.thresholdFilter)
     .map(({ name }) => name as string)
 
   if (topicNames.length == 0) {
     topicNames.push(topics.rows[0]?.name)
   }
 
-  // I basically want to check if there's anything between the top one and the others.
-  // If the gap is miniscule, then we should include it. IE: 0.7688 and 0.765
-  const topTopic = topics.rows[0]
-  const extraTopics = topics.rows
-    .filter(
-      ({ similarity, name }) =>
-        similarity < 0.77 &&
-        topTopic.name != name &&
-        topTopic.similarity - similarity < 0.01
-    )
-    .map(({ name }) => name as string)
-
-
-  topicNames.push(...extraTopics)
 
   if (it.article.type == 'community') {
     topicNames.push('Community Picks')
@@ -102,9 +84,9 @@ const addTopicsToArticle = async (
 const getEmbeddingForLabel = async (
   label: Label
 ): Promise<EmbeddedOmnivoreLabel> => {
-  const embedding = await client.getEmbeddings(
-    `${label.name}${label.description ? ' : ' + label.description : ''}`
-  )
+  const embedding = await client.getEmbeddings({
+    title: `${label.name}${label.description ? ' : ' + label.description : ''}`
+  } as OmnivoreArticle)
 
   return {
     embedding,

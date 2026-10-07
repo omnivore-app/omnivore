@@ -7,11 +7,14 @@ import {
 import { aws4Interceptor } from 'aws4-axios'
 import { AiClient, Embedding } from '../../../types/AiClient'
 import { SUMMARISE_PROMPT } from './prompt'
+import { OmnivoreArticle } from '../../../types/OmnivoreArticle'
 
 export class BedrockClient implements AiClient {
   client: AxiosInstance
   tokenLimit = 100_000 // (Perhaps. Not even sure of the validity of this.)
   embeddingLimit = 8000
+  selectQuery: string
+  insertQuery: string
   constructor(
     params: BedrockClientParams = {
       region: 'us-west-2',
@@ -31,6 +34,17 @@ export class BedrockClient implements AiClient {
     this.client.interceptors.request.use(interceptor)
     this.client.defaults.headers.common['Accept'] = '*/*'
     this.client.defaults.headers.common['Content-Type'] = 'application/json'
+
+    this.selectQuery = `SELECT name, similarity
+     FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
+     ORDER BY similarity desc`
+
+    this.insertQuery =
+      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, embedding_description, embedding) VALUES($1, $2, $3)'
+  }
+
+  thresholdFilter(score: { similarity: number }): Boolean {
+    return score.similarity > 0.77
   }
 
   _extractHttpBody(
@@ -44,10 +58,10 @@ export class BedrockClient implements AiClient {
     return `\nHuman: ${prompt}\nAssistant:`
   }
 
-  async getEmbeddings(text: string): Promise<Embedding> {
+  async getEmbeddings(article: OmnivoreArticle): Promise<Embedding> {
     const { data } = await this.client.post<BedrockClientResponse>(
       `/model/cohere.embed-english-v3/invoke`,
-      { texts: [text], input_type: 'clustering' }
+      { texts: [article.title], input_type: 'clustering' }
     )
     return data.embeddings![0]
   }
