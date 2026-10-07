@@ -24,23 +24,33 @@ fun HighlightColorPalette(
     ) {
         Row(modifier = Modifier.padding(8.dp, 2.dp, 8.dp, 2.dp)) {
             HighlightColorPaletteItem(
-                color = HighlightColor(name = "yellow", Color(0xFFFFD234)),
-                isSelected = "yellow" == selectedColorName,
+                color = HighlightColor(name = "orange", Color(0xC0FFAD5B)),
+                isSelected = "orange" == selectedColorName,
                 onClick = onColorSelected
             )
             HighlightColorPaletteItem(
-                color = HighlightColor(name = "red", Color(0xFFFB9A9A)),
-                isSelected = "red" == selectedColorName,
-                onClick = onColorSelected
-            )
-            HighlightColorPaletteItem(
-                color = HighlightColor(name = "green", Color(0xFF55C689)),
+                color = HighlightColor(name = "green", Color(0xC030F230)),
                 isSelected = "green" == selectedColorName,
                 onClick = onColorSelected
             )
             HighlightColorPaletteItem(
-                color = HighlightColor(name = "blue", Color(0xFF6AB1FF)),
+                color = HighlightColor(name = "red", Color(0xC0FC3636)),
+                isSelected = "red" == selectedColorName,
+                onClick = onColorSelected
+            )
+            HighlightColorPaletteItem(
+                color = HighlightColor(name = "yellow", Color(0xC0FFFF26)),
+                isSelected = "yellow" == selectedColorName,
+                onClick = onColorSelected
+            )
+            HighlightColorPaletteItem(
+                color = HighlightColor(name = "blue", Color(0xC0B7D0E5)),
                 isSelected = "blue" == selectedColorName,
+                onClick = onColorSelected
+            )
+            HighlightColorPaletteItem(
+                color = HighlightColor(name = "pink", Color(0xC0F9C7F9)),
+                isSelected = "pink" == selectedColorName,
                 onClick = onColorSelected
             )
         }

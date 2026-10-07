@@ -119,7 +119,14 @@ class WebReaderViewModel @Inject constructor(
     private var slug: String? = null
 
     private val showHighlightColorPalette = MutableStateFlow(false)
+    val showHighlightColorPaletteFlow: StateFlow<Boolean> = showHighlightColorPalette
     val highlightColor = MutableStateFlow(HighlightColor())
+    // Color name of the tapped existing highlight; null when a new selection is active
+    val existingHighlightColor = MutableStateFlow<String?>(null)
+
+    fun selectHighlightColor(color: HighlightColor) {
+        highlightColor.value = color
+    }
 
     fun loadItem(slug: String?, requestID: String?) {
         this.slug = slug
@@ -379,14 +386,14 @@ class WebReaderViewModel @Inject constructor(
     }
 
 
-    fun showHighlightColorPalette() = viewModelScope.launch {
-            showHighlightColorPalette.update { true }
+    // Updated synchronously so a destroy/create pair fired while the selection
+    // handles are dragged cannot be reordered (which left the palette hidden).
+    fun showHighlightColorPalette() {
+        showHighlightColorPalette.value = true
     }
 
     fun hideHighlightColorPalette() {
-        CoroutineScope(Dispatchers.Main).launch {
-            showHighlightColorPalette.update { false }
-        }
+        showHighlightColorPalette.value = false
     }
 
     fun handleIncomingWebMessage(actionID: String, jsonString: String) {
