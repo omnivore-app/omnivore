@@ -4,6 +4,7 @@ import { defaultAtomConverter } from './defaultAtom'
 import { slateAllConverter } from './slateAll'
 import { longReadsConverter } from './longReads'
 import { defaultRssConverter } from './defaultRss'
+import { wiredConverter } from './wired'
 
 const siteConverters: Record<
   'rss' | 'atom',
@@ -15,7 +16,8 @@ const siteConverters: Record<
   rss: {
     default: defaultRssConverter,
     'https://slate.com/feeds/all.rss': slateAllConverter,
-    'https://longreads.com/feed/': longReadsConverter
+    'https://longreads.com/feed/': longReadsConverter,
+    'https://www.wired.com/feed/rss': wiredConverter
   },
 }
 
