@@ -1,8 +1,8 @@
 # Self Hosting
 
 - [Docker Compose](#docker-compose)
+- [Cloudflare Tunnel (Recommended)](#cloudflare-tunnel)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
-- [Cloudflare Tunnel](#cloudflare-tunnel)
 - [Web Extensions](#web-extensions)
 - [Email](#email)
 - - [IMap Watcher](#imap-watcher)
@@ -113,6 +113,17 @@ GCS_UPLOAD_SA_KEY_FILE_PATH
 ```
 with the path of the JSON key file for the service account.
 
+## Cloudflare Tunnel
+Cloudflare tunnels is an easy way to expose a service running on a local machine to the internet without a publicly routable IP Address. 
+
+You run a daemon on your host machine, which creates outbound connections to the
+
+![Tunnels Config](../docs/guides/images/cloudflare-tunnel.png)
+
+Omnivore is no way affiliated with Cloudflare, it is just the method to which the person writing this guide used, and found pretty painless overall.
+
+[Read More](https://www.cloudflare.com/products/tunnel/)
+
 ## Nginx Reverse Proxy
 
 Nginx is a reverse proxy that receives requests, and directs them to the correct service internally. Omnivore runs 4 services we want to redirect to.
@@ -126,16 +137,6 @@ We have included an example Nginx Configuration that redirects traffic from http
 
 [Link to nginx.conf here](../self-hosting/nginx/nginx.conf)
 
-## Cloudflare Tunnel
-Cloudflare tunnels is an easy way to expose a service running on a local machine to the internet without a publicly routable IP Address. 
-
-You run a daemon on your host machine, which creates outbound connections to the
-
-![Tunnels Config](../docs/guides/images/cloudflare-tunnel.png)
-
-Omnivore is no way affiliated with Cloudflare, it is just the method to which the person writing this guide used, and found pretty painless overall.
-
-[Read More](https://www.cloudflare.com/products/tunnel/)
 
 ## Web Extensions
 The web extensions have been updated to support self-hosting - The manifest version 2 of these could be enabled to work with Self-hosting, but required some manual code changes.
