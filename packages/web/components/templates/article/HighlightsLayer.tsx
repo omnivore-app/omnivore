@@ -51,6 +51,13 @@ type HighlightsLayerProps = {
 
 type HighlightModalAction = 'none' | 'addComment' | 'share'
 
+type HighlightScrollMarker = {
+  id: string
+  color: string
+  colorName: string
+  top: number
+}
+
 type HighlightActionProps = {
   highlight?: Highlight
   selectionData?: SelectionAttributes
@@ -79,6 +86,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
   const [focusedHighlight, setFocusedHighlight] =
     useState<Highlight | undefined>(undefined)
+  const [scrollMarkers, setScrollMarkers] = useState<HighlightScrollMarker[]>(
+    []
+  )
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
@@ -91,6 +101,84 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   ] = useState<string | undefined>(undefined)
 
   const windowDimensions = useGetWindowDimensions()
+
+  useEffect(() => {
+    let animationFrame = 0
+
+    const updateMarkers = () => {
+      cancelAnimationFrame(animationFrame)
+      animationFrame = requestAnimationFrame(() => {
+        const scrollElement = document.scrollingElement
+        const maxScrollTop = Math.max(
+          1,
+          (scrollElement?.scrollHeight ??
+            document.documentElement.scrollHeight) - window.innerHeight
+        )
+
+        const markers = highlights
+          .filter((highlight) => highlight.type === 'HIGHLIGHT')
+          .flatMap((highlight) => {
+            const element = getHighlightElements(highlight.id)[0]
+            if (!element) {
+              return []
+            }
+
+            const documentTop =
+              element.getBoundingClientRect().top + window.scrollY
+            const elementStyle = window.getComputedStyle(element)
+            return [
+              {
+                id: highlight.id,
+                color: elementStyle.borderBottomColor,
+                colorName: highlight.color || 'yellow',
+                top: Math.max(
+                  0,
+                  Math.min(100, (documentTop / maxScrollTop) * 100)
+                ),
+              },
+            ]
+          })
+          .sort((a, b) => a.top - b.top)
+
+        setScrollMarkers((current) => {
+          if (
+            current.length === markers.length &&
+            current.every(
+              (marker, index) =>
+                marker.id === markers[index].id &&
+                marker.color === markers[index].color &&
+                marker.colorName === markers[index].colorName &&
+                marker.top === markers[index].top
+            )
+          ) {
+            return current
+          }
+          return markers
+        })
+      })
+    }
+
+    updateMarkers()
+    window.addEventListener('resize', updateMarkers)
+    document.addEventListener('highlightsUpdated', updateMarkers)
+
+    const resizeObserver = new ResizeObserver(updateMarkers)
+    resizeObserver.observe(document.body)
+
+    return () => {
+      cancelAnimationFrame(animationFrame)
+      window.removeEventListener('resize', updateMarkers)
+      document.removeEventListener('highlightsUpdated', updateMarkers)
+      resizeObserver.disconnect()
+    }
+  }, [highlights])
+
+  const scrollToHighlight = (highlightId: string) => {
+    getHighlightElements(highlightId)[0]?.scrollIntoView({
+      block: 'center',
+      behavior: 'smooth',
+    })
+  }
 
   const createHighlightFromSelection = useCallback(
     async (
@@ -792,6 +880,29 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   return (
     <>
+      {scrollMarkers.map((marker, index) => (
+        <button
+          key={marker.id}
+          type="button"
+          aria-label={`Scroll to ${marker.colorName} highlight ${index + 1}`}
+          title={`Scroll to ${marker.colorName} highlight ${index + 1}`}
+          onClick={() => scrollToHighlight(marker.id)}
+          style={{
+            position: 'fixed',
+            top: `clamp(8px, ${marker.top}%, calc(100% - 8px))`,
+            right: 2,
+            transform: 'translateY(-50%)',
+            width: 8,
+            height: 14,
+            padding: 0,
+            border: 'none',
+            borderRadius: 2,
+            backgroundColor: marker.color,
+            cursor: 'pointer',
+            zIndex: 30,
+          }}
+        />
+      ))}
       {highlightModalAction?.highlightModalAction == 'addComment' && (
         <HighlightNoteModal
           highlight={highlightModalAction.highlight}
