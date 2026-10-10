@@ -320,6 +320,7 @@ class LibraryRepositoryImpl @Inject constructor(
                 val isUpdatedOnServer = networker.updateHighlight(
                     UpdateHighlightInput(
                         annotation = Optional.presentIfNotNull(highlight.annotation),
+                        color = Optional.presentIfNotNull(highlight.color),
                         highlightId = highlight.highlightId,
                         sharedAt = Optional.absent()
                     )
@@ -330,7 +331,7 @@ class LibraryRepositoryImpl @Inject constructor(
                 } else {
                     updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
                 }
-                return isUpdatedOnServer != null
+                return isUpdatedOnServer
             }
 
             ServerSyncStatus.NEEDS_CREATION.rawValue -> {
@@ -342,6 +343,7 @@ class LibraryRepositoryImpl @Inject constructor(
                     articleId = highlightChange.savedItemId,
                     type = Optional.presentIfNotNull(HighlightType.safeValueOf(highlight.type)),
                     annotation = Optional.presentIfNotNull(highlight.annotation),
+                    color = Optional.presentIfNotNull(highlight.color),
                     patch = Optional.presentIfNotNull(highlight.patch),
                     quote = Optional.presentIfNotNull(highlight.quote),
                 )

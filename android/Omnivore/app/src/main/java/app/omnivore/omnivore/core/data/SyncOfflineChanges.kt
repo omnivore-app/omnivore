@@ -140,7 +140,7 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
             } else {
                 updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
             }
-            return isUpdatedOnServer != null
+            return isUpdatedOnServer
         }
 
         ServerSyncStatus.NEEDS_CREATION.rawValue -> {
