@@ -5,19 +5,21 @@ package app.omnivore.omnivore.feature.reader
 const val HIGHLIGHT_MINIMAP_SCRIPT = """
 (function () {
   if (window.__ocMinimap) { window.__ocMinimap.refresh(); return; }
-  var COLORS = {
-    yellow: '#FFD234', green: '#32D74B', red: '#FF5D99',
-    blue: '#007AFF', orange: '#FF9500', pink: '#FF6BD6'
-  };
   var gutter = document.createElement('div');
   gutter.id = 'oc-highlight-minimap';
+  gutter.setAttribute('role', 'group');
+  gutter.setAttribute('aria-label', 'Highlights');
   gutter.style.cssText = 'position:fixed;top:0;bottom:0;right:2px;width:14px;' +
     'z-index:2147483000;pointer-events:none;user-select:none;-webkit-user-select:none;';
   document.body.appendChild(gutter);
 
+  // Use the color the reader actually renders (theme-aware), so markers always match the text.
   function colorOf(el) {
-    var m = /highlight__(\w+)/.exec(el.className || '');
-    return COLORS[m ? m[1] : 'yellow'] || COLORS.yellow;
+    var c = getComputedStyle(el).backgroundColor;
+    var m = /rgba?\(([^)]+)\)/.exec(c);
+    if (!m) return '#FFD234';
+    var p = m[1].split(/[,\/ ]+/).filter(Boolean);
+    return 'rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')';
   }
 
   function collect() {
@@ -44,9 +46,12 @@ const val HIGHLIGHT_MINIMAP_SCRIPT = """
   function refresh() {
     var items = collect(), h = docHeight(), vh = window.innerHeight;
     gutter.textContent = '';
-    items.forEach(function (it) {
+    items.forEach(function (it, n) {
       var y = (it.el.getBoundingClientRect().top + window.pageYOffset) / h * vh;
       var mark = document.createElement('div');
+      mark.setAttribute('role', 'button');
+      mark.setAttribute('tabindex', '0');
+      mark.setAttribute('aria-label', 'Go to highlight ' + (n + 1) + ' of ' + items.length);
       mark.style.cssText = 'position:absolute;right:0;width:14px;height:12px;pointer-events:auto;' +
         'top:' + Math.min(Math.max(y - 6, 0), vh - 12) + 'px;';
       var bar = document.createElement('div');
@@ -55,6 +60,11 @@ const val HIGHLIGHT_MINIMAP_SCRIPT = """
       mark.appendChild(bar);
       mark.addEventListener('click', function (e) {
         e.preventDefault(); e.stopPropagation(); scrollToEl(it.el);
+      });
+      mark.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); e.stopPropagation(); scrollToEl(it.el);
+        }
       });
       gutter.appendChild(mark);
     });
