@@ -4,7 +4,6 @@ import android.content.Context
 import app.omnivore.omnivore.R
 import com.posthog.android.PostHog
 import com.posthog.android.Properties
-import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.identity.Registration
 import javax.inject.Inject
 
@@ -29,15 +28,10 @@ class EventTracker @Inject constructor(private val app: Context) {
     fun registerUser(userID: String, intercomHash: String?, isDebug: Boolean) {
         posthog?.identify(userID)
 
-        val intercomConfigured =
-            app.getString(R.string.intercom_api_key).isNotBlank() &&
-            app.getString(R.string.intercom_app_id).isNotBlank()
-
-        if (!isDebug && intercomConfigured) {
-            Intercom.client().loginIdentifiedUser(
-                Registration.create().withUserId(userID)
-            )
-            intercomHash?.let { Intercom.client().setUserHash(it) }
+        val intercom = IntercomSupport.clientOrNull()
+        if (!isDebug && intercom != null) {
+            intercom.loginIdentifiedUser(Registration.create().withUserId(userID))
+            intercomHash?.let { intercom.setUserHash(it) }
         }
     }
 

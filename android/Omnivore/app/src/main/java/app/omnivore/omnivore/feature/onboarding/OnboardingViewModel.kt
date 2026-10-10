@@ -38,7 +38,7 @@ import app.omnivore.omnivore.utils.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.intercom.android.sdk.Intercom
+import app.omnivore.omnivore.core.analytics.IntercomSupport
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -363,7 +363,7 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             datastoreRepository.clear()
             dataService.clearDatabase()
-            Intercom.client().logout()
+            IntercomSupport.clientOrNull()?.logout()
             eventTracker.logout()
         }
     }

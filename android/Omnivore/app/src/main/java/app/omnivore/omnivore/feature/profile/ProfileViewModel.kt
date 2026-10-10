@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.core.analytics.IntercomSupport
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.datastore.libraryLastSyncTimestamp
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.viewer
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomSpace
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,13 +45,14 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun presentIntercom() {
+        val intercom = IntercomSupport.clientOrNull() ?: return
         viewModelScope.launch {
             val viewer = networker.viewer()
             viewer?.let { v ->
                 v.intercomHash?.let { intercomHash ->
-                    Intercom.client().setUserHash(intercomHash)
+                    intercom.setUserHash(intercomHash)
                 }
-                Intercom.client().present(space = IntercomSpace.Messages)
+                intercom.present(space = IntercomSpace.Messages)
             }
         }
     }
