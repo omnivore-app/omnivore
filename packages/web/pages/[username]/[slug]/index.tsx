@@ -658,6 +658,7 @@ export default function Reader(): JSX.Element {
               labels={labels.labels}
               showHighlightsModal={showHighlightsModal}
               setShowHighlightsModal={setShowHighlightsModal}
+              showHighlightMarkers={readerSettings.showHighlightMarkers}
               justifyText={readerSettings.justifyText ?? undefined}
               highContrastText={readerSettings.highContrastText ?? undefined}
               highlightOnRelease={
