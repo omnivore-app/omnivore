@@ -157,6 +157,7 @@
     <string name="reader_preferences_view_volume_scroll">Use Volume Rocker to scroll</string>
     <string name="reader_preferences_view_use_rtl">Right-to-left text</string>
     <string name="reader_preferences_view_use_double_tap">Double Tap to Page turn</string>
+    <string name="reader_preferences_view_highlight_markers">Show highlight markers</string>
 
 
     <!-- WebReaderLoadingContainer -->

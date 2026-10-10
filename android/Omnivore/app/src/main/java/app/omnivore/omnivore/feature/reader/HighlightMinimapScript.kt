@@ -12,6 +12,7 @@ const val HIGHLIGHT_MINIMAP_SCRIPT = """
   gutter.style.cssText = 'position:fixed;top:0;bottom:0;right:2px;width:14px;' +
     'z-index:2147483000;pointer-events:none;user-select:none;-webkit-user-select:none;';
   document.body.appendChild(gutter);
+  var enabled = window.showHighlightMarkers !== false;
 
   // Use the color the reader actually renders (theme-aware), so markers always match the text.
   function colorOf(el) {
@@ -44,6 +45,7 @@ const val HIGHLIGHT_MINIMAP_SCRIPT = """
   }
 
   function refresh() {
+    if (!enabled) { gutter.textContent = ''; return; }
     var items = collect(), h = docHeight(), vh = window.innerHeight;
     gutter.textContent = '';
     items.forEach(function (it, n) {
@@ -80,6 +82,12 @@ const val HIGHLIGHT_MINIMAP_SCRIPT = """
   }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
   window.addEventListener('resize', schedule);
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(document.body);
+  document.addEventListener('omnivoreSetHighlightMarkers', function (event) {
+    enabled = event.enabled !== false;
+    gutter.style.display = enabled ? '' : 'none';
+    if (enabled) refresh();
+    else gutter.textContent = '';
+  });
 
   window.__ocMinimap = { refresh: refresh };
   refresh();

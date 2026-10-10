@@ -34,6 +34,7 @@ import app.omnivore.omnivore.core.datastore.preferredWebMaxWidthPercentage
 import app.omnivore.omnivore.core.datastore.prefersJustifyText
 import app.omnivore.omnivore.core.datastore.prefersWebHighContrastText
 import app.omnivore.omnivore.core.datastore.rtlText
+import app.omnivore.omnivore.core.datastore.showWebHighlightMarkers
 import app.omnivore.omnivore.core.datastore.volumeForScroll
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.createNewLabel
@@ -503,6 +504,8 @@ class WebReaderViewModel @Inject constructor(
             datastoreRepository.getString(prefersWebHighContrastText) == "true"
         val prefersJustifyText = datastoreRepository.getString(prefersJustifyText) == "true"
         val fullPageScrolling = datastoreRepository.getString(doubleTapTurn) == "true"
+        val showHighlightMarkers =
+            datastoreRepository.getString(showWebHighlightMarkers) != "false"
         WebPreferences(
             textFontSize = storedFontSize ?: 12,
             lineHeight = storedLineHeight ?: 150,
@@ -512,7 +515,8 @@ class WebReaderViewModel @Inject constructor(
             fontFamily = storedWebFont,
             prefersHighContrastText = prefersHighContrastFont,
             prefersJustifyText = prefersJustifyText,
-            fullPageScroll = fullPageScrolling
+            fullPageScroll = fullPageScrolling,
+            showHighlightMarkers = showHighlightMarkers
         )
     }
 
@@ -617,6 +621,16 @@ class WebReaderViewModel @Inject constructor(
 
         val script =
             "var event = new Event('omnivoreSetPageTurn');event.pageTurnSetting = ${value};document.dispatchEvent(event);"
+        enqueueScript(script)
+    }
+
+    fun setHighlightMarkersState(value: Boolean) {
+        runBlocking {
+            datastoreRepository.putString(showWebHighlightMarkers, value.toString())
+        }
+
+        val script =
+            "var event = new Event('omnivoreSetHighlightMarkers');event.enabled = $value;document.dispatchEvent(event);"
         enqueueScript(script)
     }
 

@@ -69,6 +69,9 @@ fun ReaderPreferencesSheet(
     var marginSliderValue by remember { mutableFloatStateOf(currentWebPreferences.maxWidthPercentage.toFloat()) }
     var lineSpacingSliderValue by remember { mutableFloatStateOf(currentWebPreferences.lineHeight.toFloat()) }
     var doubleTapState by  remember { mutableStateOf(currentWebPreferences.fullPageScroll) }
+    var highlightMarkersState by remember {
+        mutableStateOf(currentWebPreferences.showHighlightMarkers)
+    }
     var themeState by remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
 
 
@@ -297,6 +300,14 @@ fun ReaderPreferencesSheet(
                     webReaderViewModel.setDoubleTapTurnState(it)
                },
             )
+            SwitchPreferenceWidget(
+                title = stringResource(R.string.reader_preferences_view_highlight_markers),
+                checked = highlightMarkersState,
+                onCheckedChanged = {
+                    highlightMarkersState = it
+                    webReaderViewModel.setHighlightMarkersState(it)
+                },
+            )
         }
     }
 }
@@ -310,5 +321,6 @@ data class WebPreferences(
     val fontFamily: WebFont,
     val prefersHighContrastText: Boolean,
     val prefersJustifyText: Boolean,
-    val fullPageScroll: Boolean
+    val fullPageScroll: Boolean,
+    val showHighlightMarkers: Boolean
 )

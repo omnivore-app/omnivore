@@ -127,6 +127,7 @@ data class WebReaderContent(
                 window.prefersHighContrastFont = ${preferences.prefersHighContrastText}
                 window.justifyText = ${preferences.prefersJustifyText}
                 window.fullPageScroll = ${preferences.fullPageScroll}
+                window.showHighlightMarkers = ${preferences.showHighlightMarkers}
                 window.enableHighlightBar = false
               </script>
               <script src="bundle.js"></script>
