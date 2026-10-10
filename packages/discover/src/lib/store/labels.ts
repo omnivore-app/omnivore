@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { EmbeddedOmnivoreLabel } from '../ai/embedding'
+import { EmbeddedOmnivoreTopic } from '../ai/embedding'
 import { filter, map, mergeMap } from 'rxjs/operators'
 import { toSql } from 'pgvector/pg'
 import { OperatorFunction } from 'rxjs'
@@ -25,30 +25,23 @@ export const removeDuplicateLabels = mergeMap((x: Label) =>
 )
 
 export const insertLabels = async (
-  label: EmbeddedOmnivoreLabel
-): Promise<EmbeddedOmnivoreLabel> => {
-  if (label.label.name && label.label.description) {
+  label: EmbeddedOmnivoreTopic
+): Promise<EmbeddedOmnivoreTopic> => {
+  if (label.topic.name && label.topic.description) {
     await sqlClient.query(
       client.insertQuery,
-      [label.label.name, label.label.description, toSql(label.embedding)]
+      [label.topic.name, label.topic.subject, label.topic.description, toSql(label.embedding)]
     )
   }
   return label
 }
 
-export const returnLabelNames = async (): Promise<string[]> => {
+export const returnTopicName = async (): Promise<string[]> => {
   const rows = await sqlClient.query('SELECT discover_topic_name FROM omnivore.discover_topic_embedding_link')
   return rows.rows.map((row) => row.discover_topic_name)
 }
 
-// export const insertLabelsToFile = async (
-//   label: EmbeddedOmnivoreLabel,
-// ): Promise<EmbeddedOmnivoreLabel> => {
-//   fs.appendFileSync('./output.json', JSON.stringify(label))
-//   return label
-// }
-
-export const insertLabelToStore: OperatorFunction<
-  EmbeddedOmnivoreLabel,
-  EmbeddedOmnivoreLabel
+export const insertTopicToStore: OperatorFunction<
+  EmbeddedOmnivoreTopic,
+  EmbeddedOmnivoreTopic
 > = mergeMap((x) => fromPromise(insertLabels(x)))

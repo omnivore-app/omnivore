@@ -7,9 +7,12 @@ BEGIN;
 DELETE FROM omnivore.discover_topic_embedding_link;
 
 ALTER TABLE omnivore.discover_topic_embedding_link
-DROP COLUMN small_embedding vector(1024);
+DROP COLUMN small_embedding;
 ALTER TABLE omnivore.discover_topic_embedding_link
-DROP COLUMN large_embedding vector(4096);
-
+DROP COLUMN large_embedding;
+ALTER TABLE omnivore.discover_topic_embedding_link
+DROP COLUMN discover_topic_subject;
+ALTER TABLE omnivore.discover_feed_article_topic_link
+DROP COLUMN discover_topic_subject;
 
 COMMIT;

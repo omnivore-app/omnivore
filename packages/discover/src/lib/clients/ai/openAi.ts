@@ -22,12 +22,12 @@ export class OpenAiClient implements AiClient {
     }
   ) {
     this.client = new OpenAI(openAiParams)
-    this.selectQuery = `SELECT name, similarity
-     FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
+    this.selectQuery = `SELECT name, subject, similarity
+     FROM (SELECT discover_topic_name as name, discover_topic_subject as subject, (ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed)  topics
      ORDER BY similarity desc`
 
     this.insertQuery =
-      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, embedding_description, embedding) VALUES($1, $2, $3)';
+      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, discover_topic_subject, embedding_description, embedding) VALUES($1, $2, $3, $4)';
   }
 
   async getEmbeddings(article: OmnivoreArticle): Promise<Embedding> {

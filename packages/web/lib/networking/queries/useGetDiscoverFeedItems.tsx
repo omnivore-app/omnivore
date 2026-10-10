@@ -74,7 +74,8 @@ export function useGetDiscoverFeedItems(
             author,
             savedId, 
             savedLinkUrl,
-            hidden
+            hidden, 
+            subject
           }
           pageInfo {
             hasNextPage

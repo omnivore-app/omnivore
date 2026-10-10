@@ -36,11 +36,11 @@ export class BedrockClient implements AiClient {
     this.client.defaults.headers.common['Content-Type'] = 'application/json'
 
     this.selectQuery = `SELECT name, similarity
-     FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
+     FROM (SELECT discover_topic_name as name, discover_topic_subject, (ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed)  topics
      ORDER BY similarity desc`
 
     this.insertQuery =
-      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, embedding_description, embedding) VALUES($1, $2, $3)'
+      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, discover_topic_subject, embedding_description, embedding) VALUES($1, $2, $3, $4)'
   }
 
   thresholdFilter(score: { similarity: number }): Boolean {

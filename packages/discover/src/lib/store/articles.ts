@@ -71,11 +71,11 @@ export const batchInsertArticlesSql = async (
       const updatedRows = linked.rows.map((row) => row.id as string)
       const topicLinks = updatedRows.flatMap((uuid: string) => {
         const it = mappedArticles[uuid];
-        return it.article.topics.map((topic) => [topic, uuid])
+        return it.article.topics.map((topic) => [topic.name, topic.subject, uuid])
       })
 
       const formattedTopicInsert = pgformat(
-        `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
+        `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_topic_subject, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
         topicLinks
       )
       await sqlClient.query(formattedTopicInsert)

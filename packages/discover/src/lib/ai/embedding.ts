@@ -9,16 +9,17 @@ import { Label } from '../../types/OmnivoreSchema'
 import { sqlClient } from '../store/db'
 import { isAiEnabled } from '../../env'
 import { toSql } from 'pgvector/pg'
+import { DiscoverTopic } from '../../types/DiscoverTopic'
 
 export type EmbeddedOmnivoreArticle = {
   embedding: Array<number>
   article: OmnivoreArticle
-  topics: string[]
+  topics: DiscoverTopic[]
 }
 
-export type EmbeddedOmnivoreLabel = {
+export type EmbeddedOmnivoreTopic = {
   embedding: Array<number>
-  label: Label
+  topic: DiscoverTopic
 }
 
 // Remove, for instance, "The Verge" and " - The Verge" to avoid the cosine similarity matching on that.
@@ -61,18 +62,27 @@ const addTopicsToArticle = async (
     [toSql(articleEmbedding)]
   )
 
-  // OpenAI seems to cluster things around 0.7-0.9. Through trial and error I have found 0.77 to be a fairly accurate score.
-  const topicNames = topics.rows
-    .filter(client.thresholdFilter)
-    .map(({ name }) => name as string)
+  const topicNames: DiscoverTopic[] = Object.values(
+      topics.rows
+        .filter(client.thresholdFilter)
+        .reduce((prev: Record<string, DiscoverTopic>, current: { name: string, subject: string }) => {
+          if (!prev[current.name]) {
+            prev[current.name] = { name: current.name, subject: current.subject }
+          }
 
+          return prev as Record<string, DiscoverTopic>;
+        }, { } as Record<string, DiscoverTopic>)
+  );
+
+
+  console.log(JSON.stringify(topicNames));
   if (topicNames.length == 0) {
-    topicNames.push(topics.rows[0]?.name)
+    topicNames.push({ name: topics.rows[0].name, subject: topics.rows[0].subject })
   }
 
 
   if (it.article.type == 'community') {
-    topicNames.push('Community Picks')
+    topicNames.push({ name: 'Community Picks', subject: 'Community Picks' });
   }
 
   return {
@@ -81,16 +91,16 @@ const addTopicsToArticle = async (
   }
 }
 
-const getEmbeddingForLabel = async (
-  label: Label
-): Promise<EmbeddedOmnivoreLabel> => {
+const getEmbeddingForTopic = async (
+  topic: DiscoverTopic
+): Promise<EmbeddedOmnivoreTopic> => {
   const embedding = await client.getEmbeddings({
-    title: `${label.name}${label.description ? ' : ' + label.description : ''}`
+    title: `${topic.name}${topic.description ? ' : ' + topic.description : ''}`,
   } as OmnivoreArticle)
 
   return {
     embedding,
-    label,
+    topic,
   }
 }
 
@@ -99,12 +109,12 @@ export const rateLimitEmbedding = <T>() =>
 
 export const rateLimiting = rateLimitEmbedding<any>()
 
-export const addEmbeddingToLabel$: OperatorFunction<
-  Label,
-  EmbeddedOmnivoreLabel
+export const addEmbeddingToTopic$: OperatorFunction<
+  DiscoverTopic,
+  EmbeddedOmnivoreTopic
 > = pipe(
   rateLimiting,
-  mergeMap((it: Label) => fromPromise(getEmbeddingForLabel(it)))
+  mergeMap((it: DiscoverTopic) => fromPromise(getEmbeddingForTopic(it)))
 )
 
 export const addEmbeddingToArticle$: OperatorFunction<

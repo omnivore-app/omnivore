@@ -2850,6 +2850,7 @@ type DiscoverFeedArticle {
     slug: String!
     title: String!
     url: String!
+    subject: String
 }
 
 type DiscoverFeedError {

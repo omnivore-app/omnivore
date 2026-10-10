@@ -23,6 +23,7 @@ type DiscoverFeedArticleDBRows = {
   article_save_id: string | undefined
   article_save_url: string | undefined
   hidden: boolean | undefined
+  subject: string | undefined
 }[]
 
 const getPopularTopics = (
@@ -94,9 +95,9 @@ const getTopicInformation = (
     params.push(feedId)
   }
   return appDataSource.query(
-    `SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, article_save_id, article_save_url, case when sh.discover_article_id is NULL then false else true end as hidden
+    `SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, article_save_id, article_save_url, case when sh.discover_article_id is NULL then false else true end as hidden, discover_topic_subject as subject
      FROM omnivore.discover_feed_articles
-     INNER JOIN (SELECT discover_feed_article_id FROM omnivore.discover_feed_article_topic_link WHERE discover_topic_name=$2) topic on topic.discover_feed_article_id=id
+     INNER JOIN (SELECT discover_feed_article_id, discover_topic_subject FROM omnivore.discover_feed_article_topic_link WHERE discover_topic_name=$2) topic on topic.discover_feed_article_id=id
      LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
      LEFT JOIN (SELECT discover_article_id FROM omnivore.discover_feed_hide_link WHERE user_id=$1) sh on id=sh.discover_article_id
      WHERE (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')  
@@ -181,6 +182,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
           __typename: 'DiscoverFeedArticle',
           siteName: it.url,
           hidden: !!it.hidden,
+          subject: it.subject
         })),
         pageInfo: {
           endCursor: `${
