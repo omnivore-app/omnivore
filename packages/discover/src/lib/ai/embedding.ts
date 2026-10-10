@@ -68,6 +68,8 @@ const addTopicsToArticle = async (
         .reduce((prev: Record<string, DiscoverTopic>, current: { name: string, subject: string }) => {
           if (!prev[current.name]) {
             prev[current.name] = { name: current.name, subject: current.subject }
+          } else {
+            prev[current.name].subject = `${prev[current.name].subject}, ${current.subject}`
           }
 
           return prev as Record<string, DiscoverTopic>;
@@ -75,7 +77,6 @@ const addTopicsToArticle = async (
   );
 
 
-  console.log(JSON.stringify(topicNames));
   if (topicNames.length == 0) {
     topicNames.push({ name: topics.rows[0].name, subject: topics.rows[0].subject })
   }
