@@ -315,6 +315,7 @@ fun WebReaderLoadingContainer(
                             title = webReaderParams?.item?.title,
                             author = webReaderParams?.item?.author,
                             description = webReaderParams?.item?.descriptionText,
+                            readingProgress = webReaderParams?.item?.readingProgress,
                             viewModel = editInfoViewModel,
                             onCancel = {
                                 webReaderViewModel.resetBottomSheet()

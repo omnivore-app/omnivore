@@ -300,6 +300,7 @@ fun EditBottomSheet(
             title = currentSavedItemUnderEdit?.savedItem?.title,
             author = currentSavedItemUnderEdit?.savedItem?.author,
             description = currentSavedItemUnderEdit?.savedItem?.descriptionText,
+            readingProgress = currentSavedItemUnderEdit?.savedItem?.readingProgress,
             viewModel = editInfoViewModel,
             onCancel = {
                 deleteCurrentItem()
