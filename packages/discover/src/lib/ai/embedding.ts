@@ -10,6 +10,7 @@ import { sqlClient } from '../store/db'
 import { isAiEnabled } from '../../env'
 import { toSql } from 'pgvector/pg'
 import { DiscoverTopic } from '../../types/DiscoverTopic'
+import { normalize, normalizeMinMax } from '../utils/math'
 
 export type EmbeddedOmnivoreArticle = {
   embedding: Array<number>
@@ -39,7 +40,7 @@ const getEmbeddingForArticle = async (
     }
   }
 
-  const embedding = await client.getEmbeddings(it)
+  const embedding = normalize(await client.getEmbeddings(it))
 
   return {
     embedding,
@@ -62,24 +63,62 @@ const addTopicsToArticle = async (
     [toSql(articleEmbedding)]
   )
 
-  const topicNames: DiscoverTopic[] = Object.values(
-      topics.rows
-        .filter(client.thresholdFilter)
-        .reduce((prev: Record<string, DiscoverTopic>, current: { name: string, subject: string }) => {
-          if (!prev[current.name]) {
-            prev[current.name] = { name: current.name, subject: current.subject }
-          } else {
-            prev[current.name].subject = `${prev[current.name].subject}, ${current.subject}`
-          }
 
-          return prev as Record<string, DiscoverTopic>;
-        }, { } as Record<string, DiscoverTopic>)
-  );
+  // We cluster the most likely around some others.
+  let topicNames = topics.rows
+      .map(it => ({
+        ...it,
+        similarity: normalizeMinMax(it.similarity, 0.69, 0.8).toFixed(2)
+      }))
+      .filter(client.thresholdFilter)
 
-
+  // If we haven't filtered any, let's get a clustering of the best and then find similar ones around it.
   if (topicNames.length == 0) {
-    topicNames.push({ name: topics.rows[0].name, subject: topics.rows[0].subject })
+    let comparator =  { ...topics.rows[0], similarity: normalizeMinMax(topics.rows[0].similarity, 0.69, 0.8) }
+    topics.rows.shift()
+    topicNames.push(
+      ...[
+        comparator,
+        ...topics.rows
+          .map((it) => ({
+            ...it,
+            similarity: normalizeMinMax(it.similarity, 0.69, 0.8)
+          }))
+          .filter(
+            (topic) =>
+              Math.abs(comparator.similarity - topic.similarity) <= 0.05
+          ),
+      ]
+    )
   }
+
+  console.log(
+    topicNames
+      .map(
+        (topic: { name: string; subject: string; similarity: number }) =>
+          `${it.article.title}:: ${topic.name}, ${topic.subject} === ${topic.similarity}`
+      )
+  )
+
+  topicNames = Object.values(topicNames.reduce(
+    (
+      prev: Record<string, DiscoverTopic>,
+      current: { name: string; subject: string }
+    ) => {
+      if (!prev[current.name]) {
+        prev[current.name] = { name: current.name, subject: current.subject }
+      } else {
+        prev[current.name].subject = `${prev[current.name].subject}, ${
+          current.subject
+        }`
+      }
+
+      return prev as Record<string, DiscoverTopic>
+    },
+    {} as Record<string, DiscoverTopic>
+  ))
+
+
 
 
   if (it.article.type == 'community') {
@@ -100,7 +139,7 @@ const getEmbeddingForTopic = async (
   } as OmnivoreArticle)
 
   return {
-    embedding,
+    embedding: normalize(embedding),
     topic,
   }
 }

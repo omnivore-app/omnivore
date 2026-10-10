@@ -13,6 +13,12 @@ const baseTopics = [
   },
   {
     name: 'Technology',
+    subject: 'Automotive Tech',
+    description:
+      'Automotive technology - electric vehicles, autonomous driving, connected car software and the future of smart mobility',
+  },
+  {
+    name: 'Technology',
     subject: 'Big Tech',
     description:
       'Apple, Google, Meta, Amazon and Microsoft - the business, power and controversies of the big tech companies',
@@ -51,6 +57,12 @@ const baseTopics = [
   },
   {
     name: 'Politics',
+    subject: 'Middle East Politics',
+    description:
+      'Middle East politics - regional conflicts, geopolitical alliances, resource diplomacy and the dynamics of state governance',
+  },
+  {
+    name: 'Politics',
     subject: 'Civil Liberties and Privacy',
     description:
       'Political Privacy, surveillance and civil liberties - government monitoring',
@@ -83,7 +95,19 @@ const baseTopics = [
     name: 'Politics',
     subject: 'Healthcare',
     description:
-      'Healthcare policy - health insurance, Medicare, drug prices and the politics of health systems',
+      'Healthcare policy - health insurance, Medicare, drug prices, vaccine and disease policies',
+  },
+  {
+    name: 'Politics',
+    subject: 'Immigration',
+    description:
+      'Immigration policy - border security, citizenship pathways, ICE, asylum laws and the politics of migrant integration',
+  },
+  {
+    name: 'Politics',
+    subject: 'Immigration (Work)',
+    description:
+      'Immigration policy - H1B Visas, Work sponsorships and Work Visas for Expats',
   },
   {
     name: 'Politics',
@@ -95,7 +119,7 @@ const baseTopics = [
     name: 'Politics',
     subject: 'Republican Party',
     description:
-      'The Republican Party - GOP politicians, conservatism and right-wing US politics',
+      'The Republican Party - GOP politicians, conservatism and Donald Trump and MAGA',
   },
   {
     name: 'Politics',
@@ -241,6 +265,13 @@ const baseTopics = [
     description:
       'Space exploration - NASA, SpaceX, rockets, planets and the universe',
   },
+
+  {
+    name: 'Science & Education',
+    subject: 'Geology',
+    description:
+      'Geology - plate tectonics, rock formations, volcanic activity and the history of Earth’s crust',
+  },
   {
     name: 'Science & Education',
     subject: 'Climate Change',
@@ -287,8 +318,14 @@ const baseTopics = [
   },
   {
     name: 'Culture',
+    subject: 'Art',
+    description: 'Art - fine arts, digital art, art market trends, exhibitions',
+  },
+  {
+    name: 'Culture',
     subject: 'Books and Literature',
-    description: 'Books and literature - novels, authors, reviews and reading',
+    description:
+      'Books and literature - novels, authors, book reviews and reading',
   },
   {
     name: 'Culture',
@@ -321,7 +358,8 @@ const baseTopics = [
   {
     name: 'Culture',
     subject: 'Streaming',
-    description: 'Streaming - Netflix, Disney+, HBO and the streaming business',
+    description:
+      'Streaming - Netflix, Disney+, HBO, YouTube, LiveStreams and the streaming business',
   },
   {
     name: 'Culture',
