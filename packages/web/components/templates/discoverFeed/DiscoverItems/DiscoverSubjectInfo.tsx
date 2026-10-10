@@ -43,7 +43,10 @@ export function DiscoverSubjectInfo(props: DiscoverSubjectInfoProps): JSX.Elemen
               backgroundColor: theme.colors.thNavMenuFooter.toString(),
               position: 'absolute',
               top: mousePosition[1],
-              left: mousePosition[0],
+              left:
+                mousePosition[0] + 200 < window.innerWidth
+                  ? mousePosition[0] + 10
+                  : mousePosition[0] - 210,
               width: '200px',
               padding: '10px',
               color: theme.colors.thLibraryMenuUnselected.toString(),
@@ -53,13 +56,15 @@ export function DiscoverSubjectInfo(props: DiscoverSubjectInfoProps): JSX.Elemen
               borderRadius: '15px',
               zIndex: 10,
               boxShadow: theme.shadows.cardBoxShadow.toString(),
-              fontFamily: theme.fonts.display.toString()
+              fontFamily: theme.fonts.display.toString(),
             }}
           >
-            This article was categorized as {props.topicSelected?.toString() ?? ''}  due to it's similarity with articles in {props.subject}
+            This article was categorized as{' '}
+            {props.topicSelected?.toString() ?? ''} due to it's similarity with
+            articles in {props.subject}
           </SpanBox>
         )}
-        </>
+      </>
     )
   }
 
