@@ -273,6 +273,7 @@
     <string name="edit_info_sheet_text_field_label_title">Title</string>
     <string name="edit_info_sheet_text_field_label_author">Author</string>
     <string name="edit_info_sheet_text_field_label_description">Description</string>
+    <string name="edit_info_sheet_text_field_label_reading_position">Reading position (%)</string>
     <string name="edit_info_sheet_action_save">Save</string>
     <string name="edit_info_sheet_action_cancel">Cancel</string>
     <string name="edit_info_sheet_error">Error while editing article!</string>

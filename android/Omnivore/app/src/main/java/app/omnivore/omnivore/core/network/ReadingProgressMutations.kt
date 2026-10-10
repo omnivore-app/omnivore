@@ -21,6 +21,12 @@ data class ReadingProgressParams(
 }
 
 suspend fun Networker.updateReadingProgress(params: ReadingProgressParams): Boolean {
+    return saveReadingProgress(params) != null
+}
+
+data class SavedReadingProgress(val percent: Double?, val anchorIndex: Int?)
+
+suspend fun Networker.saveReadingProgress(params: ReadingProgressParams): SavedReadingProgress? {
     try {
         val input = params.asSaveReadingProgressInput()
 
@@ -29,13 +35,15 @@ suspend fun Networker.updateReadingProgress(params: ReadingProgressParams): Bool
         val result = authenticatedApolloClient().mutation(SaveArticleReadingProgressMutation(input))
             .execute()
 
-        val articleID =
-            result.data?.saveArticleReadingProgress?.onSaveArticleReadingProgressSuccess?.updatedArticle?.id
+        val article =
+            result.data?.saveArticleReadingProgress?.onSaveArticleReadingProgressSuccess?.updatedArticle
 
-        Log.d("Loggo", "updated article with id: $articleID")
+        Log.d("Loggo", "updated article with id: ${article?.id}")
 
-        return articleID != null
+        return article?.let {
+            SavedReadingProgress(it.readingProgressPercent, it.readingProgressAnchorIndex)
+        }
     } catch (e: java.lang.Exception) {
-        return false
+        return null
     }
 }

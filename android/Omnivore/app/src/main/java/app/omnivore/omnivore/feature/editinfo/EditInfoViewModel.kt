@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.data.DataService
+import app.omnivore.omnivore.core.data.repository.LibraryRepository
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.datastore.omnivoreAuthToken
 import app.omnivore.omnivore.core.datastore.omnivoreSelfHostedApiServer
@@ -34,6 +35,7 @@ enum class EditInfoState {
 @HiltViewModel
 class EditInfoViewModel @Inject constructor(
   private val dataService: DataService,
+  private val libraryRepository: LibraryRepository,
   private val datastoreRepo: DatastoreRepository,
   private val resourceProvider: ResourceProvider
 ) : ViewModel() {
@@ -55,7 +57,13 @@ class EditInfoViewModel @Inject constructor(
 
   private fun serverUrl() = "${baseUrl()}/api/graphql"
 
-  fun editInfo(itemId: String, title: String, author: String?, description: String?) {
+  fun editInfo(
+    itemId: String,
+    title: String,
+    author: String?,
+    description: String?,
+    readingProgress: Int? = null
+  ) {
     viewModelScope.launch {
       isLoading = true
       state.postValue(EditInfoState.UPDATING)
@@ -91,9 +99,12 @@ class EditInfoViewModel @Inject constructor(
           dataService.db.savedItemDao().update(updatedSavedItem)
         }
 
+        val success = (response.data?.updatePage?.onUpdatePageSuccess?.updatedPage != null)
+        if (success && readingProgress != null) {
+          libraryRepository.updateReadingProgress(itemId, readingProgress.toDouble(), 0)
+        }
         isLoading = false
 
-        val success = (response.data?.updatePage?.onUpdatePageSuccess?.updatedPage != null)
         if (success) {
           message = resourceProvider.getString(R.string.edit_info_sheet_success)
           state.postValue(EditInfoState.UPDATED)
