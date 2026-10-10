@@ -246,11 +246,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thFallbackImageForeground: '#2A2A2A',
         thFallbackImageBackground: '#EDEDED',
 
-        highlight_background_green: '85, 198, 137',
-        highlight_background_blue: '106, 177, 255',
-        highlight_background_orange: '254, 181, 109',
-        highlight_background_yellow: '255, 210, 52',
-        highlight_background_red: '251, 154, 154',
+        highlight_background_green: '48, 242, 48',
+        highlight_background_blue: '183, 208, 229',
+        highlight_background_orange: '255, 173, 91',
+        highlight_background_yellow: '255, 255, 38',
+        highlight_background_red: '252, 54, 54',
+        highlight_background_pink: '249, 199, 249',
 
         highlight_background_alpha: '0.2',
         highlight_underline_alpha: '1.0',

@@ -40,6 +40,16 @@
   border-bottom: 2px solid rgba(var(--colors-highlight_background_yellow), var(--colors-highlight_underline_alpha));
 }
 
+.highlight__orange {
+  background-color: rgba(var(--colors-highlight_background_orange), var(--colors-highlight_background_alpha));
+  border-bottom: 2px solid rgba(var(--colors-highlight_background_orange), var(--colors-highlight_underline_alpha));
+}
+
+.highlight__pink {
+  background-color: rgba(var(--colors-highlight_background_pink), var(--colors-highlight_background_alpha));
+  border-bottom: 2px solid rgba(var(--colors-highlight_background_pink), var(--colors-highlight_underline_alpha));
+}
+
 .article-inner-css {
   font-family: var(--text-font-family);
 }
