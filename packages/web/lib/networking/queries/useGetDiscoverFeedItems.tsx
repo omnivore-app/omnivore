@@ -21,6 +21,8 @@ export type DiscoverFeedItem = {
   savedId?: string // Has the user saved this? If so then we can get it from here. This will allow us to link back
   savedLinkUrl?: string,
   hidden?: boolean
+  subject?: string
+  topic?: string
 }
 
 type DiscoverItemResponse = {
@@ -100,7 +102,9 @@ export function useGetDiscoverFeedItems(
       setIsLoading(true)
       callDiscoverItems().then((it: any) => {
         setIsLoading(false)
-        setDiscoverItems(it.getDiscoverFeedArticles.discoverArticles)
+        setDiscoverItems(
+          it.getDiscoverFeedArticles.discoverArticles.map((it: DiscoverFeedItem) => ({ ...it, topic: activeTopic.title }))
+        )
         setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
       })
     } else {
@@ -114,7 +118,9 @@ export function useGetDiscoverFeedItems(
       setIsLoading(false)
       setDiscoverItems([
         ...(discoverItems || []),
-        ...(it.getDiscoverFeedArticles.discoverArticles || []),
+        ...(it.getDiscoverFeedArticles.discoverArticles.map(
+          (it: DiscoverFeedItem) => ({ ...it, topic: activeTopic.title })
+        ) || []),
       ])
       setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
     })

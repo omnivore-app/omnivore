@@ -96,7 +96,7 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
               <PlusCircle
                 size={12}
                 color="white"
-                style={{ position: 'absolute', top: '3.5px', left: '0px' }}
+                style={{ position: 'absolute', top: '1.5px', left: '0px' }}
               />{' '}
             </>
           )}
