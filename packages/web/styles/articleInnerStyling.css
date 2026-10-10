@@ -218,6 +218,12 @@
     margin: 0.5em 0;
   }
 
+  td,
+  th {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   p {
     margin: 0;
     padding: 0;
@@ -671,4 +677,3 @@
   border: 2px dashed #aaa;
   box-sizing: border-box;
 }
-
