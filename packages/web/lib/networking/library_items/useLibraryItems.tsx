@@ -590,6 +590,15 @@ export const useUpdateItemReadStatus = () => {
           'readingProgressPercent',
           data.readingProgressPercent
         )
+        if (variables.input.force) {
+          updateItemPropertyInCache(
+            queryClient,
+            variables.itemId,
+            variables.slug,
+            'readingProgressAnchorIndex',
+            data.readingProgressAnchorIndex
+          )
+        }
       }
     },
   })
