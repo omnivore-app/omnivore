@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { preHandleContent } from '@omnivore/content-handler'
 import path from 'path'
-import { BrowserContext, Handler, Page, Protocol } from 'puppeteer-core'
+import { BrowserContext, Handler, Page, Protocol, TimeoutError } from 'puppeteer-core'
 import { getBrowser } from './browser'
 
 const NON_SCRIPT_HOSTS = ['medium.com', 'fastcompany.com', 'fortelabs.com']
@@ -45,7 +45,7 @@ export const fetchContent = async (
     content: string | undefined,
     contentType: string | undefined,
     context: BrowserContext | undefined
-    let noJavascript = false;
+  let noJavascript = false;
 
   try {
     url = getUrl(url)
@@ -338,24 +338,31 @@ async function retrievePage(
       }
     })
 
-    console.log('Trying to load page, for 30 seconds')
+    console.log('Trying to load page, for 10 seconds')
 
-    const response = await page.goto(url, {
-      timeout: 30 * 1000,
-      waitUntil: ['load'],
-    })
+    let contentType = 'text/html; charset=UTF-8'
+    let finalUrl: string
+
+    try {
+      const pageGoTo = await page.goto(url, {
+        timeout: 10_000,
+        waitUntil: ['networkidle2'],
+      })
+
+      contentType = pageGoTo?.headers()['content-type'] ?? contentType
+      finalUrl = pageGoTo?.url() ?? page.url()
+    } catch (e) {
+      if (!(e instanceof TimeoutError)) {
+        throw e;
+      }
+      finalUrl = page.url();
+      console.log('Timed Out waiting for Page to fully load. Using loaded content')
+    }
 
     console.log('Waited for content to load, waiting for DOM to settle.')
     await waitForDOMToSettle(page)
     // Just wait for a few seconds to allow the dom to resolve.
-    // await new Promise((r) => setTimeout(r, 2500))
-
-    if (!response) {
-      throw new Error('No response from page')
-    }
-
-    const finalUrl = response.url()
-    const contentType = response.headers()['content-type']
+    await new Promise((r) => setTimeout(r, 1000))
 
     logRecord.finalUrl = finalUrl
     logRecord.contentType = contentType
@@ -540,4 +547,3 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
 
   return { domContent, title }
 }
-
