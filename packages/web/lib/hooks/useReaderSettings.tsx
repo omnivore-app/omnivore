@@ -87,7 +87,7 @@ export const useReaderSettings = (): ReaderSettings => {
   })
   const [showHighlightMarkers, setShowHighlightMarkers] = usePersistedState({
     key: 'showHighlightMarkers',
-    initialValue: true,
+    initialValue: false,
   })
 
   const [justifyText, setJustifyText] = usePersistedState<boolean | undefined>({
