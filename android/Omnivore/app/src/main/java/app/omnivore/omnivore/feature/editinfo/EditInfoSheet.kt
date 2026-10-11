@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.MutableLiveData
 import app.omnivore.omnivore.R
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +25,7 @@ fun EditInfoSheetContent(
     title: String?,
     author: String?,
     description: String?,
+    readingProgress: Double?,
     viewModel: EditInfoViewModel,
     onCancel: () -> Unit,
     onUpdated: () -> Unit
@@ -31,9 +33,13 @@ fun EditInfoSheetContent(
 
     val context = LocalContext.current
 
+    val initialReadingProgress = (readingProgress ?: 0.0).roundToInt().coerceIn(0, 100)
     var titleTextFieldValue by remember { mutableStateOf(TextFieldValue(title ?: "")) }
     var authorTextFieldValue by remember { mutableStateOf(TextFieldValue(author ?: "")) }
     var descriptionTextFieldValue by remember { mutableStateOf(TextFieldValue(description ?: "")) }
+    var readingPositionTextFieldValue by remember {
+        mutableStateOf(TextFieldValue(initialReadingProgress.toString()))
+    }
 
     fun showToast(msg: String) {
         Toast.makeText(
@@ -90,9 +96,12 @@ fun EditInfoSheetContent(
                         val newTitle = titleTextFieldValue.text
                         val newAuthor = authorTextFieldValue.text.ifEmpty { null }
                         val newDescription = descriptionTextFieldValue.text.ifEmpty { null }
+                        val newReadingProgress = readingPositionTextFieldValue.text.trim()
+                            .toIntOrNull()?.coerceIn(0, 100)
+                            ?.takeIf { it != initialReadingProgress }
 
                         savedItemId?.let {
-                            viewModel.editInfo(it, newTitle, newAuthor, newDescription)
+                            viewModel.editInfo(it, newTitle, newAuthor, newDescription, newReadingProgress)
                         }
                     }) {
                         Text(stringResource(R.string.edit_info_sheet_action_save))
@@ -142,6 +151,19 @@ fun EditInfoSheetContent(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = false, minLines = 1, maxLines = 5,
                 onValueChange = { descriptionTextFieldValue = it },
+                modifier = Modifier.padding(top = 24.dp).fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = readingPositionTextFieldValue,
+                label = { Text(stringResource(R.string.edit_info_sheet_text_field_label_reading_position)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                onValueChange = { value ->
+                    if (value.text.length <= 3 && value.text.all { it.isDigit() }) {
+                        readingPositionTextFieldValue = value
+                    }
+                },
                 modifier = Modifier.padding(top = 24.dp).fillMaxWidth()
             )
         }

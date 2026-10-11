@@ -40,6 +40,7 @@ import app.omnivore.omnivore.core.network.unarchiveSavedItem
 import app.omnivore.omnivore.core.network.updateHighlight
 import app.omnivore.omnivore.core.network.updateLabelsForSavedItem
 import app.omnivore.omnivore.core.network.updateReadingProgress
+import app.omnivore.omnivore.core.network.saveReadingProgress
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
@@ -131,10 +132,14 @@ class LibraryRepositoryImpl @Inject constructor(
 
         updatedItem?.let { savedItemDao.update(updatedItem) }
 
-        val isUpdatedOnServer = networker.updateReadingProgress(readingProgressParams)
+        val savedProgress = networker.saveReadingProgress(readingProgressParams)
 
-        if (isUpdatedOnServer) {
+        if (savedProgress != null) {
             updatedItem?.serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
+            // The server may derive the anchor from the forced percentage.
+            if (readingProgressAnchorIndex == 0 && readingProgressPercentage > 0.0) {
+                savedProgress.anchorIndex?.let { updatedItem?.readingProgressAnchor = it }
+            }
             updatedItem?.let { savedItemDao.update(updatedItem) }
         }
     }
