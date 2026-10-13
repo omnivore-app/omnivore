@@ -1047,7 +1047,7 @@ export function LibraryItemsLayout(
             },
             mt: '10px',
             mb: '10px',
-            px: '70px',
+            px: '20px',
             '@xlgDown': {
               px: '0px',
             },
@@ -1078,7 +1078,7 @@ export function LibraryItemsLayout(
               color: '$readerTextSubtle',
               mt: '10px',
               mb: '10px',
-              px: '70px',
+              px: '20px',
               '@xlgDown': {
                 px: '0px',
               },
@@ -1264,7 +1264,7 @@ function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
         paddingTop: '0',
         paddingBottom: '0px',
         overflow: 'visible',
-        px: '70px',
+        px: '20px',
         '@xlgDown': {
           px: '0px',
         },
