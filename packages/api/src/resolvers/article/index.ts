@@ -534,14 +534,35 @@ export const saveArticleReadingProgressResolver = authorized<
       }
     } else {
       if (force) {
+        // When a percentage is forced without an anchor, derive the anchor
+        // from the content so the reader reopens at the matching position.
+        let anchorIndex = readingProgressAnchorIndex ?? undefined
+        if (
+          !anchorIndex &&
+          readingProgressPercent > 0 &&
+          readingProgressPercent < 100
+        ) {
+          const anchorCount = (
+            updatedItem.readableContent?.match(/data-omnivore-anchor-idx=/g) ??
+            []
+          ).length
+          if (anchorCount > 0) {
+            anchorIndex = Math.max(
+              1,
+              Math.round((readingProgressPercent / 100) * anchorCount)
+            )
+          }
+        } else if (readingProgressPercent === 0) {
+          anchorIndex = 0
+        }
+
         // update reading progress without checking the current value
         updatedItem = await updateLibraryItem(
           id,
           {
             readingProgressBottomPercent: readingProgressPercent,
             readingProgressTopPercent: readingProgressTopPercent ?? undefined,
-            readingProgressHighestReadAnchor:
-              readingProgressAnchorIndex ?? undefined,
+            readingProgressHighestReadAnchor: anchorIndex,
             readAt: new Date(),
           },
           uid,

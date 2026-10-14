@@ -61,7 +61,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
         distribution="start"
         css={{
           width: '100%',
-          px: '70px',
+          px: '20px',
           left: LIBRARY_LEFT_MENU_WIDTH,
           transition: 'height 0.5s',
           '@mdDown': {

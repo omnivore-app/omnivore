@@ -87,7 +87,7 @@ export function LegacyLibraryHeader(props: LibraryHeaderProps): JSX.Element {
           top: '0',
           right: '0',
           zIndex: 5,
-          px: '70px',
+          px: '20px',
           position: 'fixed',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
@@ -103,7 +103,7 @@ export function LegacyLibraryHeader(props: LibraryHeaderProps): JSX.Element {
         <LargeHeaderLayout {...props} />
       </VStack>
 
-      {/* This spacer is put in to push library content down 
+      {/* This spacer is put in to push library content down
       below the fixed header height. */}
       <HeaderSpacer />
     </>

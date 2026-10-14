@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import {
   ArticleAttributes,
   useUpdateItem,
+  useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
 import { LibraryItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
@@ -27,13 +28,15 @@ export function EditLibraryItemModal(
   props: EditLibraryItemModalProps
 ): JSX.Element {
   const updateItem = useUpdateItem()
+  const updateReadStatus = useUpdateItemReadStatus()
   const onSave = useCallback(
     (
       title: string,
       author: string | undefined,
       description: string | undefined,
       savedAt: Dayjs,
-      publishedAt: Dayjs | undefined
+      publishedAt: Dayjs | undefined,
+      readingProgress: number
     ) => {
       ;(async () => {
         if (title !== '') {
@@ -51,6 +54,22 @@ export function EditLibraryItemModal(
           })
 
           if (res) {
+            if (
+              readingProgress !==
+              Math.round(props.item.node.readingProgressPercent ?? 0)
+            ) {
+              await updateReadStatus.mutateAsync({
+                itemId: props.item.node.id,
+                slug: props.item.node.slug,
+                input: {
+                  id: props.item.node.id,
+                  force: true,
+                  readingProgressPercent: readingProgress,
+                  readingProgressTopPercent: readingProgress,
+                  readingProgressAnchorIndex: 0,
+                },
+              })
+            }
             await props.updateItem({
               cursor: props.item.cursor,
               node: {
@@ -58,6 +77,7 @@ export function EditLibraryItemModal(
                 title: title,
                 author: author,
                 description: description,
+                readingProgressPercent: readingProgress,
               },
             })
             showSuccessToast('Link updated succesfully', {
@@ -91,6 +111,7 @@ export function EditLibraryItemModal(
           : undefined
       }
       onOpenChange={props.onOpenChange}
+      readingProgress={Math.round(props.item.node.readingProgressPercent ?? 0)}
       onSave={onSave}
     />
   )
@@ -110,13 +131,15 @@ type EditArticleModalProps = {
 
 export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
   const updateItem = useUpdateItem()
+  const updateReadStatus = useUpdateItemReadStatus()
   const onSave = useCallback(
     (
       title: string,
       author: string | undefined,
       description: string | undefined,
       savedAt: Dayjs,
-      publishedAt: Dayjs | undefined
+      publishedAt: Dayjs | undefined,
+      readingProgress: number
     ) => {
       ;(async () => {
         if (title !== '') {
@@ -133,6 +156,22 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
             },
           })
           if (res) {
+            if (
+              readingProgress !==
+              Math.round(props.article.readingProgressPercent ?? 0)
+            ) {
+              await updateReadStatus.mutateAsync({
+                itemId: props.article.id,
+                slug: props.article.slug,
+                input: {
+                  id: props.article.id,
+                  force: true,
+                  readingProgressPercent: readingProgress,
+                  readingProgressTopPercent: readingProgress,
+                  readingProgressAnchorIndex: 0,
+                },
+              })
+            }
             props.updateArticle(
               title,
               author,
@@ -169,6 +208,7 @@ export function EditArticleModal(props: EditArticleModalProps): JSX.Element {
         props.article.publishedAt ? dayjs(props.article.publishedAt) : undefined
       }
       onOpenChange={props.onOpenChange}
+      readingProgress={Math.round(props.article.readingProgressPercent ?? 0)}
       onSave={onSave}
     />
   )
@@ -181,6 +221,7 @@ type EditItemModalProps = {
 
   savedAt: Dayjs
   publishedAt: Dayjs | undefined
+  readingProgress: number
   onOpenChange: (open: boolean) => void
 
   onSave: (
@@ -188,7 +229,8 @@ type EditItemModalProps = {
     author: string | undefined,
     description: string | undefined,
     savedAt: Dayjs,
-    publishedAt: Dayjs | undefined
+    publishedAt: Dayjs | undefined,
+    readingProgress: number
   ) => void
 }
 
@@ -198,6 +240,9 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
   const [savedAt, setSavedAt] = useState(props.savedAt)
   const [publishedAt, setPublishedAt] = useState(props.publishedAt)
   const [description, setDescription] = useState(props.description)
+  const [readingProgress, setReadingProgress] = useState(
+    String(props.readingProgress)
+  )
 
   const titleStyle = {
     mt: '22px',
@@ -251,7 +296,19 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
             <form
               onSubmit={(event) => {
                 event.preventDefault()
-                props.onSave(title, author, description, savedAt, publishedAt)
+                const parsed = Math.round(Number(readingProgress))
+                const newProgress =
+                  readingProgress.trim() === '' || Number.isNaN(parsed)
+                    ? props.readingProgress
+                    : Math.min(100, Math.max(0, parsed))
+                props.onSave(
+                  title,
+                  author,
+                  description,
+                  savedAt,
+                  publishedAt,
+                  newProgress
+                )
               }}
             >
               <HStack distribution="start" css={{ width: '100%' }}>
@@ -332,6 +389,17 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                   event.target.select()
                 }}
                 maxLength={4000}
+              />
+              <StyledText css={titleStyle}>READING POSITION (%)</StyledText>
+              <FormInput
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                value={readingProgress}
+                placeholder="0-100"
+                onChange={(event) => setReadingProgress(event.target.value)}
+                css={inputStyle}
               />
               <ModalButtonBar
                 onOpenChange={props.onOpenChange}

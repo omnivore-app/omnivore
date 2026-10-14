@@ -123,7 +123,10 @@ const App = () => {
           alignment="center"
           distribution="center"
           className="disable-webkit-callout"
-          style={{ backgroundColor: 'var(--colors-readerBg)' }}
+          style={{
+            backgroundColor: 'var(--colors-readerBg)',
+            paddingBottom: pageTurn ? `${window.innerHeight}px` : '0px',
+          }}
         >
           <ArticleContainer
             article={window.omnivoreArticle}
