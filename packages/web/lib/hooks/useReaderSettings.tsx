@@ -41,6 +41,9 @@ export type ReaderSettings = {
 
   fullPageScroll: boolean | undefined
   setFullPageScroll: (set: boolean) => void
+
+  showHighlightMarkers: boolean
+  setShowHighlightMarkers: (show: boolean) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
@@ -80,6 +83,10 @@ export const useReaderSettings = (): ReaderSettings => {
     boolean | undefined
   >({
     key: `fullPageScroll`,
+    initialValue: false,
+  })
+  const [showHighlightMarkers, setShowHighlightMarkers] = usePersistedState({
+    key: 'showHighlightMarkers',
     initialValue: false,
   })
 
@@ -242,6 +249,8 @@ export const useReaderSettings = (): ReaderSettings => {
     setHighlightOnRelease,
     fullPageScroll,
     setFullPageScroll,
+    showHighlightMarkers,
+    setShowHighlightMarkers,
     textDirection,
     setTextDirection,
   }
