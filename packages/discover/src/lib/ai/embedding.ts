@@ -66,15 +66,15 @@ const addTopicsToArticle = async (
 
   // We cluster the most likely around some others.
   let topicNames = topics.rows
-      .map(it => ({
-        ...it,
-        similarity: normalizeMinMax(it.similarity, 0.69, 0.8).toFixed(2)
-      }))
-      .filter(client.thresholdFilter)
+    .map((it) => ({
+      ...it,
+      similarity: normalizeMinMax(it.similarity, 0, 0.5),
+    }))
+    .filter(client.thresholdFilter)
 
   // If we haven't filtered any, let's get a clustering of the best and then find similar ones around it.
   if (topicNames.length == 0) {
-    let comparator =  { ...topics.rows[0], similarity: normalizeMinMax(topics.rows[0].similarity, 0.69, 0.8) }
+    let comparator =  { ...topics.rows[0], similarity: normalizeMinMax(topics.rows[0].similarity, 0, 0.5) }
     topics.rows.shift()
     topicNames.push(
       ...[
@@ -82,11 +82,12 @@ const addTopicsToArticle = async (
         ...topics.rows
           .map((it) => ({
             ...it,
-            similarity: normalizeMinMax(it.similarity, 0.69, 0.8)
+            // similarity: it.similarity
+            similarity: normalizeMinMax(it.similarity, 0, 0.5)
           }))
           .filter(
             (topic) =>
-              Math.abs(comparator.similarity - topic.similarity) <= 0.05
+              Math.abs(comparator.similarity - topic.similarity) <= 0.02
           ),
       ]
     )

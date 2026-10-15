@@ -39,22 +39,23 @@ export class OpenRouterClient implements AiClient {
         SELECT
             discover_topic_name AS name,
             discover_topic_subject as subject,
-            (ABS(embed.small_embedding <#> $1::vector)) AS similarity
+            (ABS(embed.embedding <#> $1::vector)) AS similarity
         FROM omnivore.omnivore.discover_topic_embedding_link embed
       ) topics
      ORDER BY similarity DESC`
 
     this.insertQuery =
-      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, discover_topic_subject, embedding_description, small_embedding) VALUES($1, $2, $3, $4)'  }
+      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, discover_topic_subject, embedding_description, embedding) VALUES($1, $2, $3, $4)'  }
 
   thresholdFilter(score: { similarity: number }): Boolean {
-    return score.similarity > 0.74
+    return score.similarity > 0.5
   }
 
   async getEmbeddings(article: OmnivoreArticle): Promise<Embedding> {
 
     const embedding = (await this.client.embeddings.generate({
       requestBody: {
+        dimensions: 1536,
         input:
           this.embeddingModel === 'e5-large-v2'
             ? `query: ${article.title}: ${article.summary}`
