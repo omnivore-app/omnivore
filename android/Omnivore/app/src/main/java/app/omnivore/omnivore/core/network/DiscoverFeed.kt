@@ -34,6 +34,7 @@ data class DiscoverFeedArticle(
   val savedId: String?,
   val savedLinkUrl: String?,
   val hidden: Boolean?
+  val topic: String?
 )
 
 data class DiscoverArticlesResult(

@@ -24,6 +24,7 @@
     "rxjs": "^7.8.1",
     "uuid": "^9.0.1",
     "urlsafe-base64": "^1.0.0",
+    "@openrouter/sdk": "1.4.25",
     "bullmq": "^5.1.1",
     "lodash": "^4.17.21",
     "jsdom": "^25.0.1",

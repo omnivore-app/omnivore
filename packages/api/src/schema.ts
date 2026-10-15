@@ -2775,6 +2775,7 @@ const schema = gql`
     savedLinkUrl: String
     savedId: String
     hidden: Boolean
+    subject: String
   }
 
   # Mutation: SaveDiscoverArticle

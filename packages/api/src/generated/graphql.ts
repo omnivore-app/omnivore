@@ -928,6 +928,7 @@ export type DiscoverFeedArticle = {
   slug: Scalars['String'];
   title: Scalars['String'];
   url: Scalars['String'];
+  subject?: Maybe<Scalars['String']>;
 };
 
 export type DiscoverFeedError = {

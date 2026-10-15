@@ -13,7 +13,7 @@ import { sqlClient } from './db'
 import pgformat from 'pg-format'
 import { v4 } from 'uuid'
 import { onErrorContinue } from '../utils/reactive'
-import { env } from '../../env';
+import { isAiEnabled } from '../../env';
 
 const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   const { rows } = await sqlClient.query(
@@ -50,7 +50,7 @@ export const batchInsertArticlesSql = async (
           : embedded.article.authors,
         embedded.article.image,
         embedded.article.publishedAt,
-        embedded.embedding.length > 0 ? toSql(embedded.embedding) : null,
+        null
       ],
       article: embedded,
     }
@@ -67,15 +67,15 @@ export const batchInsertArticlesSql = async (
 
     const linked = await sqlClient.query(formattedMultiInsert)
 
-    if (env.openAiApiKey) {
+    if (isAiEnabled()) {
       const updatedRows = linked.rows.map((row) => row.id as string)
       const topicLinks = updatedRows.flatMap((uuid: string) => {
         const it = mappedArticles[uuid];
-        return it.article.topics.map((topic) => [topic, uuid])
+        return it.article.topics.map((topic) => [topic.name, topic.subject, uuid])
       })
 
       const formattedTopicInsert = pgformat(
-        `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
+        `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_topic_subject, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
         topicLinks
       )
       await sqlClient.query(formattedTopicInsert)
