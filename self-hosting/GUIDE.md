@@ -1,6 +1,7 @@
 # Self Hosting
 
 - [Docker Compose](#docker-compose)
+- [Buckets](#bucket)
 - [Cloudflare Tunnel (Recommended)](#cloudflare-tunnel)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Web Extensions](#web-extensions)
@@ -112,6 +113,51 @@ and populate
 GCS_UPLOAD_SA_KEY_FILE_PATH
 ```
 with the path of the JSON key file for the service account.
+
+## Buckets
+
+We use minio for some aspects of omnivore. This includes exporting, and creating YouTube Transcripts. 
+
+By default, these are disabled. If you wish to use this functionality, enable minio in the docker-compose file. 
+
+```
+#  minio:
+#    image: pgsty/minio
+#    expose:
+#      - 1010
+#    ports:
+#      - "1010:9000"
+#    healthcheck:
+#      test: [ "CMD", "mc", "ready", "local" ]
+#      interval: 5s
+#      timeout: 1s
+#    environment:
+#      - "MINIO_ACCESS_KEY=minio"
+#      - "MINIO_SECRET_KEY=miniominio"
+#      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+#    command: server /data
+#    volumes:
+#      - minio_data:/data
+#
+#  createbuckets:
+#    image: pgsty/mc
+#    environment:
+#      - MINIO_ACCESS_KEY=minio
+#      - MINIO_SECRET_KEY=miniominio
+#      - BUCKET_NAME=omnivore
+#      - ENDPOINT=http://minio:9000
+#      - AWS_S3_ENDPOINT_URL=http://minio:9000
+#    depends_on:
+#      - minio
+#    entrypoint: >
+#      /bin/bash -c "
+#      sleep 5;
+#      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
+#      /usr/bin/mc mb myminio/omnivore;
+#      /usr/bin/mc anonymous set public myminio/omnivore;
+#      exit 0;
+#      "
+```
 
 ## Cloudflare Tunnel
 Cloudflare tunnels is an easy way to expose a service running on a local machine to the internet without a publicly routable IP Address. 

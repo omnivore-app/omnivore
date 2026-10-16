@@ -2,6 +2,8 @@
 import chalk from 'chalk'
 import * as dotenv from 'dotenv'
 import Postgrator from 'postgrator'
+import { runMigrations } from 'bullmq'
+import { Pool } from 'pg'
 
 dotenv.config()
 
@@ -38,6 +40,7 @@ const getEnv = (): DBEnv => {
     port: port ? parseInt(port, 10) : 5432,
     database: database || 'omnivore',
     username,
+    user: username,
     password,
     options: process.env.PG_EXTRA_OPTIONS,
   }
@@ -98,4 +101,14 @@ const postgresMigration = postgrator
     process.exit(1)
   })
 
-postgresMigration.then(() => log('Exiting...'))
+postgresMigration.then(async () => {
+  const pool = new Pool({
+    ...getEnv(),
+
+  });
+  const client = await pool.connect();
+
+  await runMigrations(client);
+  process.exit(1);
+})
+

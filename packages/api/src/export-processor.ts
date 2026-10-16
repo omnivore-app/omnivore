@@ -5,73 +5,14 @@
 import {
   ConnectionOptions,
   Job,
-  JobState,
-  JobType,
-  Queue,
-  QueueEvents,
   Worker,
 } from 'bullmq'
 import express, { Express } from 'express'
-import client from 'prom-client'
 import { appDataSource } from './data_source'
 import { env } from './env'
-import { TaskState } from './generated/graphql'
-import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
-import { createDigest, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
-import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
-import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
-import {
-  confirmEmailJob,
-  CONFIRM_EMAIL_JOB,
-  forwardEmailJob,
-  FORWARD_EMAIL_JOB,
-  saveAttachmentJob,
-  saveNewsletterJob,
-  SAVE_ATTACHMENT_JOB,
-  SAVE_NEWSLETTER_JOB,
-} from './jobs/email/inbound_emails'
-import { sendEmailJob, SEND_EMAIL_JOB } from './jobs/email/send_email'
-import {
-  expireFoldersJob,
-  EXPIRE_FOLDERS_JOB_NAME,
-} from './jobs/expire_folders'
 import { exportJob, EXPORT_JOB_NAME } from './jobs/export'
-import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
-import {
-  generatePreviewContent,
-  GENERATE_PREVIEW_CONTENT_JOB,
-} from './jobs/generate_preview_content'
-import {
-  exportAllItems,
-  EXPORT_ALL_ITEMS_JOB_NAME,
-} from './jobs/integration/export_all_items'
-import {
-  exportItem,
-  EXPORT_ITEM_JOB_NAME,
-} from './jobs/integration/export_item'
-import {
-  processYouTubeTranscript,
-  processYouTubeVideo,
-  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
-  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
-} from './jobs/process-youtube-video'
-import { pruneTrashJob, PRUNE_TRASH_JOB } from './jobs/prune_trash'
-import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
-import { refreshFeed } from './jobs/rss/refreshFeed'
-import { savePageJob } from './jobs/save_page'
-import {
-  scoreLibraryItem,
-  SCORE_LIBRARY_ITEM_JOB,
-} from './jobs/score_library_item'
-import {
-  syncReadPositionsJob,
-  SYNC_READ_POSITIONS_JOB_NAME,
-} from './jobs/sync_read_positions'
-
 import { redisDataSource } from './redis_data_source'
-import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { logger } from './utils/logger'
-import { getQueue } from './queue-processor'
 
 export const EXPORT_QUEUE_NAME =
   process.env['EXPORT_QUEUE_NAME'] ?? 'omnivore-export-queue'

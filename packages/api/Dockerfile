@@ -7,10 +7,10 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN apk add g++ make python3
 
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
-COPY packages/readabilityjs ./packages/readabilityjs
-COPY packages/text-to-speech ./packages/text-to-speech
-COPY packages/content-handler ./packages/content-handler
-COPY packages/liqe ./packages/liqe
+COPY packages/content/readabilityjs ./packages/content/readabilityjs
+COPY packages/content/text-to-speech ./packages/content/text-to-speech
+COPY packages/content/content-handler ./packages/content/content-handler
+COPY packages/content/liqe ./packages/content/liqe
 COPY packages/utils ./packages/utils
 COPY packages/api ./packages/api
 
@@ -36,14 +36,14 @@ ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV PORT=8080
 
 COPY --from=builder /app/packages/api/dist /app/packages/api/dist
-COPY --from=builder /app/packages/readabilityjs/ /app/packages/readabilityjs/
+COPY --from=builder /app/packages/content/readabilityjs/ /app/packages/content/readabilityjs/
 COPY --from=builder /app/packages/api/package.json /app/packages/api/package.json
 COPY --from=builder /app/packages/api/node_modules /app/packages/api/node_modules
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/packages/text-to-speech/ /app/packages/text-to-speech/
-COPY --from=builder /app/packages/content-handler/ /app/packages/content-handler/
-COPY --from=builder /app/packages/liqe/ /app/packages/liqe/
+COPY --from=builder /app/packages/content/text-to-speech/ /app/packages/content/text-to-speech/
+COPY --from=builder /app/packages/content/content-handler/ /app/packages/content/content-handler/
+COPY --from=builder /app/packages/content/liqe/ /app/packages/content/liqe/
 COPY --from=builder /app/packages/utils/ /app/packages/utils/
 
 EXPOSE 8080

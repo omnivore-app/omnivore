@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - chore/consolidate
     paths-ignore:
       - 'apple/**'
       - 'android/**'
@@ -43,20 +44,20 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/omnivore-app/sh-backend:latest
-          file: packages/api/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-backend:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-backend:cache,mode=max
+          tags: ghcr.io/omnivore-app/nsh-backend:latest
+          file: packages/api/Dockerfile-single
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-backend:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-backend:cache,mode=max
 
       - name: Build and push queue-processor
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/omnivore-app/sh-queue-processor:latest
+          tags: ghcr.io/omnivore-app/nsh-queue-processor:latest
           file: packages/api/queue-processor/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-queue-processor:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-queue-processor:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-queue-processor:cache,mode=max
 
 
       - name: Build and push image-proxy
@@ -76,7 +77,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/omnivore-app/sh-content-fetch:latest
-          file: packages/content-fetch/Dockerfile
+          file: packages/content/content-fetch/Dockerfile
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-content-fetch:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-content-fetch:cache,mode=max
 
@@ -95,20 +96,20 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/omnivore-app/sh-local-mail-watcher:latest
-          file: packages/local-mail-watcher/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-local-mail-watcher:cache,mode=max
+          tags: ghcr.io/omnivore-app/nsh-local-mail-watcher:latest
+          file: packages/mail/local-mail-watcher/Dockerfile
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache,mode=max
 
       - name: Build and push discover
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/omnivore-app/sh-discover:latest
+          tags: ghcr.io/omnivore-app/nsh-discover:latest
           file: packages/discover/Dockerfile
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-discover:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-discover:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-discover:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-discover:cache,mode=max
 
 
   build-selfhost-web-images:

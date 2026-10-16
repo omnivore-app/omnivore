@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { env } from './env'
 import { CustomTypeOrmLogger } from './utils/logger'
+import { PostgresConnectionOptions } from 'bullmq'
 
 export const appDataSource = new DataSource({
   type: 'postgres',
@@ -55,3 +56,9 @@ export const appDataSource = new DataSource({
         slaves: [],
       },
 })
+
+
+export const getAppDataUrl = (): PostgresConnectionOptions => {
+  const opts = appDataSource.options as any
+  return `${opts.type}://${env.pg.mq_username}:${env.pg.mq_password}@${opts.host}:${opts.port}/${opts.database}`
+}

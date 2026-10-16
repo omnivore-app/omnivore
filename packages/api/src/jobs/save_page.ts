@@ -45,6 +45,7 @@ interface Data {
   publishedAt?: string
   taskId?: string
   cacheKey?: string
+  content?: string
 }
 
 interface FetchResult {
@@ -165,6 +166,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     contentType,
     state,
     cacheKey,
+    content
   } = data
   let isImported, isSaved
 
@@ -217,15 +219,15 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    let content
 
-    if (cacheKey) {
+    let contents = content
+    if (cacheKey && !contents) {
       logger.info('fetching content from cache', {
         cacheKey,
       })
-      content = await getCachedContent(cacheKey)
+      contents = await getCachedContent(cacheKey)
 
-      if (content) {
+      if (contents) {
         logger.info('fetched content from cache')
       }
     }
@@ -255,7 +257,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         throw new Error('Original content file does not exist')
       }
 
-      content = (await downloadFromBucket(filePath)).toString()
+      contents = (await downloadFromBucket(filePath)).toString()
       logger.info('Downloaded original content from:', { filePath })
     }
 
@@ -265,7 +267,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         url: finalUrl,
         clientRequestId: articleSavingRequestId,
         title,
-        originalContent: content,
+        originalContent: contents!,
         state: (state as ArticleSavingRequestStatus) || undefined,
         labels,
         rssFeedUrl,

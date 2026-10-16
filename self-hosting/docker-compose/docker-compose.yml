@@ -39,20 +39,14 @@ services:
       interval: 15s
       timeout: 90s
       retries: 6
+    environment:
+      - "RUN_QUEUE_AS_WORKER=true"
+      - "RUN_DISCOVER_AS_WORKER=true"
     env_file:
       - .env
     depends_on:
       migrate:
         condition: service_completed_successfully
-
-  queue-processor:
-    image: "ghcr.io/omnivore-app/sh-queue-processor:latest"
-    container_name: "omnivore-queue-processor"
-    env_file:
-      - .env
-    depends_on:
-      api:
-        condition: service_started
 
   web:
     image: "ghcr.io/omnivore-app/sh-web:latest"
@@ -65,94 +59,85 @@ services:
       api:
         condition: service_healthy
 
-  image-proxy:
-    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
-    container_name: "omnivore-image-proxy"
-    ports:
-      - "7070:8080"
-    env_file:
-      - .env
-
   content-fetch:
     image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
-    environment:
-      - USE_FIREFOX=true # Using Firefox here because the official chrome version seems to freeze a lot in Docker.
     env_file:
       - .env
+    environment:
+      - "SKIP_UPLOAD_ORIGINAL=true"
     depends_on:
-      redis:
-        condition: service_healthy
       api:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
-  redis:
-    image: "redis:7.2.4"
-    container_name: "omnivore-redis"
-    expose:
-      - 6379
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-    volumes:
-      - redis_data:/data
-
-  minio:
-    image: minio/minio
-    expose:
-      - 1010
-    ports:
-      - "1010:9000"
-    healthcheck:
-      test: [ "CMD", "mc", "ready", "local" ]
-      interval: 5s
-      timeout: 1s
-    environment:
-      - "MINIO_ACCESS_KEY=minio"
-      - "MINIO_SECRET_KEY=miniominio"
-      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
-    command: server /data
-    volumes:
-      - minio_data:/data
-
-  createbuckets:
-    image: minio/mc
-    environment:
-      - MINIO_ACCESS_KEY=minio
-      - MINIO_SECRET_KEY=miniominio
-      - BUCKET_NAME=omnivore
-      - ENDPOINT=http://minio:9000
-      - AWS_S3_ENDPOINT_URL=http://minio:9000
-    depends_on:
-      - minio
-    entrypoint: >
-      /bin/bash -c "
-      sleep 5;
-      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
-      /usr/bin/mc mb myminio/omnivore;
-      /usr/bin/mc anonymous set public myminio/omnivore;
-      exit 0;
-      "
-  mail-watch-server:
-    image: "ghcr.io/omnivore-app/sh-local-mail-watcher:latest"
-    container_name: "omnivore-mail-watch-server"
-    ports:
-      - "4398:8080"
-    env_file:
-      - .env
-    depends_on:
-      redis:
-        condition: service_healthy
-
-  discover:
-    image: "ghcr.io/omnivore-app/sh-discover:latest"
-    container_name: "omnivore-discover"
-    env_file:
-      - .env
-    depends_on:
-      redis:
-        condition: service_healthy
+# Disabled for the Self-hosting.
+#  image-proxy:
+#    image: "ghcr.io/omnivore-app/sh-image-proxy:latest"
+#    container_name: "omnivore-image-proxy"
+#    ports:
+#      - "7070:8080"
+#    env_file:
+#      - .env
+#
+#  redis:
+#    image: "redis:7.2.4"
+#    container_name: "omnivore-redis"
+#    expose:
+#      - 6379
+#    healthcheck:
+#      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+#    volumes:
+#      - redis_data:/data
+#
+#  minio:
+#    image: pgsty/minio
+#    expose:
+#      - 1010
+#    ports:
+#      - "1010:9000"
+#    healthcheck:
+#      test: [ "CMD", "mc", "ready", "local" ]
+#      interval: 5s
+#      timeout: 1s
+#    environment:
+#      - "MINIO_ACCESS_KEY=minio"
+#      - "MINIO_SECRET_KEY=miniominio"
+#      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+#    command: server /data
+#    volumes:
+#      - minio_data:/data
+#
+#  createbuckets:
+#    image: pgsty/mc
+#    environment:
+#      - MINIO_ACCESS_KEY=minio
+#      - MINIO_SECRET_KEY=miniominio
+#      - BUCKET_NAME=omnivore
+#      - ENDPOINT=http://minio:9000
+#      - AWS_S3_ENDPOINT_URL=http://minio:9000
+#    depends_on:
+#      - minio
+#    entrypoint: >
+#      /bin/bash -c "
+#      sleep 5;
+#      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
+#      /usr/bin/mc mb myminio/omnivore;
+#      /usr/bin/mc anonymous set public myminio/omnivore;
+#      exit 0;
+#      "
+#
+#  discover:
+#    image: "ghcr.io/omnivore-app/sh-discover:latest"
+#    container_name: "omnivore-discover"
+#    env_file:
+#      - .env
+#    depends_on:
+#      migrate:
+#        condition: service_completed_successfully
 
 volumes:
   pgdata:
