@@ -30,7 +30,7 @@ services:
         condition: service_healthy
 
   api:
-    image: "ghcr.io/omnivore-app/sh-backend:latest"
+    image: "ghcr.io/omnivore-app/nsh-backend:latest"
     container_name: "omnivore-api"
     ports:
       - "4000:8080"
@@ -60,7 +60,7 @@ services:
         condition: service_healthy
 
   content-fetch:
-    image: "ghcr.io/omnivore-app/sh-content-fetch:latest"
+    image: "ghcr.io/omnivore-app/nsh-content-fetch:latest"
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
