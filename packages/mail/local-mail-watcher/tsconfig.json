@@ -1,0 +1,11 @@
+{
+  "extends": "./../../../tsconfig.json",
+  "compileOnSave": false,
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": [],
+    "rootDir": ".",
+    "typeRoots": ["./../../node_modules/pgvector/types"]
+  }
+}

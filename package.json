@@ -4,7 +4,9 @@
   "description": "",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/mail/*",
+    "packages/content/*"
   ],
   "license": "AGPL-3.0-only",
   "scripts": {

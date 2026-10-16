@@ -27,6 +27,10 @@ export class RedisDataSource {
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
+    if (!this.options.cache.url) {
+      return this
+    }
+
     this.redisClient = createIORedisClient('cache', this.options)
     this.workerRedisClient =
       createIORedisClient('mq', this.options) || this.redisClient // if mq is not defined, use cache
