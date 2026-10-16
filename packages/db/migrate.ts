@@ -101,14 +101,17 @@ const postgresMigration = postgrator
     process.exit(1)
   })
 
-postgresMigration.then(async () => {
+
+ ;(async () => {
   const pool = new Pool({
     ...getEnv(),
+  })
+  const client = await pool.connect()
 
-  });
-  const client = await pool.connect();
+  await runMigrations(client)
+})()
+postgresMigration.then(async () => {
 
-  await runMigrations(client);
   process.exit(1);
 })
 
