@@ -4,7 +4,7 @@ import type { LinkedItemCardProps } from './CardTypes'
 import { CoverImage } from '../../elements/CoverImage'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   AuthorInfoStyle,
   CardCheckbox,
@@ -204,7 +204,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   }, [item, setIsChecked, isChecked, props])
 
   return (
-    <VStack css={{ p: '0px', m: '0px', width: '100%' }}>
+    <VStack css={{ p: '0px', m: '0px', width: '100%', height: '100%' }}>
       <Box css={{ position: 'relative', width: '100%', height: '150px' }}>
         <GridImage
           src={props.item.image}
@@ -221,10 +221,12 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
             lineHeight: '1',
           }}
         >
-          <CardCheckbox
-            isChecked={isChecked}
-            handleChanged={handleCheckChanged}
-          />
+          {(props.isHovered || isChecked) && (
+            <CardCheckbox
+              isChecked={isChecked}
+              handleChanged={handleCheckChanged}
+            />
+          )}
         </SpanBox>
         <Box
           css={{
@@ -254,7 +256,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <HStack
         css={{
           ...MetaStyle,
-          mt: '15px',
+          mt: '10px',
           px: '15px',
         }}
         distribution="start"
@@ -277,38 +279,65 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         </Box>
         <SpanBox
           css={{
-            ...AuthorInfoStyle,
+            color: '$thTextSubtle2',
+            fontSize: '12px',
+            fontWeight: '400',
+            maxLines: 3,
+            height: '30px',
+            lineHeight: 1.25,
+            fontFamily: '$display',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            wordBreak: 'break-word',
+            display: '-webkit-box',
+            '-webkit-line-clamp': '3',
+            '-webkit-box-orient': 'vertical',
             mt: '5px',
             mb: '15px',
           }}
         >
-          {props.item.author}
-          {props.item.author && originText && ' | '}
-          {originText}
+          {props.item.description}
         </SpanBox>
-
-        <HStack
-          distribution="start"
-          alignment="start"
-          css={{ width: '100%', minHeight: '50px', pb: '15px' }}
+        <SpanBox
+          css={{
+            mt: 'auto'
+          }}
         >
-          <HStack
+          <SpanBox
             css={{
-              display: 'block',
-              minHeight: '35px',
-              marginLeft: '-4px', // offset because the chips have margin
+              ...AuthorInfoStyle,
+              mt: '5px',
+              mb: '15px',
             }}
           >
-            {sortedLabels(props.item.labels)
-              .filter(
-                ({ name }) =>
-                  FLAIR_ICON_NAMES.indexOf(name.toLocaleLowerCase()) == -1
-              )
-              .map(({ name, color }, index) => (
-                <LabelChip key={index} text={name || ''} color={color} />
-              ))}
+            {props.item.author}
+            {props.item.author && originText && ' | '}
+            {originText}
+          </SpanBox>
+
+          <HStack
+            distribution="start"
+            alignment="start"
+            css={{ width: '100%', minHeight: '30px', pb: '8px' }}
+          >
+            <HStack
+              css={{
+                display: 'block',
+                minHeight: '35px',
+                marginLeft: '-4px', // offset because the chips have margin
+              }}
+            >
+              {sortedLabels(props.item.labels)
+                .filter(
+                  ({ name }) =>
+                    FLAIR_ICON_NAMES.indexOf(name.toLocaleLowerCase()) == -1
+                )
+                .map(({ name, color }, index) => (
+                  <LabelChip key={index} text={name || ''} color={color} />
+                ))}
+            </HStack>
           </HStack>
-        </HStack>
+        </SpanBox>
       </VStack>
     </VStack>
   )
