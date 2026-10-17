@@ -16,6 +16,8 @@ export interface BackendEnv {
     userName: string
     password: string
     dbName: string
+    mq_password?: string,
+    mq_username?: string,
     pool: {
       max: number
     }
@@ -65,8 +67,8 @@ export interface BackendEnv {
     host: string
   }
   imageProxy: {
-    url: string
-    secretKey: string
+    url?: string
+    secretKey?: string
   }
   twitter: {
     token: string
@@ -89,6 +91,9 @@ export interface BackendEnv {
     integrationImporterUrl: string
     importerMetricsUrl: string
     exportTaskHandlerUrl: string
+    runAsWorker: boolean
+    runDiscoverAsWorker: boolean
+    runContentFetchAsWorker: boolean
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -101,6 +106,9 @@ export interface BackendEnv {
   }
   email: {
     domain: string
+    snsArn: string
+    apiKey: string
+    apiEndpoint: string
   }
   sender: {
     message: string
@@ -120,7 +128,6 @@ export interface BackendEnv {
   gcp: {
     location: string
   }
-
   pocket: {
     consumerKey: string
   }
@@ -144,6 +151,7 @@ export interface BackendEnv {
 }
 
 const nullableEnvVars = [
+  'RUN_QUEUE_AS_WORKER',
   'INTERCOM_TOKEN',
   'INTERCOM_SECRET_KEY',
   'GAE_INSTANCE',
@@ -213,6 +221,14 @@ const nullableEnvVars = [
   'GCS_USE_LOCAL_HOST',
   'LOCAL_EMAIL_DOMAIN',
   'AWS_S3_ENDPOINT_URL',
+  'SNS_ARN',
+  'WATCHER_API_KEY',
+  'WATCHER_API_KEY',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+  'RUN_DISCOVER_AS_WORKER',
+  'RUN_CONTENT_FETCH_AS_WORKER',
+  'SLIM_MODE'
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -247,6 +263,9 @@ export function getEnv(): BackendEnv {
     host: parse('PG_HOST'),
     port: parseInt(parse('PG_PORT'), 10),
     userName: parse('PG_USER'),
+    mq_user: parse('POSTGRES_USER'),
+    mq_password: parse('POSTGRES_PASSWORD'),
+    mq_username: parse('POSTGRES_USER'),
     password: parse('PG_PASSWORD'),
     dbName: parse('PG_DB'),
     pool: {
@@ -264,6 +283,9 @@ export function getEnv(): BackendEnv {
   }
   const email = {
     domain: parse('LOCAL_EMAIL_DOMAIN'),
+    snsArn: parse('SNS_ARN'),
+    apiKey: parse('WATCHER_API_KEY')!,
+    apiEndpoint: parse('WATCHER_API_ENDPOINT')!,
   }
   const server = {
     jwtSecret: parse('JWT_SECRET'),
@@ -320,10 +342,17 @@ export function getEnv(): BackendEnv {
     integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
     importerMetricsUrl: parse('IMPORTER_METRICS_COLLECTOR_URL'),
     exportTaskHandlerUrl: parse('EXPORT_TASK_HANDLER_URL'),
+    runAsWorker: parse('RUN_QUEUE_AS_WORKER') === 'true',
+    runDiscoverAsWorker: parse('RUN_DISCOVER_AS_WORKER') === 'true',
+    runContentFetchAsWorker: parse('RUN_CONTENT_FETCH_AS_WORKER') === 'true',
   }
   const imageProxy = {
-    url: parse('IMAGE_PROXY_URL'),
-    secretKey: parse('IMAGE_PROXY_SECRET'),
+    url:
+      process.env.SLIM_MODE === 'true' ? undefined : parse('IMAGE_PROXY_URL'),
+    secretKey:
+      process.env.SLIM_MODE === 'true'
+        ? undefined
+        : parse('IMAGE_PROXY_SECRET'),
   }
   const twitter = {
     token: parse('TWITTER_BEARER_TOKEN'),
@@ -374,12 +403,18 @@ export function getEnv(): BackendEnv {
   }
   const redis = {
     mq: {
-      url: parse('MQ_REDIS_URL'),
-      cert: parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+      url: process.env.SLIM_MODE === 'true' ? undefined : parse('MQ_REDIS_URL'),
+      cert:
+        process.env.SLIM_MODE === 'true'
+          ? undefined
+          : parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
     },
     cache: {
-      url: parse('REDIS_URL'),
-      cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+      url: process.env.SLIM_MODE === 'true' ? undefined : parse('REDIS_URL'),
+      cert:
+        process.env.SLIM_MODE === 'true'
+          ? undefined
+          : parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
     },
   }
   const notion = {

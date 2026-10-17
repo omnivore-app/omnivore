@@ -8,12 +8,13 @@ import { BACKEND_QUEUE_NAME, createWorker } from '../src/queue-processor'
 import { createApp } from '../src/server'
 import { corsConfig } from '../src/utils/corsConfig'
 import cors from 'cors'
+import Redis from 'ioredis'
 
 const app = createApp()
 const httpServer = createServer(app)
 const apollo = makeApolloServer(app, httpServer)
 export const request = supertest(app)
-let worker: Worker
+let worker: any
 let queueEvents: QueueEvents
 
 export const startApolloServer = async () => {
@@ -26,7 +27,7 @@ export const stopApolloServer = async () => {
 }
 
 export const startWorker = (connection: ConnectionOptions) => {
-  worker = createWorker(connection)
+  worker = createWorker(connection as Redis<'legacy'>)
   queueEvents = new QueueEvents(BACKEND_QUEUE_NAME, {
     connection,
   })

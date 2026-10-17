@@ -3,21 +3,19 @@
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import {
-  ConnectionOptions,
   Job,
   JobState,
   JobType,
   Queue,
-  QueueEvents,
   Worker,
+  createPostgresBackend,
+  PostgresConnectionOptions
 } from 'bullmq'
 import express, { Express } from 'express'
 import client from 'prom-client'
-import { appDataSource } from './data_source'
+import { appDataSource, getAppDataUrl } from './data_source'
 import { env } from './env'
 import { TaskState } from './generated/graphql'
-import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
-import { createDigest, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
 import {
@@ -63,10 +61,6 @@ import {
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import {
-  scoreLibraryItem,
-  SCORE_LIBRARY_ITEM_JOB,
-} from './jobs/score_library_item'
-import {
   syncReadPositionsJob,
   SYNC_READ_POSITIONS_JOB_NAME,
 } from './jobs/sync_read_positions'
@@ -77,7 +71,6 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from './jobs/update_db'
-import { updateHome, UPDATE_HOME_JOB } from './jobs/update_home'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { uploadContentJob, UPLOAD_CONTENT_JOB } from './jobs/upload_content'
 import { getMetrics, registerMetric } from './prometheus'
@@ -85,6 +78,7 @@ import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
+import Redis from 'ioredis'
 
 export const BACKEND_QUEUE_NAME = 'omnivore-backend-queue'
 export const CONTENT_FETCH_QUEUE = 'omnivore-content-fetch-queue'
@@ -103,14 +97,13 @@ registerMetric(jobLatency)
 
 export const getQueue = async (
   name = BACKEND_QUEUE_NAME
-): Promise<Queue | undefined> => {
-  if (!redisDataSource.workerRedisClient) {
-    throw new Error('Can not create queues, redis is not initialized')
-  }
+) => {
+  let redisConnection: Redis | undefined = redisDataSource.workerRedisClient
+  if (!redisConnection) {
+    console.warn('No Redis queues provided. Defaulting back to Postgres')
 
-  const backendQueue = new Queue(name, {
-    connection: redisDataSource.workerRedisClient,
-    defaultJobOptions: {
+  }
+  const defaultJobOptions = {
       backoff: {
         type: 'exponential',
         delay: 2000, // 2 seconds
@@ -121,14 +114,25 @@ export const getQueue = async (
       removeOnFail: {
         age: 24 * 3600, // keep up to 1 day
       },
+    };
+
+  const backendQueue = redisDataSource.workerRedisClient ? new Queue(
+    name,
+    {
+      connection: redisConnection!,
+      defaultJobOptions,
+    }
+  ) : new Queue(name,
+    {
+      connection: getAppDataUrl(),
+      defaultJobOptions
     },
-  })
+    createPostgresBackend)
+
   await backendQueue.waitUntilReady()
+
   return backendQueue
 }
-
-export const createJobId = (jobName: string, userId: string) =>
-  `${jobName}_${userId}_${JOB_VERSION}`
 
 export const getJob = async (jobId: string, queueName?: string) => {
   const queue = await getQueue(queueName)
@@ -157,98 +161,106 @@ export const jobStateToTaskState = (
   }
 }
 
-export const createWorker = (connection: ConnectionOptions) =>
-  new Worker(
-    BACKEND_QUEUE_NAME,
-    async (job: Job) => {
-      const executeJob = async (job: Job) => {
-        switch (job.name) {
-          case 'refresh-all-feeds': {
-            const queue = await getQueue()
-            const counts = await queue?.getJobCounts('prioritized')
-            if (counts && counts.wait > 1000) {
-              return
-            }
-            return await refreshAllFeeds(appDataSource)
-          }
-          case 'refresh-feed': {
-            return await refreshFeed(job.data)
-          }
-          case 'save-page': {
-            return savePageJob(job.data, job.attemptsMade)
-          }
-          case 'update-pdf-content': {
-            return updatePDFContentJob(job.data)
-          }
-          case THUMBNAIL_JOB:
-            return findThumbnail(job.data)
-          case TRIGGER_RULE_JOB_NAME:
-            return triggerRule(job.data)
-          case UPDATE_LABELS_JOB:
-            return updateLabels(job.data)
-          case UPDATE_HIGHLIGHT_JOB:
-            return updateHighlight(job.data)
-          case SYNC_READ_POSITIONS_JOB_NAME:
-            return syncReadPositionsJob(job.data)
-          case BULK_ACTION_JOB_NAME:
-            return bulkAction(job.data)
-          case CALL_WEBHOOK_JOB_NAME:
-            return callWebhook(job.data)
-          case EXPORT_ITEM_JOB_NAME:
-            return exportItem(job.data)
-          // case AI_SUMMARIZE_JOB_NAME:
-          //   return aiSummarize(job.data)
-          case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
-            return processYouTubeVideo(job.data)
-          case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-            if (process.env['OPENAI_API_KEY']) {
-              return processYouTubeTranscript(job.data)
-            }
-            break
-          case EXPORT_ALL_ITEMS_JOB_NAME:
-            return exportAllItems(job.data)
-          case SEND_EMAIL_JOB:
-            return sendEmailJob(job.data)
-          case CONFIRM_EMAIL_JOB:
-            return confirmEmailJob(job.data)
-          case SAVE_ATTACHMENT_JOB:
-            return saveAttachmentJob(job.data)
-          case SAVE_NEWSLETTER_JOB:
-            return saveNewsletterJob(job.data)
-          case FORWARD_EMAIL_JOB:
-            return forwardEmailJob(job.data)
-          // case CREATE_DIGEST_JOB:
-          //   return createDigest(job.data)
-          case UPLOAD_CONTENT_JOB:
-            return uploadContentJob(job.data)
-          // case UPDATE_HOME_JOB:
-          //   return updateHome(job.data)
-          // case SCORE_LIBRARY_ITEM_JOB:
-          //   return scoreLibraryItem(job.data)
-          case GENERATE_PREVIEW_CONTENT_JOB:
-            return generatePreviewContent(job.data)
-          case PRUNE_TRASH_JOB:
-            return pruneTrashJob(job.data)
-          case EXPIRE_FOLDERS_JOB_NAME:
-            return expireFoldersJob()
-          case EXPORT_JOB_NAME:
-            return exportJob(job.data)
-          default:
-            logger.warning(`[queue-processor] unhandled job: ${job.name}`)
+const jobProcessing = async (job: Job) => {
+  const executeJob = async (job: Job) => {
+    switch (job.name) {
+      case 'refresh-all-feeds': {
+        const queue = await getQueue()
+        const counts = await queue?.getJobCounts('prioritized')
+        if (counts && counts.wait > 1000) {
+          return
         }
+        return await refreshAllFeeds(appDataSource)
       }
+      case 'refresh-feed': {
+        return await refreshFeed(job.data)
+      }
+      case 'save-page': {
+        return savePageJob(job.data, job.attemptsMade)
+      }
+      case 'update-pdf-content': {
+        return updatePDFContentJob(job.data)
+      }
+      case THUMBNAIL_JOB:
+        return findThumbnail(job.data)
+      case TRIGGER_RULE_JOB_NAME:
+        return triggerRule(job.data)
+      case UPDATE_LABELS_JOB:
+        return updateLabels(job.data)
+      case UPDATE_HIGHLIGHT_JOB:
+        return updateHighlight(job.data)
+      case SYNC_READ_POSITIONS_JOB_NAME:
+        return syncReadPositionsJob(job.data)
+      case BULK_ACTION_JOB_NAME:
+        return bulkAction(job.data)
+      case CALL_WEBHOOK_JOB_NAME:
+        return callWebhook(job.data)
+      case EXPORT_ITEM_JOB_NAME:
+        return exportItem(job.data)
+      // case AI_SUMMARIZE_JOB_NAME:
+      //   return aiSummarize(job.data)
+      case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
+        return processYouTubeVideo(job.data)
+      case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+        if (process.env['OPENAI_API_KEY']) {
+          return processYouTubeTranscript(job.data)
+        }
+        break
+      case EXPORT_ALL_ITEMS_JOB_NAME:
+        return exportAllItems(job.data)
+      case SEND_EMAIL_JOB:
+        return sendEmailJob(job.data)
+      case CONFIRM_EMAIL_JOB:
+        return confirmEmailJob(job.data)
+      case SAVE_ATTACHMENT_JOB:
+        return saveAttachmentJob(job.data)
+      case SAVE_NEWSLETTER_JOB:
+        return saveNewsletterJob(job.data)
+      case FORWARD_EMAIL_JOB:
+        return forwardEmailJob(job.data)
+      // case CREATE_DIGEST_JOB:
+      //   return createDigest(job.data)
+      case UPLOAD_CONTENT_JOB:
+        return uploadContentJob(job.data)
+      // case UPDATE_HOME_JOB:
+      //   return updateHome(job.data)
+      // case SCORE_LIBRARY_ITEM_JOB:
+      //   return scoreLibraryItem(job.data)
+      case GENERATE_PREVIEW_CONTENT_JOB:
+        return generatePreviewContent(job.data)
+      case PRUNE_TRASH_JOB:
+        return pruneTrashJob(job.data)
+      case EXPIRE_FOLDERS_JOB_NAME:
+        return expireFoldersJob()
+      case EXPORT_JOB_NAME:
+        return exportJob(job.data)
+      default:
+        logger.warning(`[queue-processor] unhandled job: ${job.name}`)
+    }
+  }
 
-      const end = jobLatency.startTimer({ job_name: job.name })
-      await executeJob(job)
-      end()
-    },
-    {
-      connection,
+  const end = jobLatency.startTimer({ job_name: job.name })
+  await executeJob(job)
+  end()
+}
+
+export const createWorker = (connection: Redis<'legacy'> | PostgresConnectionOptions) => {
+  if (typeof connection === 'string') {
+    return new Worker(BACKEND_QUEUE_NAME, jobProcessing, {
+      connection: connection as PostgresConnectionOptions,
       autorun: true, // start processing jobs immediately
       lockDuration: 60_000, // 1 minute
       concurrency: 2,
-    }
-  )
+    }, createPostgresBackend)
+  }
+
+  return new Worker(BACKEND_QUEUE_NAME, jobProcessing, {
+    connection,
+    autorun: true, // start processing jobs immediately
+    lockDuration: 60_000, // 1 minute
+    concurrency: 2,
+  })
+}
 
 const setupCronJobs = async () => {
   const queue = await getQueue()
@@ -294,9 +306,9 @@ const main = async () => {
   })
 
   // respond healthy to auto-scaler.
-  app.get('/_ah/health', (req, res) => res.sendStatus(200))
+  app.get('/_ah/health', (_req, res) => res.sendStatus(200))
 
-  app.get('/lifecycle/prestop', async (req, res) => {
+  app.get('/lifecycle/prestop', async (_req, res) => {
     logger.info('prestop lifecycle hook called.')
     await worker.close()
     res.sendStatus(200)
@@ -318,7 +330,7 @@ const main = async () => {
     ]
     const counts = await queue.getJobCounts(...jobsTypes)
 
-    jobsTypes.forEach((metric, idx) => {
+    jobsTypes.forEach((metric) => {
       output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
       output += `omnivore_queue_messages_${metric}{queue="${BACKEND_QUEUE_NAME}"} ${counts[metric]}\n`
     })
@@ -374,19 +386,16 @@ const main = async () => {
 
   const redisClient = redisDataSource.redisClient
   const workerRedisClient = redisDataSource.workerRedisClient
-  if (!workerRedisClient || !redisClient) {
-    throw '[queue-processor] error redis is not initialized'
-  }
 
-  const worker = createWorker(workerRedisClient)
+  const worker = createWorker(workerRedisClient ?? getAppDataUrl())
 
   await setupCronJobs()
 
-  workerRedisClient.on('error', (error) => {
+  workerRedisClient?.on('error', (error) => {
     console.trace('[queue-processor]: redis worker error', { error })
   })
 
-  redisClient.on('error', (error) => {
+  redisClient?.on('error', (error) => {
     console.trace('[queue-processor]: redis error', { error })
   })
 

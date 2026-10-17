@@ -1,6 +1,8 @@
 {
   "packages": [
-    "packages/*"
+    "packages/*",
+    "packages/mail/*",
+    "packages/content/*"
   ],
   "version": "1.0.0",
   "npmClient": "yarn"
