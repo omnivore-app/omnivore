@@ -93,6 +93,7 @@ export interface BackendEnv {
     exportTaskHandlerUrl: string
     runAsWorker: boolean
     runDiscoverAsWorker: boolean
+    runContentFetchAsWorker: boolean
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -226,6 +227,8 @@ const nullableEnvVars = [
   'POSTGRES_USER',
   'POSTGRES_PASSWORD',
   'RUN_DISCOVER_AS_WORKER',
+  'RUN_CONTENT_FETCH_AS_WORKER',
+  'SLIM_MODE'
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -341,10 +344,15 @@ export function getEnv(): BackendEnv {
     exportTaskHandlerUrl: parse('EXPORT_TASK_HANDLER_URL'),
     runAsWorker: parse('RUN_QUEUE_AS_WORKER') === 'true',
     runDiscoverAsWorker: parse('RUN_DISCOVER_AS_WORKER') === 'true',
+    runContentFetchAsWorker: parse('RUN_CONTENT_FETCH_AS_WORKER') === 'true',
   }
   const imageProxy = {
-    url: parse('IMAGE_PROXY_URL'),
-    secretKey: parse('IMAGE_PROXY_SECRET'),
+    url:
+      process.env.SLIM_MODE === 'true' ? undefined : parse('IMAGE_PROXY_URL'),
+    secretKey:
+      process.env.SLIM_MODE === 'true'
+        ? undefined
+        : parse('IMAGE_PROXY_SECRET'),
   }
   const twitter = {
     token: parse('TWITTER_BEARER_TOKEN'),
@@ -395,12 +403,18 @@ export function getEnv(): BackendEnv {
   }
   const redis = {
     mq: {
-      url: parse('MQ_REDIS_URL'),
-      cert: parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+      url: process.env.SLIM_MODE === 'true' ? undefined : parse('MQ_REDIS_URL'),
+      cert:
+        process.env.SLIM_MODE === 'true'
+          ? undefined
+          : parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
     },
     cache: {
-      url: parse('REDIS_URL'),
-      cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+      url: process.env.SLIM_MODE === 'true' ? undefined : parse('REDIS_URL'),
+      cert:
+        process.env.SLIM_MODE === 'true'
+          ? undefined
+          : parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
     },
   }
   const notion = {

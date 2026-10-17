@@ -253,6 +253,11 @@ const main = async (): Promise<void> => {
     console.log('Running discover as forked process')
     fork('dist/discover/src/index.js', [], { env: { ...process.env } })
   }
+
+  if (env.queue.runContentFetchAsWorker) {
+    console.log('Running Content Fetch as forked process')
+    fork('dist/content-fetch/src/app.js', [], { env: { ...process.env } })
+  }
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

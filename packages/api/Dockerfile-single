@@ -2,31 +2,53 @@ FROM node:24.19-alpine AS builder
 
 WORKDIR /app
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV FIREFOX_PATH=/usr/bin/firefox
+ENV LAUNCH_HEADLESS=true
 
+RUN apk -U upgrade
 RUN apk add g++ make python3
+RUN rm -rf /var/cache/apk/*
 
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
+COPY /packages/content/content-fetch/package.json ./packages/content/content-fetch/package.json
+COPY /packages/content/content-handler/package.json ./packages/content/content-handler/package.json
+COPY /packages/content/puppeteer-parse/package.json ./packages/content/puppeteer-parse/package.json
+COPY /packages/utils/package.json ./packages/utils/package.json
 COPY packages/content/readabilityjs ./packages/content/readabilityjs
 COPY packages/content/text-to-speech ./packages/content/text-to-speech
-COPY packages/content/content-handler ./packages/content/content-handler
 COPY packages/content/liqe ./packages/content/liqe
 COPY packages/discover ./packages/discover
 
 COPY packages/utils ./packages/utils
 COPY packages/api ./packages/api
 COPY packages/discover ./packages/discover
+COPY /packages/content/content-fetch ./packages/content/content-fetch
+COPY /packages/content/content-handler ./packages/content/content-handler
+COPY /packages/content/puppeteer-parse ./packages/content/puppeteer-parse
 
 RUN yarn install --pure-lockfile --network-timeout=300000 && \
     yarn workspace @omnivore/utils build && \
     yarn workspace @omnivore/text-to-speech-handler build && \
     yarn workspace @omnivore/content-handler build && \
+    yarn workspace @omnivore/puppeteer-parse build && \
+    yarn workspace @omnivore/content-fetch build && \
     yarn workspace @omnivore/liqe build && \
     yarn workspace @omnivore/api build && \
     yarn workspace @omnivore/discover build && \
-    rm -rf /app/packages/api/node_modules /app/node_modules && \
+    rm -rf /app/packages/api/node_modules /app/node_modules /app/packages/content-fetch/node_modules && \
     yarn install --pure-lockfile --production --network-timeout=300000
 
+FROM golang:alpine as go-builder
+
+WORKDIR /app
+
+COPY /packages/content/proxy /packages/content/proxy
+
+RUN cd /packages/content/proxy/ && go mod tidy
+RUN cd /packages/content/proxy/ && go mod download
+RUN cd /packages/content/proxy/ && go install
+RUN cd /packages/content/proxy/ && go build -o /goproxy
 
 FROM node:24.19-alpine AS runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
@@ -35,23 +57,52 @@ RUN apk update && apk add netcat-openbsd && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
+COPY --from=go-builder /goproxy /app/goproxy
+
+
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV PORT=8080
+ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV FIREFOX_PATH=/usr/bin/firefox
+ENV LAUNCH_HEADLESS=true
+
+RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
+&& echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
+&& echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories  \
+&& apk -U upgrade \
+&& apk add --no-cache \
+    firefox@edge \
+    freetype@edge \
+    ttf-freefont@edge \
+    nss@edge \
+    libstdc++@edge \
+    bash \
+    sqlite-libs@edge \
+    chromium@edge \
+    firefox-esr@edge \
+    ca-certificates@edge \
+    bash \
+ && rm -rf /var/lib/apt/lists/* \
+ && update-ca-certificates
+
+RUN rm -rf /var/cache/apk/*
 
 COPY --from=builder /app/packages/api/dist /app/packages/api/dist
 COPY --from=builder /app/packages/content/readabilityjs/ /app/packages/content/readabilityjs/
 COPY --from=builder /app/packages/api/package.json /app/packages/api/package.json
 COPY --from=builder /app/packages/api/node_modules /app/packages/api/node_modules
 COPY --from=builder /app/packages/discover/dist /app/packages/api/dist/discover
+COPY --from=builder /app/packages/content/content-fetch/build /app/packages/api/dist/content-fetch
 
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/packages/content/text-to-speech/ /app/packages/content/text-to-speech/
 COPY --from=builder /app/packages/content/content-handler/ /app/packages/content/content-handler/
+COPY --from=builder /app/packages/content/puppeteer-parse /app/packages/content/puppeteer-parse
 COPY --from=builder /app/packages/content/liqe/ /app/packages/content/liqe/
 COPY --from=builder /app/packages/utils/ /app/packages/utils/
 
 EXPOSE 8080
 
-CMD ["yarn", "workspace", "@omnivore/api", "start"]
+CMD ["/bin/bash", "-c", "/app/goproxy & yarn workspace @omnivore/api start"]
