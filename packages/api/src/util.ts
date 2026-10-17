@@ -67,8 +67,8 @@ export interface BackendEnv {
     host: string
   }
   imageProxy: {
-    url: string
-    secretKey: string
+    url?: string
+    secretKey?: string
   }
   twitter: {
     token: string
