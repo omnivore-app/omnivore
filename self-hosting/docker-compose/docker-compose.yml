@@ -30,7 +30,9 @@ services:
         condition: service_healthy
 
   api:
-    image: "ghcr.io/omnivore-app/nsh-backend:latest"
+    build:
+      context: ../../
+      dockerfile: ./packages/api/Dockerfile-single
     container_name: "omnivore-api"
     ports:
       - "4000:8080"
@@ -42,6 +44,9 @@ services:
     environment:
       - "RUN_QUEUE_AS_WORKER=true"
       - "RUN_DISCOVER_AS_WORKER=true"
+      - "RUN_CONTENT_FETCH_AS_WORKER=true"
+      - "SLIM_MODE=true"
+      - "SKIP_UPLOAD_ORIGINAL=true"
     env_file:
       - .env
     depends_on:
@@ -59,20 +64,18 @@ services:
       api:
         condition: service_healthy
 
-  content-fetch:
-    image: "ghcr.io/omnivore-app/nsh-content-fetch:latest"
-    container_name: "omnivore-content-fetch"
-    ports:
-      - "9090:8080"
-    env_file:
-      - .env
-    environment:
-      - "SKIP_UPLOAD_ORIGINAL=true"
-    depends_on:
-      api:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
+#  content-fetch:
+#    image: "ghcr.io/omnivore-app/nsh-content-fetch:latest"
+#    container_name: "omnivore-content-fetch"
+#    ports:
+#      - "9090:8080"
+#    env_file:
+#      - .env
+#    depends_on:
+#      api:
+#        condition: service_healthy
+#      migrate:
+#        condition: service_completed_successfully
 
 # Disabled for the Self-hosting.
 #  image-proxy:
