@@ -311,6 +311,15 @@ export function Article(props: ArticleProps): JSX.Element {
           // If the image fails to load fallback to the original
           img.onerror = null
           img.src = fallbackSrc
+
+          const parent = img.parentElement as HTMLElement;
+          // If we are part of a picture set, replace the srcset elements with the original.
+          if (parent.nodeName === 'PICTURE') {
+            [...parent.childNodes]
+              .filter((it) => it.nodeName === 'SOURCE')
+              .forEach((it: any) => it.srcset = fallbackSrc)
+          }
+
         }
       }
     })
