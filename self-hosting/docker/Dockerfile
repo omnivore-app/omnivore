@@ -41,6 +41,7 @@ RUN yarn install --pure-lockfile --network-timeout=300000 && \
     yarn workspace @omnivore/api build && \
     yarn workspace @omnivore/discover build && \
     yarn workspace @omnivore/db build && \
+    cp -r ./packages/db/migrations ./packages/db/build && \
     yarn workspace @omnivore/web build && \
     rm -rf /app/packages/api/node_modules /app/node_modules /app/packages/content-fetch/node_modules && \
     yarn install --pure-lockfile --production --network-timeout=300000
