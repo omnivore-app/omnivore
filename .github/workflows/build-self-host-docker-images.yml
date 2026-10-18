@@ -107,7 +107,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/omnivore-app/nsh-local-mail-watcher:latest
-          file: packages/mail/local-mail-watcher/Dockerfile
+          file: packages/mail/local-mail-watcher/Dockerfile-watcher
           cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache,mode=max
 
