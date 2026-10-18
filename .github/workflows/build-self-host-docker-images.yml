@@ -45,7 +45,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/omnivore-app/omnivore-image:latest
-          file: packages/api/Dockerfile-single
+          file: self-hosting/docker/Dockerfile
           cache-from: type=registry,ref=ghcr.io/omnivore-app/omnivore-image:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/omnivore-image:cache,mode=max
 
