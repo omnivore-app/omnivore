@@ -9,8 +9,8 @@ on:
       - main
       - chore/consolidate
     paths-ignore:
-      - 'apple/**'
-      - 'android/**'
+      - '../../mobile/apple/**'
+      - '../../mobile/android/**'
       - 'self-hosting/**'
 
 jobs:
@@ -101,15 +101,15 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-migrate:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-migrate:cache,mode=max
 
-      - name: Build and push local-mail-watcher
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/omnivore-app/nsh-local-mail-watcher:latest
-          file: packages/mail/local-mail-watcher/Dockerfile-watcher
-          cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache
-          cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache,mode=max
+#      - name: Build and push local-mail-watcher
+#        uses: docker/build-push-action@v6
+#        with:
+#          platforms: linux/amd64,linux/arm64
+#          push: true
+#          tags: ghcr.io/omnivore-app/nsh-local-mail-watcher:latest
+#          file: packages/mail/local-mail-watcher/Dockerfile-watcher
+#          cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache
+#          cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-local-mail-watcher:cache,mode=max
 
       - name: Build and push discover
         uses: docker/build-push-action@v6
