@@ -42,7 +42,7 @@ jobs:
       - name: Build and push full-image
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: ghcr.io/omnivore-app/omnivore-image:latest
           file: self-hosting/docker/Dockerfile
