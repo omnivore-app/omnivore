@@ -49,6 +49,16 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/omnivore-app/omnivore-image:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/omnivore-image:cache,mode=max
 
+      - name: Build and push full-image-arm
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/omnivore-image:latest
+          file: self-hosting/docker/Dockerfile
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/omnivore-image:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/omnivore-image:cache,mode=max
+
       - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
