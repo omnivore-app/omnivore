@@ -1,6 +1,7 @@
 # Self Hosting
 
 - [Docker Compose](#docker-compose)
+- [Docker](#docker)
 - [Buckets](#bucket)
 - [Cloudflare Tunnel (Recommended)](#cloudflare-tunnel)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
@@ -158,6 +159,45 @@ By default, these are disabled. If you wish to use this functionality, enable mi
 #      exit 0;
 #      "
 ```
+## Docker 
+We provide a self-standing docker image that contains most of the services necessary to run Omnivore. You can build this yourself, or use the prebuilt image. 
+
+Features disabled in this version: 
+    * Exporting: Relies on Minio that is not in this build.
+    * Youtube: Relies on Minio, that is disabled in this version.
+    * Mail functionality: This can be enabled in [Email](#email)
+
+
+### 1. Populate the .env file
+
+There is a .env.example file located within the `self-hosting/docker` folder that should give you the necessary environment variables to begin running.
+You can use these by `mv .env.example .env`
+
+The following environment variables should be changed to reflect where you are running your application.
+
+| Environment Variable            | Description                                    | Local Parameter       |
+|---------------------------------|------------------------------------------------|-----------------------|
+| BASE URL                        | The URL of the Front End of the Application.   | http://localhost:3000 |
+| SERVER_BASE_URL                 | The URL of the API Server.                     | http://localhost:4000 |
+| HIGHLIGHTS_BASE_URL             | The URL of the Front end of the Application    | http://localhost:3000 |
+| CLIENT_URL                      | The URL of the Front end of the Application    | http://localhost:3000 |
+| IMAGEPROXY_URL                  | Service that proxies images to avoid blocking  | http://localhost:7070 |
+
+## 3. Run the Docker Run command
+
+In order to run this use the following commands
+
+```shell
+docker run --detach --name omnivore \
+  --env-file self-hosting/docker/.env \
+  -p 4000:8080 -p 3000:8090 \
+  -v pgdata:/var/lib/postgresql/data \
+  --restart unless-stopped \
+  ghcr.io/omnivore-app/omnivore-image:latest
+```
+This pulls from the docker image from github, adds the .env file to the docker run time and exposes the ports.
+4000 is the API, 3000 is the web. 
+It adds a pgdata volume. 
 
 ## Cloudflare Tunnel
 Cloudflare tunnels is an easy way to expose a service running on a local machine to the internet without a publicly routable IP Address. 

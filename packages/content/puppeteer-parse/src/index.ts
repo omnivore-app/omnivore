@@ -345,7 +345,7 @@ async function retrievePage(
 
     try {
       const pageGoTo = await page.goto(url, {
-        timeout: 10_000,
+        timeout: 5_000,
         waitUntil: ['networkidle2'],
       })
 
