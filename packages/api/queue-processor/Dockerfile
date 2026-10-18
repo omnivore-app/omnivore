@@ -15,7 +15,7 @@ COPY /packages/content/readabilityjs/package.json ./packages/content/readability
 COPY /packages/api/package.json ./packages/api/package.json
 COPY /packages/content/text-to-speech/package.json ./packages/content/text-to-speech/package.json
 COPY /packages/content/content-handler/package.json ./packages/content/content-handler/package.json
-COPY /packages/content/liqe/package.json ./packages/liqe/package.json
+COPY /packages/content/liqe/package.json ./packages/content/liqe/package.json
 COPY /packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile --network-timeout=300000
