@@ -30,9 +30,7 @@ services:
         condition: service_healthy
 
   api:
-    build:
-      context: ../../
-      dockerfile: ./packages/api/Dockerfile-single
+    image: "ghcr.io/omnivore-app/nsh-backend:latest"
     container_name: "omnivore-api"
     ports:
       - "4000:8080"

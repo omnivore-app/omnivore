@@ -60,9 +60,13 @@ export function getEnv(): BackendEnv {
     pool: {
       max: parseInt(parse('PG_POOL_MAX')!, 10),
     },
-    mq: parse('POSTGRES_MQ_URL', false),
+    mq:
+      parse('POSTGRES_MQ_URL', false) ||
+      `postgres://${parse('POSTGRES_USER', false)}:${parse(
+        'POSTGRES_PASSWORD',
+        false
+      )}@${parse('PG_HOST', false)}:${parseInt(parse('PG_PORT')!, 10)}/${parse('PG_DB')}`,
   }
-
   const redis = {
     mq: {
       url: parse('MQ_REDIS_URL', false),

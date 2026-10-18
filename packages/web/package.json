@@ -9,6 +9,7 @@
     "dev:prod": "next dev",
     "build": "next build",
     "start": "next start",
+    "start-single": "next start -p 8090",
     "lint": "next lint",
     "test:typecheck": "tsc --noEmit",
     "upgrade-psdpdfkit": "cp -R '../../node_modules/pspdfkit/dist/pspdfkit-lib' public/pspdfkit-lib",
@@ -75,11 +76,11 @@
     "swr": "^2.2.5",
     "use-resize-observer": "^9.1.0",
     "uuid": "^8.3.2",
-    "yet-another-react-lightbox": "^3.12.0"
+    "yet-another-react-lightbox": "^3.12.0",
+    "@next/bundle-analyzer": "^13.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
-    "@next/bundle-analyzer": "^13.2.1",
     "@storybook/addon-actions": "^6.4.22",
     "@storybook/addon-essentials": "^6.4.22",
     "@storybook/addon-interactions": "^6.4.22",
