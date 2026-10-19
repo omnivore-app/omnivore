@@ -42,7 +42,7 @@ export function DiscoverContainer(props: DiscoverProps): JSX.Element {
   const topics = [
     {
       title: 'All',
-      subTitle: 'All the discover stories...',
+      subTitle: 'All the RSS Topics...',
     },
     {
       title: 'Technology',
