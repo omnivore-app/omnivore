@@ -18,8 +18,8 @@ droid:
 
 webview_gen:
 	yarn workspace @omnivore/appreader build
-	cp packages/appreader/build/bundle.js mobile/apple/OmnivoreKit/Sources/Views/Resources/bundle.js
-	cp packages/appreader/build/bundle.js mobile/android/Omnivore/app/src/main/assets/bundle.js
+	cp mobile/appreader/build/bundle.js mobile/apple/OmnivoreKit/Sources/Views/Resources/bundle.js
+	cp mobile/appreader/build/bundle.js mobile/android/Omnivore/app/src/main/assets/bundle.js
 
 api:
 	yarn workspace @omnivore/api dev
