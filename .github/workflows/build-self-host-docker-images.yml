@@ -8,10 +8,9 @@ on:
     branches:
       - main
       - chore/consolidate
-    paths-ignore:
-      - '../../mobile/apple/**'
-      - '../../mobile/android/**'
-      - 'self-hosting/**'
+    paths:
+      - 'packages/**'
+      - 'self-hosting/docker/'
 
 jobs:
   build-self-hostdocker-images:
