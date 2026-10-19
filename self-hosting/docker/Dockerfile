@@ -73,6 +73,9 @@ ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV FIREFOX_PATH=/usr/bin/firefox
 ENV LAUNCH_HEADLESS=true
 ENV START_SINGLE=true
+ENV RUN_DISCOVER_AS_WORKER=true
+ENV RUN_CONTENT_FETCH_AS_WORKER=true
+ENV RUN_QUEUE_AS_WORKER=true
 
 RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
 && echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
