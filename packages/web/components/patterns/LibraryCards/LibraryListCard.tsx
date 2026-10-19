@@ -84,12 +84,13 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         py: '15px',
         height: '100%',
         cursor: 'pointer',
+        borderRadius: '6px',
         gap: '10px',
         borderBottom: props.legacyLayout
           ? 'unset'
           : '1px solid $thLeftMenuBackground',
         '@media (max-width: 930px)': {
-          borderRadius: '0px',
+          borderRadius: '6px',
         },
         '&:hover': {
           borderBottom: 'unset',
