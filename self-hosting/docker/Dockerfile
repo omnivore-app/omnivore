@@ -107,8 +107,8 @@ RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/
 && rm -rf /var/lib/apt/lists/* \
 && update-ca-certificates \
 && git clone --depth 1 --branch v0.8.7 https://github.com/pgvector/pgvector.git /tmp/pgvector \
-&& make -C /tmp/pgvector \
-&& make -C /tmp/pgvector install \
+&& OPTFLAGS="" make -C /tmp/pgvector \
+&& OPTFLAGS="" make -C /tmp/pgvector install \
 && rm -rf /tmp/pgvector
 
 RUN rm -rf /var/cache/apk/*
