@@ -69,21 +69,6 @@ export function DiscoverItemListCard(
         borderBottom: 'none',
         borderRadius: '6px',
         width: '100%',
-        '@media (min-width: 768px)': {
-          width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
-        },
-        '@media (min-width: 930px)': {
-          width: '660px',
-        },
-        '@media (min-width: 1280px)': {
-          width: '1000px',
-        },
-        '@media (min-width: 1600px)': {
-          width: '1340px',
-        },
-        '@media (max-width: 930px)': {
-          borderRadius: '0px',
-        },
       }}
       alignment="start"
       distribution="start"
