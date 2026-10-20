@@ -130,6 +130,16 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/omnivore-app/nsh-discover:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/nsh-discover:cache,mode=max
 
+      - name: Build and push imap-parser
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/omnivore-app/sh-imap-parser:latest
+          file: /packages/mail/imap-mail-watcher/Dockerfile
+          cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-imap-parser:cache
+          cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-imap-parser:cache,mode=max
+
 
   build-selfhost-web-images:
     name: Build self-host web images

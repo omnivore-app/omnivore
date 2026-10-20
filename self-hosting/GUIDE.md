@@ -286,14 +286,23 @@ We will go over
 
 One of the easiest ways to get this functionality up and running is to use an existing email box, such as gmail. 
 
-We have included a docker file `self-hosting/docker-compose/mail/imap-parser/docker-compose-imap`. 
+We have included a docker compose file `self-hosting/docker-compose/mail/imap-parser/docker-compose-imap`. 
+
+You can also run it with the following Docker Command: 
+
+```shell
+docker run --detach --name omnivore-mail-parser \
+  --env-file self-hosting/docker-compose/mail/imap-parser/.env.imap \
+  --restart unless-stopped \
+  ghcr.io/omnivore-app/sh-imap-parser:latest
+```
 
 There are a few environment variables that need to be set to make this work.
 
 | Environment Variable | Description                                                                                          | .env example                      |
 |----------------------|------------------------------------------------------------------------------------------------------|-----------------------------------|
-| WATCHER_API_KEY      | The API Key for the Watcher Service.                                                                 | api-key                           |
-| WATCHER_API_ENDPOINT | The URL of the Watcher Server.                                                                       | https://omnivore-watch.domain.tld |
+| WATCHER_API_KEY      | The API Key for the Watcher Service (Set in the .env of the omnivore service).                       | api-key                           |
+| WATCHER_API_ENDPOINT | The URL of the Watcher Server (Can be set as just the API server of Omnivore).                       | https://omnivore-watch.domain.tld |
 | IMAP_USER            | The IMAP User, in the gmail case this will be your email                                             | email-address@emailserver.com     |
 | IMAP_PASSWORD        | For gmail, this will be an application password. for other services this will be your email-password | password                          |
 | IMAP_HOST            | The IMAP Host, for gmail this will be imap.gmail.com                                                 | imap.host.com                     |
