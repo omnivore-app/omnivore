@@ -80,7 +80,7 @@ export default function AddRssFeed(): JSX.Element {
 
   return (
     <>
-      <PageMetaData title="Add new Feed" path="/settings/feeds/add" />
+      <PageMetaData title="Add new RSS Feed" path="/settings/discover-feeds/add" />
       <SettingsLayout>
         <VStack
           distribution={'start'}
