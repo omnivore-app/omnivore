@@ -160,12 +160,12 @@ By default, these are disabled. If you wish to use this functionality, enable mi
 #      "
 ```
 ## Docker 
-We provide a self-standing docker image that contains most of the services necessary to run Omnivore. You can build this yourself, or use the prebuilt image. 
+We provide a self-standing docker image that contains most of the services necessary to run Omnivore. You can build this yourself, or use the prebuilt image. It includes Postgres, Web, API, Content-Handlers all packaged together. 
 
-Features disabled in this version: 
-    * Exporting: Relies on Minio that is not in this build.
-    * Youtube: Relies on Minio, that is disabled in this version.
-    * Mail functionality: This can be enabled in [Email](#email)
+Features disabled in this version:
+* Exporting: Relies on Minio that is not in this build.
+* Youtube: Relies on Minio, that is disabled in this version.
+* Mail functionality: This can be enabled in [Email](#email)
 
 
 ### 1. Populate the .env file
