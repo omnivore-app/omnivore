@@ -137,7 +137,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/omnivore-app/sh-imap-parser:latest
-          file: /packages/mail/imap-mail-watcher/Dockerfile
+          file: packages/mail/imap-mail-watcher/Dockerfile
           cache-from: type=registry,ref=ghcr.io/omnivore-app/sh-imap-parser:cache
           cache-to: type=registry,ref=ghcr.io/omnivore-app/sh-imap-parser:cache,mode=max
 
