@@ -486,7 +486,7 @@ To learn more about setting up the OpenAI Api key, read here: https://openai.com
 
 In future releases we would like to be able to open this up to use different LLMs, such as Anthropic, Mistral, Bedrock, or any of the other myriad LLM Services.
 
-## Discover AI 
+## RSS AI 
 You can use an OpenAPI key in order to categorise your RSS feeds. To do so you need to supply the following in the env file.
 
 | Environment Variable | Description                                     | 
