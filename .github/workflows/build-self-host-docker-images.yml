@@ -11,6 +11,7 @@ on:
     paths:
       - 'packages/**'
       - 'self-hosting/**'
+      - '.github/**'
 
 jobs:
   build-self-hostdocker-images:
