@@ -6,7 +6,7 @@
 - [Cloudflare Tunnel (Recommended)](#cloudflare-tunnel)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Web Extensions](#web-extensions)
-- [Email](#email)
+- [Email](#emails-and-newsletters)
 - - [IMap Watcher](#imap-watcher)
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
 - - [Third Party Services](#third-party-services)
