@@ -10,7 +10,7 @@ on:
       - chore/consolidate
     paths:
       - 'packages/**'
-      - 'self-hosting/docker/'
+      - 'self-hosting/docker/**'
 
 jobs:
   build-self-hostdocker-images:
