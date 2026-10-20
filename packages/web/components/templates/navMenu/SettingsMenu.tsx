@@ -13,7 +13,7 @@ export const SETTINGS_SECTION_1 = [
   { name: 'Account', destination: '/settings/account' },
   { name: 'API Keys', destination: '/settings/api' },
   { name: 'Emails', destination: '/settings/emails' },
-  { name: 'Feeds', destination: '/settings/feeds' },
+  { name: 'RSS', destination: '/settings/discover-feeds' },
   { name: 'Subscriptions', destination: '/settings/subscriptions' },
   { name: 'Labels', destination: '/settings/labels' },
   // { name: 'Shortcuts', destination: '/settings/shortcuts' },
