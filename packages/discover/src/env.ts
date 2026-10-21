@@ -80,7 +80,7 @@ export function getEnv(): BackendEnv {
     openAiApiKey: parse('OPENAI_API_KEY', false),
     openRouterApiKey: parse('OPENROUTER_API_KEY', false),
     openRouterEmbeddingModel:
-      parse('OPENROUTER_EMBEDDING_MODEL', false) || 'e5-large-v2',
+      parse('OPENROUTER_EMBEDDING_MODEL', false) || 'text-embedding-3-large',
     openRouterSummarizationModel:
       parse('OPENROUTER_SUMMARIZATION_MODEL', false) || 'ministral-8b-2512',
     imageProxy: {
