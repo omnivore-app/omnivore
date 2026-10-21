@@ -28,7 +28,6 @@
     "mailparse":"2.2.2",
     "ioredis":"6.0.0",
     "@openrouter/sdk": "1.4.25",
-    "bullmq": "^5.1.1",
     "lodash": "^4.17.21",
     "jsdom": "^25.0.1",
     "voca": "^1.4.1"
