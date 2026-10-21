@@ -1,10 +1,12 @@
 # Self Hosting
 
 - [Docker Compose](#docker-compose)
+- [Docker](#docker)
+- [Buckets](#bucket)
 - [Cloudflare Tunnel (Recommended)](#cloudflare-tunnel)
 - [Nginx Reverse Proxy](#nginx-reverse-proxy)
 - [Web Extensions](#web-extensions)
-- [Email](#email)
+- [Email](#emails-and-newsletters)
 - - [IMap Watcher](#imap-watcher)
 - - [Self Hosted Mail Server](#docker-mailserver-and-mail-watcher)
 - - [Third Party Services](#third-party-services)
@@ -113,6 +115,90 @@ GCS_UPLOAD_SA_KEY_FILE_PATH
 ```
 with the path of the JSON key file for the service account.
 
+## Buckets
+
+We use minio for some aspects of omnivore. This includes exporting, and creating YouTube Transcripts. 
+
+By default, these are disabled. If you wish to use this functionality, enable minio in the docker-compose file. 
+
+```
+#  minio:
+#    image: pgsty/minio
+#    expose:
+#      - 1010
+#    ports:
+#      - "1010:9000"
+#    healthcheck:
+#      test: [ "CMD", "mc", "ready", "local" ]
+#      interval: 5s
+#      timeout: 1s
+#    environment:
+#      - "MINIO_ACCESS_KEY=minio"
+#      - "MINIO_SECRET_KEY=miniominio"
+#      - "AWS_S3_ENDPOINT_URL=http://minio:1010"
+#    command: server /data
+#    volumes:
+#      - minio_data:/data
+#
+#  createbuckets:
+#    image: pgsty/mc
+#    environment:
+#      - MINIO_ACCESS_KEY=minio
+#      - MINIO_SECRET_KEY=miniominio
+#      - BUCKET_NAME=omnivore
+#      - ENDPOINT=http://minio:9000
+#      - AWS_S3_ENDPOINT_URL=http://minio:9000
+#    depends_on:
+#      - minio
+#    entrypoint: >
+#      /bin/bash -c "
+#      sleep 5;
+#      until (/usr/bin/mc alias set myminio http://minio:9000 minio miniominio) do echo '...waiting...' && sleep 1; done;
+#      /usr/bin/mc mb myminio/omnivore;
+#      /usr/bin/mc anonymous set public myminio/omnivore;
+#      exit 0;
+#      "
+```
+## Docker 
+We provide a self-standing docker image that contains most of the services necessary to run Omnivore. You can build this yourself, or use the prebuilt image. It includes Postgres, Web, API, Content-Handlers all packaged together. 
+
+Features disabled in this version:
+* Exporting: Relies on Minio that is not in this build.
+* Youtube: Relies on Minio, that is disabled in this version.
+* Mail functionality: This can be enabled in [Email](#email)
+
+
+### 1. Populate the .env file
+
+There is a .env.example file located within the `self-hosting/docker` folder that should give you the necessary environment variables to begin running.
+You can use these by `mv .env.example .env`
+
+The following environment variables should be changed to reflect where you are running your application.
+
+| Environment Variable            | Description                                    | Local Parameter       |
+|---------------------------------|------------------------------------------------|-----------------------|
+| BASE URL                        | The URL of the Front End of the Application.   | http://localhost:3000 |
+| SERVER_BASE_URL                 | The URL of the API Server.                     | http://localhost:4000 |
+| HIGHLIGHTS_BASE_URL             | The URL of the Front end of the Application    | http://localhost:3000 |
+| CLIENT_URL                      | The URL of the Front end of the Application    | http://localhost:3000 |
+| IMAGEPROXY_URL                  | Service that proxies images to avoid blocking  | http://localhost:7070 |
+
+## 3. Run the Docker Run command
+
+In order to run this use the following commands
+
+```shell
+docker run --detach --name omnivore \
+  --env-file self-hosting/docker/.env \
+  -p 4000:8080 -p 3000:8090 \
+  -v pgdata:/var/lib/postgresql/data \
+  --restart unless-stopped \
+  ghcr.io/omnivore-app/omnivore-image:latest
+```
+This pulls from the docker image from github, adds the .env file to the docker run time and exposes the ports.
+4000 is the API, 3000 is the web. 
+It adds a pgdata volume. 
+
 ## Cloudflare Tunnel
 Cloudflare tunnels is an easy way to expose a service running on a local machine to the internet without a publicly routable IP Address. 
 
@@ -200,14 +286,23 @@ We will go over
 
 One of the easiest ways to get this functionality up and running is to use an existing email box, such as gmail. 
 
-We have included a docker file `self-hosting/docker-compose/mail/imap-parser/docker-compose-imap`. 
+We have included a docker compose file `self-hosting/docker-compose/mail/imap-parser/docker-compose-imap`. 
+
+You can also run it with the following Docker Command: 
+
+```shell
+docker run --detach --name omnivore-mail-parser \
+  --env-file self-hosting/docker-compose/mail/imap-parser/.env.imap \
+  --restart unless-stopped \
+  ghcr.io/omnivore-app/sh-imap-parser:latest
+```
 
 There are a few environment variables that need to be set to make this work.
 
 | Environment Variable | Description                                                                                          | .env example                      |
 |----------------------|------------------------------------------------------------------------------------------------------|-----------------------------------|
-| WATCHER_API_KEY      | The API Key for the Watcher Service.                                                                 | api-key                           |
-| WATCHER_API_ENDPOINT | The URL of the Watcher Server.                                                                       | https://omnivore-watch.domain.tld |
+| WATCHER_API_KEY      | The API Key for the Watcher Service (Set in the .env of the omnivore service).                       | api-key                           |
+| WATCHER_API_ENDPOINT | The URL of the Watcher Server (Can be set as just the API server of Omnivore).                       | https://omnivore-watch.domain.tld |
 | IMAP_USER            | The IMAP User, in the gmail case this will be your email                                             | email-address@emailserver.com     |
 | IMAP_PASSWORD        | For gmail, this will be an application password. for other services this will be your email-password | password                          |
 | IMAP_HOST            | The IMAP Host, for gmail this will be imap.gmail.com                                                 | imap.host.com                     |
@@ -391,7 +486,7 @@ To learn more about setting up the OpenAI Api key, read here: https://openai.com
 
 In future releases we would like to be able to open this up to use different LLMs, such as Anthropic, Mistral, Bedrock, or any of the other myriad LLM Services.
 
-## Discover AI 
+## RSS AI 
 You can use an OpenAPI key in order to categorise your RSS feeds. To do so you need to supply the following in the env file.
 
 | Environment Variable | Description                                     | 

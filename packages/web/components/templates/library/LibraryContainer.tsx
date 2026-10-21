@@ -1258,7 +1258,7 @@ function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
         width: '100%',
         gridAutoRows: 'auto',
         borderRadius: '6px',
-        gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
+        gridGap: props.layout == 'LIST_LAYOUT' ? '10px' : '20px',
         marginTop: '10px',
         marginBottom: '0px',
         paddingTop: '0',
@@ -1291,8 +1291,7 @@ function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
               outline: 'none',
             },
             '&> div': {
-              // bg: '$thLeftMenuBackground',
-              // bg: '$thLibraryBackground',
+              bg: '$thLeftMenuBackground',
             },
             '&:focus': {
               outline: 'none',

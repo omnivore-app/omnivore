@@ -25,12 +25,12 @@ FROM golang:alpine as go-builder
 
 WORKDIR /app
 
-COPY /packages/proxy /packages/proxy
+COPY /packages/content/proxy /packages/content/proxy
 
-RUN cd /packages/proxy/ && go mod tidy
-RUN cd /packages/proxy/ && go mod download
-RUN cd /packages/proxy/ && go install
-RUN cd /packages/proxy/ && go build -o /goproxy
+RUN cd /packages/content/proxy/ && go mod tidy
+RUN cd /packages/content/proxy/ && go mod download
+RUN cd /packages/content/proxy/ && go install
+RUN cd /packages/content/proxy/ && go build -o /goproxy
 
 
 FROM node:24.19-alpine AS runner

@@ -14,10 +14,12 @@
     "dotenv": "^8.2.3",
     "pg": "^8.3.0",
     "postgrator": "^4.1.1",
+    "bullmq": "6.3.15",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "plop": "^2.7.1",
+    "@types/pg": "8.23.1",
     "@types/dotenv": "^8.2.3"
   }
 }

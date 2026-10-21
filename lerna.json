@@ -1,6 +1,9 @@
 {
   "packages": [
-    "packages/*"
+    "packages/*",
+    "packages/mail/*",
+    "packages/content/*",
+    "mobile/appreader"
   ],
   "version": "1.0.0",
   "npmClient": "yarn"

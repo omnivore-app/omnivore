@@ -50,6 +50,8 @@ import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiHourLimiter, apiLimiter, authLimiter } from './utils/rate_limit'
 import cors from 'cors'
 import { expressMiddleware } from '@as-integrations/express5'
+import { fork } from 'node:child_process'
+import { mailRouter } from './routers/mail/mail_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -102,6 +104,7 @@ export const createApp = (): Express => {
   app.use('/api/shortcuts', shortcutsRouter())
   app.use('/api/article', articleRouter())
   app.use('/api/ai-summary', aiSummariesRouter())
+  app.use('/mail', mailRouter())
   app.use('/api/explain', explainRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
@@ -228,6 +231,7 @@ const main = async (): Promise<void> => {
   process.on('SIGINT', () => gracefulShutdown('SIGINT'))
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 
+
   process.on('uncaughtException', function (err) {
     // Handle the error safely
     logger.error('Uncaught exception', err)
@@ -237,6 +241,23 @@ const main = async (): Promise<void> => {
     // Handle the error safely
     logger.error('Unhandled Rejection at: Promise', { promise, reason })
   })
+
+
+  // Run the Queue Processor as part of this process
+  if (env.queue.runAsWorker) {
+    console.log("Running queue-processor as forked process")
+    fork('dist/src/queue-processor.js', [], { env: { ...process.env } })
+  }
+
+  if (env.queue.runDiscoverAsWorker) {
+    console.log('Running discover as forked process')
+    fork('dist/discover/src/index.js', [], { env: { ...process.env } })
+  }
+
+  if (env.queue.runContentFetchAsWorker) {
+    console.log('Running Content Fetch as forked process')
+    fork('dist/content-fetch/src/app.js', [], { env: { ...process.env } })
+  }
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

@@ -129,9 +129,9 @@ export default function Rss(): JSX.Element {
       pageId={'feeds'}
       pageInfoLink="https://docs.omnivore.work/using/feeds.html"
       headerTitle="Subscribed feeds"
-      createTitle="Add a feed"
+      createTitle="Add an RSS feed"
       createAction={() => {
-        router.push('/settings/feeds/add')
+        router.push('/settings/discover-feeds/add')
       }}
     >
       {sortedSubscriptions.length === 0 ? (

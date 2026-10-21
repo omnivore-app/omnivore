@@ -93,7 +93,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           router.push('/settings/installation')
           break
         case 'navigate-to-feeds':
-          router.push('/settings/feeds')
+          router.push('/settings/discover-feeds')
           break
         case 'navigate-to-emails':
           router.push('/settings/emails')
@@ -200,8 +200,8 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         title="Install"
       />
       <DropdownOption
-        onSelect={() => router.push('/settings/feeds')}
-        title="Feeds"
+        onSelect={() => router.push('/settings/discover-feeds')}
+        title="RSS Feeds"
       />
       <DropdownOption
         onSelect={() => router.push('/settings/emails')}

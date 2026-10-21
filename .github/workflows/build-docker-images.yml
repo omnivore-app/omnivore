@@ -4,8 +4,8 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'apple/**'
-      - 'android/**'
+      - '../../mobile/apple/**'
+      - '../../mobile/android/**'
 
 jobs:
   build-docker-images:

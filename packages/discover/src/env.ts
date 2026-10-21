@@ -16,7 +16,8 @@ interface BackendEnv {
     dbName: string
     pool: {
       max: number
-    }
+    },
+    mq?: string
   }
   openAiApiKey: string | undefined
   openRouterApiKey: string | undefined
@@ -62,16 +63,21 @@ export function getEnv(): BackendEnv {
     pool: {
       max: parseInt(parse('PG_POOL_MAX')!, 10),
     },
+    mq:
+      parse('POSTGRES_MQ_URL', false) ||
+      `postgres://${parse('POSTGRES_USER', false)}:${parse(
+        'POSTGRES_PASSWORD',
+        false
+      )}@${parse('PG_HOST', false)}:${parseInt(parse('PG_PORT')!, 10)}/${parse('PG_DB')}`,
   }
-
   const redis = {
     mq: {
-      url: parse('MQ_REDIS_URL'),
-      cert: parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+      url: parse('MQ_REDIS_URL', false),
+      cert: parse('MQ_REDIS_CERT', false)?.replace(/\\n/g, '\n'), // replace \n with new line
     },
     cache: {
-      url: parse('REDIS_URL'),
-      cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+      url: parse('REDIS_URL', false),
+      cert: parse('REDIS_CERT', false)?.replace(/\\n/g, '\n'), // replace \n with new line
     },
   }
 

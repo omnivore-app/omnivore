@@ -25,4 +25,8 @@ if [ -n "$USE_DISCOVER_AI" ]; then
     echo "$new_contents" > /app/packages/web/public/env.js
 fi
 
-yarn workspace @omnivore/web start
+if [ -n "$START_SINGLE" ]; then
+    yarn workspace @omnivore/web start-single
+else
+    yarn workspace @omnivore/web start
+fi

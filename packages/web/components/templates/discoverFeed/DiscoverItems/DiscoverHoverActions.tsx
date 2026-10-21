@@ -4,7 +4,9 @@ import { Button } from '../../../elements/Button'
 import { theme } from '../../../tokens/stitches.config'
 import {
   BookmarkSimple,
-  Book, Eye, EyeSlash,
+  Book,
+  Eye,
+  EyeSlash,
   MinusCircle,
   PlusCircle
 } from "@phosphor-icons/react"
@@ -92,28 +94,39 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           {props.savedId == undefined && (
             <>
               {' '}
-              <PlusCircle size={12} color="#70c44f" weight="fill" />{' '}
               <PlusCircle
                 size={12}
                 color="white"
-                style={{ position: 'absolute', top: '1.5px', left: '0px' }}
+                weight="bold"
+                style={{ position: 'absolute' }}
+              />
+              <PlusCircle
+                size={12}
+                color="#70c44f"
+                weight="fill"
+                style={{ position: 'absolute' }}
               />{' '}
             </>
           )}
           {props.savedId != undefined && (
             <>
               {' '}
-              <MinusCircle size={12} color="#de5454" weight="fill" />{' '}
               <MinusCircle
                 size={12}
                 color="white"
-                style={{ position: 'absolute', top: '3.5px', left: '0px' }}
+                weight="bold"
+                style={{ position: 'absolute' }}
+              />
+              <MinusCircle
+                size={12}
+                color="#de5454"
+                weight="fill"
+                style={{ position: 'absolute' }}
               />{' '}
             </>
           )}
         </div>
       </Button>
-
 
       <Button
         title="Go to Original Article"
@@ -142,15 +155,12 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
             event.stopPropagation()
           }}
         >
-          <Book
-            size={21}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        </Button>)
-      }
+          <Book size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        </Button>
+      )}
 
       <Button
-        title={ props.hidden ? 'Article Item (H)' : 'Hide Article (H)' }
+        title={props.hidden ? 'Article Item (H)' : 'Hide Article (H)'}
         style="hoverActionIcon"
         onClick={(event) => {
           props.hideDiscoverItem(props.item, !props.hidden)
@@ -158,14 +168,14 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           event.stopPropagation()
         }}
       >
-        {
-          !props.item.hidden ?
-            <EyeSlash
-              size={21}
-              color={theme.colors.thNotebookSubtle.toString()}
-            /> :
-            <Eye size={21} color={theme.colors.thNotebookSubtle.toString()} />
-        }
+        {!props.item.hidden ? (
+          <EyeSlash
+            size={21}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        ) : (
+          <Eye size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        )}
       </Button>
     </Box>
   )
