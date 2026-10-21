@@ -9,9 +9,9 @@ I didn't do much to advertise this at the time. We had a pretty sturdy community
 I wanted to advertise it now because I have made a few changes to the setup, and I figured it might be a nice time for people to jump in.
 
 [Link to the Github Repo](https://github.com/omnivore-app/omnivore)
+
 [Link to the Self Hosting Guide](https://github.com/omnivore-app/omnivore/blob/main/self-hosting/GUIDE.md)
 
-Link to the self-hosting guide
 ## What is it?
 Omnivore is predominantly a Read-It-Later app. It takes articles from the web, formats them in a readable way (using readability.js) and syncs them across your devices.
 ![homepage.png](./guides/images/homepage.png)
