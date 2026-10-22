@@ -2,8 +2,7 @@
 # and not for production.
 
 FROM node:24.19-alpine AS builder
-ENV NODE_OPTIONS=--max-old-space-size=8192
-
+ENV NODE_OPTIONS=--max-old-space-size=1024
 
 RUN apk add g++ make python3 py3-setuptools
 

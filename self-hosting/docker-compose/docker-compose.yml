@@ -45,6 +45,7 @@ services:
       - "RUN_CONTENT_FETCH_AS_WORKER=true"
       - "SLIM_MODE=true"
       - "SKIP_UPLOAD_ORIGINAL=true"
+      - "NODE_OPTIONS=--max-old-space-size=2048"
     env_file:
       - .env
     depends_on:
@@ -58,6 +59,8 @@ services:
       - "3000:8080"
     env_file:
       .env
+    environment:
+      - "NODE_OPTIONS=--max-old-space-size=1024"
     depends_on:
       api:
         condition: service_healthy

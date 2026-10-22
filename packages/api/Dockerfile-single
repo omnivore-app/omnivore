@@ -61,7 +61,7 @@ COPY --from=go-builder /goproxy /app/goproxy
 
 
 ENV NODE_ENV=production
-ENV NODE_OPTIONS=--max-old-space-size=4096
+ENV NODE_OPTIONS=--max-old-space-size=2048
 ENV PORT=8080
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV FIREFOX_PATH=/usr/bin/firefox
