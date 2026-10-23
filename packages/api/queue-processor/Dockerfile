@@ -1,4 +1,4 @@
-FROM node:24.19-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 
 WORKDIR /app
 
@@ -38,7 +38,7 @@ RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production --network-timeout=300000
 
-FROM node:24.19-alpine AS runnner
+FROM node:24.22.1-alpine AS runnner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 RUN apk add netcat-openbsd
