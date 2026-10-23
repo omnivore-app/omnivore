@@ -2,7 +2,13 @@ FROM node:24.22.1-alpine AS builder
 
 WORKDIR /app
 
-RUN apk add g++ make python3
+RUN apk add --no-cache
+RUN echo @edge https://dl-cdn.alpinelinux.org/alpine/v3.17/community >> /etc/apk/repositories \
+   && echo @edge https://dl-cdn.alpinelinux.org/alpine/v3.17/main >> /etc/apk/repositories \
+   && echo @edge https://dl-cdn.alpinelinux.org/alpine/v3.17/testing >> /etc/apk/repositories  \
+ && apk add --no-cache \
+    python3@edge~3.10 g++ make
+
 
 COPY package.json .
 COPY yarn.lock .
