@@ -1,4 +1,4 @@
-FROM node:24.19-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ RUN cd /packages/content/proxy/ && go install
 RUN cd /packages/content/proxy/ && go build -o /goproxy
 
 
-FROM node:24.19-alpine AS runner
+FROM node:24.22.1-alpine AS runner
 
 WORKDIR /app
 

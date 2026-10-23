@@ -1,4 +1,4 @@
-FROM node:24.19-alpine AS build
+FROM node:24.22.1-alpine AS build
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 # Installs latest Chromium package and other dependencies.
@@ -8,7 +8,7 @@ RUN apk -U upgrade \
     make \
     python3 \
     py3-pip && \
-    rm -rf /var/cache/apk/* 
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
@@ -49,7 +49,7 @@ RUN cd /packages/content/proxy/ && go install
 RUN cd /packages/content/proxy/ && go build -o /goproxy
 
 # Running stage
-FROM node:24.19-alpine
+FROM node:24.22.1-alpine
 
 COPY --from=go-builder /goproxy /app/goproxy
 

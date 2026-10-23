@@ -1,4 +1,4 @@
-FROM node:24.19-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ ADD /packages/utils ./packages/utils
 RUN yarn workspace @omnivore/utils build
 RUN yarn workspace @omnivore/imap-mail-watcher build
 
-FROM node:24.19-alpine AS runner
+FROM node:24.22.1-alpine AS runner
 
 WORKDIR /app
 

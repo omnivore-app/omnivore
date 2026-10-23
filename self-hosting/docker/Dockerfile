@@ -1,4 +1,4 @@
-FROM node:24.19-alpine AS builder-api
+FROM node:24.22.1-alpine AS builder-api
 
 WORKDIR /app
 
@@ -84,7 +84,7 @@ RUN git clone --depth 1 --branch v0.8.7 https://github.com/pgvector/pgvector.git
 RUN make OPTFLAGS="" -C /src
 RUN make OPTFLAGS="" -C /src install DESTDIR=/tmp/out
 
-FROM node:24.19-alpine AS runner
+FROM node:24.22.1-alpine AS runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 WORKDIR /app
