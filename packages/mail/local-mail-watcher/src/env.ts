@@ -11,6 +11,11 @@ interface WatcherEnv {
     mq: redisConfig
     cache: redisConfig
   }
+  sns: {
+    snsArn: string
+  },
+  apiKey: string
+  apiEndpoint: string
 }
 
 const envParser =
@@ -52,6 +57,9 @@ export function getEnv(): WatcherEnv {
   return {
     filesystem,
     redis,
+    sns,
+    apiKey: parse('WATCHER_API_KEY')!,
+    apiEndpoint: parse('WATCHER_API_ENDPOINT')!,
   }
 }
 
