@@ -29,6 +29,7 @@ import {
 import { DiscoverItemMetadata } from './DiscoverItemMetadata'
 import { DiscoverHoverActions } from './DiscoverHoverActions'
 import { CheckCircle, Circle } from '@phosphor-icons/react'
+import { DiscoverSubjectInfo } from './DiscoverSubjectInfo'
 
 export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -244,6 +245,10 @@ const DiscoverGridCardContent = (
           {props.item.author && originText && ' | '}
           {originText}
         </SpanBox>
+        <DiscoverSubjectInfo
+          subject={props.item.subject}
+          topicSelected={props.item.topic}
+        />
 
         <HStack
           distribution="start"

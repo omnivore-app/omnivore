@@ -11,3 +11,11 @@ export function cosineSimilarity(vec1: number[], vec2: number[]) {
 
   return dotProduct / (vec1Size * vec2Size)
 }
+
+export function normalize(embedding: Array<number>) {
+  return embedding.map((x) =>  (1 / Math.hypot(...embedding)) * x)
+}
+
+export function normalizeMinMax(val: number, min: number, max: number) {
+  return (val - min) / (max - min)
+}

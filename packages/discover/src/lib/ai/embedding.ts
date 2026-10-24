@@ -7,22 +7,24 @@ import { client } from '../clients/ai/client'
 import { onErrorContinue, rateLimiter } from '../utils/reactive'
 import { Label } from '../../types/OmnivoreSchema'
 import { sqlClient } from '../store/db'
-import { env } from '../../env'
+import { isAiEnabled } from '../../env'
 import { toSql } from 'pgvector/pg'
+import { DiscoverTopic } from '../../types/DiscoverTopic'
+import { normalize, normalizeMinMax } from '../utils/math'
 
 export type EmbeddedOmnivoreArticle = {
   embedding: Array<number>
   article: OmnivoreArticle
-  topics: string[]
+  topics: DiscoverTopic[]
 }
 
-export type EmbeddedOmnivoreLabel = {
+export type EmbeddedOmnivoreTopic = {
   embedding: Array<number>
-  label: Label
+  topic: DiscoverTopic
 }
 
 // Remove, for instance, "The Verge" and " - The Verge" to avoid the cosine similarity matching on that.
-const prepareTitle = (article: OmnivoreArticle): string =>
+export const prepareTitle = (article: OmnivoreArticle): string =>
   article.title
     .replace(article.site, '')
     .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>{}[]\\\/]/gi, '')
@@ -30,7 +32,7 @@ const prepareTitle = (article: OmnivoreArticle): string =>
 const getEmbeddingForArticle = async (
   it: OmnivoreArticle
 ): Promise<EmbeddedOmnivoreArticle> => {
-  if (!env.openAiApiKey) {
+  if (!isAiEnabled()) {
     return {
       embedding: [],
       article: it,
@@ -38,9 +40,7 @@ const getEmbeddingForArticle = async (
     }
   }
 
-  const embedding = await client.getEmbeddings(
-    `${prepareTitle(it)}: ${it.summary}`
-  )
+  const embedding = normalize(await client.getEmbeddings(it))
 
   return {
     embedding,
@@ -59,38 +59,71 @@ const addTopicsToArticle = async (
   }
 
   const topics = await sqlClient.query(
-    `SELECT name, similarity
-     FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
-     ORDER BY similarity desc`,
+    client.selectQuery,
     [toSql(articleEmbedding)]
   )
 
-  // OpenAI seems to cluster things around 0.7-0.9. Through trial and error I have found 0.77 to be a fairly accurate score.
-  const topicNames = topics.rows
-    .filter(({ similarity }) => similarity > 0.77)
-    .map(({ name }) => name as string)
 
+  // We cluster the most likely around some others.
+  let topicNames = topics.rows
+    .map((it) => ({
+      ...it,
+      similarity: normalizeMinMax(it.similarity, 0, 0.5),
+    }))
+    .filter(client.thresholdFilter)
+
+  // If we haven't filtered any, let's get a clustering of the best and then find similar ones around it.
   if (topicNames.length == 0) {
-    topicNames.push(topics.rows[0]?.name)
+    let comparator =  { ...topics.rows[0], similarity: normalizeMinMax(topics.rows[0].similarity, 0, 0.5) }
+    topics.rows.shift()
+    topicNames.push(
+      ...[
+        comparator,
+        ...topics.rows
+          .map((it) => ({
+            ...it,
+            // similarity: it.similarity
+            similarity: normalizeMinMax(it.similarity, 0, 0.5)
+          }))
+          .filter(
+            (topic) =>
+              Math.abs(comparator.similarity - topic.similarity) <= 0.02
+          ),
+      ]
+    )
   }
 
-  // I basically want to check if there's anything between the top one and the others.
-  // If the gap is miniscule, then we should include it. IE: 0.7688 and 0.765
-  const topTopic = topics.rows[0]
-  const extraTopics = topics.rows
-    .filter(
-      ({ similarity, name }) =>
-        similarity < 0.77 &&
-        topTopic.name != name &&
-        topTopic.similarity - similarity < 0.01
-    )
-    .map(({ name }) => name as string)
+  console.log(
+    topicNames
+      .map(
+        (topic: { name: string; subject: string; similarity: number }) =>
+          `${it.article.title}:: ${topic.name}, ${topic.subject} === ${topic.similarity}`
+      )
+  )
+
+  topicNames = Object.values(topicNames.reduce(
+    (
+      prev: Record<string, DiscoverTopic>,
+      current: { name: string; subject: string }
+    ) => {
+      if (!prev[current.name]) {
+        prev[current.name] = { name: current.name, subject: current.subject }
+      } else {
+        prev[current.name].subject = `${prev[current.name].subject}, ${
+          current.subject
+        }`
+      }
+
+      return prev as Record<string, DiscoverTopic>
+    },
+    {} as Record<string, DiscoverTopic>
+  ))
 
 
-  topicNames.push(...extraTopics)
+
 
   if (it.article.type == 'community') {
-    topicNames.push('Community Picks')
+    topicNames.push({ name: 'Community Picks', subject: 'Community Picks' });
   }
 
   return {
@@ -99,16 +132,16 @@ const addTopicsToArticle = async (
   }
 }
 
-const getEmbeddingForLabel = async (
-  label: Label
-): Promise<EmbeddedOmnivoreLabel> => {
-  const embedding = await client.getEmbeddings(
-    `${label.name}${label.description ? ' : ' + label.description : ''}`
-  )
+const getEmbeddingForTopic = async (
+  topic: DiscoverTopic
+): Promise<EmbeddedOmnivoreTopic> => {
+  const embedding = await client.getEmbeddings({
+    title: `${topic.name}${topic.description ? ' : ' + topic.description : ''}`,
+  } as OmnivoreArticle)
 
   return {
-    embedding,
-    label,
+    embedding: normalize(embedding),
+    topic,
   }
 }
 
@@ -117,12 +150,12 @@ export const rateLimitEmbedding = <T>() =>
 
 export const rateLimiting = rateLimitEmbedding<any>()
 
-export const addEmbeddingToLabel$: OperatorFunction<
-  Label,
-  EmbeddedOmnivoreLabel
+export const addEmbeddingToTopic$: OperatorFunction<
+  DiscoverTopic,
+  EmbeddedOmnivoreTopic
 > = pipe(
   rateLimiting,
-  mergeMap((it: Label) => fromPromise(getEmbeddingForLabel(it)))
+  mergeMap((it: DiscoverTopic) => fromPromise(getEmbeddingForTopic(it)))
 )
 
 export const addEmbeddingToArticle$: OperatorFunction<
