@@ -83,6 +83,8 @@ and many more who contributed in the past. If you feel like your name is missing
 
 A guide for running a self hosted server can be found [here](./self-hosting/GUIDE.md)
 
+A one-click deployment is also available on [RepoCloud](https://repocloud.io/details/Omnivore/).
+
 ## How to setup local development :computer:
 
 The easiest way to get started with local development is to use `docker compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
