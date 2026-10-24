@@ -41,6 +41,7 @@ type ArticleContainerProps = {
   maxWidthPercentage?: number
   highContrastText?: boolean
   showHighlightsModal: boolean
+  showHighlightMarkers?: boolean
   highlightOnRelease?: boolean
   justifyText?: boolean
   textDirection?: TextDirection
@@ -575,6 +576,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         showHighlightsModal={props.showHighlightsModal}
         setShowHighlightsModal={props.setShowHighlightsModal}
         highlightOnRelease={highlightOnRelease}
+        showHighlightMarkers={props.showHighlightMarkers ?? true}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (

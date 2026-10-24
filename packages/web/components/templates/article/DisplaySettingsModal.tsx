@@ -37,7 +37,10 @@ export function DisplaySettingsModal(
         }}
       >
         <VStack css={{ width: '100%' }}>
-          <ReaderSettingsControl readerSettings={props.readerSettings} />
+          <ReaderSettingsControl
+            readerSettings={props.readerSettings}
+            showHighlightMarkers
+          />
         </VStack>
       </ModalContent>
     </ModalRoot>
