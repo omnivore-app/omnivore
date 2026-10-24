@@ -1,7 +1,13 @@
 import { expect } from 'chai'
 import 'mocha'
-import { filterItemEvents } from '../../src/services/library_item'
+import { User } from '../../src/entity/user'
+import {
+  filterItemEvents,
+  updateLibraryItemReadingProgress,
+} from '../../src/services/library_item'
+import { deleteUser } from '../../src/services/user'
 import { parseSearchQuery } from '../../src/utils/search'
+import { createTestLibraryItem, createTestUser } from '../db'
 
 describe('filterItemEvents', () => {
   it('returns events if there are quotation marks in the subscription name', () => {
@@ -147,5 +153,35 @@ describe('filterItemEvents', () => {
     ]
     const result = filterItemEvents(ast, events)
     expect(result).to.eql(events)
+  })
+})
+
+describe('updateLibraryItemReadingProgress', () => {
+  let user: User
+  let itemId: string
+
+  before(async () => {
+    user = await createTestUser('fakeUser')
+    itemId = (await createTestLibraryItem(user.id)).id
+  })
+
+  after(async () => {
+    await deleteUser(user.id)
+  })
+
+  it('saves the anchor index if it is higher than the highest read anchor', async () => {
+    // PDFs use the page number as the anchor index, which is usually lower
+    // than the reading progress percent
+    let item = await updateLibraryItemReadingProgress(
+      itemId,
+      user.id,
+      30,
+      20,
+      2
+    )
+    expect(item?.readingProgressHighestReadAnchor).to.eql(2)
+
+    item = await updateLibraryItemReadingProgress(itemId, user.id, 50, 40, 4)
+    expect(item?.readingProgressHighestReadAnchor).to.eql(4)
   })
 })

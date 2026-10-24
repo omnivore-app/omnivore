@@ -1010,7 +1010,7 @@ export const updateLibraryItemReadingProgress = async (
         ELSE reading_progress_bottom_percent
       END,
       reading_progress_highest_read_anchor = CASE
-        WHEN reading_progress_top_percent < $4 THEN $4
+        WHEN reading_progress_highest_read_anchor < $4 THEN $4
         WHEN $4 = 0 THEN 0
         ELSE reading_progress_highest_read_anchor
       END,
