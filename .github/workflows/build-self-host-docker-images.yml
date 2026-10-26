@@ -11,6 +11,7 @@ on:
       - 'packages/**'
       - 'self-hosting/**'
       - '.github/**'
+      - 'yarn.lock'
 
 jobs:
   build-self-hostdocker-images:
