@@ -2794,7 +2794,7 @@
   dependencies:
     tslib "^2.4.0"
 
-"@graphql-tools/utils@^12.0.0", "@graphql-tools/utils@^12.0.3":
+"@graphql-tools/utils@^12.0.3":
   version "12.0.3"
   resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-12.0.3.tgz#8cae349fe99ff6dd142e497485e4a031b6d32248"
   integrity sha512-M+04bHvI1SKoug7W2EkwfKjig2mdtgIIlFY8p2jLHmxPNVs5bC/3R+58JrD+7ZXWgPILWTwuqJ9AqTjPlahroA==
@@ -2802,6 +2802,15 @@
     "@graphql-typed-document-node/core" "^3.1.1"
     "@whatwg-node/promise-helpers" "^2.0.0"
     cross-inspect "1.0.1"
+    tslib "^2.4.0"
+
+"@graphql-tools/utils@^13.2.0":
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-13.2.0.tgz#2521dad2c73427c631f1b5b83be87c69450dff58"
+  integrity sha512-s3+6E/Zve4Okj7+60HpMBoVDmMBzuskX1u9C1/kNi86V3Aez1Eh1LP0crh929kzhb1YcyZYyVWGuKyfztuF5qA==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.2.0"
+    "@whatwg-node/promise-helpers" "^2.0.0"
     tslib "^2.4.0"
 
 "@graphql-tools/utils@^9.0.0", "@graphql-tools/utils@^9.1.1", "@graphql-tools/utils@^9.2.1":
