@@ -25120,10 +25120,10 @@ react-sliding-pane@^7.3.0:
     prop-types "^15.7.2"
     react-modal "^3.14.3"
 
-react-spinners@^0.13.7:
-  version "0.13.8"
-  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.13.8.tgz#5262571be0f745d86bbd49a1e6b49f9f9cb19acc"
-  integrity sha512-3e+k56lUkPj0vb5NDXPVFAOkPC//XyhKPJjvcGjyMNPWsBKpplfeyialP74G7H7+It7KzhtET+MvGqbKgAqpZA==
+react-spinners@^0.17.1:
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.17.1.tgz#1cd877bb8881527896547a256b7f8dc29249dfeb"
+  integrity sha512-YktwnYeMWpvior5/MCyl+gbFuIK98PLfsZ0sp92t15r4nMpWpXj77YyJiBiD2EM3Lcz1lNjpqICjt8gMGtxclw==
 
 react-style-singleton@^2.2.1, react-style-singleton@^2.2.2:
   version "2.2.3"
