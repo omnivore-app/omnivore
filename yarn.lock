@@ -24770,10 +24770,18 @@ qrcode-terminal@^0.12.0:
   resolved "https://registry.yarnpkg.com/qrcode-terminal/-/qrcode-terminal-0.12.0.tgz#bb5b699ef7f9f0505092a3748be4464fe71b5819"
   integrity sha512-EXtzRZmC+YGmGlDFbXKxQiMZNwCLEO6BANKXG4iCtSIM0yqc/pappSx3RIKr4r0uh5JsBckOXeKrB3Iz7mdQpQ==
 
-qs@^6.10.0, qs@^6.11.0, qs@^6.12.3, qs@^6.14.0, qs@^6.15.2, qs@^6.7.0, qs@~6.16.0:
-  version "6.16.0"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.16.0.tgz#c22c723a28a920f3aacdce8289fabd43eccb79fd"
-  integrity sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==
+qs@^6.10.0, qs@^6.11.0, qs@^6.12.3, qs@^6.14.0, qs@^6.15.2, qs@^6.7.0:
+  version "6.17.1"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.17.1.tgz#43ac71d29ca0e9d0eed16a218e35b6cde5628e81"
+  integrity sha512-jd3COkaKVgGUW+ZHyEHCG9bH7RoaaiWuMgzsIBjUMVjLAaWGWpoUAVwljVvBHxRu/2qEHnadLGZrkutYUBPQJA==
+  dependencies:
+    es-define-property "^1.0.1"
+    side-channel "^1.1.1"
+
+qs@~6.16.0:
+  version "6.16.2"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.16.2.tgz#f7f5a606730f013f4f4ea62a8025f37be0f8c09c"
+  integrity sha512-VYdnB5S7/0IeXzBacUtwNAaM6d7Y/PgYnNC7bJCI6meqA/OgnsQbZMtVW8Dt2D1PHgbHGtYmhSoEIgvt7xZ2ZA==
   dependencies:
     es-define-property "^1.0.1"
     side-channel "^1.1.1"
