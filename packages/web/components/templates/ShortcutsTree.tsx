@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 import { NodeApi, SimpleTree, Tree, TreeApi } from 'react-arborist'
-import useResizeObserver from 'use-resize-observer'
 import {
   Shortcut,
   useGetShortcuts,
@@ -20,6 +19,7 @@ import { NewsletterIcon } from '../elements/icons/NewsletterIcon'
 import { FollowingIcon } from '../elements/icons/FollowingIcon'
 import { StyledText } from '../elements/StyledText'
 import { OpenMap } from 'react-arborist/dist/module/state/open-slice'
+import { useResizeObserver } from 'use-resize-observer'
 
 type ShortcutsTreeProps = {
   treeRef: React.MutableRefObject<TreeApi<Shortcut> | undefined>
