@@ -2683,12 +2683,12 @@
     "@graphql-tools/utils" "8.9.0"
     tslib "^2.4.0"
 
-"@graphql-tools/merge@^10.0.8":
-  version "10.0.8"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-10.0.8.tgz#940525ad4786a2fb5238892f9e281d7a7acbaf16"
-  integrity sha512-iQlmBLu6QAhQb23LUYUHlQeZzH7Axi2xtPpVj8AWd5ALrt+a5w0Lf6p/xHgWg2EzSI2LcxdGXArGWs4RZFfF8g==
+"@graphql-tools/merge@^10.0.9":
+  version "10.0.9"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-10.0.9.tgz#665b12e88eaaa2821af8d6419b420c716ae17515"
+  integrity sha512-YPOZew7ksza0JneKhaHc4RxrLpIi9jFI2qPpWCSBvUZiFPjSycGs6Vpv4sbqzC7axcom/0q85wrg2v0OG5dlFQ==
   dependencies:
-    "@graphql-tools/utils" "^13.2.1"
+    "@graphql-tools/utils" "^13.2.2"
     tslib "^2.4.0"
 
 "@graphql-tools/merge@^8.2.6", "@graphql-tools/merge@^8.4.1":
@@ -2766,13 +2766,13 @@
     "@graphql-tools/utils" "^12.0.3"
     tslib "^2.4.0"
 
-"@graphql-tools/schema@^13.2.0":
-  version "11.0.8"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/schema/-/schema-11.0.8.tgz#9314abb269e76dfecd0dbeef9abd283912b593c0"
-  integrity sha512-+LZYd+TpWUg/2CqvpJtSKA4O1CX5rMNv0ZUsUd4uGNPD07Q1Eq+/QDaZdXfP7vIm6K/mkiXt25mWc7zao3Mb7g==
+"@graphql-tools/schema@^11.0.8":
+  version "11.0.9"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/schema/-/schema-11.0.9.tgz#4262f5720034d0a7afad5dcb7f12063946b924a3"
+  integrity sha512-Wxf6nqR038sL/a/AYTCeqPYypbxHG6DgvRpcD5xoLCUwXwaMhv+I5EyWs7SJ/wxdvNNMJFmiCPraidowAZXw0g==
   dependencies:
-    "@graphql-tools/merge" "^10.0.8"
-    "@graphql-tools/utils" "^13.2.1"
+    "@graphql-tools/merge" "^10.0.9"
+    "@graphql-tools/utils" "^13.2.2"
     tslib "^2.4.0"
 
 "@graphql-tools/schema@^9.0.0", "@graphql-tools/schema@^9.0.18", "@graphql-tools/schema@^9.0.19":
@@ -2831,10 +2831,10 @@
     cross-inspect "1.0.1"
     tslib "^2.4.0"
 
-"@graphql-tools/utils@^13.2.1":
-  version "13.2.1"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-13.2.1.tgz#11a32e85fbd334c6c1d038da38496870d14fdfb2"
-  integrity sha512-GuSAfjq8RmF9dvNn1wG5d7OUuoRCbwT37/cFr/uIqgJpyVqyIq2tzeV6zOt8nrbuZXkRF8w3kJ4RGlCXfD1LxA==
+"@graphql-tools/utils@^13.2.2":
+  version "13.2.2"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-13.2.2.tgz#0c73cd735801a801c62ed5f0a00ee6f9fed8ad02"
+  integrity sha512-2KAzOQvG5bggH9A02xPGG9/40k+hpIfikR0TLa9r7okjUPqYv+B9FYpEXJBqxlRtrMStMbel0KczLPyNiu7vtg==
   dependencies:
     "@graphql-typed-document-node/core" "^3.2.0"
     "@whatwg-node/promise-helpers" "^2.0.1"
@@ -21826,15 +21826,15 @@ mongodb@~6.20.0:
     mongodb-connection-string-url "^3.0.2"
 
 mongoose@^8.2.0:
-  version "8.24.5"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-8.24.5.tgz#508a132ac8bc14405e8b2ae7be0137d712bde8d3"
-  integrity sha512-S1cvmzLhw5Xthv450UjInCBq2JreRvvyfGSA3FmDw8yThPxUbPAyJqtXMz0dNm8BBFm2ctRBOBKJxDPqM2sG0w==
+  version "8.24.8"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-8.24.8.tgz#8943c43400b8d0d3217face0c14a244f80fa25a2"
+  integrity sha512-p6g/mvvW2PJlC3lgzQJ7PECArfaOTKWJVG/KHf67WYU3MvJ72ZWdv5u7syFRe881IjALMZpKwffNE97G10HTzg==
   dependencies:
     bson "^6.10.4"
     kareem "2.6.3"
     mongodb "~6.20.0"
     mpath "0.9.0"
-    mquery "5.0.0"
+    mquery "5.0.1"
     ms "2.1.3"
     sift "17.1.3"
 
@@ -21860,10 +21860,10 @@ mpath@0.9.0:
   resolved "https://registry.yarnpkg.com/mpath/-/mpath-0.9.0.tgz#0c122fe107846e31fc58c75b09c35514b3871904"
   integrity sha512-ikJRQTk8hw5DEoFVxHG1Gn9T/xcjtdnOKIU1JTmGjZZlg9LST2mBLmcX3/ICIbgJydT2GOc15RnNy5mHmzfSew==
 
-mquery@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/mquery/-/mquery-5.0.0.tgz#a95be5dfc610b23862df34a47d3e5d60e110695d"
-  integrity sha512-iQMncpmEK8R8ncT8HJGsGc9Dsp8xcgYMVSbs5jgnm1lFHTZqMJTUWTDx1LBO8+mK3tPNZWFLBghQEIOULSTHZg==
+mquery@5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/mquery/-/mquery-5.0.1.tgz#c2e3d15fc09aa8671c2dfe1a2e09706ce6af51f6"
+  integrity sha512-C99lWV0TFI34pS008jBsi3JrE2xZPnTgUw5yApQR71nRP0hxLy8D5m1Lbbk83c8AQWJwdJ0329HzFtZ1MRTUIw==
   dependencies:
     debug "4.x"
 
