@@ -22,6 +22,7 @@ import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
 
 type ReaderSettingsProps = {
   readerSettings: ReaderSettings
+  showHighlightMarkers?: boolean
 }
 
 const HorizontalDivider = styled(SpanBox, {
@@ -54,6 +55,7 @@ const FONT_FAMILIES = [
 type SettingsProps = {
   readerSettings: ReaderSettings
   setShowAdvanced: (show: boolean) => void
+  showHighlightMarkers?: boolean
 }
 
 export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
@@ -65,11 +67,13 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
         <AdvancedSettings
           readerSettings={props.readerSettings}
           setShowAdvanced={setShowAdvanced}
+          showHighlightMarkers={props.showHighlightMarkers}
         />
       ) : (
         <BasicSettings
           readerSettings={props.readerSettings}
           setShowAdvanced={setShowAdvanced}
+          showHighlightMarkers={props.showHighlightMarkers}
         />
       )}
     </>
@@ -262,6 +266,36 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
           <SwitchThumb />
         </SwitchRoot>
       </HStack>
+      {props.showHighlightMarkers && (
+        <HStack
+          css={{
+            width: '100%',
+            pr: '30px',
+            alignItems: 'center',
+            '&:hover': {
+              opacity: 0.8,
+            },
+            '&[data-state="on"]': {
+              bg: '$thBackground',
+            },
+          }}
+          alignment="start"
+          distribution="between"
+        >
+          <Label htmlFor="show-highlight-markers" css={{ width: '100%' }}>
+            <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+              Show highlight markers
+            </StyledText>
+          </Label>
+          <SwitchRoot
+            id="show-highlight-markers"
+            checked={readerSettings.showHighlightMarkers}
+            onCheckedChange={readerSettings.setShowHighlightMarkers}
+          >
+            <SwitchThumb />
+          </SwitchRoot>
+        </HStack>
+      )}
     </VStack>
   )
 }
