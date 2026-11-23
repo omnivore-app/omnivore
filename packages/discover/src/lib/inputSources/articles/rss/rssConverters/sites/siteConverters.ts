@@ -4,6 +4,7 @@ import { defaultAtomConverter } from './defaultAtom'
 import { slateAllConverter } from './slateAll'
 import { longReadsConverter } from './longReads'
 import { defaultRssConverter } from './defaultRss'
+import { bubbleConverter } from './bubbles'
 
 const siteConverters: Record<
   'rss' | 'atom',
@@ -11,6 +12,8 @@ const siteConverters: Record<
 > = {
   atom: {
     default: defaultAtomConverter,
+    'https://bubbles.town/feed/votes/10': bubbleConverter,
+    'https://bubbles.town/feed/votes/5': bubbleConverter
   },
   rss: {
     default: defaultRssConverter,
